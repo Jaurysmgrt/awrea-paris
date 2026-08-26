@@ -1,0 +1,681 @@
+<meta charset="utf-8">
+<title>Awrea Paris</title>
+<meta name="description" content="Awrea Paris — maison parisienne de robes de soirée en pièce unique. Boutique, savoir-faire et demande de devis.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#18150f;
+    --ink-soft:#5a5344;
+    --ground:#fbfaf6;
+    --ground-raised:#f2efe6;
+    --line:rgba(24,21,15,0.13);
+    --line-soft:rgba(24,21,15,0.07);
+    --gold:#8c6a34;
+
+    --p1:#d8d2c1; --p2:#a89d84; --p3:#3a352a;
+
+    --font-display:'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+    --font-sans:'Jost', 'Century Gothic', Futura, sans-serif;
+
+    --edge:clamp(1.25rem, 5vw, 5rem);
+    --section-y:clamp(4.5rem, 11vw, 9.5rem);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *,*::before,*::after{animation-duration:0.001ms !important;animation-iteration-count:1 !important;transition-duration:0.001ms !important;}
+  }
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font-family:var(--font-sans);font-weight:300;font-size:16px;line-height:1.7;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  h1,h2,h3{font-family:var(--font-display);font-weight:400;margin:0;text-wrap:balance;color:var(--ink);}
+  p{margin:0;}
+  a{color:inherit;}
+  button{font:inherit;}
+  ::selection{background:var(--gold);color:var(--ground);}
+  :focus-visible{outline:1px solid var(--gold);outline-offset:3px;}
+
+  .wrap{max-width:1320px;margin-inline:auto;padding-inline:var(--edge);}
+  .eyebrow{
+    font-family:var(--font-sans);font-size:0.7rem;letter-spacing:0.24em;text-transform:uppercase;
+    color:var(--ink-soft);font-weight:400;
+  }
+  .eyebrow.accent{color:var(--gold);}
+
+  /* ---- photo panel ---- */
+  .photo{position:relative;overflow:hidden;background:var(--ground-raised);isolation:isolate;}
+  .photo .tone{position:absolute;inset:-8%;background:linear-gradient(var(--ga,160deg), var(--p1), var(--p2) 55%, var(--p3));
+    filter:saturate(0.9);transform:scale(1.02);}
+  .photo .grain{position:absolute;inset:0;opacity:0.16;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");}
+  .photo .vignette{position:absolute;inset:0;background:radial-gradient(120% 85% at 50% 22%, transparent 45%, rgba(0,0,0,0.32) 100%);}
+  .photo .cap{position:absolute;left:1.4rem;bottom:1.2rem;right:1.4rem;z-index:2;
+    font-family:var(--font-sans);font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:#f1ede2;
+    display:flex;justify-content:space-between;gap:1rem;text-shadow:0 1px 6px rgba(0,0,0,0.4);}
+
+  /* ---- nav ---- */
+  header.nav{
+    position:fixed;top:0;left:0;right:0;z-index:30;
+    display:flex;align-items:center;justify-content:space-between;gap:1.5rem;
+    padding:1.5rem var(--edge);mix-blend-mode:difference;
+  }
+  .wordmark{font-family:var(--font-display);font-weight:500;font-size:1.2rem;letter-spacing:0.14em;
+    text-decoration:none;color:#f1ede2;}
+  nav.links{display:flex;gap:2.2rem;list-style:none;margin:0;padding:0;flex:1;justify-content:center;}
+  nav.links a{font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;text-decoration:none;color:#f1ede2;}
+  .nav-right{display:flex;align-items:center;gap:1.4rem;}
+  .selection-btn{background:none;border:none;color:#f1ede2;cursor:pointer;font-size:0.72rem;
+    letter-spacing:0.16em;text-transform:uppercase;display:flex;align-items:center;gap:0.5rem;padding:0;}
+  .selection-btn .count{border:1px solid #f1ede2;border-radius:50%;width:1.4rem;height:1.4rem;
+    display:flex;align-items:center;justify-content:center;font-size:0.68rem;}
+  .nav-toggle{display:none;background:none;border:none;color:#f1ede2;font-family:var(--font-sans);
+    font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;cursor:pointer;padding:0;}
+  @media (max-width:820px){ nav.links{display:none;} .nav-toggle{display:block;} }
+
+  .mobile-nav{position:fixed;inset:0;background:var(--ground);z-index:40;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2rem;
+    transform:translateY(-100%);transition:transform 0.45s ease;}
+  .mobile-nav.open{transform:translateY(0);}
+  .mobile-nav a{font-family:var(--font-display);font-size:1.9rem;text-decoration:none;color:var(--ink);}
+  .mobile-nav button.close{position:absolute;top:1.6rem;right:var(--edge);background:none;border:none;
+    color:var(--ink);font-family:var(--font-sans);font-size:0.72rem;letter-spacing:0.16em;
+    text-transform:uppercase;cursor:pointer;}
+
+  /* ---- hero ---- */
+  .hero{position:relative;height:100svh;min-height:560px;}
+  .hero .photo{position:absolute;inset:0;}
+  .hero .tone{animation:pan 26s ease-in-out infinite alternate;}
+  @keyframes pan{from{transform:scale(1.06) translate(0,0);}to{transform:scale(1.12) translate(-1.5%,-1.5%);}}
+  .hero-copy{position:absolute;left:var(--edge);right:var(--edge);bottom:3.4rem;z-index:2;
+    display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;}
+  .hero-copy h1{font-size:clamp(2.4rem, 6vw, 4.6rem);font-weight:300;font-style:italic;color:#f1ede2;
+    line-height:1.05;text-shadow:0 2px 18px rgba(0,0,0,0.28);max-width:14em;}
+  .hero-meta{text-align:right;color:#f1ede2;text-shadow:0 1px 10px rgba(0,0,0,0.3);}
+  .hero-meta .eyebrow{color:#f1ede2;opacity:0.85;}
+  .hero-meta a{display:block;margin-top:0.9rem;font-size:0.74rem;letter-spacing:0.14em;text-transform:uppercase;
+    text-decoration:none;color:#f1ede2;border-bottom:1px solid rgba(241,237,226,0.5);padding-bottom:0.2rem;}
+  @media (max-width:700px){
+    .hero-copy{flex-direction:column;align-items:flex-start;gap:1.4rem;}
+    .hero-meta{text-align:left;}
+  }
+
+  /* ---- section rhythm ---- */
+  section{padding:var(--section-y) 0;}
+  .section-head{margin-bottom:clamp(2.5rem,6vw,4.5rem);display:flex;justify-content:space-between;
+    align-items:flex-end;gap:2rem;flex-wrap:wrap;}
+  .section-head h2{font-size:clamp(1.9rem,3.6vw,3.1rem);font-weight:400;}
+  .section-head .eyebrow{display:block;margin-bottom:1rem;}
+  .section-head p{color:var(--ink-soft);max-width:28em;font-size:0.96rem;}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity 0.8s ease, transform 0.8s ease;}
+  .reveal.is-visible{opacity:1;transform:translateY(0);}
+
+  /* ---- intro statement ---- */
+  .intro .wrap{max-width:980px;}
+  .intro p.lede{font-family:var(--font-display);font-style:italic;font-weight:400;
+    font-size:clamp(1.6rem,4vw,2.7rem);line-height:1.4;color:var(--ink);}
+  .intro p.lede .accent{color:var(--gold);}
+  .intro .sub{margin-top:2.2rem;max-width:36em;color:var(--ink-soft);font-size:1rem;}
+
+  /* ---- boutique / products ---- */
+  .products{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(1.2rem,2.5vw,2rem);}
+  @media (max-width:980px){ .products{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:560px){ .products{grid-template-columns:1fr;} }
+  .product .photo{aspect-ratio:4/5;cursor:pointer;}
+  .product-info{padding-top:1rem;}
+  .product-info h3{font-size:1.2rem;font-weight:400;font-style:italic;margin-bottom:0.35rem;cursor:pointer;}
+  .product-info .material{color:var(--ink-soft);font-size:0.86rem;margin-bottom:0.6rem;}
+  .product-info .price{font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);}
+  .product-actions{display:flex;gap:1.1rem;margin-top:1rem;}
+  .product-actions button{background:none;border:none;padding:0 0 0.2rem;color:var(--ink);cursor:pointer;
+    font-family:var(--font-sans);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;
+    border-bottom:1px solid var(--line);}
+  .product-actions button.add.is-added{color:var(--gold);border-color:var(--gold);}
+
+  /* ---- film ---- */
+  .film .photo{aspect-ratio:16/8;}
+  @media (max-width:700px){ .film .photo{aspect-ratio:4/5;} }
+  .film .tone{animation:pan 34s ease-in-out infinite alternate;}
+  .film .cap .rec{display:flex;align-items:center;gap:0.5rem;}
+  .film .cap .rec::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);
+    animation:blink 2.4s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:0.4;}50%{opacity:1;}}
+
+  /* ---- savoir-faire: alternating full-bleed rows ---- */
+  .gestes{display:flex;flex-direction:column;gap:clamp(3rem,7vw,5rem);}
+  .geste-row{display:grid;grid-template-columns:1.15fr 0.85fr;gap:clamp(2rem,5vw,4rem);align-items:center;}
+  .geste-row:nth-child(even){grid-template-columns:0.85fr 1.15fr;}
+  .geste-row:nth-child(even) .geste-photo{order:2;}
+  .geste-row .photo{aspect-ratio:5/6;}
+  .geste-row .n{font-family:var(--font-display);font-style:italic;color:var(--gold);font-size:1.15rem;display:block;margin-bottom:1rem;}
+  .geste-row h3{font-size:clamp(1.8rem,3vw,2.4rem);font-weight:400;margin-bottom:1.1rem;}
+  .geste-row p{color:var(--ink-soft);font-size:1rem;max-width:30em;}
+  @media (max-width:800px){
+    .geste-row, .geste-row:nth-child(even){grid-template-columns:1fr;}
+    .geste-row:nth-child(even) .geste-photo{order:0;}
+  }
+
+  /* ---- croquis ---- */
+  .croquis-wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,6vw,5rem);align-items:start;}
+  .croquis-text p{color:var(--ink-soft);max-width:30em;margin-top:1.2rem;}
+  .croquis-figs{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+  .croquis-figs svg{width:100%;height:auto;}
+  .croquis-figs figcaption{margin-top:0.8rem;font-size:0.72rem;letter-spacing:0.04em;color:var(--ink-soft);}
+  @media (max-width:760px){ .croquis-wrap{grid-template-columns:1fr;} }
+
+  /* ---- mentions ---- */
+  .mentions{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:1.4rem 0;overflow:hidden;}
+  .mentions-track{display:flex;width:max-content;gap:2.6rem;animation:scroll-x 30s linear infinite;}
+  .mentions-track span{font-family:var(--font-display);font-style:italic;font-size:1.1rem;color:var(--ink-soft);
+    white-space:nowrap;display:flex;align-items:center;gap:2.6rem;}
+  .mentions-track span::after{content:"—";color:var(--gold);}
+  @keyframes scroll-x{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  @media (prefers-reduced-motion: reduce){ .mentions-track{animation:none;} }
+
+  /* ---- contact ---- */
+  .rdv .wrap{max-width:900px;text-align:left;}
+  .rdv h2{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:300;font-style:italic;margin-bottom:1.6rem;}
+  .rdv p.lead{color:var(--ink-soft);font-size:1.05rem;max-width:32em;margin-bottom:2.6rem;}
+  .rdv-links{display:flex;flex-wrap:wrap;gap:2.5rem;}
+  .rdv-links a{text-decoration:none;color:var(--ink);font-family:var(--font-display);font-style:italic;
+    font-size:1.35rem;border-bottom:1px solid var(--line);padding-bottom:0.35rem;display:inline-flex;
+    align-items:center;gap:0.6rem;}
+  .rdv-links a span{font-family:var(--font-sans);font-style:normal;color:var(--gold);}
+
+  footer{padding:2.6rem 0;border-top:1px solid var(--line);}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+  footer .fmark{font-family:var(--font-display);font-style:italic;font-size:1.05rem;}
+  footer .fmeta{font-size:0.7rem;letter-spacing:0.08em;color:var(--ink-soft);text-transform:uppercase;text-align:right;}
+  footer .fmeta a{color:var(--ink-soft);text-decoration:none;}
+  footer .fmeta a:hover{color:var(--gold);}
+
+  /* ---- scrim ---- */
+  .scrim{position:fixed;inset:0;background:rgba(10,9,6,0.45);z-index:45;opacity:0;pointer-events:none;transition:opacity 0.3s ease;}
+  .scrim.open{opacity:1;pointer-events:auto;}
+
+  /* ---- selection drawer ---- */
+  .drawer{position:fixed;top:0;right:0;height:100%;width:min(430px,92vw);background:var(--ground-raised);
+    z-index:50;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.4s ease;
+    box-shadow:-24px 0 48px rgba(0,0,0,0.22);}
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 1.7rem;
+    border-bottom:1px solid var(--line);}
+  .drawer-head h2{font-size:1.3rem;font-weight:400;font-style:italic;}
+  .drawer-head button{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:0.7rem;
+    letter-spacing:0.1em;text-transform:uppercase;}
+  .drawer-items{flex:1;overflow-y:auto;padding:0.5rem 1.7rem;}
+  .drawer-item{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:1rem 0;
+    border-bottom:1px solid var(--line-soft);}
+  .drawer-item .name{font-family:var(--font-display);font-style:italic;font-size:1.05rem;}
+  .drawer-item .remove{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:0.68rem;
+    letter-spacing:0.08em;text-transform:uppercase;text-decoration:underline;padding:0;}
+  .drawer-empty{color:var(--ink-soft);font-size:0.9rem;padding:2.5rem 0;text-align:center;}
+  .drawer-form{padding:1.2rem 1.7rem;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:0.7rem;}
+  .drawer-form label{font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-soft);
+    display:block;margin-bottom:0.3rem;}
+  .drawer-form input, .drawer-form textarea{width:100%;background:var(--ground);border:1px solid var(--line);
+    color:var(--ink);font-family:var(--font-sans);font-size:0.9rem;padding:0.65rem 0.75rem;}
+  .drawer-form textarea{min-height:70px;resize:vertical;}
+  .drawer-actions{padding:1rem 1.7rem 1.6rem;display:flex;flex-direction:column;gap:0.7rem;}
+  .btn{font-family:var(--font-sans);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;
+    text-decoration:none;padding:0.85rem 1.4rem;border:1px solid var(--ink);color:var(--ink);
+    background:none;cursor:pointer;text-align:center;transition:background 0.25s ease,color 0.25s ease;}
+  .btn:hover{background:var(--ink);color:var(--ground);}
+  .btn.primary{background:var(--gold);border-color:var(--gold);color:#1a1509;}
+  .btn.primary:hover{opacity:0.88;background:var(--gold);}
+  .btn.primary:disabled{opacity:0.4;cursor:not-allowed;}
+  .drawer-note{font-size:0.76rem;color:var(--ink-soft);padding:0 1.7rem 1.6rem;line-height:1.5;}
+  .copy-status{font-size:0.74rem;color:var(--gold);padding:0 1.7rem;min-height:1.2em;}
+
+  /* ---- product modal ---- */
+  .modal{position:fixed;inset:0;z-index:56;display:flex;align-items:center;justify-content:center;
+    padding:clamp(1rem,4vw,3rem);opacity:0;pointer-events:none;transition:opacity 0.3s ease;}
+  .modal.open{opacity:1;pointer-events:auto;}
+  .modal-panel{position:relative;background:var(--ground);max-width:960px;width:100%;max-height:88vh;
+    overflow:auto;display:grid;grid-template-columns:1.1fr 1fr;}
+  .modal-panel .photo{aspect-ratio:auto;min-height:340px;}
+  .modal-body{padding:clamp(1.8rem,3vw,3rem);display:flex;flex-direction:column;}
+  .modal-body .eyebrow{margin-bottom:0.9rem;}
+  .modal-body h2{font-size:clamp(1.7rem,2.6vw,2.3rem);font-style:italic;font-weight:400;margin-bottom:1rem;}
+  .modal-body .material{color:var(--ink-soft);font-size:0.98rem;margin-bottom:1.4rem;}
+  .modal-body .price{font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);
+    margin-bottom:1.8rem;}
+  .modal-body .note{font-size:0.82rem;color:var(--ink-soft);margin-top:1.2rem;line-height:1.6;}
+  .modal-close{position:absolute;top:1.2rem;right:1.2rem;z-index:3;background:rgba(20,17,12,0.5);
+    border:none;color:#f1ede2;width:2.2rem;height:2.2rem;cursor:pointer;font-size:1rem;}
+  @media (max-width:700px){
+    .modal-panel{grid-template-columns:1fr;}
+    .modal-panel .photo{min-height:260px;}
+  }
+</style>
+
+<header class="nav">
+  <a class="wordmark" href="#hero">Awrea Paris</a>
+  <nav class="links">
+    <a href="#boutique">Boutique</a>
+    <a href="#maison">Maison</a>
+    <a href="#savoir-faire">Savoir-faire</a>
+    <a href="#croquis">Croquis</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <div class="nav-right">
+    <button class="selection-btn" id="openDrawer" aria-haspopup="dialog">Sélection <span class="count" id="navCount">0</span></button>
+    <button class="nav-toggle" id="navToggle" aria-label="Ouvrir le menu">Menu</button>
+  </div>
+</header>
+
+<div class="mobile-nav" id="mobileNav">
+  <button class="close" id="navClose" aria-label="Fermer le menu">Fermer</button>
+  <a href="#boutique">Boutique</a>
+  <a href="#maison">Maison</a>
+  <a href="#savoir-faire">Savoir-faire</a>
+  <a href="#croquis">Croquis</a>
+  <a href="#contact">Contact</a>
+</div>
+
+<main>
+  <section class="hero" id="hero">
+    <figure class="photo" style="--ga:150deg;" aria-hidden="true">
+      <div class="tone"></div><div class="grain"></div><div class="vignette"></div>
+    </figure>
+    <div class="hero-copy">
+      <h1>Le drapé est<br>une écriture.</h1>
+      <div class="hero-meta">
+        <span class="eyebrow">Maison parisienne — pièces uniques</span>
+        <a href="#boutique">Découvrir la boutique</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="intro" id="maison">
+    <div class="wrap">
+      <p class="lede reveal">Awrea Paris façonne des robes de soirée en pièce unique — dentelle choisie à la main, drapé sculpté à même le buste, rehaussé d'une <span class="accent">dorure signature</span>.</p>
+      <p class="sub reveal">Aucune robe n'est reproduite à l'identique. Chaque pièce naît d'un drapé, entre croquis d'atelier et essayages, avant de rejoindre le vestiaire — de Paris aux podiums de la Fashion Week. Composez votre sélection ci-dessous pour recevoir un devis personnalisé.</p>
+    </div>
+  </section>
+
+  <section id="boutique">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <span class="eyebrow accent">Boutique</span>
+          <h2>Les créations</h2>
+        </div>
+        <p>Chaque pièce est réalisée sur mesure. Ajoutez les créations qui vous intéressent à votre sélection pour recevoir un devis et convenir d'un essayage.</p>
+      </div>
+      <div class="products" id="productGrid"></div>
+    </div>
+  </section>
+
+  <section class="film">
+    <div class="wrap">
+      <figure class="photo reveal" style="--p1:#c7bfa9;--p2:#5c503a;--p3:#0e0c08;--ga:170deg;">
+        <div class="tone"></div><div class="grain"></div><div class="vignette"></div>
+        <div class="cap">
+          <span class="rec">En mouvement — atelier</span>
+          <span>00:24</span>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <section id="savoir-faire">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <span class="eyebrow accent">Savoir-faire</span>
+          <h2>Trois gestes d'atelier</h2>
+        </div>
+        <p>La dentelle, le drapé et la dorure forment le vocabulaire de la maison — trois gestes répétés, jamais identiques.</p>
+      </div>
+      <div class="gestes">
+        <div class="geste-row reveal">
+          <figure class="geste-photo photo" style="--p1:#e0dac9;--p2:#a08f6c;--p3:#2c2617;--ga:120deg;">
+            <div class="tone"></div><div class="grain"></div><div class="vignette"></div>
+            <div class="cap"><span>Atelier</span><span>Dentelle</span></div>
+          </figure>
+          <div class="geste-text">
+            <span class="n">01</span>
+            <h3>Dentelle</h3>
+            <p>Choisie à la main pièce par pièce, brodée selon la robe qu'elle habille — jamais reproduite à l'identique.</p>
+          </div>
+        </div>
+        <div class="geste-row reveal">
+          <figure class="geste-photo photo" style="--p1:#cfc6ac;--p2:#7c6d4e;--p3:#1c1810;--ga:200deg;">
+            <div class="tone"></div><div class="grain"></div><div class="vignette"></div>
+            <div class="cap"><span>Atelier</span><span>Drapé</span></div>
+          </figure>
+          <div class="geste-text">
+            <span class="n">02</span>
+            <h3>Drapé</h3>
+            <p>Sculpté sur le corps, sans patron figé — chaque pli répond à la silhouette qui le porte.</p>
+          </div>
+        </div>
+        <div class="geste-row reveal">
+          <figure class="geste-photo photo" style="--p1:#e6ddc4;--p2:#b9944f;--p3:#241d10;--ga:80deg;">
+            <div class="tone"></div><div class="grain"></div><div class="vignette"></div>
+            <div class="cap"><span>Atelier</span><span>Dorure</span></div>
+          </figure>
+          <div class="geste-text">
+            <span class="n">03</span>
+            <h3>Dorure</h3>
+            <p>Un fil d'or serti dans la couture — seule signature visible de la maison, discrète et constante.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="croquis">
+    <div class="wrap">
+      <div class="croquis-wrap">
+        <div class="croquis-text reveal">
+          <span class="eyebrow accent">Croquis</span>
+          <h2>Du croquis à la robe</h2>
+          <p>Avant le drapé, le trait. Chaque robe est d'abord posée sur le papier, en atelier, puis façonnée à même le buste.</p>
+        </div>
+        <div class="croquis-figs reveal">
+          <figure>
+            <svg viewBox="0 0 200 300" fill="none" stroke="var(--ink)" stroke-width="1">
+              <ellipse cx="100" cy="26" rx="11" ry="14"/>
+              <path d="M100 40 L100 68"/>
+              <path d="M100 68 C 74 76, 64 106, 74 146 C 80 176, 68 210, 64 260" stroke-width="0.85"/>
+              <path d="M100 68 C 128 76, 138 106, 128 146 C 122 176, 134 210, 138 260" stroke-width="0.85"/>
+              <path d="M64 260 C 84 276, 118 276, 138 260" stroke-width="0.85"/>
+              <path d="M84 72 L 82 258" stroke="var(--gold)" stroke-width="0.7" stroke-dasharray="1 4"/>
+            </svg>
+            <figcaption>Drapé asymétrique, noué à l'épaule</figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 200 300" fill="none" stroke="var(--ink)" stroke-width="1">
+              <ellipse cx="96" cy="26" rx="11" ry="14"/>
+              <path d="M96 40 L96 64"/>
+              <path d="M96 64 C 70 70, 68 84, 80 96 C 60 114, 58 200, 66 260" stroke-width="0.85"/>
+              <path d="M96 64 C 122 70, 124 84, 112 96 C 132 114, 134 200, 126 260" stroke-width="0.85"/>
+              <path d="M80 96 C 88 104, 104 104, 112 96" stroke-width="0.85"/>
+              <path d="M66 260 C 84 274, 108 274, 126 260" stroke-width="0.85"/>
+              <path d="M70 116 C 90 124, 102 124, 122 116" stroke="var(--gold)" stroke-width="0.7" stroke-dasharray="1 4"/>
+            </svg>
+            <figcaption>Dos nu, fil d'or serti</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="film">
+    <div class="wrap">
+      <figure class="photo reveal" style="--p1:#d6cdb6;--p2:#8a7a58;--p3:#171310;--ga:135deg;">
+        <div class="tone"></div><div class="grain"></div><div class="vignette"></div>
+        <div class="cap">
+          <span class="rec">En mouvement — défilé</span>
+          <span>00:31</span>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <div class="mentions" aria-hidden="true">
+    <div class="mentions-track">
+      <span><span>Design</span><span>Outfits</span><span>Sketches</span><span>Presse</span><span>Shooting</span><span>Paris Fashion Week</span><span>Sur rendez-vous</span></span>
+      <span><span>Design</span><span>Outfits</span><span>Sketches</span><span>Presse</span><span>Shooting</span><span>Paris Fashion Week</span><span>Sur rendez-vous</span></span>
+    </div>
+  </div>
+
+  <section class="rdv" id="contact">
+    <div class="wrap">
+      <span class="eyebrow accent reveal" style="display:block;margin-bottom:1.2rem;">Contact — Paris</span>
+      <h2 class="reveal">Essayages en atelier,<br>sur rendez-vous.</h2>
+      <p class="lead reveal">Pour commander, composez votre sélection dans la boutique puis envoyez-la depuis le panneau « Sélection ». Pour toute autre question, écrivez-nous directement.</p>
+      <div class="rdv-links reveal">
+        <a href="https://www.instagram.com/awrea.paris" target="_blank" rel="noopener">Instagram <span>→</span></a>
+        <a href="https://linktr.ee/awrea.paris" target="_blank" rel="noopener">Linktree <span>→</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="fmark">Awrea Paris</span>
+    <span class="fmeta">Production parisienne · Pièces uniques<br>© 2026 — <a href="https://www.instagram.com/awrea.paris" target="_blank" rel="noopener">@awrea.paris</a></span>
+  </div>
+</footer>
+
+<div class="scrim" id="scrim"></div>
+
+<aside class="drawer" id="drawer" role="dialog" aria-label="Votre sélection">
+  <div class="drawer-head">
+    <h2>Votre sélection</h2>
+    <button id="closeDrawer">Fermer</button>
+  </div>
+  <div class="drawer-items" id="drawerItems"></div>
+  <div class="drawer-form">
+    <div>
+      <label for="fName">Prénom</label>
+      <input type="text" id="fName" placeholder="Votre prénom" autocomplete="given-name">
+    </div>
+    <div>
+      <label for="fNote">Message (mesures, questions…)</label>
+      <textarea id="fNote" placeholder="Taille habituelle, couleur souhaitée, délai…"></textarea>
+    </div>
+  </div>
+  <p class="copy-status" id="copyStatus" aria-live="polite"></p>
+  <div class="drawer-actions">
+    <button class="btn primary" id="copyRequest" disabled>Copier la demande</button>
+    <a class="btn" id="sendInstagram" href="https://ig.me/m/awrea.paris" target="_blank" rel="noopener">Envoyer sur Instagram →</a>
+  </div>
+  <p class="drawer-note">Collez le texte copié dans votre message Instagram à @awrea.paris. Chaque pièce étant réalisée sur mesure, la maison confirme prix et délai directement par message avant tout essayage.</p>
+</aside>
+
+<div class="modal" id="modal" role="dialog" aria-label="Détail de la création">
+  <div class="modal-panel">
+    <button class="modal-close" id="closeModal" aria-label="Fermer">×</button>
+    <figure class="photo" id="modalPhoto"><div class="tone"></div><div class="grain"></div><div class="vignette"></div></figure>
+    <div class="modal-body">
+      <span class="eyebrow accent" id="modalTag"></span>
+      <h2 id="modalName"></h2>
+      <p class="material" id="modalMaterial"></p>
+      <p class="price" id="modalPrice"></p>
+      <div class="product-actions">
+        <button class="add" id="modalAdd"></button>
+      </div>
+      <p class="note">Mesures et essayage convenus par message privé après la demande. Aucun paiement n'est demandé sur ce site.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var PRODUCTS = [
+    {id:'p1', name:'Soie drapée, ivoire', tag:'Soirée', material:"Drapé sculpté à même le buste, dos nu, chute fluide jusqu'au sol.", p1:'#ded7c6',p2:'#a9987a',p3:'#332c20',ga:'135deg'},
+    {id:'p2', name:"Dentelle noire, fil d'or", tag:'Dentelle', material:"Dentelle brodée main, liseré doré serti dans la couture du bustier.", p1:'#c9c0ab',p2:'#6c5f47',p3:'#191510',ga:'200deg'},
+    {id:'p3', name:'Drapé asymétrique', tag:'Drapé', material:"Un seul pan noué à l'épaule, jeu de plis libres sur la hanche.", p1:'#e3ddcd',p2:'#b6a37e',p3:'#3c3220',ga:'60deg'},
+    {id:'p4', name:'Bustier & dorure', tag:'Dorure', material:"Bustier structuré, fil d'or apparent en couture centrale.", p1:'#d3cbb8',p2:'#8f7c58',p3:'#241f16',ga:'110deg'}
+  ];
+  var PRICE_NOTE = 'Pièce unique — sur devis';
+  var selection = [];
+  try{
+    var saved = JSON.parse(localStorage.getItem('awrea_selection') || '[]');
+    if(Array.isArray(saved)) selection = saved.filter(function(id){ return PRODUCTS.some(function(p){return p.id===id;}); });
+  }catch(e){}
+
+  function save(){
+    try{ localStorage.setItem('awrea_selection', JSON.stringify(selection)); }catch(e){}
+  }
+  function productById(id){ return PRODUCTS.filter(function(p){return p.id===id;})[0]; }
+
+  var grid = document.getElementById('productGrid');
+  PRODUCTS.forEach(function(p){
+    var card = document.createElement('article');
+    card.className = 'product reveal';
+    card.innerHTML =
+      '<figure class="photo" data-open="'+p.id+'" style="--p1:'+p.p1+';--p2:'+p.p2+';--p3:'+p.p3+';--ga:'+p.ga+';">'+
+        '<div class="tone"></div><div class="grain"></div><div class="vignette"></div>'+
+        '<div class="cap"><span>'+p.tag+'</span><span>Awrea</span></div>'+
+      '</figure>'+
+      '<div class="product-info">'+
+        '<h3 data-open="'+p.id+'">'+p.name+'</h3>'+
+        '<p class="material">'+p.material+'</p>'+
+        '<span class="price">'+PRICE_NOTE+'</span>'+
+        '<div class="product-actions">'+
+          '<button class="detail" data-open="'+p.id+'">Voir le détail</button>'+
+          '<button class="add" data-add="'+p.id+'">Ajouter à ma sélection</button>'+
+        '</div>'+
+      '</div>';
+    grid.appendChild(card);
+  });
+
+  var scrim = document.getElementById('scrim');
+  var drawer = document.getElementById('drawer');
+  var drawerItems = document.getElementById('drawerItems');
+  var navCount = document.getElementById('navCount');
+  var copyBtn = document.getElementById('copyRequest');
+  var copyStatus = document.getElementById('copyStatus');
+
+  function renderAddButtons(){
+    document.querySelectorAll('button[data-add]').forEach(function(btn){
+      var id = btn.getAttribute('data-add');
+      var added = selection.indexOf(id) !== -1;
+      btn.classList.toggle('is-added', added);
+      btn.textContent = added ? 'Ajouté ✓' : 'Ajouter à ma sélection';
+    });
+    var modalAdd = document.getElementById('modalAdd');
+    if(modalAdd && modalAdd.dataset.id){
+      var added2 = selection.indexOf(modalAdd.dataset.id) !== -1;
+      modalAdd.classList.toggle('is-added', added2);
+      modalAdd.textContent = added2 ? 'Ajouté ✓' : 'Ajouter à ma sélection';
+    }
+  }
+
+  function renderDrawer(){
+    navCount.textContent = selection.length;
+    copyBtn.disabled = selection.length === 0;
+    if(selection.length === 0){
+      drawerItems.innerHTML = '<p class="drawer-empty">Votre sélection est vide. Ajoutez une création depuis la boutique.</p>';
+      return;
+    }
+    drawerItems.innerHTML = '';
+    selection.forEach(function(id){
+      var p = productById(id);
+      if(!p) return;
+      var row = document.createElement('div');
+      row.className = 'drawer-item';
+      row.innerHTML = '<span class="name">'+p.name+'</span><button class="remove" data-remove="'+p.id+'">Retirer</button>';
+      drawerItems.appendChild(row);
+    });
+  }
+
+  function addToSelection(id){
+    var idx = selection.indexOf(id);
+    if(idx === -1){ selection.push(id); } else { selection.splice(idx,1); }
+    save(); renderAddButtons(); renderDrawer();
+  }
+  function removeFromSelection(id){
+    var idx = selection.indexOf(id);
+    if(idx !== -1){ selection.splice(idx,1); save(); renderAddButtons(); renderDrawer(); }
+  }
+
+  document.addEventListener('click', function(e){
+    var addBtn = e.target.closest('button[data-add]');
+    if(addBtn){ addToSelection(addBtn.getAttribute('data-add')); return; }
+    var openEl = e.target.closest('[data-open]');
+    if(openEl){ openModal(openEl.getAttribute('data-open')); return; }
+    var removeBtn = e.target.closest('button[data-remove]');
+    if(removeBtn){ removeFromSelection(removeBtn.getAttribute('data-remove')); return; }
+  });
+
+  function openDrawer(){ drawer.classList.add('open'); scrim.classList.add('open'); copyStatus.textContent=''; }
+  function closeDrawerFn(){ drawer.classList.remove('open'); scrim.classList.remove('open'); }
+  document.getElementById('openDrawer').addEventListener('click', openDrawer);
+  document.getElementById('closeDrawer').addEventListener('click', closeDrawerFn);
+
+  var modal = document.getElementById('modal');
+  var modalPhoto = document.getElementById('modalPhoto');
+  var modalTag = document.getElementById('modalTag');
+  var modalName = document.getElementById('modalName');
+  var modalMaterial = document.getElementById('modalMaterial');
+  var modalPrice = document.getElementById('modalPrice');
+  var modalAdd = document.getElementById('modalAdd');
+
+  function openModal(id){
+    var p = productById(id);
+    if(!p) return;
+    modalPhoto.style.setProperty('--p1', p.p1);
+    modalPhoto.style.setProperty('--p2', p.p2);
+    modalPhoto.style.setProperty('--p3', p.p3);
+    modalPhoto.style.setProperty('--ga', p.ga);
+    modalTag.textContent = p.tag;
+    modalName.textContent = p.name;
+    modalMaterial.textContent = p.material;
+    modalPrice.textContent = PRICE_NOTE;
+    modalAdd.dataset.id = p.id;
+    modalAdd.onclick = function(){ addToSelection(p.id); };
+    renderAddButtons();
+    modal.classList.add('open');
+    scrim.classList.add('open');
+  }
+  function closeModalFn(){ modal.classList.remove('open'); if(!drawer.classList.contains('open')) scrim.classList.remove('open'); }
+  document.getElementById('closeModal').addEventListener('click', closeModalFn);
+
+  scrim.addEventListener('click', function(){ closeDrawerFn(); closeModalFn(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closeDrawerFn(); closeModalFn(); } });
+
+  copyBtn.addEventListener('click', function(){
+    var name = document.getElementById('fName').value.trim();
+    var note = document.getElementById('fNote').value.trim();
+    var lines = [];
+    lines.push('Demande de devis — Awrea Paris');
+    if(name) lines.push('Prénom : ' + name);
+    lines.push('');
+    lines.push('Pièces sélectionnées :');
+    selection.forEach(function(id){
+      var p = productById(id);
+      if(p) lines.push('- ' + p.name);
+    });
+    if(note){ lines.push(''); lines.push('Message : ' + note); }
+    var text = lines.join('\n');
+    function done(ok){
+      copyStatus.textContent = ok ? 'Copié — collez-le dans votre message Instagram.' : 'Sélectionnez et copiez le texte manuellement.';
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){done(true);}, function(){done(false);});
+    } else { done(false); }
+  });
+
+  renderAddButtons();
+  renderDrawer();
+
+  var toggle = document.getElementById('navToggle');
+  var closeBtn = document.getElementById('navClose');
+  var mobileNav = document.getElementById('mobileNav');
+  toggle.addEventListener('click', function(){ mobileNav.classList.add('open'); });
+  closeBtn.addEventListener('click', function(){ mobileNav.classList.remove('open'); });
+  mobileNav.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){ mobileNav.classList.remove('open'); });
+  });
+
+  var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function initReveal(){
+    var reveals = document.querySelectorAll('.reveal');
+    if(prefersReduced || !('IntersectionObserver' in window)){
+      reveals.forEach(function(el){ el.classList.add('is-visible'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){ entry.target.classList.add('is-visible'); io.unobserve(entry.target); }
+      });
+    }, {threshold:0.15, rootMargin:'0px 0px -60px 0px'});
+    reveals.forEach(function(el){ io.observe(el); });
+  }
+  initReveal();
+})();
+</script>
