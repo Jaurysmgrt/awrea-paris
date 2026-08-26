@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jaurysmgrt.github.io/awrea-paris/sitemap.xml
