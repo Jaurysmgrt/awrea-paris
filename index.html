@@ -179,7 +179,10 @@
 
   /* ---- pages (tabbed navigation) ---- */
   .page{display:none;}
-  .page.active{display:block;}
+  .page.active{display:block;opacity:1;transform:translateY(0);
+    transition:opacity 0.45s cubic-bezier(.16,.8,.24,1), transform 0.45s cubic-bezier(.16,.8,.24,1);}
+  .page.active.entering{opacity:0;transform:translateY(10px);}
+  @media (prefers-reduced-motion: reduce){ .page.active.entering{opacity:1;transform:none;transition:none;} }
   .page-head{padding:clamp(6.5rem, 12vw, 9rem) 0 2rem;}
   .page-head .wrap{border-bottom:1px solid var(--line);padding-bottom:2.2rem;}
   .page-head h2{font-size:clamp(2.2rem,5vw,3.6rem);font-style:italic;font-weight:300;}
@@ -957,8 +960,15 @@
         ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
       });
       ctx.globalAlpha = 1;
-      if(!reducedMotion) requestAnimationFrame(paint);
+      var pageEl = canvas.closest('.page');
+      var isVisible = !pageEl || pageEl.classList.contains('active');
+      if(!reducedMotion && isVisible){
+        requestAnimationFrame(paint);
+      } else {
+        canvas.dataset.paused = '1';
+      }
     }
+    canvas.__paint = paint;
     requestAnimationFrame(paint);
   });
 
@@ -991,20 +1001,27 @@
   var pageLinks = document.querySelectorAll('[data-page]');
   function showPage(name, opts){
     opts = opts || {};
-    var found = false;
-    pages.forEach(function(p){
-      var active = p.getAttribute('data-page') === name;
-      if(active) found = true;
-      p.classList.toggle('active', active);
-    });
+    var found = pages.length && Array.prototype.some.call(pages, function(p){ return p.getAttribute('data-page') === name; });
     if(!found) return false;
+    pages.forEach(function(p){ p.classList.toggle('active', p.getAttribute('data-page') === name); });
     pageLinks.forEach(function(a){ a.classList.toggle('is-current', a.getAttribute('data-page') === name); });
     var activePage = document.querySelector('.page[data-page="'+name+'"]');
-    activePage.querySelectorAll('.reveal').forEach(function(el){
-      el.classList.add('is-visible');
-      if(io) io.unobserve(el);
-    });
+    if(name !== 'boutique'){
+      activePage.querySelectorAll('.reveal').forEach(function(el){
+        el.classList.add('is-visible');
+        if(io) io.unobserve(el);
+      });
+    }
     if(!opts.skipScroll) window.scrollTo(0,0);
+    if(!prefersReduced){
+      activePage.classList.add('entering');
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){ activePage.classList.remove('entering'); });
+      });
+    }
+    activePage.querySelectorAll('.film-canvas').forEach(function(c){
+      if(c.dataset.paused === '1'){ c.dataset.paused = '0'; requestAnimationFrame(c.__paint); }
+    });
     return true;
   }
   pageLinks.forEach(function(a){
