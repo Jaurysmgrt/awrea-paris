@@ -1,0 +1,77 @@
+import Link from "next/link";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { Section } from "@/components/ui/Section";
+import { Envelope } from "@/components/signature/Envelope";
+import { verify } from "@/lib/auth/session";
+import { getOrder, statusLabel } from "@/lib/commerce/orders";
+import { formatPrice } from "@/lib/format";
+import { shop } from "@/content/settings";
+
+export const metadata = pageMetadata({ title: "Merci | Awrea Paris", description: "Votre commande Awrea Paris est confirmée.", path: "/commande/confirmation", noindex: true });
+export const dynamic = "force-dynamic";
+
+export default async function ConfirmationPage({ searchParams }: { searchParams: Promise<{ n?: string; t?: string }> }) {
+  const sp = await searchParams;
+  const token = verify<{ n: string }>(sp.t);
+  const order = token && token.n === sp.n ? await getOrder(token.n) : null;
+  const first = order?.name.split(" ")[0];
+
+  return (
+    <Section theme="paper" className="confirmation">
+      <div className="container-prose confirmation__inner">
+        <Envelope
+          greeting={first ? `Merci, ${first}.` : "Merci."}
+          note="Votre pièce est désormais entre les mains de l’atelier. Nous la plierons dans du papier de soie, avec son certificat, et vous écrirons à son départ."
+          reference={order ? `Commande ${order.number}` : undefined}
+        />
+        <div className="confirmation__details stack-m">
+          <h1 className="t-h2 t-center">{first ? `Merci, ${first}` : "Merci pour votre commande"}</h1>
+          <p className="t-body t-center">
+            {order
+              ? `Votre commande ${order.number} est confirmée. Un e-mail récapitulatif vient de vous être envoyé à ${order.email}.`
+              : "Votre commande est confirmée. Un e-mail récapitulatif vient de vous être envoyé."}
+          </p>
+          {order ? (
+            <div className="notice stack">
+              <p className="t-label">{statusLabel[order.status]}</p>
+              <ul className="stack">
+                {order.lines.map((l, i) => (
+                  <li key={i} className="confirmation__line">
+                    <span className="t-h4">{l.title}</span>
+                    <span className="t-label t-soft">
+                      Taille {l.size} · {l.editionLabel}
+                    </span>
+                    <span className="price">{formatPrice(l.unitPrice)}</span>
+                  </li>
+                ))}
+              </ul>
+              <dl className="totals">
+                <div>
+                  <dt>Livraison — {order.shipping.method}</dt>
+                  <dd>{order.shipping.price ? formatPrice(order.shipping.price) : "Offerte"}</dd>
+                </div>
+                <div className="totals__total">
+                  <dt>Total</dt>
+                  <dd>{formatPrice(order.total)}</dd>
+                </div>
+              </dl>
+              <p className="t-note">
+                {order.status === "in_production"
+                  ? "Une partie de votre commande est en fabrication : nous vous écrirons à l’expédition, avec le lien de suivi."
+                  : `Expédition sous ${shop.dispatchDays}. Vous recevrez le lien de suivi par e-mail.`}
+              </p>
+            </div>
+          ) : null}
+          <div className="confirmation__actions">
+            <Link href="/compte" className="btn">
+              Suivre ma commande
+            </Link>
+            <Link href="/boutique" className="btn">
+              Continuer la visite
+            </Link>
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+}

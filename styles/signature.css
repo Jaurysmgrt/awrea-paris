@@ -452,6 +452,138 @@
     stroke-width: 1.5;
     stroke-linecap: round;
   }
+
+  /* ===================================================== 8. ENVELOPPE */
+  .envelope {
+    width: min(100%, var(--container-panel));
+    margin: var(--spacing-3xl) auto var(--spacing-l);
+    perspective: calc(var(--container-panel) * 3);
+  }
+  .envelope__body {
+    position: relative;
+    aspect-ratio: 4 / 3;
+  }
+  @media (min-width: 48rem) {
+    .envelope__body {
+      aspect-ratio: 3 / 2;
+    }
+  }
+  .envelope__back,
+  .envelope__front,
+  .envelope__flap {
+    position: absolute;
+    inset: 0;
+  }
+  .envelope__back {
+    background: color-mix(in oklab, var(--color-pearl) 70%, var(--color-ivory));
+    border: var(--border-width-hair) solid color-mix(in oklab, var(--color-ink) 18%, transparent);
+    z-index: 0;
+  }
+  .envelope__letter {
+    position: absolute;
+    left: 5%;
+    right: 5%;
+    top: 4%;
+    height: 92%;
+    z-index: 1;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: var(--spacing-2xs);
+    padding: var(--spacing-s);
+    text-align: center;
+    background-color: var(--color-ivory);
+    background-image: url("/media/texture/paper.webp");
+    background-size: 384px; /* token-ok : tuile papier */
+    border: var(--border-width-hair) solid color-mix(in oklab, var(--color-ink) 14%, transparent);
+    color: var(--color-ink);
+    will-change: transform;
+  }
+  .envelope__greeting {
+    font-family: var(--font-script);
+    font-size: var(--text-step-2);
+    line-height: var(--leading-snug);
+    text-align: center;
+  }
+  .envelope__note {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--text-step--1);
+    line-height: var(--leading-text);
+    text-align: center;
+    hyphens: manual;
+    max-width: 30ch;
+  }
+  .envelope__ref {
+    font-family: var(--font-sans);
+    font-weight: var(--font-weight-light);
+    font-size: var(--text-step--2);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .envelope__sign {
+    font-family: var(--font-script);
+    font-size: var(--text-step-1);
+    color: var(--color-ink);
+    text-align: center;
+  }
+  .envelope__front {
+    z-index: 2;
+    background: var(--color-ivory);
+    border: var(--border-width-hair) solid color-mix(in oklab, var(--color-ink) 18%, transparent);
+    clip-path: polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%);
+  }
+  .envelope__lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: color-mix(in oklab, var(--color-ink) 22%, transparent);
+    stroke-width: 1;
+  }
+  .envelope__flap {
+    z-index: 3;
+    bottom: auto;
+    height: 56%;
+    background: color-mix(in oklab, var(--color-pearl) 45%, var(--color-ivory));
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: 50% 0;
+    backface-visibility: visible;
+  }
+  .envelope__seal {
+    position: absolute;
+    z-index: 4;
+    left: 50%;
+    top: 56%;
+    width: var(--spacing-xl);
+    height: var(--spacing-xl);
+    margin: calc(var(--spacing-xl) / -2) 0 0 calc(var(--spacing-xl) / -2);
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-full);
+    background: var(--color-gold);
+    color: var(--color-ink);
+    outline: var(--border-width-hair) solid color-mix(in oklab, var(--color-ink) 35%, transparent);
+    outline-offset: calc(-1 * var(--spacing-3xs));
+  }
+  .envelope__seal-logo {
+    width: 64%;
+    height: auto;
+  }
+  .envelope[data-state="open"] .envelope__seal {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .envelope[data-state="open"] .envelope__flap {
+    transform: rotateX(180deg);
+    z-index: 0;
+  }
+  .envelope[data-state="open"] .envelope__letter {
+    transform: translateY(-26%) scale(1.06);
+    z-index: 5;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -115,7 +115,7 @@ function Waitlist({ product, variant }: { product: Product; variant: Variant | n
   return (
     <div id="liste-attente" className="waitlist stack">
       <p className="t-body">
-        {variant ? `La taille ${variant.size} est épuisée.` : "Cette pièce est aujourd’hui épuisée."} Nous pouvons vous prévenir dès qu’un nouvel exemplaire sortira de l’atelier.
+        {variant && product.variants.length > 1 ? `La taille ${variant.size} est épuisée.` : "Cette pièce est aujourd’hui épuisée."} Nous pouvons vous prévenir dès qu’un nouvel exemplaire sortira de l’atelier.
       </p>
       {state === "done" ? (
         <p className="t-lead" role="status">

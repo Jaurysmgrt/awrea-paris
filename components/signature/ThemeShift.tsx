@@ -11,7 +11,7 @@ export function ThemeShift() {
   const pathname = usePathname();
   useEffect(() => {
     const root = document.documentElement;
-    const sections = Array.from(document.querySelectorAll<HTMLElement>("main .scene[data-theme], .site-footer[data-theme]"));
+    const sections = Array.from(document.querySelectorAll<HTMLElement>("main > .scene[data-theme], main > article > .scene[data-theme], .site-footer[data-theme]"));
     if (!sections.length) return;
     const setScene = (theme: string | undefined) => {
       root.dataset.scene = theme === "ink" || theme === "pearl" ? theme : "ivory";

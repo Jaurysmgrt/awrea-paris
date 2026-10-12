@@ -1,0 +1,26 @@
+import { defineConfig, devices } from "@playwright/test";
+
+const BASE_URL = process.env.BASE_URL ?? "http://localhost:3100";
+
+export default defineConfig({
+  testDir: "tests/e2e",
+  timeout: 60_000,
+  expect: { timeout: 10_000 },
+  fullyParallel: false,
+  workers: 1,
+  retries: 0,
+  reporter: [["list"]],
+  use: {
+    baseURL: BASE_URL,
+    locale: "fr-FR",
+    trace: "retain-on-failure",
+    launchOptions: process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {},
+  },
+  projects: [
+    { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } } },
+    { name: "mobile", use: { ...devices["Pixel 7"], browserName: "chromium" }, testMatch: /checkout|signatures|a11y/ },
+  ],
+  webServer: process.env.BASE_URL
+    ? undefined
+    : { command: "npx next start -p 3100", url: BASE_URL, reuseExistingServer: true, timeout: 120_000 },
+});

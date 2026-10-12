@@ -42,18 +42,19 @@
       background-color var(--dur-slow) var(--ease-silk),
       color var(--dur-slow) var(--ease-silk);
   }
-  html.scene-live .scene:not([data-theme="paper"]) {
+  /* Seules les sections de page suivent la scène (jamais les tiroirs, modales, panneaux) */
+  html.scene-live :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
     background-color: transparent;
   }
-  html.scene-live[data-scene="ink"] .scene:not([data-theme="paper"]) {
+  html.scene-live[data-scene="ink"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
     --fg: var(--color-ivory);
     --fg-soft: var(--color-ivory-soft);
     --line: color-mix(in oklab, var(--color-ivory) 24%, transparent);
     --accent: var(--color-gold);
     color: var(--fg);
   }
-  html.scene-live[data-scene="ivory"] .scene:not([data-theme="paper"]),
-  html.scene-live[data-scene="pearl"] .scene:not([data-theme="paper"]) {
+  html.scene-live[data-scene="ivory"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]),
+  html.scene-live[data-scene="pearl"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
     --fg: var(--color-ink);
     --fg-soft: var(--color-ink-soft);
     --line: color-mix(in oklab, var(--color-ink) 22%, transparent);

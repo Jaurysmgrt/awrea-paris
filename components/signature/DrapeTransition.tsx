@@ -220,8 +220,9 @@ export function DrapeTransition({ children }: { children: React.ReactNode }) {
       if (url.origin !== window.location.origin) return;
       if (url.pathname === window.location.pathname) return; // ancres, filtres : pas de rideau
       if (/\.(txt|xml|pdf|json)$/.test(url.pathname) || url.pathname.startsWith("/api/")) return;
+      // preventDefault sans stopPropagation : les onClick des liens (fermer le panier, le menu…)
+      // s'exécutent toujours, et next/link renonce à naviguer puisque l'événement est déjà « prévenu ».
       e.preventDefault();
-      e.stopPropagation();
       navigate(url.href);
     };
     document.addEventListener("click", onClick, true);
