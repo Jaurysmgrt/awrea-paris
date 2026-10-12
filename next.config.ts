@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // la référence de ton est lue à l'exécution par l'assistante et les agents
+  outputFileTracingIncludes: { "/**": ["./content/brand/voice.md"] },
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [360, 480, 640, 828, 1080, 1280, 1600, 1920],

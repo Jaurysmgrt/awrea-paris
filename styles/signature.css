@@ -584,6 +584,216 @@
     transform: translateY(-26%) scale(1.06);
     z-index: 5;
   }
+
+  /* =============================================== ASSISTANTE CLIENTES */
+  .assistant-launcher {
+    position: fixed;
+    z-index: var(--z-assistant);
+    right: max(var(--spacing-s), env(safe-area-inset-right));
+    bottom: max(var(--spacing-s), env(safe-area-inset-bottom));
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    min-height: var(--spacing-touch);
+    padding: var(--spacing-2xs) var(--spacing-s);
+    background: var(--color-ink);
+    color: var(--color-ivory);
+    border: var(--border-width-hair) solid color-mix(in oklab, var(--color-ivory) 30%, transparent);
+    font-family: var(--font-sans);
+    font-weight: var(--font-weight-light);
+    font-size: var(--text-step--2);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    transition:
+      background-color var(--dur-fast) var(--ease-silk),
+      color var(--dur-fast) var(--ease-silk);
+  }
+  .assistant-launcher:hover {
+    background: var(--color-gold);
+    color: var(--color-ink);
+  }
+  .assistant-launcher__mark {
+    width: var(--spacing-2xs);
+    height: var(--spacing-2xs);
+    background: var(--color-gold);
+    transform: rotate(45deg);
+    transition: background-color var(--dur-fast) var(--ease-silk);
+  }
+  .assistant-launcher:hover .assistant-launcher__mark {
+    background: var(--color-ink);
+  }
+  @media (max-width: 29.99rem) {
+    .assistant-launcher[data-open="false"] .assistant-launcher__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+    .assistant-launcher[data-open="false"] {
+      width: var(--spacing-touch);
+      justify-content: center;
+      padding: 0;
+    }
+  }
+  .assistant {
+    position: fixed;
+    z-index: var(--z-assistant);
+    inset: auto 0 0 0;
+    height: min(100dvh, 46rem);
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto auto auto;
+    border-top: var(--border-width-hair) solid var(--color-ink);
+    animation: assistant-in var(--dur-base) var(--ease-drape);
+  }
+  @media (min-width: 48rem) {
+    .assistant {
+      inset: auto var(--spacing-gutter) calc(var(--spacing-touch) + var(--spacing-m)) auto;
+      width: min(var(--container-panel), calc(100vw - 2 * var(--spacing-gutter)));
+      height: min(calc(100dvh - var(--header-h) - var(--spacing-3xl)), 40rem);
+      border: var(--border-width-hair) solid var(--color-ink);
+    }
+  }
+  @keyframes assistant-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--spacing-m));
+    }
+  }
+  .assistant__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-s);
+    padding: var(--spacing-xs) var(--spacing-s) var(--spacing-xs) var(--spacing-m);
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .assistant__log {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--spacing-m);
+    display: grid;
+    align-content: start;
+    gap: var(--spacing-s);
+  }
+  .assistant__msg {
+    display: grid;
+    gap: var(--spacing-2xs);
+    max-width: 92%;
+  }
+  .assistant__msg--user {
+    justify-self: end;
+  }
+  .assistant__bubble {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--text-step-0);
+    line-height: var(--leading-text);
+    text-align: left;
+    hyphens: manual;
+  }
+  .assistant__msg--user .assistant__bubble {
+    font-style: normal;
+    padding: var(--spacing-2xs) var(--spacing-s);
+    background: var(--color-ink);
+    color: var(--color-ivory);
+  }
+  .assistant__msg--assistant .assistant__bubble {
+    padding-left: var(--spacing-s);
+    border-left: var(--border-width-hair) solid var(--color-gold);
+  }
+  .assistant__msg[data-error="true"] .assistant__bubble {
+    color: var(--fg-soft);
+  }
+  .assistant__typing {
+    display: inline-flex;
+    gap: var(--spacing-3xs);
+    min-height: var(--spacing-m);
+    align-items: center;
+  }
+  .assistant__typing span {
+    width: var(--spacing-3xs);
+    height: var(--spacing-3xs);
+    background: var(--color-gold);
+    transform: rotate(45deg);
+    animation: assistant-dot 1.2s var(--ease-silk) infinite; /* token-ok : respiration */
+  }
+  .assistant__typing span:nth-child(2) {
+    animation-delay: 0.15s; /* token-ok */
+  }
+  .assistant__typing span:nth-child(3) {
+    animation-delay: 0.3s; /* token-ok */
+  }
+  @keyframes assistant-dot {
+    50% {
+      opacity: 0.2;
+    }
+  }
+  .assistant__status {
+    padding-left: var(--spacing-s);
+  }
+  .assistant__pieces {
+    display: grid;
+    gap: var(--spacing-2xs);
+  }
+  .assistant__piece {
+    display: grid;
+    grid-template-columns: var(--spacing-xl) 1fr;
+    gap: var(--spacing-xs);
+    align-items: center;
+    padding: var(--spacing-2xs);
+    border: var(--border-width-hair) solid var(--line);
+    transition: border-color var(--dur-fast) var(--ease-silk);
+  }
+  .assistant__piece:hover {
+    border-color: var(--fg);
+  }
+  .assistant__piece img {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    background: var(--color-pearl);
+  }
+  .assistant__piece > span {
+    display: grid;
+    gap: var(--spacing-3xs);
+  }
+  .assistant__handoff {
+    border-top: var(--border-width-hair) solid var(--line);
+    padding-top: var(--spacing-2xs);
+  }
+  .assistant__suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2xs);
+    padding: 0 var(--spacing-m) var(--spacing-s);
+  }
+  .assistant__suggestions .chip {
+    letter-spacing: var(--tracking-snug);
+  }
+  .assistant__form {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--spacing-xs);
+    align-items: end;
+    padding: var(--spacing-xs) var(--spacing-m);
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .assistant__input {
+    min-height: var(--spacing-touch) !important;
+    max-height: calc(var(--spacing-2xl) * 1.2);
+    resize: none;
+    border: 0 !important;
+    border-bottom: var(--border-width-hair) solid var(--line) !important;
+    padding: var(--spacing-2xs) 0 !important;
+  }
+  .assistant__send {
+    padding-inline: var(--spacing-m);
+  }
+  .assistant__foot {
+    padding: 0 var(--spacing-m) var(--spacing-xs);
+    font-size: var(--text-step--2);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

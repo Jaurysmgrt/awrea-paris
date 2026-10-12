@@ -1,22 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { kv } from "@/lib/store";
+import { addInbox, type InboxMessage } from "@/lib/inbox";
 import { sendEmail } from "@/lib/email/send";
 import { identity } from "@/content/brand/identity";
 import { brandEmail } from "@/lib/email/templates";
 
-export interface InboxMessage {
-  id: string;
-  date: string;
-  channel: "contact" | "rendez-vous" | "assistant" | "email" | "instagram";
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  orderNumber?: string;
-  appointment?: { type: string; preferredDate?: string; slot?: string };
-  status: "new" | "drafted" | "answered" | "escalated";
-}
 
 const Body = z.object({
   kind: z.enum(["contact", "rendez-vous"]),
@@ -47,7 +35,7 @@ export async function POST(req: Request) {
     appointment: d.kind === "rendez-vous" ? { type: d.appointmentType ?? "essayage", preferredDate: d.preferredDate, slot: d.slot } : undefined,
     status: "new",
   };
-  await kv.push("inbox", msg, 2000);
+  await addInbox(msg);
   // accusé de réception à l'image de la marque
   await sendEmail({
     to: d.email,
