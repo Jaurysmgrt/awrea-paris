@@ -11,6 +11,7 @@ import { ProductGallery } from "@/components/commerce/ProductGallery";
 import { ProductForm } from "@/components/commerce/ProductForm";
 import { QuickAdd } from "@/components/commerce/QuickAdd";
 import { EditionNumber } from "@/components/signature/EditionNumber";
+import { ViewTracker } from "@/components/commerce/ViewTracker";
 import { shop } from "@/content/settings";
 import { formatPrice } from "@/lib/format";
 
@@ -35,6 +36,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   return (
     <>
       <JsonLd data={productSchema(product)} />
+      <ViewTracker handle={product.handle} />
       <Section theme="ivory" className="product">
         <div className="container product__grid">
           <div className="product__gallery">

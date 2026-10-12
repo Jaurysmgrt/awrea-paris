@@ -8,6 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { imageAt } from "@/lib/media";
 
 type Piece = { handle: string; title: string; price: string; image: string; edition: string; availability: string };
 type Msg = { role: "user" | "assistant"; content: string; pieces?: Piece[]; handoff?: string; error?: boolean };
@@ -218,7 +219,7 @@ export function Assistant() {
                     <li key={p.handle}>
                       <Link href={`/boutique/${p.handle}`} className="assistant__piece">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={p.image.startsWith("http") ? `${p.image}${p.image.includes("?") ? "&" : "?"}width=160` : `${p.image}-480.webp`} alt="" width={48} height={72} loading="lazy" />
+                        <img src={imageAt(p.image, 480)} alt="" width={48} height={72} loading="lazy" />
                         <span>
                           <span className="t-h4">{p.title}</span>
                           <span className="t-label t-soft">

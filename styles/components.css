@@ -170,6 +170,9 @@
   .t-center {
     text-align: center;
   }
+  .t-left {
+    text-align: left;
+  }
   .t-center p,
   p.t-center {
     text-align: center;

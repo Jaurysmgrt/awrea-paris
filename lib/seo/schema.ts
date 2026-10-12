@@ -7,10 +7,11 @@ import { editionInfo, productAvailability } from "@/lib/commerce/availability";
 import type { Product } from "@/lib/commerce/types";
 import type { FaqItem } from "@/content/fr/faq";
 import { absolute, siteUrl } from "./metadata";
+import { imageAt } from "@/lib/media";
 
 const orgId = `${siteUrl}/#organisation`;
 
-const img = (src: string) => (src.startsWith("http") ? src : absolute(/\.(webp|jpg|png)$/.test(src) ? src : `${src}.webp`));
+const img = (src: string) => (src.startsWith("http") ? src : absolute(imageAt(src, 1200)));
 
 export function organizationSchema() {
   return {

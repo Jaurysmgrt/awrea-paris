@@ -3,7 +3,8 @@
  * En production, le paiement, les taxes, la livraison et la création de commande sont faits
  * par le checkout Shopify ; cette route n'est alors jamais appelée.
  */
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { runCommandesStockAgent } from "@/lib/agents/team/commandes-stock";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { CART_COOKIE, readCart } from "@/lib/commerce/cart";
@@ -19,6 +20,7 @@ import { formatPrice } from "@/lib/format";
 import { onOrderCreated } from "@/lib/agents/events";
 import { shopifyEnabled } from "@/lib/shopify/storefront";
 import type { Order } from "@/lib/commerce/types";
+import { imageAt } from "@/lib/media";
 
 export const dynamic = "force-dynamic";
 
@@ -130,7 +132,7 @@ export async function POST(req: Request) {
           ? "Votre commande est confirmée. Une partie de vos pièces est désormais en fabrication à l’atelier : nous vous écrirons dès leur expédition."
           : `Votre commande est confirmée. Votre pièce sera pliée dans du papier de soie et expédiée sous ${shop.dispatchDays}, avec son certificat numéroté.`,
       ],
-      items: lines.map((l) => ({ title: l.title, meta: `Taille ${l.size} · ${l.editionLabel}`, price: l.unitPrice, image: `${products.find((p) => p.handle === l.handle)?.images[0].src}-480.webp` })),
+      items: lines.map((l) => ({ title: l.title, meta: `Taille ${l.size} · ${l.editionLabel}`, price: l.unitPrice, image: imageAt(products.find((p) => p.handle === l.handle)?.images[0].src ?? "", 480) })),
       totals: [
         { label: "Livraison", value: shippingPrice ? formatPrice(shippingPrice) : "Offerte" },
         ...(cart.gift.wrap ? [{ label: "Emballage cadeau", value: formatPrice(cart.giftWrapPrice) }] : []),
@@ -143,6 +145,7 @@ export async function POST(req: Request) {
   }).catch((e) => console.error("[checkout] e-mail", e));
 
   await onOrderCreated(order).catch((e) => console.error("[checkout] agents", e));
+  after(() => runCommandesStockAgent("evenement").catch((e) => console.error("[agent commandes-stock]", e)));
 
   const token = sign({ n: order.number }, 60 * 60 * 24 * 7);
   return NextResponse.json({ ok: true, number: order.number, token });

@@ -2,6 +2,7 @@
 
 @layer base {
   html {
+    accent-color: var(--color-ink);
     background: var(--color-ivory);
     color: var(--fg);
     -webkit-text-size-adjust: 100%;
@@ -67,7 +68,7 @@
 
   /* Paragraphes de texte : toujours justifiés, césure française.
      Jamais les étiquettes, titres, prix, citations calligraphiées ni la navigation. */
-  p:where(:not(.t-label, .eyebrow, .price, .t-h1, .t-h2, .t-h3, .t-h4, .t-display, .t-script, .t-center, .badge)) {
+  p:where(:not(.t-label, .eyebrow, .price, .t-h1, .t-h2, .t-h3, .t-h4, .t-display, .t-script, .t-center, .t-left, .badge)) {
     text-align: justify;
     text-justify: inter-word;
     hyphens: auto;

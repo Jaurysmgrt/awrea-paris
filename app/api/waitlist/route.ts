@@ -2,14 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { kv } from "@/lib/store";
 import { getProduct } from "@/lib/commerce";
+import type { WaitlistEntry } from "@/lib/waitlist";
 
-export interface WaitlistEntry {
-  email: string;
-  handle: string;
-  size: string | null;
-  date: string;
-  notifiedAt?: string;
-}
 
 const Body = z.object({ email: z.email(), handle: z.string().min(1).max(120), size: z.string().max(4).nullable(), consent: z.literal(true) });
 

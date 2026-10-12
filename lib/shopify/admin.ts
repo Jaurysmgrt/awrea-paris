@@ -32,3 +32,198 @@ export async function subscribeNewsletter(email: string): Promise<void> {
     { input: { email, emailMarketingConsent: { marketingState: "SUBSCRIBED", marketingOptInLevel: "CONFIRMED_OPT_IN" }, tags: ["newsletter", "site"] } },
   );
 }
+
+/* ------------------------------------------------------------------------
+ * Opérations utilisées par les agents (mode Shopify).
+ * À valider sur une boutique de développement avant la mise en production.
+ * ---------------------------------------------------------------------- */
+
+type UserErrors = { userErrors: { field?: string[] | null; message: string }[] };
+
+function assertNoErrors(label: string, r: UserErrors | null | undefined) {
+  if (r?.userErrors?.length) throw new Error(`${label} : ${r.userErrors.map((e) => e.message).join(" ; ")}`);
+}
+
+let locationCache: string | null = null;
+export async function primaryLocationId(): Promise<string> {
+  if (locationCache) return locationCache;
+  const d = await admin<{ locations: { nodes: { id: string }[] } }>(`{ locations(first: 1) { nodes { id } } }`);
+  locationCache = d.locations.nodes[0]?.id ?? "";
+  return locationCache;
+}
+
+export async function productIdByHandle(handle: string): Promise<string | null> {
+  const d = await admin<{ productByIdentifier: { id: string } | null }>(
+    `query P($h: String!) { productByIdentifier(identifier: { handle: $h }) { id } }`,
+    { h: handle },
+  );
+  return d.productByIdentifier?.id ?? null;
+}
+
+export interface NewShopifyProduct {
+  handle: string;
+  title: string;
+  descriptionHtml: string;
+  productType: string;
+  tags: string[];
+  status: "ACTIVE" | "DRAFT";
+  seo: { title: string; description: string };
+  metafields: { key: string; type: string; value: string }[];
+  images: { url: string; alt: string }[];
+  sizes: { size: string; quantity: number; preorder: boolean; sku: string }[];
+  price: number; // centimes
+}
+
+export async function shopifyCreateProduct(p: NewShopifyProduct): Promise<{ id: string; handle: string }> {
+  const created = await admin<{ productCreate: UserErrors & { product: { id: string; handle: string } | null } }>(
+    `mutation C($product: ProductCreateInput!, $media: [CreateMediaInput!]) {
+      productCreate(product: $product, media: $media) { product { id handle } userErrors { field message } }
+    }`,
+    {
+      product: {
+        handle: p.handle,
+        title: p.title,
+        descriptionHtml: p.descriptionHtml,
+        productType: p.productType,
+        tags: p.tags,
+        status: p.status,
+        seo: p.seo,
+        metafields: p.metafields.map((m) => ({ namespace: "awrea", ...m })),
+        productOptions: [{ name: "Taille", values: p.sizes.map((s) => ({ name: s.size })) }],
+      },
+      media: p.images.map((i) => ({ originalSource: i.url, alt: i.alt, mediaContentType: "IMAGE" })),
+    },
+  );
+  assertNoErrors("Création du produit", created.productCreate);
+  const product = created.productCreate.product!;
+  const locationId = await primaryLocationId();
+  const variants = await admin<{ productVariantsBulkCreate: UserErrors }>(
+    `mutation V($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
+      productVariantsBulkCreate(productId: $productId, variants: $variants, strategy: REMOVE_STANDALONE_VARIANT) { userErrors { field message } }
+    }`,
+    {
+      productId: product.id,
+      variants: p.sizes.map((s) => ({
+        optionValues: [{ optionName: "Taille", name: s.size }],
+        price: (p.price / 100).toFixed(2),
+        inventoryPolicy: s.preorder ? "CONTINUE" : "DENY",
+        inventoryItem: { sku: s.sku, tracked: true },
+        inventoryQuantities: [{ locationId, availableQuantity: s.quantity }],
+      })),
+    },
+  );
+  assertNoErrors("Création des tailles", variants.productVariantsBulkCreate);
+  return product;
+}
+
+export async function shopifyUpdateProduct(handle: string, input: { title?: string; descriptionHtml?: string; seo?: { title: string; description: string }; mediaAlts?: { id: string; alt: string }[] }) {
+  const id = await productIdByHandle(handle);
+  if (!id) throw new Error(`Produit ${handle} introuvable`);
+  const { mediaAlts, ...rest } = input;
+  const r = await admin<{ productUpdate: UserErrors }>(
+    `mutation U($product: ProductUpdateInput!) { productUpdate(product: $product) { userErrors { field message } } }`,
+    { product: { id, ...rest } },
+  );
+  assertNoErrors("Mise à jour du produit", r.productUpdate);
+  if (mediaAlts?.length) {
+    const m = await admin<{ productUpdateMedia: UserErrors }>(
+      `mutation M($productId: ID!, $media: [UpdateMediaInput!]!) { productUpdateMedia(productId: $productId, media: $media) { userErrors { field message } } }`,
+      { productId: id, media: mediaAlts.map((a) => ({ id: a.id, alt: a.alt })) },
+    );
+    assertNoErrors("Textes alternatifs", m.productUpdateMedia);
+  }
+}
+
+export async function shopifySetPrice(handle: string, cents: number) {
+  const d = await admin<{ productByIdentifier: { id: string; variants: { nodes: { id: string }[] } } | null }>(
+    `query P($h: String!) { productByIdentifier(identifier: { handle: $h }) { id variants(first: 50) { nodes { id } } } }`,
+    { h: handle },
+  );
+  if (!d.productByIdentifier) throw new Error(`Produit ${handle} introuvable`);
+  const r = await admin<{ productVariantsBulkUpdate: UserErrors }>(
+    `mutation P($productId: ID!, $variants: [ProductVariantsBulkInput!]!) { productVariantsBulkUpdate(productId: $productId, variants: $variants) { userErrors { field message } } }`,
+    { productId: d.productByIdentifier.id, variants: d.productByIdentifier.variants.nodes.map((v) => ({ id: v.id, price: (cents / 100).toFixed(2) })) },
+  );
+  assertNoErrors("Changement de prix", r.productVariantsBulkUpdate);
+}
+
+export async function shopifyDeleteProduct(handle: string) {
+  const id = await productIdByHandle(handle);
+  if (!id) throw new Error(`Produit ${handle} introuvable`);
+  const r = await admin<{ productDelete: UserErrors }>(`mutation D($id: ID!) { productDelete(input: { id: $id }) { userErrors { field message } } }`, { id });
+  assertNoErrors("Suppression du produit", r.productDelete);
+}
+
+export async function shopifySetStock(variantId: string, quantity: number) {
+  const d = await admin<{ productVariant: { inventoryItem: { id: string } } | null }>(
+    `query V($id: ID!) { productVariant(id: $id) { inventoryItem { id } } }`,
+    { id: variantId },
+  );
+  if (!d.productVariant) throw new Error("Taille introuvable");
+  const r = await admin<{ inventorySetQuantities: UserErrors }>(
+    `mutation S($input: InventorySetQuantitiesInput!) { inventorySetQuantities(input: $input) { userErrors { field message } } }`,
+    {
+      input: {
+        name: "available",
+        reason: "correction",
+        ignoreCompareQuantity: true,
+        quantities: [{ inventoryItemId: d.productVariant.inventoryItem.id, locationId: await primaryLocationId(), quantity }],
+      },
+    },
+  );
+  assertNoErrors("Mise à jour du stock", r.inventorySetQuantities);
+}
+
+/** Remboursement intégral à partir du remboursement suggéré par Shopify. */
+export async function shopifyRefundOrder(orderId: string, note: string) {
+  const d = await admin<{
+    order: {
+      suggestedRefund: {
+        refundLineItems: { lineItem: { id: string }; quantity: number }[];
+        suggestedTransactions: { gateway: string; parentTransaction: { id: string } | null; amountSet: { shopMoney: { amount: string } } }[];
+      };
+    } | null;
+  }>(
+    `query R($id: ID!) { order(id: $id) { suggestedRefund(refundShipping: true) {
+      refundLineItems { lineItem { id } quantity }
+      suggestedTransactions { gateway parentTransaction { id } amountSet { shopMoney { amount } } }
+    } } }`,
+    { id: orderId },
+  );
+  if (!d.order) throw new Error("Commande introuvable");
+  const s = d.order.suggestedRefund;
+  const r = await admin<{ refundCreate: UserErrors }>(
+    `mutation R($input: RefundInput!) { refundCreate(input: $input) { userErrors { field message } } }`,
+    {
+      input: {
+        orderId,
+        note,
+        notify: true,
+        shipping: { fullRefund: true },
+        refundLineItems: s.refundLineItems.map((l) => ({ lineItemId: l.lineItem.id, quantity: l.quantity, restockType: "RETURN" })),
+        transactions: s.suggestedTransactions.map((t) => ({ orderId, gateway: t.gateway, kind: "REFUND", amount: t.amountSet.shopMoney.amount, parentId: t.parentTransaction?.id })),
+      },
+    },
+  );
+  assertNoErrors("Remboursement", r.refundCreate);
+}
+
+export async function shopifyCancelOrder(orderId: string, refund: boolean) {
+  const r = await admin<{ orderCancel: { orderCancelUserErrors: { message: string }[] } }>(
+    `mutation C($orderId: ID!, $refund: Boolean!) { orderCancel(orderId: $orderId, reason: CUSTOMER, refund: $refund, restock: true, notifyCustomer: true) { orderCancelUserErrors { message } } }`,
+    { orderId, refund },
+  );
+  if (r.orderCancel.orderCancelUserErrors.length) throw new Error(r.orderCancel.orderCancelUserErrors.map((e) => e.message).join(" ; "));
+}
+
+export async function shopifyAbandonedCheckouts(): Promise<{ email: string; value: number; items: string[]; at: string }[]> {
+  const d = await admin<{ abandonedCheckouts: { nodes: { createdAt: string; customer: { email: string | null } | null; totalPriceSet: { shopMoney: { amount: string } }; lineItems: { nodes: { title: string; quantity: number }[] } }[] } }>(
+    `{ abandonedCheckouts(first: 30, reverse: true) { nodes { createdAt customer { email } totalPriceSet { shopMoney { amount } } lineItems(first: 10) { nodes { title quantity } } } } }`,
+  );
+  return d.abandonedCheckouts.nodes.map((n) => ({
+    email: n.customer?.email ?? "anonyme",
+    value: Math.round(parseFloat(n.totalPriceSet.shopMoney.amount) * 100),
+    items: n.lineItems.nodes.map((l) => l.title),
+    at: n.createdAt,
+  }));
+}

@@ -1,16 +1,14 @@
 import type { Image } from "@/lib/commerce/types";
+import { imageAt, isSized } from "@/lib/media";
 
 /**
  * Image responsive. Les visuels locaux existent en 480, 960 et pleine largeur (WebP) ;
  * les visuels Shopify utilisent les paramètres de largeur du CDN.
  */
 export function srcSet(src: string): { src: string; srcSet: string } {
-  if (src.startsWith("http")) {
-    const u = (w: number) => `${src}${src.includes("?") ? "&" : "?"}width=${w}`;
-    return { src: u(1200), srcSet: [480, 960, 1600].map((w) => `${u(w)} ${w}w`).join(", ") };
-  }
-  if (/\.(webp|jpg|png|svg)$/.test(src)) return { src, srcSet: "" };
-  return { src: `${src}.webp`, srcSet: `${src}-480.webp 480w, ${src}-960.webp 960w, ${src}.webp 1200w` };
+  if (src.startsWith("http")) return { src: imageAt(src, 1200), srcSet: ([480, 960, 1200] as const).map((w) => `${imageAt(src, w)} ${w}w`).join(", ") };
+  if (!isSized(src)) return { src, srcSet: "" };
+  return { src: imageAt(src, 1200), srcSet: `${imageAt(src, 480)} 480w, ${imageAt(src, 960)} 960w, ${imageAt(src, 1200)} 1200w` };
 }
 
 type Props = {

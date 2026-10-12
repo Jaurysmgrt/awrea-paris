@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { runServiceClientAgent } from "@/lib/agents/team/service-client";
 import { z } from "zod";
 import { addInbox, type InboxMessage } from "@/lib/inbox";
 import { sendEmail } from "@/lib/email/send";
@@ -53,6 +54,8 @@ export async function POST(req: Request) {
     }),
     tag: "accuse-reception",
   }).catch((e) => console.error("[contact] e-mail", e));
+  // l'agent Service client traite le message juste après la réponse
+  after(() => runServiceClientAgent("evenement").catch((e) => console.error("[agent service-client]", e)));
   return NextResponse.json({
     ok: true,
     message: d.kind === "rendez-vous" ? "Merci. La créatrice vous écrira très vite pour fixer le rendez-vous." : "Merci. L’atelier vous répond sous 48 heures ouvrées.",
