@@ -14,7 +14,7 @@ export function SizePicker({ product, value, onChange, legend = "Taille" }: { pr
           const a = variantAvailability(product, v);
           const label = a === "soldout" ? "épuisée" : a === "preorder" ? "sur commande" : a === "low" ? "dernière pièce" : "disponible";
           return (
-            <label key={v.id} className="chip" data-unavailable={a === "soldout" || a === "preorder"} title={label}>
+            <label key={v.id} className="chip" data-unavailable={a === "soldout"} data-preorder={a === "preorder"} title={label}>
               <input type="radio" name={name} value={v.id} checked={value === v.id} onChange={() => onChange(v)} />
               <span>{v.size === "TU" ? "Taille unique" : v.size}</span>
               <span className="sr-only">, {label}</span>
@@ -22,6 +22,11 @@ export function SizePicker({ product, value, onChange, legend = "Taille" }: { pr
           );
         })}
       </div>
+      {product.variants.some((v) => variantAvailability(product, v) === "preorder") ? (
+        <p className="t-note size-picker__legend">
+          <span className="size-picker__dot" aria-hidden="true" /> sur commande{product.leadTimeWeeks ? `, ${product.leadTimeWeeks} semaines de fabrication` : ""}
+        </p>
+      ) : null}
     </fieldset>
   );
 }

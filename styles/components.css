@@ -520,6 +520,14 @@
     text-decoration: line-through;
     text-decoration-thickness: var(--border-width-hair);
   }
+  .chip[data-preorder="true"]::after {
+    content: "";
+    width: var(--spacing-3xs);
+    height: var(--spacing-3xs);
+    margin-left: var(--spacing-3xs);
+    background: var(--color-gold);
+    transform: rotate(45deg) translateY(-0.4em);
+  }
   .chip input {
     position: absolute;
     opacity: 0;

@@ -175,6 +175,17 @@
     flex-wrap: wrap;
     gap: var(--spacing-2xs);
   }
+  .size-picker__legend {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2xs);
+  }
+  .size-picker__dot {
+    width: var(--spacing-3xs);
+    height: var(--spacing-3xs);
+    background: var(--color-gold);
+    transform: rotate(45deg);
+  }
   .size-picker .chip {
     position: relative;
   }
