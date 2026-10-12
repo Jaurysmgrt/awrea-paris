@@ -1,0 +1,332 @@
+/* Les interactions signature d'Awrea Paris. */
+
+@layer components {
+  /* ================================================ 1. LUMIÈRE DORÉE */
+  .golden-light {
+    --mx: 60%;
+    --my: 40%;
+    --gl-radius: clamp(9rem, 6rem + 14vw, 22rem);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-silk);
+  }
+  .golden-light[data-on="true"] {
+    opacity: var(--gl-intensity, 1);
+  }
+  .golden-light__lace {
+    position: absolute;
+    inset: 0;
+    background-image: url("/media/texture/lace-gold.webp");
+    background-size: clamp(14rem, 10rem + 14vw, 26rem);
+    opacity: 0.55;
+    mask-image: radial-gradient(circle var(--gl-radius) at var(--mx) var(--my), var(--color-ink) 0%, color-mix(in oklab, var(--color-ink) 45%, transparent) 45%, transparent 100%);
+    -webkit-mask-image: radial-gradient(circle var(--gl-radius) at var(--mx) var(--my), var(--color-ink) 0%, color-mix(in oklab, var(--color-ink) 45%, transparent) 45%, transparent 100%);
+  }
+  .golden-light__halo {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle calc(var(--gl-radius) * 1.3) at var(--mx) var(--my), color-mix(in oklab, var(--color-gold) 16%, transparent), transparent 70%);
+    mix-blend-mode: screen;
+  }
+  .scene:has(> .golden-light) > :not(.golden-light) {
+    position: relative;
+  }
+
+  /* ============================================ 2. RÉVÉLATION EN DENTELLE */
+  .lace-reveal {
+    --lace-size: 220px; /* token-ok : valeur de départ, animée */
+    --lace-open: 0%;
+    position: relative;
+    min-height: 100svh;
+    display: grid;
+    overflow: hidden;
+    background: var(--color-ink);
+  }
+  .lace-reveal__media,
+  .lace-reveal__veil {
+    position: absolute;
+    inset: 0;
+  }
+  .lace-reveal__media .video,
+  .lace-reveal__media video {
+    width: 100%;
+    height: 100%;
+  }
+  .lace-reveal__media video {
+    object-fit: cover;
+  }
+  .lace-reveal[data-state="masked"] .lace-reveal__media {
+    mask-image: url("/media/texture/lace-mask.png"), radial-gradient(circle at 50% 50%, var(--color-ink) var(--lace-open), transparent calc(var(--lace-open) + 12%));
+    mask-size: var(--lace-size), 100% 100%;
+    mask-position: center;
+    mask-repeat: repeat, no-repeat;
+    -webkit-mask-image: url("/media/texture/lace-mask.png"), radial-gradient(circle at 50% 50%, var(--color-ink) var(--lace-open), transparent calc(var(--lace-open) + 12%));
+    -webkit-mask-size: var(--lace-size), 100% 100%;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: repeat, no-repeat;
+  }
+  .lace-reveal[data-state="idle"] .lace-reveal__media {
+    opacity: 0;
+  }
+  .lace-reveal__veil {
+    background: linear-gradient(to bottom, color-mix(in oklab, var(--color-ink) 45%, transparent), color-mix(in oklab, var(--color-ink) 10%, transparent) 35%, color-mix(in oklab, var(--color-ink) 60%, transparent));
+    pointer-events: none;
+  }
+  .lace-reveal .video__toggle {
+    position: absolute;
+    right: var(--spacing-gutter);
+    bottom: var(--spacing-m);
+    z-index: 2;
+    color: var(--color-ivory);
+  }
+
+  /* =========================================== 3. TRANSITION DRAPÉE */
+  .drape {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-transition);
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .drape[data-active="true"] {
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .drape__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .drape__fallback {
+    position: absolute;
+    inset: 0;
+    background: var(--color-ink);
+    opacity: 0;
+    visibility: hidden;
+  }
+  .drape__mark {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--color-ivory);
+    opacity: 0;
+    visibility: hidden;
+  }
+  .drape__logo {
+    width: clamp(5rem, 4rem + 4vw, 8rem);
+    height: auto;
+  }
+
+  /* ================================================ 5. CERTIFICAT */
+  .certificate {
+    position: relative;
+    display: grid;
+    gap: var(--spacing-2xs);
+    padding: var(--spacing-m) var(--spacing-m) var(--spacing-s);
+    border: var(--border-width-hair) solid var(--line);
+    outline: var(--border-width-hair) solid var(--line);
+    outline-offset: calc(-1 * var(--spacing-2xs));
+    background-image: url("/media/texture/paper.webp");
+    background-size: 384px; /* token-ok : taille de la tuile papier */
+    color: var(--color-ink);
+  }
+  [data-theme="ink"] .certificate {
+    color: var(--color-ink);
+  }
+  .certificate__corner::before,
+  .certificate__corner::after {
+    content: "";
+    position: absolute;
+    width: var(--spacing-s);
+    height: var(--spacing-s);
+    border-color: var(--color-gold);
+    border-style: solid;
+  }
+  .certificate__corner::before {
+    top: var(--spacing-3xs);
+    left: var(--spacing-3xs);
+    border-width: var(--border-width-hair) 0 0 var(--border-width-hair);
+  }
+  .certificate__corner::after {
+    bottom: var(--spacing-3xs);
+    right: var(--spacing-3xs);
+    border-width: 0 var(--border-width-hair) var(--border-width-hair) 0;
+  }
+  .certificate__number {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: var(--spacing-2xs);
+    font-family: var(--font-display);
+    line-height: var(--leading-tight);
+    text-align: center;
+  }
+  .certificate__no {
+    font-size: var(--text-step-1);
+    font-style: italic;
+  }
+  .certificate__n {
+    font-size: var(--text-step-4);
+  }
+  .certificate__slash {
+    font-size: var(--text-step-3);
+    color: var(--color-gold);
+    font-weight: var(--font-weight-regular);
+  }
+  .certificate__total {
+    font-size: var(--text-step-2);
+  }
+  .certificate__unique {
+    font-family: var(--font-script);
+    font-size: var(--text-step-3);
+  }
+  .certificate__head,
+  .certificate__foot {
+    color: var(--color-ink-soft);
+  }
+  .certificate__remaining {
+    color: var(--color-ink);
+  }
+  .edition-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-3xs);
+    color: var(--fg-soft);
+  }
+  .edition-inline::before {
+    content: "";
+    width: var(--spacing-2xs);
+    height: var(--spacing-2xs);
+    border: var(--border-width-hair) solid var(--color-gold);
+    transform: rotate(45deg);
+  }
+
+  /* ================================================ 7. SHOP THE LOOK */
+  .look {
+    position: relative;
+  }
+  .look__stage {
+    position: relative;
+  }
+  .look__dot {
+    position: absolute;
+    width: var(--spacing-touch);
+    height: var(--spacing-touch);
+    transform: translate(-50%, -50%);
+    border-radius: var(--radius-full);
+    display: grid;
+    place-items: center;
+    z-index: 2;
+  }
+  .look__dot::before,
+  .look__dot::after {
+    content: "";
+    position: absolute;
+    border-radius: var(--radius-full);
+  }
+  .look__dot::before {
+    width: var(--spacing-xs);
+    height: var(--spacing-xs);
+    background: var(--color-gold);
+    box-shadow: 0 0 0 var(--spacing-3xs) color-mix(in oklab, var(--color-ivory) 70%, transparent); /* token-ok : anneau, pas une ombre portée */
+    transition: transform var(--dur-fast) var(--ease-silk);
+  }
+  .look__dot::after {
+    width: var(--spacing-l);
+    height: var(--spacing-l);
+    border: var(--border-width-hair) solid var(--color-ivory);
+    animation: look-pulse 2.8s var(--ease-silk) infinite; /* token-ok : respiration lente */
+  }
+  .look__dot[aria-expanded="true"]::before {
+    transform: scale(1.4);
+  }
+  @keyframes look-pulse {
+    0% {
+      transform: scale(0.5);
+      opacity: 0.9;
+    }
+    100% {
+      transform: scale(1.4);
+      opacity: 0;
+    }
+  }
+  .look__panel {
+    position: absolute;
+    z-index: 3;
+    top: var(--y);
+    width: min(19rem, 86%);
+    transform: translateY(-50%);
+    padding: var(--spacing-s);
+    border: var(--border-width-hair) solid var(--color-ink);
+    animation: look-in var(--dur-base) var(--ease-silk);
+  }
+  .look__panel[data-side="right"] {
+    right: var(--spacing-s);
+  }
+  .look__panel[data-side="left"] {
+    left: var(--spacing-s);
+  }
+  @keyframes look-in {
+    from {
+      opacity: 0;
+      transform: translateY(calc(-50% + var(--spacing-s)));
+    }
+  }
+  .look__close {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  .look__caption {
+    display: grid;
+    gap: var(--spacing-3xs);
+    margin-top: var(--spacing-s);
+  }
+  @media (max-width: 47.99rem) {
+    .look__panel {
+      position: relative;
+      top: auto;
+      left: auto !important;
+      right: auto !important;
+      width: 100%;
+      transform: none;
+      margin-top: var(--spacing-s);
+      animation: none;
+    }
+  }
+
+  /* ================================================ VIDÉOS */
+  .video {
+    position: relative;
+    overflow: hidden;
+  }
+  .video video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: var(--color-ink);
+  }
+  .video__toggle {
+    position: absolute;
+    right: var(--spacing-2xs);
+    bottom: var(--spacing-2xs);
+    color: var(--color-ivory);
+    opacity: 0.75;
+    transition: opacity var(--dur-fast) var(--ease-silk);
+  }
+  .video__toggle:hover,
+  .video__toggle:focus-visible {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .look__dot::after {
+    animation: none;
+  }
+}

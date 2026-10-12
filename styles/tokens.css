@@ -1,0 +1,172 @@
+/*
+ * AWREA PARIS — DESIGN SYSTEM
+ * Source unique de toutes les valeurs visuelles du site.
+ * Aucune couleur, taille, durée ou courbe ne doit être écrite en dur ailleurs
+ * (vérifié par `npm run audit:tokens`).
+ *
+ * Les tokens sont déclarés dans @theme pour générer les utilitaires Tailwind
+ * (bg-ink, text-ivory, font-display, text-step-2, p-gutter, …).
+ */
+
+@theme {
+  /* --------------------------------------------------------------- COULEURS
+     Quatre couleurs, aucune autre. Les nuances sont des mélanges de celles-ci. */
+  --color-*: initial;
+  --color-ink: #0b0b0b;
+  --color-ivory: #f4f1eb;
+  --color-pearl: #d9d6d0;
+  --color-gold: #b8955a;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  /* rôles dérivés (contraste AA vérifié) */
+  --color-ink-soft: color-mix(in oklab, var(--color-ink) 72%, var(--color-ivory));
+  --color-ivory-soft: color-mix(in oklab, var(--color-ivory) 74%, var(--color-ink));
+  --color-pearl-deep: color-mix(in oklab, var(--color-pearl) 82%, var(--color-ink));
+
+  /* ------------------------------------------------------------ TYPOGRAPHIE
+     Les familles pointent vers les variables posées par next/font (app/fonts.ts).
+     Pour passer aux polices officielles : modifier uniquement app/fonts.ts. */
+  --font-*: initial;
+  --font-display: var(--font-bodoni), "Bodoni 72", "Didot", serif;
+  --font-serif: var(--font-cormorant), "Cormorant", "Garamond", serif;
+  --font-script: var(--font-pinyon), "Snell Roundhand", cursive;
+  --font-sans: var(--font-jost), "Futura", "Helvetica Neue", sans-serif;
+
+  /* échelle fluide unique, 360 px → 1920 px */
+  --text-*: initial;
+  --text-step--2: clamp(0.6875rem, 0.66rem + 0.08vw, 0.75rem);
+  --text-step--1: clamp(0.8125rem, 0.78rem + 0.12vw, 0.9rem);
+  --text-step-0: clamp(1.125rem, 1.06rem + 0.26vw, 1.375rem);
+  --text-step-1: clamp(1.3125rem, 1.2rem + 0.45vw, 1.75rem);
+  --text-step-2: clamp(1.625rem, 1.42rem + 0.9vw, 2.5rem);
+  --text-step-3: clamp(2rem, 1.6rem + 1.7vw, 3.75rem);
+  --text-step-4: clamp(2.5rem, 1.75rem + 3.2vw, 5.5rem);
+  --text-step-5: clamp(3rem, 1.9rem + 5vw, 8.25rem);
+  --text-step-6: clamp(3.5rem, 1.6rem + 8.6vw, 12.5rem);
+
+  --leading-*: initial;
+  --leading-tight: 1.02;
+  --leading-snug: 1.18;
+  --leading-text: 1.55;
+  --leading-loose: 1.8;
+
+  --tracking-*: initial;
+  --tracking-display: -0.01em;
+  --tracking-text: 0.005em;
+  --tracking-snug: 0.16em;
+  --tracking-label: 0.28em;
+  --tracking-wide: 0.5em;
+
+  --font-weight-*: initial;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+
+  /* ------------------------------------------------------------ ESPACEMENTS
+     Une seule échelle. Les valeurs « l » et au-delà sont fluides. */
+  --spacing-*: initial;
+  --spacing-0: 0;
+  --spacing-hair: 1px;
+  --spacing-3xs: 0.25rem;
+  --spacing-2xs: 0.5rem;
+  --spacing-xs: 0.75rem;
+  --spacing-s: 1rem;
+  --spacing-m: 1.5rem;
+  --spacing-l: clamp(2rem, 1.7rem + 1.2vw, 3rem);
+  --spacing-xl: clamp(3rem, 2.4rem + 2.6vw, 5rem);
+  --spacing-2xl: clamp(4.5rem, 3.4rem + 4.6vw, 8rem);
+  --spacing-3xl: clamp(6rem, 4rem + 8.4vw, 12rem);
+  --spacing-gutter: clamp(1rem, 0.55rem + 2vw, 3.5rem);
+  --spacing-header: clamp(4rem, 3.6rem + 1.4vw, 5.5rem);
+  --spacing-touch: 2.75rem; /* cible tactile minimale 44 px */
+
+  /* largeurs de colonnes */
+  --container-*: initial;
+  --container-text: 34rem;
+  --container-prose: 42rem;
+  --container-wide: 76rem;
+  --container-max: 120rem;
+  --container-panel: 30rem;
+
+  /* ------------------------------------------------------------------ BORDS
+     Pas d'arrondi, pas d'ombre. Un seul trait : le fil. */
+  --radius-*: initial;
+  --radius-none: 0;
+  --radius-full: 9999px; /* réservé aux points (shop the look, loupe) */
+  --shadow-*: initial;
+  --border-width-hair: 1px;
+
+  /* -------------------------------------------------------------- MOUVEMENT
+     Trois durées, deux courbes. Lues aussi par le JS (lib/motion.ts). */
+  --ease-*: initial;
+  --ease-silk: cubic-bezier(0.22, 0.61, 0.24, 1);
+  --ease-drape: cubic-bezier(0.76, 0, 0.24, 1);
+  --animate-*: initial;
+
+  --breakpoint-*: initial;
+  --breakpoint-sm: 30rem;   /* 480 px  grand mobile */
+  --breakpoint-md: 48rem;   /* 768 px  tablette portrait */
+  --breakpoint-lg: 64rem;   /* 1024 px tablette paysage / portable */
+  --breakpoint-xl: 90rem;   /* 1440 px */
+  --breakpoint-2xl: 120rem; /* 1920 px */
+}
+
+@layer base {
+:root {
+  --dur-fast: 0.4s;
+  --dur-base: 0.9s;
+  --dur-slow: 1.6s;
+  --ease-silk: cubic-bezier(0.22, 0.61, 0.24, 1);
+  --ease-drape: cubic-bezier(0.76, 0, 0.24, 1);
+
+  /* rôles de couleur de la scène courante (bascule noir / ivoire) */
+  --bg: var(--color-ivory);
+  --fg: var(--color-ink);
+  --fg-soft: var(--color-ink-soft);
+  --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
+  --accent: var(--color-ink);
+  --halo: var(--color-gold);
+
+  --header-h: var(--spacing-header);
+  --z-base: 1;
+  --z-sticky: 20;
+  --z-header: 40;
+  --z-drawer: 60;
+  --z-assistant: 70;
+  --z-transition: 90;
+  --z-cookie: 95;
+}
+
+[data-theme="ink"] {
+  --bg: var(--color-ink);
+  --fg: var(--color-ivory);
+  --fg-soft: var(--color-ivory-soft);
+  --line: color-mix(in oklab, var(--color-ivory) 24%, transparent);
+  --accent: var(--color-gold);
+}
+
+[data-theme="ivory"],
+[data-theme="paper"] {
+  --bg: var(--color-ivory);
+  --fg: var(--color-ink);
+  --fg-soft: var(--color-ink-soft);
+  --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
+  --accent: var(--color-ink);
+}
+
+[data-theme="pearl"] {
+  --bg: var(--color-pearl);
+  --fg: var(--color-ink);
+  --fg-soft: color-mix(in oklab, var(--color-ink) 80%, var(--color-pearl));
+  --line: color-mix(in oklab, var(--color-ink) 26%, transparent);
+  --accent: var(--color-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0.01s;
+    --dur-base: 0.01s;
+    --dur-slow: 0.01s;
+  }
+}
+}

@@ -1,0 +1,33 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { applyCartAction, CartError, readCart } from "@/lib/commerce/cart";
+
+export const dynamic = "force-dynamic";
+
+const Action = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("add"), variantId: z.string().min(1), quantity: z.number().int().min(1).max(10).optional() }),
+  z.object({ type: z.literal("addMany"), variantIds: z.array(z.string().min(1)).min(1).max(10) }),
+  z.object({ type: z.literal("update"), lineId: z.string().min(1), quantity: z.number().int().min(0).max(10) }),
+  z.object({ type: z.literal("remove"), lineId: z.string().min(1) }),
+  z.object({ type: z.literal("discount"), code: z.string().max(60) }),
+  z.object({ type: z.literal("giftCard"), code: z.string().max(60) }),
+  z.object({ type: z.literal("gift"), wrap: z.boolean(), message: z.string().max(300) }),
+  z.object({ type: z.literal("clear") }),
+]);
+
+export async function GET() {
+  return NextResponse.json({ cart: await readCart() });
+}
+
+export async function POST(req: Request) {
+  const parsed = Action.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
+  try {
+    const cart = await applyCartAction(parsed.data);
+    return NextResponse.json({ cart });
+  } catch (e) {
+    const message = e instanceof CartError ? e.message : "Le panier n’a pas pu être mis à jour. Merci de réessayer.";
+    if (!(e instanceof CartError)) console.error("[cart]", e);
+    return NextResponse.json({ error: message, cart: await readCart() }, { status: 422 });
+  }
+}

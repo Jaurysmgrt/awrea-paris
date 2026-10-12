@@ -1,0 +1,258 @@
+/* Mises en page propres aux pages (accueil, éditorial, boutique, fiche produit…). */
+
+@layer components {
+  .link-plain {
+    transition: color var(--dur-fast) var(--ease-silk);
+  }
+  .link-plain:hover {
+    color: var(--accent);
+  }
+
+  .section-head {
+    display: grid;
+    gap: var(--spacing-s);
+    margin-bottom: var(--spacing-xl);
+    justify-items: start;
+  }
+  @media (min-width: 48rem) {
+    .section-head {
+      grid-template-columns: 1fr auto;
+      align-items: end;
+    }
+    .section-head .eyebrow {
+      grid-column: 1 / -1;
+    }
+    .section-head__link {
+      justify-self: end;
+    }
+  }
+  .section-head--row {
+    margin-bottom: var(--spacing-l);
+  }
+
+  .page-head {
+    display: grid;
+    gap: var(--spacing-m);
+    padding-top: calc(var(--header-h) + var(--spacing-xl));
+    padding-bottom: var(--spacing-xl);
+  }
+  .page-head__lead {
+    max-width: var(--container-prose);
+  }
+
+  /* ============================================================ OUVERTURE */
+  .hero {
+    color: var(--color-ivory);
+  }
+  .hero__content {
+    position: relative;
+    z-index: 1;
+    align-self: end;
+    display: grid;
+    justify-items: center;
+    gap: var(--spacing-m);
+    padding-top: calc(var(--header-h) + var(--spacing-xl));
+    padding-bottom: calc(var(--spacing-2xl) + var(--spacing-m));
+    text-align: center;
+  }
+  .hero__h1 {
+    max-width: 28ch;
+    color: var(--color-ivory);
+    text-wrap: balance;
+  }
+  .hero__title {
+    color: var(--color-ivory);
+    margin-block: calc(-1 * var(--spacing-s));
+  }
+  .hero__lead {
+    max-width: 30ch;
+  }
+  .hero__scroll {
+    position: absolute;
+    left: 50%;
+    bottom: var(--spacing-m);
+    transform: translateX(-50%);
+    display: grid;
+    justify-items: center;
+    gap: var(--spacing-2xs);
+    color: var(--color-ivory-soft);
+  }
+  .hero__scroll::after {
+    content: "";
+    width: var(--border-width-hair);
+    height: var(--spacing-l);
+    background: var(--color-gold);
+    transform-origin: top;
+    animation: scroll-line 2.4s var(--ease-drape) infinite; /* token-ok : respiration */
+  }
+  @keyframes scroll-line {
+    0% {
+      transform: scaleY(0);
+    }
+    50% {
+      transform: scaleY(1);
+      transform-origin: top;
+    }
+    51% {
+      transform-origin: bottom;
+    }
+    100% {
+      transform: scaleY(0);
+      transform-origin: bottom;
+    }
+  }
+
+  /* ===================================================== COLLECTION EN COURS */
+  .home-collection {
+    row-gap: var(--spacing-xl);
+    align-items: center;
+  }
+  .home-collection__media,
+  .home-collection__text {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 64rem) {
+    .home-collection__media {
+      grid-column: 1 / span 6;
+    }
+    .home-collection__text {
+      grid-column: 8 / span 5;
+    }
+  }
+  .home-collection__list {
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .home-collection__item {
+    display: grid;
+    grid-template-columns: var(--spacing-l) auto 1fr auto;
+    align-items: baseline;
+    gap: var(--spacing-xs);
+    padding-block: var(--spacing-s);
+    border-bottom: var(--border-width-hair) solid var(--line);
+    transition: color var(--dur-fast) var(--ease-silk);
+  }
+  .home-collection__item > .t-label:last-child {
+    grid-column: 2 / -1;
+    margin-top: calc(-1 * var(--spacing-2xs));
+  }
+  .home-collection__dots {
+    border-bottom: var(--border-width-hair) dotted var(--line);
+    transform: translateY(-0.3em);
+  }
+  .home-collection__item:hover .t-h4 {
+    font-style: italic;
+  }
+
+  /* ================================================================ MANIFESTE */
+  .manifesto {
+    overflow: hidden;
+  }
+  .manifesto__inner {
+    display: grid;
+    justify-items: center;
+    gap: var(--spacing-l);
+  }
+  .manifesto__script {
+    color: var(--color-gold);
+  }
+  .manifesto__quote {
+    display: grid;
+    gap: var(--spacing-xs);
+    justify-items: center;
+    max-width: var(--container-text);
+  }
+  .manifesto__quote footer {
+    color: var(--color-gold);
+  }
+
+  /* ============================================================ SHOP THE LOOK */
+  .home-look {
+    row-gap: var(--spacing-xl);
+    align-items: center;
+  }
+  .home-look__text,
+  .home-look__stage {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 64rem) {
+    .home-look__text {
+      grid-column: 1 / span 4;
+    }
+    .home-look__stage {
+      grid-column: 6 / span 7;
+    }
+  }
+
+  /* ================================================================== ATELIER */
+  .home-atelier {
+    overflow: hidden;
+  }
+  .home-atelier .grid-12 {
+    row-gap: var(--spacing-xl);
+    align-items: center;
+  }
+  .home-atelier__text,
+  .home-atelier__videos {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 64rem) {
+    .home-atelier__text {
+      grid-column: 1 / span 4;
+    }
+    .home-atelier__videos {
+      grid-column: 6 / span 7;
+    }
+  }
+  .home-atelier__videos {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--spacing-s);
+  }
+  .home-atelier__video--0 {
+    grid-column: 1 / span 4;
+  }
+  .home-atelier__video--1 {
+    grid-column: 3 / span 4;
+  }
+
+  /* ================================================================== LETTRE */
+  .letter-card {
+    justify-items: center;
+  }
+  .letter-card .newsletter {
+    width: 100%;
+  }
+
+  /* ================================================================ INSTAGRAM */
+  .insta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-2xs);
+  }
+  @media (min-width: 48rem) {
+    .insta {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .insta__item {
+    display: block;
+    aspect-ratio: 4 / 5;
+  }
+  .insta__item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition:
+      transform var(--dur-slow) var(--ease-silk),
+      opacity var(--dur-fast) var(--ease-silk);
+  }
+  .insta__item:hover img {
+    transform: scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__scroll::after {
+    animation: none;
+  }
+}
