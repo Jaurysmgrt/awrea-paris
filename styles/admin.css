@@ -410,4 +410,30 @@
   .admin-login__form {
     width: 100%;
   }
+  .totp-qr {
+    width: min(100%, var(--container-label) * 1.6);
+    margin-inline: auto;
+    padding: var(--spacing-s);
+    background: var(--color-ivory);
+    border: var(--border-width-hair) solid var(--color-gold);
+  }
+  .totp-qr svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .totp-secret,
+  .recovery-codes code {
+    font-family: var(--font-sans);
+    letter-spacing: var(--tracking-label);
+    font-variant-numeric: tabular-nums;
+    word-break: break-all;
+  }
+  .recovery-codes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-2xs) var(--spacing-s);
+    padding: var(--spacing-s);
+    border: var(--border-width-hair) solid var(--line);
+  }
 }

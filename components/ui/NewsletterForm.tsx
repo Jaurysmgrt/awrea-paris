@@ -1,5 +1,7 @@
 "use client";
 import { useId, useState } from "react";
+import { Turnstile } from "@/components/security/Turnstile";
+import { track } from "@/lib/analytics/track";
 
 /** Inscription aux lettres de l'atelier (double consentement géré côté serveur / Shopify). */
 export function NewsletterForm({ source = "site", compact = false }: { source?: string; compact?: boolean }) {
@@ -14,10 +16,11 @@ export function NewsletterForm({ source = "site", compact = false }: { source?: 
     const res = await fetch("/api/newsletter", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: form.get("email"), consent: form.get("consent") === "on", source }),
+      body: JSON.stringify({ email: form.get("email"), consent: form.get("consent") === "on", source, turnstile: form.get("cf-turnstile-response") || undefined }),
     }).catch(() => null);
     const json = res ? await res.json().catch(() => ({})) : {};
     if (res?.ok) {
+      track({ name: "newsletter" });
       setStatus("done");
       setMessage(json.message ?? "Merci. Votre première lettre arrivera avec la prochaine saison.");
     } else {
@@ -51,6 +54,7 @@ export function NewsletterForm({ source = "site", compact = false }: { source?: 
         <input type="checkbox" name="consent" required />
         <span>J’accepte de recevoir les lettres d’Awrea Paris. Désinscription en un clic à tout moment.</span>
       </label>
+      <Turnstile action="newsletter" />
       {status === "error" ? (
         <p className="field__error" role="alert">
           {message}

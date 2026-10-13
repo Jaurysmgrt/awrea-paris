@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { signOut } from "@/lib/auth/customer";
 
 export async function POST() {
-  (await cookies()).delete("awrea_session");
+  await signOut();
   return NextResponse.json({ ok: true });
 }

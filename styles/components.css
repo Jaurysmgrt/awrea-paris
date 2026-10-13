@@ -702,6 +702,11 @@
     text-transform: uppercase;
     font-weight: var(--font-weight-light);
   }
+  /* précisions sous un intitulé de ligne (e-mail, référence) : jamais en capitales */
+  .table th .t-note {
+    text-transform: none;
+    letter-spacing: var(--tracking-text);
+  }
   .table-scroll {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;

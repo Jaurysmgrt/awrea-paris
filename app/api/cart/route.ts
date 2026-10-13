@@ -1,6 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { z } from "zod";
 import { applyCartAction, CartError, readCart } from "@/lib/commerce/cart";
+import { getCustomerSession } from "@/lib/auth/customer";
+import { saveCartSnapshot } from "@/lib/customers";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +14,7 @@ const Action = z.discriminatedUnion("type", [
   z.object({ type: z.literal("discount"), code: z.string().max(60) }),
   z.object({ type: z.literal("giftCard"), code: z.string().max(60) }),
   z.object({ type: z.literal("gift"), wrap: z.boolean(), message: z.string().max(300) }),
+  z.object({ type: z.literal("checkout"), source: z.string().max(40).nullable().optional(), newsletter: z.boolean().optional(), email: z.email().nullable().optional() }),
   z.object({ type: z.literal("clear") }),
 ]);
 
@@ -24,6 +27,16 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
   try {
     const cart = await applyCartAction(parsed.data);
+    // cliente connectée ayant accepté la personnalisation : panier mémorisé pour une éventuelle relance
+    after(async () => {
+      const session = await getCustomerSession().catch(() => null);
+      if (!session) return;
+      await saveCartSnapshot(
+        session,
+        cart.lines.map((l) => ({ handle: l.productHandle, title: l.title, size: l.size, quantity: l.quantity, unitPrice: l.unitPrice })),
+        cart.subtotal,
+      ).catch((e) => console.error("[cart] relance", e));
+    });
     return NextResponse.json({ cart });
   } catch (e) {
     const message = e instanceof CartError ? e.message : "Le panier n’a pas pu être mis à jour. Merci de réessayer.";

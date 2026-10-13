@@ -2,6 +2,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { Cart } from "@/lib/commerce/types";
 import type { CartAction } from "@/lib/commerce/cart";
+import { track } from "@/lib/analytics/track";
+
+/** Retour haptique discret sur mobile (ajout au panier), absent si l'appareil ne le permet pas. */
+function haptic() {
+  try {
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) navigator.vibrate?.(12);
+  } catch {
+    /* non pris en charge */
+  }
+}
 
 type CartCtx = {
   cart: Cart | null;
@@ -44,6 +54,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Une erreur est survenue.");
       setCart(json.cart);
+      if (action.type === "add" || action.type === "addMany") {
+        haptic();
+        const ids = action.type === "add" ? [action.variantId] : action.variantIds;
+        for (const l of (json.cart as Cart).lines.filter((x) => ids.includes(x.variantId))) {
+          track({ name: "add_to_cart", handle: l.productHandle, title: l.title, price: l.unitPrice, size: l.size });
+        }
+      }
       if (opts?.announce) setAnnounce(opts.announce);
       if (opts?.openAfter) setOpen(true);
       return true;

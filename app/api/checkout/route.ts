@@ -21,6 +21,10 @@ import { onOrderCreated } from "@/lib/agents/events";
 import { shopifyEnabled } from "@/lib/shopify/storefront";
 import type { Order } from "@/lib/commerce/types";
 import { imageAt } from "@/lib/media";
+import { legalVersions } from "@/content/legal-versions";
+import { upsertOrder } from "@/lib/customers/shopify-sync";
+import { onNewsletterSignup } from "@/lib/marketing/flows";
+import { upsertContact } from "@/lib/marketing/provider";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +43,7 @@ const Body = z.object({
   paymentMethod: z.enum(["card", "apple-pay", "google-pay", "paypal", "installments"]),
   cardNumber: z.string().max(25).optional(),
   acceptTerms: z.literal(true),
+  source: z.string().max(40).nullable().optional(),
 });
 
 const PAYMENT_LABEL = { card: "Carte bancaire", "apple-pay": "Apple Pay", "google-pay": "Google Pay", paypal: "PayPal", installments: "Paiement en 3 ou 4 fois" } as const;
@@ -111,11 +116,19 @@ export async function POST(req: Request) {
     shipping: { method: rate.label, price: shippingPrice, country: d.country },
     gift: cart.gift.wrap ? cart.gift : undefined,
     paymentMethod: PAYMENT_LABEL[d.paymentMethod],
+    source: d.source ?? null,
+    consents: { cgvVersion: legalVersions.cgv, acceptedAt: new Date().toISOString(), newsletter: Boolean(d.newsletter) },
   };
   await saveOrder(order);
+  // base clientes : commande recopiée et rattachée au compte de même e-mail
+  after(() => upsertOrder({ ...order, shopifyId: `demo-${order.id}`, source: order.source }).catch((e) => console.error("[checkout] base clientes", e)));
   if (d.newsletter) {
     const list = (await kv.get<{ email: string; date: string; source?: string }[]>("newsletter:subscribers")) ?? [];
     if (!list.some((s) => s.email === d.email)) await kv.set("newsletter:subscribers", [...list, { email: d.email, date: order.createdAt, source: "commande" }]);
+    after(async () => {
+      await upsertContact({ email: d.email, firstName: d.firstName, lastName: d.lastName, marketing: true }).catch((e) => console.error("[checkout] e-mails", e));
+      await onNewsletterSignup(d.email).catch(() => {});
+    });
   }
   (await cookies()).delete(CART_COOKIE);
 

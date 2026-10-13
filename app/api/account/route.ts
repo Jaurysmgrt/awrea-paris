@@ -1,15 +1,24 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { verify } from "@/lib/auth/session";
-import { getOrders, statusLabel, trackingUrl } from "@/lib/commerce/orders";
+import { getCustomerSession, authMode } from "@/lib/auth/customer";
+import { getProfile, listAddresses, listOrders, listWaitlist, getWishlist } from "@/lib/customers";
+import { statusLabel, trackingUrl } from "@/lib/commerce/orders";
+import { legalVersions } from "@/content/legal-versions";
 
 export const dynamic = "force-dynamic";
 
+/** Tout ce dont l'espace « Mon compte » a besoin, en un seul appel. */
 export async function GET() {
-  const session = verify<{ email: string }>((await cookies()).get("awrea_session")?.value);
-  if (!session) return NextResponse.json({ user: null });
-  const orders = (await getOrders())
-    .filter((o) => o.email.toLowerCase() === session.email.toLowerCase())
-    .map((o) => ({ ...o, statusLabel: statusLabel[o.status], trackingUrl: trackingUrl(o.shipping.carrier, o.shipping.tracking) }));
-  return NextResponse.json({ user: { email: session.email }, orders });
+  const session = await getCustomerSession();
+  if (!session) return NextResponse.json({ user: null, mode: authMode });
+  const [profile, orders, addresses, waitlist, wishlist] = await Promise.all([getProfile(session), listOrders(session), listAddresses(session), listWaitlist(session), getWishlist(session)]);
+  return NextResponse.json({
+    mode: authMode,
+    user: { id: session.id, email: session.email },
+    profile,
+    needsTerms: !profile?.termsAcceptedAt || profile.termsVersion !== legalVersions.cgu,
+    orders: orders.map((o) => ({ ...o, statusLabel: statusLabel[o.status], trackingUrl: trackingUrl(o.shipping.carrier, o.shipping.tracking) })),
+    addresses,
+    waitlist,
+    wishlist,
+  });
 }

@@ -10,6 +10,8 @@ import { CartDrawerLazy } from "@/components/commerce/CartDrawerLazy";
 import { WishlistProvider } from "@/components/commerce/WishlistProvider";
 import { Assistant } from "@/components/assistant/Assistant";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { Trackers } from "@/components/analytics/Trackers";
+import { Suspense } from "react";
 import { organizationSchema, websiteSchema } from "@/lib/seo/schema";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
@@ -31,6 +33,9 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
               <Assistant />
               <ThemeShift />
               <RevealObserver />
+              <Suspense fallback={null}>
+                <Trackers />
+              </Suspense>
               <JsonLd data={[organizationSchema(), websiteSchema()]} />
             </DrapeTransition>
           </SmoothScroll>

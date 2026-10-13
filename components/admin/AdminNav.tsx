@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/gestion/messages", label: "Messages" },
   { href: "/gestion/catalogue", label: "Catalogue" },
   { href: "/gestion/commandes", label: "Commandes" },
+  { href: "/gestion/clientes", label: "Clientes" },
   { href: "/gestion/contenus", label: "Contenus" },
   { href: "/gestion/seo", label: "SEO & IA" },
   { href: "/gestion/rapports", label: "Rapports" },

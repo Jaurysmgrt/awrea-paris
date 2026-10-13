@@ -36,7 +36,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   return (
     <>
       <JsonLd data={productSchema(product)} />
-      <ViewTracker handle={product.handle} />
+      <ViewTracker handle={product.handle} title={product.title} price={product.price} collection={product.collection} />
       <Section theme="ivory" className="product">
         <div className="container product__grid">
           <div className="product__gallery">

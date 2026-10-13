@@ -1,13 +1,6 @@
 import { expect, test } from "@playwright/test";
 import path from "node:path";
-
-async function login(page: import("@playwright/test").Page) {
-  await page.goto("/gestion");
-  await expect(page).toHaveURL(/\/gestion\/connexion/);
-  await page.getByLabel("Mot de passe").fill("atelier-demo");
-  await page.getByRole("button", { name: "Entrer" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Bonjour." })).toBeVisible();
-}
+import { adminLogin as login } from "./admin-auth";
 
 test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
   test("accès protégé", async ({ request }) => {
@@ -15,6 +8,12 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
     expect(res.status()).toBe(401);
     const bad = await request.post("/api/gestion/login", { data: { password: "faux" } });
     expect(bad.status()).toBe(401);
+    // le mot de passe seul n'ouvre pas l'Atelier : la double authentification est obligatoire
+    const pw = await request.post("/api/gestion/login", { data: { password: process.env.E2E_ATELIER_PASSWORD ?? "atelier-demo" } });
+    expect(pw.status()).toBe(200);
+    expect(["totp", "enroll"]).toContain((await pw.json()).step);
+    expect((await request.post("/api/gestion/agents/seo")).status()).toBe(401);
+    expect((await request.post("/api/gestion/login/totp", { data: { code: "000000" } })).status()).toBe(401);
   });
 
   test("agent Catalogue : photos + notes → fiche publiée en boutique", async ({ page }) => {

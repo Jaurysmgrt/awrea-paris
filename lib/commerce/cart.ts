@@ -5,6 +5,7 @@
  */
 import { cookies } from "next/headers";
 import { shop } from "@/content/settings";
+import { legalVersions } from "@/content/legal-versions";
 import { GIFT_WRAP_VARIANT, shopifyCartCreate, shopifyCartGet, shopifyCartMutate, shopifyEnabled } from "@/lib/shopify/storefront";
 import { getAllProducts } from "./index";
 import { editionInfo } from "./availability";
@@ -31,6 +32,8 @@ export type CartAction =
   | { type: "discount"; code: string }
   | { type: "giftCard"; code: string }
   | { type: "gift"; wrap: boolean; message: string }
+  /** passage au paiement : preuve d'acceptation des CGV, canal d'origine, e-mail de la cliente connectée */
+  | { type: "checkout"; source?: string | null; newsletter?: boolean; email?: string | null }
   | { type: "clear" };
 
 export class CartError extends Error {}
@@ -167,6 +170,9 @@ async function demoApply(state: DemoState, action: CartAction): Promise<DemoStat
       s.w = action.wrap;
       s.m = action.message.slice(0, 300);
       break;
+    case "checkout":
+      // démonstration : l'acceptation des CGV est recueillie sur la page de commande
+      break;
     case "clear":
       return emptyState();
   }
@@ -199,6 +205,20 @@ async function shopifyApply(cartId: string | null, action: CartAction): Promise<
       if (GIFT_WRAP_VARIANT && action.wrap && !cart.lines.some((l) => l.variantId === GIFT_WRAP_VARIANT)) {
         return shopifyCartMutate("add", cartId, [{ merchandiseId: GIFT_WRAP_VARIANT, quantity: 1 }]);
       }
+      return cart;
+    }
+    case "checkout": {
+      const current = await shopifyCartGet(cartId);
+      const attributes = [
+        { key: "Emballage cadeau", value: current?.gift.wrap ? "Oui" : "Non" },
+        { key: "Message cadeau", value: current?.gift.message ?? "" },
+        { key: "_cgv_version", value: legalVersions.cgv },
+        { key: "_cgv_accepted_at", value: new Date().toISOString() },
+        ...(action.source ? [{ key: "_source", value: action.source }] : []),
+        ...(action.newsletter ? [{ key: "_newsletter", value: "1" }] : []),
+      ];
+      let cart = await shopifyCartMutate("attributes", cartId, attributes);
+      if (action.email) cart = await shopifyCartMutate("buyer", cartId, { email: action.email });
       return cart;
     }
     case "clear":

@@ -6,6 +6,7 @@ import { verify } from "@/lib/auth/session";
 import { getOrder, statusLabel } from "@/lib/commerce/orders";
 import { formatPrice } from "@/lib/format";
 import { shop } from "@/content/settings";
+import { PurchaseTracker } from "@/components/analytics/PurchaseTracker";
 
 export const metadata = pageMetadata({ title: "Merci | Awrea Paris", description: "Votre commande Awrea Paris est confirmée.", path: "/commande/confirmation", noindex: true });
 export const dynamic = "force-dynamic";
@@ -18,6 +19,7 @@ export default async function ConfirmationPage({ searchParams }: { searchParams:
 
   return (
     <Section theme="paper" className="confirmation">
+      {order ? <PurchaseTracker number={order.number} value={order.total} items={order.lines.length} /> : null}
       <div className="container-prose confirmation__inner">
         <Envelope
           greeting={first ? `Merci, ${first}.` : "Merci."}

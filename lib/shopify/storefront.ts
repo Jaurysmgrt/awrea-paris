@@ -291,7 +291,7 @@ export async function shopifyCartCreate(lines: { merchandiseId: string; quantity
   return mapCart(d.cartCreate.cart);
 }
 
-export async function shopifyCartMutate(op: "add" | "update" | "remove" | "discount" | "giftcard" | "attributes", cartId: string, payload: unknown): Promise<Cart> {
+export async function shopifyCartMutate(op: "add" | "update" | "remove" | "discount" | "giftcard" | "attributes" | "buyer", cartId: string, payload: unknown): Promise<Cart> {
   const M: Record<typeof op, string> = {
     add: `mutation M($cartId: ID!, $p: [CartLineInput!]!) { r: cartLinesAdd(cartId: $cartId, lines: $p) { cart { ${CART_FIELDS} } userErrors { message } } }`,
     update: `mutation M($cartId: ID!, $p: [CartLineUpdateInput!]!) { r: cartLinesUpdate(cartId: $cartId, lines: $p) { cart { ${CART_FIELDS} } userErrors { message } } }`,
@@ -299,6 +299,7 @@ export async function shopifyCartMutate(op: "add" | "update" | "remove" | "disco
     discount: `mutation M($cartId: ID!, $p: [String!]) { r: cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $p) { cart { ${CART_FIELDS} } userErrors { message } } }`,
     giftcard: `mutation M($cartId: ID!, $p: [String!]!) { r: cartGiftCardCodesUpdate(cartId: $cartId, giftCardCodes: $p) { cart { ${CART_FIELDS} } userErrors { message } } }`,
     attributes: `mutation M($cartId: ID!, $p: [AttributeInput!]!) { r: cartAttributesUpdate(cartId: $cartId, attributes: $p) { cart { ${CART_FIELDS} } userErrors { message } } }`,
+    buyer: `mutation M($cartId: ID!, $p: CartBuyerIdentityInput!) { r: cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: $p) { cart { ${CART_FIELDS} } userErrors { message } } }`,
   };
   const d = await storefront<{ r: { cart: SCart; userErrors: { message: string }[] } }>(M[op], { cartId, p: payload }, { revalidate: 0 });
   if (d.r.userErrors?.length) throw new Error(d.r.userErrors.map((e) => e.message).join(" ; "));

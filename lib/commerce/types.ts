@@ -144,4 +144,8 @@ export interface Order {
   shipping: { method: string; price: number; country: string; tracking?: string; carrier?: string };
   gift?: GiftOptions;
   paymentMethod: string;
+  /** canal d'origine (mesure d'audience acceptée) : instagram, google, newsletter, direct… */
+  source?: string | null;
+  /** preuve d'acceptation des CGV et choix de la cliente au moment de la commande */
+  consents?: { cgvVersion: string; acceptedAt: string; newsletter: boolean };
 }

@@ -49,3 +49,15 @@ export const shop = {
     note: "Mesures du corps, en centimètres. Entre deux tailles, nous vous conseillons la plus petite pour les pièces lacées et la plus grande pour les pièces en satin. L’atelier peut ajuster chaque pièce : prenez rendez-vous pour un essayage.",
   },
 } as const;
+
+/**
+ * Segments de la base clientes (tableau de bord, lettres ciblées, Cercle Awrea).
+ * Une cliente est VIP au-delà de l'un des deux seuils ; fidèle à partir de deux commandes ;
+ * nouvelle sinon. Montants en centimes.
+ */
+export const segments = {
+  vipMinSpent: 150000,
+  vipMinOrders: 3,
+  loyalMinOrders: 2,
+} as const;
+

@@ -5,6 +5,8 @@ import { addInbox, type InboxMessage } from "@/lib/inbox";
 import { sendEmail } from "@/lib/email/send";
 import { identity } from "@/content/brand/identity";
 import { brandEmail } from "@/lib/email/templates";
+import { rateLimit } from "@/lib/security/rate-limit";
+import { verifyTurnstile } from "@/lib/security/turnstile";
 
 
 const Body = z.object({
@@ -18,12 +20,16 @@ const Body = z.object({
   preferredDate: z.string().max(20).optional(),
   slot: z.string().max(40).optional(),
   website: z.string().max(0).optional(), // piège à robots
+  turnstile: z.string().max(2048).optional(),
 });
 
 export async function POST(req: Request) {
+  const limited = await rateLimit(req, "contact", { limit: 6, windowSeconds: 600 });
+  if (limited) return limited;
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Merci de vérifier les champs du formulaire." }, { status: 400 });
   const d = parsed.data;
+  if (!(await verifyTurnstile(d.turnstile, req))) return NextResponse.json({ error: "La vérification anti-robot a échoué. Merci de réessayer." }, { status: 400 });
   const msg: InboxMessage = {
     id: `msg-${Date.now().toString(36)}`,
     date: new Date().toISOString(),

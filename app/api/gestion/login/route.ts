@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { adminPassword, checkPassword, setAdminCookie } from "@/lib/auth/admin";
+import { ADMIN_LOGIN_GUARD as GUARD, adminPassword, checkPassword, setPreAuthCookie } from "@/lib/auth/admin";
+import { isEnrolled } from "@/lib/auth/totp";
 import { clientIp, loginGuard } from "@/lib/security/rate-limit";
 
-const GUARD = { limit: 8, windowSeconds: 15 * 60 };
-
+/**
+ * Étape 1 : mot de passe. La session n'est ouverte qu'après la double authentification
+ * (étape 2 : /api/gestion/login/totp, ou enrôlement à la première connexion).
+ */
 export async function POST(req: Request) {
   const ip = clientIp(req);
   if (await loginGuard.blocked("admin", ip, GUARD)) return NextResponse.json({ error: "Trop de tentatives. Réessayez dans quelques minutes." }, { status: 429 });
@@ -14,7 +17,6 @@ export async function POST(req: Request) {
     await loginGuard.fail("admin", ip, GUARD); // seuls les échecs comptent
     return NextResponse.json({ error: "Mot de passe incorrect." }, { status: 401 });
   }
-  await loginGuard.reset("admin", ip, GUARD);
-  await setAdminCookie();
-  return NextResponse.json({ ok: true });
+  await setPreAuthCookie();
+  return NextResponse.json({ ok: true, step: (await isEnrolled()) ? "totp" : "enroll" });
 }

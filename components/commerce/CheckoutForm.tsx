@@ -6,11 +6,14 @@
  */
 import Link from "@/components/ui/Link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useCart } from "./CartProvider";
 import { Media } from "@/components/ui/Media";
 import { shop } from "@/content/settings";
 import { formatPrice } from "@/lib/format";
+import { TermsCheckbox } from "@/components/account/TermsCheckbox";
+import { readSource } from "@/components/analytics/source";
+import { track } from "@/lib/analytics/track";
 
 type Pay = "card" | "apple-pay" | "google-pay" | "paypal" | "installments";
 
@@ -31,6 +34,36 @@ export function CheckoutForm() {
   const [state, setState] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState("");
   const [summaryOpen, setSummaryOpen] = useState(false);
+  const [terms, setTerms] = useState(false);
+  const startedRef = useRef(false);
+  const [prefill, setPrefill] = useState<{ email?: string; firstName?: string; lastName?: string; line1?: string; line2?: string; postalCode?: string; city?: string; phone?: string }>({});
+
+  // cliente connectée : coordonnées et adresse par défaut préremplies
+  useEffect(() => {
+    if (!/(?:^|; )awrea_signed_in=1/.test(document.cookie)) return;
+    fetch("/api/account", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j) => {
+        if (!j.user) return;
+        const a = j.addresses?.find((x: { isDefault: boolean }) => x.isDefault) ?? j.addresses?.[0];
+        setPrefill({
+          email: j.user.email,
+          firstName: a?.firstName ?? j.profile?.firstName ?? undefined,
+          lastName: a?.lastName ?? j.profile?.lastName ?? undefined,
+          line1: a?.line1,
+          line2: a?.line2 ?? undefined,
+          postalCode: a?.postalCode,
+          city: a?.city,
+          phone: a?.phone ?? j.profile?.phone ?? undefined,
+        });
+        if (a?.country && shop.countries.some((c) => c.code === a.country)) {
+          setCountry(a.country);
+          const z = shop.countries.find((c) => c.code === a.country)?.zone;
+          setRateId(shop.shippingRates.find((r) => r.zone === z)?.id ?? "");
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const zone = shop.countries.find((c) => c.code === country)?.zone ?? "FR";
   const rates = shop.shippingRates.filter((r) => r.zone === zone);
@@ -134,6 +167,7 @@ export function CheckoutForm() {
       paymentMethod: pay,
       cardNumber: pay === "card" ? f.get("cardNumber") : undefined,
       acceptTerms: f.get("terms") === "on",
+      source: readSource(),
     };
     const res = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).catch(() => null);
     const j = res ? await res.json().catch(() => ({})) : {};
@@ -157,7 +191,16 @@ export function CheckoutForm() {
         </div>
       </aside>
 
-      <form className="checkout-form stack-l" onSubmit={onSubmit}>
+      <form
+        className="checkout-form stack-l"
+        onSubmit={onSubmit}
+        onFocusCapture={() => {
+          if (!startedRef.current && cart) {
+            startedRef.current = true;
+            track({ name: "begin_checkout", value: cart.total, items: cart.totalQuantity });
+          }
+        }}
+      >
         <p className="notice t-note">
           Mode test : aucun paiement réel n’est effectué. Carte de test acceptée : 4242 4242 4242 4242 — carte refusée : 4000 0000 0000 0002.
         </p>
@@ -172,7 +215,7 @@ export function CheckoutForm() {
               <label className="field__label" htmlFor="co-email">
                 E-mail
               </label>
-              <input className="field__input" id="co-email" name="email" type="email" required autoComplete="email" />
+              <input className="field__input" id="co-email" name="email" key={`email-${prefill.email ?? ""}`} defaultValue={prefill.email} type="email" required autoComplete="email" />
               <span className="field__hint">Pour la confirmation et le suivi. Aucun compte n’est nécessaire.</span>
             </div>
             <label className="check t-note">
@@ -193,39 +236,39 @@ export function CheckoutForm() {
                 <label className="field__label" htmlFor="co-first">
                   Prénom
                 </label>
-                <input className="field__input" id="co-first" name="firstName" required autoComplete="given-name" />
+                <input className="field__input" id="co-first" name="firstName" key={`firstName-${prefill.firstName ?? ""}`} defaultValue={prefill.firstName} required autoComplete="given-name" />
               </div>
               <div className="field">
                 <label className="field__label" htmlFor="co-last">
                   Nom
                 </label>
-                <input className="field__input" id="co-last" name="lastName" required autoComplete="family-name" />
+                <input className="field__input" id="co-last" name="lastName" key={`lastName-${prefill.lastName ?? ""}`} defaultValue={prefill.lastName} required autoComplete="family-name" />
               </div>
             </div>
             <div className="field">
               <label className="field__label" htmlFor="co-address1">
                 Adresse
               </label>
-              <input className="field__input" id="co-address1" name="address1" required autoComplete="address-line1" />
+              <input className="field__input" id="co-address1" name="address1" key={`address1-${prefill.line1 ?? ""}`} defaultValue={prefill.line1} required autoComplete="address-line1" />
             </div>
             <div className="field">
               <label className="field__label" htmlFor="co-address2">
                 Complément (facultatif)
               </label>
-              <input className="field__input" id="co-address2" name="address2" autoComplete="address-line2" />
+              <input className="field__input" id="co-address2" name="address2" key={`address2-${prefill.line2 ?? ""}`} defaultValue={prefill.line2} autoComplete="address-line2" />
             </div>
             <div className="form__row form__row--3">
               <div className="field">
                 <label className="field__label" htmlFor="co-zip">
                   Code postal
                 </label>
-                <input className="field__input" id="co-zip" name="zip" required autoComplete="postal-code" />
+                <input className="field__input" id="co-zip" name="zip" key={`zip-${prefill.postalCode ?? ""}`} defaultValue={prefill.postalCode} required autoComplete="postal-code" />
               </div>
               <div className="field">
                 <label className="field__label" htmlFor="co-city">
                   Ville
                 </label>
-                <input className="field__input" id="co-city" name="city" required autoComplete="address-level2" />
+                <input className="field__input" id="co-city" name="city" key={`city-${prefill.city ?? ""}`} defaultValue={prefill.city} required autoComplete="address-level2" />
               </div>
               <div className="field">
                 <label className="field__label" htmlFor="co-country">
@@ -254,7 +297,7 @@ export function CheckoutForm() {
               <label className="field__label" htmlFor="co-phone">
                 Téléphone (pour le transporteur, facultatif)
               </label>
-              <input className="field__input" id="co-phone" name="phone" type="tel" autoComplete="tel" />
+              <input className="field__input" id="co-phone" name="phone" key={`phone-${prefill.phone ?? ""}`} defaultValue={prefill.phone} type="tel" autoComplete="tel" />
             </div>
             <fieldset className="field">
               <legend className="field__label">Mode de livraison</legend>
@@ -317,16 +360,7 @@ export function CheckoutForm() {
                 </div>
               </div>
             ) : null}
-            <label className="check t-note">
-              <input type="checkbox" name="terms" required />
-              <span>
-                J’accepte les <Link href="/cgv" className="text-link" target="_blank">conditions générales de vente</Link> et j’ai pris connaissance de la{" "}
-                <Link href="/confidentialite" className="text-link" target="_blank">
-                  politique de confidentialité
-                </Link>
-                .
-              </span>
-            </label>
+            <TermsCheckbox kind="cgv" checked={terms} onChange={setTerms} newTab />
             {state === "error" ? (
               <p className="field__error" role="alert">
                 {error}

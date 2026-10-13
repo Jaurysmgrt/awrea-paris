@@ -1,4 +1,5 @@
 "use client";
+import { Turnstile } from "@/components/security/Turnstile";
 import { useId, useRef, useState } from "react";
 import type { Product, Variant } from "@/lib/commerce/types";
 import { availabilityLabel, editionInfo, variantAvailability } from "@/lib/commerce/availability";
@@ -131,7 +132,7 @@ function Waitlist({ product, variant }: { product: Product; variant: Variant | n
             const res = await fetch("/api/waitlist", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email: f.get("email"), handle: product.handle, size: variant?.size ?? null, consent: f.get("consent") === "on" }),
+              body: JSON.stringify({ email: f.get("email"), handle: product.handle, size: variant?.size ?? null, consent: f.get("consent") === "on", turnstile: f.get("cf-turnstile-response") || undefined }),
             }).catch(() => null);
             const j = res ? await res.json().catch(() => ({})) : {};
             setState(res?.ok ? "done" : "error");
@@ -153,6 +154,7 @@ function Waitlist({ product, variant }: { product: Product; variant: Variant | n
             <input type="checkbox" name="consent" required />
             <span>J’accepte d’être contactée au sujet de cette pièce uniquement.</span>
           </label>
+          <Turnstile action="waitlist" />
           {state === "error" ? (
             <p className="field__error" role="alert">
               {msg || "L’inscription n’a pas pu être enregistrée."}

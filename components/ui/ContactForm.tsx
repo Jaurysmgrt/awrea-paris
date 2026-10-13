@@ -1,6 +1,7 @@
 "use client";
 import { useId, useState } from "react";
 import { contact } from "@/content/fr/pages";
+import { Turnstile } from "@/components/security/Turnstile";
 
 /** Formulaire de contact ou de prise de rendez-vous (essayage, sur mesure, retouche). */
 export function ContactForm({ kind }: { kind: "contact" | "rendez-vous" }) {
@@ -13,7 +14,7 @@ export function ContactForm({ kind }: { kind: "contact" | "rendez-vous" }) {
     e.preventDefault();
     const f = Object.fromEntries(new FormData(e.currentTarget).entries());
     setState("loading");
-    const res = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, kind }) }).catch(() => null);
+    const res = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, kind, turnstile: f["cf-turnstile-response"] || undefined }) }).catch(() => null);
     const j = res ? await res.json().catch(() => ({})) : {};
     setState(res?.ok ? "done" : "error");
     setMsg(j.message ?? j.error ?? "Le message n’a pas pu être envoyé.");
@@ -108,6 +109,7 @@ export function ContactForm({ kind }: { kind: "contact" | "rendez-vous" }) {
         <input id={`${id}-website`} name="website" tabIndex={-1} autoComplete="off" />
       </div>
       <p className="t-note">Vos informations servent uniquement à vous répondre. Voir notre politique de confidentialité.</p>
+      <Turnstile action={kind} />
       {state === "error" ? (
         <p className="field__error" role="alert">
           {msg}
