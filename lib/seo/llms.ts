@@ -7,7 +7,8 @@ import { identity } from "@/content/brand/identity";
 import { maison, atelier } from "@/content/fr/pages";
 import { faq } from "@/content/fr/faq";
 import { shop } from "@/content/settings";
-import { legalPages } from "@/content/fr/legal";
+import { legalPages, type LegalBlock } from "@/content/fr/legal";
+import { legalPlain } from "@/lib/legal/plain";
 import { getAllProducts, getCollections } from "@/lib/commerce";
 import { getArticles } from "@/lib/content/journal";
 import { editionInfo, productAvailability } from "@/lib/commerce/availability";
@@ -97,8 +98,11 @@ export async function buildLlms(full: boolean): Promise<string> {
   L.push("## Livraison et retours");
   for (const s of legalPages["livraison-retours"].sections) {
     L.push(`### ${s.title}`);
-    s.paragraphs?.forEach((t) => L.push(t));
-    s.list?.forEach((t) => L.push(`- ${t}`));
+    for (const b of s.blocks as LegalBlock[]) {
+      if (typeof b === "string") L.push(legalPlain(b));
+      else if ("list" in b) b.list.forEach((t) => L.push(`- ${legalPlain(t)}`));
+      else if ("table" in b) b.table.rows.forEach((r) => L.push(`- ${r.map(legalPlain).join(" — ")}`));
+    }
   }
   L.push("");
   L.push("## Articles du Journal");

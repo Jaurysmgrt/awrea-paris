@@ -18,6 +18,10 @@ export const STATIC_ROUTES: { path: string; priority: number; changeFrequency: "
   { path: "/mentions-legales", priority: 0.1, changeFrequency: "yearly" },
   { path: "/confidentialite", priority: 0.1, changeFrequency: "yearly" },
   { path: "/cookies", priority: 0.1, changeFrequency: "yearly" },
+  { path: "/cgu", priority: 0.1, changeFrequency: "yearly" },
+  { path: "/propriete-intellectuelle", priority: 0.1, changeFrequency: "yearly" },
+  { path: "/assistant-ia", priority: 0.2, changeFrequency: "yearly" },
+  { path: "/retractation", priority: 0.2, changeFrequency: "yearly" },
 ];
 
 export async function allPublicPaths(): Promise<{ path: string; lastModified?: string; priority: number; changeFrequency: "daily" | "weekly" | "monthly" | "yearly" }[]> {

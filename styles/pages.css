@@ -954,6 +954,140 @@
     gap: var(--spacing-s);
   }
 
+  /* ============================================================ PAGES LÉGALES */
+  .legal {
+    display: grid;
+    gap: var(--spacing-l);
+  }
+  .legal__updated {
+    color: var(--fg-soft);
+  }
+  .legal__toc {
+    display: grid;
+    gap: var(--spacing-xs);
+    padding-block: var(--spacing-s);
+    border-top: var(--border-width-hair) solid var(--line);
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .legal__toc ol {
+    column-gap: var(--spacing-xl);
+  }
+  @media (min-width: 48rem) {
+    .legal__toc ol {
+      columns: 2;
+    }
+  }
+  .legal__toc li {
+    break-inside: avoid;
+    padding-block: var(--spacing-3xs);
+  }
+  .legal__toc a {
+    font-family: var(--font-sans);
+    font-weight: var(--font-weight-light);
+    font-size: var(--text-step--1);
+    letter-spacing: var(--tracking-snug);
+  }
+  .legal__body {
+    max-width: var(--container-prose);
+  }
+  .legal__section {
+    scroll-margin-top: calc(var(--header-h) + var(--spacing-s));
+  }
+  .legal__section > * + * {
+    margin-top: var(--spacing-s);
+  }
+  .legal__section:first-child h2 {
+    margin-top: 0;
+  }
+  .legal__box {
+    display: grid;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-m);
+    border: var(--border-width-hair) solid var(--color-gold);
+    background: color-mix(in oklab, var(--color-gold) 5%, transparent);
+  }
+  .legal__model p {
+    margin: 0;
+  }
+  .legal__table .table {
+    font-style: normal;
+  }
+  .legal__table caption {
+    text-align: left;
+    padding-bottom: var(--spacing-2xs);
+  }
+  .legal__table td,
+  .legal__table th {
+    vertical-align: top;
+  }
+  .table th .todo {
+    text-transform: none;
+  }
+  /* sur mobile, chaque ligne devient une fiche : intitulé, puis les colonnes avec leur nom */
+  @media (max-width: 47.99rem) {
+    .legal__table table,
+    .legal__table tbody,
+    .legal__table tr,
+    .legal__table th,
+    .legal__table td {
+      display: block;
+    }
+    .legal__table thead {
+      position: absolute;
+      width: 1px; /* token-ok : masquage accessible (comme .sr-only) */
+      height: 1px; /* token-ok : masquage accessible (comme .sr-only) */
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .legal__table tr {
+      padding-block: var(--spacing-s);
+      border-bottom: var(--border-width-hair) solid var(--line);
+    }
+    .legal__table th,
+    .legal__table td {
+      padding: 0;
+      border: 0;
+    }
+    .legal__table td {
+      display: grid;
+      grid-template-columns: minmax(0, var(--container-label)) minmax(0, 1fr);
+      gap: var(--spacing-xs);
+      margin-top: var(--spacing-3xs);
+    }
+    .legal__table td::before {
+      content: attr(data-label);
+      font-size: var(--text-step--2);
+      letter-spacing: var(--tracking-label);
+      text-transform: uppercase;
+      color: var(--fg-soft);
+    }
+  }
+  .legal__action {
+    margin-top: var(--spacing-s);
+  }
+  /* information de l'entreprise encore à renseigner : repère doré bien visible */
+  .todo {
+    padding-inline: var(--spacing-3xs);
+    font-family: var(--font-sans);
+    font-style: normal;
+    font-size: 0.85em; /* token-ok : proportionnel au texte qui l'entoure */
+    letter-spacing: var(--tracking-snug);
+    color: var(--gold-text);
+    background: color-mix(in oklab, var(--color-gold) 16%, transparent);
+    border-bottom: var(--border-width-hair) dashed var(--color-gold);
+  }
+  .withdrawal__summary {
+    display: grid;
+    gap: var(--spacing-2xs);
+  }
+  .withdrawal__summary > div {
+    display: grid;
+    grid-template-columns: minmax(0, var(--container-label)) minmax(0, 1fr);
+    gap: var(--spacing-s);
+    padding-block: var(--spacing-2xs);
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+
   /* ================================================================== COMPTE */
   .account-container {
     max-width: var(--container-wide);

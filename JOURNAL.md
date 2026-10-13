@@ -97,3 +97,14 @@
 - Bandeau cookies refait : ivoire, filet doré, fondu discret, « Refuser » et « Accepter » à égalité, quatre
   catégories, choix valable 13 mois, preuve enregistrée côté serveur, « Gérer mes cookies » dans le pied de page.
 - Limitation de débit partagée entre instances (connexions, assistante, consentement).
+- Base clientes Supabase (schéma, sécurité par ligne testée dans un PostgreSQL embarqué), comptes sans mot de passe
+  (code e-mail, Google, Apple), RGPD en libre-service (export, suppression), segments et e-mails automatiques,
+  mesure et publicité seulement après accord, ventes par source.
+- Double authentification obligatoire de l'Atelier (TOTP vérifié sur les vecteurs de la RFC 6238, codes de secours,
+  anti-rejeu), Turnstile sur les formulaires, limitation des tentatives partagée entre instances.
+- Pages légales refaites (mentions légales, propriété intellectuelle, CGV avec garanties légales et formulaire type,
+  CGU, confidentialité, cookies, notice de l'assistante IA, livraison et retours) : sommaire cliquable, date et
+  version, texte justifié, tableaux lisibles sur mobile. Aucune information d'entreprise inventée : registre unique
+  `content/legal/fields.ts`, repères dorés « [À COMPLÉTER] » sur le site, liste générée dans `LEGAL-A-COMPLETER.md`
+  (`npm run legal:todo`). Fonction de rétractation en ligne en deux étapes avec accusé de réception immédiat.
+  Cases d'acceptation : CGU à la création du compte, CGV à la commande (et jointes au panier Shopify).

@@ -12,7 +12,8 @@
     "audit:tokens": "node scripts/audit-tokens.mjs",
     "test:e2e": "playwright test",
     "media": "python3 scripts/build-media.py",
-    "test:db": "node supabase/tests/rls.test.mjs"
+    "test:db": "node supabase/tests/rls.test.mjs",
+    "legal:todo": "node --experimental-strip-types --no-warnings scripts/legal-todo.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.133.0",

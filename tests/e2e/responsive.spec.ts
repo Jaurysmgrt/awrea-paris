@@ -4,7 +4,7 @@ import { acceptCookies, VIEWPORTS } from "./helpers";
 const PAGES = [
   "/", "/collections", "/collections/lace-is-more", "/boutique", "/boutique?categorie=body", "/boutique/robe-odessa", "/boutique/etole-nyx",
   "/silhouettes", "/la-maison", "/atelier", "/journal", "/journal/moodboard-lace-is-more", "/presse", "/contact", "/faq",
-  "/livraison-retours", "/cgv", "/mentions-legales", "/confidentialite", "/cookies", "/compte", "/liste-envies", "/commande", "/page-inexistante",
+  "/livraison-retours", "/cgv", "/cgu", "/mentions-legales", "/propriete-intellectuelle", "/confidentialite", "/cookies", "/assistant-ia", "/retractation", "/compte", "/liste-envies", "/commande", "/page-inexistante",
 ];
 
 for (const vp of VIEWPORTS) {

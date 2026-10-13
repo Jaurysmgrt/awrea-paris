@@ -20,9 +20,13 @@ export const nav = {
   ],
   legal: [
     { href: "/cgv", label: "Conditions générales de vente" },
+    { href: "/cgu", label: "Conditions d’utilisation" },
+    { href: "/retractation", label: "Rétractation en ligne" },
     { href: "/mentions-legales", label: "Mentions légales" },
+    { href: "/propriete-intellectuelle", label: "Propriété intellectuelle" },
     { href: "/confidentialite", label: "Confidentialité" },
-    { href: "/cookies", label: "Cookies" },
+    { href: "/cookies", label: "Politique cookies" },
+    { href: "/assistant-ia", label: "Assistante IA" },
   ],
 };
 

@@ -12,7 +12,7 @@ export function PageHeader({
   children,
 }: {
   title: string;
-  lead?: string;
+  lead?: React.ReactNode;
   eyebrow?: string;
   crumbs: { name: string; path: string }[];
   theme?: "ink" | "ivory" | "paper" | "pearl";
