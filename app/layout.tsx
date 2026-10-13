@@ -3,6 +3,7 @@ import { fontVariables } from "./fonts";
 import { identity } from "@/content/brand/identity";
 import { siteUrl } from "@/lib/seo/metadata";
 import { palette } from "@/styles/tokens";
+import { consentHeadScript } from "@/lib/consent";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,6 +17,8 @@ export const metadata: Metadata = {
   keywords: [...identity.keywords],
   formatDetection: { telephone: false, email: false, address: false },
   other: { "theme-color": palette.ink },
+  verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
+  alternates: { types: { "text/plain": "/llms.txt" } },
 };
 
 export const viewport: Viewport = {
@@ -29,10 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr" className={fontVariables} suppressHydrationWarning>
       <head>
-        <script
-          dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }}
-        />
-        <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
+        <script dangerouslySetInnerHTML={{ __html: consentHeadScript() }} />
       </head>
       <body>{children}</body>
     </html>

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import type { Product } from "@/lib/commerce/types";
 import { Media } from "@/components/ui/Media";
 import { Price } from "@/components/ui/Price";
@@ -16,7 +16,7 @@ export function ProductCard({ product, sizes, priority, headingLevel = 3 }: { pr
       <Link href={`/boutique/${product.handle}`} className="product-card__link">
         <div className="product-card__media reveal-img">
           <Media image={product.images[0]} sizes={sizes} priority={priority} className="product-card__img" />
-          {second ? <Media image={second} sizes={sizes} className="product-card__img product-card__img--alt" decorative /> : null}
+          {second ? <Media image={second} sizes={sizes} className="product-card__img product-card__img--alt" decorative hoverOnly /> : null}
           {a !== "available" ? <span className="badge product-card__badge">{availabilityLabel(a, product.leadTimeWeeks)}</span> : null}
         </div>
         <div className="product-card__body">

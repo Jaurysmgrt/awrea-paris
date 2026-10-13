@@ -238,19 +238,16 @@ def draw_lace(size=512, scale=2, color=(255, 255, 255), seed=7):
 
 def build_textures():
     (OUT / "texture").mkdir(parents=True, exist_ok=True)
-    lace_ivory = draw_lace(512, color=IVORY)
-    lace_ivory.save(OUT / "texture" / "lace-ivory.png", optimize=True)
-    lace_ivory.save(OUT / "texture" / "lace-ivory.webp", "WEBP", quality=88, lossless=False)
-    lace_gold = draw_lace(512, color=GOLD)
-    lace_gold.save(OUT / "texture" / "lace-gold.webp", "WEBP", quality=88)
-    lace_ink = draw_lace(512, color=INK)
-    lace_ink.save(OUT / "texture" / "lace-ink.webp", "WEBP", quality=88)
+    # dentelle dorée révélée par la lumière (sections noires)
+    # alpha_quality réduit : la couche alpha pèse l'essentiel du fichier, sans perte visible
+    draw_lace(512, color=GOLD).save(OUT / "texture" / "lace-gold.webp", "WEBP", quality=80, method=6, alpha_quality=60)
+    # voile de la vidéo d'accueil : noir profond, ajouré là où passent les fils de la dentelle
+    threads = draw_lace(512, scale=2, color=INK).getchannel("A")
+    veil = Image.new("RGBA", threads.size, INK + (255,))
+    veil.putalpha(ImageOps.invert(threads))
+    veil.save(OUT / "texture" / "lace-veil.webp", "WEBP", quality=80, method=6, alpha_quality=55)
 
-    # masque d'ouverture : la dentelle opaque (fils) sur fond transparent, en grand format
-    big = draw_lace(1024, scale=2, color=(0, 0, 0))
-    big.save(OUT / "texture" / "lace-mask.png", optimize=True)
-
-    # papier : grain fin + fibres, ton ivoire
+    # papier : grain fin + fibres, ton ivoire (sections « lettre »)
     random.seed(3)
     W = 768
     paper = Image.new("L", (W, W), 0)
@@ -271,11 +268,6 @@ def build_textures():
     mix = mix.point(lambda v: int(128 + (v - 128) * 0.22))
     paper_rgb = ImageOps.colorize(mix, black=(225, 220, 210), white=(250, 248, 243), mid=IVORY)
     paper_rgb.save(OUT / "texture" / "paper.webp", "WEBP", quality=80)
-    # grain transparent pour les sections noires
-    noise = mix.point(lambda v: int(abs(v - 128) * 1.6))
-    grain = Image.new("RGBA", (W, W), IVORY + (0,))
-    grain.putalpha(noise)
-    grain.save(OUT / "texture" / "grain.webp", "WEBP", quality=70)
 
 
 # ---------------------------------------------------------------- vidéos

@@ -1,5 +1,5 @@
 import type { AgentAction } from "@/lib/agents/log";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { AgentName, Status, When } from "./Status";
 
 export function LogList({ items }: { items: AgentAction[] }) {

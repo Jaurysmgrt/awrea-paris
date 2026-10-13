@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { Logo } from "@/components/brand/Logo";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { isAdmin, usingDemoPassword } from "@/lib/auth/admin";

@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
@@ -67,8 +67,9 @@ export function Header() {
             </nav>
           </div>
 
-          <Link href="/" className="site-header__logo" aria-label="Awrea Paris — accueil">
-            <Logo className="site-header__logo-svg" title="Awrea Paris" />
+          <Link href="/" className="site-header__logo">
+            <Logo className="site-header__logo-svg" decorative />
+            <span className="sr-only">Awrea Paris — accueil</span>
           </Link>
 
           <div className="site-header__right">
@@ -78,11 +79,27 @@ export function Header() {
             <Link href="/compte" className="link link--quiet site-header__extra">
               Compte
             </Link>
-            <Link href="/liste-envies" className="link link--quiet site-header__extra" aria-label={`Liste d’envies, ${handles.length} pièce${handles.length > 1 ? "s" : ""}`}>
-              Envies{handles.length ? <sup className="site-header__count">{handles.length}</sup> : null}
+            <Link href="/liste-envies" className="link link--quiet site-header__extra">
+              Envies
+              {handles.length ? (
+                <sup className="site-header__count" aria-hidden="true">
+                  {handles.length}
+                </sup>
+              ) : null}
+              <span className="sr-only">
+                {" "}
+                : {handles.length} pièce{handles.length > 1 ? "s" : ""} gardée{handles.length > 1 ? "s" : ""}
+              </span>
             </Link>
-            <button type="button" className="link link--quiet" onClick={openCart} aria-label={`Ouvrir le panier, ${count} pièce${count > 1 ? "s" : ""}`}>
-              Panier<sup className="site-header__count">{count}</sup>
+            <button type="button" className="link link--quiet" onClick={openCart} aria-haspopup="dialog">
+              Panier
+              <sup className="site-header__count" aria-hidden="true">
+                {count}
+              </sup>
+              <span className="sr-only">
+                {" "}
+                : {count} pièce{count > 1 ? "s" : ""}
+              </span>
             </button>
           </div>
         </div>

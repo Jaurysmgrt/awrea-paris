@@ -5,7 +5,7 @@
  * s'ouvre : le cachet cède, le rabat se soulève, la lettre de remerciement glisse vers vous.
  */
 import { useEffect, useRef } from "react";
-import { gsap, prefersReducedMotion, setupGsap, dur } from "@/lib/motion";
+import { loadGsap, prefersReducedMotion, dur } from "@/lib/motion";
 import { Logo } from "@/components/brand/Logo";
 
 export function Envelope({ greeting, note, reference }: { greeting: string; note: string; reference?: string }) {
@@ -18,11 +18,16 @@ export function Envelope({ greeting, note, reference }: { greeting: string; note
       el.dataset.state = "open";
       return;
     }
-    setupGsap();
+    let tl: { kill: () => void } | null = null;
+    let cancelled = false;
+    loadGsap().then(({ gsap }) => {
+      if (cancelled) return;
     const q = gsap.utils.selector(el);
     const d = dur("base");
-    const tl = gsap.timeline({ delay: 0.5, onComplete: () => (el.dataset.state = "open") });
-    tl.set(el, { attr: { "data-state": "opening" } })
+    const timeline = gsap.timeline({ delay: 0.5, onComplete: () => (el.dataset.state = "open") });
+    tl = timeline;
+    timeline
+      .set(el, { attr: { "data-state": "opening" } })
       .to(q(".envelope__seal"), { scale: 1.12, duration: d * 0.35, ease: "silk" })
       .to(q(".envelope__seal"), { scale: 0.6, autoAlpha: 0, rotate: -18, duration: d * 0.5, ease: "drape" })
       .to(q(".envelope__flap"), { rotateX: 180, duration: d * 1.1, ease: "drape" }, "-=0.15")
@@ -32,8 +37,10 @@ export function Envelope({ greeting, note, reference }: { greeting: string; note
       // …puis vient se poser devant, vers la lectrice
       .set(q(".envelope__letter"), { zIndex: 5 })
       .to(q(".envelope__letter"), { yPercent: -26, scale: 1.06, duration: d * 1.1, ease: "silk" });
+    });
     return () => {
-      tl.kill();
+      cancelled = true;
+      tl?.kill();
     };
   }, []);
 

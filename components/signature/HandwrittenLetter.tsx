@@ -6,7 +6,7 @@
  * et son paraphe se dessinent. Sur petit écran, les lignes sont recoupées pour rester lisibles.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { gsap, prefersReducedMotion, ScrollTrigger, setupGsap } from "@/lib/motion";
+import { loadGsap, prefersReducedMotion } from "@/lib/motion";
 
 const FS = 44; // taille de police dans l'espace SVG
 const LH = 70; // hauteur de ligne SVG
@@ -64,8 +64,11 @@ export function HandwrittenLetter({ lines, signature, label }: { lines: string[]
       el.dataset.written = "true";
       return;
     }
-    setupGsap();
-    const ctx = gsap.context(() => {
+    let ctx: { revert: () => void } | null = null;
+    let cancelled = false;
+    loadGsap().then(({ gsap, ScrollTrigger }) => {
+      if (cancelled) return;
+    ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: { trigger: el, start: "top 75%", end: "bottom 60%", scrub: 0.8 },
       });
@@ -88,9 +91,12 @@ export function HandwrittenLetter({ lines, signature, label }: { lines: string[]
         }
       }
     }, el);
-    const refresh = () => ScrollTrigger.refresh();
-    document.fonts.ready.then(refresh);
-    return () => ctx.revert();
+    document.fonts.ready.then(() => ScrollTrigger.refresh());
+    });
+    return () => {
+      cancelled = true;
+      ctx?.revert();
+    };
   }, [widths, sigWidth]);
 
   return (

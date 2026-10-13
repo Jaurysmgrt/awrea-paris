@@ -7,15 +7,15 @@ import { Bodoni_Moda, Cormorant_Garamond, Jost, Pinyon_Script } from "next/font/
 
 export const bodoni = Bodoni_Moda({
   subsets: ["latin"],
-  weight: ["400", "500"],
-  style: ["normal", "italic"],
+  weight: ["400"],
+  style: ["normal"],
   variable: "--font-bodoni",
   display: "swap",
 });
 
 export const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: ["400"],
   style: ["italic", "normal"],
   variable: "--font-cormorant",
   display: "swap",
@@ -26,11 +26,13 @@ export const pinyon = Pinyon_Script({
   weight: "400",
   variable: "--font-pinyon",
   display: "swap",
+  // calligraphie réservée aux grands titres : chargée sans préchargement pour libérer la bande passante
+  preload: false,
 });
 
 export const jost = Jost({
   subsets: ["latin"],
-  weight: ["300", "400"],
+  weight: ["300"],
   variable: "--font-jost",
   display: "swap",
 });

@@ -51,6 +51,7 @@
     --fg-soft: var(--color-ivory-soft);
     --line: color-mix(in oklab, var(--color-ivory) 24%, transparent);
     --accent: var(--color-gold);
+    --gold-text: var(--color-gold);
     color: var(--fg);
   }
   html.scene-live[data-scene="ivory"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]),
@@ -59,13 +60,14 @@
     --fg-soft: var(--color-ink-soft);
     --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
     --accent: var(--color-ink);
+    --gold-text: var(--color-gold-deep);
     color: var(--fg);
   }
 
   .scene[data-theme="paper"] {
     background-color: var(--color-ivory);
     background-image: url("/media/texture/paper.webp");
-    background-size: 384px;
+    background-size: var(--size-paper-tile);
   }
 
   .section {
@@ -173,7 +175,6 @@
   .t-left {
     text-align: left;
   }
-  .t-center p,
   p.t-center {
     text-align: center;
     hyphens: manual;
@@ -239,7 +240,7 @@
     text-underline-offset: 0.2em;
   }
   .prose strong {
-    font-weight: var(--font-weight-medium);
+    font-style: normal;
   }
 
   /* ============================================================== FILETS */
@@ -436,7 +437,7 @@
     background-position:
       calc(100% - var(--spacing-xs)) 55%,
       calc(100% - var(--spacing-2xs)) 55%;
-    background-size: 5px 5px;
+    background-size: var(--spacing-3xs) var(--spacing-3xs);
     background-repeat: no-repeat;
     padding-right: var(--spacing-l);
   }
@@ -504,6 +505,9 @@
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     cursor: pointer;
+    /* couleur explicite (et non héritée) : la puce ne relance pas sa transition
+       à chaque image quand la scène bascule */
+    color: var(--fg);
     transition:
       border-color var(--dur-fast) var(--ease-silk),
       background-color var(--dur-fast) var(--ease-silk),
@@ -513,6 +517,7 @@
     border-color: var(--fg);
   }
   .chip[aria-pressed="true"],
+  .chip[aria-current="true"],
   .chip[aria-checked="true"],
   .chip:has(input:checked) {
     background: var(--fg);
@@ -570,14 +575,13 @@
     margin-top: var(--spacing-2xs);
   }
 
-  .reveal-img img,
-  .reveal-img video {
+  .reveal-img[data-pending] img,
+  .reveal-img[data-pending] video {
     transform: scale(1.06);
-    transition: transform var(--dur-slow) var(--ease-silk);
   }
-  .reveal-img.is-in img,
-  .reveal-img.is-in video {
-    transform: scale(1);
+  .reveal-img[data-shown] img,
+  .reveal-img[data-shown] video {
+    transition: transform var(--dur-slow) var(--ease-silk);
   }
 
   /* ========================================================= ÉLÉMENTS DIVERS */
@@ -703,26 +707,21 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  /* apparition au scroll (pilotée par components/motion/Reveal) */
-  [data-reveal] {
+  /* apparition au scroll (pilotée par components/motion/RevealObserver) : seuls les éléments
+     sous l'écran au chargement sont mis en attente, le reste s'affiche tout de suite */
+  [data-reveal][data-pending] {
     opacity: 0;
     transform: translateY(var(--spacing-m));
+  }
+  [data-reveal][data-shown] {
     transition:
       opacity var(--dur-slow) var(--ease-silk),
       transform var(--dur-slow) var(--ease-silk);
   }
-  [data-reveal].is-in {
-    opacity: 1;
-    transform: none;
-  }
-  html:not(.js) [data-reveal] {
-    opacity: 1;
-    transform: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-reveal] {
+  [data-reveal][data-pending] {
     opacity: 1 !important;
     transform: none !important;
   }

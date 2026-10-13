@@ -1,32 +1,31 @@
 "use client";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
-import Lenis from "lenis";
-import { prefersReducedMotion, setupGsap, ScrollTrigger, gsap } from "@/lib/motion";
+import { useEffect } from "react";
+import { isTouch, prefersReducedMotion } from "@/lib/motion";
 
-const LenisContext = createContext<Lenis | null>(null);
-export const useLenis = () => useContext(LenisContext);
+type W = Window & { __lenis?: { destroy: () => void; on: (e: "scroll", cb: () => void) => void }; __scrollTrigger?: { update: () => void } };
 
-/** Défilement doux (Lenis) synchronisé avec GSAP ScrollTrigger. Coupé si mouvement réduit. */
+/**
+ * Défilement doux (Lenis) sur ordinateur uniquement : au tactile, le défilement natif
+ * reste le plus fluide et le plus économe. Coupé si « mouvement réduit ».
+ */
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
-  const [lenis, setLenis] = useState<Lenis | null>(null);
-  const raf = useRef<((t: number) => void) | null>(null);
-
   useEffect(() => {
-    setupGsap();
-    if (prefersReducedMotion()) return;
-    const l = new Lenis({ duration: 1.15, easing: (t) => 1 - Math.pow(1 - t, 3), touchMultiplier: 1.2, syncTouch: false });
-    l.on("scroll", ScrollTrigger.update);
-    raf.current = (time: number) => l.raf(time * 1000);
-    gsap.ticker.add(raf.current);
-    gsap.ticker.lagSmoothing(0);
-    setLenis(l);
-    (window as unknown as { __lenis?: Lenis }).__lenis = l;
+    if (prefersReducedMotion() || isTouch()) return;
+    let cancelled = false;
+    let lenis: { destroy: () => void } | null = null;
+    import("lenis").then(({ default: Lenis }) => {
+      if (cancelled) return;
+      const l = new Lenis({ duration: 1.15, easing: (t: number) => 1 - Math.pow(1 - t, 3), autoRaf: true });
+      const w = window as W;
+      if (w.__scrollTrigger) l.on("scroll", w.__scrollTrigger.update);
+      w.__lenis = l;
+      lenis = l;
+    });
     return () => {
-      if (raf.current) gsap.ticker.remove(raf.current);
-      l.destroy();
-      setLenis(null);
+      cancelled = true;
+      lenis?.destroy();
+      (window as W).__lenis = undefined;
     };
   }, []);
-
-  return <LenisContext.Provider value={lenis}>{children}</LenisContext.Provider>;
+  return <>{children}</>;
 }

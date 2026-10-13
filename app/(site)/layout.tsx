@@ -1,12 +1,12 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { ConsentProvider } from "@/components/layout/CookieBanner";
+import { ConsentProvider } from "@/components/consent/ConsentProvider";
 import { SmoothScroll } from "@/components/providers/SmoothScroll";
 import { DrapeTransition } from "@/components/signature/DrapeTransition";
 import { ThemeShift } from "@/components/signature/ThemeShift";
 import { RevealObserver } from "@/components/motion/RevealObserver";
 import { CartProvider } from "@/components/commerce/CartProvider";
-import { CartDrawer } from "@/components/commerce/CartDrawer";
+import { CartDrawerLazy } from "@/components/commerce/CartDrawerLazy";
 import { WishlistProvider } from "@/components/commerce/WishlistProvider";
 import { Assistant } from "@/components/assistant/Assistant";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -27,7 +27,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
                 {children}
               </main>
               <Footer />
-              <CartDrawer />
+              <CartDrawerLazy />
               <Assistant />
               <ThemeShift />
               <RevealObserver />

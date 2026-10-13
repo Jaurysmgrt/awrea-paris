@@ -11,6 +11,7 @@ const config: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.shopify.com" },
       { protocol: "https", hostname: "*.cdninstagram.com" },
+      { protocol: "https", hostname: "*.fbcdn.net" },
     ],
   },
   async headers() {

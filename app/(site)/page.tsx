@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { home } from "@/content/fr/pages";
 import { identity } from "@/content/brand/identity";
 import { atelier } from "@/content/fr/pages";

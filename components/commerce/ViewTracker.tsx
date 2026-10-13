@@ -1,12 +1,13 @@
 "use client";
 import { useEffect } from "react";
-import { useConsent } from "@/components/layout/CookieBanner";
+import { useConsent } from "@/components/consent/ConsentProvider";
 
 /** Compte une vue de fiche produit, uniquement si la mesure d'audience a été acceptée. */
 export function ViewTracker({ handle }: { handle: string }) {
-  const consent = useConsent();
+  const { has } = useConsent();
+  const allowed = has("analytics");
   useEffect(() => {
-    if (!consent?.analytics) return;
+    if (!allowed) return;
     const key = `awrea_view_${handle}`;
     try {
       if (sessionStorage.getItem(key)) return;
@@ -15,6 +16,6 @@ export function ViewTracker({ handle }: { handle: string }) {
       /* stockage indisponible */
     }
     navigator.sendBeacon?.("/api/track", new Blob([JSON.stringify({ handle })], { type: "application/json" }));
-  }, [consent?.analytics, handle]);
+  }, [allowed, handle]);
   return null;
 }

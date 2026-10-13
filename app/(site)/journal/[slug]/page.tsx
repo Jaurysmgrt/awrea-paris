@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { getArticle, getArticles } from "@/lib/content/journal";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { articleSchema } from "@/lib/seo/schema";

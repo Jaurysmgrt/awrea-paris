@@ -5,7 +5,7 @@
   .golden-light {
     --mx: 60%;
     --my: 40%;
-    --gl-radius: clamp(9rem, 6rem + 14vw, 22rem);
+    --gl-radius: var(--size-halo);
     position: absolute;
     inset: 0;
     pointer-events: none;
@@ -19,11 +19,13 @@
   .golden-light__lace {
     position: absolute;
     inset: 0;
-    background-image: url("/media/texture/lace-gold.webp");
-    background-size: clamp(14rem, 10rem + 14vw, 26rem);
+    background-size: var(--size-lace-tile);
     opacity: 0.55;
     mask-image: radial-gradient(circle var(--gl-radius) at var(--mx) var(--my), var(--color-ink) 0%, color-mix(in oklab, var(--color-ink) 45%, transparent) 45%, transparent 100%);
     -webkit-mask-image: radial-gradient(circle var(--gl-radius) at var(--mx) var(--my), var(--color-ink) 0%, color-mix(in oklab, var(--color-ink) 45%, transparent) 45%, transparent 100%);
+  }
+  .golden-light[data-armed] .golden-light__lace {
+    background-image: url("/media/texture/lace-gold.webp");
   }
   .golden-light__halo {
     position: absolute;
@@ -37,8 +39,6 @@
 
   /* ============================================ 2. RÉVÉLATION EN DENTELLE */
   .lace-reveal {
-    --lace-size: 220px; /* token-ok : valeur de départ, animée */
-    --lace-open: 0%;
     position: relative;
     min-height: 100svh;
     display: grid;
@@ -58,20 +58,45 @@
   .lace-reveal__media video {
     object-fit: cover;
   }
-  .lace-reveal[data-state="masked"] .lace-reveal__media {
-    mask-image: url("/media/texture/lace-mask.png"), radial-gradient(circle at 50% 50%, var(--color-ink) var(--lace-open), transparent calc(var(--lace-open) + 12%));
-    mask-size: var(--lace-size), 100% 100%;
-    mask-position: center;
-    mask-repeat: repeat, no-repeat;
-    -webkit-mask-image: url("/media/texture/lace-mask.png"), radial-gradient(circle at 50% 50%, var(--color-ink) var(--lace-open), transparent calc(var(--lace-open) + 12%));
-    -webkit-mask-size: var(--lace-size), 100% 100%;
-    -webkit-mask-position: center;
-    -webkit-mask-repeat: repeat, no-repeat;
+  /* Voile noir ajouré : la vidéo n'apparaît d'abord qu'à travers les fils de la dentelle,
+     puis le voile s'agrandit et s'efface. Animé seulement en transform et opacity :
+     le GPU s'en charge, sans travail du processeur principal (fluide sur mobile). */
+  .lace-reveal__lace {
+    position: absolute;
+    inset: -25%;
+    z-index: 1;
+    pointer-events: none;
+    background-color: var(--color-ink);
+    background-image: url("/media/texture/lace-veil.webp");
+    background-size: var(--size-lace-start);
+    background-position: center;
+    transform-origin: 50% 45%;
+    will-change: transform, opacity;
+    animation:
+      lace-veil-grow calc(var(--dur-slow) * 2.2) var(--ease-drape) calc(var(--dur-fast) * 0.9) both,
+      lace-veil-fade calc(var(--dur-slow) * 1.2) var(--ease-silk) calc(var(--dur-slow) * 1.15) both;
   }
-  .lace-reveal[data-state="idle"] .lace-reveal__media {
-    opacity: 0;
+  .lace-reveal[data-state="open"] .lace-reveal__lace {
+    display: none;
+  }
+  @keyframes lace-veil-grow {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(24);
+    }
+  }
+  @keyframes lace-veil-fade {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
   }
   .lace-reveal__veil {
+    z-index: 1;
     background: linear-gradient(to bottom, color-mix(in oklab, var(--color-ink) 45%, transparent), color-mix(in oklab, var(--color-ink) 10%, transparent) 35%, color-mix(in oklab, var(--color-ink) 60%, transparent));
     pointer-events: none;
   }
@@ -118,7 +143,7 @@
     visibility: hidden;
   }
   .drape__logo {
-    width: clamp(5rem, 4rem + 4vw, 8rem);
+    width: var(--size-mark);
     height: auto;
   }
 
@@ -132,7 +157,7 @@
     outline: var(--border-width-hair) solid var(--line);
     outline-offset: calc(-1 * var(--spacing-2xs));
     background-image: url("/media/texture/paper.webp");
-    background-size: 384px; /* token-ok : taille de la tuile papier */
+    background-size: var(--size-paper-tile);
     color: var(--color-ink);
   }
   [data-theme="ink"] .certificate {
@@ -168,14 +193,13 @@
   }
   .certificate__no {
     font-size: var(--text-step-1);
-    font-style: italic;
   }
   .certificate__n {
     font-size: var(--text-step-4);
   }
   .certificate__slash {
     font-size: var(--text-step-3);
-    color: var(--color-gold);
+    color: var(--color-gold-deep);
     font-weight: var(--font-weight-regular);
   }
   .certificate__total {
@@ -240,7 +264,7 @@
     width: var(--spacing-l);
     height: var(--spacing-l);
     border: var(--border-width-hair) solid var(--color-ivory);
-    animation: look-pulse 2.8s var(--ease-silk) infinite; /* token-ok : respiration lente */
+    animation: look-pulse var(--dur-breath) var(--ease-silk) infinite;
   }
   .look__dot[aria-expanded="true"]::before {
     transform: scale(1.4);
@@ -259,7 +283,7 @@
     position: absolute;
     z-index: 3;
     top: var(--y);
-    width: min(19rem, 86%);
+    width: min(var(--container-popover), 86%);
     transform: translateY(-50%);
     padding: var(--spacing-s);
     border: var(--border-width-hair) solid var(--color-ink);
@@ -305,11 +329,29 @@
     position: relative;
     overflow: hidden;
   }
+  .video {
+    background-color: var(--color-ink);
+    background-size: cover;
+    background-position: center;
+  }
+  /* image de remplacement : une seule version téléchargée, et seulement à l'approche */
+  .video[data-near="true"] {
+    background-image: var(--poster);
+  }
+  @media (max-width: 47.99rem) {
+    .video[data-near="true"] {
+      background-image: var(--poster-mobile);
+    }
+  }
   .video video {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    background: var(--color-ink);
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-silk);
+  }
+  .video[data-ready="true"] video {
+    opacity: 1;
   }
   .video__toggle {
     position: absolute;
@@ -343,7 +385,7 @@
   .loupe__lens {
     --lx: 50%;
     --ly: 50%;
-    --size: clamp(8rem, 6rem + 10vw, 14rem);
+    --size: var(--size-loupe);
     position: absolute;
     left: var(--lx);
     top: var(--ly);
@@ -494,7 +536,7 @@
     text-align: center;
     background-color: var(--color-ivory);
     background-image: url("/media/texture/paper.webp");
-    background-size: 384px; /* token-ok : tuile papier */
+    background-size: var(--size-paper-tile);
     border: var(--border-width-hair) solid color-mix(in oklab, var(--color-ink) 14%, transparent);
     color: var(--color-ink);
     will-change: transform;
@@ -625,8 +667,8 @@
   @media (max-width: 29.99rem) {
     .assistant-launcher[data-open="false"] .assistant-launcher__label {
       position: absolute;
-      width: 1px;
-      height: 1px;
+      width: 1px; /* token-ok : motif sr-only */
+      height: 1px; /* token-ok */
       overflow: hidden;
       clip: rect(0 0 0 0);
     }
@@ -640,7 +682,7 @@
     position: fixed;
     z-index: var(--z-assistant);
     inset: auto 0 0 0;
-    height: min(100dvh, 46rem);
+    height: min(100dvh, var(--container-sheet));
     display: grid;
     grid-template-rows: auto minmax(0, 1fr) auto auto auto;
     border-top: var(--border-width-hair) solid var(--color-ink);
@@ -650,7 +692,7 @@
     .assistant {
       inset: auto var(--spacing-gutter) calc(var(--spacing-touch) + var(--spacing-m)) auto;
       width: min(var(--container-panel), calc(100vw - 2 * var(--spacing-gutter)));
-      height: min(calc(100dvh - var(--header-h) - var(--spacing-3xl)), 40rem);
+      height: min(calc(100dvh - var(--header-h) - var(--spacing-3xl)), var(--container-sheet-desktop));
       border: var(--border-width-hair) solid var(--color-ink);
     }
   }
@@ -716,13 +758,13 @@
     height: var(--spacing-3xs);
     background: var(--color-gold);
     transform: rotate(45deg);
-    animation: assistant-dot 1.2s var(--ease-silk) infinite; /* token-ok : respiration */
+    animation: assistant-dot calc(var(--dur-breath) / 2) var(--ease-silk) infinite;
   }
   .assistant__typing span:nth-child(2) {
-    animation-delay: 0.15s; /* token-ok */
+    animation-delay: calc(var(--dur-stagger) * 2.5);
   }
   .assistant__typing span:nth-child(3) {
-    animation-delay: 0.3s; /* token-ok */
+    animation-delay: calc(var(--dur-stagger) * 5);
   }
   @keyframes assistant-dot {
     50% {

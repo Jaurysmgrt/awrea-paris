@@ -39,11 +39,15 @@ export default function ContactPage() {
             </div>
             <div className="stack">
               <h2 className="t-label">L’atelier</h2>
-              <p className="t-body">
-                {identity.address.streetAddress}
-                <br />
-                {identity.address.postalCode} {identity.address.addressLocality}
-              </p>
+              <address className="t-body contact__address">
+                {identity.address.streetAddress ? (
+                  <>
+                    {identity.address.streetAddress}
+                    <br />
+                  </>
+                ) : null}
+                {identity.address.postalCode} {identity.address.addressLocality} — sur rendez-vous
+              </address>
             </div>
           </aside>
         </div>

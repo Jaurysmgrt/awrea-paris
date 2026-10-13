@@ -17,6 +17,10 @@ export interface KV {
   /** Ajoute en tête de liste et tronque à `cap` éléments */
   push<T>(key: string, value: T, cap?: number): Promise<void>;
   list<T>(key: string, limit?: number): Promise<T[]>;
+  /** Incrémente un compteur qui expire après `ttlSeconds` (fenêtres de limitation de débit) */
+  incr(key: string, ttlSeconds: number): Promise<number>;
+  /** Lit un compteur sans l'incrémenter (0 s'il n'existe pas ou a expiré) */
+  peek(key: string): Promise<number>;
 }
 
 const restUrl = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
@@ -52,6 +56,14 @@ class UpstashKV implements KV {
   async list<T>(key: string, limit = 100) {
     const raw = await this.cmd<string[]>("LRANGE", key, 0, limit - 1);
     return (raw ?? []).map((r) => JSON.parse(r) as T);
+  }
+  async incr(key: string, ttlSeconds: number) {
+    const n = await this.cmd<number>("INCR", key);
+    if (n === 1) await this.cmd("EXPIRE", key, ttlSeconds);
+    return n;
+  }
+  async peek(key: string) {
+    return Number((await this.cmd<string | null>("GET", key)) ?? 0);
   }
 }
 
@@ -93,6 +105,7 @@ class FileKV implements KV {
     await this.save();
   }
   async del(key: string) {
+    if (this.counters.delete(key)) return;
     const d = await this.load();
     delete d[key];
     await this.save();
@@ -106,6 +119,20 @@ class FileKV implements KV {
   async list<T>(key: string, limit = 100) {
     const d = await this.load();
     return ((d[key] as T[]) ?? []).slice(0, limit);
+  }
+  // compteurs en mémoire seulement : inutile de réécrire le fichier à chaque requête
+  private counters = new Map<string, { n: number; exp: number }>();
+  async incr(key: string, ttlSeconds: number) {
+    const now = Date.now();
+    const c = this.counters.get(key);
+    const next = c && c.exp > now ? { n: c.n + 1, exp: c.exp } : { n: 1, exp: now + ttlSeconds * 1000 };
+    this.counters.set(key, next);
+    if (this.counters.size > 5000) for (const [k, v] of this.counters) if (v.exp <= now) this.counters.delete(k);
+    return next.n;
+  }
+  async peek(key: string) {
+    const c = this.counters.get(key);
+    return c && c.exp > Date.now() ? c.n : 0;
   }
 }
 

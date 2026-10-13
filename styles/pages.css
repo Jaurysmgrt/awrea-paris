@@ -1,11 +1,15 @@
 /* Mises en page propres aux pages (accueil, éditorial, boutique, fiche produit…). */
 
 @layer components {
-  .link-plain {
-    transition: color var(--dur-fast) var(--ease-silk);
-  }
-  .link-plain:hover {
-    color: var(--accent);
+  /* transitions de couleur au survol seulement : sur écran tactile, un lien qui hérite
+     d'une couleur en cours de transition (bascule de scène) relancerait la sienne à chaque image */
+  @media (hover: hover) {
+    .link-plain {
+      transition: color var(--dur-fast) var(--ease-silk);
+    }
+    .link-plain:hover {
+      color: var(--accent);
+    }
   }
 
   .section-head {
@@ -56,7 +60,7 @@
     text-align: center;
   }
   .hero__h1 {
-    max-width: 28ch;
+    max-width: min(100%, var(--container-prose));
     color: var(--color-ivory);
     text-wrap: balance;
   }
@@ -81,24 +85,22 @@
     content: "";
     width: var(--border-width-hair);
     height: var(--spacing-l);
-    background: var(--color-gold);
-    transform-origin: top;
-    animation: scroll-line 2.4s var(--ease-drape) infinite; /* token-ok : respiration */
+    background: linear-gradient(to bottom, transparent, var(--color-gold) 35%, var(--color-gold) 65%, transparent);
+    /* transform et opacité seulement : l'animation tourne sur le compositeur */
+    animation: scroll-line var(--dur-breath) var(--ease-drape) infinite;
   }
   @keyframes scroll-line {
     0% {
-      transform: scaleY(0);
+      transform: translateY(-40%) scaleY(0.2);
+      opacity: 0;
     }
-    50% {
-      transform: scaleY(1);
-      transform-origin: top;
-    }
-    51% {
-      transform-origin: bottom;
+    45% {
+      transform: translateY(0) scaleY(1);
+      opacity: 1;
     }
     100% {
-      transform: scaleY(0);
-      transform-origin: bottom;
+      transform: translateY(40%) scaleY(0.2);
+      opacity: 0;
     }
   }
 
@@ -129,7 +131,6 @@
     gap: var(--spacing-xs);
     padding-block: var(--spacing-s);
     border-bottom: var(--border-width-hair) solid var(--line);
-    transition: color var(--dur-fast) var(--ease-silk);
   }
   .home-collection__item > .t-label:last-child {
     grid-column: 2 / -1;
@@ -140,7 +141,9 @@
     transform: translateY(-0.3em);
   }
   .home-collection__item:hover .t-h4 {
-    font-style: italic;
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+    text-underline-offset: 0.2em;
   }
 
   /* ================================================================ MANIFESTE */
@@ -153,7 +156,7 @@
     gap: var(--spacing-l);
   }
   .manifesto__script {
-    color: var(--color-gold);
+    color: var(--gold-text);
   }
   .manifesto__quote {
     display: grid;
@@ -162,7 +165,7 @@
     max-width: var(--container-text);
   }
   .manifesto__quote footer {
-    color: var(--color-gold);
+    color: var(--gold-text);
   }
 
   /* ============================================================ SHOP THE LOOK */
@@ -288,7 +291,7 @@
     padding-bottom: var(--spacing-xl);
   }
   .collection-hero__title {
-    color: var(--color-gold);
+    color: var(--gold-text);
   }
   .collection-hero__lead {
     max-width: var(--container-text);
@@ -559,7 +562,7 @@
   }
   @media (min-width: 30rem) {
     .facts__row {
-      grid-template-columns: minmax(0, 10rem) 1fr;
+      grid-template-columns: minmax(0, var(--container-label)) 1fr;
       align-items: baseline;
       gap: var(--spacing-m);
     }
@@ -641,13 +644,12 @@
     font-family: var(--font-display);
     font-size: var(--text-step-5);
     line-height: var(--leading-tight);
-    color: var(--color-gold);
-    font-style: italic;
+    color: var(--gold-text);
   }
   .sketchbook {
     display: grid;
     gap: var(--spacing-l);
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--container-card)), 1fr));
   }
   .sketch svg {
     width: 100%;
@@ -824,10 +826,11 @@
     gap: var(--spacing-2xs);
     padding-block: var(--spacing-m);
     border-bottom: var(--border-width-hair) solid var(--line);
-    transition: color var(--dur-fast) var(--ease-silk);
   }
   .journal-more__link:hover .t-h3 {
-    font-style: italic;
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+    text-underline-offset: 0.2em;
   }
 
   /* ========================================================= CONTACT, FORMS */
@@ -846,6 +849,9 @@
       grid-column: 9 / span 4;
       padding-top: var(--spacing-3xl);
     }
+  }
+  .contact__address {
+    font-style: italic;
   }
   .form__row {
     display: grid;

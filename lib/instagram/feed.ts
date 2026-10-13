@@ -43,4 +43,3 @@ export async function getInstagramPosts(): Promise<InstagramPost[]> {
   }
 }
 
-export const instagramFallback = fallback;

@@ -19,13 +19,15 @@ export const identity = {
     "Prêt-à-porter féminin fait main à Paris. Dentelle noire, jersey, satin et dorure, en pièces uniques et séries numérotées.",
   manifesto: "Consommer plus juste. Une création exclusive n’a pas besoin d’être réservée à l’ultra luxe.",
   foundingLocation: "Paris, France",
-  foundingYear: 2023, // À COMPLÉTER
+  /** À COMPLÉTER : année de création (non publiée tant qu’elle vaut null) */
+  foundingYear: null as number | null,
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.awreaparis.com",
   email: "contact@awreaparis.com", // À COMPLÉTER
   phone: "", // À COMPLÉTER (facultatif)
+  /** À COMPLÉTER : adresse de l'atelier (rue et code postal publiés seulement s'ils sont renseignés) */
   address: {
-    streetAddress: "Atelier sur rendez-vous", // À COMPLÉTER
-    postalCode: "75011", // À COMPLÉTER
+    streetAddress: "",
+    postalCode: "",
     addressLocality: "Paris",
     addressCountry: "FR",
   },

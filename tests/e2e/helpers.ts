@@ -1,11 +1,11 @@
 import type { Page } from "@playwright/test";
+import { CONSENT_COOKIE, encodeConsent } from "../../lib/consent";
 
-/** Pose le cookie de consentement pour que le bandeau ne gêne pas les tests (il est testé à part). */
+/** Pose le cookie de consentement (tout refusé) pour que le bandeau ne gêne pas les tests (il est testé à part). */
 export async function acceptCookies(page: Page) {
   const base = test_base();
-  await page.context().addCookies([
-    { name: "awrea_consent", value: encodeURIComponent(JSON.stringify({ v: 1, analytics: false, social: false, date: "2026-01-01" })), url: base },
-  ]);
+  const value = encodeConsent({ id: "e2etests01", analytics: false, personalization: false, advertising: false, date: Date.now(), policy: "2026-10" });
+  await page.context().addCookies([{ name: CONSENT_COOKIE, value, url: base }]);
 }
 
 export function test_base() {

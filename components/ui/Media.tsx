@@ -20,25 +20,39 @@ type Props = {
   ratio?: "portrait" | "tall" | "look" | "landscape" | "wide" | "auto";
   alt?: string;
   decorative?: boolean;
+  /** image réservée au survol (seconde vue d'une carte) : jamais téléchargée sur écran tactile */
+  hoverOnly?: boolean;
 };
 
-export function Media({ image, sizes = "(min-width: 64rem) 50vw, 100vw", priority, className, imgClassName, ratio = "portrait", alt, decorative }: Props) {
+const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+export function Media({ image, sizes = "(min-width: 64rem) 50vw, 100vw", priority, className, imgClassName, ratio = "portrait", alt, decorative, hoverOnly }: Props) {
   const { src, srcSet: set } = srcSet(image.src);
+  const img = (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      srcSet={set || undefined}
+      sizes={set ? sizes : undefined}
+      width={image.width}
+      height={image.height}
+      alt={decorative ? "" : (alt ?? image.alt)}
+      loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : undefined}
+      decoding="async"
+      className={imgClassName}
+    />
+  );
   return (
     <div className={`media ${ratio !== "auto" ? `media--${ratio}` : ""} ${className ?? ""}`}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        srcSet={set || undefined}
-        sizes={set ? sizes : undefined}
-        width={image.width}
-        height={image.height}
-        alt={decorative ? "" : (alt ?? image.alt)}
-        loading={priority ? "eager" : "lazy"}
-        fetchPriority={priority ? "high" : undefined}
-        decoding="async"
-        className={imgClassName}
-      />
+      {hoverOnly ? (
+        <picture>
+          <source media="(hover: none)" srcSet={BLANK} />
+          {img}
+        </picture>
+      ) : (
+        img
+      )}
     </div>
   );
 }

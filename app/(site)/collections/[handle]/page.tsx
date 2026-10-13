@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { getCollection, getCollections, getProductsByHandles } from "@/lib/commerce";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { collectionSchema } from "@/lib/seo/schema";

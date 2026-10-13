@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { kv } from "@/lib/store";
 import type { AuditReport } from "@/lib/agents/seo-audit";
 import { ActionButton } from "@/components/admin/ActionButton";

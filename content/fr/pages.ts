@@ -91,7 +91,7 @@ export const maison = {
   h1: "La Maison",
   lead: "Awrea Paris est une maison de prêt-à-porter féminin fondée à Paris par une jeune créatrice. Elle dessine, coupe et coud chaque pièce à la main, en pièce unique ou en très petite série numérotée.",
   facts: [
-    { label: "Fondation", value: "Paris, 2023" },
+    { label: "Fondation", value: "À Paris, par une jeune créatrice" },
     { label: "Fabrication", value: "À la main, dans l’atelier parisien" },
     { label: "Séries", value: "Pièces uniques ou de 3 à 10 pièces numérotées" },
     { label: "Signature", value: "Dentelle noire, jersey, satin, dorure" },

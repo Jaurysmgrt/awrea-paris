@@ -34,7 +34,7 @@ export function ProductGallery({ product }: { product: Product }) {
         {slides.map((s, i) => (
           <li key={s.key} data-index={i} className={`gallery__slide gallery__slide--${s.kind}`}>
             {s.kind === "image" ? (
-              <Media image={s.img} priority={i === 0} sizes="(min-width: 64rem) 50vw, 100vw" />
+              <Media image={s.img} priority={i === 0} sizes="(min-width: 64rem) 35vw, 88vw" />
             ) : s.kind === "video" && product.video ? (
               <VideoLazy src={product.video.src} poster={product.video.poster} label={product.video.alt} className="media media--portrait" />
             ) : (

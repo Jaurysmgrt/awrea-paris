@@ -34,7 +34,7 @@ Description : ${identity.description}
 Manifeste : ${identity.manifesto}
 Phrase de la créatrice : « ${identity.founderQuote} »
 Instagram : ${identity.social.instagram} (${identity.social.instagramHandle}) · E-mail : ${identity.email}
-Atelier : ${identity.address.streetAddress}, ${identity.address.postalCode} ${identity.address.addressLocality}
+Atelier : ${[identity.address.streetAddress, `${identity.address.postalCode} ${identity.address.addressLocality}`.trim()].filter(Boolean).join(", ")}, sur rendez-vous
 
 # Boutique
 Expédition des pièces disponibles : ${shop.dispatchDays}. Précommandes : expédiées à la fin du délai de fabrication indiqué sur la pièce.

@@ -197,12 +197,12 @@
   /* ============================================================ AJOUT RAPIDE */
   .quick-add {
     display: grid;
-    grid-template-columns: minmax(0, 6rem) minmax(0, 1fr);
+    grid-template-columns: minmax(0, var(--container-thumb-l)) minmax(0, 1fr);
     gap: var(--spacing-s);
     align-items: start;
   }
   .quick-add--compact {
-    grid-template-columns: minmax(0, 4.5rem) minmax(0, 1fr);
+    grid-template-columns: minmax(0, var(--container-thumb-s)) minmax(0, 1fr);
   }
   .quick-add__meta {
     display: flex;
@@ -215,7 +215,7 @@
   /* ============================================================= LIGNE PANIER */
   .cart-line {
     display: grid;
-    grid-template-columns: minmax(0, 5.5rem) minmax(0, 1fr);
+    grid-template-columns: minmax(0, var(--container-thumb-m)) minmax(0, 1fr);
     gap: var(--spacing-s);
   }
   .cart-line__info {

@@ -44,9 +44,25 @@
     --fg-soft: var(--color-ivory-soft);
     --line: color-mix(in oklab, var(--color-ivory) 24%, transparent);
     --accent: var(--color-gold);
+    --gold-text: var(--color-gold);
   }
   html[data-scene="pearl"] body {
     --bg: var(--color-pearl);
+  }
+  /* Avant l'hydratation, la scène suit déjà la première section : l'en-tête reste lisible
+     sur une ouverture noire, sans attendre le JavaScript. */
+  html:not([data-scene]):has(:is(main > .scene, main > article > .scene):first-child[data-theme="ink"]) body {
+    --bg: var(--color-ink);
+    --fg: var(--color-ivory);
+    --fg-soft: var(--color-ivory-soft);
+    --line: color-mix(in oklab, var(--color-ivory) 24%, transparent);
+    --accent: var(--color-gold);
+    --gold-text: var(--color-gold);
+  }
+  /* Première activation de la scène (et changement de page) : bascule instantanée,
+     les sections hors écran n'ont pas à jouer de transition. */
+  html.scene-instant :is(body, .scene, .site-header, .site-footer) {
+    transition: none !important;
   }
 
   ::selection {
@@ -119,10 +135,10 @@
 @layer utilities {
   .sr-only {
     position: absolute;
-    width: 1px;
-    height: 1px;
+    width: 1px; /* token-ok : motif sr-only standard */
+    height: 1px; /* token-ok */
     padding: 0;
-    margin: -1px;
+    margin: -1px; /* token-ok */
     overflow: hidden;
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
@@ -153,9 +169,9 @@
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important; /* token-ok : neutralisation */
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important; /* token-ok : neutralisation */
     scroll-behavior: auto !important;
   }
 }

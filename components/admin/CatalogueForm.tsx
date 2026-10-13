@@ -2,7 +2,7 @@
 /**
  * Nouvelle fiche par l'agent Catalogue : photos (redimensionnées dans le navigateur) + notes.
  */
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 

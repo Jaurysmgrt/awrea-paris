@@ -1,18 +1,25 @@
-"use client";
-import { useConsent } from "@/components/layout/CookieBanner";
-import { instagramFallback, type InstagramPost } from "@/lib/instagram/feed";
+import type { InstagramPost } from "@/lib/instagram/feed";
 
-/** Grille Instagram : les images distantes ne sont chargées qu'avec le consentement « contenus Instagram ». */
+/**
+ * Grille Instagram. Les visuels distants passent par l'optimiseur d'images du site
+ * (servis depuis notre domaine, en AVIF ou WebP) : aucune requête vers Instagram depuis
+ * le navigateur, donc aucun traceur et aucun consentement nécessaire pour les afficher.
+ */
 export function InstagramGrid({ posts }: { posts: InstagramPost[] }) {
-  const consent = useConsent();
-  const list = posts.some((p) => p.remote) && !consent?.social ? instagramFallback : posts;
   return (
     <ul className="insta">
-      {list.map((p) => (
+      {posts.map((p) => (
         <li key={p.id}>
           <a href={p.permalink} target="_blank" rel="noopener noreferrer" className="insta__item media">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={p.image} alt={p.alt} loading="lazy" decoding="async" width={480} height={600} />
+            <img
+              src={p.remote ? `/_next/image?url=${encodeURIComponent(p.image)}&w=480&q=70` : p.image}
+              alt={p.alt}
+              loading="lazy"
+              decoding="async"
+              width={480}
+              height={600}
+            />
           </a>
         </li>
       ))}

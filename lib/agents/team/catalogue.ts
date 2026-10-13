@@ -92,7 +92,7 @@ Informations saisies :
       const mat = input.notes.match(/(dentelle|satin|jersey|soie|coton|tulle)/i)?.[1]?.toLowerCase() ?? "dentelle";
       copy = {
         title: name,
-        tagline: `Une ${cat === "body" || cat === "jupe" ? "pièce" : cat} en ${mat}, façonnée à la main à Paris pour révéler la lumière.`,
+        tagline: `${{ robe: "Une robe", body: "Un body", top: "Un top", jupe: "Une jupe", accessoire: "Une pièce" }[cat]} en ${mat}, ${cat === "body" || cat === "top" ? "façonné" : "façonnée"} à la main à Paris pour révéler la lumière.`,
         category: cat,
         description: [
           `${name} est née dans l’atelier parisien de la maison. ${input.notes ? input.notes.replace(/\s+/g, " ").slice(0, 220) : `Le ${mat} y est travaillé à la main, point après point.`}`,

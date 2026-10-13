@@ -57,7 +57,7 @@ test.describe("Parcours d’achat complet (mode test)", () => {
 
     // le panier est vidé
     await page.goto("/");
-    await expect(page.getByRole("button", { name: /Ouvrir le panier, 0 pièce/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Panier\s*: 0 pièce/ })).toBeVisible();
   });
 
   test("pièce épuisée : inscription à la liste d’attente", async ({ page }) => {

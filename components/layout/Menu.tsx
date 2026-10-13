@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { useEffect, useRef } from "react";
 import { nav } from "@/content/fr/pages";
 import { identity } from "@/content/brand/identity";
@@ -32,7 +32,7 @@ export function Menu({ open, onClose }: { open: boolean; onClose: () => void }) 
 
   return (
     <div id="site-menu" ref={ref} className="site-menu" data-theme="ink" data-open={open} aria-hidden={!open} inert={!open}>
-      <GoldenLight className="site-menu__light" />
+      <GoldenLight className="site-menu__light" active={open} />
       <div className="site-menu__inner container">
         <nav aria-label="Menu" className="site-menu__primary">
           <ol>

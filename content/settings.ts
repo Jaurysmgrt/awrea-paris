@@ -12,7 +12,7 @@ export const shop = {
   shippingRates: [
     { id: "fr-colissimo", zone: "FR", label: "France — Colissimo suivi", price: 900, delay: "2 à 3 jours ouvrés après expédition", freeAboveThreshold: true },
     { id: "fr-express", zone: "FR", label: "France — Chronopost express", price: 1800, delay: "24 h après expédition", freeAboveThreshold: false },
-    { id: "fr-atelier", zone: "FR", label: "Retrait à l’atelier, Paris 11e (sur rendez-vous)", price: 0, delay: "dès que la pièce est prête", freeAboveThreshold: false },
+    { id: "fr-atelier", zone: "FR", label: "Retrait à l’atelier, Paris (sur rendez-vous)", price: 0, delay: "dès que la pièce est prête", freeAboveThreshold: false },
     { id: "eu-dhl", zone: "EU", label: "Union européenne — DHL Express", price: 2500, delay: "2 à 4 jours ouvrés après expédition", freeAboveThreshold: true },
     { id: "world-dhl", zone: "WORLD", label: "International — DHL Express", price: 4500, delay: "3 à 7 jours ouvrés après expédition (droits de douane à la charge du destinataire)", freeAboveThreshold: false },
   ],

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { getAllProducts, getCollections } from "@/lib/commerce";
 import { editionInfo, productAvailability, availabilityLabel } from "@/lib/commerce/availability";
 import { formatPrice } from "@/lib/format";

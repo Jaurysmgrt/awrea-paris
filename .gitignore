@@ -11,3 +11,5 @@ playwright-report
 tests/screens
 next-env.d.ts
 *.tsbuildinfo
+__pycache__/
+.tmp-trace/

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { collectionsPage } from "@/content/fr/pages";
 import { getCollections } from "@/lib/commerce";
 import { pageMetadata } from "@/lib/seo/metadata";

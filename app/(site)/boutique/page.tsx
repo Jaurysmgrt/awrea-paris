@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { boutique } from "@/content/fr/pages";
 import { getAllProducts, getProducts } from "@/lib/commerce";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -64,7 +64,7 @@ export default async function BoutiquePage({ searchParams }: { searchParams: Pro
                     const on = sp[g.key] === o.value;
                     return (
                       <li key={o.value}>
-                        <Link href={href(sp, g.key, o.value)} scroll={false} className="chip" aria-pressed={on} rel="nofollow">
+                        <Link href={href(sp, g.key, o.value)} scroll={false} className="chip" aria-current={on ? "true" : undefined} rel="nofollow">
                           {o.label}
                         </Link>
                       </li>

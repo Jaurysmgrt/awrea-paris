@@ -13,7 +13,7 @@
   }
   @media (min-width: 64rem) {
     .admin {
-      grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
+      grid-template-columns: minmax(var(--container-sidebar-min), var(--container-sidebar)) minmax(0, 1fr);
     }
   }
   .admin__side {
@@ -274,7 +274,7 @@
   }
   @media (min-width: 64rem) {
     .log__item {
-      grid-template-columns: 7rem minmax(0, 1fr) auto;
+      grid-template-columns: var(--container-label) minmax(0, 1fr) auto;
     }
     .log__meta {
       grid-column: 3;
@@ -378,7 +378,7 @@
   .letter-draft {
     padding: var(--spacing-m);
     background-image: url("/media/texture/paper.webp");
-    background-size: 384px; /* token-ok : tuile papier */
+    background-size: var(--size-paper-tile);
     border: var(--border-width-hair) solid var(--line);
   }
   .report > summary {

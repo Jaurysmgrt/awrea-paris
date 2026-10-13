@@ -22,6 +22,8 @@
   --color-ink-soft: color-mix(in oklab, var(--color-ink) 72%, var(--color-ivory));
   --color-ivory-soft: color-mix(in oklab, var(--color-ivory) 74%, var(--color-ink));
   --color-pearl-deep: color-mix(in oklab, var(--color-pearl) 82%, var(--color-ink));
+  /* or profond : l'or sur fond clair, pour les textes (contraste ≥ 4,5:1 sur ivoire) */
+  --color-gold-deep: color-mix(in oklab, var(--color-gold) 62%, var(--color-ink));
 
   /* ------------------------------------------------------------ TYPOGRAPHIE
      Les familles pointent vers les variables posées par next/font (app/fonts.ts).
@@ -87,6 +89,16 @@
   --container-wide: 76rem;
   --container-max: 120rem;
   --container-panel: 30rem;
+  --container-popover: 19rem;
+  --container-card: 14rem;
+  --container-label: 8rem;
+  --container-sidebar: 17rem;
+  --container-sidebar-min: 14rem;
+  --container-thumb-l: 6rem;
+  --container-thumb-m: 5.5rem;
+  --container-thumb-s: 4.5rem;
+  --container-sheet: 46rem;
+  --container-sheet-desktop: 40rem;
 
   /* ------------------------------------------------------------------ BORDS
      Pas d'arrondi, pas d'ombre. Un seul trait : le fil. */
@@ -116,6 +128,8 @@
   --dur-fast: 0.4s;
   --dur-base: 0.9s;
   --dur-slow: 1.6s;
+  --dur-breath: 2.6s; /* respirations ambiantes (points du shop the look, indicateur de défilement) */
+  --dur-stagger: 0.06s; /* décalage entre éléments d'une même apparition */
   --ease-silk: cubic-bezier(0.22, 0.61, 0.24, 1);
   --ease-drape: cubic-bezier(0.76, 0, 0.24, 1);
 
@@ -125,9 +139,18 @@
   --fg-soft: var(--color-ink-soft);
   --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
   --accent: var(--color-ink);
+  --gold-text: var(--color-gold-deep); /* or des textes : contraste AA sur fond clair */
   --halo: var(--color-gold);
 
   --header-h: var(--spacing-header);
+
+  /* tailles propres aux interactions signature */
+  --size-halo: clamp(9rem, 6rem + 14vw, 22rem);
+  --size-lace-tile: clamp(14rem, 10rem + 14vw, 26rem);
+  --size-loupe: clamp(8rem, 6rem + 10vw, 14rem);
+  --size-mark: clamp(5rem, 4rem + 4vw, 8rem);
+  --size-paper-tile: 384px;
+  --size-lace-start: 220px;
   --z-base: 1;
   --z-sticky: 20;
   --z-header: 40;
@@ -143,6 +166,7 @@
   --fg-soft: var(--color-ivory-soft);
   --line: color-mix(in oklab, var(--color-ivory) 24%, transparent);
   --accent: var(--color-gold);
+  --gold-text: var(--color-gold);
 }
 
 [data-theme="ivory"],
@@ -152,6 +176,7 @@
   --fg-soft: var(--color-ink-soft);
   --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
   --accent: var(--color-ink);
+  --gold-text: var(--color-gold-deep);
 }
 
 [data-theme="pearl"] {
@@ -160,6 +185,7 @@
   --fg-soft: color-mix(in oklab, var(--color-ink) 80%, var(--color-pearl));
   --line: color-mix(in oklab, var(--color-ink) 26%, transparent);
   --accent: var(--color-ink);
+  --gold-text: var(--color-gold-deep);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -167,6 +193,8 @@
     --dur-fast: 0.01s;
     --dur-base: 0.01s;
     --dur-slow: 0.01s;
+    --dur-breath: 0.01s;
+    --dur-stagger: 0s;
   }
 }
 }

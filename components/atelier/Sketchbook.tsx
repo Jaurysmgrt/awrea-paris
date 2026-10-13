@@ -5,7 +5,7 @@
  * des carnets de la créatrice (ou à conserver comme ornement).
  */
 import { useEffect, useRef } from "react";
-import { gsap, prefersReducedMotion, setupGsap } from "@/lib/motion";
+import { loadGsap, prefersReducedMotion } from "@/lib/motion";
 
 const SKETCHES: { title: string; paths: string[]; gold: string[] }[] = [
   {
@@ -60,8 +60,11 @@ export function Sketchbook() {
   useEffect(() => {
     const el = root.current;
     if (!el || prefersReducedMotion()) return;
-    setupGsap();
-    const ctx = gsap.context(() => {
+    let ctx: { revert: () => void } | null = null;
+    let cancelled = false;
+    loadGsap().then(({ gsap }) => {
+      if (cancelled) return;
+    ctx = gsap.context(() => {
       el.querySelectorAll<SVGSVGElement>(".sketch svg").forEach((svg) => {
         const strokes = svg.querySelectorAll("path");
         gsap.fromTo(
@@ -71,7 +74,11 @@ export function Sketchbook() {
         );
       });
     }, el);
-    return () => ctx.revert();
+    });
+    return () => {
+      cancelled = true;
+      ctx?.revert();
+    };
   }, []);
 
   return (

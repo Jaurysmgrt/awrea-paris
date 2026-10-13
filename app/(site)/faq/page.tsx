@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { faq } from "@/content/fr/faq";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { faqSchema } from "@/lib/seo/schema";

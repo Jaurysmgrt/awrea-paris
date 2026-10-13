@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { getProposals } from "@/lib/agents/perform";
 import { getLog } from "@/lib/agents/log";
 import { getRuns } from "@/lib/agents/run";

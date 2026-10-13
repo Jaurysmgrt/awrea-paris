@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { journalPage } from "@/content/fr/pages";
 import { getArticles } from "@/lib/content/journal";
 import { pageMetadata } from "@/lib/seo/metadata";

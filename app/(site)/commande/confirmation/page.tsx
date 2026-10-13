@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { Section } from "@/components/ui/Section";
 import { Envelope } from "@/components/signature/Envelope";

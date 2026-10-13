@@ -17,7 +17,7 @@ export interface LegalPage {
   sections: LegalSection[];
 }
 
-const COMPANY = "AWREA PARIS [forme juridique et capital à compléter], immatriculée au RCS de Paris sous le numéro [SIRET à compléter], dont le siège est situé [adresse à compléter], 75011 Paris";
+const COMPANY = "AWREA PARIS [forme juridique et capital à compléter], immatriculée au RCS de Paris sous le numéro [SIRET à compléter], dont le siège est situé [adresse à compléter], Paris";
 
 export const legalPages: Record<string, LegalPage> = {
   "livraison-retours": {
@@ -42,7 +42,7 @@ export const legalPages: Record<string, LegalPage> = {
         list: [
           "France, Colissimo suivi : 9 €, offert dès 250 €.",
           "France, Chronopost express : 18 €.",
-          "Retrait à l’atelier (Paris 11e), sur rendez-vous : offert.",
+          "Retrait à l’atelier, à Paris, sur rendez-vous : offert.",
           "Union européenne, DHL Express : 25 €, offert dès 250 €.",
           "International, DHL Express : 45 €. Les droits et taxes d’importation restent à la charge du destinataire.",
         ],

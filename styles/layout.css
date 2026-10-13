@@ -10,14 +10,14 @@
     font-family: var(--font-display);
     font-size: 54px; /* token-ok : unités du viewBox SVG */
     font-weight: var(--font-weight-regular);
-    letter-spacing: -0.04em;
+    letter-spacing: -0.04em; /* token-ok : géométrie du logo provisoire */
     fill: currentColor;
   }
   .logo-paris {
     font-family: var(--font-sans);
     font-size: 10.5px; /* token-ok : unités du viewBox SVG */
     font-weight: var(--font-weight-light);
-    letter-spacing: 0.62em;
+    letter-spacing: 0.62em; /* token-ok : géométrie du logo provisoire */
     fill: currentColor;
   }
   .logo-mask {
@@ -100,10 +100,14 @@
     display: block;
     height: calc(var(--header-h) * 0.66);
     color: inherit;
-    transition: color var(--dur-fast) var(--ease-silk);
   }
-  .site-header__logo:hover {
-    color: var(--color-gold);
+  @media (hover: hover) {
+    .site-header__logo {
+      transition: color var(--dur-fast) var(--ease-silk);
+    }
+    .site-header__logo:hover {
+      color: var(--color-gold);
+    }
   }
   .site-header__logo-svg,
   .site-header__logo .logo-mask {
@@ -112,7 +116,7 @@
   }
   .site-header__count {
     margin-left: var(--spacing-3xs);
-    font-size: 0.85em;
+    font-size: var(--text-step--2);
     vertical-align: super;
     line-height: 0;
   }
@@ -129,7 +133,7 @@
   }
   @media (max-width: 29.99rem) {
     .site-header__menu {
-      font-size: 0;
+      font-size: 0; /* token-ok : libellé masqué, icône seule */
       gap: 0;
       min-width: var(--spacing-touch);
     }
@@ -186,7 +190,7 @@
   .site-menu[data-open="true"] .site-menu__primary li {
     opacity: 1;
     transform: none;
-    transition-delay: calc(var(--i) * 0.06s + 0.25s); /* token-ok : décalage d'apparition */
+    transition-delay: calc(var(--i) * var(--dur-stagger) + var(--dur-fast) * 0.6);
   }
   .site-menu__primary a {
     display: inline-flex;
@@ -253,7 +257,7 @@
   }
   .site-footer__script {
     font-size: var(--text-step-3);
-    color: var(--color-gold);
+    color: var(--gold-text);
     text-align: left;
   }
   .site-footer__desc {
@@ -316,37 +320,193 @@
   }
 
   /* ========================================================= COOKIES */
-  .cookie-banner {
-    position: fixed;
-    z-index: var(--z-cookie);
-    inset: auto var(--spacing-s) var(--spacing-s) var(--spacing-s);
-    max-width: var(--container-panel);
-    border: var(--border-width-hair) solid var(--color-ink);
-    padding: var(--spacing-m);
+  /* ========================================================= COOKIES
+     Un filet doré, du papier ivoire, une typographie fine ; un fondu discret au bas de l'écran,
+     jamais de fenêtre bloquante. */
+  html[data-consent="set"] .consent {
+    display: none;
   }
-  @media (min-width: 48rem) {
-    .cookie-banner {
-      left: var(--spacing-gutter);
-      bottom: var(--spacing-gutter);
-      right: auto;
+  .consent {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: var(--z-cookie);
+    max-height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--color-ivory);
+    color: var(--color-ink);
+    border-top: var(--border-width-hair) solid var(--color-gold);
+    padding-block: var(--spacing-s) calc(var(--spacing-s) + env(safe-area-inset-bottom));
+    --fg: var(--color-ink);
+    --bg: var(--color-ivory);
+    --fg-soft: var(--color-ink-soft);
+    --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
+    --gold-text: var(--color-gold-deep);
+    animation: consent-in var(--dur-slow) var(--ease-silk) var(--dur-base) both;
+  }
+  @keyframes consent-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--spacing-2xs));
+    }
+    to {
+      opacity: 1;
+      transform: none;
     }
   }
-  .cookie-banner__inner {
+  .consent__inner {
     display: grid;
     gap: var(--spacing-s);
   }
-  .cookie-banner__details {
+  .consent__intro {
     display: grid;
+    gap: var(--spacing-3xs);
+  }
+  .consent__title {
+    color: var(--gold-text);
+  }
+  .consent__text {
+    max-width: var(--container-prose);
+  }
+  .consent__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+    gap: var(--spacing-2xs) var(--spacing-xs);
+  }
+  .consent__btn {
+    min-height: var(--spacing-touch);
+    padding-inline: var(--spacing-s);
+  }
+  .consent__more,
+  .consent__save {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+  .consent__save {
+    justify-self: stretch;
+  }
+  .consent__choices {
     border: 0;
+    border-top: var(--border-width-hair) solid var(--line);
+    padding-top: var(--spacing-s);
   }
-  .cookie-banner__actions {
+  .consent__list {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--spacing-2xs);
+    gap: var(--spacing-s);
   }
-  .cookie-banner__actions .btn {
-    padding-inline: var(--spacing-2xs);
-    letter-spacing: var(--tracking-snug);
+  .consent__row {
+    display: grid;
+    align-content: start;
+    gap: var(--spacing-3xs);
+  }
+  .consent__desc {
+    color: var(--fg-soft);
+  }
+  @media (min-width: 64rem) {
+    .consent__inner {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      column-gap: var(--spacing-xl);
+    }
+    .consent__intro {
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: baseline;
+      column-gap: var(--spacing-m);
+    }
+    .consent__actions {
+      grid-template-columns: repeat(2, minmax(var(--container-label), 1fr)) auto;
+    }
+    .consent__more,
+    .consent__save {
+      grid-column: auto;
+    }
+    .consent__choices {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    .consent[data-details="true"] .consent__actions {
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(3, minmax(var(--container-label), auto));
+      justify-content: end;
+    }
+    .consent__list {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      column-gap: var(--spacing-l);
+    }
+  }
+  /* l'assistante s'efface tant que le bandeau est présent */
+  body:has(.consent) .assistant-launcher {
+    visibility: hidden;
+  }
+  html[data-consent="set"] body .assistant-launcher {
+    visibility: visible;
+  }
+
+  /* interrupteur (catégories de cookies, préférences) : un filet et un losange qui glisse
+     et se dore, dans l'esprit du bouton « Garder » */
+  .switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    min-height: var(--spacing-touch);
+    cursor: pointer;
+  }
+  .switch input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
+  }
+  .switch__track {
+    position: relative;
+    flex: none;
+    width: var(--spacing-l);
+    height: var(--spacing-s);
+  }
+  .switch__track::before {
+    content: "";
+    position: absolute;
+    inset: 50% 0 auto 0;
+    border-top: var(--border-width-hair) solid var(--fg);
+    transition: border-color var(--dur-fast) var(--ease-silk);
+  }
+  .switch__track::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: var(--spacing-xs);
+    height: var(--spacing-xs);
+    border: var(--border-width-hair) solid var(--fg);
+    background: var(--bg);
+    transform: translateY(-50%) rotate(45deg) scale(0.8);
+    transition:
+      transform var(--dur-base) var(--ease-drape),
+      background-color var(--dur-fast) var(--ease-silk),
+      border-color var(--dur-fast) var(--ease-silk);
+  }
+  .switch input:checked + .switch__track::before {
+    border-color: var(--color-gold);
+  }
+  .switch input:checked + .switch__track::after {
+    background: var(--color-gold);
+    border-color: var(--color-gold);
+    transform: translate(calc(var(--spacing-l) - var(--spacing-xs)), -50%) rotate(45deg) scale(0.8);
+  }
+  .switch input:focus-visible + .switch__track {
+    outline: var(--border-width-hair) solid var(--fg);
+    outline-offset: var(--spacing-2xs);
+  }
+  .switch input:disabled + .switch__track {
+    opacity: 0.55;
+  }
+  .switch:has(input:disabled) {
+    cursor: default;
   }
 
   /* ===================================================== PANIER LATÉRAL */

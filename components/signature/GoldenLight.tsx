@@ -8,18 +8,27 @@
 import { useEffect, useRef } from "react";
 import { isTouch, prefersReducedMotion } from "@/lib/motion";
 
-export function GoldenLight({ className, intensity = 1 }: { className?: string; intensity?: number }) {
+export function GoldenLight({ className, intensity = 1, active = true }: { className?: string; intensity?: number; active?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
     const host = el?.parentElement;
     if (!el || !host) return;
+    if (!active) {
+      el.dataset.on = "false";
+      return;
+    }
+    // la texture de dentelle n'est téléchargée qu'à la première apparition de la lumière
+    const turnOn = (on: boolean) => {
+      el.dataset.on = on ? "true" : "false";
+      if (on) el.dataset.armed = "true";
+    };
     const reduced = prefersReducedMotion();
     const touch = isTouch();
     const target = { x: 0.62, y: 0.4 };
     const pos = { ...target };
-    let active = false;
+    let pointerActive = false;
     let visible = false;
     let raf = 0;
     let lastTouch = 0;
@@ -31,7 +40,7 @@ export function GoldenLight({ className, intensity = 1 }: { className?: string; 
     };
     set();
     if (reduced) {
-      el.dataset.on = "true";
+      turnOn(true);
       return;
     }
 
@@ -39,7 +48,7 @@ export function GoldenLight({ className, intensity = 1 }: { className?: string; 
       raf = 0;
       if (!visible) return;
       const idle = touch && now - lastTouch > 1800;
-      if (idle || (!active && !touch)) {
+      if (idle || (!pointerActive && !touch)) {
         // dérive lente, comme une bougie qui bouge à peine
         const t = (now - t0) / 1000;
         target.x = 0.5 + Math.sin(t * 0.21) * 0.28 + Math.sin(t * 0.07) * 0.08;
@@ -58,33 +67,44 @@ export function GoldenLight({ className, intensity = 1 }: { className?: string; 
       const r = host.getBoundingClientRect();
       target.x = (e.clientX - r.left) / r.width;
       target.y = (e.clientY - r.top) / r.height;
-      active = true;
+      pointerActive = true;
       if (e.pointerType !== "mouse") lastTouch = performance.now();
-      el.dataset.on = "true";
+      turnOn(true);
       kick();
     };
     const onLeave = () => {
-      active = false;
+      pointerActive = false;
       kick();
     };
 
     const io = new IntersectionObserver(([e]) => {
       visible = e.isIntersecting;
-      el.dataset.on = visible ? "true" : "false";
+      turnOn(visible);
       kick();
     });
     io.observe(host);
+    // texture chargée un peu avant que la section n'entre à l'écran
+    const armIo = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        el.dataset.armed = "true";
+        armIo.disconnect();
+      },
+      { rootMargin: "100% 0px" },
+    );
+    armIo.observe(host);
     host.addEventListener("pointermove", onMove, { passive: true });
     host.addEventListener("pointerdown", onMove, { passive: true });
     host.addEventListener("pointerleave", onLeave);
     return () => {
       io.disconnect();
+      armIo.disconnect();
       cancelAnimationFrame(raf);
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerdown", onMove);
       host.removeEventListener("pointerleave", onLeave);
     };
-  }, []);
+  }, [active]);
 
   return (
     <div ref={ref} className={`golden-light ${className ?? ""}`} style={{ "--gl-intensity": intensity } as React.CSSProperties} aria-hidden="true">

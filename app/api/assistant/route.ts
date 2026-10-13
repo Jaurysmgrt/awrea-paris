@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { rateLimit } from "@/lib/security/rate-limit";
 import { aiEnabled } from "@/lib/ai/client";
 import { recordExchange, runClaudeAssistant, runDemoAssistant, type StreamEvent } from "@/lib/ai/assistant";
 import Anthropic from "@anthropic-ai/sdk";
@@ -16,21 +17,10 @@ const Body = z.object({
   page: z.string().max(200).optional(),
 });
 
-// limitation simple par adresse IP (mémoire du serveur)
-const hits = new Map<string, number[]>();
-function limited(ip: string): boolean {
-  const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < 10 * 60 * 1000);
-  recent.push(now);
-  hits.set(ip, recent);
-  return recent.length > 30;
-}
-
+// limitation par adresse IP, partagée entre les instances (lib/security/rate-limit.ts)
 export async function POST(req: Request) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
-  if (limited(ip)) {
-    return Response.json({ error: "Vous avez envoyé beaucoup de messages en peu de temps. Merci de patienter quelques minutes, ou d’écrire à l’atelier." }, { status: 429 });
-  }
+  const limited = await rateLimit(req, "assistant", { limit: 30, windowSeconds: 600 }, "Vous avez envoyé beaucoup de messages en peu de temps. Merci de patienter quelques minutes, ou d’écrire à l’atelier.");
+  if (limited) return limited;
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "Message invalide." }, { status: 400 });
   const { messages, page } = parsed.data;
