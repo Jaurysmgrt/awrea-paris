@@ -64,10 +64,24 @@
     color: var(--fg);
   }
 
+  html[data-mode="dark"].scene-live[data-scene="ivory"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]),
+  html[data-mode="dark"].scene-live[data-scene="pearl"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
+    --fg: var(--color-ivory);
+    --fg-soft: var(--color-ivory-soft);
+    --line: color-mix(in oklab, var(--color-ivory) 20%, transparent);
+    --accent: var(--color-gold);
+    --gold-text: var(--color-gold);
+  }
+
   .scene[data-theme="paper"] {
     background-color: var(--color-ivory);
     background-image: url("/media/texture/paper.webp");
     background-size: var(--size-paper-tile);
+  }
+  /* papier de nuit : le grain reste, la feuille devient noire */
+  html[data-mode="dark"] .scene[data-theme="paper"] {
+    background-color: var(--color-night);
+    background-blend-mode: multiply;
   }
 
   .section {
@@ -122,6 +136,59 @@
     font-size: var(--text-step-1);
     line-height: var(--leading-snug);
   }
+  /* titres géants : le jeu d'échelle entre un Bodoni très grand et de petites capitales espacées */
+  .t-giant {
+    font-family: var(--font-display);
+    font-size: var(--text-step-6);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-display);
+    font-weight: var(--font-weight-regular);
+  }
+
+  /* titre écrit au chargement (components/ui/SplitTitle.tsx) */
+  .split {
+    animation: split-rise var(--dur-slow) var(--ease-silk) both;
+  }
+  .split__word {
+    white-space: nowrap;
+  }
+  .split__char {
+    animation: split-in var(--dur-base) var(--ease-silk) both;
+    animation-delay: calc(var(--i) * var(--dur-stagger) * 0.6);
+  }
+  @keyframes split-rise {
+    from {
+      transform: translateY(0.08em);
+    }
+  }
+  @keyframes split-in {
+    from {
+      opacity: 0;
+    }
+  }
+  .handwrite {
+    /* la boîte déborde un peu pour que les envolées de la plume ne soient jamais rognées */
+    padding: 0.2em 0.12em;
+    margin: -0.2em -0.12em;
+    mask-image: linear-gradient(90deg, var(--color-ink) 45%, transparent 55%);
+    mask-size: 240% 100%;
+    mask-repeat: no-repeat;
+    -webkit-mask-image: linear-gradient(90deg, var(--color-ink) 45%, transparent 55%);
+    -webkit-mask-size: 240% 100%;
+    -webkit-mask-repeat: no-repeat;
+    animation: handwrite var(--dur-slow) var(--ease-silk) both;
+  }
+  @keyframes handwrite {
+    from {
+      mask-position: 100% 0;
+      -webkit-mask-position: 100% 0;
+    }
+    to {
+      mask-position: 0 0;
+      -webkit-mask-position: 0 0;
+    }
+  }
+
   .t-script {
     font-family: var(--font-script);
     font-weight: var(--font-weight-regular);
@@ -281,7 +348,16 @@
     line-height: var(--leading-snug);
     overflow: hidden;
     cursor: pointer;
-    transition: color var(--dur-base) var(--ease-silk);
+    /* attraction magnétique (components/motion/Magnetic.tsx) : retour en douceur */
+    translate: var(--mx, 0) var(--my, 0);
+    transition:
+      color var(--dur-base) var(--ease-silk),
+      translate var(--dur-base) var(--ease-silk);
+  }
+  .btn[data-magnet="on"] {
+    transition:
+      color var(--dur-base) var(--ease-silk),
+      translate var(--dur-fast) var(--ease-silk);
   }
   .btn::before {
     content: "";
@@ -543,11 +619,53 @@
     pointer-events: none;
   }
 
+  /* ============================================== CHOIX SEGMENTÉ (radios)
+     Libellés en petites capitales espacées, un trait doré sous le choix actif. Fonctionne
+     avec des boutons role="radio" (aria-checked) ou de vrais <input type="radio"> masqués. */
+  .segmented {
+    display: inline-grid;
+    grid-auto-flow: column;
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .segmented__item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--spacing-touch);
+    padding-inline: var(--spacing-s);
+    font-family: var(--font-sans);
+    font-weight: var(--font-weight-light);
+    font-size: var(--text-step--2);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--fg-soft);
+    border-bottom: var(--border-width-hair) solid transparent;
+    margin-bottom: calc(-1 * var(--border-width-hair));
+    cursor: pointer;
+    transition:
+      color var(--dur-fast) var(--ease-silk),
+      border-color var(--dur-fast) var(--ease-silk);
+  }
+  .segmented__item[aria-checked="true"],
+  .segmented__item:has(input:checked) {
+    color: var(--fg);
+    border-bottom-color: var(--color-gold);
+  }
+  .segmented__item:has(input:focus-visible) {
+    outline: var(--border-width-hair) solid var(--fg);
+    outline-offset: calc(-1 * var(--spacing-3xs));
+  }
+  @media (hover: hover) {
+    .segmented__item:hover {
+      color: var(--fg);
+    }
+  }
+
   /* =============================================================== MÉDIAS */
   .media {
     position: relative;
     overflow: hidden;
-    background: var(--color-pearl);
+    background: var(--media-bg);
   }
   .media > img,
   .media > video,
@@ -584,6 +702,40 @@
     transition: transform var(--dur-slow) var(--ease-silk);
   }
 
+  /* ===================================================== SQUELETTES
+     Pendant un chargement, des aplats ivoire à peine nacrés tiennent la place exacte du
+     contenu : rien ne saute, rien ne paraît figé. */
+  .skeleton {
+    display: block;
+    background: linear-gradient(
+        100deg,
+        transparent 30%,
+        color-mix(in oklab, var(--bg) 60%, var(--color-ivory)) 50%,
+        transparent 70%
+      )
+      0 0 / 300% 100%,
+      color-mix(in oklab, var(--fg) 7%, var(--bg));
+    animation: skeleton-sheen calc(var(--dur-breath) * 2) linear infinite;
+  }
+  .skeleton--media {
+    aspect-ratio: 4 / 5;
+  }
+  .skeleton--line {
+    height: 0.9em;
+    margin-top: var(--spacing-2xs);
+  }
+  .skeleton--short {
+    width: 40%;
+  }
+  @keyframes skeleton-sheen {
+    from {
+      background-position: 100% 0, 0 0;
+    }
+    to {
+      background-position: -50% 0, 0 0;
+    }
+  }
+
   /* ========================================================= ÉLÉMENTS DIVERS */
   .price {
     font-family: var(--font-sans);
@@ -592,10 +744,6 @@
     letter-spacing: var(--tracking-label);
     white-space: nowrap;
     font-variant-numeric: lining-nums tabular-nums;
-  }
-  .price del {
-    color: var(--fg-soft);
-    margin-right: var(--spacing-2xs);
   }
 
   .badge {
@@ -730,4 +878,8 @@
     opacity: 1 !important;
     transform: none !important;
   }
+}
+html[data-motion="reduce"] [data-reveal][data-pending] {
+  opacity: 1 !important;
+  transform: none !important;
 }

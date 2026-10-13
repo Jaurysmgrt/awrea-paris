@@ -10,7 +10,7 @@ export const metadata = pageMetadata({ ...pressePage.seo, path: "/presse" });
 export default function PressePage() {
   return (
     <>
-      <PageHeader title={pressePage.h1} lead={pressePage.lead} crumbs={[{ name: "Presse", path: "/presse" }]} />
+      <PageHeader giant title={pressePage.h1} lead={pressePage.lead} crumbs={[{ name: "Presse", path: "/presse" }]} />
       <Section theme="ivory" className="section section--flush-top" labelledBy="parutions">
         <div className="container">
           <h2 id="parutions" className="sr-only">

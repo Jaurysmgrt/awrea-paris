@@ -5,7 +5,7 @@
  * formulaire (focus), pour ne rien coûter au chargement des pages.
  * Sans clé publique (NEXT_PUBLIC_TURNSTILE_SITE_KEY), le composant ne rend rien.
  */
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 
 type TurnstileApi = {
   render: (el: HTMLElement, opts: Record<string, unknown>) => string;
@@ -37,8 +37,7 @@ function loadScript() {
 /** Le jeton est aussi ajouté au formulaire (champ « cf-turnstile-response »). */
 export function Turnstile({ action, onToken }: { action: string; onToken?: (token: string | null) => void }) {
   const ref = useRef<HTMLDivElement>(null);
-  const cb = useRef(onToken);
-  cb.current = onToken;
+  const emit = useEffectEvent((token: string | null) => onToken?.(token));
 
   useEffect(() => {
     const el = ref.current;
@@ -56,9 +55,9 @@ export function Turnstile({ action, onToken }: { action: string; onToken?: (toke
         action,
         appearance: "interaction-only",
         language: document.documentElement.lang || "fr",
-        callback: (t: string) => cb.current?.(t),
-        "expired-callback": () => cb.current?.(null),
-        "error-callback": () => cb.current?.(null),
+        callback: (t: string) => emit(t),
+        "expired-callback": () => emit(null),
+        "error-callback": () => emit(null),
       });
     };
     form.addEventListener("focusin", start, { once: true });

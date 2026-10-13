@@ -40,7 +40,6 @@ function ensureGtag(id: string) {
   if (!w.gtag) {
     w.dataLayer = w.dataLayer ?? [];
     w.gtag = function gtag() {
-      // eslint-disable-next-line prefer-rest-params
       w.dataLayer!.push(arguments);
     };
     w.gtag("js", new Date());

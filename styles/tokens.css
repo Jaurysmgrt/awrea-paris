@@ -24,6 +24,9 @@
   --color-pearl-deep: color-mix(in oklab, var(--color-pearl) 82%, var(--color-ink));
   /* or profond : l'or sur fond clair, pour les textes (contraste ≥ 4,5:1 sur ivoire) */
   --color-gold-deep: color-mix(in oklab, var(--color-gold) 62%, var(--color-ink));
+  /* mode nuit : noirs légèrement levés pour garder l'alternance des sections */
+  --color-night: color-mix(in oklab, var(--color-ink) 93%, var(--color-ivory));
+  --color-night-soft: color-mix(in oklab, var(--color-ink) 86%, var(--color-pearl));
 
   /* ------------------------------------------------------------ TYPOGRAPHIE
      Les familles pointent vers les variables posées par next/font (app/fonts.ts).
@@ -140,6 +143,7 @@
   --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
   --accent: var(--color-ink);
   --gold-text: var(--color-gold-deep); /* or des textes : contraste AA sur fond clair */
+  --media-bg: var(--color-pearl);
   --halo: var(--color-gold);
 
   --header-h: var(--spacing-header);
@@ -188,6 +192,33 @@
   --gold-text: var(--color-gold-deep);
 }
 
+/* ================================================================ MODE NUIT
+   Version noir et or complète du site. Activée par le script de <head> (sans flash) selon
+   le choix enregistré « Jour · Nuit · Auto », « Auto » suivant le réglage du téléphone.
+   Les sections claires deviennent des noirs légèrement levés : l'alternance demeure. */
+html[data-mode="dark"] {
+  color-scheme: dark;
+  --media-bg: var(--color-night-soft);
+}
+html[data-mode="dark"] [data-theme="ivory"],
+html[data-mode="dark"] [data-theme="paper"] {
+  --bg: var(--color-night);
+  --fg: var(--color-ivory);
+  --fg-soft: var(--color-ivory-soft);
+  --line: color-mix(in oklab, var(--color-ivory) 20%, transparent);
+  --accent: var(--color-gold);
+  --gold-text: var(--color-gold);
+}
+html[data-mode="dark"] [data-theme="pearl"] {
+  --bg: var(--color-night-soft);
+  --fg: var(--color-ivory);
+  --fg-soft: var(--color-ivory-soft);
+  --line: color-mix(in oklab, var(--color-ivory) 22%, transparent);
+  --accent: var(--color-gold);
+  --gold-text: var(--color-gold);
+}
+
+/* animations apaisées : réglage du système, ou choix fait sur le site (lib/prefs.ts) */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur-fast: 0.01s;
@@ -196,5 +227,12 @@
     --dur-breath: 0.01s;
     --dur-stagger: 0s;
   }
+}
+html[data-motion="reduce"] {
+  --dur-fast: 0.01s;
+  --dur-base: 0.01s;
+  --dur-slow: 0.01s;
+  --dur-breath: 0.01s;
+  --dur-stagger: 0s;
 }
 }

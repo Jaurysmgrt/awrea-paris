@@ -15,6 +15,8 @@ import { When } from "@/components/admin/Status";
 
 export default async function GestionHome() {
   const [proposals, log, runs, orders, inbox, audits] = await Promise.all([getProposals(), getLog(12), getRuns(60), getOrders(), listInbox(500), kv.list<AuditReport>("seo:audits", 1)]);
+  // composant serveur dynamique : rendu une seule fois par requête, l'heure courante est voulue
+  // eslint-disable-next-line react-hooks/purity
   const since = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const week = orders.filter((o) => new Date(o.createdAt).getTime() >= since && !["refunded", "pending"].includes(o.status));
   const revenue = week.reduce((s, o) => s + o.total, 0);

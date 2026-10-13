@@ -30,13 +30,29 @@
       transform: scale(1.03);
     }
   }
+  /* vidéo au survol (CardVideo) : se fond par-dessus la seconde image dès qu'elle joue */
+  .card-video {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-base) var(--ease-silk);
+  }
+  .card-video[data-playing="true"] {
+    opacity: 1;
+  }
+  .card-video video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
   .product-card__badge {
     position: absolute;
     left: var(--spacing-2xs);
     top: var(--spacing-2xs);
-    background: var(--color-ivory);
-    color: var(--color-ink);
-    border-color: var(--color-ink);
+    background: var(--bg);
+    color: var(--fg);
+    border-color: var(--fg);
   }
   .product-card__body {
     display: flex;

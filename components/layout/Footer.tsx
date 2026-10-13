@@ -5,6 +5,8 @@ import { Logo } from "@/components/brand/Logo";
 import { NewsletterForm } from "@/components/ui/NewsletterForm";
 import { GoldenLight } from "@/components/signature/GoldenLight";
 import { CookieSettingsButton } from "@/components/consent/ConsentProvider";
+import { DisplayPrefs } from "@/components/ui/DisplayPrefs";
+import { EcoFootprint } from "./EcoFootprint";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -90,8 +92,10 @@ export function Footer() {
 
         <div className="site-footer__bottom">
           <p className="t-label">© {year} {identity.name}</p>
+          <DisplayPrefs id="pied" withMotion />
           <p className="t-label">Fait main à Paris</p>
         </div>
+        <EcoFootprint />
       </div>
     </footer>
   );

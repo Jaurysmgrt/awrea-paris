@@ -22,7 +22,7 @@ const stepImages = [
 export default function AtelierPage() {
   return (
     <>
-      <PageHeader title={atelier.h1} lead={atelier.lead} crumbs={[{ name: "L’Atelier", path: "/atelier" }]} eyebrow="Savoir-faire" />
+      <PageHeader giant title={atelier.h1} lead={atelier.lead} crumbs={[{ name: "L’Atelier", path: "/atelier" }]} eyebrow="Savoir-faire" />
 
       <Section theme="ivory" className="section section--flush-top" aria-label="Les étapes de fabrication">
         <ol className="container steps">

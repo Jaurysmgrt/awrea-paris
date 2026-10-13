@@ -142,9 +142,10 @@
     opacity: 0;
     visibility: hidden;
   }
-  .drape__logo {
+  .drape__thread {
     width: var(--size-mark);
-    height: auto;
+    height: var(--border-width-hair);
+    background: var(--color-gold);
   }
 
   /* ================================================ 5. CERTIFICAT */
@@ -842,4 +843,7 @@
   .look__dot::after {
     animation: none;
   }
+}
+html[data-motion="reduce"] .look__dot::after {
+  animation: none;
 }

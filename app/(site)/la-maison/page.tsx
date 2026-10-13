@@ -14,7 +14,7 @@ export const metadata = pageMetadata({ ...maison.seo, path: "/la-maison", image:
 export default function MaisonPage() {
   return (
     <>
-      <PageHeader title={maison.h1} lead={maison.lead} crumbs={[{ name: "La Maison", path: "/la-maison" }]} eyebrow={identity.name} />
+      <PageHeader giant title={maison.h1} lead={maison.lead} crumbs={[{ name: "La Maison", path: "/la-maison" }]} eyebrow={identity.name} />
 
       {/* Faits clés : informations factuelles, identiques partout (Google, moteurs IA) */}
       <Section theme="ivory" className="section section--flush-top" aria-label="La maison en bref">

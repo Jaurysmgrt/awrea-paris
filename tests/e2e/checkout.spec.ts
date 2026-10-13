@@ -12,7 +12,8 @@ test.describe("Parcours d’achat complet (mode test)", () => {
     await page.getByRole("button", { name: "Ajouter au panier" }).click();
     await expect(page.getByText("Merci de choisir une taille.")).toBeVisible();
 
-    await page.locator(".product-form .chip", { hasText: /^S/ }).click();
+    // première taille en stock (le stock de démonstration baisse à chaque commande d'essai)
+    await page.locator('.product-form .chip:not([data-unavailable="true"]):not([data-preorder="true"])').first().click();
     await page.getByRole("button", { name: "Ajouter au panier" }).click();
 
     const drawer = page.locator("dialog.drawer");
@@ -43,7 +44,7 @@ test.describe("Parcours d’achat complet (mode test)", () => {
 
     // carte refusée d'abord
     await page.getByLabel("Numéro de carte").fill("4000 0000 0000 0002");
-    await page.getByText(/J’accepte les/).click();
+    await page.getByRole("checkbox", { name: /j’accepte les conditions générales de vente/i }).check();
     await page.getByRole("button", { name: /^Payer/ }).click();
     await expect(page.locator(".checkout-form .field__error")).toContainText("refusé");
 

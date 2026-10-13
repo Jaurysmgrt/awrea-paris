@@ -13,10 +13,7 @@ const CartDrawer = dynamic(loadDrawer, { ssr: false });
 export function CartDrawerLazy() {
   const { isOpen } = useCart();
   const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) setMounted(true);
-  }, [isOpen]);
+  if (isOpen && !mounted) setMounted(true);
 
   useEffect(() => {
     const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };

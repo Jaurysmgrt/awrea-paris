@@ -42,7 +42,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ han
         <div className="container collection-hero__inner">
           <Breadcrumbs items={[{ name: "Collections", path: "/collections" }, { name: c.title, path: `/collections/${c.handle}` }]} />
           <p className="eyebrow">{c.season}</p>
-          <h1 id="collection-h1" className="t-script t-script--xl collection-hero__title">
+          <h1 id="collection-h1" className="t-script t-script--xl collection-hero__title handwrite">
             {c.title}
           </h1>
           <p className="t-lead collection-hero__lead">{c.lead}</p>

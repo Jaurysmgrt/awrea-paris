@@ -4,6 +4,7 @@ import { identity } from "@/content/brand/identity";
 import { siteUrl } from "@/lib/seo/metadata";
 import { palette } from "@/styles/tokens";
 import { consentHeadScript } from "@/lib/consent";
+import { prefsHeadScript } from "@/lib/prefs";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -32,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr" className={fontVariables} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: consentHeadScript() }} />
+        <script dangerouslySetInnerHTML={{ __html: consentHeadScript() + prefsHeadScript() }} />
       </head>
       <body>{children}</body>
     </html>

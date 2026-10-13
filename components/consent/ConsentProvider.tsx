@@ -6,7 +6,7 @@
  * - choix mémorisé 13 mois puis redemandé, modifiable à tout moment (« Gérer mes cookies ») ;
  * - chaque choix est enregistré côté serveur comme preuve (/api/consent).
  */
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import {
   ALL_CHOICES,
   CONSENT_COOKIE,
@@ -35,9 +35,18 @@ type Ctx = {
 const ConsentContext = createContext<Ctx>({ consent: null, has: () => false, openSettings: () => {} });
 export const useConsent = () => useContext(ConsentContext);
 
+/** Le cookie de consentement est la source de vérité ; la page est prévenue à chaque nouveau choix. */
+const CONSENT_CHANGE_EVENT = "awrea:consent-change";
+const COOKIE_RE = new RegExp(`(?:^|; )${CONSENT_COOKIE}=([^;]+)`);
+const cookieSnapshot = () => document.cookie.match(COOKIE_RE)?.[1] ?? "";
+const serverSnapshot = () => null;
+function subscribeConsent(onChange: () => void) {
+  window.addEventListener(CONSENT_CHANGE_EVENT, onChange);
+  return () => window.removeEventListener(CONSENT_CHANGE_EVENT, onChange);
+}
+
 function readConsent(): Consent | null {
-  const m = document.cookie.match(new RegExp(`(?:^|; )${CONSENT_COOKIE}=([^;]+)`));
-  return parseConsent(m?.[1]);
+  return parseConsent(cookieSnapshot());
 }
 
 /** Efface les traceurs d'une catégorie retirée (cookies tiers sur le domaine et le domaine parent, stockage local). */
@@ -62,19 +71,19 @@ function clearCategory(category: OptionalCategory) {
 }
 
 export function ConsentProvider({ children }: { children: React.ReactNode }) {
-  const [consent, setConsent] = useState<Consent | null>(null);
+  const raw = useSyncExternalStore(subscribeConsent, cookieSnapshot, serverSnapshot);
+  const consent = useMemo(() => (raw === null ? null : parseConsent(raw)), [raw]);
   // rendu ouvert côté serveur ; le script de <head> le masque avant affichage si un choix valide existe
-  const [open, setOpen] = useState(true);
+  const [reopened, setReopened] = useState(false);
   const [details, setDetails] = useState(false);
+  const open = reopened || !consent;
 
   useEffect(() => {
-    const c = readConsent();
-    setConsent(c);
-    if (c) setOpen(false);
-    else delete document.documentElement.dataset.consent; // choix expiré (13 mois) ou nouvelle politique
+    // choix expiré (13 mois) ou nouvelle politique : le bandeau redevient visible
+    if (!readConsent()) delete document.documentElement.dataset.consent;
     const reopen = () => {
       delete document.documentElement.dataset.consent;
-      setOpen(true);
+      setReopened(true);
       setDetails(true);
     };
     window.addEventListener(CONSENT_OPEN_EVENT, reopen);
@@ -88,8 +97,8 @@ export function ConsentProvider({ children }: { children: React.ReactNode }) {
       const secure = location.protocol === "https:" ? "; Secure" : "";
       document.cookie = `${CONSENT_COOKIE}=${encodeConsent(next)}; Max-Age=${CONSENT_MAX_AGE_DAYS * 24 * 60 * 60}; Path=/; SameSite=Lax${secure}`;
       document.documentElement.dataset.consent = "set";
-      setConsent(next);
-      setOpen(false);
+      window.dispatchEvent(new Event(CONSENT_CHANGE_EVENT));
+      setReopened(false);
       setDetails(false);
       fetch("/api/consent", {
         method: "POST",

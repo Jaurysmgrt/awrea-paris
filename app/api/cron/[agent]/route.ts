@@ -5,16 +5,13 @@
 import { NextResponse } from "next/server";
 import { runAgent } from "@/lib/agents/registry";
 import { siteUrl } from "@/lib/seo/metadata";
+import { isCronAuthorized } from "@/lib/security/cron";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 export async function GET(req: Request, { params }: { params: Promise<{ agent: string }> }) {
-  const secret = process.env.CRON_SECRET;
-  const auth = req.headers.get("authorization");
-  if (secret ? auth !== `Bearer ${secret}` : process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-  }
+  if (!isCronAuthorized(req)) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const { agent } = await params;
   const origin = process.env.VERCEL ? siteUrl : new URL(req.url).origin;
   try {

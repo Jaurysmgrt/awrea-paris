@@ -6,7 +6,7 @@
  */
 import Link from "@/components/ui/Link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCart } from "./CartProvider";
 import { Media } from "@/components/ui/Media";
 import { shop } from "@/content/settings";
@@ -73,9 +73,7 @@ export function CheckoutForm() {
   const total = (cart?.total ?? 0) + shippingPrice;
   const preorder = cart?.lines.some((l) => l.preorder);
 
-  const summary = useMemo(
-    () =>
-      cart ? (
+  const summary = cart ? (
         <div className="checkout-summary__inner stack-m">
           <ul className="stack-m">
             {cart.lines.map((l) => (
@@ -129,9 +127,7 @@ export function CheckoutForm() {
           </dl>
           {cart.gift.wrap && cart.gift.message ? <p className="t-note">Message cadeau : « {cart.gift.message} »</p> : null}
         </div>
-      ) : null,
-    [cart, shippingPrice, total],
-  );
+  ) : null;
 
   if (!cart) return <p className="t-note">Chargement…</p>;
   if (!cart.lines.length) {

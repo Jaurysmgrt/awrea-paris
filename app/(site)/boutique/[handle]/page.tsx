@@ -14,6 +14,8 @@ import { EditionNumber } from "@/components/signature/EditionNumber";
 import { ViewTracker } from "@/components/commerce/ViewTracker";
 import { shop } from "@/content/settings";
 import { formatPrice } from "@/lib/format";
+import { AtelierNote } from "@/components/ui/AtelierNote";
+import { momentFor } from "@/content/fr/coulisses";
 
 export const revalidate = 300;
 
@@ -56,7 +58,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                 ) : null}
                 <h1 className="t-h1">{product.title}</h1>
                 <p className="t-lead">{product.tagline}</p>
-                <Price amount={product.price} compareAt={product.compareAtPrice} className="product__price" />
+                <Price amount={product.price} className="product__price" />
               </header>
 
               <EditionNumber product={product} />
@@ -133,6 +135,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
           </div>
         </div>
       </Section>
+
+      <AtelierNote moment={momentFor(product)} />
 
       {look.length ? (
         <Section theme="pearl" className="section" labelledBy="look-title">

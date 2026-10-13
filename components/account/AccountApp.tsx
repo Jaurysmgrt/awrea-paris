@@ -31,28 +31,45 @@ const notices: Record<string, string> = {
   "apple-indisponible": t.login.oauthUnavailable,
 };
 
+const fetchAccount = () => fetch("/api/account", { cache: "no-store" }).then((r) => r.json() as Promise<AccountData>);
+
+/** retour de connexion (?connexion=…) et onglet demandé (#adresses…) : lus une fois, à l'ouverture */
+function initialNotice(): string | null {
+  if (typeof window === "undefined") return null;
+  const q = new URLSearchParams(window.location.search).get("connexion");
+  return q && notices[q] ? notices[q] : null;
+}
+function initialTab(): TabId {
+  if (typeof window === "undefined") return "commandes";
+  const hash = window.location.hash.replace("#", "");
+  return hash in t.tabs ? (hash as TabId) : "commandes";
+}
+
 export function AccountApp() {
   const [data, setData] = useState<AccountData | null>(null);
-  const [tab, setTab] = useState<TabId>("commandes");
+  const [tab, setTab] = useState<TabId>(initialTab);
   const [deleted, setDeleted] = useState(false);
   const [terms, setTerms] = useState(false);
   const { handles, sync } = useWishlist();
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice] = useState<string | null>(initialNotice);
 
   const load = useCallback(async () => {
-    const j = (await fetch("/api/account", { cache: "no-store" }).then((r) => r.json())) as AccountData;
+    const j = await fetchAccount();
     setData(j);
     if (j.user) await sync();
   }, [sync]);
 
   useEffect(() => {
-    const q = new URLSearchParams(window.location.search).get("connexion");
-    if (q && notices[q]) setNotice(notices[q]);
-    const hash = window.location.hash.replace("#", "") as TabId;
-    if (hash in t.tabs) setTab(hash);
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    let alive = true;
+    fetchAccount().then((j) => {
+      if (!alive) return;
+      setData(j);
+      if (j.user) void sync();
+    });
+    return () => {
+      alive = false;
+    };
+  }, [sync]);
 
   if (deleted) return <p className="t-lead">{t.data.deleted}</p>;
   if (!data) return <p className="t-note">Chargement…</p>;

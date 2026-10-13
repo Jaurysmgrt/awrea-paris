@@ -66,7 +66,8 @@
   }
   .hero__title {
     color: var(--color-ivory);
-    margin-block: calc(-1 * var(--spacing-s));
+    /* compense la marge de la plume (.handwrite) */
+    margin-block: calc(-1 * var(--spacing-s) - 0.2em);
   }
   .hero__lead {
     max-width: 30ch;
@@ -1148,29 +1149,6 @@
   }
 
   /* sélecteur à deux positions (se connecter / créer un compte) */
-  .segmented {
-    display: inline-grid;
-    grid-auto-flow: column;
-    border-bottom: var(--border-width-hair) solid var(--line);
-  }
-  .segmented__item {
-    min-height: var(--spacing-touch);
-    padding-inline: var(--spacing-s);
-    font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
-    font-size: var(--text-step--2);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-    color: var(--fg-soft);
-    border-bottom: var(--border-width-hair) solid transparent;
-    margin-bottom: calc(-1 * var(--border-width-hair));
-    cursor: pointer;
-  }
-  .segmented__item[aria-checked="true"] {
-    color: var(--fg);
-    border-bottom-color: var(--color-gold);
-  }
-
   /* onglets : rangée défilante sur mobile, colonne sur grand écran */
   .tabs-wrap {
     display: grid;
@@ -1447,10 +1425,41 @@
     justify-content: center;
     gap: var(--spacing-s);
   }
+  /* ================================================= DANS L'ATELIER
+     Un geste filmé accroché comme une photographie : grande marge, légende discrète,
+     texte décalé sur la droite. */
+  .atelier-note__grid {
+    display: grid;
+    gap: var(--spacing-l);
+    align-items: end;
+  }
+  .atelier-note__caption {
+    margin-top: var(--spacing-2xs);
+  }
+  .atelier-note__text {
+    max-width: var(--container-prose);
+  }
+  @media (min-width: 64rem) {
+    .atelier-note__grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--spacing-m);
+    }
+    .atelier-note__media {
+      grid-column: 1 / span 7;
+    }
+    .atelier-note__text {
+      grid-column: 9 / span 4;
+      padding-bottom: var(--spacing-xl);
+    }
+  }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hero__scroll::after {
     animation: none;
   }
+}
+html[data-motion="reduce"] .hero__scroll::after {
+  animation: none;
 }

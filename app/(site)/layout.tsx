@@ -5,6 +5,7 @@ import { SmoothScroll } from "@/components/providers/SmoothScroll";
 import { DrapeTransition } from "@/components/signature/DrapeTransition";
 import { ThemeShift } from "@/components/signature/ThemeShift";
 import { RevealObserver } from "@/components/motion/RevealObserver";
+import { Magnetic } from "@/components/motion/Magnetic";
 import { CartProvider } from "@/components/commerce/CartProvider";
 import { CartDrawerLazy } from "@/components/commerce/CartDrawerLazy";
 import { WishlistProvider } from "@/components/commerce/WishlistProvider";
@@ -33,6 +34,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
               <Assistant />
               <ThemeShift />
               <RevealObserver />
+              <Magnetic />
               <Suspense fallback={null}>
                 <Trackers />
               </Suspense>

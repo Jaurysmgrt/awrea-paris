@@ -45,12 +45,34 @@ function protectAtelier(request: NextRequest) {
   return NextResponse.redirect(url);
 }
 
+/**
+ * Protection CSRF en profondeur : une requête qui modifie des données (POST, PUT, PATCH, DELETE)
+ * et qui annonce une origine différente du site est refusée. Les cookies de session sont déjà
+ * en SameSite (Lax ou Strict) ; les appels de serveur à serveur (webhooks signés, tâches
+ * planifiées) n'ont pas d'origine navigateur et sont authentifiés autrement.
+ */
+function foreignOrigin(request: NextRequest): boolean {
+  if (["GET", "HEAD", "OPTIONS"].includes(request.method)) return false;
+  const origin = request.headers.get("origin");
+  if (!origin) return false; // appel sans navigateur (aucun cookie de victime possible)
+  if (origin === "null") return true; // cadre isolé ou fichier local : jamais légitime ici
+  try {
+    return new URL(origin).host !== request.nextUrl.host && new URL(origin).host !== request.headers.get("x-forwarded-host");
+  } catch {
+    return true;
+  }
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  if (pathname.startsWith("/api/") && !pathname.startsWith("/api/webhooks/") && !pathname.startsWith("/api/cron/") && foreignOrigin(request)) {
+    return NextResponse.json({ error: "Origine non autorisée" }, { status: 403 });
+  }
   if (pathname.startsWith("/gestion") || pathname.startsWith("/api/gestion")) return protectAtelier(request);
-  return refreshCustomerSession(request);
+  if (pathname.startsWith("/compte") || pathname.startsWith("/api/account")) return refreshCustomerSession(request);
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/gestion/:path*", "/api/gestion/:path*", "/compte/:path*", "/api/account/:path*"],
+  matcher: ["/gestion/:path*", "/api/:path*", "/compte/:path*"],
 };

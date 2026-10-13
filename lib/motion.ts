@@ -21,8 +21,10 @@ export function dur(token: "fast" | "base" | "slow"): number {
   return v.endsWith("ms") ? parseFloat(v) / 1000 : parseFloat(v) || 0.9;
 }
 
+/** Réglage du système, ou choix « Animations apaisées » fait sur le site (lib/prefs.ts). */
 export function prefersReducedMotion(): boolean {
-  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.dataset.motion === "reduce";
 }
 
 export function isTouch(): boolean {

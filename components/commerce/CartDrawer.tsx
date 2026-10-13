@@ -15,10 +15,14 @@ export function CartDrawer() {
   const { cart, isOpen, close, dispatch, busy, error } = useCart();
   const ref = useRef<HTMLDialogElement>(null);
   const [codesOpen, setCodesOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  const giftMessage = cart?.gift.message ?? "";
+  const [message, setMessage] = useState(giftMessage);
+  const [syncedMessage, setSyncedMessage] = useState(giftMessage);
+  if (giftMessage !== syncedMessage) {
+    setSyncedMessage(giftMessage);
+    setMessage(giftMessage);
+  }
   const [terms, setTerms] = useState(false);
-
-  useEffect(() => setMessage(cart?.gift.message ?? ""), [cart?.gift.message]);
 
   useEffect(() => {
     const d = ref.current;

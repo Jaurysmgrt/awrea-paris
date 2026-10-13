@@ -3,11 +3,12 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { Cart } from "@/lib/commerce/types";
 import type { CartAction } from "@/lib/commerce/cart";
 import { track } from "@/lib/analytics/track";
+import { prefersReducedMotion } from "@/lib/motion";
 
 /** Retour haptique discret sur mobile (ajout au panier), absent si l'appareil ne le permet pas. */
 function haptic() {
   try {
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) navigator.vibrate?.(12);
+    if (!prefersReducedMotion()) navigator.vibrate?.(12);
   } catch {
     /* non pris en charge */
   }

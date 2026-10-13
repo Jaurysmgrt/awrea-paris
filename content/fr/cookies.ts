@@ -56,7 +56,7 @@ export const cookieInventory: CookieEntry[] = [
   { name: "awrea_admin", provider: "Awrea Paris", category: "necessary", purpose: "Session de l’équipe de l’atelier (espace de gestion uniquement).", duration: "12 heures", kind: "cookie" },
   { name: "awrea_wishlist", provider: "Awrea Paris", category: "necessary", purpose: "Conserver les pièces que vous avez gardées.", duration: "Jusqu’à suppression", kind: "stockage local" },
   { name: "awrea_assistant", provider: "Awrea Paris", category: "necessary", purpose: "Conserver la conversation avec l’assistante pendant votre visite.", duration: "Fin de la visite", kind: "stockage de session" },
-  { name: "awrea_prefs", provider: "Awrea Paris", category: "necessary", purpose: "Retenir la langue, la devise et vos préférences d’affichage (son, animations).", duration: "13 mois", kind: "stockage local" },
+  { name: "awrea_prefs", provider: "Awrea Paris", category: "necessary", purpose: "Retenir la langue, la devise et vos préférences d’affichage (jour, nuit ou automatique ; son ; animations).", duration: "13 mois", kind: "stockage local" },
   { name: "awrea_view_…", provider: "Awrea Paris", category: "analytics", purpose: "Ne compter qu’une fois la consultation d’une pièce pendant une visite.", duration: "Fin de la visite", kind: "stockage de session" },
   { name: "Plausible", provider: "Plausible Analytics (UE)", category: "analytics", purpose: "Mesure d’audience agrégée, sans cookie ni donnée personnelle.", duration: "Aucun cookie", kind: "cookie" },
   { name: "_ga, _ga_…", provider: "Google Analytics 4", category: "analytics", purpose: "Mesure d’audience (seulement si Google Analytics est utilisé à la place de Plausible).", duration: "13 mois", kind: "cookie", clearPrefix: "_ga" },

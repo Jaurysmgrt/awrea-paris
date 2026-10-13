@@ -13,7 +13,7 @@ export default async function CollectionsPage() {
   const collections = await getCollections();
   return (
     <>
-      <PageHeader title={collectionsPage.h1} lead={collectionsPage.lead} crumbs={[{ name: "Collections", path: "/collections" }]} />
+      <PageHeader giant title={collectionsPage.h1} lead={collectionsPage.lead} crumbs={[{ name: "Collections", path: "/collections" }]} />
       {collections.map((c, i) => (
         <Section key={c.handle} theme={i % 2 ? "ink" : "ivory"} className="section--tall" labelledBy={`c-${c.handle}`}>
           <div className={`container grid-12 collection-row ${i % 2 ? "collection-row--flip" : ""}`}>

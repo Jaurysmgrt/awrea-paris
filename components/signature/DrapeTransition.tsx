@@ -12,7 +12,6 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { usePathname, useRouter } from "next/navigation";
 import { loadGsap, prefersReducedMotion, dur } from "@/lib/motion";
 import { palette, rgb01 } from "@/styles/tokens";
-import { Logo } from "@/components/brand/Logo";
 
 type Ctx = { navigate: (href: string) => void };
 const TransitionContext = createContext<Ctx>({ navigate: () => {} });
@@ -264,8 +263,9 @@ export function DrapeTransition({ children }: { children: React.ReactNode }) {
       <div className="drape" data-active={active} aria-hidden="true">
         <canvas ref={canvasRef} className="drape__canvas" />
         <div ref={fallbackRef} className="drape__fallback" />
+        {/* luxe discret : pas de monogramme ici, un simple fil d'or pendant que l'étoffe tombe */}
         <div ref={markRef} className="drape__mark">
-          <Logo className="drape__logo" />
+          <span className="drape__thread" />
         </div>
       </div>
     </TransitionContext.Provider>

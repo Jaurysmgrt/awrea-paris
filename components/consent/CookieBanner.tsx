@@ -20,9 +20,12 @@ type Props = {
 
 export function CookieBanner({ details, current, onDetails, onAcceptAll, onRefuseAll, onSave }: Props) {
   const [draft, setDraft] = useState<ConsentChoices>(current);
+  const [synced, setSynced] = useState(current);
+  if (current !== synced) {
+    setSynced(current);
+    setDraft(current);
+  }
   const listRef = useRef<HTMLUListElement>(null);
-
-  useEffect(() => setDraft(current), [current]);
   // à l'ouverture du détail, le focus va à la première catégorie modifiable
   useEffect(() => {
     if (details) listRef.current?.querySelector<HTMLInputElement>("input:not([disabled])")?.focus({ preventScroll: true });

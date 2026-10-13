@@ -49,7 +49,7 @@ export default async function HomePage() {
             <h1 id="hero-title" className="t-label t-label--wide hero__h1">
               {home.hero.h1}
             </h1>
-            <p className="t-script t-script--xl hero__title" aria-hidden="true">
+            <p className="t-script t-script--xl hero__title handwrite" aria-hidden="true">
               {home.hero.title}
             </p>
             <p className="t-lead hero__lead t-center">{home.hero.lead}</p>

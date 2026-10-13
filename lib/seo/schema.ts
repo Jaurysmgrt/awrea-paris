@@ -50,6 +50,11 @@ export function websiteSchema() {
     description: identity.shortDescription,
     inLanguage: "fr-FR",
     publisher: { "@id": orgId },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: { "@type": "EntryPoint", urlTemplate: `${siteUrl}/recherche?q={search_term_string}` },
+      "query-input": "required name=search_term_string",
+    },
   };
 }
 

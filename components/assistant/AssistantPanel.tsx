@@ -64,23 +64,24 @@ function RichText({ text }: { text: string }) {
   );
 }
 
+/** la conversation de l'onglet en cours est retrouvée telle quelle (panneau chargé côté navigateur seulement) */
+function restoreMessages(): Msg[] {
+  try {
+    const saved = typeof window === "undefined" ? null : sessionStorage.getItem(STORAGE);
+    return saved ? (JSON.parse(saved) as Msg[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 export default function AssistantPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
-  const [messages, setMessages] = useState<Msg[]>([]);
+  const [messages, setMessages] = useState<Msg[]>(restoreMessages);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const listRef = useRef<HTMLOListElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    try {
-      const saved = sessionStorage.getItem(STORAGE);
-      if (saved) setMessages(JSON.parse(saved));
-    } catch {
-      /* stockage indisponible */
-    }
-  }, []);
 
   useEffect(() => {
     try {

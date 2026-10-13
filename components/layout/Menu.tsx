@@ -5,10 +5,16 @@ import { nav } from "@/content/fr/pages";
 import { identity } from "@/content/brand/identity";
 import { roman } from "@/lib/format";
 import { GoldenLight } from "@/components/signature/GoldenLight";
+import { DisplayPrefs } from "@/components/ui/DisplayPrefs";
+import { useWishlist } from "@/components/commerce/WishlistProvider";
 
-/** Menu plein écran, sur fond noir et dentelle révélée par la lumière dorée. */
-export function Menu({ open, onClose }: { open: boolean; onClose: () => void }) {
+/**
+ * Menu plein écran, sur fond noir et dentelle révélée par la lumière dorée.
+ * Il accueille tout ce que l'en-tête, volontairement réduit à cinq entrées, ne montre pas.
+ */
+export function Menu({ open, onClose, onSearch }: { open: boolean; onClose: () => void; onSearch: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
+  const { handles } = useWishlist();
 
   useEffect(() => {
     const main = document.getElementById("contenu");
@@ -48,6 +54,25 @@ export function Menu({ open, onClose }: { open: boolean; onClose: () => void }) 
         </nav>
         <div className="site-menu__aside">
           <ul className="stack">
+            <li>
+              <button type="button" className="link link--quiet" aria-haspopup="dialog" onClick={onSearch}>
+                Rechercher
+              </button>
+            </li>
+            <li>
+              <Link href="/liste-envies" className="link link--quiet" onClick={onClose}>
+                Liste d’envies
+                {handles.length ? (
+                  <sup className="site-header__count" aria-hidden="true">
+                    {handles.length}
+                  </sup>
+                ) : null}
+                <span className="sr-only">
+                  {" "}
+                  : {handles.length} pièce{handles.length > 1 ? "s" : ""} gardée{handles.length > 1 ? "s" : ""}
+                </span>
+              </Link>
+            </li>
             {nav.secondary.map((l) => (
               <li key={l.href}>
                 <Link href={l.href} className="link link--quiet" onClick={onClose}>
@@ -66,6 +91,7 @@ export function Menu({ open, onClose }: { open: boolean; onClose: () => void }) 
               </a>
             </li>
           </ul>
+          <DisplayPrefs id="menu" className="site-menu__prefs" />
           <p className="t-script site-menu__quote">{identity.tagline.replace(".", "")}</p>
         </div>
       </div>

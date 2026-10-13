@@ -1,15 +1,10 @@
 import { formatPrice } from "@/lib/format";
 
-export function Price({ amount, compareAt, className }: { amount: number; compareAt?: number; className?: string }) {
-  return (
-    <span className={`price ${className ?? ""}`}>
-      {compareAt && compareAt > amount ? (
-        <del>
-          <span className="sr-only">Prix initial </span>
-          {formatPrice(compareAt)}
-        </del>
-      ) : null}
-      {formatPrice(amount)}
-    </span>
-  );
+/**
+ * Prix sobre : le montant seul, sans prix barré ni pourcentage. La maison ne pratique pas la
+ * promotion permanente ; une vente privée s'annonce par un texte, avec le prix de référence
+ * exigé par la loi (le plus bas des trente derniers jours).
+ */
+export function Price({ amount, className }: { amount: number; className?: string }) {
+  return <span className={`price ${className ?? ""}`}>{formatPrice(amount)}</span>;
 }

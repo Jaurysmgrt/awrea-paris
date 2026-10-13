@@ -56,6 +56,8 @@ export function LoginPanel({ onSignedIn, demo, notice }: { onSignedIn: () => voi
   const oauth = (provider: "google" | "apple") => {
     if (demo) return setError(t.login.oauthUnavailable);
     if (mode === "signup" && !terms) return setError(t.login.oauthNeedsTerms);
+    // navigation complète voulue : la route API redirige vers Google ou Apple
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.href = `/api/account/oauth/${provider}?next=/compte${mode === "signup" ? "&cgu=1" : ""}`;
   };
 

@@ -49,6 +49,23 @@
   html[data-scene="pearl"] body {
     --bg: var(--color-pearl);
   }
+  /* mode nuit : la scène globale reste dans les noirs */
+  html[data-mode="dark"] {
+    background: var(--color-ink);
+  }
+  html[data-mode="dark"] body,
+  html[data-mode="dark"][data-scene="ivory"] body,
+  html[data-mode="dark"][data-scene="pearl"] body {
+    --bg: var(--color-night);
+    --fg: var(--color-ivory);
+    --fg-soft: var(--color-ivory-soft);
+    --line: color-mix(in oklab, var(--color-ivory) 20%, transparent);
+    --accent: var(--color-gold);
+    --gold-text: var(--color-gold);
+  }
+  html[data-mode="dark"][data-scene="ink"] body {
+    --bg: var(--color-ink);
+  }
   /* Avant l'hydratation, la scène suit déjà la première section : l'en-tête reste lisible
      sur une ouverture noire, sans attendre le JavaScript. */
   html:not([data-scene]):has(:is(main > .scene, main > article > .scene):first-child[data-theme="ink"]) body {
@@ -174,4 +191,18 @@
     transition-duration: 0.01ms !important; /* token-ok : neutralisation */
     scroll-behavior: auto !important;
   }
+}
+/* passage Jour ↔ Nuit : un seul fondu, lent et soyeux (lib/prefs.ts) */
+html.mode-switch::view-transition-old(root),
+html.mode-switch::view-transition-new(root) {
+  animation-duration: var(--dur-slow);
+  animation-timing-function: var(--ease-silk);
+}
+html[data-motion="reduce"] *,
+html[data-motion="reduce"] *::before,
+html[data-motion="reduce"] *::after {
+  animation-duration: 0.01ms !important; /* token-ok : neutralisation */
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important; /* token-ok : neutralisation */
+  scroll-behavior: auto !important;
 }
