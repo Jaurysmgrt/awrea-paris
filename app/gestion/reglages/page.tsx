@@ -5,9 +5,33 @@ import { aiEnabled, MODEL } from "@/lib/ai/client";
 import { adminEnabled } from "@/lib/shopify/admin";
 import { storeMode } from "@/lib/store";
 import { usingDemoPassword } from "@/lib/auth/admin";
+import { recoveryCodesLeft } from "@/lib/auth/totp";
+import { cspMode } from "@/lib/security/headers";
+import { securityDigest, securityEvents, type SecurityEventType } from "@/lib/security/audit";
+import { isSupabaseConfigured } from "@/lib/db/supabase";
 import { ActionButton } from "@/components/admin/ActionButton";
+import { When } from "@/components/admin/Status";
 
-export default function ReglagesPage() {
+const EVENT_LABELS: Record<SecurityEventType, string> = {
+  admin_password_ok: "Mot de passe accepté",
+  admin_password_fail: "Mot de passe refusé",
+  admin_code_fail: "Code de double authentification refusé",
+  admin_login_ok: "Connexion réussie",
+  admin_login_blocked: "Connexion bloquée (trop d’essais)",
+  admin_login_unusual: "Connexion inhabituelle — alerte envoyée",
+  admin_enrolled: "Double authentification configurée",
+};
+
+export default async function ReglagesPage() {
+  const [events, digest, codesLeft] = await Promise.all([securityEvents(30), securityDigest(24), recoveryCodesLeft()]);
+  const security = [
+    { name: "Double authentification de l’Atelier", ok: true, hint: `Obligatoire · ${codesLeft} code(s) de secours restant(s)` },
+    { name: "Protection anti-robots des formulaires (Turnstile)", ok: Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && process.env.TURNSTILE_SECRET_KEY), hint: "NEXT_PUBLIC_TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY" },
+    { name: `Politique de sécurité du contenu (${cspMode === "strict" ? "stricte, nonce par page" : "statique"})`, ok: process.env.NODE_ENV === "production", hint: "CSP_MODE" },
+    { name: "Base clientes avec sécurité par ligne (Supabase)", ok: isSupabaseConfigured, hint: "NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY" },
+    { name: "Clé de signature des sessions", ok: Boolean(process.env.SESSION_SECRET), hint: "SESSION_SECRET (64 caractères aléatoires)" },
+    { name: "Alertes de sécurité par e-mail", ok: Boolean(process.env.RESEND_API_KEY), hint: "RESEND_API_KEY, SECURITY_ALERT_EMAIL" },
+  ];
   const services = [
     { name: "Boutique Shopify (Storefront)", ok: commerceMode === "shopify", hint: "SHOPIFY_STORE_DOMAIN, SHOPIFY_STOREFRONT_ACCESS_TOKEN" },
     { name: "Shopify Admin (agents)", ok: adminEnabled, hint: "SHOPIFY_ADMIN_ACCESS_TOKEN" },
@@ -34,6 +58,38 @@ export default function ReglagesPage() {
             ))}
           </tbody>
         </table></div>
+      </section>
+      <section className="panel" aria-labelledby="sec-title">
+        <h2 id="sec-title" className="t-h3">Sécurité</h2>
+        <p className="t-body">
+          Dernières 24 heures : {digest.adminLogins} connexion(s), {digest.adminFailures} échec(s), {digest.adminBlocked} blocage(s), {digest.unusualLogins} connexion(s)
+          inhabituelle(s), {digest.csrfBlocked} requête(s) d’origine étrangère et {digest.rateLimited} excès de débit refusés.
+        </p>
+        <div className="table-scroll"><table className="table">
+          <thead><tr><th scope="col">Protection</th><th scope="col">État</th><th scope="col">Réglage</th></tr></thead>
+          <tbody>
+            {security.map((s) => (
+              <tr key={s.name}><th scope="row">{s.name}</th><td><span className={`status status--${s.ok ? "done" : "info"}`}>{s.ok ? "Active" : "À configurer"}</span></td><td className="t-note">{s.hint}</td></tr>
+            ))}
+          </tbody>
+        </table></div>
+        <h3 className="t-label">Journal des connexions</h3>
+        {events.length ? (
+          <div className="table-scroll"><table className="table">
+            <thead><tr><th scope="col">Date</th><th scope="col">Évènement</th><th scope="col">Appareil</th><th scope="col">Réseau</th></tr></thead>
+            <tbody>
+              {events.map((e, i) => (
+                <tr key={`${e.at}-${i}`}><td><When iso={e.at} /></td><th scope="row">{EVENT_LABELS[e.type] ?? e.type}{e.detail ? ` (${e.detail})` : ""}</th><td>{e.device}</td><td className="t-note">{e.network}</td></tr>
+              ))}
+            </tbody>
+          </table></div>
+        ) : (
+          <p className="t-note">Aucune connexion enregistrée pour l’instant.</p>
+        )}
+        <div className="proposal__actions">
+          <ActionButton endpoint="/api/gestion/securite/sessions" label="Déconnecter tous les appareils" confirm="Fermer toutes les sessions de l’Atelier, y compris celle-ci ?" />
+          <ActionButton endpoint="/api/gestion/securite/totp" label="Réinitialiser la double authentification" variant="quiet" confirm="Réinitialiser la double authentification ? Vous devrez scanner un nouveau QR code à la prochaine connexion." />
+        </div>
       </section>
       <section className="panel" aria-labelledby="policy-title">
         <h2 id="policy-title" className="t-h3">Règles d’autonomie</h2>

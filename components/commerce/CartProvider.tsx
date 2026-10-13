@@ -53,7 +53,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetch("/api/cart", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(action) });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? "Une erreur est survenue.");
+      if (!res.ok) throw new Error(json.error ?? "Un contretemps est survenu. Merci de réessayer dans un instant.");
       setCart(json.cart);
       if (action.type === "add" || action.type === "addMany") {
         haptic();
@@ -66,7 +66,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (opts?.openAfter) setOpen(true);
       return true;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Une erreur est survenue.");
+      setError(e instanceof Error ? e.message : "Un contretemps est survenu. Merci de réessayer dans un instant.");
       if (opts?.openAfter) setOpen(true);
       return false;
     } finally {

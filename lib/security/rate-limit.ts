@@ -28,10 +28,20 @@ export async function hit(bucket: string, id: string, { limit, windowSeconds }: 
   return { allowed: count <= limit, count, retryAfter };
 }
 
+/**
+ * Compteurs de sécurité du jour (requêtes refusées) : un simple compteur, pour qu'une attaque ne
+ * se traduise pas par des milliers d'écritures dans le journal. Lus par le contrôle quotidien.
+ */
+export function countRefusal(kind: "csrf" | "rate"): Promise<number> {
+  const day = new Date().toISOString().slice(0, 10);
+  return kv.incr(`security:count:${kind}:${day}`, 3 * 24 * 60 * 60).catch(() => 0);
+}
+
 /** Compte la requête ; renvoie une réponse 429 si la limite est dépassée, sinon null. */
 export async function rateLimit(req: Request, bucket: string, opts: LimitOptions, message = "Trop de demandes en peu de temps. Merci de réessayer dans quelques minutes.") {
   const r = await hit(bucket, clientIp(req), opts);
   if (r.allowed) return null;
+  await countRefusal("rate");
   return NextResponse.json({ error: message }, { status: 429, headers: { "Retry-After": String(r.retryAfter) } });
 }
 

@@ -24,7 +24,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const parsed = Action.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: "Cette demande n’a pas pu être lue. Merci de réessayer." }, { status: 400 });
   try {
     const cart = await applyCartAction(parsed.data);
     // cliente connectée ayant accepté la personnalisation : panier mémorisé pour une éventuelle relance

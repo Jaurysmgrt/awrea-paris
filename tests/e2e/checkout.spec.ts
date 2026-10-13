@@ -12,9 +12,10 @@ test.describe("Parcours d’achat complet (mode test)", () => {
     await page.getByRole("button", { name: "Ajouter au panier" }).click();
     await expect(page.getByText("Merci de choisir une taille.")).toBeVisible();
 
-    // première taille en stock (le stock de démonstration baisse à chaque commande d'essai)
-    await page.locator('.product-form .chip:not([data-unavailable="true"]):not([data-preorder="true"])').first().click();
-    await page.getByRole("button", { name: "Ajouter au panier" }).click();
+    // première taille commandable : en stock, ou sur commande quand les essais précédents ont
+    // épuisé le stock de démonstration
+    await page.locator('.product-form .chip:not([data-unavailable="true"])').first().click();
+    await page.getByRole("button", { name: /^(Ajouter au panier|Précommander)$/ }).click();
 
     const drawer = page.locator("dialog.drawer");
     await expect(drawer).toBeVisible();

@@ -25,6 +25,16 @@ const PAY_OPTIONS: { id: Pay; label: string; note: string }[] = [
   { id: "installments", label: "Paiement en 3 ou 4 fois", note: "Sans frais à partir de 100 €, sous réserve d’acceptation" },
 ];
 
+/**
+ * Mode test uniquement : la carte « refusée » de test (4000 0000 0000 0002) simule un refus.
+ * Le numéro reste dans le navigateur ; en production, le paiement se fait chez Shopify.
+ */
+function testOutcome(cardNumber: string): "accepted" | "declined" | "incomplete" {
+  const digits = cardNumber.replace(/\D/g, "");
+  if (digits === "4000000000000002") return "declined";
+  return digits.length < 15 ? "incomplete" : "accepted";
+}
+
 export function CheckoutForm() {
   const { cart } = useCart();
   const router = useRouter();
@@ -161,7 +171,8 @@ export function CheckoutForm() {
       phone: f.get("phone") || undefined,
       shippingRateId: rate?.id,
       paymentMethod: pay,
-      cardNumber: pay === "card" ? f.get("cardNumber") : undefined,
+      // mode test : aucune donnée de carte ne quitte le navigateur, seulement l'issue simulée
+      testOutcome: pay === "card" ? testOutcome(String(f.get("cardNumber") ?? "")) : undefined,
       acceptTerms: f.get("terms") === "on",
       source: readSource(),
     };
@@ -340,19 +351,19 @@ export function CheckoutForm() {
                   <label className="field__label" htmlFor="co-card">
                     Numéro de carte
                   </label>
-                  <input className="field__input" id="co-card" name="cardNumber" inputMode="numeric" autoComplete="cc-number" required defaultValue="4242 4242 4242 4242" />
+                  <input className="field__input" id="co-card" name="cardNumber" inputMode="numeric" autoComplete="off" required defaultValue="4242 4242 4242 4242" />
                 </div>
                 <div className="field">
                   <label className="field__label" htmlFor="co-exp">
                     Expiration
                   </label>
-                  <input className="field__input" id="co-exp" name="exp" autoComplete="cc-exp" placeholder="MM / AA" required defaultValue="12 / 30" />
+                  <input className="field__input" id="co-exp" name="exp" autoComplete="off" placeholder="MM / AA" required defaultValue="12 / 30" />
                 </div>
                 <div className="field">
                   <label className="field__label" htmlFor="co-cvc">
                     Cryptogramme
                   </label>
-                  <input className="field__input" id="co-cvc" name="cvc" inputMode="numeric" autoComplete="cc-csc" required defaultValue="123" />
+                  <input className="field__input" id="co-cvc" name="cvc" inputMode="numeric" autoComplete="off" required defaultValue="123" />
                 </div>
               </div>
             ) : null}

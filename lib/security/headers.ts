@@ -1,74 +1,98 @@
 /**
- * En-têtes de sécurité HTTP (appliqués par next.config.ts à toutes les réponses).
- * La politique de sécurité du contenu (CSP) n'autorise que les domaines réellement utilisés :
- * Shopify (images, vidéos), Supabase, et — seulement après consentement, chargés à la demande —
- * Plausible ou Google Analytics, Meta Pixel, Google Ads ; Cloudflare Turnstile pour les formulaires.
- * Les scripts en ligne de Next.js imposent « unsafe-inline » pour les scripts (pages statiques,
- * sans nonce) ; le reste est verrouillé (objets, cadres, formulaires, base, ancêtres).
+ * En-têtes de sécurité HTTP.
+ *
+ * Politique de sécurité du contenu (CSP) — deux modes, choisis par CSP_MODE :
+ *  - « strict » (par défaut) : chaque page reçoit un nonce unique (proxy.ts) ; seuls les scripts
+ *    portant ce nonce s'exécutent, et ceux qu'ils chargent eux-mêmes (« strict-dynamic » : mesure
+ *    d'audience, Turnstile…). Aucun « unsafe-inline » pour les scripts. Les pages sont alors
+ *    rendues à chaque visite (les données Shopify restent en cache 5 minutes).
+ *  - « static » : pages servies depuis le cache du CDN ; les scripts en ligne de Next.js imposent
+ *    alors « unsafe-inline » pour les scripts. Plus rapide, un peu moins strict.
+ * Dans les deux cas, seuls les domaines réellement utilisés sont autorisés, et le reste est
+ * verrouillé (objets, cadres, formulaires, balise <base>, intégration dans un autre site).
  */
+export type CspMode = "strict" | "static";
+export const cspMode: CspMode = process.env.CSP_MODE === "static" ? "static" : "strict";
+
+/** La CSP ne s'applique qu'aux versions compilées : le serveur de développement a besoin d'« eval ». */
+export const cspEnabled = process.env.NODE_ENV === "production";
+
 const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin : "https://*.supabase.co";
 const plausible = process.env.NEXT_PUBLIC_PLAUSIBLE_SRC ? new URL(process.env.NEXT_PUBLIC_PLAUSIBLE_SRC).origin : "https://plausible.io";
 
-const directives: Record<string, string[]> = {
-  "default-src": ["'self'"],
-  "script-src": [
-    "'self'",
-    "'unsafe-inline'",
-    "https://challenges.cloudflare.com",
-    plausible,
-    "https://www.googletagmanager.com",
-    "https://connect.facebook.net",
-    "https://www.googleadservices.com",
-    "https://googleads.g.doubleclick.net",
-  ],
-  "style-src": ["'self'", "'unsafe-inline'"],
-  "img-src": [
-    "'self'",
-    "data:",
-    "blob:",
-    "https://cdn.shopify.com",
-    "https://www.facebook.com",
-    "https://www.google-analytics.com",
-    "https://www.googletagmanager.com",
-    "https://googleads.g.doubleclick.net",
-    "https://www.google.com",
-    "https://www.google.fr",
-  ],
-  "font-src": ["'self'"],
-  "media-src": ["'self'", "blob:", "https://cdn.shopify.com"],
-  "connect-src": [
-    "'self'",
-    supabase,
-    supabase.replace("https://", "wss://"),
-    plausible,
-    "https://challenges.cloudflare.com",
-    "https://www.google-analytics.com",
-    "https://*.analytics.google.com",
-    "https://www.googletagmanager.com",
-    "https://connect.facebook.net",
-    "https://www.facebook.com",
-    "https://googleads.g.doubleclick.net",
-  ],
-  "frame-src": ["https://challenges.cloudflare.com", "https://www.googletagmanager.com", "https://td.doubleclick.net"],
-  "worker-src": ["'self'", "blob:"],
-  "manifest-src": ["'self'"],
-  "object-src": ["'none'"],
-  "base-uri": ["'self'"],
-  "form-action": ["'self'"],
-  "frame-ancestors": ["'none'"],
-};
+/** Scripts tiers chargés à la demande (après consentement pour la mesure et la publicité). */
+const scriptHosts = [
+  "https://challenges.cloudflare.com",
+  plausible,
+  "https://www.googletagmanager.com",
+  "https://connect.facebook.net",
+  "https://www.googleadservices.com",
+  "https://googleads.g.doubleclick.net",
+];
 
 /** Site servi en HTTPS (Vercel, production ou prévisualisation) : forçage du HTTPS. */
 const https = process.env.VERCEL === "1" || process.env.FORCE_HTTPS === "1";
 
-export const contentSecurityPolicy = [...Object.entries(directives).map(([k, v]) => `${k} ${v.join(" ")}`), ...(https ? ["upgrade-insecure-requests"] : [])].join("; ");
+function directives(nonce?: string): Record<string, string[]> {
+  return {
+    "default-src": ["'self'"],
+    // avec un nonce, « strict-dynamic » fait foi pour les navigateurs récents ; la liste des
+    // domaines ne sert plus qu'aux navigateurs anciens
+    "script-src": nonce ? ["'self'", `'nonce-${nonce}'`, "'strict-dynamic'", ...scriptHosts] : ["'self'", "'unsafe-inline'", ...scriptHosts],
+    // les attributs style (variables CSS des animations) restent autorisés : ils n'exécutent aucun code
+    "style-src": ["'self'", "'unsafe-inline'"],
+    "img-src": [
+      "'self'",
+      "data:",
+      "blob:",
+      "https://cdn.shopify.com",
+      "https://www.facebook.com",
+      "https://www.google-analytics.com",
+      "https://www.googletagmanager.com",
+      "https://googleads.g.doubleclick.net",
+      "https://www.google.com",
+      "https://www.google.fr",
+    ],
+    "font-src": ["'self'"],
+    "media-src": ["'self'", "blob:", "https://cdn.shopify.com"],
+    "connect-src": [
+      "'self'",
+      supabase,
+      supabase.replace("https://", "wss://"),
+      plausible,
+      "https://challenges.cloudflare.com",
+      "https://www.google-analytics.com",
+      "https://*.analytics.google.com",
+      "https://www.googletagmanager.com",
+      "https://connect.facebook.net",
+      "https://www.facebook.com",
+      "https://googleads.g.doubleclick.net",
+    ],
+    "frame-src": ["https://challenges.cloudflare.com", "https://www.googletagmanager.com", "https://td.doubleclick.net"],
+    "worker-src": ["'self'", "blob:"],
+    "manifest-src": ["'self'"],
+    "object-src": ["'none'"],
+    "base-uri": ["'self'"],
+    "form-action": ["'self'"],
+    "frame-ancestors": ["'none'"],
+  };
+}
+
+export function contentSecurityPolicy(nonce?: string): string {
+  return [...Object.entries(directives(nonce)).map(([k, v]) => `${k} ${v.join(" ")}`), ...(https ? ["upgrade-insecure-requests"] : [])].join("; ");
+}
+
+/** Nonce imprévisible, nouveau à chaque page servie. */
+export function newNonce(): string {
+  return Buffer.from(crypto.randomUUID()).toString("base64");
+}
 
 /**
- * La CSP n'est appliquée qu'aux versions compilées : le serveur de développement de Next.js
- * a besoin d'« eval » pour le rechargement à chaud.
+ * En-têtes appliqués par next.config.ts à toutes les réponses. En mode « strict », la CSP est
+ * posée page par page par proxy.ts (elle contient le nonce de la page).
  */
 export const securityHeaders = [
-  ...(process.env.NODE_ENV === "production" ? [{ key: "Content-Security-Policy", value: contentSecurityPolicy }] : []),
+  ...(cspEnabled && cspMode === "static" ? [{ key: "Content-Security-Policy", value: contentSecurityPolicy() }] : []),
   ...(https ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }] : []),
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },

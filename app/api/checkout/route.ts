@@ -41,7 +41,8 @@ const Body = z.object({
   phone: z.string().max(30).optional(),
   shippingRateId: z.string(),
   paymentMethod: z.enum(["card", "apple-pay", "google-pay", "paypal", "installments"]),
-  cardNumber: z.string().max(25).optional(),
+  // mode test : le site ne reçoit jamais de numéro de carte, seulement l'issue simulée
+  testOutcome: z.enum(["accepted", "declined", "incomplete"]).optional(),
   acceptTerms: z.literal(true),
   source: z.string().max(40).nullable().optional(),
 });
@@ -66,9 +67,8 @@ export async function POST(req: Request) {
 
   // paiement simulé : carte de test refusée
   if (d.paymentMethod === "card") {
-    const digits = (d.cardNumber ?? "").replace(/\D/g, "");
-    if (digits === "4000000000000002") return NextResponse.json({ error: "Paiement refusé par la banque (carte de test « refusée »). Essayez 4242 4242 4242 4242." }, { status: 402 });
-    if (digits.length < 15) return NextResponse.json({ error: "Numéro de carte incomplet." }, { status: 400 });
+    if (d.testOutcome === "declined") return NextResponse.json({ error: "Paiement refusé par la banque (carte de test « refusée »). Essayez 4242 4242 4242 4242." }, { status: 402 });
+    if (d.testOutcome !== "accepted") return NextResponse.json({ error: "Numéro de carte incomplet." }, { status: 400 });
   }
 
   // stocks et numéros d'édition

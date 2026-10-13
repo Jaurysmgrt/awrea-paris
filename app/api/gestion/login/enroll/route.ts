@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import QRCode from "qrcode";
 import { z } from "zod";
-import { clearPreAuth, hasPreAuth, setAdminCookie } from "@/lib/auth/admin";
+import { ADMIN_LOGIN_GUARD as GUARD, clearPreAuth, hasPreAuth, setAdminCookie } from "@/lib/auth/admin";
 import { confirmEnrollment, isEnrolled, startEnrollment } from "@/lib/auth/totp";
 import { palette } from "@/styles/tokens";
 import { logAction } from "@/lib/agents/log";
+import { clientIp, loginGuard } from "@/lib/security/rate-limit";
+import { logSecurityEvent, recordAdminLogin } from "@/lib/security/audit";
 
 /** Première connexion : QR code à scanner avec l'application d'authentification. */
 export async function GET() {
@@ -17,12 +19,24 @@ export async function GET() {
 
 /** Confirmation par un premier code : la session s'ouvre et les codes de secours sont remis. */
 export async function POST(req: Request) {
+  const ip = clientIp(req);
+  if (await loginGuard.blocked("admin", ip, GUARD)) {
+    await logSecurityEvent("admin_login_blocked", req, ip);
+    return NextResponse.json({ error: "Trop de tentatives. Réessayez dans quelques minutes." }, { status: 429 });
+  }
   if (!(await hasPreAuth())) return NextResponse.json({ error: "Session expirée : saisissez à nouveau le mot de passe." }, { status: 401 });
   const parsed = z.object({ code: z.string().trim().regex(/^\d{6}$/) }).safeParse(await req.json().catch(() => null));
   const recovery = parsed.success ? await confirmEnrollment(parsed.data.code) : null;
-  if (!recovery) return NextResponse.json({ error: "Code incorrect. Vérifiez l’heure de votre téléphone et réessayez." }, { status: 400 });
+  if (!recovery) {
+    await loginGuard.fail("admin", ip, GUARD);
+    await logSecurityEvent("admin_code_fail", req, ip, "enrôlement");
+    return NextResponse.json({ error: "Code incorrect. Vérifiez l’heure de votre téléphone et réessayez." }, { status: 400 });
+  }
+  await loginGuard.reset("admin", ip, GUARD);
   await clearPreAuth();
   await setAdminCookie();
+  await logSecurityEvent("admin_enrolled", req, ip);
+  await recordAdminLogin(req, ip);
   await logAction({ agent: "rapport", kind: "sécurité", status: "done", summary: "Double authentification de l’Atelier configurée" }).catch(() => {});
   return NextResponse.json({ ok: true, recoveryCodes: recovery });
 }

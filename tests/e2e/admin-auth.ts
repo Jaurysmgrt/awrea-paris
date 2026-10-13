@@ -67,6 +67,16 @@ export async function adminLogin(page: Page) {
     const secret = process.env.ATELIER_TOTP_SECRET ?? fs.readFileSync(SECRET_FILE, "utf8").trim();
     await totpField.fill(await freshCode(page, secret));
     await page.getByRole("button", { name: "Entrer" }).click();
+    // un code déjà utilisé dans cette période de 30 s (par une autre série de tests) est refusé,
+    // comme il se doit : on attend la période suivante, comme le ferait la créatrice
+    const home = page.getByRole("heading", { level: 1, name: "Bonjour." });
+    const refused = page.getByText("Code incorrect ou déjà utilisé.");
+    await expect(home.or(refused)).toBeVisible();
+    if (await refused.isVisible()) {
+      lastCounter = Math.max(lastCounter, Math.floor(Date.now() / 30000));
+      await totpField.fill(await freshCode(page, secret));
+      await page.getByRole("button", { name: "Entrer" }).click();
+    }
   }
   await expect(page.getByRole("heading", { level: 1, name: "Bonjour." })).toBeVisible();
 }

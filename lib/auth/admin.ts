@@ -1,10 +1,14 @@
 /**
- * Accès au tableau de bord Atelier : mot de passe (ATELIER_PASSWORD) → cookie signé 12 h.
- * Sans mot de passe configuré, l'accès de démonstration « atelier-demo » n'est permis
- * qu'en mode démonstration (aucune boutique Shopify branchée).
+ * Accès au tableau de bord Atelier : mot de passe (ATELIER_PASSWORD), puis double authentification
+ * obligatoire → cookie signé de 12 h. Chaque session porte une « génération » : la changer
+ * (réinitialisation de la double authentification, « déconnecter tous les appareils »)
+ * ferme aussitôt toutes les sessions ouvertes.
+ * Sans mot de passe configuré, l'accès de démonstration « atelier-demo » n'est permis qu'en
+ * démonstration (aucune boutique Shopify branchée) et jamais sur le site de production.
  */
 import { timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
+import { kv } from "@/lib/store";
 import { sign, verify } from "./session";
 
 export const ADMIN_COOKIE = "awrea_admin";
@@ -17,7 +21,9 @@ export const ADMIN_LOGIN_GUARD = { limit: 8, windowSeconds: 15 * 60 };
 
 export function adminPassword(): string | null {
   if (process.env.ATELIER_PASSWORD) return process.env.ATELIER_PASSWORD;
-  if (!process.env.SHOPIFY_STORE_DOMAIN) return "atelier-demo";
+  // jamais de mot de passe de démonstration en production : sinon, une inconnue pourrait
+  // se connecter la première et enregistrer sa propre double authentification
+  if (!process.env.SHOPIFY_STORE_DOMAIN && process.env.VERCEL_ENV !== "production") return "atelier-demo";
   return null;
 }
 
@@ -33,12 +39,24 @@ export function checkPassword(input: string): boolean {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-export function adminToken(): string {
-  return sign({ role: "atelier" }, MAX_AGE);
+const GENERATION_KEY = "security:admin-generation";
+
+export async function sessionGeneration(): Promise<number> {
+  return (await kv.get<number>(GENERATION_KEY).catch(() => null)) ?? 0;
 }
 
-export function isAdminToken(token: string | undefined | null): boolean {
-  return verify<{ role: string }>(token)?.role === "atelier";
+/** Ferme toutes les sessions de l'Atelier, sur tous les appareils. */
+export async function revokeAdminSessions() {
+  await kv.set(GENERATION_KEY, (await sessionGeneration()) + 1);
+}
+
+export async function adminToken(): Promise<string> {
+  return sign({ role: "atelier", g: await sessionGeneration() }, MAX_AGE);
+}
+
+export async function isAdminToken(token: string | undefined | null): Promise<boolean> {
+  const payload = verify<{ role: string; g?: number }>(token);
+  return payload?.role === "atelier" && (payload.g ?? 0) === (await sessionGeneration());
 }
 
 export async function isAdmin(): Promise<boolean> {
@@ -46,7 +64,11 @@ export async function isAdmin(): Promise<boolean> {
 }
 
 export async function setAdminCookie() {
-  (await cookies()).set(ADMIN_COOKIE, adminToken(), { httpOnly: true, sameSite: "strict", secure: process.env.NODE_ENV === "production", path: "/", maxAge: MAX_AGE });
+  (await cookies()).set(ADMIN_COOKIE, await adminToken(), { httpOnly: true, sameSite: "strict", secure: process.env.NODE_ENV === "production", path: "/", maxAge: MAX_AGE });
+}
+
+export async function clearAdminCookie() {
+  (await cookies()).set(ADMIN_COOKIE, "", { path: "/", maxAge: 0 });
 }
 
 export async function setPreAuthCookie() {
