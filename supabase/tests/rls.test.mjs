@@ -61,6 +61,10 @@ assert((await db.query(`select email from public.customers`)).rows.length === 1,
 assert((await db.query(`select number from public.orders`)).rows.length === 0, "la cliente B ne voit pas les commandes de A");
 assert((await db.query(`select * from public.browsing_events`)).rows.length === 0, "la cliente B ne voit pas la navigation de A");
 assert((await db.query(`select * from public.reviews`)).rows.length === 0, "avis en attente invisibles pour les autres");
+assert(await refused(`select public.purge_expired()`), "la purge est réservée au serveur (refusée à une cliente)");
+await db.exec(`reset role;`);
+await db.exec(`set role anon;`);
+assert(await refused(`select public.purge_expired()`), "la purge est refusée aux visiteuses anonymes");
 await db.exec(`reset role;`);
 const purge = (await db.query(`select public.purge_expired() as r`)).rows[0].r;
 assert(typeof purge === "object", "purge quotidienne disponible");

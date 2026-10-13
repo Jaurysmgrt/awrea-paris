@@ -137,3 +137,21 @@
   le consentement et les préférences, ajustements pendant le rendu au lieu d'effets).
 - Tests : 258 tests e2e sur la version de production (responsive 196/196 sur 7 largeurs, navigation, recherche,
   mode Nuit, parcours d'achat, comptes, pages légales, Atelier).
+
+## Sécurité complète, agent de maintenance, exploitation
+- Audit de sécurité complet consigné dans `SECURITE.md` (état de chaque protection, résultats, failles corrigées,
+  réglages restant à faire par la maison).
+- Failles trouvées et corrigées pendant l'audit : clé de session de développement utilisable en production
+  (désormais refusée : l'Atelier reste fermé sans `SESSION_SECRET`), mot de passe de démonstration accepté sans
+  boutique branchée, enrôlement de la double authentification non limité, sessions non révocables, numéro de carte
+  de test transmis au serveur, purge des données exécutable par tout le monde (désormais réservée au serveur).
+- Turnstile ajouté à la connexion de l'Atelier ; purge quotidienne des données arrivées à échéance branchée.
+- Sauvegardes quotidiennes chiffrées (AES-256) avec test de restauration automatique ; recherche de clés secrètes ;
+  Dependabot ; intégration continue complète ; contrôle de sécurité hebdomadaire.
+- Agent de maintenance quotidienne (GitHub Actions) : bilan complet, réparation par Claude Code en mode auto avec
+  demande de fusion fusionnée seulement au vert, rapport dans ce journal et dans l'Atelier ; contrôle après chaque
+  mise en ligne avec retour automatique à la version précédente.
+- `CLAUDE.md`, sous-agents de développement (design, front-end, e-commerce, SEO, tests), `README.md` et
+  `.env.example` à jour.
+- Constat : le dépôt GitHub est public et `main` n'est pas protégée — à corriger par la maison (SECURITE.md § 11).
+- Tests : 263/263 sur la version de production (CSP stricte), tests unitaires et de la base au vert.

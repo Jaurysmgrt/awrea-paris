@@ -4,7 +4,8 @@ out
 .data
 .media-tmp
 .env
-.env.local
+.env.*
+!.env.example
 .vercel
 test-results
 playwright-report
@@ -13,3 +14,4 @@ next-env.d.ts
 *.tsbuildinfo
 __pycache__/
 .tmp-trace/
+/maintenance/

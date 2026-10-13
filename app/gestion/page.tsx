@@ -12,9 +12,18 @@ import { ProposalCard } from "@/components/admin/ProposalCard";
 import { LogList } from "@/components/admin/LogList";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { When } from "@/components/admin/Status";
+import { maintenanceLabels, maintenanceReports } from "@/lib/maintenance";
 
 export default async function GestionHome() {
-  const [proposals, log, runs, orders, inbox, audits] = await Promise.all([getProposals(), getLog(12), getRuns(60), getOrders(), listInbox(500), kv.list<AuditReport>("seo:audits", 1)]);
+  const [proposals, log, runs, orders, inbox, audits, [maintenance]] = await Promise.all([
+    getProposals(),
+    getLog(12),
+    getRuns(60),
+    getOrders(),
+    listInbox(500),
+    kv.list<AuditReport>("seo:audits", 1),
+    maintenanceReports(1),
+  ]);
   // composant serveur dynamique : rendu une seule fois par requête, l'heure courante est voulue
   // eslint-disable-next-line react-hooks/purity
   const since = Date.now() - 7 * 24 * 60 * 60 * 1000;
@@ -75,6 +84,37 @@ export default async function GestionHome() {
           </div>
         ) : (
           <p className="t-note">Rien n’attend votre décision. Les agents s’occupent du quotidien.</p>
+        )}
+      </section>
+
+      <section className="panel" aria-labelledby="maint-title">
+        <h2 id="maint-title" className="t-h3">
+          Maintenance du site
+        </h2>
+        {maintenance ? (
+          <div className="stack-s">
+            <p>
+              <span className={`status status--${maintenance.status === "ok" || maintenance.status === "corrige" ? "done" : "failed"}`}>{maintenanceLabels[maintenance.status]}</span>{" "}
+              <span className="t-note">
+                <When iso={maintenance.date} />
+              </span>
+            </p>
+            <p className="t-body">{maintenance.summary}</p>
+            {maintenance.details.length ? (
+              <ul className="stack-s t-note">
+                {maintenance.details.slice(0, 8).map((d) => (
+                  <li key={d}>{d}</li>
+                ))}
+              </ul>
+            ) : null}
+            {maintenance.link ? (
+              <a href={maintenance.link} className="text-link" target="_blank" rel="noopener noreferrer">
+                Voir le détail sur GitHub
+              </a>
+            ) : null}
+          </div>
+        ) : (
+          <p className="t-note">L’agent de maintenance passe chaque nuit : vérifications, corrections testées, déploiement seulement si tout est vert.</p>
         )}
       </section>
 

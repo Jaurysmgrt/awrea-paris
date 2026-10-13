@@ -10,6 +10,7 @@
  */
 import "server-only";
 import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { sessionSecret } from "./session";
 import { kv } from "@/lib/store";
 
 const STEP = 30;
@@ -91,7 +92,8 @@ export function otpauthUri(secretB32: string, account = "atelier"): string {
 }
 
 // ------------------------------------------------------------------ stockage chiffré
-const cryptoKey = () => createHash("sha256").update(`totp:${process.env.SESSION_SECRET ?? "awrea-dev-secret-a-remplacer"}`).digest();
+// même règle que les sessions : sur Vercel, jamais de clé par défaut (lib/auth/session.ts)
+const cryptoKey = () => createHash("sha256").update(`totp:${sessionSecret()}`).digest();
 function encrypt(plain: string): string {
   const iv = randomBytes(12);
   const c = createCipheriv("aes-256-gcm", cryptoKey(), iv);

@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { ADMIN_LOGIN_GUARD as GUARD, adminPassword, checkPassword, setPreAuthCookie } from "@/lib/auth/admin";
 import { isEnrolled } from "@/lib/auth/totp";
+import { sessionsConfigured } from "@/lib/auth/session";
 import { clientIp, loginGuard } from "@/lib/security/rate-limit";
 import { logSecurityEvent } from "@/lib/security/audit";
+import { verifyTurnstile } from "@/lib/security/turnstile";
 
 /**
  * Étape 1 : mot de passe. La session n'est ouverte qu'après la double authentification
@@ -16,7 +18,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Trop de tentatives. Réessayez dans quelques minutes." }, { status: 429 });
   }
   if (!adminPassword()) return NextResponse.json({ error: "Le mot de passe du tableau de bord n’est pas configuré (ATELIER_PASSWORD)." }, { status: 503 });
-  const parsed = z.object({ password: z.string().min(1).max(200) }).safeParse(await req.json().catch(() => null));
+  if (!sessionsConfigured()) return NextResponse.json({ error: "La clé des sessions n’est pas configurée (SESSION_SECRET, 32 caractères au moins)." }, { status: 503 });
+  const parsed = z.object({ password: z.string().min(1).max(200), turnstile: z.string().max(2048).optional() }).safeParse(await req.json().catch(() => null));
+  if (parsed.success && !(await verifyTurnstile(parsed.data.turnstile, req))) {
+    return NextResponse.json({ error: "La vérification anti-robot a échoué. Merci de réessayer." }, { status: 400 });
+  }
   if (!parsed.success || !checkPassword(parsed.data.password)) {
     await loginGuard.fail("admin", ip, GUARD); // seuls les échecs comptent
     await logSecurityEvent("admin_password_fail", req, ip);

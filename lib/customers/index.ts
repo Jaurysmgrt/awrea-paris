@@ -563,3 +563,14 @@ export async function listCustomerStats(): Promise<CustomerStats[]> {
 }
 
 export const customersMode = isSupabaseConfigured ? "supabase" : "demo";
+
+/**
+ * Purge quotidienne des données arrivées à échéance (navigation de plus de 13 mois, paniers
+ * relancés de plus de 30 jours, preuves de consentement de plus de 25 mois) — tâche planifiée.
+ */
+export async function purgeExpired(): Promise<Record<string, number> | null> {
+  if (!isSupabaseConfigured) return null;
+  const { data, error } = await supabaseAdmin().rpc("purge_expired");
+  if (error) throw new Error(`purge_expired : ${error.message}`);
+  return data as Record<string, number>;
+}

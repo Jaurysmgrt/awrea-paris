@@ -7,7 +7,7 @@
  */
 const domain = process.env.SHOPIFY_STORE_DOMAIN;
 const token = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
-const version = process.env.SHOPIFY_API_VERSION ?? "2025-10";
+const version = process.env.SHOPIFY_API_VERSION ?? "2026-07";
 
 export const adminEnabled = Boolean(domain && token);
 

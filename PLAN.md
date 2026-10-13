@@ -179,6 +179,23 @@ mensuels proposés par l'agent Rapport · revue finale façon jury Awwwards dans
 15. Agent de maintenance, CI, prévisualisation, sauvegardes
 16. Revue finale (`REVUE.md`), corrections, documentation (CLAUDE.md, guide de la créatrice)
 
+## 11. Tendances 2026, règles « épuré et luxueux », sécurité (troisième message)
+
+- **Veille** Awwwards / SiteInspire / Godly consignée dans `docs/VEILLE-DESIGN-2026.md`, puis appliquée :
+  luxe discret (monogramme réservé à l'en-tête, au pied de page et à l'ouverture), esprit galerie (blancs,
+  mises en page asymétriques, légendes discrètes), typographie géante écrite lettre à lettre, vidéo sur chaque
+  fiche et au survol des cartes, mode Nuit noir et or (interrupteur + réglage du téléphone), coulisses de
+  l'atelier tout au long du parcours, micro-interactions (boutons magnétiques, squelettes ivoire), rythme lent
+  mais achat rapide, personnalisation invisible, éco-conception (empreinte affichée, région Paris).
+- **Règles épurées** : cinq entrées de menu, un message et un appel à l'action par section, aucun prix barré ni
+  bannière, vocabulaire de couture, détails soignés (erreurs, panier vide, 404).
+- **Sécurité** : CSP stricte à nonce, en-têtes, HSTS avec préchargement, domaine unique, CSRF, Turnstile partout,
+  double authentification de l'Atelier avec journal et alertes, sessions révocables, RLS, aucune donnée bancaire,
+  sauvegardes chiffrées testées, clés hors du code, Dependabot et `npm audit`, protection contre l'injection de
+  prompt, moindre privilège des agents, surveillance quotidienne ; audit complet dans `SECURITE.md`.
+- **Exploitation** : intégration continue, maintenance quotidienne par Claude Code (réparation testée, fusion
+  automatique au vert), contrôle après mise en ligne avec retour automatique, sauvegardes, contrôle hebdomadaire.
+
 ## Ce qui sera demandé à la fin (impossible à deviner)
 Fichiers du logo, photos et vidéos réelles, accès Shopify (domaine + jetons Storefront/Admin),
 clé API Anthropic, compte Vercel, clé Resend (e-mails transactionnels) et Brevo ou Klaviyo (e-mails marketing),

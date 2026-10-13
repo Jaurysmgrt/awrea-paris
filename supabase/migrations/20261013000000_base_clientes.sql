@@ -168,9 +168,11 @@ create index if not exists reviews_product_idx on public.reviews (product_handle
 
 -- ------------------------------------------------------------------ certificats d'authenticité
 create table if not exists public.certificates (
-  serial text primary key,                     -- ex. AW-ODE-03-7K4Q (imprimé sous le QR code)
+  serial text primary key,                     -- ex. AW-ODS-03-7K4Q (imprimé sous le QR code)
   product_handle text not null,
   product_title text not null,
+  size text,
+  image text,
   edition_number int,
   edition_total int,
   collection text,
@@ -178,10 +180,15 @@ create table if not exists public.certificates (
   creator_note text,
   materials text,
   order_id uuid references public.orders (id) on delete set null,
+  order_number text,
+  owner_email_hash text,                       -- empreinte SHA-256 de l'e-mail de l'acheteuse (rattachement)
+  claim_code_hash text,                        -- code imprimé sur le certificat papier (pièce offerte)
   customer_id uuid references public.customers (id) on delete set null,
   claimed_at timestamptz,
   created_at timestamptz not null default now()
 );
+create index if not exists certificates_owner_idx on public.certificates (owner_email_hash);
+create index if not exists certificates_order_idx on public.certificates (order_number);
 
 -- ------------------------------------------------------------------ rendez-vous privés
 create table if not exists public.appointments (
@@ -354,7 +361,9 @@ begin
   get diagnostics n_consent = row_count;
   return jsonb_build_object('browsing_events', n_browse, 'carts', n_carts, 'consent_records', n_consent);
 end $$;
-revoke execute on function public.purge_expired() from anon, authenticated;
+-- réservée au serveur (clé de service) : PostgreSQL accorde l'exécution à PUBLIC par défaut
+revoke execute on function public.purge_expired() from public, anon, authenticated;
+grant execute on function public.purge_expired() to service_role;
 
 -- Stockage des photos d'avis : bucket privé « reviews » (créé ici, lecture via URL signée)
 insert into storage.buckets (id, name, public) values ('reviews', 'reviews', false) on conflict (id) do nothing;

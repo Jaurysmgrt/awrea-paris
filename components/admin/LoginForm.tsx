@@ -4,6 +4,7 @@
  * d'authentification. À la première connexion : QR code à scanner, puis codes de secours.
  */
 import { useState } from "react";
+import { Turnstile } from "@/components/security/Turnstile";
 
 type Step = "password" | "totp" | "enroll" | "recovery";
 
@@ -140,7 +141,8 @@ export function LoginForm({ next }: { next: string }) {
         e.preventDefault();
         setBusy(true);
         setError("");
-        const { ok, json } = await post("/api/gestion/login", { password: new FormData(e.currentTarget).get("password") });
+        const f = new FormData(e.currentTarget);
+        const { ok, json } = await post("/api/gestion/login", { password: f.get("password"), turnstile: f.get("cf-turnstile-response") || undefined });
         setBusy(false);
         if (!ok) return setError(json.error ?? "Connexion impossible.");
         if (json.step === "enroll") {
@@ -155,6 +157,7 @@ export function LoginForm({ next }: { next: string }) {
         </label>
         <input id="pw" name="password" type="password" required autoComplete="current-password" className="field__input" />
       </div>
+      <Turnstile action="atelier" />
       {error ? (
         <p className="field__error" role="alert">
           {error}

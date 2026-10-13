@@ -55,7 +55,8 @@ try {
   else add("ok", "HTTPS", "http:// redirige vers https://.");
   const other = site.hostname.startsWith("www.") ? site.hostname.slice(4) : `www.${site.hostname}`;
   const alt = await head(`https://${other}/`).catch(() => null);
-  if (alt && ![301, 308].includes(alt.status)) add("alerte", "Domaine unique", `${other} ne redirige pas vers ${site.hostname} (statut ${alt.status}).`);
+  if (!alt) add("alerte", "Domaine unique", `${other} est injoignable : déclarer les deux versions du domaine dans Vercel (l'une redirigée vers l'autre).`);
+  else if (![301, 308].includes(alt.status)) add("alerte", "Domaine unique", `${other} ne redirige pas vers ${site.hostname} (statut ${alt.status}).`);
   else add("ok", "Domaine unique", `${other} redirige vers ${site.hostname}.`);
 } catch (e) {
   add("alerte", "HTTPS", `Vérification des redirections impossible : ${e.message}`);
