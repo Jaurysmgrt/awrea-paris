@@ -40,7 +40,16 @@ for (const f of fs.readdirSync(cssDir).filter((f) => f.endsWith(".css") && f !==
     if (/:\s*[^;]*\b\d*\.?\d+rem\b/.test(line)) report(file, i + 1, "rem en dur", raw);
     if (/^\s*letter-spacing:\s*-?\d/.test(line) && !/:\s*0;/.test(line)) report(file, i + 1, "interlettrage en dur", raw);
     if (/^\s*font-size:\s*\d/.test(line)) report(file, i + 1, "taille de police en dur", raw);
+    // direction artistique : ni doré, ni italique, ni calligraphie (MARQUE.md)
+    if (/gold/i.test(line)) report(file, i + 1, "doré interdit", raw);
+    if (/font-style:\s*italic/.test(line)) report(file, i + 1, "italique interdit", raw);
+    if (/--font-(script|serif)\b/.test(line)) report(file, i + 1, "famille hors des deux polices", raw);
   });
+}
+
+// ------------------------------------------------ grille de 8 px (tokens)
+for (const m of tokensCss.matchAll(/--(spacing-[a-z0-9-]+|lh-step-\d|leading-label):\s*([\d.]+)rem/g)) {
+  if ((parseFloat(m[2]) * 16) % 8 !== 0) problems.push(`styles/tokens.css  --${m[1]} = ${m[2]}rem : hors de la grille de 8 px`);
 }
 
 // ------------------------------------------------- composants et pages
@@ -60,6 +69,7 @@ for (const file of [...walk(path.join(root, "app")), ...walk(path.join(root, "co
   lines.forEach((raw, i) => {
     if (raw.includes("token-ok")) return;
     if (!allowColorFiles.has(rel) && /["'`]#[0-9a-fA-F]{3,8}["'`]/.test(raw)) report(file, i + 1, "couleur en dur dans un composant", raw);
+    if (/\bt-script\b|handwrite|btn--gold|palette\.gold|fontStacks\.(script|serif)/.test(raw)) report(file, i + 1, "doré ou calligraphie (abandonnés)", raw);
     if (/className=["{][^"}]*\b[a-z-]+-\[[^\]]+\]/.test(raw)) report(file, i + 1, "valeur arbitraire Tailwind", raw);
     const style = raw.match(/style=\{\{([^}]*)\}\}/);
     if (style && /\b\d+(px|rem|em|ms|s)\b|#[0-9a-f]{3,6}/i.test(style[1])) report(file, i + 1, "style en ligne avec valeur en dur", raw);
@@ -69,7 +79,7 @@ for (const file of [...walk(path.join(root, "app")), ...walk(path.join(root, "co
 // ------------------------------------------- miroir TypeScript des couleurs
 const css = fs.readFileSync(path.join(cssDir, "tokens.css"), "utf8");
 const ts = fs.readFileSync(path.join(root, "styles/tokens.ts"), "utf8");
-for (const name of ["ink", "ivory", "pearl", "gold"]) {
+for (const name of ["ink", "ivory", "pearl", "taupe"]) {
   const a = css.match(new RegExp(`--color-${name}:\\s*(#[0-9a-fA-F]{6})`))?.[1]?.toLowerCase();
   const b = ts.match(new RegExp(`${name}:\\s*"(#[0-9a-fA-F]{6})"`))?.[1]?.toLowerCase();
   if (!a || a !== b) problems.push(`styles/tokens.ts  couleur « ${name} » différente du CSS (${b} ≠ ${a})`);

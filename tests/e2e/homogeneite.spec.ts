@@ -1,0 +1,62 @@
+import { expect, test } from "@playwright/test";
+import fs from "node:fs";
+import { acceptCookies } from "./helpers";
+import { auditInPage, hyphenateJustified, type DesignAudit } from "./design-audit";
+
+/**
+ * Testeur « homogénéité » : chaque page, sur mobile, tablette et ordinateur — deux familles de
+ * polices, aucun italique ni doré, espacements multiples de 8 px, interlignage 1,6, et des
+ * paragraphes justifiés sans trous (espaces entre les mots au plus 1,6 fois leur largeur
+ * naturelle, 60 à 70 caractères par ligne sur ordinateur).
+ */
+const PAGES = [
+  "/", "/collections", "/collections/lace-is-more", "/boutique", "/boutique/robe-odessa", "/boutique/body-aura", "/silhouettes",
+  "/la-maison", "/atelier", "/journal", "/journal/moodboard-lace-is-more", "/presse", "/contact", "/faq", "/livraison-retours",
+  "/cgv", "/cgu", "/mentions-legales", "/propriete-intellectuelle", "/confidentialite", "/cookies", "/assistant-ia", "/retractation",
+  "/compte", "/liste-envies", "/recherche", "/page-inexistante",
+];
+const SIZES = [
+  { name: "mobile", width: 360, height: 780 },
+  { name: "tablette", width: 768, height: 1024 },
+  { name: "ordinateur", width: 1440, height: 900 },
+];
+const REPORT = process.env.HOMOGENEITE_RAPPORT;
+const report: Record<string, DesignAudit> = {};
+
+test.describe.configure({ mode: "serial" });
+test.afterAll(() => {
+  if (REPORT) fs.writeFileSync(REPORT, JSON.stringify(report, null, 1));
+});
+
+for (const size of SIZES) {
+  test.describe(`Homogénéité ${size.name}`, () => {
+    test.use({ viewport: { width: size.width, height: size.height }, hasTouch: size.width < 1024, isMobile: size.width < 768 });
+    for (const path of PAGES) {
+      test(path, async ({ page }) => {
+        await acceptCookies(page);
+        await page.emulateMedia({ reducedMotion: "reduce" });
+        await page.goto(path, { waitUntil: "load" });
+        await page.evaluate(() => document.fonts.ready);
+        await hyphenateJustified(page);
+        // justification régulière (components/typography/Justification.tsx) : on relance le calcul
+        // de toute la page avec la césure
+        await page.evaluate(() => window.dispatchEvent(new CustomEvent("awrea:justifier", { detail: { tout: true } })));
+        await page.waitForFunction(() => document.documentElement.dataset.justification === "pret", null, { timeout: 30_000 });
+        const a = await page.evaluate(auditInPage);
+        report[`${size.name} ${path}`] = a;
+        if (REPORT) return;
+        expect(a.families.filter((f) => !/instrument serif|inter tight/i.test(f)), "familles hors des deux polices").toEqual([]);
+        expect(a.italics, "italiques").toEqual([]);
+        expect(a.saturated, "couleurs saturées (doré)").toEqual([]);
+        expect(a.spacing, "espacements hors de la grille de 8 px").toEqual([]);
+        expect(a.leading, "interlignage du texte courant différent de 1,6").toEqual([]);
+        const holes = a.justified.filter((j) => j.lines > 1 && j.maxGap > 1.6);
+        expect(holes, "trous dans les paragraphes justifiés").toEqual([]);
+        if (size.name === "ordinateur") {
+          const measure = a.justified.filter((j) => j.lines > 2 && (j.chars < 45 || j.chars > 75));
+          expect(measure, "mesure hors de 45–75 caractères par ligne").toEqual([]);
+        }
+      });
+    }
+  });
+}

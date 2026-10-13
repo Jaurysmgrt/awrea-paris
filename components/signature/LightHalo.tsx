@@ -1,14 +1,13 @@
 "use client";
 /**
- * SIGNATURE 1 — La lumière dorée.
- * « La couleur n'est pas au rendez-vous mais la lumière de la dorure suffit à révéler l'essentiel. »
- * Sur les sections noires, le curseur diffuse un halo doré très doux qui révèle la dentelle
+ * SIGNATURE 1 — Le halo de lumière.
+ * Sur les sections noires, le curseur diffuse un halo blanc très doux qui révèle la dentelle
  * cachée dans le fond. Au tactile, la lumière suit le doigt puis dérive lentement d'elle-même.
  */
 import { useEffect, useRef } from "react";
 import { isTouch, prefersReducedMotion } from "@/lib/motion";
 
-export function GoldenLight({ className, intensity = 1, active = true }: { className?: string; intensity?: number; active?: boolean }) {
+export function LightHalo({ className, intensity = 1, active = true }: { className?: string; intensity?: number; active?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -107,9 +106,9 @@ export function GoldenLight({ className, intensity = 1, active = true }: { class
   }, [active]);
 
   return (
-    <div ref={ref} className={`golden-light ${className ?? ""}`} style={{ "--gl-intensity": intensity } as React.CSSProperties} aria-hidden="true">
-      <div className="golden-light__lace" />
-      <div className="golden-light__halo" />
+    <div ref={ref} className={`light-halo ${className ?? ""}`} style={{ "--gl-intensity": intensity } as React.CSSProperties} aria-hidden="true">
+      <div className="light-halo__lace" />
+      <div className="light-halo__halo" />
     </div>
   );
 }

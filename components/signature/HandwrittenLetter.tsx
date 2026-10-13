@@ -1,9 +1,9 @@
 "use client";
 /**
- * SIGNATURE 4 — Lettre manuscrite.
- * Le texte de la créatrice s'écrit à l'écran au fil du scroll : chaque ligne est un tracé SVG
- * révélé de gauche à droite derrière une plume dorée, puis la signature « La Créatrice »
- * et son paraphe se dessinent. Sur petit écran, les lignes sont recoupées pour rester lisibles.
+ * SIGNATURE 4 — La lettre de la créatrice.
+ * Le texte de la créatrice apparaît au fil du scroll, en Instrument Serif : chaque ligne est
+ * révélée de gauche à droite, puis la signature « La Créatrice » et son paraphe se dessinent d'un
+ * trait noir fin. Sur petit écran, les lignes sont recoupées pour rester lisibles.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { loadGsap, prefersReducedMotion } from "@/lib/motion";

@@ -95,7 +95,7 @@ export function SizeFinder({ product, onPick }: { product: Product; onPick: (siz
           <>
             <p className="t-body size-finder__advice">{advice.message}</p>
             {advice.offered ? (
-              <button type="button" className="btn btn--gold" onClick={() => onPick(advice.size)}>
+              <button type="button" className="btn btn--solid" onClick={() => onPick(advice.size)}>
                 Choisir le {advice.size}
               </button>
             ) : null}

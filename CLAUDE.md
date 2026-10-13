@@ -29,22 +29,34 @@ et parcours Playwright doivent être verts.
   shopify, customers, auth, security, agents, ai, marketing, consent, search, seo, prefs).
 - `content/` textes (fr), identité, réglages, registre légal (`content/legal/fields.ts`).
 - `styles/` tokens et couches CSS · `supabase/` migrations, tests, configuration.
-- Documents : `PLAN.md`, `JOURNAL.md` (à tenir à jour), `SECURITE.md`, `LEGAL-A-COMPLETER.md`,
-  `docs/VEILLE-DESIGN-2026.md`.
+- Documents : `MARQUE.md` (référence de la marque), `PLAN.md`, `JOURNAL.md` (à tenir à jour),
+  `SECURITE.md`, `LEGAL-A-COMPLETER.md`, `DESIGN.md`, `docs/EQUIPES.md`, `docs/VEILLE-DESIGN-2026.md`.
 
-## Design et contenu
+## Design et contenu (référence : `MARQUE.md`)
 
-- Palette unique : `#0B0B0B`, `#F4F1EB`, `#D9D6D0`, `#B8955A` (et leurs mélanges définis dans
-  `styles/tokens.css`). Polices : Bodoni Moda, Cormorant Garamond italique, Pinyon Script,
-  Jost Light en capitales espacées. Jamais de valeur en dur : passer par les tokens.
+- Palette unique : noir `#0A0A0A`, blanc cassé `#F7F6F3`, gris pierre `#E4E2DD`, gris taupe `#8C8780`
+  (textes secondaires ; `--color-taupe-deep` pour les petits textes sur fond clair). **Aucun doré.**
+- Deux familles : Instrument Serif (titres, très grands, jamais en italique) et Inter Tight (textes
+  300, navigation et boutons en petites capitales espacées 400). Aucune calligraphie, aucun italique.
+- Grille de 8 px : tous les espacements sont des multiples de 8 ; interlignage 1,6 du texte courant ;
+  distances identiques partout (`--space-title`, `--space-paragraph`, `--space-block`,
+  `--space-section`). Jamais de valeur en dur : passer par les tokens (`npm run audit:tokens`).
+- Paragraphes justifiés (règle de `styles/base.css`), césure française, 60 à 70 caractères par ligne,
+  espaces réguliers (`components/typography/Justification.tsx`, contrôlés par
+  `tests/e2e/homogeneite.spec.ts`). Titres, boutons, prix et navigation jamais justifiés.
 - Luxe discret : un message et un appel à l'action par section, beaucoup de blanc, aucune
-  bannière promotionnelle, aucun prix barré, aucun compte à rebours, cinq entrées de menu au plus.
+  bannière promotionnelle, aucun prix barré, cinq entrées de menu au plus.
 - Vocabulaire de maison de couture : « pièce », « la Maison », « l'atelier », « découvrir ».
   Vouvoiement, aucun emoji, aucune urgence artificielle.
-- Paragraphes de texte justifiés (règle de `styles/base.css`), un seul `h1` par page.
-- Mode Nuit (`html[data-mode="dark"]`) et animations apaisées (`html[data-motion="reduce"]`)
-  à respecter dans tout nouveau composant. Accessibilité WCAG 2.1 AA (tests axe).
+- Un seul `h1` par page. Mode Nuit (`html[data-mode="dark"]`) et animations apaisées
+  (`html[data-motion="reduce"]`) à respecter dans tout nouveau composant. WCAG 2.1 AA (tests axe).
 - N'inventer aucune information sur l'entreprise : champ `[À COMPLÉTER]` via le registre légal.
+
+## Équipes d'agents
+
+Le travail est réparti entre des équipes de sous-agents (`.claude/agents/`, organisation et déroulé
+dans `docs/EQUIPES.md`) : plusieurs propositions séparées, un critique indépendant, une fusion, le feu
+vert du chef de projet, puis une réunion de synthèse dans `JOURNAL.md`.
 
 ## Sécurité (ne jamais affaiblir)
 

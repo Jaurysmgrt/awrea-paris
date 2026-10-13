@@ -8,7 +8,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Section } from "@/components/ui/Section";
 import { Media } from "@/components/ui/Media";
 import { ProductCard } from "@/components/commerce/ProductCard";
-import { GoldenLight } from "@/components/signature/GoldenLight";
+import { LightHalo } from "@/components/signature/LightHalo";
 import { identity } from "@/content/brand/identity";
 
 export const revalidate = 300;
@@ -38,11 +38,11 @@ export default async function CollectionPage({ params }: { params: Promise<{ han
         })}
       />
       <Section theme="ink" as="header" className="collection-hero" labelledBy="collection-h1">
-        <GoldenLight />
+        <LightHalo />
         <div className="container collection-hero__inner">
           <Breadcrumbs items={[{ name: "Collections", path: "/collections" }, { name: c.title, path: `/collections/${c.handle}` }]} />
           <p className="eyebrow">{c.season}</p>
-          <h1 id="collection-h1" className="t-script t-script--xl collection-hero__title handwrite">
+          <h1 id="collection-h1" className="t-giant collection-hero__title">
             {c.title}
           </h1>
           <p className="t-lead collection-hero__lead">{c.lead}</p>
@@ -63,7 +63,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ han
               <p key={t}>{t}</p>
             ))}
           </div>
-          <p className="t-script collection-sign">{identity.founderTitle}</p>
+          <p className="t-label collection-sign">{identity.founderTitle}</p>
         </div>
       </Section>
 

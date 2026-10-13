@@ -90,7 +90,7 @@ export function Sketchbook() {
               <path key={i} d={d} pathLength={1} className="sketch__line" />
             ))}
             {s.gold.map((d, i) => (
-              <path key={`g${i}`} d={d} pathLength={1} className="sketch__gold" />
+              <path key={`g${i}`} d={d} pathLength={1} className="sketch__accent" />
             ))}
           </svg>
           <figcaption className="t-note t-center">{s.title}</figcaption>

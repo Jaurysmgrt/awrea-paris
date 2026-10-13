@@ -66,8 +66,6 @@
   }
   .hero__title {
     color: var(--color-ivory);
-    /* compense la marge de la plume (.handwrite) */
-    margin-block: calc(-1 * var(--spacing-s) - 0.2em);
   }
   .hero__lead {
     max-width: 30ch;
@@ -86,7 +84,7 @@
     content: "";
     width: var(--border-width-hair);
     height: var(--spacing-l);
-    background: linear-gradient(to bottom, transparent, var(--color-gold) 35%, var(--color-gold) 65%, transparent);
+    background: linear-gradient(to bottom, transparent, var(--accent) 35%, var(--accent) 65%, transparent);
     /* transform et opacité seulement : l'animation tourne sur le compositeur */
     animation: scroll-line var(--dur-breath) var(--ease-drape) infinite;
   }
@@ -157,7 +155,7 @@
     gap: var(--spacing-l);
   }
   .manifesto__script {
-    color: var(--gold-text);
+    color: var(--accent);
   }
   .manifesto__quote {
     display: grid;
@@ -166,7 +164,7 @@
     max-width: var(--container-text);
   }
   .manifesto__quote footer {
-    color: var(--gold-text);
+    color: var(--accent);
   }
 
   /* ============================================================ SHOP THE LOOK */
@@ -292,7 +290,7 @@
     padding-bottom: var(--spacing-xl);
   }
   .collection-hero__title {
-    color: var(--gold-text);
+    color: var(--accent);
   }
   .collection-hero__lead {
     max-width: var(--container-text);
@@ -456,7 +454,7 @@
   .handmade__mark {
     width: var(--spacing-xs);
     height: var(--spacing-xs);
-    background: var(--color-gold);
+    background: var(--accent);
     transform: rotate(45deg);
     flex: none;
   }
@@ -645,7 +643,7 @@
     font-family: var(--font-display);
     font-size: var(--text-step-5);
     line-height: var(--leading-tight);
-    color: var(--gold-text);
+    color: var(--accent);
   }
   .sketchbook {
     display: grid;
@@ -660,7 +658,7 @@
     overflow: visible;
   }
   .sketch__line,
-  .sketch__gold {
+  .sketch__accent {
     fill: none;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -672,8 +670,8 @@
     stroke: var(--color-ink);
     stroke-width: 1;
   }
-  .sketch__gold {
-    stroke: var(--color-gold);
+  .sketch__accent {
+    stroke: var(--accent);
     stroke-width: 1.5;
   }
   .sketch figcaption {
@@ -788,7 +786,7 @@
   .pull-quote {
     margin-block: var(--spacing-xl);
     padding-left: var(--spacing-m);
-    border-left: var(--border-width-hair) solid var(--color-gold);
+    border-left: var(--border-width-hair) solid var(--accent);
     font-style: normal;
   }
   .pull-quote p {
@@ -852,7 +850,6 @@
     }
   }
   .contact__address {
-    font-style: italic;
   }
   .form__row {
     display: grid;
@@ -1003,9 +1000,15 @@
   .legal__box {
     display: grid;
     gap: var(--spacing-xs);
-    padding: var(--spacing-m);
-    border: var(--border-width-hair) solid var(--color-gold);
-    background: color-mix(in oklab, var(--color-gold) 5%, transparent);
+    /* petits téléphones : marges intérieures réduites, la colonne de texte reste large */
+    padding: var(--spacing-s);
+    border: var(--border-width-hair) solid var(--accent);
+    background: color-mix(in oklab, var(--accent) 5%, transparent);
+  }
+  @media (min-width: 30rem) {
+    .legal__box {
+      padding: var(--spacing-m);
+    }
   }
   .legal__model p {
     margin: 0;
@@ -1073,9 +1076,9 @@
     font-style: normal;
     font-size: 0.85em; /* token-ok : proportionnel au texte qui l'entoure */
     letter-spacing: var(--tracking-snug);
-    color: var(--gold-text);
-    background: color-mix(in oklab, var(--color-gold) 16%, transparent);
-    border-bottom: var(--border-width-hair) dashed var(--color-gold);
+    color: var(--accent);
+    background: color-mix(in oklab, var(--accent) 16%, transparent);
+    border-bottom: var(--border-width-hair) dashed var(--accent);
   }
   .withdrawal__summary {
     display: grid;
@@ -1109,7 +1112,7 @@
     gap: var(--spacing-s) var(--spacing-m);
   }
   .account__saved {
-    color: var(--gold-text);
+    color: var(--accent);
   }
   .account-login {
     max-width: var(--container-prose);
@@ -1171,7 +1174,7 @@
     gap: var(--spacing-3xs);
     min-height: var(--spacing-touch);
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
@@ -1182,11 +1185,11 @@
   }
   .tab[aria-selected="true"] {
     color: var(--fg);
-    border-bottom-color: var(--color-gold);
+    border-bottom-color: var(--accent);
   }
   .tab__count {
     font-size: var(--text-step--2);
-    color: var(--gold-text);
+    color: var(--accent);
   }
   .tabs__panel:focus-visible {
     outline: var(--border-width-hair) solid var(--fg);
@@ -1213,7 +1216,7 @@
       margin-left: calc(-1 * var(--border-width-hair));
     }
     .tab[aria-selected="true"] {
-      border-left-color: var(--color-gold);
+      border-left-color: var(--accent);
     }
     .tabs__panel {
       max-width: var(--container-prose);
@@ -1297,7 +1300,7 @@
     border-top: var(--border-width-hair) solid var(--line);
   }
   .certificates__serial {
-    color: var(--gold-text);
+    color: var(--accent);
     letter-spacing: var(--tracking-label-wide, 0.2em);
   }
   @media (min-width: 48rem) {

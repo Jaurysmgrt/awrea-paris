@@ -1,7 +1,7 @@
 "use client";
 /**
  * SIGNATURE 8 — L'enveloppe.
- * À la confirmation de commande, une enveloppe ivoire scellée d'un cachet doré « AW »
+ * À la confirmation de commande, une enveloppe blanc cassé scellée d'un cachet noir « AW »
  * s'ouvre : le cachet cède, le rabat se soulève, la lettre de remerciement glisse vers vous.
  */
 import { useEffect, useRef } from "react";

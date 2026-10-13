@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
 import { ContactForm } from "@/components/ui/ContactForm";
-import { GoldenLight } from "@/components/signature/GoldenLight";
+import { LightHalo } from "@/components/signature/LightHalo";
 
 export const metadata = pageMetadata({ ...contact.seo, path: "/contact" });
 
@@ -53,7 +53,7 @@ export default function ContactPage() {
         </div>
       </Section>
       <Section theme="ink" className="section--tall" id="rendez-vous" labelledBy="rdv-title">
-        <GoldenLight intensity={0.6} />
+        <LightHalo intensity={0.6} />
         <div className="container-prose stack-m">
           <p className="eyebrow">Sur rendez-vous</p>
           <h2 id="rdv-title" className="t-h2">

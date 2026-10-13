@@ -106,7 +106,7 @@
       transition: color var(--dur-fast) var(--ease-silk);
     }
     .site-header__logo:hover {
-      color: var(--color-gold);
+      color: var(--accent);
     }
   }
   .site-header__logo-svg,
@@ -203,18 +203,18 @@
   }
   .site-menu__primary a:hover,
   .site-menu__primary a:focus-visible {
-    color: var(--color-gold);
+    color: var(--accent);
   }
   .site-menu__num {
     min-width: var(--spacing-l);
-    color: var(--color-gold);
+    color: var(--accent);
   }
   .site-menu__aside {
     display: grid;
     gap: var(--spacing-l);
   }
   .site-menu__quote {
-    color: var(--color-gold);
+    color: var(--accent);
     font-size: var(--text-step-3);
   }
   .site-menu__light {
@@ -275,7 +275,7 @@
     display: flex;
     align-items: center;
     min-height: var(--spacing-touch);
-    color: var(--gold-text);
+    color: var(--accent);
   }
   .search__input {
     width: 100%;
@@ -305,7 +305,7 @@
   }
   .search__input:focus-visible {
     outline: none;
-    border-bottom-color: var(--color-gold);
+    border-bottom-color: var(--accent);
   }
   .search__suggest {
     display: grid;
@@ -382,7 +382,7 @@
     }
     .search__piece:hover .search__piece-title,
     .search__row:hover .search__row-title {
-      color: var(--gold-text);
+      color: var(--accent);
     }
   }
 
@@ -422,7 +422,7 @@
     transition: color var(--dur-fast) var(--ease-silk);
   }
   .site-footer__logo:hover {
-    color: var(--color-gold);
+    color: var(--accent);
   }
   .site-footer__brand {
     display: grid;
@@ -431,7 +431,7 @@
   }
   .site-footer__script {
     font-size: var(--text-step-3);
-    color: var(--gold-text);
+    color: var(--accent);
     text-align: left;
   }
   .site-footer__desc {
@@ -530,7 +530,6 @@
     --fg: var(--color-ink);
     --fg-soft: var(--color-ink-soft);
     --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
-    --gold-text: var(--color-gold-deep);
     position: fixed;
     inset: auto 0 0 0;
     z-index: var(--z-cookie);
@@ -539,7 +538,7 @@
     overscroll-behavior: contain;
     background: var(--bg);
     color: var(--fg);
-    border-top: var(--border-width-hair) solid var(--color-gold);
+    border-top: var(--border-width-hair) solid var(--accent);
     padding-block: var(--spacing-s) calc(var(--spacing-s) + env(safe-area-inset-bottom));
     animation: consent-in var(--dur-slow) var(--ease-silk) var(--dur-base) both;
   }
@@ -549,7 +548,6 @@
     --fg: var(--color-ivory);
     --fg-soft: var(--color-ivory-soft);
     --line: color-mix(in oklab, var(--color-ivory) 20%, transparent);
-    --gold-text: var(--color-gold);
   }
   @keyframes consent-in {
     from {
@@ -570,7 +568,7 @@
     gap: var(--spacing-3xs);
   }
   .consent__title {
-    color: var(--gold-text);
+    color: var(--accent);
   }
   .consent__text {
     max-width: var(--container-prose);
@@ -702,11 +700,11 @@
       border-color var(--dur-fast) var(--ease-silk);
   }
   .switch input:checked + .switch__track::before {
-    border-color: var(--color-gold);
+    border-color: var(--accent);
   }
   .switch input:checked + .switch__track::after {
-    background: var(--color-gold);
-    border-color: var(--color-gold);
+    background: var(--accent);
+    border-color: var(--accent);
     transform: translate(calc(var(--spacing-l) - var(--spacing-xs)), -50%) rotate(45deg) scale(0.8);
   }
   .switch input:focus-visible + .switch__track {
@@ -797,7 +795,7 @@
   .drawer__progress span {
     display: block;
     height: 100%;
-    background: var(--color-gold);
+    background: var(--accent);
     transform-origin: 0 50%;
     transition: transform var(--dur-slow) var(--ease-silk);
   }

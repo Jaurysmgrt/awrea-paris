@@ -1,40 +1,26 @@
 /**
- * Polices du site. Pour passer aux polices officielles de la marque :
+ * Les deux familles du site. Pour passer à des fichiers fournis par la maison :
  * remplacer ces imports par `next/font/local` en gardant les mêmes noms de variables
- * (--font-bodoni, --font-cormorant, --font-pinyon, --font-jost). Rien d'autre à modifier.
+ * (--font-instrument, --font-inter-tight). Rien d'autre à modifier.
  */
-import { Bodoni_Moda, Cormorant_Garamond, Jost, Pinyon_Script } from "next/font/google";
+import { Instrument_Serif, Inter_Tight } from "next/font/google";
 
-export const bodoni = Bodoni_Moda({
-  subsets: ["latin"],
-  weight: ["400"],
-  style: ["normal"],
-  variable: "--font-bodoni",
-  display: "swap",
-});
-
-export const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["400"],
-  style: ["italic", "normal"],
-  variable: "--font-cormorant",
-  display: "swap",
-});
-
-export const pinyon = Pinyon_Script({
+/** Titres : serif contemporain, fin, en très grand format. Jamais d'italique. */
+export const instrument = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
-  variable: "--font-pinyon",
+  style: ["normal"],
+  variable: "--font-instrument",
   display: "swap",
-  // calligraphie réservée aux grands titres : chargée sans préchargement pour libérer la bande passante
-  preload: false,
 });
 
-export const jost = Jost({
+/** Textes, navigation et boutons : grotesque épurée, graisses légères (300 et 400). */
+export const interTight = Inter_Tight({
   subsets: ["latin"],
-  weight: ["300"],
-  variable: "--font-jost",
+  weight: ["300", "400", "500"],
+  style: ["normal"],
+  variable: "--font-inter-tight",
   display: "swap",
 });
 
-export const fontVariables = [bodoni.variable, cormorant.variable, pinyon.variable, jost.variable].join(" ");
+export const fontVariables = [instrument.variable, interTight.variable].join(" ");

@@ -4,8 +4,8 @@ import { SplitTitle } from "./SplitTitle";
 
 /**
  * En-tête de page commun : fil d'Ariane, surtitre, H1 unique écrit au chargement, chapeau.
- * « giant » : pages éditoriales, où le titre devient une affiche (Bodoni géant face aux
- * petites capitales espacées du surtitre).
+ * « giant » : pages éditoriales, où le titre devient une affiche (Instrument Serif géant face
+ * aux petites capitales espacées du surtitre).
  */
 export function PageHeader({
   title,
@@ -13,7 +13,6 @@ export function PageHeader({
   eyebrow,
   crumbs,
   theme = "ivory",
-  script = false,
   giant = false,
   children,
 }: {
@@ -22,7 +21,6 @@ export function PageHeader({
   eyebrow?: string;
   crumbs: { name: string; path: string }[];
   theme?: "ink" | "ivory" | "paper" | "pearl";
-  script?: boolean;
   giant?: boolean;
   children?: React.ReactNode;
 }) {
@@ -31,7 +29,7 @@ export function PageHeader({
       <div className="container page-head">
         <Breadcrumbs items={crumbs} />
         {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
-        <SplitTitle text={title} script={script} className={script ? "t-script t-script--xl" : giant ? "t-giant" : "t-display"} />
+        <SplitTitle text={title} className={giant ? "t-giant" : "t-display"} />
         {lead ? <p className="t-lead page-head__lead">{lead}</p> : null}
         {children}
       </div>

@@ -3,7 +3,7 @@ import { identity } from "@/content/brand/identity";
 import { nav } from "@/content/fr/pages";
 import { Logo } from "@/components/brand/Logo";
 import { NewsletterForm } from "@/components/ui/NewsletterForm";
-import { GoldenLight } from "@/components/signature/GoldenLight";
+import { LightHalo } from "@/components/signature/LightHalo";
 import { CookieSettingsButton } from "@/components/consent/ConsentProvider";
 import { DisplayPrefs } from "@/components/ui/DisplayPrefs";
 import { EcoFootprint } from "./EcoFootprint";
@@ -12,14 +12,14 @@ export function Footer() {
   const year = new Date().getFullYear();
   return (
     <footer className="site-footer scene" data-theme="ink">
-      <GoldenLight intensity={0.7} />
+      <LightHalo intensity={0.7} />
       <div className="container site-footer__inner">
         <div className="site-footer__brand">
           <Link href="/" className="site-footer__logo">
             <Logo decorative />
             <span className="sr-only">Awrea Paris — accueil</span>
           </Link>
-          <p className="t-script site-footer__script">Consommer plus juste</p>
+          <p className="t-h2 site-footer__script">Consommer plus juste</p>
           <p className="t-note site-footer__desc">{identity.shortDescription}</p>
         </div>
 

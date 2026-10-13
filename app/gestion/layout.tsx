@@ -24,7 +24,7 @@ export default async function GestionLayout({ children }: { children: React.Reac
         <Link href="/gestion" className="admin__logo" aria-label="Atelier — accueil du tableau de bord">
           <Logo />
         </Link>
-        <p className="t-script admin__title">Atelier</p>
+        <p className="t-h3 admin__title">Atelier</p>
         <AdminNav counts={counts} />
         <div className="admin__modes">
           <span className="badge">{commerceMode === "shopify" ? "Shopify" : "Démonstration"}</span>

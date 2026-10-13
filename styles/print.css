@@ -17,7 +17,6 @@
     --fg: var(--color-ink);
     --fg-soft: var(--color-ink-soft);
     --line: color-mix(in oklab, var(--color-ink) 25%, transparent);
-    --gold-text: var(--color-gold-deep);
     background: none !important;
     color: var(--color-ink) !important;
   }
@@ -31,7 +30,7 @@
   .assistant-launcher,
   .assistant,
   .skip-link,
-  .golden-light,
+  .light-halo,
   .no-print,
   .envelope,
   .breadcrumb {

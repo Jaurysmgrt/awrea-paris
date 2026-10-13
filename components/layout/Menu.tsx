@@ -4,12 +4,12 @@ import { useEffect, useRef } from "react";
 import { nav } from "@/content/fr/pages";
 import { identity } from "@/content/brand/identity";
 import { roman } from "@/lib/format";
-import { GoldenLight } from "@/components/signature/GoldenLight";
+import { LightHalo } from "@/components/signature/LightHalo";
 import { DisplayPrefs } from "@/components/ui/DisplayPrefs";
 import { useWishlist } from "@/components/commerce/WishlistProvider";
 
 /**
- * Menu plein écran, sur fond noir et dentelle révélée par la lumière dorée.
+ * Menu plein écran, sur fond noir et dentelle révélée par un halo de lumière blanche.
  * Il accueille tout ce que l'en-tête, volontairement réduit à cinq entrées, ne montre pas.
  */
 export function Menu({ open, onClose, onSearch }: { open: boolean; onClose: () => void; onSearch: () => void }) {
@@ -38,7 +38,7 @@ export function Menu({ open, onClose, onSearch }: { open: boolean; onClose: () =
 
   return (
     <div id="site-menu" ref={ref} className="site-menu" data-theme="ink" data-open={open} aria-hidden={!open} inert={!open}>
-      <GoldenLight className="site-menu__light" active={open} />
+      <LightHalo className="site-menu__light" active={open} />
       <div className="site-menu__inner container">
         <nav aria-label="Menu" className="site-menu__primary">
           <ol>
@@ -92,7 +92,7 @@ export function Menu({ open, onClose, onSearch }: { open: boolean; onClose: () =
             </li>
           </ul>
           <DisplayPrefs id="menu" className="site-menu__prefs" />
-          <p className="t-script site-menu__quote">{identity.tagline.replace(".", "")}</p>
+          <p className="t-h3 site-menu__quote">{identity.tagline.replace(".", "")}</p>
         </div>
       </div>
     </div>

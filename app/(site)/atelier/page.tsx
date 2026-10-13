@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
 import { Media } from "@/components/ui/Media";
 import { VideoLazy } from "@/components/ui/VideoLazy";
-import { GoldenLight } from "@/components/signature/GoldenLight";
+import { LightHalo } from "@/components/signature/LightHalo";
 import { Sketchbook } from "@/components/atelier/Sketchbook";
 
 export const metadata = pageMetadata({ ...atelier.seo, path: "/atelier", image: "/media/img/atelier-2" });
@@ -47,7 +47,7 @@ export default function AtelierPage() {
         <div className="container">
           <header className="section-head">
             <p className="eyebrow">{atelier.sketches.eyebrow}</p>
-            <h2 id="sketch-title" className="t-script">
+            <h2 id="sketch-title" className="t-h2">
               {atelier.sketches.title}
             </h2>
           </header>
@@ -56,7 +56,7 @@ export default function AtelierPage() {
       </Section>
 
       <Section theme="ink" className="section--tall" labelledBy="films-title">
-        <GoldenLight intensity={0.7} />
+        <LightHalo intensity={0.7} />
         <div className="container">
           <header className="section-head">
             <p className="eyebrow">Films d’atelier</p>

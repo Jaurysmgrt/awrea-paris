@@ -3,7 +3,7 @@
  *
  * Conventions d'écriture (interprétées par components/legal/LegalText.tsx) :
  *  - {{cle}}            information de l'entreprise (content/legal/fields.ts) : affichée telle quelle
- *                       si elle est renseignée, sinon repère doré « [À COMPLÉTER : …] » bien visible ;
+ *                       si elle est renseignée, sinon repère « [À COMPLÉTER : …] » bien visible ;
  *  - [libellé](/chemin) lien ;
  *  - **texte**          mise en valeur.
  * Aucune information sur l'entreprise n'est écrite en dur ici. Les conditions commerciales

@@ -40,7 +40,7 @@
     color: var(--color-ivory);
   }
   .admin__title {
-    color: var(--color-gold);
+    color: var(--accent);
     font-size: var(--text-step-3);
     line-height: 1;
   }
@@ -80,7 +80,7 @@
     min-height: var(--spacing-touch);
     padding: var(--spacing-2xs) var(--spacing-xs);
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
@@ -92,13 +92,13 @@
   }
   .admin-nav__link:hover,
   .admin-nav__link[aria-current="page"] {
-    border-left-color: var(--color-gold);
-    color: var(--color-gold);
+    border-left-color: var(--accent);
+    color: var(--accent);
   }
   .admin-nav__count {
     min-width: var(--spacing-m);
     padding: 0 var(--spacing-3xs);
-    background: var(--color-gold);
+    background: var(--accent);
     color: var(--color-ink);
     text-align: center;
   }
@@ -161,7 +161,7 @@
     padding: var(--spacing-3xs) var(--spacing-2xs);
     border: var(--border-width-hair) solid currentColor;
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-snug);
     text-transform: uppercase;
@@ -175,8 +175,8 @@
   }
   .status--proposed,
   .status--pending {
-    border-color: var(--color-gold);
-    box-shadow: inset var(--spacing-3xs) 0 0 var(--color-gold); /* token-ok : filet doré, pas une ombre */
+    border-color: var(--accent);
+    box-shadow: inset var(--spacing-3xs) 0 0 var(--accent); /* token-ok : filet doré, pas une ombre */
   }
   .status--failed,
   .status--rejected {
@@ -195,7 +195,7 @@
     border: var(--border-width-hair) solid var(--line);
   }
   .proposal[data-status="pending"] {
-    border-left: var(--spacing-3xs) solid var(--color-gold);
+    border-left: var(--spacing-3xs) solid var(--accent);
   }
   .proposal__head {
     display: flex;
@@ -221,7 +221,7 @@
   }
   .message__body {
     padding-left: var(--spacing-s);
-    border-left: var(--border-width-hair) solid var(--color-gold);
+    border-left: var(--border-width-hair) solid var(--accent);
     white-space: pre-line;
   }
   .message__draft {
@@ -254,7 +254,7 @@
     border-top: var(--border-width-hair) solid var(--color-ink);
   }
   .team__last {
-    border-left: var(--border-width-hair) solid var(--color-gold);
+    border-left: var(--border-width-hair) solid var(--accent);
     padding-left: var(--spacing-2xs);
   }
 
@@ -283,7 +283,6 @@
   }
   .log__summary {
     text-align: left;
-    font-style: italic;
   }
   .log__detail {
     white-space: pre-line;
@@ -405,7 +404,7 @@
     color: var(--color-ivory);
   }
   .admin-login__title {
-    color: var(--color-gold);
+    color: var(--accent);
   }
   .admin-login__form {
     width: 100%;
@@ -415,7 +414,7 @@
     margin-inline: auto;
     padding: var(--spacing-s);
     background: var(--color-ivory);
-    border: var(--border-width-hair) solid var(--color-gold);
+    border: var(--border-width-hair) solid var(--accent);
   }
   .totp-qr svg {
     display: block;

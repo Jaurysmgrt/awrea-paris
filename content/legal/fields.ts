@@ -2,7 +2,7 @@
  * Informations légales de l'entreprise — REGISTRE UNIQUE.
  *
  * Aucune de ces informations n'est inventée : tant qu'un champ est vide, il s'affiche sur le
- * site sous la forme d'un repère doré « [À COMPLÉTER : …] » bien visible, et il est listé dans
+ * site sous la forme d'un repère « [À COMPLÉTER : …] » bien visible, et il est listé dans
  * LEGAL-A-COMPLETER.md (régénéré par `npm run legal:todo`).
  * Pour compléter : renseigner `value`, puis relancer `npm run legal:todo`.
  *

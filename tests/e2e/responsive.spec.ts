@@ -42,8 +42,8 @@ for (const vp of VIEWPORTS) {
           }
           const imgsNoAlt = Array.from(document.querySelectorAll("img")).filter((i) => !i.hasAttribute("alt")).length;
           const badJustify = Array.from(document.querySelectorAll("main h1, main h2, main h3, main .btn, main .price, main nav a")).filter((el) => getComputedStyle(el).textAlign === "justify").length;
-          // mêmes exclusions que la règle de styles/base.css : étiquettes, titres, prix, citations calligraphiées
-          const notText = ".t-label, .eyebrow, .price, .t-h1, .t-h2, .t-h3, .t-h4, .t-display, .t-script, .t-center, .t-left, .badge";
+          // mêmes exclusions que la règle de styles/base.css : étiquettes, titres, prix, boutons
+          const notText = ".t-label, .eyebrow, .price, .t-h1, .t-h2, .t-h3, .t-h4, .t-display, .t-giant, .t-center, .t-left, .badge";
           const prose = Array.from(document.querySelectorAll(`main .prose p:not(${notText}), main p.t-body:not(${notText})`)).filter((p) => p.tagName === "P");
           const notJustified = prose.filter((p) => getComputedStyle(p).textAlign !== "justify").length;
           return { overflow: de.scrollWidth - de.clientWidth, offenders, h1: document.querySelectorAll("h1").length, imgsNoAlt, badJustify, notJustified, lang: de.lang };

@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
 import { Media } from "@/components/ui/Media";
 import { HandwrittenLetter } from "@/components/signature/HandwrittenLetter";
-import { GoldenLight } from "@/components/signature/GoldenLight";
+import { LightHalo } from "@/components/signature/LightHalo";
 import { roman } from "@/lib/format";
 
 export const metadata = pageMetadata({ ...maison.seo, path: "/la-maison", image: "/media/img/creatrice" });
@@ -40,7 +40,7 @@ export default function MaisonPage() {
 
       {maison.story.map((s, i) => (
         <Section key={s.title} theme={i === 1 ? "ink" : "ivory"} className="section--tall story" labelledBy={`story-${i}`}>
-          {i === 1 ? <GoldenLight /> : null}
+          {i === 1 ? <LightHalo /> : null}
           <div className="container grid-12">
             <p className="story__num step__num" aria-hidden="true">
               {roman(i + 1)}
@@ -72,11 +72,11 @@ export default function MaisonPage() {
       </Section>
 
       <Section theme="ink" className="section--tall" labelledBy="manifeste-title">
-        <GoldenLight />
+        <LightHalo />
         <div className="container">
           <header className="section-head t-center manifesto-head">
             <p className="eyebrow">Manifeste</p>
-            <h2 id="manifeste-title" className="t-script t-script--xl manifesto__script">
+            <h2 id="manifeste-title" className="t-display manifesto__script">
               {maison.manifesto.title}
             </h2>
           </header>
@@ -90,7 +90,7 @@ export default function MaisonPage() {
             ))}
           </ol>
           <div className="t-center manifesto-cta">
-            <Link href="/atelier" className="btn btn--gold">
+            <Link href="/atelier" className="btn btn--solid">
               Entrer dans l’atelier
             </Link>
           </div>

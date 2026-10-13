@@ -15,7 +15,7 @@ export default async function SilhouettesPage() {
   const withProducts = await Promise.all(looks.map(async (l) => ({ look: l, products: await getProductsByHandles(l.hotspots.map((h) => h.product)) })));
   return (
     <>
-      <PageHeader title={silhouettes.h1} lead={silhouettes.lead} crumbs={[{ name: "Silhouettes", path: "/silhouettes" }]} script />
+      <PageHeader title={silhouettes.h1} lead={silhouettes.lead} crumbs={[{ name: "Silhouettes", path: "/silhouettes" }]} />
       {withProducts.map(({ look, products }, i) => (
         <Section key={look.handle} theme={i % 2 ? "pearl" : "ivory"} className="section--tall" labelledBy={`look-${look.handle}`} id={look.handle}>
           <div className={`container grid-12 silhouette ${i % 2 ? "silhouette--flip" : ""}`}>

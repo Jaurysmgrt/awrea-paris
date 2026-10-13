@@ -55,17 +55,23 @@ tests/                    Playwright : responsive, débordements, parcours d'ach
   démonstration déterministe pour que tout reste testable.
 - **Déploiement** : Vercel, `vercel.json` avec Vercel Cron pour les agents.
 
-## 2. Design system (une seule source : `styles/tokens.css`)
-- Couleurs : `--ink #0B0B0B`, `--ivory #F4F1EB`, `--pearl #D9D6D0`, `--gold #B8955A`. Rien d'autre
-  (les nuances intermédiaires sont des mélanges `color-mix` de ces quatre couleurs).
-- Typos : Bodoni Moda (titres), Cormorant Garamond italique (textes), Pinyon Script (grands titres
-  éditoriaux uniquement), Jost Light capitales espacées (nav, boutons, étiquettes). Variables
-  `--font-*` : remplaçables par les polices officielles en un seul endroit.
-- Échelle typographique fluide unique (`--step--2` → `--step-6`, clamp), échelle d'espacements unique
-  (`--space-3xs` → `--space-4xl`), une grille 12 colonnes, gouttières fluides.
+## 2. Design system (une seule source : `styles/tokens.css` ; référence de marque : `MARQUE.md`)
+> Mis à jour le 13/10/2026 (nouvelle direction artistique, § 12) : la palette dorée et les polices
+> Bodoni, Cormorant, Pinyon et Jost sont abandonnées.
+- Couleurs : noir `#0A0A0A`, blanc cassé `#F7F6F3`, gris pierre `#E4E2DD`, gris taupe `#8C8780`
+  (textes secondaires). Rien d'autre : les nuances sont des mélanges `color-mix` de ces quatre
+  couleurs (taupe profond pour les petits textes sur fond clair, contraste AA). Aucun doré.
+- Typos : Instrument Serif (titres, très grands formats, jamais d'italique) et Inter Tight (textes
+  300, navigation et boutons en petites capitales espacées 400). Variables `--font-*` remplaçables
+  en un seul endroit (`app/fonts.ts`).
+- Échelle typographique par paliers (mobile, 480, 768, 1024, 1440 px), interlignage 1,6 du texte
+  courant, interlignages des titres multiples de 8 px ; espacements multiples de 8 px ; rythme
+  vertical commun (`--space-title`, `--space-paragraph`, `--space-block`, `--space-section`) ; une
+  grille 12 colonnes, mêmes marges partout.
 - Mouvement : 3 durées (`--dur-fast 0.4s`, `--dur-base 0.9s`, `--dur-slow 1.6s`), 2 courbes
   (`--ease-silk`, `--ease-drape`). Tout est coupé sous `prefers-reduced-motion`.
-- Paragraphes justifiés avec césure française (`lang="fr"`, `hyphens: auto`), titres/boutons/prix jamais.
+- Paragraphes justifiés avec césure française (`lang="fr"`, `hyphens: auto`), mesure de 60 à 70
+  caractères, espaces équilibrés paragraphe par paragraphe ; titres, boutons, prix, navigation jamais.
 - Aucun coin arrondi, aucune ombre portée, aucun dégradé décoratif, aucun emoji.
 
 ## 3. Pages
@@ -76,15 +82,15 @@ Confidentialité · Cookies · Panier latéral · Commande (mode test) · Confir
 Compte (commandes, retours, adresses, liste d'envies) · Liste d'envies.
 
 ## 4. Interactions signature
-1. Lumière dorée (masque radial suivant le curseur sur la texture dentelle, dérive lente au tactile)
+1. Halo de lumière blanche (masque radial suivant le curseur sur la texture dentelle, dérive lente au tactile) — anciennement « lumière dorée »
 2. Révélation en dentelle de la vidéo d'ouverture (masque dentelle SVG qui s'ouvre)
 3. Transitions drapées (shader OGL de tissu qui glisse, repli en fondu)
-4. Lettre manuscrite tracée au scroll, signée « La Créatrice »
+4. Lettre de la créatrice révélée au scroll (Instrument Serif), signée « La Créatrice » d'un trait fin
 5. Pièces numérotées façon certificat (« N° 3 / 5 », pièces restantes)
 6. Loupe dentelle (curseur ; appui long au tactile)
 7. Shop the look (points interactifs accessibles au clavier)
 8. Enveloppe de confirmation de commande
-9. Alternance noir/ivoire au scroll
+9. Alternance noir / blanc cassé au scroll
 
 ## 5. Parcours d'achat
 Panier latéral · tunnel court sans compte · moyens de paiement (Shopify) · stocks par taille ·
@@ -196,8 +202,34 @@ mensuels proposés par l'agent Rapport · revue finale façon jury Awwwards dans
 - **Exploitation** : intégration continue, maintenance quotidienne par Claude Code (réparation testée, fusion
   automatique au vert), contrôle après mise en ligne avec retour automatique, sauvegardes, contrôle hebdomadaire.
 
+## 12. Nouvelle direction artistique, design multi-agents, équipes d'agents (quatrième à sixième messages)
+
+Ordre des étapes (tenu par le chef de projet, `docs/EQUIPES.md`) :
+
+1. **Fondations de la nouvelle DA** (remplacent les consignes précédentes sur la typographie, le doré
+   et la justification) : palette noir `#0A0A0A` / blanc cassé `#F7F6F3` / gris pierre `#E4E2DD` /
+   gris taupe `#8C8780`, aucun doré (site, e-mails, interactions) ; Instrument Serif + Inter Tight,
+   ni calligraphie ni italique ; justification régulière (césure, mesure de 60–70 caractères,
+   équilibrage des espaces par paragraphe) ; grille de 8 px, interlignage 1,6 ; contrôle automatique
+   `tests/e2e/homogeneite.spec.ts` sur mobile, tablette et ordinateur.
+2. **Organisation** : `MARQUE.md` (référence unique), 34 agents dans `.claude/agents/` répartis en
+   équipes avec chacune son critique indépendant, `docs/EQUIPES.md`.
+3. **Processus de design** : veille (liste noire des codes que tout le monde utilise) → trois
+   directions artistiques séparées (dentelle, atelier, édition) pour l'accueil et la fiche produit →
+   critique (originalité, élégance, lisibilité, achat, cohérence Instagram) et gardien de la marque →
+   fusion → `DESIGN.md` avec les captures des trois propositions et de la version fusionnée →
+   application à tout le site, avec les touches propres à Awrea (motif de dentelle, croquis et
+   annotations, monogramme décliné, numéros d'édition, un détail inattendu par page).
+4. **Équipes au travail** : Contenu (trois voix → critique éditorial → rédacteur final, e-mails
+   compris), E-commerce (cliente mystère : dizaines de commandes test), SEO et IA, Sécurité (attaquant
+   éthique jusqu'à zéro faille), Qualité (responsive, accessibilité, performance, homogénéité),
+   Juridique, Assistant IA (centaines de conversations simulées), Développement (fonctionnalités
+   restantes : drops, avis, archives, maintenance, images de partage, guide, niveau supérieur).
+5. **Revue finale** : le critique design repasse sur toutes les pages pour traquer le « générique » ;
+   revue façon jury Awwwards dans `REVUE.md`, corrections ; réunion de synthèse dans `JOURNAL.md`.
+
 ## Ce qui sera demandé à la fin (impossible à deviner)
-Fichiers du logo, photos et vidéos réelles, accès Shopify (domaine + jetons Storefront/Admin),
+Fichiers du logo, photos et vidéos réelles, croquis et annotations manuscrites scannés de la créatrice, accès Shopify (domaine + jetons Storefront/Admin),
 clé API Anthropic, compte Vercel, clé Resend (e-mails transactionnels) et Brevo ou Klaviyo (e-mails marketing),
 projet Supabase, DSN Sentry, clés Cloudflare Turnstile, identifiants Plausible/GA4, Meta Pixel, Google Ads et Merchant
 Center, jeton Instagram, agenda de la créatrice, mot de passe du tableau de bord, informations légales

@@ -15,7 +15,7 @@ export default async function JournalPage() {
   const [first, ...rest] = articles;
   return (
     <>
-      <PageHeader title={journalPage.h1} lead={journalPage.lead} crumbs={[{ name: "Journal", path: "/journal" }]} script />
+      <PageHeader title={journalPage.h1} lead={journalPage.lead} crumbs={[{ name: "Journal", path: "/journal" }]} />
       <Section theme="ivory" className="section section--flush-top" aria-label="Articles">
         <div className="container">
           {first ? (

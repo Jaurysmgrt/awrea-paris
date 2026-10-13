@@ -1,7 +1,7 @@
 "use client";
 /**
  * SIGNATURE 3 — Transitions drapées.
- * Entre deux pages, un pan de tissu noir monte depuis le bas de l'écran, ourlé d'un fil d'or,
+ * Entre deux pages, un pan de tissu noir monte depuis le bas de l'écran, ourlé d'un fil blanc très fin,
  * couvre la page, puis poursuit sa course et découvre la page suivante.
  * Rendu par un shader OGL léger ; repli en fondu CSS si WebGL est indisponible ;
  * navigation immédiate si l'utilisateur préfère réduire les animations.
@@ -34,7 +34,7 @@ uniform float uTime;
 uniform vec2 uRes;
 uniform vec3 uInk;
 uniform vec3 uPearl;
-uniform vec3 uGold;
+uniform vec3 uThread;
 void main() {
   float x = vUv.x;
   float y = vUv.y;
@@ -49,11 +49,11 @@ void main() {
   fold = pow(fold * 0.5 + 0.5, 4.0);
   float nearEdge = 1.0 - smoothstep(0.0, 0.22, upper - y);
   vec3 col = mix(uInk, uPearl, fold * 0.07 * uAmp + nearEdge * 0.05);
-  // ourlet doré, le long des deux bords du tissu
+  // ourlet : un fil blanc cassé très doux, le long des deux bords du tissu
   float hem = 2.2 * px;
   float hemU = 1.0 - smoothstep(hem * 0.5, hem, abs(y - upper + hem * 2.0));
   float hemL = 1.0 - smoothstep(hem * 0.5, hem, abs(y - lower - hem * 2.0));
-  col = mix(col, uGold, max(hemU, hemL) * 0.95);
+  col = mix(col, uThread, max(hemU, hemL) * 0.55);
   gl_FragColor = vec4(col, inside);
 }
 `;
@@ -82,7 +82,7 @@ async function createGL(canvas: HTMLCanvasElement): Promise<GLState | null> {
         uRes: { value: [window.innerWidth, window.innerHeight] },
         uInk: { value: rgb01(palette.ink) },
         uPearl: { value: rgb01(palette.pearl) },
-        uGold: { value: rgb01(palette.gold) },
+        uThread: { value: rgb01(palette.ivory) },
       },
     });
     const mesh = new Mesh(gl, { geometry: new Triangle(gl), program });
@@ -263,7 +263,7 @@ export function DrapeTransition({ children }: { children: React.ReactNode }) {
       <div className="drape" data-active={active} aria-hidden="true">
         <canvas ref={canvasRef} className="drape__canvas" />
         <div ref={fallbackRef} className="drape__fallback" />
-        {/* luxe discret : pas de monogramme ici, un simple fil d'or pendant que l'étoffe tombe */}
+        {/* luxe discret : pas de monogramme ici, un simple fil blanc pendant que l'étoffe tombe */}
         <div ref={markRef} className="drape__mark">
           <span className="drape__thread" />
         </div>

@@ -25,12 +25,12 @@ export default async function CollectionsPage() {
                 {c.season}
                 {c.current ? " · Collection en cours" : ""}
               </p>
-              <h2 id={`c-${c.handle}`} className="t-script t-script--xl">
+              <h2 id={`c-${c.handle}`} className="t-display">
                 {c.title}
               </h2>
               <p className="t-lead">{c.lead}</p>
               <p className="t-label t-soft">{c.products.length} pièces</p>
-              <Link href={`/collections/${c.handle}`} className={`btn ${i % 2 ? "btn--gold" : ""}`}>
+              <Link href={`/collections/${c.handle}`} className={`btn ${i % 2 ? "btn--solid" : ""}`}>
                 Découvrir {c.title}
               </Link>
             </div>

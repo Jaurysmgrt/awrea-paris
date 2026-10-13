@@ -9,7 +9,7 @@ import { Media } from "@/components/ui/Media";
 import { VideoLazy } from "@/components/ui/VideoLazy";
 import { NewsletterForm } from "@/components/ui/NewsletterForm";
 import { LaceReveal } from "@/components/signature/LaceReveal";
-import { GoldenLight } from "@/components/signature/GoldenLight";
+import { LightHalo } from "@/components/signature/LightHalo";
 import { ShopTheLook } from "@/components/signature/ShopTheLook";
 import { ProductCard } from "@/components/commerce/ProductCard";
 import { InstagramGrid } from "@/components/home/InstagramGrid";
@@ -49,12 +49,12 @@ export default async function HomePage() {
             <h1 id="hero-title" className="t-label t-label--wide hero__h1">
               {home.hero.h1}
             </h1>
-            <p className="t-script t-script--xl hero__title handwrite" aria-hidden="true">
+            <p className="t-giant hero__title" aria-hidden="true">
               {home.hero.title}
             </p>
             <p className="t-lead hero__lead t-center">{home.hero.lead}</p>
             <div className="hero__cta">
-              <Link href={home.hero.cta.href} className="btn btn--gold">
+              <Link href={home.hero.cta.href} className="btn btn--solid">
                 {home.hero.cta.label}
               </Link>
             </div>
@@ -125,10 +125,10 @@ export default async function HomePage() {
 
       {/* ------------------------------------------------ MANIFESTE */}
       <Section theme="ink" className="manifesto section--tall" labelledBy="manifesto-title">
-        <GoldenLight />
+        <LightHalo />
         <div className="container-prose manifesto__inner t-center">
           <p className="eyebrow manifesto__eyebrow">{home.manifesto.eyebrow}</p>
-          <h2 id="manifesto-title" className="t-script t-script--xl manifesto__script" data-reveal>
+          <h2 id="manifesto-title" className="t-display manifesto__script" data-reveal>
             {home.manifesto.script}
           </h2>
           <div className="stack-m manifesto__lines" data-reveal>
@@ -143,7 +143,7 @@ export default async function HomePage() {
             <p className="t-body t-center">« {identity.founderQuote} »</p>
             <footer className="t-label">{identity.founderTitle}</footer>
           </blockquote>
-          <Link href={home.manifesto.cta.href} className="btn btn--gold">
+          <Link href={home.manifesto.cta.href} className="btn btn--solid">
             {home.manifesto.cta.label}
           </Link>
         </div>
@@ -172,7 +172,7 @@ export default async function HomePage() {
 
       {/* ------------------------------------------------ ATELIER */}
       <Section theme="ink" className="section--tall home-atelier" labelledBy="atelier-title">
-        <GoldenLight intensity={0.8} />
+        <LightHalo intensity={0.8} />
         <div className="container grid-12">
           <div className="home-atelier__text stack-m" data-reveal>
             <p className="eyebrow">{home.atelier.eyebrow}</p>
@@ -180,7 +180,7 @@ export default async function HomePage() {
               {home.atelier.title}
             </h2>
             <p className="t-body">{home.atelier.text}</p>
-            <Link href={home.atelier.cta.href} className="btn btn--gold">
+            <Link href={home.atelier.cta.href} className="btn btn--solid">
               {home.atelier.cta.label}
             </Link>
           </div>
@@ -199,7 +199,7 @@ export default async function HomePage() {
       <Section theme="paper" className="section--tall" labelledBy="news-title">
         <div className="container-text letter-card stack-m t-center" data-reveal>
           <p className="eyebrow">{home.newsletter.eyebrow}</p>
-          <h2 id="news-title" className="t-script">
+          <h2 id="news-title" className="t-h2">
             {home.newsletter.title}
           </h2>
           <p className="t-body">{home.newsletter.text}</p>

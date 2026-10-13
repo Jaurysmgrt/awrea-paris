@@ -16,7 +16,7 @@ export function ActionButton({
   body?: unknown;
   label: string;
   busyLabel?: string;
-  variant?: "default" | "solid" | "gold" | "quiet";
+  variant?: "default" | "solid" | "quiet";
   confirm?: string;
   onDone?: (json: Record<string, unknown>) => void;
 }) {
@@ -27,7 +27,7 @@ export function ActionButton({
     <span className="action-button">
       <button
         type="button"
-        className={variant === "quiet" ? "link link--quiet" : `btn ${variant === "solid" ? "btn--solid" : variant === "gold" ? "btn--gold" : ""}`}
+        className={variant === "quiet" ? "link link--quiet" : `btn ${variant === "solid" ? "btn--solid" : ""}`}
         disabled={busy}
         onClick={async () => {
           if (confirm && !window.confirm(confirm)) return;

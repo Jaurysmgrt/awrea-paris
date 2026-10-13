@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import { prefersReducedMotion } from "@/lib/motion";
 
 // les boutons pleine largeur (formulaires) restent immobiles
-const SELECTOR = ".btn--gold:not(.btn--block), .btn--solid:not(.btn--block), [data-magnetic]";
+const SELECTOR = ".btn--solid:not(.btn--block), [data-magnetic]";
 const PULL = 0.2; // part de la distance au centre
 const MAX = 6; // déplacement maximal, en pixels
 

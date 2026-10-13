@@ -51,7 +51,7 @@ export function CertificateActions({ serial, mine, signedIn }: { serial: string;
               {error}
             </p>
           ) : null}
-          <button type="submit" className="btn btn--gold" disabled={state === "busy"}>
+          <button type="submit" className="btn btn--solid" disabled={state === "busy"}>
             {state === "busy" ? "Vérification…" : "Rattacher à mon compte"}
           </button>
         </form>

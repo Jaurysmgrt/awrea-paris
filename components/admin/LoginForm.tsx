@@ -43,7 +43,7 @@ export function LoginForm({ next }: { next: string }) {
             </li>
           ))}
         </ul>
-        <button type="button" className="btn btn--gold btn--block" onClick={() => (window.location.href = next)}>
+        <button type="button" className="btn btn--solid btn--block" onClick={() => (window.location.href = next)}>
           J’ai noté mes codes — entrer
         </button>
       </div>
@@ -91,7 +91,7 @@ export function LoginForm({ next }: { next: string }) {
             {error}
           </p>
         ) : null}
-        <button type="submit" className="btn btn--gold btn--block" disabled={busy || !enroll}>
+        <button type="submit" className="btn btn--solid btn--block" disabled={busy || !enroll}>
           {busy ? "Vérification…" : "Activer et entrer"}
         </button>
       </form>
@@ -127,7 +127,7 @@ export function LoginForm({ next }: { next: string }) {
             {error}
           </p>
         ) : null}
-        <button type="submit" className="btn btn--gold btn--block" disabled={busy}>
+        <button type="submit" className="btn btn--solid btn--block" disabled={busy}>
           {busy ? "Vérification…" : "Entrer"}
         </button>
       </form>
@@ -163,7 +163,7 @@ export function LoginForm({ next }: { next: string }) {
           {error}
         </p>
       ) : null}
-      <button type="submit" className="btn btn--gold btn--block" disabled={busy}>
+      <button type="submit" className="btn btn--solid btn--block" disabled={busy}>
         {busy ? "Connexion…" : "Continuer"}
       </button>
     </form>

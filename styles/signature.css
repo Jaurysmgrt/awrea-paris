@@ -1,8 +1,8 @@
 /* Les interactions signature d'Awrea Paris. */
 
 @layer components {
-  /* ================================================ 1. LUMIÈRE DORÉE */
-  .golden-light {
+  /* ============================================ 1. HALO DE LUMIÈRE */
+  .light-halo {
     --mx: 60%;
     --my: 40%;
     --gl-radius: var(--size-halo);
@@ -13,27 +13,27 @@
     opacity: 0;
     transition: opacity var(--dur-slow) var(--ease-silk);
   }
-  .golden-light[data-on="true"] {
+  .light-halo[data-on="true"] {
     opacity: var(--gl-intensity, 1);
   }
-  .golden-light__lace {
+  .light-halo__lace {
     position: absolute;
     inset: 0;
     background-size: var(--size-lace-tile);
-    opacity: 0.55;
+    opacity: 0.32;
     mask-image: radial-gradient(circle var(--gl-radius) at var(--mx) var(--my), var(--color-ink) 0%, color-mix(in oklab, var(--color-ink) 45%, transparent) 45%, transparent 100%);
     -webkit-mask-image: radial-gradient(circle var(--gl-radius) at var(--mx) var(--my), var(--color-ink) 0%, color-mix(in oklab, var(--color-ink) 45%, transparent) 45%, transparent 100%);
   }
-  .golden-light[data-armed] .golden-light__lace {
-    background-image: url("/media/texture/lace-gold.webp");
+  .light-halo[data-armed] .light-halo__lace {
+    background-image: url("/media/texture/lace-light.webp");
   }
-  .golden-light__halo {
+  .light-halo__halo {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle calc(var(--gl-radius) * 1.3) at var(--mx) var(--my), color-mix(in oklab, var(--color-gold) 16%, transparent), transparent 70%);
+    background: radial-gradient(circle calc(var(--gl-radius) * 1.3) at var(--mx) var(--my), color-mix(in oklab, var(--halo) 9%, transparent), transparent 70%);
     mix-blend-mode: screen;
   }
-  .scene:has(> .golden-light) > :not(.golden-light) {
+  .scene:has(> .light-halo) > :not(.light-halo) {
     position: relative;
   }
 
@@ -145,7 +145,7 @@
   .drape__thread {
     width: var(--size-mark);
     height: var(--border-width-hair);
-    background: var(--color-gold);
+    background: var(--accent);
   }
 
   /* ================================================ 5. CERTIFICAT */
@@ -170,7 +170,7 @@
     position: absolute;
     width: var(--spacing-s);
     height: var(--spacing-s);
-    border-color: var(--color-gold);
+    border-color: var(--accent);
     border-style: solid;
   }
   .certificate__corner::before {
@@ -200,14 +200,14 @@
   }
   .certificate__slash {
     font-size: var(--text-step-3);
-    color: var(--color-gold-deep);
+    color: var(--accent);
     font-weight: var(--font-weight-regular);
   }
   .certificate__total {
     font-size: var(--text-step-2);
   }
   .certificate__unique {
-    font-family: var(--font-script);
+    font-family: var(--font-display);
     font-size: var(--text-step-3);
   }
   .certificate__head,
@@ -247,9 +247,22 @@
   .certificate__facts dt {
     color: var(--color-ink-soft);
   }
+  /* le mot de la créatrice : sa phrase pour cette pièce, à défaut sa phrase fondatrice */
+  .certificate__word {
+    display: grid;
+    justify-items: center;
+    gap: var(--spacing-2xs);
+    padding-block: var(--spacing-s);
+  }
+  .certificate__word figcaption {
+    color: var(--color-ink-soft);
+  }
+  .certificate__claim {
+    color: var(--color-ink);
+  }
   .certificate__signature {
     font-size: var(--text-step-3);
-    color: var(--color-gold-deep);
+    color: var(--accent);
     text-align: right;
   }
   .certificate__seal {
@@ -279,7 +292,7 @@
     content: "";
     width: var(--spacing-2xs);
     height: var(--spacing-2xs);
-    border: var(--border-width-hair) solid var(--color-gold);
+    border: var(--border-width-hair) solid var(--accent);
     transform: rotate(45deg);
   }
 
@@ -309,7 +322,7 @@
   .look__dot::before {
     width: var(--spacing-xs);
     height: var(--spacing-xs);
-    background: var(--color-gold);
+    background: var(--accent);
     box-shadow: 0 0 0 var(--spacing-3xs) color-mix(in oklab, var(--color-ivory) 70%, transparent); /* token-ok : anneau, pas une ombre portée */
     transition: transform var(--dur-fast) var(--ease-silk);
   }
@@ -446,7 +459,7 @@
     height: var(--size);
     margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
     border-radius: var(--radius-full);
-    border: var(--border-width-hair) solid var(--color-gold);
+    border: var(--border-width-hair) solid var(--accent);
     outline: var(--border-width-hair) solid color-mix(in oklab, var(--color-ivory) 70%, transparent);
     outline-offset: var(--spacing-3xs);
     background-repeat: no-repeat;
@@ -519,7 +532,7 @@
     z-index: 1;
   }
 
-  /* ============================================== 4. LETTRE MANUSCRITE */
+  /* ===================================== 4. LETTRE DE LA CRÉATRICE */
   .hw__lines {
     display: grid;
     gap: 0;
@@ -531,11 +544,12 @@
   }
   .hw-line text,
   .hw-sign text {
-    font-family: var(--font-script);
+    font-family: var(--font-display);
     fill: var(--color-ink);
   }
+  /* plus de plume : la ligne se révèle seule, sans geste calligraphique */
   .hw-nib {
-    fill: var(--color-gold);
+    display: none;
   }
   .hw-sign {
     justify-self: end;
@@ -543,8 +557,8 @@
   }
   .hw-flourish {
     fill: none;
-    stroke: var(--color-gold);
-    stroke-width: 1.5;
+    stroke: var(--accent);
+    stroke-width: 1;
     stroke-linecap: round;
   }
 
@@ -595,14 +609,13 @@
     will-change: transform;
   }
   .envelope__greeting {
-    font-family: var(--font-script);
+    font-family: var(--font-display);
     font-size: var(--text-step-2);
     line-height: var(--leading-snug);
     text-align: center;
   }
   .envelope__note {
-    font-family: var(--font-serif);
-    font-style: italic;
+    font-family: var(--font-sans);
     font-size: var(--text-step--1);
     line-height: var(--leading-text);
     text-align: center;
@@ -611,14 +624,14 @@
   }
   .envelope__ref {
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     text-align: center;
   }
   .envelope__sign {
-    font-family: var(--font-script);
+    font-family: var(--font-display);
     font-size: var(--text-step-1);
     color: var(--color-ink);
     text-align: center;
@@ -658,7 +671,7 @@
     display: grid;
     place-items: center;
     border-radius: var(--radius-full);
-    background: var(--color-gold);
+    background: var(--accent);
     color: var(--color-ink);
     outline: var(--border-width-hair) solid color-mix(in oklab, var(--color-ink) 35%, transparent);
     outline-offset: calc(-1 * var(--spacing-3xs));
@@ -695,7 +708,7 @@
     color: var(--color-ivory);
     border: var(--border-width-hair) solid color-mix(in oklab, var(--color-ivory) 30%, transparent);
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
@@ -704,13 +717,13 @@
       color var(--dur-fast) var(--ease-silk);
   }
   .assistant-launcher:hover {
-    background: var(--color-gold);
+    background: var(--accent);
     color: var(--color-ink);
   }
   .assistant-launcher__mark {
     width: var(--spacing-2xs);
     height: var(--spacing-2xs);
-    background: var(--color-gold);
+    background: var(--accent);
     transform: rotate(45deg);
     transition: background-color var(--dur-fast) var(--ease-silk);
   }
@@ -780,8 +793,7 @@
     justify-self: end;
   }
   .assistant__bubble {
-    font-family: var(--font-serif);
-    font-style: italic;
+    font-family: var(--font-sans);
     font-size: var(--text-step-0);
     line-height: var(--leading-text);
     text-align: left;
@@ -795,7 +807,7 @@
   }
   .assistant__msg--assistant .assistant__bubble {
     padding-left: var(--spacing-s);
-    border-left: var(--border-width-hair) solid var(--color-gold);
+    border-left: var(--border-width-hair) solid var(--accent);
   }
   .assistant__msg[data-error="true"] .assistant__bubble {
     color: var(--fg-soft);
@@ -809,7 +821,7 @@
   .assistant__typing span {
     width: var(--spacing-3xs);
     height: var(--spacing-3xs);
-    background: var(--color-gold);
+    background: var(--accent);
     transform: rotate(45deg);
     animation: assistant-dot calc(var(--dur-breath) / 2) var(--ease-silk) infinite;
   }

@@ -7,6 +7,7 @@ import { palette } from "@/styles/tokens";
 import { consentHeadScript } from "@/lib/consent";
 import { prefsHeadScript } from "@/lib/prefs";
 import { cspEnabled, cspMode } from "@/lib/security/headers";
+import { Justification } from "@/components/typography/Justification";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -39,7 +40,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: consentHeadScript() + prefsHeadScript() }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Justification />
+      </body>
     </html>
   );
 }

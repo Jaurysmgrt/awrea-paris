@@ -1,6 +1,6 @@
 "use client";
 /**
- * Bandeau cookies : un filet doré, du papier ivoire, une typographie fine.
+ * Bandeau cookies : un filet noir très fin, du papier blanc cassé, une typographie fine.
  * Il apparaît en fondu au bas de l'écran sans jamais bloquer la page ;
  * « Refuser » et « Accepter » ont exactement le même poids visuel.
  */

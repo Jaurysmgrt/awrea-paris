@@ -23,7 +23,7 @@ export function SizePicker({ product, value, onChange, legend = "Taille" }: { pr
         })}
       </div>
       {product.variants.some((v) => variantAvailability(product, v) === "preorder") ? (
-        <p className="t-note size-picker__legend">
+        <p className="t-note t-left size-picker__legend">
           <span className="size-picker__dot" aria-hidden="true" /> sur commande{product.leadTimeWeeks ? `, ${product.leadTimeWeeks} semaines de fabrication` : ""}
         </p>
       ) : null}

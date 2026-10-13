@@ -2,7 +2,7 @@
 /**
  * Réglages d'affichage, au pied de page et dans le menu plein écran :
  * Jour · Nuit · Auto (« Auto » suit le réglage du téléphone), et des animations apaisées.
- * De vrais boutons radio (flèches du clavier comprises), soulignés d'un trait doré.
+ * De vrais boutons radio (flèches du clavier comprises), soulignés d'un filet noir très fin.
  */
 import { useSyncExternalStore } from "react";
 import { parsePrefs, prefsSnapshot, subscribePrefs, writePrefs, type ColorMode } from "@/lib/prefs";

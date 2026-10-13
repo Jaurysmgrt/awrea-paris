@@ -52,7 +52,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               case "quote":
                 return (
                   <blockquote key={i} className="pull-quote">
-                    <p className="t-script">{b.text}</p>
+                    <p className="t-h2">{b.text}</p>
                     {b.cite ? <footer className="t-label">{b.cite}</footer> : null}
                   </blockquote>
                 );

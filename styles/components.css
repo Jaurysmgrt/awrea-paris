@@ -53,8 +53,7 @@
     --fg: var(--color-ivory);
     --fg-soft: var(--color-ivory-soft);
     --line: color-mix(in oklab, var(--color-ivory) 24%, transparent);
-    --accent: var(--color-gold);
-    --gold-text: var(--color-gold);
+    --accent: var(--color-ivory);
     color: var(--fg);
   }
   html.scene-live[data-scene="ivory"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]),
@@ -63,7 +62,6 @@
     --fg-soft: var(--color-ink-soft);
     --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
     --accent: var(--color-ink);
-    --gold-text: var(--color-gold-deep);
     color: var(--fg);
   }
 
@@ -72,8 +70,7 @@
     --fg: var(--color-ivory);
     --fg-soft: var(--color-ivory-soft);
     --line: color-mix(in oklab, var(--color-ivory) 20%, transparent);
-    --accent: var(--color-gold);
-    --gold-text: var(--color-gold);
+    --accent: var(--color-ivory);
   }
 
   .scene[data-theme="paper"] {
@@ -114,41 +111,47 @@
     margin-top: var(--spacing-l);
   }
 
-  /* ============================================================ TYPOGRAPHIE */
-  .t-display {
-    font-family: var(--font-display);
-    font-size: var(--text-step-5);
-    line-height: var(--leading-tight);
-    letter-spacing: var(--tracking-display);
-    font-weight: var(--font-weight-regular);
-  }
-  .t-h1 {
-    font-family: var(--font-display);
-    font-size: var(--text-step-4);
-    line-height: var(--leading-tight);
-  }
-  .t-h2 {
-    font-family: var(--font-display);
-    font-size: var(--text-step-3);
-    line-height: var(--leading-snug);
-  }
-  .t-h3 {
-    font-family: var(--font-display);
-    font-size: var(--text-step-2);
-    line-height: var(--leading-snug);
-  }
+  /* ============================================================ TYPOGRAPHIE
+     Deux familles : Instrument Serif (titres, très grands, jamais en italique) et Inter Tight
+     (textes, navigation, boutons, graisses légères). Interlignages sur la grille de 8 px. */
+  .t-display,
+  .t-giant,
+  .t-h1,
+  .t-h2,
+  .t-h3,
   .t-h4 {
     font-family: var(--font-display);
-    font-size: var(--text-step-1);
-    line-height: var(--leading-snug);
-  }
-  /* titres géants : le jeu d'échelle entre un Bodoni très grand et de petites capitales espacées */
-  .t-giant {
-    font-family: var(--font-display);
-    font-size: var(--text-step-6);
-    line-height: var(--leading-tight);
-    letter-spacing: var(--tracking-display);
     font-weight: var(--font-weight-regular);
+    letter-spacing: var(--tracking-display);
+    text-align: left;
+    hyphens: manual;
+  }
+  .t-display {
+    font-size: var(--text-step-5);
+    line-height: var(--lh-step-5);
+  }
+  .t-h1 {
+    font-size: var(--text-step-4);
+    line-height: var(--lh-step-4);
+  }
+  .t-h2 {
+    font-size: var(--text-step-3);
+    line-height: var(--lh-step-3);
+  }
+  .t-h3 {
+    font-size: var(--text-step-2);
+    line-height: var(--lh-step-2);
+    letter-spacing: 0;
+  }
+  .t-h4 {
+    font-size: var(--text-step-1);
+    line-height: calc(var(--text-step-1) * var(--leading-text));
+    letter-spacing: 0;
+  }
+  /* titres géants : le jeu d'échelle entre un serif immense et de petites capitales espacées */
+  .t-giant {
+    font-size: var(--text-step-6);
+    line-height: var(--lh-step-6);
   }
 
   /* titre écrit au chargement (components/ui/SplitTitle.tsx) */
@@ -172,66 +175,41 @@
       opacity: 0;
     }
   }
-  .handwrite {
-    /* la boîte déborde un peu pour que les envolées de la plume ne soient jamais rognées */
-    padding: 0.2em 0.12em;
-    margin: -0.2em -0.12em;
-    mask-image: linear-gradient(90deg, var(--color-ink) 45%, transparent 55%);
-    mask-size: 240% 100%;
-    mask-repeat: no-repeat;
-    -webkit-mask-image: linear-gradient(90deg, var(--color-ink) 45%, transparent 55%);
-    -webkit-mask-size: 240% 100%;
-    -webkit-mask-repeat: no-repeat;
-    animation: handwrite var(--dur-slow) var(--ease-silk) both;
-  }
-  @keyframes handwrite {
-    from {
-      mask-position: 100% 0;
-      -webkit-mask-position: 100% 0;
-    }
-    to {
-      mask-position: 0 0;
-      -webkit-mask-position: 0 0;
-    }
-  }
 
-  .t-script {
-    font-family: var(--font-script);
-    font-weight: var(--font-weight-regular);
-    font-size: var(--text-step-5);
-    line-height: var(--leading-snug);
-    letter-spacing: 0;
-  }
-  .t-script--xl {
-    font-size: var(--text-step-6);
-    line-height: 1.1;
-  }
   .t-lead {
-    font-family: var(--font-serif);
-    font-style: italic;
+    font-family: var(--font-sans);
+    font-weight: var(--font-weight-light);
     font-size: var(--text-step-1);
     line-height: var(--leading-text);
   }
+  /* petits téléphones : le chapeau garde la colonne pleine sans trous (taille du texte, graisse plus présente) */
+  @media (max-width: 29.99rem) {
+    .t-lead {
+      font-size: var(--text-step-0);
+      font-weight: var(--font-weight-regular);
+    }
+  }
   .t-body {
-    font-family: var(--font-serif);
-    font-style: italic;
+    font-family: var(--font-sans);
+    font-weight: var(--font-weight-light);
     font-size: var(--text-step-0);
     line-height: var(--leading-text);
   }
+  /* petites capitales espacées : navigation, étiquettes, boutons */
   .t-label {
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    line-height: var(--leading-snug);
+    line-height: var(--leading-label);
   }
   .t-label--wide {
     letter-spacing: var(--tracking-wide);
   }
   .t-note {
-    font-family: var(--font-serif);
-    font-style: italic;
+    font-family: var(--font-sans);
+    font-weight: var(--font-weight-light);
     font-size: var(--text-step--1);
     line-height: var(--leading-text);
     color: var(--fg-soft);
@@ -251,6 +229,7 @@
   p.t-center {
     text-align: center;
     hyphens: manual;
+    margin-inline: auto;
   }
 
   .eyebrow {
@@ -258,10 +237,11 @@
     align-items: center;
     gap: var(--spacing-xs);
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
+    line-height: var(--leading-label);
   }
   .eyebrow::before {
     content: "";
@@ -270,22 +250,22 @@
     background: var(--accent);
   }
 
-  /* texte courant : italique Cormorant, justifié */
-  .prose {
-    font-style: italic;
-  }
+  /* texte courant : Inter Tight léger, justifié, sur la mesure de lecture */
   .prose > * + * {
-    margin-top: var(--spacing-s);
+    margin-top: var(--space-paragraph);
   }
   .prose h2 {
-    font-style: normal;
-    font-size: var(--text-step-2);
-    margin-top: var(--spacing-xl);
+    font-size: var(--text-step-3);
+    line-height: var(--lh-step-3);
+    margin-top: var(--space-block);
   }
   .prose h3 {
-    font-style: normal;
-    font-size: var(--text-step-1);
-    margin-top: var(--spacing-l);
+    font-size: var(--text-step-2);
+    line-height: var(--lh-step-2);
+    margin-top: var(--space-block);
+  }
+  .prose :is(h2, h3) + * {
+    margin-top: var(--space-title);
   }
   .prose ul,
   .prose ol {
@@ -313,7 +293,7 @@
     text-underline-offset: 0.2em;
   }
   .prose strong {
-    font-style: normal;
+    font-weight: var(--font-weight-regular);
   }
 
   /* ============================================================== FILETS */
@@ -327,7 +307,7 @@
     width: var(--spacing-xl);
     height: var(--border-width-hair);
     margin-inline: auto;
-    background: var(--color-gold);
+    background: var(--accent);
   }
 
   /* ============================================================== BOUTONS */
@@ -346,12 +326,12 @@
     border: var(--border-width-hair) solid var(--btn-fg);
     color: var(--btn-fg);
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     text-align: center;
-    line-height: var(--leading-snug);
+    line-height: var(--leading-label);
     overflow: hidden;
     cursor: pointer;
     /* attraction magnétique (components/motion/Magnetic.tsx) : retour en douceur */
@@ -387,17 +367,12 @@
   .btn:focus-visible {
     outline-offset: var(--spacing-2xs);
   }
+  /* bouton plein : noir sur fond clair, blanc cassé sur fond noir ; au survol il s'inverse */
   .btn--solid {
     background: var(--fg);
     color: var(--bg);
-    --btn-bg: var(--color-gold);
-    --btn-on: var(--color-ink);
-  }
-  /* or lumineux sur le noir, or profond sur les fonds clairs : contraste AA dans tous les thèmes */
-  .btn--gold {
-    --btn-fg: var(--gold-text);
-    --btn-bg: var(--gold-text);
-    --btn-on: var(--bg);
+    --btn-bg: var(--bg);
+    --btn-on: var(--fg);
   }
   .btn--block {
     display: flex;
@@ -432,7 +407,7 @@
     align-items: center;
     gap: var(--spacing-2xs);
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
@@ -476,7 +451,7 @@
   }
   .field__label {
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
@@ -489,8 +464,7 @@
     border: 0;
     border-bottom: var(--border-width-hair) solid var(--line);
     border-radius: 0;
-    font-family: var(--font-serif);
-    font-style: italic;
+    font-family: var(--font-sans);
     font-size: var(--text-step-0);
     color: var(--fg);
     transition: border-color var(--dur-fast) var(--ease-silk);
@@ -526,14 +500,12 @@
   }
   .field__hint {
     font-size: var(--text-step--1);
-    font-style: italic;
     color: var(--fg-soft);
   }
   .field__error {
     font-size: var(--text-step--1);
-    font-style: italic;
     color: var(--fg);
-    border-left: var(--border-width-hair) solid var(--color-gold);
+    border-left: var(--border-width-hair) solid var(--accent);
     padding-left: var(--spacing-2xs);
   }
 
@@ -543,31 +515,43 @@
     align-items: flex-start;
     gap: var(--spacing-xs);
     cursor: pointer;
-    font-style: italic;
     min-height: var(--spacing-touch);
     padding-block: var(--spacing-2xs);
   }
+  /* la case occupe la hauteur d'une ligne (24 px) : alignée sur la première ligne du libellé,
+     sans décalage hors de la grille ; le carré au fil (16 px) est dessiné au centre */
   .check input {
     appearance: none;
     flex: none;
-    width: var(--spacing-s);
-    height: var(--spacing-s);
-    margin-top: 0.3em;
-    border: var(--border-width-hair) solid var(--fg);
+    width: var(--spacing-m);
+    height: var(--spacing-m);
+    margin: 0;
     display: grid;
     place-items: center;
     cursor: pointer;
   }
+  .check input::before,
   .check input::after {
     content: "";
-    width: 60%;
-    height: 60%;
+    grid-area: 1 / 1;
+  }
+  .check input::before {
+    width: var(--spacing-s);
+    height: var(--spacing-s);
+    border: var(--border-width-hair) solid var(--fg);
+  }
+  .check input::after {
+    width: calc(var(--spacing-s) * 0.5);
+    height: calc(var(--spacing-s) * 0.5);
     background: var(--fg);
     transform: scale(0);
     transition: transform var(--dur-fast) var(--ease-silk);
   }
-  .check input[type="radio"] {
+  .check input[type="radio"]::before {
     transform: rotate(45deg) scale(0.85);
+  }
+  .check input[type="radio"]::after {
+    rotate: 45deg;
   }
   .check input:checked::after {
     transform: scale(1);
@@ -583,7 +567,7 @@
     padding: var(--spacing-2xs) var(--spacing-s);
     border: var(--border-width-hair) solid var(--line);
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
@@ -617,7 +601,7 @@
     width: var(--spacing-3xs);
     height: var(--spacing-3xs);
     margin-left: var(--spacing-3xs);
-    background: var(--color-gold);
+    background: var(--accent);
     transform: rotate(45deg) translateY(-0.4em);
   }
   .chip input {
@@ -641,7 +625,7 @@
     min-height: var(--spacing-touch);
     padding-inline: var(--spacing-s);
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
@@ -656,7 +640,7 @@
   .segmented__item[aria-checked="true"],
   .segmented__item:has(input:checked) {
     color: var(--fg);
-    border-bottom-color: var(--color-gold);
+    border-bottom-color: var(--accent);
   }
   .segmented__item:has(input:focus-visible) {
     outline: var(--border-width-hair) solid var(--fg);
@@ -758,7 +742,7 @@
     padding: var(--spacing-3xs) var(--spacing-2xs);
     border: var(--border-width-hair) solid currentColor;
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
@@ -776,7 +760,7 @@
     flex-wrap: wrap;
     gap: var(--spacing-2xs);
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
@@ -804,7 +788,7 @@
     padding-block: var(--spacing-s);
     cursor: pointer;
     font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
@@ -855,7 +839,7 @@
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    font-weight: var(--font-weight-light);
+    font-weight: var(--font-weight-regular);
   }
   /* précisions sous un intitulé de ligne (e-mail, référence) : jamais en capitales */
   .table th .t-note {

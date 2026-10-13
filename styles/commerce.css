@@ -102,8 +102,8 @@
     stroke: var(--color-ink);
   }
   .wish[aria-pressed="true"] .wish__mark {
-    fill: var(--color-gold);
-    stroke: var(--color-gold);
+    fill: var(--accent);
+    stroke: var(--accent);
     transform: rotate(90deg);
   }
 
@@ -199,7 +199,7 @@
   .size-picker__dot {
     width: var(--spacing-3xs);
     height: var(--spacing-3xs);
-    background: var(--color-gold);
+    background: var(--accent);
     transform: rotate(45deg);
   }
   .size-picker .chip {
