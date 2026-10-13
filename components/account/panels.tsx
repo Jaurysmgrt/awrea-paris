@@ -9,6 +9,7 @@ import { accountCopy as t } from "@/content/fr/account";
 import { shop } from "@/content/settings";
 import type { Order } from "@/lib/commerce/types";
 import type { Address, CustomerProfile, Sizes, WaitlistItem } from "@/lib/customers/types";
+import type { PublicCertificate } from "@/lib/certificates";
 
 export type AccountOrder = Order & { statusLabel: string; trackingUrl: string | null };
 
@@ -83,6 +84,35 @@ export function OrdersPanel({ orders }: { orders: AccountOrder[] }) {
           </Link>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------ certificats
+export function CertificatesPanel({ certificates }: { certificates: PublicCertificate[] }) {
+  return (
+    <div className="stack-l">
+      <p className="t-body">{certificates.length ? t.certificates.intro : t.certificates.empty}</p>
+      {certificates.length ? (
+        <ul className="certificates">
+          {certificates.map((c) => (
+            <li key={c.serial} className="certificates__item">
+              <div className="stack-s">
+                <h3 className="t-h4">{c.productTitle}</h3>
+                <p className="t-label t-soft">
+                  {c.editionTotal === 1 ? t.certificates.unique : c.editionNumber ? `N° ${c.editionNumber} / ${c.editionTotal}` : t.certificates.madeToOrder}
+                  {c.size ? ` · taille ${c.size}` : ""} · {formatDate(c.madeOn)}
+                </p>
+              </div>
+              <p className="t-label certificates__serial">{c.serial}</p>
+              <Link href={`/certificat/${c.serial}`} className="link">
+                {t.certificates.open}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <p className="t-note">{t.certificates.gift}</p>
     </div>
   );
 }

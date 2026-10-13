@@ -9,6 +9,7 @@ import { shop } from "@/content/settings";
 import { PurchaseTracker } from "@/components/analytics/PurchaseTracker";
 import { AtelierNote } from "@/components/ui/AtelierNote";
 import { atelierMoments } from "@/content/fr/coulisses";
+import { certificatesOfOrder } from "@/lib/certificates";
 
 export const metadata = pageMetadata({
   title: "Merci | Awrea Paris",
@@ -27,6 +28,7 @@ export default async function ConfirmationPage({
   const token = verify<{ n: string }>(sp.t);
   const order = token && token.n === sp.n ? await getOrder(token.n) : null;
   const first = order?.name.split(" ")[0];
+  const certificates = order ? await certificatesOfOrder(order).catch(() => []) : [];
 
   return (
     <>
@@ -86,6 +88,23 @@ export default async function ConfirmationPage({
                     ? "Une partie de votre commande est en fabrication : nous vous écrirons à l’expédition, avec le lien de suivi."
                     : `Expédition sous ${shop.dispatchDays}. Vous recevrez le lien de suivi par e-mail.`}
                 </p>
+                {certificates.length ? (
+                  <div className="stack-s confirmation__certificates">
+                    <p className="t-label">
+                      {certificates.length > 1 ? "Vos certificats d’authenticité" : "Votre certificat d’authenticité"}
+                    </p>
+                    <ul className="stack-s">
+                      {certificates.map((c) => (
+                        <li key={c.serial}>
+                          <Link href={`/certificat/${c.serial}`} className="link">
+                            {c.productTitle}
+                            {c.editionTotal > 1 && c.editionNumber ? `, N° ${c.editionNumber} / ${c.editionTotal}` : ""}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
               </div>
             ) : null}
             <div className="confirmation__actions">

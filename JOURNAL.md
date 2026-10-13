@@ -155,3 +155,17 @@
   `.env.example` à jour.
 - Constat : le dépôt GitHub est public et `main` n'est pas protégée — à corriger par la maison (SECURITE.md § 11).
 - Tests : 263/263 sur la version de production (CSP stricte), tests unitaires et de la base au vert.
+
+## Certificats numériques, flux produits, « Trouver ma taille »
+- Certificat d'authenticité numérique pour chaque pièce vendue : numéro de série sous un QR code, page publique
+  `/certificat/<numéro>` (numéro d'édition, collection, taille, matières, date, signature) sans aucune donnée
+  personnelle, impression sur une page A4. Émis une seule fois par commande, même si Shopify renvoie le webhook
+  (verrou atomique). Rattaché au compte de l'acheteuse (même e-mail) ; une pièce offerte se rattache avec le code
+  transmis à l'achat. Onglet « Certificats » dans le compte, liens sur la page de confirmation.
+- Flux Google Merchant Center et Meta (Instagram, Facebook) : `/feeds/google.xml`, `/feeds/meta.xml`.
+- « Trouver ma taille » sur chaque fiche : trois mesures, la taille conseillée selon la coupe de la pièce (lacée,
+  satin), un geste pour la choisir, mesures gardées dans le compte si la cliente le souhaite.
+- Corrections relevées en vérifiant à l'écran : espacement `.stack-s` jamais défini (formulaires serrés), bouton
+  doré illisible sur fond clair (désormais or profond), espace fine insécable avant « % ».
+- Tests : 265/265 sur la version de production, dont le parcours achat → certificat → rattachement d'une pièce
+  offerte.

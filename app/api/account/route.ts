@@ -3,6 +3,7 @@ import { getCustomerSession, authMode } from "@/lib/auth/customer";
 import { getProfile, listAddresses, listOrders, listWaitlist, getWishlist } from "@/lib/customers";
 import { statusLabel, trackingUrl } from "@/lib/commerce/orders";
 import { legalVersions } from "@/content/legal-versions";
+import { certificatesFor } from "@/lib/certificates";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,14 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const session = await getCustomerSession();
   if (!session) return NextResponse.json({ user: null, mode: authMode });
-  const [profile, orders, addresses, waitlist, wishlist] = await Promise.all([getProfile(session), listOrders(session), listAddresses(session), listWaitlist(session), getWishlist(session)]);
+  const [profile, orders, addresses, waitlist, wishlist, certificates] = await Promise.all([
+    getProfile(session),
+    listOrders(session),
+    listAddresses(session),
+    listWaitlist(session),
+    getWishlist(session),
+    certificatesFor(session).catch(() => []),
+  ]);
   return NextResponse.json({
     mode: authMode,
     user: { id: session.id, email: session.email },
@@ -20,5 +28,6 @@ export async function GET() {
     addresses,
     waitlist,
     wishlist,
+    certificates,
   });
 }

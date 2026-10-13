@@ -303,4 +303,17 @@
     text-transform: uppercase;
     letter-spacing: var(--tracking-label);
   }
+
+  /* ======================================================= TROUVER MA TAILLE */
+  .size-finder {
+    margin-top: var(--spacing-l);
+    padding-top: var(--spacing-l);
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .size-finder > .form__row {
+    margin-top: var(--spacing-m);
+  }
+  .size-finder > .btn {
+    margin-top: var(--spacing-m);
+  }
 }

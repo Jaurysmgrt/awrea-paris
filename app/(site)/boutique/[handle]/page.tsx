@@ -92,7 +92,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                     <ul>
                       {product.materials.map((m) => (
                         <li key={m.name}>
-                          {m.percent} % {m.name.toLowerCase()}
+                          {m.percent} % {m.name.toLowerCase()}
                         </li>
                       ))}
                     </ul>

@@ -7,6 +7,7 @@
  * la livraison déclenche l'e-mail d'entretien ; les agents sont prévenus.
  */
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { issueCertificates, sendCertificatesEmail } from "@/lib/certificates";
 import { NextResponse, after } from "next/server";
 import { admin, adminEnabled } from "@/lib/shopify/admin";
 import { upsertOrder } from "@/lib/customers/shopify-sync";
@@ -107,7 +108,11 @@ export async function POST(req: Request) {
   if (topic === "orders/create" || topic === "orders/updated") {
     const order = await toOrder(payload as unknown as ShopifyOrder);
     await upsertOrder(order);
-    if (topic === "orders/create") after(() => onOrderCreated(order).catch((e) => console.error("[webhook] agents", e)));
+    if (topic === "orders/create") {
+      after(() => onOrderCreated(order).catch((e) => console.error("[webhook] agents", e)));
+      // certificats d'authenticité : émis une seule fois par commande, envoyés à l'acheteuse
+      after(() => issueCertificates(order).then((issued) => sendCertificatesEmail(order, issued)).catch((e) => console.error("[webhook] certificats", e)));
+    }
   } else if (topic === "fulfillment_events/create" && payload.status === "delivered" && adminEnabled) {
     const orderId = `gid://shopify/Order/${payload.order_id}`;
     const d = await admin<{ order: { name: string; email: string | null; customer: { firstName: string | null } | null; lineItems: { nodes: { title: string; quantity: number; variantTitle: string | null; product: { handle: string } | null }[] } } | null }>(

@@ -5,6 +5,7 @@ import type { Product, Variant } from "@/lib/commerce/types";
 import { availabilityLabel, editionInfo, variantAvailability } from "@/lib/commerce/availability";
 import { useCart } from "./CartProvider";
 import { SizePicker } from "./SizePicker";
+import { SizeFinder } from "./SizeFinder";
 import { WishlistButton } from "./WishlistButton";
 import { Icon } from "@/components/ui/Icon";
 import { shop } from "@/content/settings";
@@ -41,7 +42,7 @@ export function ProductForm({ product }: { product: Product }) {
               }}
             />
             <button type="button" className="link link--quiet" onClick={() => guide.current?.showModal()}>
-              Guide des tailles
+              Trouver ma taille
             </button>
           </div>
           <p className="t-note product-form__status" aria-live="polite">
@@ -75,7 +76,7 @@ export function ProductForm({ product }: { product: Product }) {
         <div className="modal__inner stack-m">
           <header className="modal__head">
             <h2 id="size-guide-title" className="t-h3">
-              Guide des tailles
+              Votre taille
             </h2>
             <button type="button" className="icon-btn" onClick={() => guide.current?.close()} aria-label="Fermer le guide des tailles">
               <Icon name="close" />
@@ -103,6 +104,19 @@ export function ProductForm({ product }: { product: Product }) {
           </div>
           <p className="t-body">{product.fit}</p>
           <p className="t-note">{shop.sizeGuide.note}</p>
+          {product.variants.length > 1 ? (
+            <SizeFinder
+              product={product}
+              onPick={(size) => {
+                const v = product.variants.find((x) => x.size === size);
+                if (v) {
+                  setVariant(v);
+                  setShowError(false);
+                }
+                guide.current?.close();
+              }}
+            />
+          ) : null}
         </div>
       </dialog>
     </div>

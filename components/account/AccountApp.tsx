@@ -1,7 +1,7 @@
 "use client";
 /**
  * Espace « Mon compte » : connexion sans mot de passe (e-mail, Google, Apple), puis
- * commandes, tailles, adresses, envies et alertes, profil et préférences, données personnelles.
+ * commandes, certificats, tailles, adresses, envies et alertes, profil et préférences, données personnelles.
  */
 import { useCallback, useEffect, useState } from "react";
 import { Tabs } from "@/components/ui/Tabs";
@@ -10,7 +10,8 @@ import { accountCopy as t } from "@/content/fr/account";
 import type { Address, CustomerProfile, WaitlistItem } from "@/lib/customers/types";
 import { LoginPanel } from "./LoginPanel";
 import { TermsCheckbox } from "./TermsCheckbox";
-import { AddressesPanel, DataPanel, OrdersPanel, ProfilePanel, SizesPanel, WishPanel, type AccountOrder } from "./panels";
+import { AddressesPanel, CertificatesPanel, DataPanel, OrdersPanel, ProfilePanel, SizesPanel, WishPanel, type AccountOrder } from "./panels";
+import type { PublicCertificate } from "@/lib/certificates";
 
 type AccountData = {
   mode: "supabase" | "demo";
@@ -21,6 +22,7 @@ type AccountData = {
   addresses?: Address[];
   waitlist?: WaitlistItem[];
   wishlist?: string[];
+  certificates?: PublicCertificate[];
 };
 
 type TabId = keyof typeof t.tabs;
@@ -102,7 +104,7 @@ export function AccountApp() {
   const tabs = (Object.keys(t.tabs) as TabId[]).map((id) => ({
     id,
     label: t.tabs[id],
-    count: id === "commandes" ? data.orders?.length : id === "envies" ? handles.length + (data.waitlist?.length ?? 0) : undefined,
+    count: id === "commandes" ? data.orders?.length : id === "certificats" ? data.certificates?.length : id === "envies" ? handles.length + (data.waitlist?.length ?? 0) : undefined,
   }));
 
   return (
@@ -131,6 +133,7 @@ export function AccountApp() {
         }}
       >
         {tab === "commandes" ? <OrdersPanel orders={data.orders ?? []} /> : null}
+        {tab === "certificats" ? <CertificatesPanel certificates={data.certificates ?? []} /> : null}
         {tab === "tailles" ? <SizesPanel profile={profile} onSaved={updateProfile} /> : null}
         {tab === "adresses" ? <AddressesPanel addresses={data.addresses ?? []} /> : null}
         {tab === "envies" ? <WishPanel waitlist={data.waitlist ?? []} /> : null}

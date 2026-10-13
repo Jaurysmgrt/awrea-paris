@@ -23,6 +23,7 @@ import type { Order } from "@/lib/commerce/types";
 import { imageAt } from "@/lib/media";
 import { legalVersions } from "@/content/legal-versions";
 import { upsertOrder } from "@/lib/customers/shopify-sync";
+import { certificateUrl, issueCertificates } from "@/lib/certificates";
 import { onNewsletterSignup } from "@/lib/marketing/flows";
 import { upsertContact } from "@/lib/marketing/provider";
 
@@ -132,6 +133,12 @@ export async function POST(req: Request) {
   }
   (await cookies()).delete(CART_COOKIE);
 
+  // un certificat d'authenticité numérique par pièce (QR code, rattachement au compte)
+  const certificates = await issueCertificates(order).catch((e) => {
+    console.error("[checkout] certificats", e);
+    return [];
+  });
+
   await sendEmail({
     to: d.email,
     subject: `Votre commande ${order.number}`,
@@ -144,6 +151,12 @@ export async function POST(req: Request) {
         anyPreorder
           ? "Votre commande est confirmée. Une partie de vos pièces est désormais en fabrication à l’atelier : nous vous écrirons dès leur expédition."
           : `Votre commande est confirmée. Votre pièce sera pliée dans du papier de soie et expédiée sous ${shop.dispatchDays}, avec son certificat numéroté.`,
+        ...(certificates.length
+          ? [
+              `Le certificat d’authenticité de chaque pièce est déjà en ligne : ${certificates.map((c) => `${c.certificate.productTitle} — ${certificateUrl(c.certificate.serial)}`).join(" ; ")}. Il est rattaché à votre compte.`,
+              `Si vous offrez une pièce, transmettez avec elle son code de rattachement : ${certificates.map((c) => `${c.certificate.productTitle} : ${c.claimCode}`).join(" ; ")}.`,
+            ]
+          : []),
       ],
       items: lines.map((l) => ({ title: l.title, meta: `Taille ${l.size} · ${l.editionLabel}`, price: l.unitPrice, image: imageAt(products.find((p) => p.handle === l.handle)?.images[0].src ?? "", 480) })),
       totals: [

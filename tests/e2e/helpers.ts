@@ -21,3 +21,16 @@ export const VIEWPORTS = [
   { name: "ecran-1440", width: 1440, height: 900 },
   { name: "grand-1920", width: 1920, height: 1080 },
 ];
+
+/** Crée un compte cliente (mode démonstration : le code de connexion s'affiche à l'écran). */
+export async function signUp(page: Page, email: string) {
+  await page.goto("/compte");
+  await page.getByRole("radio", { name: "Créer un compte" }).click();
+  await page.locator("#login-email").fill(email);
+  await page.locator('input[name="terms"]').check();
+  await page.getByRole("button", { name: "Recevoir mon code" }).click();
+  const code = (await page.locator(".notice strong").textContent())!.trim();
+  await page.getByLabel("Code reçu par e-mail").fill(code);
+  await page.getByRole("button", { name: "Valider" }).click();
+  await page.getByRole("heading", { name: /Bonjour/ }).waitFor();
+}

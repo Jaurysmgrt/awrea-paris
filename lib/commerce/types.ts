@@ -59,6 +59,8 @@ export interface Product {
   seo: { title: string; description: string };
   tags: string[];
   publishedAt: string;
+  /** couleur principale (flux produits) ; à défaut, déduite des textes */
+  color?: string;
 }
 
 export interface Collection {

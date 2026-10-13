@@ -101,6 +101,9 @@
     padding-top: calc(var(--header-h) + var(--spacing-xl));
   }
 
+  .stack-s > * + * {
+    margin-top: var(--spacing-xs);
+  }
   .stack > * + * {
     margin-top: var(--spacing-s);
   }
@@ -390,10 +393,11 @@
     --btn-bg: var(--color-gold);
     --btn-on: var(--color-ink);
   }
+  /* or lumineux sur le noir, or profond sur les fonds clairs : contraste AA dans tous les thèmes */
   .btn--gold {
-    --btn-fg: var(--color-gold);
-    --btn-bg: var(--color-gold);
-    --btn-on: var(--color-ink);
+    --btn-fg: var(--gold-text);
+    --btn-bg: var(--gold-text);
+    --btn-on: var(--bg);
   }
   .btn--block {
     display: flex;

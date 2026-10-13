@@ -183,6 +183,7 @@ create table if not exists public.certificates (
   order_number text,
   owner_email_hash text,                       -- empreinte SHA-256 de l'e-mail de l'acheteuse (rattachement)
   claim_code_hash text,                        -- code imprimé sur le certificat papier (pièce offerte)
+  claim_code_sealed text,                      -- le même code, chiffré (AES-GCM) pour l'impression par l'atelier
   customer_id uuid references public.customers (id) on delete set null,
   claimed_at timestamptz,
   created_at timestamptz not null default now()

@@ -1286,6 +1286,25 @@
     gap: var(--spacing-s);
     width: 100%;
   }
+  .certificates {
+    display: grid;
+  }
+  .certificates__item {
+    display: grid;
+    gap: var(--spacing-xs) var(--spacing-m);
+    align-items: baseline;
+    padding-block: var(--spacing-m);
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .certificates__serial {
+    color: var(--gold-text);
+    letter-spacing: var(--tracking-label-wide, 0.2em);
+  }
+  @media (min-width: 48rem) {
+    .certificates__item {
+      grid-template-columns: minmax(0, 1fr) auto auto;
+    }
+  }
 
   /* ================================================================= COMMANDE */
   .checkout {

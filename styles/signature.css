@@ -217,6 +217,58 @@
   .certificate__remaining {
     color: var(--color-ink);
   }
+  /* certificat numérique (/certificat/…) : la même feuille, en grand, imprimable */
+  .certificate-page {
+    padding-block: calc(var(--header-h) + var(--spacing-xl)) var(--spacing-2xl);
+  }
+  .certificate-page__grid {
+    display: grid;
+    gap: var(--spacing-xl);
+    align-items: start;
+  }
+  @media (min-width: 64rem) {
+    .certificate-page__grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      column-gap: var(--spacing-2xl);
+    }
+  }
+  .certificate--sheet {
+    gap: var(--spacing-s);
+    padding: var(--spacing-xl) var(--spacing-l);
+    background: color-mix(in oklab, var(--color-ivory) 70%, transparent);
+  }
+  .certificate__facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-s) var(--spacing-m);
+    padding-block: var(--spacing-s);
+    border-block: var(--border-width-hair) solid var(--line);
+  }
+  .certificate__facts dt {
+    color: var(--color-ink-soft);
+  }
+  .certificate__signature {
+    font-size: var(--text-step-3);
+    color: var(--color-gold-deep);
+    text-align: right;
+  }
+  .certificate__seal {
+    display: grid;
+    justify-items: center;
+    gap: var(--spacing-2xs);
+  }
+  .certificate__qr {
+    width: calc(var(--spacing-2xl) * 1.6);
+    aspect-ratio: 1;
+  }
+  .certificate__qr svg {
+    width: 100%;
+    height: 100%;
+  }
+  .certificate__serial {
+    letter-spacing: var(--tracking-wide);
+  }
+
   .edition-inline {
     display: inline-flex;
     align-items: center;

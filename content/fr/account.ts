@@ -31,6 +31,7 @@ export const accountCopy = {
   },
   tabs: {
     commandes: "Commandes",
+    certificats: "Certificats",
     tailles: "Mes tailles",
     adresses: "Adresses",
     envies: "Envies et alertes",
@@ -43,6 +44,14 @@ export const accountCopy = {
     total: "Total",
     returns: "Demander un retour",
     returnsNote: "Vous disposez de 14 jours après réception pour nous retourner une pièce non portée, avec son certificat. Les pièces réalisées sur mesure ne sont ni reprises ni échangées.",
+  },
+  certificates: {
+    intro: "Le certificat d’authenticité de chaque pièce, signé par la créatrice. Le QR code imprimé sur le certificat papier mène à sa version numérique.",
+    empty: "Les certificats de vos pièces apparaîtront ici après votre première commande.",
+    unique: "Pièce unique",
+    madeToOrder: "Réalisée sur commande",
+    open: "Voir le certificat",
+    gift: "Une pièce vous a été offerte ? Ouvrez la page de son certificat (QR code du certificat papier) et saisissez le code de rattachement qui l’accompagne.",
   },
   sizes: {
     intro: "Vos tailles habituelles sont présélectionnées sur chaque fiche. Vos mesures nous aident à vous conseiller ; elles restent privées.",

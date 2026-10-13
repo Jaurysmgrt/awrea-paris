@@ -7,7 +7,7 @@ import { commerceMode } from "@/lib/commerce";
 const KEYS = [
   "demo:stock", "demo:produced", "demo:price", "demo:products:extra", "demo:products:removed", "demo:products:patch", "demo:products:drafts",
   "orders", "orders:status", "waitlist", "inbox", "agents:log", "agents:proposals", "agents:runs", "agents:commandes-stock:memory",
-  "content:drafts", "reports", "seo:audits", "seo:ideas", "journal:articles", "ai:llms-notes", "email:outbox", "assistant:log",
+  "content:drafts", "reports", "seo:audits", "seo:ideas", "journal:articles", "ai:llms-notes", "email:outbox", "assistant:log", "certificates",
 ];
 
 export async function POST() {

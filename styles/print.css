@@ -1,0 +1,81 @@
+/*
+ * Impression soignée : certificat, récapitulatif de commande, facture, pages légales.
+ * Papier blanc, encre noire, filets dorés conservés ; tout ce qui sert à naviguer disparaît.
+ */
+@media print {
+  @page {
+    margin: 16mm 14mm;
+  }
+  html,
+  html[data-mode="dark"] {
+    color-scheme: light;
+    background: none;
+  }
+  body,
+  html[data-mode="dark"] body {
+    --bg: var(--color-ivory);
+    --fg: var(--color-ink);
+    --fg-soft: var(--color-ink-soft);
+    --line: color-mix(in oklab, var(--color-ink) 25%, transparent);
+    --gold-text: var(--color-gold-deep);
+    background: none !important;
+    color: var(--color-ink) !important;
+  }
+  .site-header,
+  .site-footer,
+  .site-menu,
+  .search,
+  .consent,
+  .drawer,
+  .drape,
+  .assistant-launcher,
+  .assistant,
+  .skip-link,
+  .golden-light,
+  .no-print,
+  .envelope,
+  .breadcrumb {
+    display: none !important;
+  }
+  .scene,
+  [data-theme] {
+    --bg: var(--color-ivory);
+    --fg: var(--color-ink);
+    --fg-soft: var(--color-ink-soft);
+    background: none !important;
+    color: var(--color-ink) !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  [data-reveal][data-pending] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  a {
+    text-decoration: none;
+  }
+  .certificate-page,
+  .confirmation,
+  .page-header {
+    padding-top: 0 !important;
+  }
+  .certificate-page__grid {
+    display: block;
+  }
+  .certificate,
+  .order,
+  .confirmation__details,
+  table,
+  .legal__box {
+    break-inside: avoid;
+  }
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+}
