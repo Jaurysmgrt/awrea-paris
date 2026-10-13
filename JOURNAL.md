@@ -38,3 +38,62 @@
 - Vérifications : `tsc` OK, `next build` OK, captures 1440 px et 390 px sans débordement horizontal.
 - Corrections : thèmes de section passés en `@layer base` (ils écrasaient la bascule), pied de page intégré à la
   bascule, scène « perle » ajoutée, titre H1 de l'ouverture élargi.
+
+## Étape 3 — Toutes les pages
+- Pages publiques avec données de démonstration : collections (+ page par collection), boutique (grille asymétrique,
+  filtres catégorie / taille / disponibilité, seconde image au survol), fiche produit (galerie, vidéo, loupe, certificat
+  d'édition, tailles, guide des tailles, matières et entretien, « Fait main à Paris », compléter la silhouette, liste
+  d'envies, précommande avec délai, liste d'attente), silhouettes achetables, La Maison (lettre manuscrite), L'Atelier
+  (carnet de croquis, vidéos), Journal (+ articles), Presse, Contact et rendez-vous, FAQ, livraison et retours, pages
+  légales, compte, liste d'envies, page introuvable.
+- Correction : aucune information d'entreprise inventée (année de création, adresse, arrondissement retirés ;
+  champs « À COMPLÉTER »), articles grammaticaux par catégorie dans les textes générés.
+
+## Étape 4 — Interactions signature
+- Les neuf signatures en place : lumière dorée (1), dentelle de l'ouverture (2), transition drapée WebGL (3), lettre
+  manuscrite au scroll signée « La Créatrice » (4), pièces numérotées « N° 3 / 5 » et pièces restantes (5), loupe
+  dentelle (6), shop the look (7), enveloppe de confirmation (8), alternance noir/ivoire (9).
+- Toutes coupées sous `prefers-reduced-motion`, adaptées au tactile (appui long pour la loupe, dérive de la lumière).
+- Corrections : la transition drapée ne bloque plus les clics des liens (fermeture du panier), l'enveloppe laisse
+  sortir la lettre au-dessus du rabat.
+
+## Étape 5 — Panier et parcours d'achat
+- Panier latéral (`<dialog>` natif), livraison offerte au-delà du seuil, emballage cadeau + message, codes promo et
+  cartes cadeaux de démonstration, tunnel court sans compte en mode test (cartes de test acceptée et refusée),
+  stocks par taille, numéros d'édition attribués à la commande, e-mail de confirmation, enveloppe animée.
+- Pilote Shopify : Cart API et checkout Shopify (carte, Apple Pay, Google Pay, PayPal, paiement en plusieurs fois).
+- Tests e2e du parcours complet (bureau + mobile).
+
+## Étape 6 — Assistante IA clientes
+- Claude en streaming avec outils (catalogue, fiche, guide des tailles, livraison, suivi de commande protégé par
+  l'e-mail, transmission à l'atelier), contexte de marque mis en cache, repli serveur en cas de refus, mode
+  démonstration sans clé, vouvoiement, interface au design de la maison.
+
+## Étape 7 — Agents de gestion et tableau de bord « Atelier »
+- Politique d'autonomie centralisée : le quotidien est exécuté, l'argent et l'irréversible (remboursement, prix,
+  suppression, lettre à toute la liste) attendent une validation en un clic.
+- Six agents (Catalogue avec vision, Service client, Commandes et stock, SEO et visibilité IA avec audit, Contenu,
+  Rapport), journal d'actions, déclencheurs par évènement (`after()`), Vercel Cron, tableau de bord protégé
+  (`proxy.ts`), tests e2e.
+
+## Étape 8 — Référencement Google et IA
+- Sitemap (avec langues), robots (robots d'IA autorisés, espaces privés exclus), manifeste, `llms.txt` et
+  `llms-full.txt` générés depuis les mêmes données que les pages, données structurées (Organization + Instagram,
+  WebSite, Product, Offer, BreadcrumbList, FAQPage, Article), un H1 et des métadonnées uniques par page.
+- Audit SEO de l'agent : 99/100 sur 28 pages.
+
+## Étape 9 — Tests finaux et performance
+- Tests responsive sur 7 largeurs (360 → 1920) : 168/168 ; accessibilité axe (WCAG 2.1 AA) et parcours : 41/41.
+- Audit d'homogénéité automatique (`npm run audit:tokens`) : aucune valeur en dur hors du design system.
+- Performance mobile (Lighthouse, mesure simulée 4G lente) : la page d'accueil passait à 52 à cause de transitions
+  de couleur relancées à chaque image et de sections hors écran animées au chargement. Corrections : bascule de scène
+  instantanée au chargement, scène initiale en CSS, transitions de couleur réservées au survol, animations sur le
+  compositeur, textures divisées par deux, GSAP / assistante / panier chargés à la demande, préchargement à
+  l'intention, seconde image des cartes jamais téléchargée sur mobile, contenu visible jamais masqué en attente
+  du JavaScript. Résultat : 92 à 97 en performance mobile, 100 en accessibilité, bonnes pratiques et SEO
+  (bureau : 97 à 99).
+
+## Ajouts au cahier des charges — reprise
+- Bandeau cookies refait : ivoire, filet doré, fondu discret, « Refuser » et « Accepter » à égalité, quatre
+  catégories, choix valable 13 mois, preuve enregistrée côté serveur, « Gérer mes cookies » dans le pied de page.
+- Limitation de débit partagée entre instances (connexions, assistante, consentement).

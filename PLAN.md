@@ -122,7 +122,66 @@ Lighthouse > 90. Audit d'homogénéité (aucune couleur / taille / durée en dur
 8. SEO et référencement IA
 9. Tests finaux, CLAUDE.md, sous-agents, préparation du déploiement Vercel
 
+## 10. Ajouts au cahier des charges (deuxième message)
+
+### Exploitation
+- **Agent de maintenance quotidienne** : GitHub Actions planifiée chaque jour → contrôle de disponibilité, erreurs
+  serveur et JavaScript (Sentry), liens et images cassés, pages lentes, connexion, panier et paiement en mode test,
+  formulaires, affichage mobile, accessibilité, dépendances obsolètes ou vulnérables. Parcours Playwright quotidiens
+  (accueil, fiche produit, ajout au panier, commande test, création de compte, connexion). En cas d'échec, Claude Code
+  (mode automatique) corrige le code, relance tous les tests et ne déploie que si tout passe ; retour arrière
+  automatique si un problème apparaît après déploiement. Chaque intervention est consignée dans `JOURNAL.md` et dans
+  l'Atelier avec un résumé du jour (« Tout va bien » ou liste des corrections).
+- **Environnement de prévisualisation** : chaque branche / demande de fusion a son déploiement Vercel Preview,
+  testé par la CI avant la production.
+- **Sauvegarde quotidienne** de la base (GitHub Actions, `pg_dump` chiffré).
+
+### Données et comptes
+- **Base clientes Supabase** (PostgreSQL + authentification) synchronisée avec Shopify : connexion e-mail, Google,
+  Apple ; profil, tailles habituelles, adresses, commandes, liste d'envies, listes d'attente ; données de navigation
+  uniquement avec consentement (pièces vues, collections préférées, paniers abandonnés). Recommandations, relances,
+  alertes de retour en stock, lettres ciblées, segments (nouvelles, fidèles, VIP) dans l'Atelier. Téléchargement et
+  suppression des données depuis le compte, données minimales, sécurité par ligne (RLS) sur toutes les tables.
+  Sans clés : mode démonstration sur le stockage clé-valeur, mêmes écrans.
+- **Consentement** : quatre catégories, preuve en base, renouvellement à 13 mois, aucun traceur avant accord ;
+  analytics respectueux (Plausible, ou GA4) et pixels Meta / Google Ads seulement après accord.
+
+### Légal
+Mentions légales, Propriété intellectuelle, CGV complètes (rétractation + formulaire type), CGU, Confidentialité,
+Politique cookies, Notice de l'assistante IA ; sommaire cliquable, date de mise à jour, champs « [À COMPLÉTER] »
+bien visibles listés dans `LEGAL-A-COMPLETER.md` ; cases d'acceptation au paiement et à la création de compte.
+
+### Commerce et marque
+Certificat d'authenticité numérique (QR → page unique, rattachable au compte) · drops (page « Bientôt » avec compte à
+rebours, accès anticipé des inscrites, vente privée protégée par mot de passe) · e-mails automatiques (Brevo ou
+Klaviyo) · flux Google Merchant Center / Instagram Shopping / Facebook · ventes par source dans l'Atelier ·
+« Trouver ma taille » · avis vérifiés sans étoiles avec photos et modération · recherche plein écran · Archives
+(« Pièce adoptée ») · en-têtes de sécurité, Cloudflare Turnstile, limitation des tentatives, double authentification
+obligatoire pour l'Atelier · page 404 et maintenance, icônes AW, image de partage par produit, impression soignée ·
+guide de la créatrice illustré.
+
+### Niveau supérieur
+Écran d'ouverture (monogramme au fil d'or < 2 s) · « Lumière de Paris » (ambiance selon l'heure de Paris) · film de
+collection en chapitres · vue 360° · lookbook feuilletable + PDF · son d'ambiance (coupé par défaut) · View
+Transitions grille → fiche · haptique, balayage, menu plein écran raffiné · styliste IA (texte ou photo → silhouette
+achetable) · accueil personnalisé (avec accord) · liste d'envies partageable · « Offrir une pièce » · club
+« Le Cercle Awrea » · rendez-vous privé synchronisé à l'agenda · fiche de traçabilité · espace presse · anglais,
+devises (EUR, GBP, USD, CHF), taxes et droits affichés · PWA et notifications · AVIF, préchargement au survol, rendu
+en périphérie, zéro décalage, Lighthouse 95+ · clavier, lecteurs d'écran, interrupteur d'animations · tests A/B
+mensuels proposés par l'agent Rapport · revue finale façon jury Awwwards dans `REVUE.md`.
+
+### Étapes suivantes
+10. Bandeau cookies, consentement et sécurité de base
+11. Base clientes Supabase, comptes et RGPD
+12. Pages légales et `LEGAL-A-COMPLETER.md`
+13. Ajouts commerce et marque (certificats, drops, e-mails, flux, tailles, avis, recherche, archives…)
+14. Niveau supérieur (expérience, personnalisation, Cercle, international, PWA)
+15. Agent de maintenance, CI, prévisualisation, sauvegardes
+16. Revue finale (`REVUE.md`), corrections, documentation (CLAUDE.md, guide de la créatrice)
+
 ## Ce qui sera demandé à la fin (impossible à deviner)
 Fichiers du logo, photos et vidéos réelles, accès Shopify (domaine + jetons Storefront/Admin),
-clé API Anthropic, compte Vercel, clé Resend (e-mails), jeton Instagram, mot de passe du tableau de bord,
-informations légales (SIRET, adresse, hébergeur).
+clé API Anthropic, compte Vercel, clé Resend (e-mails transactionnels) et Brevo ou Klaviyo (e-mails marketing),
+projet Supabase, DSN Sentry, clés Cloudflare Turnstile, identifiants Plausible/GA4, Meta Pixel, Google Ads et Merchant
+Center, jeton Instagram, agenda de la créatrice, mot de passe du tableau de bord, informations légales
+(voir `LEGAL-A-COMPLETER.md`).
