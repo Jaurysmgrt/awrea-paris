@@ -18,7 +18,7 @@ export interface DesignAudit {
   saturated: string[];
   spacing: string[];
   leading: string[];
-  justified: { selector: string; lines: number; chars: number; maxGap: number; looseLines: number; width: number }[];
+  justified: { selector: string; lines: number; chars: number; maxGap: number; looseLines: number; width: number; firstScreen: boolean }[];
 }
 
 declare global {
@@ -162,7 +162,12 @@ export function auditInPage(): DesignAudit {
       if (r > maxGap) maxGap = r;
       if (r > 1.5) loose++;
     }
-    justified.push({ selector: describe(p), lines, chars: Math.round(text.length / lines), maxGap: Math.round(maxGap * 100) / 100, looseLines: loose, width: Math.round(p.getBoundingClientRect().width) });
+    // capacité de la colonne en caractères : largeur / chasse moyenne du texte du paragraphe
+    const width = p.getBoundingClientRect().width;
+    const advance = ctx.measureText(text).width / Math.max(1, text.length);
+    // à l'écran dès l'ouverture : l'équilibreur doit lui garder son nombre de lignes (aucun décalage)
+    const firstScreen = p.getBoundingClientRect().top + window.scrollY < window.innerHeight;
+    justified.push({ selector: describe(p), lines, chars: Math.round(width / advance), maxGap: Math.round(maxGap * 100) / 100, looseLines: loose, width: Math.round(width), firstScreen });
   }
 
   return {

@@ -44,6 +44,7 @@ for (const f of fs.readdirSync(cssDir).filter((f) => f.endsWith(".css") && f !==
     if (/gold/i.test(line)) report(file, i + 1, "doré interdit", raw);
     if (/font-style:\s*italic/.test(line)) report(file, i + 1, "italique interdit", raw);
     if (/--font-(script|serif)\b/.test(line)) report(file, i + 1, "famille hors des deux polices", raw);
+    if (/backdrop-filter|filter:\s*blur/.test(line)) report(file, i + 1, "verre dépoli ou flou interdit", raw);
   });
 }
 

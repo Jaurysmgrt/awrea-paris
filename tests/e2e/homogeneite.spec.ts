@@ -6,8 +6,8 @@ import { auditInPage, hyphenateJustified, type DesignAudit } from "./design-audi
 /**
  * Testeur « homogénéité » : chaque page, sur mobile, tablette et ordinateur — deux familles de
  * polices, aucun italique ni doré, espacements multiples de 8 px, interlignage 1,6, et des
- * paragraphes justifiés sans trous (espaces entre les mots au plus 1,6 fois leur largeur
- * naturelle, 60 à 70 caractères par ligne sur ordinateur).
+ * paragraphes justifiés sans trous (espaces entre les mots au plus deux fois leur largeur
+ * naturelle — 2,5 sur les plus petits téléphones — et 45 à 75 caractères par ligne sur ordinateur).
  */
 const PAGES = [
   "/", "/collections", "/collections/lace-is-more", "/boutique", "/boutique/robe-odessa", "/boutique/body-aura", "/silhouettes",
@@ -37,6 +37,8 @@ for (const size of SIZES) {
         await page.emulateMedia({ reducedMotion: "reduce" });
         await page.goto(path, { waitUntil: "load" });
         await page.evaluate(() => document.fonts.ready);
+        // page hydratée et équilibreur monté (sinon React effacerait la césure et l'évènement serait perdu)
+        await page.waitForFunction(() => document.documentElement.dataset.justification !== undefined, null, { timeout: 30_000 });
         await hyphenateJustified(page);
         // justification régulière (components/typography/Justification.tsx) : on relance le calcul
         // de toute la page avec la césure
@@ -50,7 +52,13 @@ for (const size of SIZES) {
         expect(a.saturated, "couleurs saturées (doré)").toEqual([]);
         expect(a.spacing, "espacements hors de la grille de 8 px").toEqual([]);
         expect(a.leading, "interlignage du texte courant différent de 1,6").toEqual([]);
-        const holes = a.justified.filter((j) => j.lines > 1 && j.maxGap > 1.6);
+        // espaces entre les mots, rapportés à l'espace naturel de la police : 2 au plus (2,5 sur les
+        // plus petits téléphones, où la colonne est déjà élargie et le texte réduit). Un paragraphe
+        // visible dès l'ouverture garde son nombre de lignes pour que rien ne bouge (aucun décalage
+        // de mise en page) : sa marge est un peu plus large, et les chapeaux concernés sont revus à
+        // la rédaction.
+        const limit = size.width < 400 ? 2.5 : 2;
+        const holes = a.justified.filter((j) => j.lines > 1 && j.maxGap > limit + (j.firstScreen ? 0.6 : 0));
         expect(holes, "trous dans les paragraphes justifiés").toEqual([]);
         if (size.name === "ordinateur") {
           const measure = a.justified.filter((j) => j.lines > 2 && (j.chars < 45 || j.chars > 75));

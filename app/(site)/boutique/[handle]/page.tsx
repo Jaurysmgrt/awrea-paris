@@ -16,6 +16,9 @@ import { shop } from "@/content/settings";
 import { formatPrice } from "@/lib/format";
 import { AtelierNote } from "@/components/ui/AtelierNote";
 import { momentFor } from "@/content/fr/coulisses";
+import { DropGate, type DropInfo } from "@/components/drops/DropGate";
+import { dropOfProduct } from "@/lib/drops";
+import { Reviews } from "@/components/reviews/Reviews";
 
 export const revalidate = 300;
 
@@ -26,13 +29,16 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }) {
   const p = await getProduct((await params).handle);
   if (!p) return {};
-  return pageMetadata({ ...p.seo, path: `/boutique/${p.handle}`, image: p.images[0]?.src });
+  // pièce d'un drop pas encore ouvert : pas d'indexation avant l'ouverture
+  const drop = await dropOfProduct(p.handle);
+  return pageMetadata({ ...p.seo, path: `/boutique/${p.handle}`, image: p.images[0]?.src, noindex: Boolean(drop) });
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ handle: string }> }) {
   const product = await getProduct((await params).handle);
   if (!product) notFound();
-  const [collection, look] = await Promise.all([getCollection(product.collection), getProductsByHandles(product.completeTheLook)]);
+  const [collection, look, drop] = await Promise.all([getCollection(product.collection), getProductsByHandles(product.completeTheLook), dropOfProduct(product.handle)]);
+  const dropInfo: DropInfo | null = drop ? { slug: drop.slug, title: drop.title, earlyAccessAt: drop.earlyAccessAt, publicAt: drop.publicAt, privateSale: drop.privateSale } : null;
   const categoryLabel = { robe: "Robe", body: "Body", top: "Top", jupe: "Jupe", accessoire: "Accessoire" }[product.category];
 
   return (
@@ -63,7 +69,9 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
 
               <EditionNumber product={product} />
 
-              <ProductForm product={product} />
+              <DropGate drop={dropInfo}>
+                <ProductForm product={product} />
+              </DropGate>
 
               <p className="handmade t-label">
                 <span aria-hidden="true" className="handmade__mark" />
@@ -137,6 +145,12 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
       </Section>
 
       <AtelierNote moment={momentFor(product)} />
+
+      <Section theme="ivory" className="section">
+        <div className="container">
+          <Reviews handle={product.handle} />
+        </div>
+      </Section>
 
       {look.length ? (
         <Section theme="pearl" className="section" labelledBy="look-title">

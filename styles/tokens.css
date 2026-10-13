@@ -151,8 +151,9 @@
   --space-paragraph: var(--spacing-m); /* entre deux paragraphes : une ligne, 24 */
   --space-block: var(--spacing-xl); /* entre deux blocs d'une section */
   --space-section: var(--spacing-2xl); /* entre deux sections */
-  /* mesure du texte courant (60 à 70 caractères), relative à la taille du texte */
-  --measure: 32em;
+  /* mesure du texte courant : 60 à 70 caractères d'Inter Tight, relative à la taille du texte
+     (420 px pour le texte courant, 560 px pour un chapeau) */
+  --measure: 28em;
 
   /* rôles de couleur de la scène courante (bascule noir / blanc cassé) */
   --bg: var(--color-ivory);

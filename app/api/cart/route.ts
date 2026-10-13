@@ -3,6 +3,8 @@ import { z } from "zod";
 import { applyCartAction, CartError, readCart } from "@/lib/commerce/cart";
 import { getCustomerSession } from "@/lib/auth/customer";
 import { saveCartSnapshot } from "@/lib/customers";
+import { getAllProducts } from "@/lib/commerce";
+import { assertCanBuy } from "@/lib/drops";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +27,19 @@ export async function GET() {
 export async function POST(req: Request) {
   const parsed = Action.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Cette demande n’a pas pu être lue. Merci de réessayer." }, { status: 400 });
+  // drops : une pièce pas encore ouverte ne s'achète qu'avec l'accès anticipé ou la vente privée
+  const action = parsed.data;
+  if (action.type === "add" || action.type === "addMany" || action.type === "checkout") {
+    let handles: string[];
+    if (action.type === "checkout") handles = (await readCart()).lines.map((l) => l.productHandle);
+    else {
+      const ids = action.type === "add" ? [action.variantId] : action.variantIds;
+      const products = await getAllProducts();
+      handles = ids.map((id) => products.find((p) => p.variants.some((v) => v.id === id))?.handle).filter((h): h is string => Boolean(h));
+    }
+    const blocked = await assertCanBuy(handles);
+    if (blocked) return NextResponse.json({ error: blocked, cart: await readCart() }, { status: 403 });
+  }
   try {
     const cart = await applyCartAction(parsed.data);
     // cliente connectée ayant accepté la personnalisation : panier mémorisé pour une éventuelle relance

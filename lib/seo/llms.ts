@@ -9,7 +9,7 @@ import { faq } from "@/content/fr/faq";
 import { shop } from "@/content/settings";
 import { legalPages, type LegalBlock } from "@/content/fr/legal";
 import { legalPlain } from "@/lib/legal/plain";
-import { getAllProducts, getCollections } from "@/lib/commerce";
+import { getPublicProducts, getCollections } from "@/lib/commerce";
 import { getArticles } from "@/lib/content/journal";
 import { editionInfo, productAvailability } from "@/lib/commerce/availability";
 import { formatPrice } from "@/lib/format";
@@ -19,7 +19,7 @@ import { absolute } from "./metadata";
 const avail = { available: "disponible", preorder: "sur commande", soldout: "épuisée" } as const;
 
 export async function buildLlms(full: boolean): Promise<string> {
-  const [products, collections, articles, notes] = await Promise.all([getAllProducts(), getCollections(), getArticles(), kv.get<{ notes: string[]; updatedAt: string }>("ai:llms-notes")]);
+  const [products, collections, articles, notes] = await Promise.all([getPublicProducts(), getCollections(), getArticles(), kv.get<{ notes: string[]; updatedAt: string }>("ai:llms-notes")]);
   const L: string[] = [];
   L.push(`# ${identity.name}`);
   L.push("");

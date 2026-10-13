@@ -1,13 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
-import fs from "node:fs";
-import path from "node:path";
-import { acceptCookies, signUp } from "./helpers";
-
-/** Boîte d'envoi simulée du mode démonstration (stockage local du serveur de test). */
-function outbox(): { to: string; subject: string; text: string }[] {
-  const store = JSON.parse(fs.readFileSync(path.join(process.cwd(), ".data", "store.json"), "utf8"));
-  return store["email:outbox"] ?? [];
-}
+import { acceptCookies, outbox, signUp } from "./helpers";
+import { adminLogin } from "./admin-auth";
 
 async function buy(page: Page, email: string) {
   await page.goto("/boutique/body-aura");
@@ -72,6 +65,27 @@ test.describe("Certificats d’authenticité", () => {
     await expect(page.getByText(serial)).toBeVisible();
     await page.getByRole("link", { name: "Voir le certificat" }).first().click();
     await expect(page).toHaveURL(new RegExp(`/certificat/${serial}$`));
+  });
+
+  test("Atelier : préparer le certificat papier et l’étiquette, écrire le mot de la créatrice", async ({ page }) => {
+    await acceptCookies(page);
+    await buy(page, `atelier.${Date.now().toString(36)}@exemple.fr`);
+    const serial = (await page.locator(".confirmation__certificates a").first().getAttribute("href"))!.split("/").pop()!;
+    await adminLogin(page);
+    await page.goto("/gestion/certificats");
+    await expect(page.getByRole("heading", { level: 1, name: "Certificats" })).toBeVisible();
+    await page.getByRole("row", { name: new RegExp(serial) }).getByRole("link", { name: "Préparer" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: serial })).toBeVisible();
+    // le code de rattachement s'imprime sur le certificat papier, l'étiquette porte le QR code
+    await expect(page.locator(".certificate__claim")).toContainText(/[A-Z0-9]{4}-[A-Z0-9]{4}/);
+    await expect(page.locator(".certificate-label").getByRole("img", { name: `QR code du certificat ${serial}` })).toBeVisible();
+    await page.getByLabel("Mot de la créatrice (facultatif)").fill("Pour vous, cette robe a été cousue un matin de pluie.");
+    await page.getByRole("button", { name: "Enregistrer" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "C’est enregistré." })).toBeVisible();
+    await page.goto(`/certificat/${serial}`);
+    await expect(page.locator(".certificate__word")).toContainText("cousue un matin de pluie");
+    // la page publique ne montre jamais le code
+    await expect(page.locator(".certificate__claim")).toHaveCount(0);
   });
 
   test("certificat inconnu : page introuvable ; rattachement réservé aux clientes connectées", async ({ request }) => {

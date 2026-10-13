@@ -435,4 +435,44 @@
     padding: var(--spacing-s);
     border: var(--border-width-hair) solid var(--line);
   }
+
+  /* ======================================== CERTIFICATS (impression atelier) */
+  .certificate-print {
+    display: grid;
+    gap: var(--spacing-l);
+    max-width: var(--container-sheet);
+  }
+  /* étiquette à coudre dans la pièce : QR code et numéro, sur fond blanc cassé, filet noir */
+  .certificate-label {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: var(--spacing-s);
+    width: fit-content;
+    padding: var(--spacing-s);
+    border: var(--border-width-hair) dashed var(--color-ink);
+    background: var(--color-ivory);
+    color: var(--color-ink);
+  }
+  .certificate-label__qr {
+    width: var(--spacing-3xl);
+    aspect-ratio: 1;
+  }
+  .certificate-label__qr svg {
+    width: 100%;
+    height: 100%;
+  }
+  .certificate-label__text {
+    display: grid;
+    gap: var(--spacing-2xs);
+  }
+  .admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-s);
+  }
+  .admin-review {
+    padding-top: var(--spacing-m);
+    border-top: var(--border-width-hair) solid var(--line);
+  }
 }

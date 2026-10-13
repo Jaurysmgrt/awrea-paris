@@ -157,9 +157,10 @@ create table if not exists public.reviews (
   body text not null check (char_length(body) between 20 and 1500),
   fit text check (fit in ('petite', 'juste', 'grande')),
   size text,
-  photo_path text,
+  photos jsonb not null default '[]'::jsonb,                          -- trois photos au plus (identifiants)
   status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
-  moderation_note text,
+  moderation_note text,                                               -- note interne de l'atelier
+  reply text check (char_length(reply) <= 600),                       -- réponse publique de la créatrice
   created_at timestamptz not null default now(),
   moderated_at timestamptz,
   unique (order_id, product_handle)

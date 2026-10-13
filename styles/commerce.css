@@ -316,4 +316,49 @@
   .size-finder > .btn {
     margin-top: var(--spacing-m);
   }
+
+  /* ============================================================ AVIS VÉRIFIÉS
+     Sobres, sans étoiles : le texte de la cliente, la taille portée, le tombé ressenti. */
+  .reviews {
+    display: grid;
+    gap: var(--space-title);
+  }
+  .reviews__list {
+    display: grid;
+    gap: var(--space-block);
+  }
+  @media (min-width: 64rem) {
+    .reviews__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--spacing-gutter);
+    }
+  }
+  .review {
+    display: grid;
+    gap: var(--spacing-s);
+    align-content: start;
+    padding-top: var(--spacing-m);
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .review__meta {
+    color: var(--fg-soft);
+  }
+  .review__photos,
+  .review-form__photos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+  .review__photos img,
+  .review-form__photos img {
+    width: var(--container-thumb-l);
+    aspect-ratio: 4 / 5;
+    height: auto;
+    object-fit: cover;
+    background: var(--media-bg);
+  }
+  .review__reply {
+    padding-left: var(--spacing-m);
+    border-left: var(--border-width-hair) solid var(--line);
+  }
 }

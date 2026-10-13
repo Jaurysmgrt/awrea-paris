@@ -40,8 +40,12 @@ const EXTRA: [number, number][] = [
   [-0.02, 0.01],
   [-0.07, 0.01],
 ];
+/** recherche fine (paragraphes à l'écran, tenus de garder leur nombre de lignes, et trous tenaces) */
+const FINE: [number, number][] = [];
+for (let ws = -0.08; ws <= 0.021; ws += 0.02) for (let ls = -0.012; ls <= 0.0121; ls += 0.004) FINE.push([Math.round(ws * 100) / 100, Math.round(ls * 1000) / 1000]);
 const GOOD = 1.3; // au-delà, on cherche un meilleur réglage
 const LOOSE = 1.8; // au-delà, on essaie aussi les réglages de secours
+const STUBBORN = 2; // au-delà, recherche fine
 
 type Measure = { lines: number; gaps: number[] };
 
@@ -117,6 +121,7 @@ function balance(p: HTMLElement) {
   };
   tryAll(VARIANTS);
   if (best.s > LOOSE) tryAll(EXTRA);
+  if (best.s > STUBBORN || (onScreen && best.s > LOOSE)) tryAll(FINE);
   apply(p, best.v);
 }
 
@@ -127,6 +132,8 @@ export function Justification() {
   useEffect(() => {
     if (!canvas || !("IntersectionObserver" in window)) return;
     const root = document.documentElement;
+    // le composant est monté : les tests peuvent envoyer « awrea:justifier »
+    root.dataset.justification ??= "en-cours";
     const queue = new Set<HTMLElement>();
     const widths = new WeakMap<Element, number>();
     let scheduled = false;

@@ -4,7 +4,7 @@
  * à la recherche plein écran, qui filtre ensuite instantanément dans le navigateur.
  */
 import "server-only";
-import { getAllProducts, getCollections } from "@/lib/commerce";
+import { getPublicProducts, getCollections } from "@/lib/commerce";
 import { getArticles } from "@/lib/content/journal";
 import { editionInfo, productAvailability, availabilityLabel } from "@/lib/commerce/availability";
 import { atelier, boutique, contact, maison, pressePage, silhouettes } from "@/content/fr/pages";
@@ -30,7 +30,7 @@ const pages: { href: string; title: string; note: string; extra: string }[] = [
 const categoryLabel = (value: string) => boutique.categories.find((c) => c.value === value)?.label ?? value;
 
 export async function buildSearchIndex(): Promise<SearchEntry[]> {
-  const [products, collections, articles] = await Promise.all([getAllProducts(), getCollections(), getArticles()]);
+  const [products, collections, articles] = await Promise.all([getPublicProducts(), getCollections(), getArticles()]);
   const collectionTitle = new Map(collections.map((c) => [c.handle, c.title]));
   const entries: SearchEntry[] = [];
 

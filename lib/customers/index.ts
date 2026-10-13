@@ -4,6 +4,7 @@
  *    (sécurité par ligne) ; seules les opérations d'administration utilisent la clé service ;
  *  - démonstration (sans clés) : stockage clé-valeur local, mêmes écrans, mêmes règles.
  */
+import { anonymizeReviewsOf, reviewsOf } from "@/lib/reviews";
 import "server-only";
 import { createHash, randomBytes } from "node:crypto";
 import { kv } from "@/lib/store";
@@ -445,13 +446,14 @@ export async function saveCartSnapshot(s: CustomerSession, lines: { handle: stri
 
 // ------------------------------------------------------------------ RGPD : export et suppression
 export async function exportData(s: CustomerSession) {
-  const [profile, addresses, orders, wishlist, waitlist, browsing] = await Promise.all([
+  const [profile, addresses, orders, wishlist, waitlist, browsing, reviews] = await Promise.all([
     getProfile(s),
     listAddresses(s),
     listOrders(s),
     getWishlist(s),
     listWaitlist(s),
     listBrowsing(s, SEEN_CAP),
+    reviewsOf(s),
   ]);
   return {
     exportedAt: new Date().toISOString(),
@@ -462,15 +464,17 @@ export async function exportData(s: CustomerSession) {
     wishlist,
     waitlist,
     browsing,
+    reviews,
   };
 }
 
 /**
  * Suppression du compte : profil, adresses, envies, listes d'attente, navigation, abonnements.
  * Les commandes sont conservées sans lien avec le compte (obligation comptable de 10 ans),
- * les avis publiés restent anonymes.
+ * les avis publiés restent anonymes (« Une cliente », sans photos).
  */
 export async function deleteAccount(s: CustomerSession) {
+  await anonymizeReviewsOf(s);
   if (isSupabaseConfigured) {
     const admin = supabaseAdmin();
     await admin.from("waitlist_entries").delete().eq("customer_id", s.id);

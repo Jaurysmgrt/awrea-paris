@@ -1,6 +1,6 @@
 import Link from "@/components/ui/Link";
 import { boutique } from "@/content/fr/pages";
-import { getAllProducts, getProducts } from "@/lib/commerce";
+import { getPublicProducts, getProducts } from "@/lib/commerce";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { collectionSchema } from "@/lib/seo/schema";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -33,7 +33,7 @@ export default async function BoutiquePage({ searchParams }: { searchParams: Pro
   const category = boutique.categories.some((c) => c.value === sp.categorie) ? (sp.categorie as Category) : null;
   const size = SIZES.includes(sp.taille as Size) ? (sp.taille as Size) : null;
   const availability = sp.disponibilite === "disponible" ? "available" : sp.disponibilite === "sur-commande" ? "preorder" : null;
-  const [products, all] = await Promise.all([getProducts({ category, size, availability }), getAllProducts()]);
+  const [products, all] = await Promise.all([getProducts({ category, size, availability }), getPublicProducts()]);
   const active = [category, size, availability].filter(Boolean).length;
 
   const groups = [

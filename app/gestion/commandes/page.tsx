@@ -1,3 +1,4 @@
+import Link from "@/components/ui/Link";
 import { getOrders, statusLabel, trackingUrl } from "@/lib/commerce/orders";
 import { getWaitlist } from "@/lib/waitlist";
 import { formatPrice } from "@/lib/format";
@@ -27,6 +28,7 @@ export default async function CommandesPage() {
                 <th scope="col">Total</th>
                 <th scope="col">Statut</th>
                 <th scope="col">Suivi</th>
+                <th scope="col">Certificats</th>
               </tr>
             </thead>
             <tbody>
@@ -41,6 +43,11 @@ export default async function CommandesPage() {
                     <td>{formatPrice(o.total)}</td>
                     <td><span className={`status status--${o.status === "blocked" ? "failed" : o.status === "delivered" || o.status === "shipped" ? "done" : "info"}`}>{statusLabel[o.status]}</span></td>
                     <td>{url ? <a href={url} className="text-link" target="_blank" rel="noopener noreferrer">{o.shipping.carrier}</a> : "—"}</td>
+                    <td>
+                      <Link href={`/gestion/certificats?commande=${encodeURIComponent(o.number)}`} className="text-link">Préparer</Link>
+                      <br />
+                      <ActionButton endpoint="/api/gestion/avis/demande" body={{ number: o.number }} label="Demander un avis" busyLabel="Envoi…" variant="quiet" />
+                    </td>
                   </tr>
                 );
               })}

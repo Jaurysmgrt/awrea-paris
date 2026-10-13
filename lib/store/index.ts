@@ -138,6 +138,8 @@ class FileKV implements KV {
 
 function fileLocation() {
   if (process.env.AWREA_STORE_FILE) return process.env.AWREA_STORE_FILE;
+  // fichier distinct (tests de bout en bout menés à côté du serveur de développement, par exemple)
+  if (process.env.STORE_FILE) return path.resolve(process.env.STORE_FILE);
   if (process.env.VERCEL) return "/tmp/awrea-store.json";
   return path.join(process.cwd(), ".data", "store.json");
 }

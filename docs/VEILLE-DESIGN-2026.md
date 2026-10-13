@@ -1,5 +1,9 @@
 # Veille design 2026 — sites de mode et de luxe primés
 
+> **Mise à jour du 13/10/2026** : la direction artistique a changé (`MARQUE.md`) — aucun doré,
+> Instrument Serif et Inter Tight. Les mentions « noir et or », Bodoni ou calligraphie ci-dessous
+> sont historiques ; les arbitrages de la deuxième veille sont dans `docs/equipes/design/arbitrages.md`.
+
 > Réalisée le 13 octobre 2026 pour Awrea Paris, avant la finalisation du design.
 > Sources consultées : listes et palmarès Awwwards (catégories Fashion et Luxury, Sites of the Day),
 > articles de presse spécialisée. SiteInspire et Godly n'étaient pas accessibles depuis l'environnement
@@ -29,7 +33,7 @@ d'achat mobile court.
 | Esprit galerie | Grands vides, grilles asymétriques, légendes discrètes sous les images (« Fig. », matière, numéro) | `Media` (`caption`), pages éditoriales |
 | Typographie géante | Titres d'ouverture à l'échelle de l'écran, contraste serif géant / petites capitales espacées, apparition lettre à lettre au chargement | `SplitTitle`, `.t-giant` |
 | Vidéo qui a du sens | Vidéo de tombé sur chaque fiche ; vignette vidéo au survol dans la boutique (seulement sur ordinateur, chargée à l'approche) | `ProductCard`, `ProductGallery` |
-| Mode sombre assumé | Version noir et or complète, automatique selon le réglage du téléphone, interrupteur élégant | `ModeToggle`, `tokens.css` |
+| Mode sombre assumé | Version noire complète (noir et blanc cassé, aucun doré depuis le 13/10/2026), automatique selon le réglage du téléphone, interrupteur élégant | `ModeToggle`, `tokens.css` |
 | Coulisses | Croquis, essayages et gestes de l'atelier sur l'accueil, les collections, les fiches, le panier et la confirmation | `AtelierNote`, fiches |
 | Micro-interactions natives | Retour visuel immédiat, boutons magnétiques discrets, squelettes ivoire au chargement | `Magnetic`, `.skeleton` |
 | Rythme lent | Animations amples (durées longues), achat toujours en peu d'étapes | jetons `--dur-*` |
@@ -42,3 +46,20 @@ Les expériences 3D ludifiées des grandes maisons (jeux, enquêtes) font l'év�
 détournent du vêtement : à l'échelle d'Awrea Paris, la matière et le geste suffisent. Couleurs saturées,
 esthétique Y2K, brutalisme, néomorphisme, claymorphisme, collages et effets gadgets sont exclus : ils ne
 correspondent pas à l'ADN de la marque.
+
+## Deuxième veille — liste noire (pour le processus de design multi-agents)
+
+> Agent Veille, 13/10/2026. Détail, sources et sites : [`equipes/design/liste-noire.md`](equipes/design/liste-noire.md).
+
+- **Méthode** : 25 sites examinés ; aucune page n'a pu être chargée (outil de lecture en échec DNS) :
+  sources indirectes datées (agences, presse, Awwwards, Baymard) et souvenirs signalés comme non
+  revérifiés. Godly et SiteInspire restent inaccessibles.
+- **Codes les plus répandus** : héros plein écran à titre centré, logo centré et quatre pictogrammes,
+  accueil en modules empilés, grille de 3 à 4 colonnes avec seconde image au survol, fiche « galerie
+  à gauche, colonne collante à droite », accordéons, carrousels de recommandation, petites capitales
+  espacées, bandeau d'annonce et remise de bienvenue, mouvements des sites primés.
+- **Codes à garder** : prix visible, achat à portée sur téléphone, mesures et guide des tailles,
+  informations complètes avant paiement, tunnel court, navigation visible, pages rapides, accessibilité.
+- **À arbitrer** : des choix retenus plus haut figurent dans la liste noire (apparition lettre à lettre,
+  boutons magnétiques, vidéo au survol, typographie géante, légendes « Fig. », grilles asymétriques) ;
+  la « version noir et or » contredit `MARQUE.md` (aucun doré). Autres points : section 6 de la liste.

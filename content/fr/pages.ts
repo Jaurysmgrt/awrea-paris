@@ -13,6 +13,7 @@ export const nav = {
     { href: "/journal", label: "Journal" },
   ],
   secondary: [
+    { href: "/bientot", label: "Bientôt" },
     { href: "/presse", label: "Presse" },
     { href: "/contact", label: "Contact & rendez-vous" },
     { href: "/faq", label: "Questions fréquentes" },

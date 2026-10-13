@@ -214,13 +214,17 @@
   }
 }
 
+/* Animations apaisées. Les animations gardent une durée infime (leur évènement de fin sert à
+   LaceReveal) ; les transitions sont supprimées : une durée infime appliquée à tous les éléments
+   ferait transiter toutes leurs propriétés, et une mesure faite juste après un changement (la
+   justification régulière, par exemple) lirait encore l'ancienne valeur. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important; /* token-ok : neutralisation */
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important; /* token-ok : neutralisation */
+    transition: none !important;
     scroll-behavior: auto !important;
   }
 }
@@ -235,6 +239,6 @@ html[data-motion="reduce"] *::before,
 html[data-motion="reduce"] *::after {
   animation-duration: 0.01ms !important; /* token-ok : neutralisation */
   animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important; /* token-ok : neutralisation */
+  transition: none !important;
   scroll-behavior: auto !important;
 }

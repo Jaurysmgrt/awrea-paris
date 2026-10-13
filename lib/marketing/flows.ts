@@ -15,6 +15,7 @@
  * Les autres scénarios planifiés passent par `runDailyFlows()` (tâche quotidienne).
  * Chaque envoi est mémorisé pour ne jamais être répété.
  */
+import { reviewToken } from "@/lib/reviews";
 import "server-only";
 import { identity } from "@/content/brand/identity";
 import { brandEmail } from "@/lib/email/templates";
@@ -125,21 +126,7 @@ export async function runDailyFlows(now = new Date()): Promise<DailyReport> {
     if (o.status !== "delivered") continue;
     const deliveredAt = new Date(o.createdAt).getTime() + 4 * day;
     if (now.getTime() - deliveredAt < 14 * day || now.getTime() - deliveredAt > 30 * day) continue;
-    const sent = await once("avis", o.id, async () => {
-      const mail = brandEmail({
-        preheader: "Votre regard compte pour l’atelier.",
-        title: "Comment la portez-vous ?",
-        paragraphs: [
-          greet(o.name.split(" ")[0]),
-          "Votre pièce vous accompagne depuis quelques jours. Nous aimerions savoir comment elle tombe, ce que vous ressentez en la portant, et si la taille vous a semblé juste.",
-          "Votre avis, vérifié et publié avec votre prénom seulement, aide d’autres femmes à choisir. Une photo est bienvenue, mais jamais obligatoire.",
-        ],
-        cta: { label: "Donner mon avis", href: absolute(`/avis/${encodeURIComponent(o.number)}`) },
-        signature: SIGNATURE,
-        footnote: "Vous ne souhaitez plus recevoir de demande d’avis ? Répondez simplement à ce message.",
-      });
-      await sendFlowEmail({ to: o.email, subject: "Comment la portez-vous ?", ...mail, flow: "avis" });
-    });
+    const sent = await once("avis", o.id, () => sendReviewRequest(o));
     if (sent) report.avis++;
   }
 
@@ -222,3 +209,20 @@ export async function runDailyFlows(now = new Date()): Promise<DailyReport> {
 }
 
 export const contactEmail = identity.email;
+
+/** Demande d'avis (flux du 14e jour après la livraison, ou envoi manuel depuis l'Atelier). */
+export async function sendReviewRequest(o: Order) {
+  const mail = brandEmail({
+    preheader: "Votre regard compte pour l’atelier.",
+    title: "Comment la portez-vous ?",
+    paragraphs: [
+      greet(o.name.split(" ")[0]),
+      "Votre pièce vous accompagne depuis quelques jours. Nous aimerions savoir comment elle tombe, ce que vous ressentez en la portant, et si la taille vous a semblé juste.",
+      "Votre avis, vérifié et publié avec votre prénom seulement, aide d’autres femmes à choisir. Une photo est bienvenue, mais jamais obligatoire.",
+    ],
+    cta: { label: "Donner mon avis", href: absolute(`/avis/${encodeURIComponent(o.number)}?t=${encodeURIComponent(reviewToken(o))}`) },
+    signature: SIGNATURE,
+    footnote: "Vous ne souhaitez plus recevoir de demande d’avis ? Répondez simplement à ce message.",
+  });
+  await sendFlowEmail({ to: o.email, subject: "Comment la portez-vous ?", ...mail, flow: "avis" });
+}

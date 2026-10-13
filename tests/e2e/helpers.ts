@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import type { Page } from "@playwright/test";
 import { CONSENT_COOKIE, encodeConsent } from "../../lib/consent";
 
@@ -33,4 +35,15 @@ export async function signUp(page: Page, email: string) {
   await page.getByLabel("Code reçu par e-mail").fill(code);
   await page.getByRole("button", { name: "Valider" }).click();
   await page.getByRole("heading", { name: /Bonjour/ }).waitFor();
+}
+
+/** Stockage du serveur de test (mode démonstration) : même fichier que lib/store (STORE_FILE). */
+export function readStore(): Record<string, unknown> {
+  const file = process.env.STORE_FILE ? path.resolve(process.env.STORE_FILE) : path.join(process.cwd(), ".data", "store.json");
+  return JSON.parse(fs.readFileSync(file, "utf8"));
+}
+
+/** Boîte d'envoi simulée du mode démonstration. */
+export function outbox(): { to: string; subject: string; text: string }[] {
+  return (readStore()["email:outbox"] as { to: string; subject: string; text: string }[] | undefined) ?? [];
 }

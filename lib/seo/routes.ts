@@ -1,5 +1,5 @@
 /** Liste des pages publiques — partagée par le sitemap, llms.txt et l'audit SEO. */
-import { getAllProducts, getCollections } from "@/lib/commerce";
+import { getPublicProducts, getCollections } from "@/lib/commerce";
 import { getArticles } from "@/lib/content/journal";
 
 export const STATIC_ROUTES: { path: string; priority: number; changeFrequency: "daily" | "weekly" | "monthly" | "yearly" }[] = [
@@ -25,7 +25,7 @@ export const STATIC_ROUTES: { path: string; priority: number; changeFrequency: "
 ];
 
 export async function allPublicPaths(): Promise<{ path: string; lastModified?: string; priority: number; changeFrequency: "daily" | "weekly" | "monthly" | "yearly" }[]> {
-  const [products, collections, articles] = await Promise.all([getAllProducts(), getCollections(), getArticles()]);
+  const [products, collections, articles] = await Promise.all([getPublicProducts(), getCollections(), getArticles()]);
   return [
     ...STATIC_ROUTES,
     ...collections.map((c) => ({ path: `/collections/${c.handle}`, priority: c.current ? 0.9 : 0.6, changeFrequency: "weekly" as const })),

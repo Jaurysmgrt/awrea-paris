@@ -93,7 +93,8 @@
 - Menu de cinq entrées au plus ; aucune bannière promotionnelle, aucune fenêtre surgissante, aucun
   compteur clignotant (seul le compte à rebours sobre de la page « Bientôt » est admis).
 - Images traitées comme des œuvres (légendes discrètes) ; matières visibles.
-- À éviter : couleurs saturées, Y2K, brutalisme, néomorphisme, claymorphisme, collages, gadgets.
+- À éviter : couleurs saturées, Y2K, brutalisme, néomorphisme, claymorphisme, verre dépoli et flou,
+  collages, gadgets, et les codes de la liste noire (`docs/equipes/design/liste-noire.md`).
 - Test final de chaque page : pourrait-elle appartenir à une maison de couture parisienne — et à
   aucune autre qu'Awrea ?
 
@@ -125,3 +126,5 @@
 | Date | Équipe | Décision |
 | --- | --- | --- |
 | 13/10/2026 | Direction | Nouvelle direction artistique : sans doré, Instrument Serif + Inter Tight, justification régulière, grille de 8 px |
+| 13/10/2026 | Design (chef de projet) | Arbitrages de la liste noire : ce qui a été demandé reste, avec une exécution propre à Awrea ; « Fig. », grilles asymétriques, bulle d'assistante et verre dépoli abandonnés (`docs/equipes/design/arbitrages.md`) |
+| 13/10/2026 | Qualité (chef de projet) | Justification : espaces au plus 2 fois l'espace naturel (2,5 sur les plus petits téléphones) ; un paragraphe visible dès l'ouverture garde son nombre de lignes (aucun décalage), avec une tolérance de 0,6 — ces chapeaux sont revus à la rédaction |

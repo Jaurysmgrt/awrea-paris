@@ -6,6 +6,7 @@ import { cache } from "react";
 import { shopifyCollections, shopifyEnabled, shopifyProducts } from "@/lib/shopify/storefront";
 import { demoCollections, demoLooks, demoProducts } from "./catalog-demo";
 import { productAvailability } from "./availability";
+import { hideUpcoming } from "@/lib/drops";
 import type { Collection, Look, Product, ProductFilter } from "./types";
 
 export const commerceMode: "shopify" | "demo" = shopifyEnabled ? "shopify" : "demo";
@@ -21,8 +22,9 @@ export const getAllProducts = cache(async (): Promise<Product[]> => {
   return demoProducts();
 });
 
+/** Pièces de la boutique, sans celles d'un drop pas encore ouvert (lib/drops.ts). */
 export async function getProducts(filter: ProductFilter = {}): Promise<Product[]> {
-  const all = await getAllProducts();
+  const all = await hideUpcoming(await getAllProducts());
   return all.filter((p) => {
     if (filter.collection && p.collection !== filter.collection) return false;
     if (filter.category && p.category !== filter.category) return false;
@@ -41,9 +43,14 @@ export async function getProduct(handle: string): Promise<Product | null> {
   return all.find((p) => p.handle === handle) ?? null;
 }
 
-export async function getProductsByHandles(handles: string[]): Promise<Product[]> {
-  const all = await getAllProducts();
+export async function getProductsByHandles(handles: string[], { includeUpcoming = false }: { includeUpcoming?: boolean } = {}): Promise<Product[]> {
+  const all = includeUpcoming ? await getAllProducts() : await hideUpcoming(await getAllProducts());
   return handles.map((h) => all.find((p) => p.handle === h)).filter((p): p is Product => Boolean(p));
+}
+
+/** Pièces visibles publiquement (listes, recherche, flux, plan du site) : sans les drops pas encore ouverts. */
+export async function getPublicProducts(): Promise<Product[]> {
+  return hideUpcoming(await getAllProducts());
 }
 
 export const getCollections = cache(async (): Promise<Collection[]> => {

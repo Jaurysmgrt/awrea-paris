@@ -40,8 +40,9 @@
     padding-top: calc(var(--header-h) + var(--spacing-xl));
     padding-bottom: var(--spacing-xl);
   }
+  /* le chapeau suit la mesure commune des paragraphes (styles/base.css) */
   .page-head__lead {
-    max-width: var(--container-prose);
+    max-width: var(--measure);
   }
 
   /* ============================================================ OUVERTURE */
@@ -68,7 +69,7 @@
     color: var(--color-ivory);
   }
   .hero__lead {
-    max-width: 30ch;
+    max-width: var(--measure);
   }
   .hero__scroll {
     position: absolute;
@@ -293,7 +294,7 @@
     color: var(--accent);
   }
   .collection-hero__lead {
-    max-width: var(--container-text);
+    max-width: var(--measure);
   }
   .collection-hero__media {
     position: relative;
@@ -591,11 +592,8 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
-  @media (min-width: 90rem) {
-    .principles {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
+  /* deux colonnes au plus : chaque principe garde une colonne de lecture assez large pour une
+     justification sans trous (jamais de colonne étroite) */
   .principles__item {
     padding-top: var(--spacing-s);
     border-top: var(--border-width-hair) solid var(--line);
@@ -626,15 +624,16 @@
     .step__media {
       grid-column: 1 / span 6;
     }
+    /* cinq colonnes : la colonne de texte atteint la mesure de lecture */
     .step__text {
-      grid-column: 8 / span 4;
+      grid-column: 8 / span 5;
     }
     .step--flip .step__media {
       grid-column: 7 / span 6;
       grid-row: 1;
     }
     .step--flip .step__text {
-      grid-column: 2 / span 4;
+      grid-column: 1 / span 5;
       grid-row: 1;
     }
   }
@@ -1484,4 +1483,53 @@
 }
 html[data-motion="reduce"] .hero__scroll::after {
   animation: none;
+
+  /* ================================================================== BIENTÔT */
+  .drop-panel__grid {
+    row-gap: var(--space-block);
+    align-items: start;
+  }
+  .drop-panel__media,
+  .drop-panel__text {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 64rem) {
+    .drop-panel__media {
+      grid-column: 1 / span 5;
+    }
+    .drop-panel__text {
+      grid-column: 7 / span 6;
+    }
+  }
+  /* compte à rebours : des chiffres d'édition, immobiles entre deux minutes, jamais de secondes */
+  .countdown {
+    display: grid;
+    gap: var(--spacing-s);
+  }
+  .countdown__digits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-l);
+  }
+  .countdown__part {
+    display: grid;
+    gap: var(--spacing-2xs);
+  }
+  .countdown__n {
+    font-family: var(--font-display);
+    font-size: var(--text-step-5);
+    line-height: var(--lh-step-5);
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  .countdown__unit,
+  .countdown__label {
+    color: var(--fg-soft);
+  }
+  .drop-gate {
+    padding-block: var(--spacing-m);
+    border-block: var(--border-width-hair) solid var(--line);
+  }
+  .drop-gate--pending {
+    min-height: var(--spacing-3xl);
+  }
 }

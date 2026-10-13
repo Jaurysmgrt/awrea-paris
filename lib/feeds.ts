@@ -5,7 +5,7 @@
  * Les séries complètes (pièces adoptées) n'y figurent plus.
  */
 import "server-only";
-import { getAllProducts, getCollections } from "@/lib/commerce";
+import { getPublicProducts, getCollections } from "@/lib/commerce";
 import { editionInfo, variantAvailability } from "@/lib/commerce/availability";
 import { imageAt } from "@/lib/media";
 import { absolute } from "@/lib/seo/metadata";
@@ -95,7 +95,7 @@ function item(p: Product, v: Variant, target: FeedTarget, collectionTitle: strin
 }
 
 export async function buildFeed(target: FeedTarget): Promise<string> {
-  const [products, collections] = await Promise.all([getAllProducts(), getCollections()]);
+  const [products, collections] = await Promise.all([getPublicProducts(), getCollections()]);
   const titles = new Map(collections.map((c) => [c.handle, c.title]));
   const items = products
     .filter((p) => p.images.length && !(editionInfo(p).complete && !p.variants.some((v) => v.preorder)))

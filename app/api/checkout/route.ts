@@ -8,6 +8,7 @@ import { runCommandesStockAgent } from "@/lib/agents/team/commandes-stock";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { CART_COOKIE, readCart } from "@/lib/commerce/cart";
+import { assertCanBuy } from "@/lib/drops";
 import { getAllProducts } from "@/lib/commerce";
 import { DEMO_KEYS } from "@/lib/commerce/catalog-demo";
 import { getOrders, saveOrder } from "@/lib/commerce/orders";
@@ -58,6 +59,8 @@ export async function POST(req: Request) {
 
   const cart = await readCart();
   if (!cart.lines.length) return NextResponse.json({ error: "Votre panier est vide." }, { status: 400 });
+  const blocked = await assertCanBuy(cart.lines.map((l) => l.productHandle));
+  if (blocked) return NextResponse.json({ error: blocked }, { status: 403 });
 
   // livraison
   const zone = shop.countries.find((c) => c.code === d.country)?.zone;

@@ -46,10 +46,9 @@
       border-color var(--dur-slow) var(--ease-silk);
     border-bottom: var(--border-width-hair) solid transparent;
   }
+  /* au défilement : un aplat plein (jamais de verre dépoli) souligné d'un filet très fin */
   .site-header[data-scrolled="true"] {
-    background-color: color-mix(in oklab, var(--bg) 92%, transparent);
-    backdrop-filter: blur(var(--spacing-2xs));
-    -webkit-backdrop-filter: blur(var(--spacing-2xs));
+    background-color: var(--bg);
     border-bottom-color: var(--line);
   }
   .site-header[data-hidden="true"] {
@@ -59,7 +58,6 @@
     color: var(--color-ivory);
     background-color: transparent;
     border-bottom-color: transparent;
-    backdrop-filter: none;
     z-index: calc(var(--z-header) + 2);
   }
   .site-header__inner {
@@ -435,7 +433,7 @@
     text-align: left;
   }
   .site-footer__desc {
-    max-width: var(--container-text);
+    max-width: var(--measure);
   }
   .site-footer__news {
     display: grid;
