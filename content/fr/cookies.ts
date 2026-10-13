@@ -32,7 +32,7 @@ export const cookieCategories: CookieCategoryInfo[] = [
   {
     key: "advertising",
     label: "Publicité",
-    summary: "Mesurer l’efficacité de nos campagnes sur Instagram, Facebook et Google, et vous y montrer nos pièces.",
+    summary: "Mesurer l’efficacité de nos campagnes sur Instagram, Facebook, TikTok et Google, et vous y montrer nos pièces.",
   },
 ];
 
@@ -60,7 +60,9 @@ export const cookieInventory: CookieEntry[] = [
   { name: "awrea_view_…", provider: "Awrea Paris", category: "analytics", purpose: "Ne compter qu’une fois la consultation d’une pièce pendant une visite.", duration: "Fin de la visite", kind: "stockage de session" },
   { name: "Plausible", provider: "Plausible Analytics (UE)", category: "analytics", purpose: "Mesure d’audience agrégée, sans cookie ni donnée personnelle.", duration: "Aucun cookie", kind: "cookie" },
   { name: "_ga, _ga_…", provider: "Google Analytics 4", category: "analytics", purpose: "Mesure d’audience (seulement si Google Analytics est utilisé à la place de Plausible).", duration: "13 mois", kind: "cookie", clearPrefix: "_ga" },
+  { name: "_clck, _clsk", provider: "Microsoft Clarity", category: "analytics", purpose: "Comprendre comment les pages sont parcourues (cartes de chaleur, visites rejouées, toutes les saisies masquées).", duration: "1 an au plus", kind: "cookie", clearPrefix: "_cl" },
   { name: "awrea_seen", provider: "Awrea Paris", category: "personalization", purpose: "Pièces et collections consultées, pour personnaliser l’accueil et les recommandations.", duration: "13 mois", kind: "stockage local" },
   { name: "_fbp, _fbc", provider: "Meta (Instagram, Facebook)", category: "advertising", purpose: "Mesurer les visites issues de nos publicités et vous montrer nos pièces sur Instagram et Facebook.", duration: "3 mois", kind: "cookie", clearPrefix: "_fb" },
+  { name: "_ttp", provider: "TikTok", category: "advertising", purpose: "Mesurer les visites et les achats issus de nos publicités TikTok.", duration: "13 mois", kind: "cookie", clearPrefix: "_tt" },
   { name: "_gcl_au", provider: "Google Ads", category: "advertising", purpose: "Mesurer les achats issus de nos annonces Google.", duration: "3 mois", kind: "cookie", clearPrefix: "_gcl" },
 ];

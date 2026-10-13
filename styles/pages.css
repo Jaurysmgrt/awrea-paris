@@ -5,7 +5,7 @@
      d'une couleur en cours de transition (bascule de scène) relancerait la sienne à chaque image */
   @media (hover: hover) {
     .link-plain {
-      transition: color var(--dur-fast) var(--ease-silk);
+      transition: color var(--dur) var(--ease);
     }
     .link-plain:hover {
       color: var(--accent);
@@ -87,7 +87,7 @@
     height: var(--spacing-l);
     background: linear-gradient(to bottom, transparent, var(--accent) 35%, var(--accent) 65%, transparent);
     /* transform et opacité seulement : l'animation tourne sur le compositeur */
-    animation: scroll-line var(--dur-breath) var(--ease-drape) infinite;
+    animation: scroll-line var(--dur-breath) var(--ease) infinite;
   }
   @keyframes scroll-line {
     0% {
@@ -246,8 +246,8 @@
     height: 100%;
     object-fit: cover;
     transition:
-      transform var(--dur-slow) var(--ease-silk),
-      opacity var(--dur-fast) var(--ease-silk);
+      transform var(--dur) var(--ease),
+      opacity var(--dur) var(--ease);
   }
   .insta__item:hover img {
     transform: scale(1.04);
@@ -1379,7 +1379,7 @@
     padding: var(--spacing-xs) var(--spacing-s);
     border: var(--border-width-hair) solid var(--line);
     cursor: pointer;
-    transition: border-color var(--dur-fast) var(--ease-silk);
+    transition: border-color var(--dur) var(--ease);
   }
   .option:has(input:checked) {
     border-color: var(--fg);
@@ -1400,7 +1400,7 @@
     height: 55%;
     background: var(--fg);
     transform: scale(0);
-    transition: transform var(--dur-fast) var(--ease-silk);
+    transition: transform var(--dur) var(--ease);
   }
   .option input:checked::after {
     transform: scale(1);

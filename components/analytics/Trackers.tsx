@@ -2,7 +2,8 @@
 /**
  * Outils de mesure, chargés UNIQUEMENT après accord (aucun script ni cookie avant) :
  *  - mesure d'audience : Plausible (sans cookie, hébergé dans l'UE) ou Google Analytics 4 ;
- *  - publicité : Meta Pixel (Instagram, Facebook) et balise Google Ads.
+ *    Microsoft Clarity (cartes de chaleur, enregistrements de visite masqués) en complément ;
+ *  - publicité : Meta Pixel (Instagram, Facebook), pixel TikTok et balise Google Ads.
  * Sans identifiant configuré, rien n'est chargé. Les pages vues suivent la navigation.
  */
 import { useEffect, useRef } from "react";
@@ -16,6 +17,12 @@ const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID;
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
 const GOOGLE_ADS_LABEL = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL;
+const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID;
+const TIKTOK_PIXEL_ID = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID;
+
+/** File d'attente des pixels : les appels faits avant le chargement du script sont rejoués. */
+type Queue = ((...args: unknown[]) => void) & { q?: unknown[] };
+type TikTok = unknown[] & Record<string, unknown> & { page?: () => void; track?: (...a: unknown[]) => void };
 
 type W = Window & {
   dataLayer?: unknown[];
@@ -23,6 +30,9 @@ type W = Window & {
   plausible?: ((...args: unknown[]) => void) & { q?: unknown[] };
   fbq?: ((...args: unknown[]) => void) & { callMethod?: (...a: unknown[]) => void; queue?: unknown[]; loaded?: boolean; version?: string; push?: unknown };
   _fbq?: unknown;
+  clarity?: Queue;
+  ttq?: TikTok;
+  TiktokAnalyticsObject?: string;
   __awreaAds?: { googleAds?: string; googleAdsLabel?: string };
 };
 
@@ -53,7 +63,7 @@ export function Trackers() {
   const advertising = has("advertising");
   const pathname = usePathname();
   const search = useSearchParams();
-  const loaded = useRef({ plausible: false, ga: false, meta: false, ads: false });
+  const loaded = useRef({ plausible: false, ga: false, meta: false, ads: false, clarity: false, tiktok: false });
 
   useEffect(() => {
     const w = window as W;
@@ -75,6 +85,13 @@ export function Trackers() {
         ensureGtag(GA4_ID);
         // pages vues envoyées à la main (navigation sans rechargement)
         w.gtag!("config", GA4_ID, { send_page_view: false, anonymize_ip: true });
+      }
+      if (CLARITY_ID && !loaded.current.clarity) {
+        loaded.current.clarity = true;
+        w.clarity = w.clarity ?? Object.assign((...args: unknown[]) => void (w.clarity!.q = w.clarity!.q ?? []).push(args), { q: [] as unknown[] });
+        inject(`https://www.clarity.ms/tag/${encodeURIComponent(CLARITY_ID)}`);
+        // accord explicite déjà donné (exigence de Microsoft pour l'Espace économique européen)
+        w.clarity("consentv2", { analytics_Storage: "granted", ad_Storage: advertising ? "granted" : "denied" });
       }
     }
     if (advertising) {
@@ -100,6 +117,23 @@ export function Trackers() {
         w.gtag!("config", GOOGLE_ADS_ID);
         w.__awreaAds = { googleAds: GOOGLE_ADS_ID, googleAdsLabel: GOOGLE_ADS_LABEL };
       }
+      if (TIKTOK_PIXEL_ID && !loaded.current.tiktok) {
+        loaded.current.tiktok = true;
+        // amorce officielle du pixel TikTok, réécrite sans script en ligne (CSP)
+        const methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie", "holdConsent", "revokeConsent", "grantConsent"];
+        const defer = (target: Record<string, unknown> & unknown[], m: string) => {
+          target[m] = (...args: unknown[]) => void target.push([m, ...args]);
+        };
+        const ttq = (w.ttq = w.ttq ?? ([] as unknown as TikTok));
+        w.TiktokAnalyticsObject = "ttq";
+        for (const m of methods) defer(ttq, m);
+        const src = "https://analytics.tiktok.com/i18n/pixel/events.js";
+        const instances = ((ttq._i as Record<string, unknown[] & { _u?: string }>) ??= {});
+        instances[TIKTOK_PIXEL_ID] = Object.assign([], { _u: src });
+        ((ttq._t as Record<string, number>) ??= {})[TIKTOK_PIXEL_ID] = Date.now();
+        ((ttq._o as Record<string, unknown>) ??= {})[TIKTOK_PIXEL_ID] = {};
+        inject(`${src}?sdkid=${encodeURIComponent(TIKTOK_PIXEL_ID)}&lib=ttq`);
+      }
     }
   }, [analytics, advertising]);
 
@@ -110,6 +144,7 @@ export function Trackers() {
     if (analytics && loaded.current.plausible) w.plausible?.("pageview", { u: url });
     if (analytics && loaded.current.ga && GA4_ID) w.gtag?.("event", "page_view", { page_location: url, page_title: document.title });
     if (advertising && loaded.current.meta) w.fbq?.("track", "PageView");
+    if (advertising && loaded.current.tiktok) w.ttq?.page?.();
   }, [pathname, search, analytics, advertising]);
 
   return null;

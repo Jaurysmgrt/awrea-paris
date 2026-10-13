@@ -11,6 +11,7 @@ import { createServerClient } from "@supabase/ssr";
 import { ADMIN_COOKIE, isAdminToken } from "@/lib/auth/admin";
 import { contentSecurityPolicy, cspEnabled, cspMode, newNonce } from "@/lib/security/headers";
 import { countRefusal } from "@/lib/security/rate-limit";
+import { providerOf } from "@/lib/config/providers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY;
@@ -35,7 +36,7 @@ function forward(request: NextRequest, nonce: string | null) {
 
 async function refreshCustomerSession(request: NextRequest, nonce: string | null) {
   let response = forward(request, nonce);
-  if (!supabaseUrl || !supabaseAnonKey) return response;
+  if (providerOf("customers") !== "supabase" || !supabaseUrl || !supabaseAnonKey) return response;
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll: () => request.cookies.getAll(),

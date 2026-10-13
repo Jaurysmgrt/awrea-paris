@@ -10,7 +10,7 @@
  */
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { loadGsap, prefersReducedMotion, dur } from "@/lib/motion";
+import { loadGsap, prefersReducedMotion, dur, EASE } from "@/lib/motion";
 import { palette, rgb01 } from "@/styles/tokens";
 
 type Ctx = { navigate: (href: string) => void };
@@ -135,40 +135,39 @@ export function DrapeTransition({ children }: { children: React.ReactNode }) {
   const cover = useCallback(async () => {
     setActive(true);
     const [{ gsap }, gl] = await Promise.all([loadGsap(), ensureGL()]);
-    const d = dur("base") * 1.15;
+    const d = dur();
     if (!gl) {
-      await gsap.to(fallbackRef.current, { autoAlpha: 1, duration: d * 0.6, ease: "silk" });
+      await gsap.to(fallbackRef.current, { autoAlpha: 1, duration: d, ease: EASE });
       return;
     }
     const s = state.current;
     s.lower = -1.5;
     s.upper = -0.15;
     s.amp = 0;
-    const tl = gsap.timeline({ onUpdate: draw });
-    tl.to(s, { upper: 1.25, duration: d, ease: "drape" }, 0)
-      .to(s, { amp: 1, duration: d * 0.5, ease: "silk" }, 0)
-      .to(s, { amp: 0.25, duration: d * 0.5, ease: "silk" }, d * 0.5)
-      .to(s, { t: "+=" + d * 2, duration: d, ease: "none" }, 0)
-      .fromTo(markRef.current, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: d * 0.6, ease: "silk" }, d * 0.45);
+    // le pan tombe et ondule pendant une même mesure ; « t » n'est que la phase de l'ondulation
+    const tl = gsap.timeline({ onUpdate: draw, defaults: { duration: d, ease: EASE } });
+    tl.to(s, { upper: 1.25 }, 0)
+      .to(s, { keyframes: { amp: [0, 1, 0.25] } }, 0)
+      .to(s, { t: "+=" + d * 2, ease: "none" }, 0)
+      .fromTo(markRef.current, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0 }, d / 2);
     await tl;
   }, [draw, ensureGL]);
 
   const reveal = useCallback(async () => {
     const { gsap } = await loadGsap();
     const gl = glRef.current;
-    const d = dur("base") * 1.2;
+    const d = dur();
     if (!gl) {
-      await gsap.to(fallbackRef.current, { autoAlpha: 0, duration: d * 0.6, ease: "silk" });
+      await gsap.to(fallbackRef.current, { autoAlpha: 0, duration: d, ease: EASE });
       setActive(false);
       return;
     }
     const s = state.current;
-    const tl = gsap.timeline({ onUpdate: draw });
-    tl.to(markRef.current, { autoAlpha: 0, y: -12, duration: d * 0.35, ease: "silk" }, 0)
-      .to(s, { lower: 1.3, duration: d, ease: "drape" }, d * 0.1)
-      .to(s, { amp: 1, duration: d * 0.45, ease: "silk" }, d * 0.1)
-      .to(s, { amp: 0, duration: d * 0.55, ease: "silk" }, d * 0.55)
-      .to(s, { t: "+=" + d * 2, duration: d * 1.1, ease: "none" }, 0);
+    const tl = gsap.timeline({ onUpdate: draw, defaults: { duration: d, ease: EASE } });
+    tl.to(markRef.current, { autoAlpha: 0, y: -12 }, 0)
+      .to(s, { lower: 1.3 }, 0)
+      .to(s, { keyframes: { amp: [s.amp, 1, 0] } }, 0)
+      .to(s, { t: "+=" + d * 2, ease: "none" }, 0);
     await tl;
     setActive(false);
   }, [draw]);

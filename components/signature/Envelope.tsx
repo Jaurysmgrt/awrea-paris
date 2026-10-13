@@ -5,7 +5,7 @@
  * s'ouvre : le cachet cède, le rabat se soulève, la lettre de remerciement glisse vers vous.
  */
 import { useEffect, useRef } from "react";
-import { loadGsap, prefersReducedMotion, dur } from "@/lib/motion";
+import { loadGsap, prefersReducedMotion, dur, EASE } from "@/lib/motion";
 import { Logo } from "@/components/brand/Logo";
 
 export function Envelope({ greeting, note, reference }: { greeting: string; note: string; reference?: string }) {
@@ -23,20 +23,20 @@ export function Envelope({ greeting, note, reference }: { greeting: string; note
     loadGsap().then(({ gsap }) => {
       if (cancelled) return;
     const q = gsap.utils.selector(el);
-    const d = dur("base");
-    const timeline = gsap.timeline({ delay: 0.5, onComplete: () => (el.dataset.state = "open") });
+    // une même durée et une même courbe pour chaque geste, qui se chevauchent d'une demi-mesure
+    const d = dur();
+    const timeline = gsap.timeline({ delay: d / 2, defaults: { duration: d, ease: EASE }, onComplete: () => (el.dataset.state = "open") });
     tl = timeline;
     timeline
       .set(el, { attr: { "data-state": "opening" } })
-      .to(q(".envelope__seal"), { scale: 1.12, duration: d * 0.35, ease: "silk" })
-      .to(q(".envelope__seal"), { scale: 0.6, autoAlpha: 0, rotate: -18, duration: d * 0.5, ease: "drape" })
-      .to(q(".envelope__flap"), { rotateX: 180, duration: d * 1.1, ease: "drape" }, "-=0.15")
+      .to(q(".envelope__seal"), { scale: 0.6, autoAlpha: 0, rotate: -18 })
+      .to(q(".envelope__flap"), { rotateX: 180 }, `-=${d / 2}`)
       .set(q(".envelope__flap"), { zIndex: 0 })
       // la lettre sort de l'enveloppe…
-      .to(q(".envelope__letter"), { yPercent: -78, duration: d * 1.3, ease: "drape" }, "-=0.2")
+      .to(q(".envelope__letter"), { yPercent: -78 }, `-=${d / 4}`)
       // …puis vient se poser devant, vers la lectrice
       .set(q(".envelope__letter"), { zIndex: 5 })
-      .to(q(".envelope__letter"), { yPercent: -26, scale: 1.06, duration: d * 1.1, ease: "silk" });
+      .to(q(".envelope__letter"), { yPercent: -26, scale: 1.06 });
     });
     return () => {
       cancelled = true;

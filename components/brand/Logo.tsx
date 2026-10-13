@@ -1,4 +1,5 @@
 import { brandAssets } from "@/content/brand/assets";
+import { logoPaths, monogramPaths } from "@/content/brand/logo-paths";
 
 type Props = {
   variant?: "full" | "monogram";
@@ -10,8 +11,9 @@ type Props = {
 
 /**
  * Logo Awrea Paris. Affiche le fichier officiel (public/brand) s'il est renseigné dans
- * content/brand/assets.ts, sinon un logo typographique provisoire : « AW » en Bodoni très fin
- * à fort contraste, « PARIS » en capitales très espacées.
+ * content/brand/assets.ts, sinon le logo provisoire vectorisé (scripts/build-logo.py) : « AW » en
+ * Instrument Serif, fin et contrasté, « PARIS » en capitales très espacées. Il prend la couleur du
+ * texte qui l'entoure.
  */
 export function Logo({ variant = "full", className, title = "Awrea Paris", decorative = false }: Props) {
   const asset = variant === "full" ? brandAssets.logo : brandAssets.monogram;
@@ -27,15 +29,15 @@ export function Logo({ variant = "full", className, title = "Awrea Paris", decor
   }
   if (variant === "monogram") {
     return (
-      <svg viewBox="0 0 100 64" className={className} {...a11y}>
-        <text x="50" y="52" textAnchor="middle" className="logo-aw">AW</text>
+      <svg viewBox={monogramPaths.viewBox} className={className} fill="currentColor" {...a11y}>
+        <path d={monogramPaths.aw} />
       </svg>
     );
   }
   return (
-    <svg viewBox="0 0 120 92" className={className} {...a11y}>
-      <text x="60" y="56" textAnchor="middle" className="logo-aw">AW</text>
-      <text x="61.6" y="84" textAnchor="middle" className="logo-paris">PARIS</text>
+    <svg viewBox={logoPaths.viewBox} className={className} fill="currentColor" {...a11y}>
+      <path d={logoPaths.aw} />
+      <path d={logoPaths.paris} />
     </svg>
   );
 }

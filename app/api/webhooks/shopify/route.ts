@@ -1,5 +1,7 @@
 /**
- * Webhooks Shopify (signés HMAC-SHA256 avec SHOPIFY_WEBHOOK_SECRET).
+ * Webhooks Shopify (signés HMAC-SHA256 avec SHOPIFY_WEBHOOK_SECRET : la clé affichée dans
+ * Réglages › Notifications › Webhooks, ou, pour les webhooks d'une application du Dev Dashboard,
+ * son secret client SHOPIFY_CLIENT_SECRET).
  * Sujets à abonner dans Shopify (Paramètres → Notifications → Webhooks, format JSON) :
  *   orders/create, orders/updated, fulfillment_events/create,
  *   customers/data_request, customers/redact (RGPD).
@@ -8,6 +10,7 @@
  */
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { issueCertificates, sendCertificatesEmail } from "@/lib/certificates";
+import { revalidateTag } from "next/cache";
 import { NextResponse, after } from "next/server";
 import { admin, adminEnabled } from "@/lib/shopify/admin";
 import { upsertOrder } from "@/lib/customers/shopify-sync";
@@ -42,7 +45,7 @@ type ShopifyOrder = {
 };
 
 function verify(body: string, signature: string | null) {
-  const secret = process.env.SHOPIFY_WEBHOOK_SECRET;
+  const secret = process.env.SHOPIFY_WEBHOOK_SECRET || process.env.SHOPIFY_CLIENT_SECRET;
   if (!secret || !signature) return false;
   const digest = createHmac("sha256", secret).update(body, "utf8").digest("base64");
   const a = Buffer.from(digest);
@@ -142,6 +145,10 @@ export async function POST(req: Request) {
     await kv.push("rgpd:requests", { kind: "effacement (Shopify)", at: new Date().toISOString() }, 1000);
   } else if (topic === "customers/data_request") {
     await kv.push("rgpd:requests", { kind: "accès (Shopify)", at: new Date().toISOString() }, 1000);
+  } else if (/^(products|collections|inventory_levels)\//.test(topic)) {
+    // catalogue, prix ou stock modifiés dans Shopify : données régénérées dès la visite suivante
+    // (rares changements : on préfère une page juste à une page servie de l'ancien cache)
+    revalidateTag("shopify", { expire: 0 });
   }
   return NextResponse.json({ ok: true });
 }

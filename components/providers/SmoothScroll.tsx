@@ -1,12 +1,13 @@
 "use client";
 import { useEffect } from "react";
-import { isTouch, prefersReducedMotion } from "@/lib/motion";
+import { dur, easeFn, isTouch, prefersReducedMotion } from "@/lib/motion";
 
 type W = Window & { __lenis?: { destroy: () => void; on: (e: "scroll", cb: () => void) => void }; __scrollTrigger?: { update: () => void } };
 
 /**
  * Défilement doux (Lenis) sur ordinateur uniquement : au tactile, le défilement natif
- * reste le plus fluide et le plus économe. Coupé si « mouvement réduit ».
+ * reste le plus fluide et le plus économe. Coupé si « mouvement réduit ». Même durée et même
+ * courbe que toutes les animations du site (lib/motion.ts).
  */
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -15,7 +16,7 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     let lenis: { destroy: () => void } | null = null;
     import("lenis").then(({ default: Lenis }) => {
       if (cancelled) return;
-      const l = new Lenis({ duration: 1.15, easing: (t: number) => 1 - Math.pow(1 - t, 3), autoRaf: true });
+      const l = new Lenis({ duration: dur(), easing: easeFn(), autoRaf: true });
       const w = window as W;
       if (w.__scrollTrigger) l.on("scroll", w.__scrollTrigger.update);
       w.__lenis = l;

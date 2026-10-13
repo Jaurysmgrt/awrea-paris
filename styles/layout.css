@@ -6,20 +6,6 @@
   }
 
   /* ============================================================ LOGO */
-  .logo-aw {
-    font-family: var(--font-display);
-    font-size: 54px; /* token-ok : unités du viewBox SVG */
-    font-weight: var(--font-weight-regular);
-    letter-spacing: -0.04em; /* token-ok : géométrie du logo provisoire */
-    fill: currentColor;
-  }
-  .logo-paris {
-    font-family: var(--font-sans);
-    font-size: 10.5px; /* token-ok : unités du viewBox SVG */
-    font-weight: var(--font-weight-light);
-    letter-spacing: 0.62em; /* token-ok : géométrie du logo provisoire */
-    fill: currentColor;
-  }
   .logo-mask {
     display: block;
     background-color: currentColor;
@@ -40,10 +26,10 @@
     height: var(--header-h);
     color: var(--fg);
     transition:
-      transform var(--dur-base) var(--ease-drape),
-      background-color var(--dur-slow) var(--ease-silk),
-      color var(--dur-slow) var(--ease-silk),
-      border-color var(--dur-slow) var(--ease-silk);
+      transform var(--dur) var(--ease),
+      background-color var(--dur) var(--ease),
+      color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
     border-bottom: var(--border-width-hair) solid transparent;
   }
   /* au défilement : un aplat plein (jamais de verre dépoli) souligné d'un filet très fin */
@@ -89,7 +75,7 @@
     height: var(--spacing-2xs);
     border-top: var(--border-width-hair) solid currentColor;
     border-bottom: var(--border-width-hair) solid currentColor;
-    transition: transform var(--dur-fast) var(--ease-silk);
+    transition: transform var(--dur) var(--ease);
   }
   .site-header[data-menu="true"] .site-header__burger {
     transform: scaleY(0.1);
@@ -101,7 +87,7 @@
   }
   @media (hover: hover) {
     .site-header__logo {
-      transition: color var(--dur-fast) var(--ease-silk);
+      transition: color var(--dur) var(--ease);
     }
     .site-header__logo:hover {
       color: var(--accent);
@@ -149,14 +135,14 @@
     clip-path: inset(0 0 100% 0);
     visibility: hidden;
     transition:
-      clip-path var(--dur-base) var(--ease-drape),
-      visibility 0s linear var(--dur-base);
+      clip-path var(--dur) var(--ease),
+      visibility 0s linear var(--dur);
   }
   .site-menu[data-open="true"] {
     clip-path: inset(0 0 0 0);
     visibility: visible;
     transition:
-      clip-path var(--dur-base) var(--ease-drape),
+      clip-path var(--dur) var(--ease),
       visibility 0s;
   }
   .site-menu__inner {
@@ -182,13 +168,13 @@
     opacity: 0;
     transform: translateY(var(--spacing-m));
     transition:
-      opacity var(--dur-base) var(--ease-silk),
-      transform var(--dur-base) var(--ease-silk);
+      opacity var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
   }
   .site-menu[data-open="true"] .site-menu__primary li {
     opacity: 1;
     transform: none;
-    transition-delay: calc(var(--i) * var(--dur-stagger) + var(--dur-fast) * 0.6);
+    transition-delay: calc(var(--i) * var(--dur-stagger) + var(--dur) * 0.6);
   }
   .site-menu__primary a {
     display: inline-flex;
@@ -197,7 +183,7 @@
     font-family: var(--font-display);
     font-size: var(--text-step-4);
     line-height: var(--leading-tight);
-    transition: color var(--dur-fast) var(--ease-silk);
+    transition: color var(--dur) var(--ease);
   }
   .site-menu__primary a:hover,
   .site-menu__primary a:focus-visible {
@@ -233,14 +219,14 @@
     clip-path: inset(0 0 100% 0);
     visibility: hidden;
     transition:
-      clip-path var(--dur-base) var(--ease-drape),
-      visibility 0s linear var(--dur-base);
+      clip-path var(--dur) var(--ease),
+      visibility 0s linear var(--dur);
   }
   .search[data-open="true"] {
     clip-path: inset(0 0 0 0);
     visibility: visible;
     transition:
-      clip-path var(--dur-base) var(--ease-drape),
+      clip-path var(--dur) var(--ease),
       visibility 0s;
   }
   @starting-style {
@@ -376,7 +362,7 @@
   @media (hover: hover) {
     .search__piece-title,
     .search__row-title {
-      transition: color var(--dur-fast) var(--ease-silk);
+      transition: color var(--dur) var(--ease);
     }
     .search__piece:hover .search__piece-title,
     .search__row:hover .search__row-title {
@@ -417,7 +403,7 @@
     display: block;
     width: calc(var(--spacing-2xl) * 1.1);
     color: var(--color-ivory);
-    transition: color var(--dur-fast) var(--ease-silk);
+    transition: color var(--dur) var(--ease);
   }
   .site-footer__logo:hover {
     color: var(--accent);
@@ -538,7 +524,7 @@
     color: var(--fg);
     border-top: var(--border-width-hair) solid var(--accent);
     padding-block: var(--spacing-s) calc(var(--spacing-s) + env(safe-area-inset-bottom));
-    animation: consent-in var(--dur-slow) var(--ease-silk) var(--dur-base) both;
+    animation: consent-in var(--dur) var(--ease) var(--dur) both;
   }
   /* mode nuit : le même bandeau, noir et or */
   html[data-mode="dark"] .consent {
@@ -680,7 +666,7 @@
     position: absolute;
     inset: 50% 0 auto 0;
     border-top: var(--border-width-hair) solid var(--fg);
-    transition: border-color var(--dur-fast) var(--ease-silk);
+    transition: border-color var(--dur) var(--ease);
   }
   .switch__track::after {
     content: "";
@@ -693,9 +679,9 @@
     background: var(--bg);
     transform: translateY(-50%) rotate(45deg) scale(0.8);
     transition:
-      transform var(--dur-base) var(--ease-drape),
-      background-color var(--dur-fast) var(--ease-silk),
-      border-color var(--dur-fast) var(--ease-silk);
+      transform var(--dur) var(--ease),
+      background-color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
   }
   .switch input:checked + .switch__track::before {
     border-color: var(--accent);
@@ -732,9 +718,9 @@
     background: var(--bg);
     transform: translateX(100%);
     transition:
-      transform var(--dur-base) var(--ease-drape),
-      overlay var(--dur-base) allow-discrete,
-      display var(--dur-base) allow-discrete;
+      transform var(--dur) var(--ease),
+      overlay var(--dur) allow-discrete,
+      display var(--dur) allow-discrete;
   }
   .drawer[open] {
     transform: none;
@@ -748,9 +734,9 @@
     background: color-mix(in oklab, var(--color-ink) 55%, transparent);
     opacity: 0;
     transition:
-      opacity var(--dur-base) var(--ease-silk),
-      overlay var(--dur-base) allow-discrete,
-      display var(--dur-base) allow-discrete;
+      opacity var(--dur) var(--ease),
+      overlay var(--dur) allow-discrete,
+      display var(--dur) allow-discrete;
   }
   .drawer[open]::backdrop {
     opacity: 1;
@@ -795,7 +781,7 @@
     height: 100%;
     background: var(--accent);
     transform-origin: 0 50%;
-    transition: transform var(--dur-slow) var(--ease-silk);
+    transition: transform var(--dur) var(--ease);
   }
   .drawer__lines {
     display: grid;

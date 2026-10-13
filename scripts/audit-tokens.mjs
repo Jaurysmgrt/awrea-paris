@@ -6,7 +6,8 @@
  *   styles en ligne et valeurs arbitraires Tailwind dans les composants.
  * Une ligne peut être exemptée explicitement avec le commentaire « token-ok » (cas justifiés :
  * unités du viewBox SVG, tuile de texture…).
- * Vérifie aussi que styles/tokens.ts (miroir pour e-mails, WebGL, métadonnées) correspond au CSS.
+ * Vérifie aussi que styles/tokens.ts (miroir pour e-mails, WebGL, métadonnées) correspond au CSS,
+ * et qu'il n'existe qu'une durée (--dur) et une courbe (--ease) pour toutes les animations.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -35,6 +36,11 @@ for (const f of fs.readdirSync(cssDir).filter((f) => f.endsWith(".css") && f !==
     if (/#[0-9a-fA-F]{3,8}\b/.test(line)) report(file, i + 1, "couleur en dur", raw);
     if (/\b(rgb|rgba|hsl|hsla)\(/.test(line)) report(file, i + 1, "couleur en dur", raw);
     if (/cubic-bezier\(/.test(line)) report(file, i + 1, "courbe en dur", raw);
+    // mouvement : une seule durée, une seule courbe (MARQUE.md, consigne d'homogénéité)
+    if (/var\(--(dur-(fast|base|slow)|ease-(silk|drape))\)/.test(line)) report(file, i + 1, "ancien token de mouvement (utiliser --dur et --ease)", raw);
+    if (/\b(ease|ease-in|ease-out|ease-in-out|step-start|step-end)\b\s*[,;]|\bsteps\(/.test(line) && /(transition|animation|var\(--dur)/.test(line)) report(file, i + 1, "courbe hors de --ease", raw);
+    if (/\blinear\b/.test(line) && !/\b0s linear\b/.test(line) && /(transition|animation|var\(--dur)/.test(line)) report(file, i + 1, "courbe hors de --ease", raw);
+    if (/^\s+[a-z-]+\s+\d*\.?\d+m?s\b/.test(line) && !/^\s+[a-z-]+\s+0s\b/.test(line)) report(file, i + 1, "durée en dur", raw);
     if (/(transition|animation)[^:]*:[^;]*\b\d*\.?\d+m?s\b/.test(line) && !/var\(--dur/.test(line)) report(file, i + 1, "durée en dur", raw);
     if (/:\s*[^;]*\b\d*\.?\d+px\b/.test(line)) report(file, i + 1, "px en dur", raw);
     if (/:\s*[^;]*\b\d*\.?\d+rem\b/.test(line)) report(file, i + 1, "rem en dur", raw);
@@ -46,6 +52,15 @@ for (const f of fs.readdirSync(cssDir).filter((f) => f.endsWith(".css") && f !==
     if (/--font-(script|serif)\b/.test(line)) report(file, i + 1, "famille hors des deux polices", raw);
     if (/backdrop-filter|filter:\s*blur/.test(line)) report(file, i + 1, "verre dépoli ou flou interdit", raw);
   });
+}
+
+// ------------------------------------------------ une durée, une courbe
+{
+  const curves = [...tokensCss.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/cubic-bezier\([^)]*\)/g)].map((m) => m[0].replace(/\s+/g, ""));
+  if (new Set(curves).size !== 1) problems.push(`styles/tokens.css  ${new Set(curves).size} courbes d'animation (une seule attendue : --ease)`);
+  const durations = [...tokensCss.matchAll(/--dur(-[a-z]+)?:\s*([\d.]+m?s)\s*;/g)].filter((m) => !/^0\.01s$|^0s$/.test(m[2]));
+  const named = new Set(durations.map((m) => m[2]));
+  if (named.size !== 1 || durations.some((m) => m[1] && m[1] !== "-stagger")) problems.push(`styles/tokens.css  durées multiples (${[...named].join(", ")}) : une seule attendue (--dur), les autres en dérivent`);
 }
 
 // ------------------------------------------------ grille de 8 px (tokens)
@@ -71,6 +86,9 @@ for (const file of [...walk(path.join(root, "app")), ...walk(path.join(root, "co
     if (raw.includes("token-ok")) return;
     if (!allowColorFiles.has(rel) && /["'`]#[0-9a-fA-F]{3,8}["'`]/.test(raw)) report(file, i + 1, "couleur en dur dans un composant", raw);
     if (/\bt-script\b|handwrite|btn--gold|palette\.gold|fontStacks\.(script|serif)/.test(raw)) report(file, i + 1, "doré ou calligraphie (abandonnés)", raw);
+    // animations JS : la courbe unique (EASE) et la durée unique (dur()), jamais de valeur écrite
+    if (/\bease:\s*["'](?!none["'])/.test(raw)) report(file, i + 1, "courbe d'animation hors de EASE (lib/motion.ts)", raw);
+    if (/\bduration:\s*\d/.test(raw)) report(file, i + 1, "durée d'animation en dur (utiliser dur())", raw);
     if (/className=["{][^"}]*\b[a-z-]+-\[[^\]]+\]/.test(raw)) report(file, i + 1, "valeur arbitraire Tailwind", raw);
     const style = raw.match(/style=\{\{([^}]*)\}\}/);
     if (style && /\b\d+(px|rem|em|ms|s)\b|#[0-9a-f]{3,6}/i.test(style[1])) report(file, i + 1, "style en ligne avec valeur en dur", raw);

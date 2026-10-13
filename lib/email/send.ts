@@ -1,10 +1,11 @@
 /**
  * Envoi d'e-mails transactionnels (hors e-mails de commande, envoyés par Shopify).
- * Pilote Resend (RESEND_API_KEY). Sans clé, les e-mails sont journalisés et conservés
+ * Pilote Resend (RESEND_API_KEY, interrupteur EMAIL_PROVIDER). Sans clé, les e-mails sont journalisés et conservés
  * dans la boîte « outbox » visible dans le tableau de bord Atelier.
  */
 import { kv } from "@/lib/store";
 import { identity } from "@/content/brand/identity";
+import { providerOf } from "@/lib/config/providers";
 
 export interface OutgoingEmail {
   to: string;
@@ -16,7 +17,7 @@ export interface OutgoingEmail {
 }
 
 export async function sendEmail(mail: OutgoingEmail): Promise<{ id: string; delivered: boolean }> {
-  const key = process.env.RESEND_API_KEY;
+  const key = providerOf("email") === "resend" ? process.env.RESEND_API_KEY : undefined;
   const from = process.env.EMAIL_FROM ?? `${identity.name} <${identity.email}>`;
   const record = { ...mail, from, date: new Date().toISOString() };
   if (!key) {

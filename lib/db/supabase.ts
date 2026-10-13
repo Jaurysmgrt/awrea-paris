@@ -6,16 +6,18 @@
  *   ne jamais l'exposer au navigateur ni l'utiliser pour servir les données d'une cliente.
  * - les données d'une cliente sont lues avec SA session (lib/db/auth.ts), RLS appliquée.
  *
- * Sans variables Supabase, le site fonctionne en mode démonstration (stockage clé-valeur local).
+ * Sans variables Supabase (ou avec CUSTOMERS_PROVIDER=mock), le site fonctionne en mode
+ * démonstration (stockage clé-valeur local).
  */
 import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { providerOf } from "@/lib/config/providers";
 
 export const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL ?? "";
 export const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY ?? "";
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 
-export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey && serviceKey);
+export const isSupabaseConfigured = providerOf("customers") === "supabase";
 
 const g = globalThis as unknown as { __awreaSupabaseAdmin?: SupabaseClient };
 

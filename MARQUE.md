@@ -14,9 +14,23 @@
   l'ultra-luxe : peu de pièces, numérotées, au prix juste.
 - Phrase fondatrice de la créatrice (à citer telle quelle) : « La couleur n'est pas au rendez-vous
   mais la lumière de la dorure suffit à révéler l'essentiel. »
-- Collection en cours : **Lace is more**.
+- Collection en cours : **Lace is more** — quatre pièces : la **Robe Odessa**, le **Body Gaïa**,
+  le **Body Aura** et le **Top Kira** (prix provisoires dans le catalogue de démonstration).
+- **Univers** : minimal, contrasté, épuré ; fluide, en mouvement ; le **drapé à la grecque** ;
+  féminin, sensuel sans être démonstratif. Le noir et blanc des photographies, la dentelle qui
+  laisse passer la lumière, le tissu qui tombe.
 - Instagram : @awrea.paris. Source des coordonnées : `content/brand/identity.ts` (jamais inventées :
   champs `[À COMPLÉTER]`, voir `LEGAL-A-COMPLETER.md`).
+
+### Les rubriques Instagram, retrouvées sur le site
+
+| Rubrique | Où sur le site |
+| --- | --- |
+| **Design** | Collections (moodboard, film de collection en chapitres), L'Atelier |
+| **Outfits** | page « Outfits » (`/outfits`) : silhouettes complètes, « shop the look » |
+| **Sketches** | croquis et annotations de la créatrice : L'Atelier, fiches des pièces |
+| **Press** | page « Presse » et kit presse téléchargeable |
+| **Shoot** | Lookbook feuilletable, coulisses des prises de vue dans le Journal |
 
 ## 2. Voix
 
@@ -46,6 +60,8 @@
 
 ### Typographie — deux familles, pas une de plus
 
+- Polices **servies par le site** (fichiers dans `styles/fonts`, licence libre OFL) : aucun appel à
+  Google Fonts.
 - **Instrument Serif** (400, jamais en italique) : titres, en très grand format ; numéros d'édition.
 - **Inter Tight** : textes (300), navigation et boutons en **petites capitales espacées** (400,
   11 px, interlettrage 0,14 em).
@@ -68,6 +84,20 @@
 - Mêmes distances partout : titre → texte `--space-title`, paragraphe → paragraphe
   `--space-paragraph` (une ligne), bloc → bloc `--space-block`, section → section `--space-section`.
 - Mêmes marges (`--spacing-gutter`) et même grille de 12 colonnes sur toutes les pages.
+
+### Logo
+
+- Provisoire, en attendant le logo officiel : **« AW »** en Instrument Serif, fin et contrasté, et
+  **« PARIS »** dessous en capitales très espacées. Vectorisé (`scripts/build-logo.py`) : fichiers
+  noir et blanc dans `public/brand/` (presse, réseaux), favicon et icônes de l'application.
+
+### Mouvement
+
+- **Une seule durée** (`--dur`, 0,8 s) et **une seule courbe** (`--ease` : rapide au départ, qui se
+  pose lentement) pour toutes les animations : survols, apparitions, panneaux, défilement doux,
+  séquences signature (qui enchaînent cette même durée). Contrôlé par `npm run audit:tokens`.
+- Toutes les animations sont coupées par « animations apaisées » (`prefers-reduced-motion` ou
+  réglage du site) et ne ralentissent jamais l'affichage.
 
 ### Interactions signature (adaptées)
 

@@ -7,15 +7,19 @@
 > avancés, ensuite les extras.** Une branche par grand chantier, fusionnée dans `claude/awrea-site`
 > quand tout est vert. Si les limites d'utilisation sont atteintes, les équipes travaillent une par une.
 
-## Phase A — Mode de travail et fondations (en cours)
+## Phase A — Mode de travail et fondations (faite le 13/10)
 
 - [x] Sauvegarde de l'état antérieur (`archive/avant-nouvelle-da`), audit (`ETAT.md`), plan priorisé
-- [ ] `DECISIONS.md`, `ACTIVATION.md` (comptes à créer, pas à pas, compréhensible sans être développeur)
-- [ ] Interrupteurs par service (`COMMERCE_PROVIDER=mock|shopify`, etc.) avec bascule automatique sur
-      la simulation quand la clé manque, listés dans `.env.example`
-- [ ] Polices hébergées dans le dépôt (aucun appel à Google Fonts), logo provisoire SVG noir et blanc
-- [ ] Une durée et une courbe pour toutes les animations ; `MARQUE.md` complété (univers, rubriques
-      Instagram)
+- [x] `DECISIONS.md`, `ACTIVATION.md` (comptes à créer, pas à pas, compréhensible sans être développeur)
+- [x] Interrupteurs par service (`COMMERCE_PROVIDER=mock|shopify`, etc.) avec bascule automatique sur
+      la simulation quand la clé manque, listés dans `.env.example`, visibles dans l'Atelier ;
+      nouveaux accès Shopify (jeton privé Headless, jetons Admin de 24 h renouvelés seuls)
+- [x] Polices hébergées dans le dépôt (aucun appel à Google Fonts), logo provisoire SVG noir et blanc
+      vectorisé, favicon et icônes de l'application
+- [x] Une durée et une courbe pour toutes les animations (contrôlé par l'audit) ; `MARQUE.md` complété
+      (univers, collection, rubriques Instagram)
+- [x] En avance sur la phase B : Microsoft Clarity et pixel TikTok après consentement, régénération du
+      catalogue par webhooks Shopify, renouvellement automatique du jeton Instagram
 
 ## Phase B — Boutique complète et fonctionnelle (mode simulé)
 
@@ -33,10 +37,9 @@
 5. **Clientes et e-mails** : export CSV, statut VIP du Cercle, e-mails d'expédition, de livraison, de
    navigation abandonnée, invitations du Cercle, double confirmation de la newsletter, liens WhatsApp /
    message Instagram, génération des QR codes en lot.
-6. **Contenus modifiables** (CMS simple dans l'Atelier, adaptateur métaobjets Shopify / Sanity) et
-   régénération des pages par webhooks.
-7. **Mesure et suivi** : adaptateur Sentry, Microsoft Clarity et pixel TikTok après consentement,
-   LocalBusiness, images de partage par pièce.
+6. **Contenus modifiables** (CMS simple dans l'Atelier, adaptateur métaobjets Shopify / Sanity) ;
+   régénération des contenus à la modification (celle du catalogue par webhooks Shopify est faite).
+7. **Mesure et suivi** : adaptateur Sentry, LocalBusiness, images de partage par pièce.
 
 ## Phase C — Design (processus multi-agents)
 

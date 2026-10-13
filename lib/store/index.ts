@@ -4,11 +4,13 @@
  * propositions et journal d'actions des agents.
  *
  * Pilotes :
- *  - Upstash Redis (REST) si KV_REST_API_URL / KV_REST_API_TOKEN (ou UPSTASH_REDIS_REST_*) sont définis ;
+ *  - Upstash Redis (REST) si KV_REST_API_URL / KV_REST_API_TOKEN (ou UPSTASH_REDIS_REST_*) sont définis
+ *    (interrupteur STORE_PROVIDER, lib/config/providers.ts) ;
  *  - fichier JSON local sinon (.data/store.json, ou /tmp sur un environnement en lecture seule).
  */
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { providerOf } from "@/lib/config/providers";
 
 export interface KV {
   get<T>(key: string): Promise<T | null>;
@@ -146,6 +148,6 @@ function fileLocation() {
 
 const g = globalThis as unknown as { __awreaKV?: KV };
 
-export const kv: KV = g.__awreaKV ?? (g.__awreaKV = restUrl && restToken ? new UpstashKV(restUrl, restToken) : new FileKV(fileLocation()));
+export const storeMode: "upstash" | "file" = providerOf("store") === "upstash" ? "upstash" : "file";
 
-export const storeMode = restUrl && restToken ? "upstash" : "file";
+export const kv: KV = g.__awreaKV ?? (g.__awreaKV = storeMode === "upstash" ? new UpstashKV(restUrl!, restToken!) : new FileKV(fileLocation()));

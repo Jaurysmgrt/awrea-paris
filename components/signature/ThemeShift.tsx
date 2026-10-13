@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 /**
  * SIGNATURE 9 — Alternance noir et ivoire au scroll.
  * La section qui occupe le centre de l'écran donne sa couleur à toute la scène :
- * le fond et le texte basculent lentement (transition CSS sur --dur-slow).
+ * le fond et le texte basculent lentement (transition CSS sur --dur).
  * À l'activation (chargement, changement de page), la bascule est instantanée :
  * les sections hors écran n'ont aucune transition à jouer.
  */

@@ -6,7 +6,7 @@
  * trait noir fin. Sur petit écran, les lignes sont recoupées pour rester lisibles.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { loadGsap, prefersReducedMotion } from "@/lib/motion";
+import { dur, loadGsap, prefersReducedMotion } from "@/lib/motion";
 
 const FS = 44; // taille de police dans l'espace SVG
 const LH = 70; // hauteur de ligne SVG
@@ -70,24 +70,26 @@ export function HandwrittenLetter({ lines, signature, label }: { lines: string[]
       if (cancelled) return;
     ctx = gsap.context(() => {
       const tl = gsap.timeline({
-        scrollTrigger: { trigger: el, start: "top 75%", end: "bottom 60%", scrub: 0.8 },
+        scrollTrigger: { trigger: el, start: "top 75%", end: "bottom 60%", scrub: dur() },
       });
+      // écriture pilotée par le défilement : les « durées » ci-dessous ne sont que des proportions
+      // (une ligne longue prend plus de défilement), et la plume avance d'un mouvement régulier
       el.querySelectorAll<SVGSVGElement>(".hw-line").forEach((svg) => {
         const w = Number(svg.dataset.w);
         const rect = svg.querySelector("rect");
         const nib = svg.querySelector("circle");
-        tl.fromTo(rect, { attr: { width: 0 } }, { attr: { width: w }, ease: "none", duration: w / 400 });
-        tl.fromTo(nib, { attr: { cx: 0 }, opacity: 1 }, { attr: { cx: w }, ease: "none", duration: w / 400 }, "<");
-        tl.to(nib, { opacity: 0, duration: 0.05 });
+        tl.fromTo(rect, { attr: { width: 0 } }, { attr: { width: w }, ease: "none", duration: w / 400 }); // token-ok : proportion
+        tl.fromTo(nib, { attr: { cx: 0 }, opacity: 1 }, { attr: { cx: w }, ease: "none", duration: w / 400 }, "<"); // token-ok : proportion
+        tl.to(nib, { opacity: 0, duration: 0.05 }); // token-ok : proportion
       });
       const sign = el.querySelector<SVGSVGElement>(".hw-sign");
       if (sign) {
         const w = Number(sign.dataset.w);
-        tl.fromTo(sign.querySelector("rect"), { attr: { width: 0 } }, { attr: { width: w }, ease: "none", duration: w / 300 });
+        tl.fromTo(sign.querySelector("rect"), { attr: { width: 0 } }, { attr: { width: w }, ease: "none", duration: w / 300 }); // token-ok : proportion
         const flourish = sign.querySelector<SVGPathElement>("path");
         if (flourish) {
           const len = flourish.getTotalLength();
-          tl.fromTo(flourish, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, ease: "none", duration: 0.8 });
+          tl.fromTo(flourish, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, ease: "none", duration: 0.8 }); // token-ok : proportion
         }
       }
     }, el);

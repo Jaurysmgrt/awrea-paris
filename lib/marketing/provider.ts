@@ -10,9 +10,12 @@ import "server-only";
 import { identity } from "@/content/brand/identity";
 import { sendEmail, type OutgoingEmail } from "@/lib/email/send";
 import { kv } from "@/lib/store";
+import { providerOf } from "@/lib/config/providers";
 
 export type MarketingProvider = "brevo" | "klaviyo" | "none";
-export const marketingProvider: MarketingProvider = process.env.BREVO_API_KEY ? "brevo" : process.env.KLAVIYO_PRIVATE_KEY ? "klaviyo" : "none";
+/** Interrupteur MARKETING_PROVIDER (lib/config/providers.ts) ; « none » = simulation. */
+const chosen = providerOf("marketing");
+export const marketingProvider: MarketingProvider = chosen === "mock" ? "none" : chosen;
 
 export interface ContactAttributes {
   email: string;

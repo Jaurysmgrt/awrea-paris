@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { securityHeaders } from "./lib/security/headers";
+import { providerOf } from "./lib/config/providers";
 
 /**
  * Une seule version du site : l'hôte de NEXT_PUBLIC_SITE_URL fait foi ; l'autre (avec ou sans
@@ -11,6 +12,8 @@ const alternateHost = canonical.hostname.startsWith("www.") ? canonical.hostname
 const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // interrupteur de la protection anti-robots, connu du navigateur (lib/config/providers.ts)
+  env: { AWREA_CAPTCHA: providerOf("captcha") },
   // la référence de ton est lue à l'exécution par l'assistante et les agents
   outputFileTracingIncludes: { "/**": ["./content/brand/voice.md"] },
   images: {

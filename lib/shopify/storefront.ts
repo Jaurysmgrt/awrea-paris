@@ -1,6 +1,9 @@
 /**
  * Client Shopify Storefront API (GraphQL) — mode headless.
- * Activé dès que SHOPIFY_STORE_DOMAIN et SHOPIFY_STOREFRONT_ACCESS_TOKEN sont définis.
+ * Activé par l'interrupteur COMMERCE_PROVIDER (lib/config/providers.ts) : dès que
+ * SHOPIFY_STORE_DOMAIN et un jeton Storefront sont définis, sauf COMMERCE_PROVIDER=mock.
+ * Jeton : le jeton PRIVÉ du canal Headless (SHOPIFY_STOREFRONT_PRIVATE_TOKEN, recommandé : les
+ * appels partent du serveur) ou, à défaut, le jeton public (SHOPIFY_STOREFRONT_ACCESS_TOKEN).
  *
  * Métachamps attendus sur les produits (namespace `awrea`, à créer dans l'admin Shopify) :
  *   edition_total (integer) · edition_produced (integer) · lead_time_weeks (integer)
@@ -10,21 +13,37 @@
  * Option de variante : « Taille ». Stock : politique « continuer à vendre » = précommande.
  */
 import type { Cart, Category, Collection, Image, Product, Size, Variant } from "@/lib/commerce/types";
+import { headers } from "next/headers";
 import { shop } from "@/content/settings";
+import { providerOf } from "@/lib/config/providers";
 
 const domain = process.env.SHOPIFY_STORE_DOMAIN;
-const token = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+const privateToken = process.env.SHOPIFY_STOREFRONT_PRIVATE_TOKEN;
+const publicToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 const version = process.env.SHOPIFY_API_VERSION ?? "2026-07";
 
-export const shopifyEnabled = Boolean(domain && token);
+export const shopifyEnabled = providerOf("commerce") === "shopify";
+
+/** Adresse IP de la cliente (jeton privé : Shopify l'utilise pour sa protection anti-robots). */
+async function buyerIp(): Promise<string | null> {
+  try {
+    const h = await headers();
+    return h.get("x-real-ip") ?? h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  } catch {
+    return null; // hors requête (compilation, tâche planifiée)
+  }
+}
 
 export async function storefront<T>(query: string, variables: Record<string, unknown> = {}, opts: { revalidate?: number; tags?: string[] } = {}): Promise<T> {
   if (!shopifyEnabled) throw new Error("Shopify n’est pas configuré");
+  // requêtes propres à une cliente (panier) : non mises en cache, avec son adresse IP
+  const ip = privateToken && opts.revalidate === 0 ? await buyerIp() : null;
   const res = await fetch(`https://${domain}/api/${version}/graphql.json`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Shopify-Storefront-Access-Token": token!,
+      ...(privateToken ? { "Shopify-Storefront-Private-Token": privateToken } : { "X-Shopify-Storefront-Access-Token": publicToken! }),
+      ...(ip ? { "Shopify-Storefront-Buyer-IP": ip } : {}),
     },
     body: JSON.stringify({ query, variables }),
     ...(opts.revalidate === 0 ? { cache: "no-store" as const } : { next: { revalidate: opts.revalidate ?? 300, tags: opts.tags ?? ["shopify"] } }),

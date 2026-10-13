@@ -169,3 +169,51 @@
   doré illisible sur fond clair (désormais or profond), espace fine insécable avant « % ».
 - Tests : 265/265 sur la version de production, dont le parcours achat → certificat → rattachement d'une pièce
   offerte.
+
+## Nouvelle direction artistique, équipes d'agents, drops, avis vérifiés (13/10)
+- Direction artistique remplacée partout : plus aucun doré (tokens, CSS, e-mails, halo devenu blanc,
+  fil du drapé blanc), Instrument Serif (titres, très grands, jamais en italique) et Inter Tight
+  (textes 300, navigation et boutons en petites capitales 400), aucune calligraphie. Palette de quatre
+  couleurs ; taupe profond pour les petits textes secondaires (contraste AA).
+- Justification régulière : paragraphes justifiés avec césure française, mesure de 60 à 70 caractères,
+  équilibreur par paragraphe (±1 % d'espacement des mots et des lettres), contrôle automatique sur
+  27 pages × 3 formats (`tests/e2e/homogeneite.spec.ts`) : polices, italiques, couleurs, grille de
+  8 px, interlignage 1,6, trous de justification.
+- Équipes d'agents : 34 rôles dans `.claude/agents/`, organisation dans `docs/EQUIPES.md`, référence
+  commune `MARQUE.md`. Veille design : liste noire de vingt sites (`docs/equipes/design/`), arbitrages.
+- Drops (« Bientôt ») : compte à rebours sobre, accès anticipé signé, vente privée par mot de passe,
+  contrôle côté serveur (panier, commande). Avis vérifiés sans étoiles (lien personnel après
+  livraison, photos recompressées sans métadonnées, modération et réponse dans l'Atelier).
+  Certificats dans l'Atelier (mot de la créatrice, impression de l'étiquette QR et du code).
+
+## Cahier des charges complet — reprise autonome, phase A (13/10, soir)
+- Le cahier des charges complet devient la référence unique. Audit de l'existant (`ETAT.md`), plan
+  priorisé en phases A à G (`PLAN.md`, l'ancien plan archivé), registre des décisions
+  (`DECISIONS.md`). État antérieur sauvegardé sur la branche `archive/avant-nouvelle-da`.
+- Interrupteurs par service (`lib/config/providers.ts`) : `COMMERCE_PROVIDER`, `CUSTOMERS_PROVIDER`,
+  `STORE_PROVIDER`, `EMAIL_PROVIDER`, `MARKETING_PROVIDER`, `AI_PROVIDER`, `CAPTCHA_PROVIDER`,
+  `INSTAGRAM_PROVIDER` ; `mock` force la simulation, un prestataire sans ses clés retombe sur la
+  simulation sans planter ; état et clés manquantes dans l'Atelier › Réglages ; tests unitaires.
+- Shopify à jour des changements de 2026 : jeton privé du canal Headless, accès Admin des agents par
+  une application du Dev Dashboard (jeton de 24 h demandé et renouvelé par le site).
+- `ACTIVATION.md` : treize étapes dans l'ordre, pour une non-développeuse (compte à créer, où
+  cliquer, quoi recopier, comment vérifier), du dépôt privé jusqu'à la maintenance automatique.
+- Polices servies par le site (plus aucun appel à Google Fonts) ; logo provisoire vectorisé à partir
+  des polices (fichiers noir et blanc, favicon, icônes de l'application) ; une seule durée (0,8 s) et
+  une seule courbe pour toutes les animations, défilement doux compris, contrôlées par l'audit.
+- En avance sur la phase B : Microsoft Clarity et pixel TikTok après consentement (déclarés dans les
+  pages légales), régénération du catalogue par webhooks Shopify, jeton Instagram renouvelé chaque
+  semaine, gabarit du code de connexion Supabase aux couleurs de la maison.
+- Vérifications : lint, types, audit des tokens, tests unitaires (14) et de la base au vert ; recherche
+  de clés secrètes propre.
+
+### Réunion de synthèse — fin de la phase A
+- **Présents** : chef de projet, Développement (architecte), Sécurité (défenseur), Design (directeur
+  artistique « dentelle », en cours de proposition).
+- **Décidé** : les interrupteurs n'appliquent un prestataire que si toutes ses clés sont là ; le mot de
+  passe de démonstration de l'Atelier reste refusé dès qu'une boutique Shopify est renseignée ; la
+  durée unique vaut aussi pour les séquences signature, qui l'enchaînent.
+- **Point de vigilance** (Sécurité) : Clarity enregistre les visites ; masquage strict obligatoire dans
+  son tableau de bord (écrit dans `ACTIVATION.md`), chargé seulement avec l'accord « mesure d'audience ».
+- **Suite** : phase B (boutique complète en simulation) ; en parallèle, les directions artistiques
+  « atelier » et « édition » une par une, puis critique, gardien de la marque et fusion.

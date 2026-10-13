@@ -39,8 +39,8 @@
     background-color: var(--bg);
     color: var(--fg);
     transition:
-      background-color var(--dur-slow) var(--ease-silk),
-      color var(--dur-slow) var(--ease-silk);
+      background-color var(--dur) var(--ease),
+      color var(--dur) var(--ease);
   }
   /* Seules les sections de page suivent la scène (jamais les tiroirs, modales, panneaux) */
   html.scene-live :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
@@ -156,13 +156,13 @@
 
   /* titre écrit au chargement (components/ui/SplitTitle.tsx) */
   .split {
-    animation: split-rise var(--dur-slow) var(--ease-silk) both;
+    animation: split-rise var(--dur) var(--ease) both;
   }
   .split__word {
     white-space: nowrap;
   }
   .split__char {
-    animation: split-in var(--dur-base) var(--ease-silk) both;
+    animation: split-in var(--dur) var(--ease) both;
     animation-delay: calc(var(--i) * var(--dur-stagger) * 0.6);
   }
   @keyframes split-rise {
@@ -337,13 +337,13 @@
     /* attraction magnétique (components/motion/Magnetic.tsx) : retour en douceur */
     translate: var(--mx, 0) var(--my, 0);
     transition:
-      color var(--dur-base) var(--ease-silk),
-      translate var(--dur-base) var(--ease-silk);
+      color var(--dur) var(--ease),
+      translate var(--dur) var(--ease);
   }
   .btn[data-magnet="on"] {
     transition:
-      color var(--dur-base) var(--ease-silk),
-      translate var(--dur-fast) var(--ease-silk);
+      color var(--dur) var(--ease),
+      translate var(--dur) var(--ease);
   }
   .btn::before {
     content: "";
@@ -353,7 +353,7 @@
     background: var(--btn-bg);
     transform: scaleY(0);
     transform-origin: 50% 100%;
-    transition: transform var(--dur-base) var(--ease-drape);
+    transition: transform var(--dur) var(--ease);
   }
   @media (hover: hover) {
     .btn:hover {
@@ -416,7 +416,7 @@
     background-size: 100% var(--border-width-hair);
     background-position: 0 100%;
     background-repeat: no-repeat;
-    transition: background-size var(--dur-base) var(--ease-drape);
+    transition: background-size var(--dur) var(--ease);
   }
   @media (hover: hover) {
     .link:hover {
@@ -467,7 +467,7 @@
     font-family: var(--font-sans);
     font-size: var(--text-step-0);
     color: var(--fg);
-    transition: border-color var(--dur-fast) var(--ease-silk);
+    transition: border-color var(--dur) var(--ease);
     appearance: none;
   }
   .field__input::placeholder {
@@ -545,7 +545,7 @@
     height: calc(var(--spacing-s) * 0.5);
     background: var(--fg);
     transform: scale(0);
-    transition: transform var(--dur-fast) var(--ease-silk);
+    transition: transform var(--dur) var(--ease);
   }
   .check input[type="radio"]::before {
     transform: rotate(45deg) scale(0.85);
@@ -576,9 +576,9 @@
        à chaque image quand la scène bascule */
     color: var(--fg);
     transition:
-      border-color var(--dur-fast) var(--ease-silk),
-      background-color var(--dur-fast) var(--ease-silk),
-      color var(--dur-fast) var(--ease-silk);
+      border-color var(--dur) var(--ease),
+      background-color var(--dur) var(--ease),
+      color var(--dur) var(--ease);
   }
   .chip:hover {
     border-color: var(--fg);
@@ -634,8 +634,8 @@
     margin-bottom: calc(-1 * var(--border-width-hair));
     cursor: pointer;
     transition:
-      color var(--dur-fast) var(--ease-silk),
-      border-color var(--dur-fast) var(--ease-silk);
+      color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
   }
   .segmented__item[aria-checked="true"],
   .segmented__item:has(input:checked) {
@@ -690,7 +690,7 @@
   }
   .reveal-img[data-shown] img,
   .reveal-img[data-shown] video {
-    transition: transform var(--dur-slow) var(--ease-silk);
+    transition: transform var(--dur) var(--ease);
   }
 
   /* ===================================================== SQUELETTES
@@ -706,7 +706,7 @@
       )
       0 0 / 300% 100%,
       color-mix(in oklab, var(--fg) 7%, var(--bg));
-    animation: skeleton-sheen calc(var(--dur-breath) * 2) linear infinite;
+    animation: skeleton-sheen calc(var(--dur-breath) * 2) var(--ease) infinite;
   }
   .skeleton--media {
     aspect-ratio: 4 / 5;
@@ -804,7 +804,7 @@
     border-right: var(--border-width-hair) solid currentColor;
     border-bottom: var(--border-width-hair) solid currentColor;
     transform: rotate(45deg) translateY(-25%);
-    transition: transform var(--dur-fast) var(--ease-silk);
+    transition: transform var(--dur) var(--ease);
   }
   .disclosure[open] > summary::after {
     transform: rotate(-135deg) translateY(-25%);
@@ -859,8 +859,8 @@
   }
   [data-reveal][data-shown] {
     transition:
-      opacity var(--dur-slow) var(--ease-silk),
-      transform var(--dur-slow) var(--ease-silk);
+      opacity var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
   }
 }
 

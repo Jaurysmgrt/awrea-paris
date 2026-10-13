@@ -11,7 +11,7 @@
     pointer-events: none;
     overflow: hidden;
     opacity: 0;
-    transition: opacity var(--dur-slow) var(--ease-silk);
+    transition: opacity var(--dur) var(--ease);
   }
   .light-halo[data-on="true"] {
     opacity: var(--gl-intensity, 1);
@@ -73,8 +73,8 @@
     transform-origin: 50% 45%;
     will-change: transform, opacity;
     animation:
-      lace-veil-grow calc(var(--dur-slow) * 2.2) var(--ease-drape) calc(var(--dur-fast) * 0.9) both,
-      lace-veil-fade calc(var(--dur-slow) * 1.2) var(--ease-silk) calc(var(--dur-slow) * 1.15) both;
+      lace-veil-grow calc(var(--dur) * 4) var(--ease) calc(var(--dur) / 2) both,
+      lace-veil-fade calc(var(--dur) * 2) var(--ease) calc(var(--dur) * 2) both;
   }
   .lace-reveal[data-state="open"] .lace-reveal__lace {
     display: none;
@@ -324,13 +324,13 @@
     height: var(--spacing-xs);
     background: var(--accent);
     box-shadow: 0 0 0 var(--spacing-3xs) color-mix(in oklab, var(--color-ivory) 70%, transparent); /* token-ok : anneau, pas une ombre portée */
-    transition: transform var(--dur-fast) var(--ease-silk);
+    transition: transform var(--dur) var(--ease);
   }
   .look__dot::after {
     width: var(--spacing-l);
     height: var(--spacing-l);
     border: var(--border-width-hair) solid var(--color-ivory);
-    animation: look-pulse var(--dur-breath) var(--ease-silk) infinite;
+    animation: look-pulse var(--dur-breath) var(--ease) infinite;
   }
   .look__dot[aria-expanded="true"]::before {
     transform: scale(1.4);
@@ -353,7 +353,7 @@
     transform: translateY(-50%);
     padding: var(--spacing-s);
     border: var(--border-width-hair) solid var(--color-ink);
-    animation: look-in var(--dur-base) var(--ease-silk);
+    animation: look-in var(--dur) var(--ease);
   }
   .look__panel[data-side="right"] {
     right: var(--spacing-s);
@@ -414,7 +414,7 @@
     height: 100%;
     object-fit: cover;
     opacity: 0;
-    transition: opacity var(--dur-base) var(--ease-silk);
+    transition: opacity var(--dur) var(--ease);
   }
   .video[data-ready="true"] video {
     opacity: 1;
@@ -425,7 +425,7 @@
     bottom: var(--spacing-2xs);
     color: var(--color-ivory);
     opacity: 0.75;
-    transition: opacity var(--dur-fast) var(--ease-silk);
+    transition: opacity var(--dur) var(--ease);
   }
   .video__toggle:hover,
   .video__toggle:focus-visible {
@@ -468,8 +468,8 @@
     opacity: 0;
     transform: scale(0.6);
     transition:
-      opacity var(--dur-fast) var(--ease-silk),
-      transform var(--dur-fast) var(--ease-silk);
+      opacity var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
   }
   .loupe__stage[data-on="true"] .loupe__lens {
     opacity: 1;
@@ -713,8 +713,8 @@
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     transition:
-      background-color var(--dur-fast) var(--ease-silk),
-      color var(--dur-fast) var(--ease-silk);
+      background-color var(--dur) var(--ease),
+      color var(--dur) var(--ease);
   }
   .assistant-launcher:hover {
     background: var(--accent);
@@ -725,7 +725,7 @@
     height: var(--spacing-2xs);
     background: var(--accent);
     transform: rotate(45deg);
-    transition: background-color var(--dur-fast) var(--ease-silk);
+    transition: background-color var(--dur) var(--ease);
   }
   .assistant-launcher:hover .assistant-launcher__mark {
     background: var(--color-ink);
@@ -752,7 +752,7 @@
     display: grid;
     grid-template-rows: auto minmax(0, 1fr) auto auto auto;
     border-top: var(--border-width-hair) solid var(--color-ink);
-    animation: assistant-in var(--dur-base) var(--ease-drape);
+    animation: assistant-in var(--dur) var(--ease);
   }
   @media (min-width: 48rem) {
     .assistant {
@@ -823,7 +823,7 @@
     height: var(--spacing-3xs);
     background: var(--accent);
     transform: rotate(45deg);
-    animation: assistant-dot calc(var(--dur-breath) / 2) var(--ease-silk) infinite;
+    animation: assistant-dot calc(var(--dur-breath) / 2) var(--ease) infinite;
   }
   .assistant__typing span:nth-child(2) {
     animation-delay: calc(var(--dur-stagger) * 2.5);
@@ -850,7 +850,7 @@
     align-items: center;
     padding: var(--spacing-2xs);
     border: var(--border-width-hair) solid var(--line);
-    transition: border-color var(--dur-fast) var(--ease-silk);
+    transition: border-color var(--dur) var(--ease);
   }
   .assistant__piece:hover {
     border-color: var(--fg);

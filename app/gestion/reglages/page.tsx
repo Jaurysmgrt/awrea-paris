@@ -1,9 +1,10 @@
 import { POLICY } from "@/lib/agents/policy";
 import { AGENTS } from "@/lib/agents/registry";
 import { commerceMode } from "@/lib/commerce";
-import { aiEnabled, MODEL } from "@/lib/ai/client";
+import { MODEL } from "@/lib/ai/client";
 import { adminEnabled } from "@/lib/shopify/admin";
-import { storeMode } from "@/lib/store";
+import { services as providers } from "@/lib/config/providers";
+import { turnstileEnabled } from "@/lib/security/turnstile";
 import { usingDemoPassword } from "@/lib/auth/admin";
 import { recoveryCodesLeft } from "@/lib/auth/totp";
 import { cspMode } from "@/lib/security/headers";
@@ -26,21 +27,25 @@ export default async function ReglagesPage() {
   const [events, digest, codesLeft] = await Promise.all([securityEvents(30), securityDigest(24), recoveryCodesLeft()]);
   const security = [
     { name: "Double authentification de l’Atelier", ok: true, hint: `Obligatoire · ${codesLeft} code(s) de secours restant(s)` },
-    { name: "Protection anti-robots des formulaires (Turnstile)", ok: Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && process.env.TURNSTILE_SECRET_KEY), hint: "NEXT_PUBLIC_TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY" },
+    { name: "Protection anti-robots des formulaires (Turnstile)", ok: turnstileEnabled, hint: "NEXT_PUBLIC_TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY" },
     { name: `Politique de sécurité du contenu (${cspMode === "strict" ? "stricte, nonce par page" : "statique"})`, ok: process.env.NODE_ENV === "production", hint: "CSP_MODE" },
     { name: "Base clientes avec sécurité par ligne (Supabase)", ok: isSupabaseConfigured, hint: "NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY" },
     { name: "Clé de signature des sessions", ok: Boolean(process.env.SESSION_SECRET), hint: "SESSION_SECRET (64 caractères aléatoires)" },
-    { name: "Alertes de sécurité par e-mail", ok: Boolean(process.env.RESEND_API_KEY), hint: "RESEND_API_KEY, SECURITY_ALERT_EMAIL" },
+    { name: "Alertes de sécurité par e-mail", ok: providers.email.provider !== "mock", hint: "RESEND_API_KEY, SECURITY_ALERT_EMAIL" },
   ];
+  // un interrupteur par service (lib/config/providers.ts, mode d'emploi : ACTIVATION.md)
   const services = [
-    { name: "Boutique Shopify (Storefront)", ok: commerceMode === "shopify", hint: "SHOPIFY_STORE_DOMAIN, SHOPIFY_STOREFRONT_ACCESS_TOKEN" },
-    { name: "Shopify Admin (agents)", ok: adminEnabled, hint: "SHOPIFY_ADMIN_ACCESS_TOKEN" },
-    { name: `IA Claude (${MODEL})`, ok: aiEnabled, hint: "ANTHROPIC_API_KEY" },
-    { name: "E-mails (Resend)", ok: Boolean(process.env.RESEND_API_KEY), hint: "RESEND_API_KEY, EMAIL_FROM" },
-    { name: "Base de données (Upstash Redis)", ok: storeMode === "upstash", hint: "KV_REST_API_URL, KV_REST_API_TOKEN" },
-    { name: "Flux Instagram", ok: Boolean(process.env.INSTAGRAM_ACCESS_TOKEN), hint: "INSTAGRAM_ACCESS_TOKEN" },
-    { name: "Tâches planifiées sécurisées", ok: Boolean(process.env.CRON_SECRET), hint: "CRON_SECRET" },
-    { name: "Mot de passe du tableau de bord", ok: !usingDemoPassword(), hint: "ATELIER_PASSWORD" },
+    ...Object.values(providers).map((s) => ({
+      name: s.label,
+      ok: s.provider !== "mock",
+      state: s.provider === "mock" ? `Simulation — ${s.providerLabel}` : s.id === "ai" ? `${s.providerLabel} (${MODEL})` : s.providerLabel,
+      hint: s.missing.length
+        ? `${s.env}=${s.requested} demandé : manque ${s.missing.join(", ")}`
+        : `${s.env} · ${Object.values(s.keys).map((k) => k.join(", ")).join(" ou ")}`,
+    })),
+    { name: "Shopify Admin (agents)", ok: adminEnabled, state: adminEnabled ? "Shopify" : "Simulation", hint: "SHOPIFY_CLIENT_ID et SHOPIFY_CLIENT_SECRET (ou SHOPIFY_ADMIN_ACCESS_TOKEN)" },
+    { name: "Tâches planifiées sécurisées", ok: Boolean(process.env.CRON_SECRET), state: process.env.CRON_SECRET ? "Active" : "À configurer", hint: "CRON_SECRET" },
+    { name: "Mot de passe du tableau de bord", ok: !usingDemoPassword(), state: usingDemoPassword() ? "Démonstration" : "Personnel", hint: "ATELIER_PASSWORD" },
   ];
   return (
     <div className="admin-page stack-l">
@@ -54,7 +59,7 @@ export default async function ReglagesPage() {
           <thead><tr><th scope="col">Service</th><th scope="col">État</th><th scope="col">Variables</th></tr></thead>
           <tbody>
             {services.map((s) => (
-              <tr key={s.name}><th scope="row">{s.name}</th><td><span className={`status status--${s.ok ? "done" : "info"}`}>{s.ok ? "Connecté" : "Démonstration"}</span></td><td className="t-note">{s.hint}</td></tr>
+              <tr key={s.name}><th scope="row">{s.name}</th><td><span className={`status status--${s.ok ? "done" : "info"}`}>{s.state}</span></td><td className="t-note">{s.hint}</td></tr>
             ))}
           </tbody>
         </table></div>

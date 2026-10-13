@@ -36,8 +36,8 @@
     font-kerning: normal;
     overflow-x: clip;
     transition:
-      background-color var(--dur-slow) var(--ease-silk),
-      color var(--dur-slow) var(--ease-silk);
+      background-color var(--dur) var(--ease),
+      color var(--dur) var(--ease);
   }
 
   /* La scène (fond global) prend la couleur de la section au centre de l'écran */
@@ -207,7 +207,7 @@
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    transition: transform var(--dur-fast) var(--ease-silk);
+    transition: transform var(--dur) var(--ease);
   }
   .skip-link:focus {
     transform: none;
@@ -231,8 +231,8 @@
 /* passage Jour ↔ Nuit : un seul fondu, lent et soyeux (lib/prefs.ts) */
 html.mode-switch::view-transition-old(root),
 html.mode-switch::view-transition-new(root) {
-  animation-duration: var(--dur-slow);
-  animation-timing-function: var(--ease-silk);
+  animation-duration: var(--dur);
+  animation-timing-function: var(--ease);
 }
 html[data-motion="reduce"] *,
 html[data-motion="reduce"] *::before,

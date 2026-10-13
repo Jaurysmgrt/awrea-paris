@@ -17,10 +17,10 @@
     position: absolute;
     inset: 0;
     opacity: 0;
-    transition: opacity var(--dur-slow) var(--ease-silk);
+    transition: opacity var(--dur) var(--ease);
   }
   .product-card__img img {
-    transition: transform var(--dur-slow) var(--ease-silk);
+    transition: transform var(--dur) var(--ease);
   }
   @media (hover: hover) {
     .product-card__link:hover .product-card__img--alt {
@@ -36,7 +36,7 @@
     inset: 0;
     opacity: 0;
     pointer-events: none;
-    transition: opacity var(--dur-base) var(--ease-silk);
+    transition: opacity var(--dur) var(--ease);
   }
   .card-video[data-playing="true"] {
     opacity: 1;
@@ -94,9 +94,9 @@
     stroke: currentColor;
     stroke-width: 1;
     transition:
-      fill var(--dur-fast) var(--ease-silk),
-      stroke var(--dur-fast) var(--ease-silk),
-      transform var(--dur-fast) var(--ease-silk);
+      fill var(--dur) var(--ease),
+      stroke var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
   }
   .wish--icon .wish__mark {
     stroke: var(--color-ink);

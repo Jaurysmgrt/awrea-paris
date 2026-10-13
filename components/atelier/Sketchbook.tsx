@@ -5,7 +5,7 @@
  * des carnets de la créatrice (ou à conserver comme ornement).
  */
 import { useEffect, useRef } from "react";
-import { loadGsap, prefersReducedMotion } from "@/lib/motion";
+import { dur, loadGsap, prefersReducedMotion } from "@/lib/motion";
 
 const SKETCHES: { title: string; paths: string[]; gold: string[] }[] = [
   {
@@ -70,7 +70,7 @@ export function Sketchbook() {
         gsap.fromTo(
           strokes,
           { strokeDashoffset: 1 },
-          { strokeDashoffset: 0, ease: "none", stagger: 0.12, scrollTrigger: { trigger: svg, start: "top 85%", end: "bottom 45%", scrub: 0.6 } },
+          { strokeDashoffset: 0, ease: "none", stagger: 0.12, scrollTrigger: { trigger: svg, start: "top 85%", end: "bottom 45%", scrub: dur() } }, // token-ok : trait piloté par le défilement
         );
       });
     }, el);

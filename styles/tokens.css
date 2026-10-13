@@ -115,10 +115,8 @@
   --border-width-hair: 1px;
 
   /* -------------------------------------------------------------- MOUVEMENT
-     Trois durées, deux courbes. Lues aussi par le JS (lib/motion.ts). */
+     Une seule durée et une seule courbe (--dur, --ease, plus bas dans :root). */
   --ease-*: initial;
-  --ease-silk: cubic-bezier(0.22, 0.61, 0.24, 1);
-  --ease-drape: cubic-bezier(0.76, 0, 0.24, 1);
   --animate-*: initial;
 
   --breakpoint-*: initial;
@@ -131,13 +129,20 @@
 
 @layer base {
 :root {
-  --dur-fast: 0.4s;
-  --dur-base: 0.9s;
-  --dur-slow: 1.6s;
-  --dur-breath: 2.6s; /* respirations ambiantes (points du shop the look, indicateur de défilement) */
-  --dur-stagger: 0.06s; /* décalage entre éléments d'une même apparition */
-  --ease-silk: cubic-bezier(0.22, 0.61, 0.24, 1);
-  --ease-drape: cubic-bezier(0.76, 0, 0.24, 1);
+  /* MOUVEMENT — une seule durée et une seule courbe pour toutes les animations du site
+     (consigne d'homogénéité). Courbe douce : l'essentiel du mouvement se fait au début, puis il
+     se pose lentement. Les séquences signature (dentelle, drapé, enveloppe) enchaînent cette même
+     durée ; les respirations ambiantes en sont un multiple. Lues aussi par le JS (lib/motion.ts). */
+  --dur: 0.8s;
+  --ease: cubic-bezier(0.22, 0.61, 0.24, 1);
+  --dur-breath: calc(var(--dur) * 3); /* respirations ambiantes (points du shop the look, défilement) */
+  --dur-stagger: calc(var(--dur) / 12); /* décalage entre éléments d’une même apparition */
+  /* anciens noms, gardés le temps du laboratoire de design (app/(lab)), supprimés à la fusion */
+  --dur-fast: var(--dur);
+  --dur-base: var(--dur);
+  --dur-slow: var(--dur);
+  --ease-silk: var(--ease);
+  --ease-drape: var(--ease);
 
   /* interlignages des titres (multiples de 8 px), suivent les paliers de l'échelle */
   --lh-step-2: 2rem;
@@ -295,17 +300,13 @@ html[data-mode="dark"] [data-theme="pearl"] {
 /* animations apaisées : réglage du système, ou choix fait sur le site (lib/prefs.ts) */
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --dur-fast: 0.01s;
-    --dur-base: 0.01s;
-    --dur-slow: 0.01s;
+    --dur: 0.01s;
     --dur-breath: 0.01s;
     --dur-stagger: 0s;
   }
 }
 html[data-motion="reduce"] {
-  --dur-fast: 0.01s;
-  --dur-base: 0.01s;
-  --dur-slow: 0.01s;
+  --dur: 0.01s;
   --dur-breath: 0.01s;
   --dur-stagger: 0s;
 }

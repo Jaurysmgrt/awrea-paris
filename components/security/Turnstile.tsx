@@ -3,7 +3,8 @@
  * Cloudflare Turnstile (anti-robots) : invisible pour les visiteuses humaines, il ne s'affiche
  * que si une vérification est nécessaire. Le script n'est chargé qu'au premier geste dans le
  * formulaire (focus), pour ne rien coûter au chargement des pages.
- * Sans clé publique (NEXT_PUBLIC_TURNSTILE_SITE_KEY), le composant ne rend rien.
+ * Sans clé publique (NEXT_PUBLIC_TURNSTILE_SITE_KEY) ou avec CAPTCHA_PROVIDER=mock, le composant
+ * ne rend rien.
  */
 import { useEffect, useEffectEvent, useRef } from "react";
 
@@ -18,7 +19,7 @@ declare global {
   }
 }
 
-const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+const SITE_KEY = process.env.AWREA_CAPTCHA === "turnstile" ? process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY : undefined;
 let loading: Promise<void> | null = null;
 function loadScript() {
   if (!loading) {

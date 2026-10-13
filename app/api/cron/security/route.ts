@@ -9,6 +9,7 @@ import { securityDigest } from "@/lib/security/audit";
 import { isEnrolled, recoveryCodesLeft } from "@/lib/auth/totp";
 import { usingDemoPassword } from "@/lib/auth/admin";
 import { cspMode } from "@/lib/security/headers";
+import { turnstileEnabled } from "@/lib/security/turnstile";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export async function GET(req: Request) {
   if (!process.env.CRON_SECRET) warnings.push("CRON_SECRET n'est pas défini.");
   if (!enrolled) warnings.push("La double authentification de l'Atelier n'est pas encore configurée.");
   if (enrolled && codesLeft < 3) warnings.push(`Plus que ${codesLeft} code(s) de secours : en générer de nouveaux (réinitialiser la double authentification).`);
-  if (!process.env.TURNSTILE_SECRET_KEY) warnings.push("Turnstile n'est pas configuré (TURNSTILE_SECRET_KEY).");
+  if (!turnstileEnabled) warnings.push("La protection anti-robots est en simulation (TURNSTILE_SECRET_KEY, NEXT_PUBLIC_TURNSTILE_SITE_KEY, CAPTCHA_PROVIDER).");
   if (digest.unusualLogins) warnings.push(`${digest.unusualLogins} connexion(s) inhabituelle(s) à l'Atelier.`);
   if (digest.suspiciousNetworks.length) warnings.push(`Réseaux suspects à bloquer dans le pare-feu : ${digest.suspiciousNetworks.map((n) => n.network).join(", ")}.`);
   return NextResponse.json({ ok: warnings.length === 0, cspMode, digest, warnings });

@@ -46,6 +46,12 @@ max_frequency = "60s"
 otp_length = 6
 otp_expiry = 600
 
+# code de connexion à six chiffres, aux couleurs de la maison (à coller aussi dans le tableau de bord
+# Supabase : ACTIVATION.md, étape 5)
+[auth.email.template.magic_link]
+subject = "Votre code de connexion — Awrea Paris"
+content_path = "./supabase/templates/code-de-connexion.html"
+
 [auth.external.google]
 enabled = false
 client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"

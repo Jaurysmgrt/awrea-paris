@@ -1,6 +1,6 @@
 # ÉTAT — audit de l'existant face au cahier des charges complet
 
-> Audit du 13 octobre 2026 (soir), à la reprise sur le « cahier des charges complet », désormais la
+> Audit du 13 octobre 2026 (soir), mis à jour en fin de phase A, à la reprise sur le « cahier des charges complet », désormais la
 > référence unique. Légende : ✅ fait et gardé · 🔧 à corriger · ❌ manquant. Mis à jour à chaque fin
 > d'étape. L'état d'avant la nouvelle direction artistique est sauvegardé sur la branche
 > `archive/avant-nouvelle-da`.
@@ -9,30 +9,30 @@
 
 | Point | État |
 | --- | --- |
-| Autonomie, décisions notées | 🔧 `DECISIONS.md` créé à cette reprise ; décisions antérieures reprises dedans |
-| Adaptateurs réel / simulé, site complet sans clé | ✅ commerce (Shopify / démo), base clientes (Supabase / stockage local), e-mails (Resend / boîte simulée), IA (Claude / réponses simulées), Turnstile, stockage (Upstash / fichier) — 🔧 pas d'interrupteurs explicites `*_PROVIDER` : bascule seulement selon la présence des clés |
-| `.env.example` commenté | ✅ (à compléter avec les interrupteurs) |
-| `ACTIVATION.md` | ❌ créé à cette reprise |
-| `ETAT.md`, `PLAN.md` priorisé | ❌ → créés / réécrits à cette reprise |
+| Autonomie, décisions notées | ✅ `DECISIONS.md` (décisions antérieures reprises dedans) |
+| Adaptateurs réel / simulé, site complet sans clé | ✅ commerce (Shopify / démo), base clientes (Supabase / stockage local), e-mails (Resend / boîte simulée), lettres (Brevo, Klaviyo / envoi du site), IA (Claude / réponses simulées), Turnstile, stockage (Upstash / fichier), Instagram ; ✅ interrupteurs `*_PROVIDER` (`lib/config/providers.ts`), état visible dans l'Atelier › Réglages |
+| `.env.example` commenté | ✅ avec les interrupteurs |
+| `ACTIVATION.md` | ✅ 13 étapes, dans l'ordre, pour une non-développeuse |
+| `ETAT.md`, `PLAN.md` priorisé | ✅ |
 | Commits fréquents, branche par grand chantier | 🔧 commits réguliers sur `claude/awrea-site` ; branches de chantier à partir de maintenant |
 
 ## 1. La marque
 
 | Point | État |
 | --- | --- |
-| `MARQUE.md` | ✅ — 🔧 ajouter : univers (fluide, mouvement, drapé à la grecque, sensuel), pièces de la collection, rubriques Instagram (Design, Outfits, Sketches, Press, Shoot) |
+| `MARQUE.md` | ✅ univers, pièces de la collection, rubriques Instagram et leur place sur le site, logo, mouvement |
 
 ## 2. Direction artistique
 
 | Point | État |
 | --- | --- |
 | Palette sans doré | ✅ tokens, CSS, e-mails, signatures (halo blanc, fil blanc du drapé), texture de dentelle neutre |
-| Instrument Serif + Inter Tight, ni calligraphie ni italique | ✅ — 🔧 polices encore téléchargées depuis Google au moment de la compilation : passer en fichiers hébergés dans le dépôt |
-| Logo provisoire SVG noir et blanc | 🔧 monogramme en texte SVG ; ❌ fichiers SVG noir / blanc dédiés |
+| Instrument Serif + Inter Tight, ni calligraphie ni italique | ✅ polices servies par le site (`styles/fonts`, `next/font/local`) |
+| Logo provisoire SVG noir et blanc | ✅ vectorisé (`scripts/build-logo.py`), fichiers noir / blanc, favicon, icônes |
 | Épuré et luxueux | ✅ (règles appliquées) |
 | Tendances 2026 | ✅ en grande partie (vidéo, mode Nuit, coulisses, micro-interactions, éco-conception) |
 | Justification régulière | ✅ équilibreur par paragraphe, mesure 60–70 caractères, contrôle automatique |
-| Homogénéité (8 px, 1,6, marges) | ✅ contrôle automatique ; 🔧 « même durée et même courbe pour toutes les animations » (trois durées aujourd'hui) |
+| Homogénéité (8 px, 1,6, marges) | ✅ contrôle automatique ; ✅ une durée et une courbe pour toutes les animations (contrôlé par l'audit) |
 | Responsive 320 → 2560 px | 🔧 testé de 360 à 1920 px ; ❌ 320 et 2560 px ; ❌ barre d'achat fixe sur mobile |
 
 ## 3. Processus de design multi-agents
@@ -72,7 +72,7 @@
 | Sentry | ❌ (adaptateur + simulation) |
 | Klaviyo / Brevo | ✅ adaptateur (`lib/marketing/provider`) |
 | CMS simple (textes et images modifiables) | ❌ |
-| Régénération des pages par webhooks | 🔧 partielle |
+| Régénération des pages par webhooks | ✅ catalogue Shopify ; 🔧 contenus (avec le CMS) |
 
 ## 6. Pages
 
@@ -139,8 +139,8 @@ tableau de bord à double authentification.
 
 ✅ balisage, H1 unique, métadonnées, fil d'Ariane, canoniques, sitemap, robots (robots des IA
 autorisés), Open Graph, données structurées, llms.txt, flux Merchant / Meta, mesure d'audience et
-pixels après consentement. ❌ hreflang EN (pas de version anglaise), LocalBusiness, Microsoft Clarity,
-pixel TikTok, images de partage par pièce.
+pixels après consentement, Microsoft Clarity et pixel TikTok. ❌ hreflang EN (pas de version anglaise),
+LocalBusiness, images de partage par pièce.
 
 ## 15. E-mails
 
@@ -174,5 +174,5 @@ continue. ❌ tests visuels de non-régression ; 🔧 prévisualisation (Vercel 
 
 ## 20. Documentation
 
-✅ README, `LEGAL-A-COMPLETER.md`, `SECURITE.md`, `JOURNAL.md`. ❌ `ACTIVATION.md`,
-`GUIDE-CREATRICE.md`, `DESIGN.md`, `DECISIONS.md`.
+✅ README, `LEGAL-A-COMPLETER.md`, `SECURITE.md`, `JOURNAL.md`, `ACTIVATION.md`, `DECISIONS.md`.
+❌ `GUIDE-CREATRICE.md`, `DESIGN.md`.

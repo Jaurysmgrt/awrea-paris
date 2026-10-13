@@ -28,6 +28,9 @@ const scriptHosts = [
   "https://connect.facebook.net",
   "https://www.googleadservices.com",
   "https://googleads.g.doubleclick.net",
+  "https://www.clarity.ms",
+  "https://scripts.clarity.ms",
+  "https://analytics.tiktok.com",
 ];
 
 /** Site servi en HTTPS (Vercel, production ou prévisualisation) : forçage du HTTPS. */
@@ -52,6 +55,9 @@ function directives(nonce?: string): Record<string, string[]> {
       "https://googleads.g.doubleclick.net",
       "https://www.google.com",
       "https://www.google.fr",
+      "https://*.clarity.ms",
+      "https://c.bing.com",
+      "https://analytics.tiktok.com",
     ],
     "font-src": ["'self'"],
     "media-src": ["'self'", "blob:", "https://cdn.shopify.com"],
@@ -67,6 +73,8 @@ function directives(nonce?: string): Record<string, string[]> {
       "https://connect.facebook.net",
       "https://www.facebook.com",
       "https://googleads.g.doubleclick.net",
+      "https://*.clarity.ms",
+      "https://analytics.tiktok.com",
     ],
     "frame-src": ["https://challenges.cloudflare.com", "https://www.googletagmanager.com", "https://td.doubleclick.net"],
     "worker-src": ["'self'", "blob:"],
