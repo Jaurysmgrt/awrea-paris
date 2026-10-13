@@ -108,3 +108,32 @@
   `content/legal/fields.ts`, repères dorés « [À COMPLÉTER] » sur le site, liste générée dans `LEGAL-A-COMPLETER.md`
   (`npm run legal:todo`). Fonction de rétractation en ligne en deux étapes avec accusé de réception immédiat.
   Cases d'acceptation : CGU à la création du compte, CGV à la commande (et jointes au panier Shopify).
+
+## Tendances design 2026, règles « épuré et luxueux », sécurité — en cours
+- Veille (Awwwards : Max Mara, Detroit Paris, Gucci, Miu Miu, Lacoste, Brunello Cucinelli) consignée dans
+  `docs/VEILLE-DESIGN-2026.md`, avec les décisions prises pour la maison. SiteInspire et Godly n'étaient pas
+  joignables depuis l'environnement de travail.
+- Mode Nuit noir et or complet : « Jour · Nuit · Auto » au pied de page et dans le menu (« Auto » suit le réglage du
+  téléphone), appliqué avant le premier affichage, un seul fondu lent au changement ; option « Animations apaisées ».
+- En-tête réduit à cinq entrées (Menu, Boutique | Rechercher, Compte, Panier) ; liste d'envies, collections,
+  silhouettes, journal et rendez-vous dans le menu plein écran.
+- Recherche plein écran instantanée (pièces, collections, Journal, pages, réponses de la FAQ), sans accents ni
+  majuscules, raccourci « / », page `/recherche` qui fonctionne sans JavaScript (non indexée), action de recherche
+  déclarée à Google, squelettes ivoire pendant le chargement.
+- Titres géants écrits lettre à lettre sur les pages éditoriales (le crénage du Bodoni est conservé), titres
+  calligraphiés tracés à la plume ; coulisses « Dans l'atelier » (prise de mesures, découpe de la dentelle, point
+  invisible, finitions) sur chaque fiche et après la commande ; vidéo au survol des cartes, téléchargée seulement au
+  premier survol ; boutons principaux magnétiques et discrets ; transition de page sans monogramme (un fil d'or).
+- Prix sobres : plus aucun prix barré (une vente privée s'annonce par un texte avec le prix de référence légal).
+- Un seul appel à l'action par section (confirmation, page introuvable : le second choix devient un lien discret).
+- Éco-conception : empreinte de la visite au pied de page (octets réellement transférés × facteur du modèle
+  Sustainable Web Design v4, précalculé avec CO2.js — `npm run eco:constants`), région Vercel Paris (`cdg1`).
+- Sécurité (première partie) : en-têtes stricts (CSP, HSTS avec préchargement, X-Frame-Options, nosniff,
+  Referrer-Policy, Permissions-Policy, COOP), une seule version du domaine (redirection permanente www ↔ sans www),
+  contrôle d'origine contre le CSRF sur toutes les routes d'API qui modifient des données, tâches planifiées
+  authentifiées en temps constant. Vérifié sur la version de production : aucune violation CSP sur 23 pages.
+- `vercel.json` créé : tâches planifiées des agents et des scénarios d'e-mails quotidiens (`/api/cron/flows`).
+- Lint React Compiler entièrement vert (15 erreurs anciennes corrigées : magasins externes pour la liste d'envies,
+  le consentement et les préférences, ajustements pendant le rendu au lieu d'effets).
+- Tests : 258 tests e2e sur la version de production (responsive 196/196 sur 7 largeurs, navigation, recherche,
+  mode Nuit, parcours d'achat, comptes, pages légales, Atelier).
