@@ -375,3 +375,31 @@ export const products: Product[] = [
     publishedAt: "2026-03-02",
   },
 ];
+
+/**
+ * Traçabilité de démonstration : étapes et temps de fabrication PROVISOIRES (comme les prix),
+ * origines des matières à préciser par l'atelier (jamais inventées). En production : métachamp
+ * Shopify `awrea.traceability` (ACTIVATION.md, étape 4.2).
+ */
+const hours: Record<string, [number, number, number]> = {
+  "robe-odessa": [6, 3, 22],
+  "body-gaia": [4, 2, 10],
+  "body-aura": [4, 2, 9],
+  "top-kira": [3, 2, 7],
+  "robe-thais": [5, 2, 12],
+  "jupe-iris": [3, 2, 8],
+  "corset-elia": [8, 3, 26],
+  "etole-nyx": [2, 1, 6],
+};
+for (const p of products) {
+  const [design, cut, sewing] = hours[p.handle] ?? [4, 2, 10];
+  p.trace ??= {
+    steps: [
+      { label: "Dessin et patronage", place: "Atelier, Paris", hours: design },
+      { label: "Coupe", place: "Atelier, Paris", hours: cut },
+      { label: "Assemblage et finitions à la main", place: "Atelier, Paris", hours: sewing },
+      { label: "Contrôle, numérotation et certificat", place: "Atelier, Paris" },
+    ],
+    origins: p.materials.map((m) => ({ material: m.name, origin: null })),
+  };
+}

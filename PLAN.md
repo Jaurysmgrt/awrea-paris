@@ -47,6 +47,9 @@ Directions « dentelle », « atelier », « édition » (une par une) → criti
 fusion choisie et documentée → `DESIGN.md` avec captures → application à tout le site avec les
 touches propres à Awrea (motif de dentelle, croquis et annotations, monogramme décliné, numéros
 d'édition, un détail inattendu par page) et la grille éditoriale asymétrique de la boutique.
+À reprendre à la fusion : les survols qui passaient au doré n'ont plus d'effet visible sur fond clair
+(la couleur d'accent vaut désormais celle du texte) ; les remplacer par l'inversion noir / blanc cassé
+ou le filet fin (`MARQUE.md`).
 
 ## Phase D — Effets avancés
 

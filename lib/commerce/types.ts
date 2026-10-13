@@ -30,6 +30,14 @@ export interface Material {
   percent: number;
 }
 
+/** Fiche de traçabilité : qui a fait quoi, où, en combien de temps, et d'où viennent les matières. */
+export interface Trace {
+  /** étapes de fabrication, dans l'ordre */
+  steps: { label: string; place: string; hours?: number }[];
+  /** origine de chaque matière (null : à préciser par l'atelier) */
+  origins: { material: string; origin: string | null }[];
+}
+
 export interface Product {
   id: string;
   handle: string;
@@ -51,6 +59,7 @@ export interface Product {
   description: string[];
   materials: Material[];
   lining?: string;
+  trace?: Trace;
   care: string[];
   fit: string;
   model: string;

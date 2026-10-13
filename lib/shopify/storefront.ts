@@ -10,6 +10,7 @@
  *   tagline (single_line_text) · materials (json : [{name, percent}]) · care (list.single_line_text)
  *   fit (multi_line_text) · model (single_line_text) · details (list.single_line_text)
  *   lining (single_line_text) · complete_the_look (list.product_reference) · detail_image (file_reference)
+ *   traceability (json : {steps: [{label, place, hours?}], origins: [{material, origin}]})
  * Option de variante : « Taille ». Stock : politique « continuer à vendre » = précommande.
  */
 import type { Cart, Category, Collection, Image, Product, Size, Variant } from "@/lib/commerce/types";
@@ -66,6 +67,7 @@ const MF = `
   model: metafield(namespace: "awrea", key: "model") { value }
   details: metafield(namespace: "awrea", key: "details") { value }
   lining: metafield(namespace: "awrea", key: "lining") { value }
+  traceability: metafield(namespace: "awrea", key: "traceability") { value }
   completeTheLook: metafield(namespace: "awrea", key: "complete_the_look") { references(first: 4) { nodes { ... on Product { handle } } } }
   detailImage: metafield(namespace: "awrea", key: "detail_image") { reference { ... on MediaImage { image { url altText width height } } } }
 `;
@@ -94,7 +96,7 @@ type SProduct = {
   variants: { nodes: { id: string; sku: string; availableForSale: boolean; currentlyNotInStock: boolean; quantityAvailable: number | null; selectedOptions: { name: string; value: string }[] }[] };
   tagline?: { value: string } | null; editionTotal?: { value: string } | null; editionProduced?: { value: string } | null;
   leadTime?: { value: string } | null; materials?: { value: string } | null; care?: { value: string } | null; fit?: { value: string } | null;
-  model?: { value: string } | null; details?: { value: string } | null; lining?: { value: string } | null;
+  model?: { value: string } | null; details?: { value: string } | null; lining?: { value: string } | null; traceability?: { value: string } | null;
   completeTheLook?: { references: { nodes: { handle: string }[] } } | null;
   detailImage?: { reference: { image: SImage } | null } | null;
 };
@@ -110,6 +112,19 @@ const list = (v?: { value: string } | null): string[] => {
     return [v.value];
   }
 };
+
+/** Métachamp de traçabilité (JSON saisi dans Shopify) ; ignoré s'il est mal formé. */
+function parseTrace(value?: string): Product["trace"] {
+  if (!value) return undefined;
+  try {
+    const t = JSON.parse(value) as { steps?: unknown; origins?: unknown };
+    const steps = Array.isArray(t.steps) ? t.steps.filter((s) => s && typeof s.label === "string").map((s) => ({ label: String(s.label), place: String(s.place ?? ""), hours: Number.isFinite(Number(s.hours)) && s.hours != null ? Number(s.hours) : undefined })) : [];
+    const origins = Array.isArray(t.origins) ? t.origins.filter((o) => o && typeof o.material === "string").map((o) => ({ material: String(o.material), origin: o.origin ? String(o.origin) : null })) : [];
+    return steps.length || origins.length ? { steps, origins } : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 const CATEGORY_MAP: Record<string, Category> = { robe: "robe", robes: "robe", body: "body", bodys: "body", top: "top", tops: "top", jupe: "jupe", jupes: "jupe", accessoire: "accessoire", accessoires: "accessoire" };
 
@@ -149,6 +164,7 @@ export function mapProduct(p: SProduct): Product {
     description: p.description.split(/\n{2,}/).filter(Boolean),
     materials,
     lining: p.lining?.value,
+    trace: parseTrace(p.traceability?.value),
     care: list(p.care),
     fit: p.fit?.value ?? "",
     model: p.model?.value ?? "",

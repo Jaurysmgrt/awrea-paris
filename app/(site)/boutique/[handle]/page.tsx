@@ -19,6 +19,8 @@ import { momentFor } from "@/content/fr/coulisses";
 import { DropGate, type DropInfo } from "@/components/drops/DropGate";
 import { dropOfProduct } from "@/lib/drops";
 import { Reviews } from "@/components/reviews/Reviews";
+import { Traceability } from "@/components/commerce/Traceability";
+import { ShareButton } from "@/components/commerce/ShareButton";
 
 export const revalidate = 300;
 
@@ -70,7 +72,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
               <EditionNumber product={product} />
 
               <DropGate drop={dropInfo}>
-                <ProductForm product={product} />
+                <ProductForm product={product} stickyBar />
               </DropGate>
 
               <p className="handmade t-label">
@@ -113,6 +115,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                     </ul>
                   </div>
                 </details>
+                <Traceability product={product} />
                 <details className="disclosure">
                   <summary>Coupe et taille</summary>
                   <div className="disclosure__body prose">
@@ -136,9 +139,12 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                   </div>
                 </details>
               </div>
-              <p className="t-label t-soft">
-                {categoryLabel} · Réf. {product.variants[0]?.sku.replace(/-[A-Z]+$/, "")}
-              </p>
+              <div className="product__foot">
+                <p className="t-label t-soft">
+                  {categoryLabel} · Réf. {product.variants[0]?.sku.replace(/-[A-Z]+$/, "")}
+                </p>
+                <ShareButton title={`${product.title} — Awrea Paris`} text={product.tagline} path={`/boutique/${product.handle}`} />
+              </div>
             </div>
           </div>
         </div>

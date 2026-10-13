@@ -1,6 +1,6 @@
 "use client";
 import { Turnstile } from "@/components/security/Turnstile";
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { Product, Variant } from "@/lib/commerce/types";
 import { availabilityLabel, editionInfo, variantAvailability } from "@/lib/commerce/availability";
 import { useCart } from "./CartProvider";
@@ -9,13 +9,22 @@ import { SizeFinder } from "./SizeFinder";
 import { WishlistButton } from "./WishlistButton";
 import { Icon } from "@/components/ui/Icon";
 import { shop } from "@/content/settings";
+import { formatPrice } from "@/lib/format";
+import { prefersReducedMotion } from "@/lib/motion";
 
-/** Choix de la taille, ajout au panier, précommande ou liste d'attente, guide des tailles. */
-export function ProductForm({ product }: { product: Product }) {
+/**
+ * Choix de la taille, ajout au panier, précommande ou liste d'attente, guide des tailles.
+ * `stickyBar` : sur téléphone et tablette, une barre d'achat reste en bas de l'écran tant que le
+ * bouton principal n'est pas visible (même taille choisie, même panier).
+ */
+export function ProductForm({ product, stickyBar = false }: { product: Product; stickyBar?: boolean }) {
   const { dispatch, busy } = useCart();
   const [variant, setVariant] = useState<Variant | null>(product.variants.length === 1 ? product.variants[0] : null);
   const [showError, setShowError] = useState(false);
   const guide = useRef<HTMLDialogElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
+  const [barVisible, setBarVisible] = useState(false);
   const a = variant ? variantAvailability(product, variant) : null;
   const allSoldOut = product.variants.every((v) => v.quantity === 0 && !v.preorder);
   const ed = editionInfo(product);
@@ -28,8 +37,31 @@ export function ProductForm({ product }: { product: Product }) {
     await dispatch({ type: "add", variantId: variant.id }, { openAfter: true, announce: `${product.title}, taille ${variant.size}, ajoutée au panier` });
   };
 
+  // barre d'achat : visible tant que les boutons principaux sont hors de l'écran
+  useEffect(() => {
+    const el = actionsRef.current;
+    if (!stickyBar || !el) return;
+    const io = new IntersectionObserver(([e]) => setBarVisible(!e.isIntersecting), { rootMargin: "0px 0px -10% 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [stickyBar]);
+  useEffect(() => {
+    if (!stickyBar) return;
+    document.documentElement.dataset.buybar = barVisible ? "true" : "false";
+    return () => void delete document.documentElement.dataset.buybar;
+  }, [stickyBar, barVisible]);
+
+  const soldOut = allSoldOut || a === "soldout";
+  const barAction = () => {
+    const target = soldOut ? formRef.current?.querySelector<HTMLElement>("#liste-attente") : !variant ? formRef.current?.querySelector<HTMLElement>(".size-picker") : null;
+    if (!target) return void add();
+    target.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "center" });
+    target.querySelector<HTMLElement>("input")?.focus({ preventScroll: true });
+    if (!soldOut) setShowError(true);
+  };
+
   return (
-    <div className="product-form stack-m">
+    <div ref={formRef} className="product-form stack-m">
       {!allSoldOut ? (
         <>
           <div className="product-form__sizes">
@@ -61,16 +93,33 @@ export function ProductForm({ product }: { product: Product }) {
         </>
       ) : null}
 
-      {allSoldOut || a === "soldout" ? (
-        <Waitlist product={product} variant={variant} />
+      {soldOut ? (
+        <div ref={actionsRef}>
+          <Waitlist product={product} variant={variant} />
+        </div>
       ) : (
-        <div className="product-form__actions">
+        <div ref={actionsRef} className="product-form__actions">
           <button type="button" className="btn btn--solid btn--block" onClick={add} disabled={busy} aria-describedby={showError ? undefined : undefined}>
             {a === "preorder" ? "Précommander" : "Ajouter au panier"}
           </button>
           <WishlistButton handle={product.handle} title={product.title} />
         </div>
       )}
+
+      {stickyBar ? (
+        <div className="buy-bar" data-visible={barVisible} inert={!barVisible}>
+          <p className="buy-bar__info">
+            <span className="t-label buy-bar__title">{product.title}</span>
+            <span className="price buy-bar__price">
+              {formatPrice(product.price)}
+              {variant && variant.size !== "TU" ? ` · ${variant.size}` : ""}
+            </span>
+          </p>
+          <button type="button" className="btn btn--solid buy-bar__btn" onClick={barAction} disabled={busy}>
+            {soldOut ? "Être prévenue" : !variant ? "Choisir ma taille" : a === "preorder" ? "Précommander" : "Ajouter au panier"}
+          </button>
+        </div>
+      ) : null}
 
       <dialog ref={guide} className="modal scene" data-theme="ivory" aria-labelledby="size-guide-title" onClick={(e) => e.target === guide.current && guide.current?.close()}>
         <div className="modal__inner stack-m">

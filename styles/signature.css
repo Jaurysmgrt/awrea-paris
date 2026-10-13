@@ -716,19 +716,17 @@
       background-color var(--dur) var(--ease),
       color var(--dur) var(--ease);
   }
+  /* survol : inversion noir / blanc cassé, comme tous les boutons (le losange suit le texte) */
   .assistant-launcher:hover {
-    background: var(--accent);
+    background: var(--color-ivory);
     color: var(--color-ink);
+    border-color: var(--color-ink);
   }
   .assistant-launcher__mark {
     width: var(--spacing-2xs);
     height: var(--spacing-2xs);
-    background: var(--accent);
+    background: currentColor;
     transform: rotate(45deg);
-    transition: background-color var(--dur) var(--ease);
-  }
-  .assistant-launcher:hover .assistant-launcher__mark {
-    background: var(--color-ink);
   }
   @media (max-width: 29.99rem) {
     .assistant-launcher[data-open="false"] .assistant-launcher__label {
