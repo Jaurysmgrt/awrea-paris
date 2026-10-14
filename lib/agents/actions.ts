@@ -187,7 +187,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       };
       if (d.status === "draft") {
         await kv.push("demo:products:drafts", product, 100);
-        return { summary: `Fiche « ${d.title} » enregistrée en brouillon (non visible en boutique)`, target: { type: "product", id: handle, label: d.title, href: "/gestion/catalogue" } };
+        return { summary: `Fiche « ${d.title} » enregistrée en brouillon (non visible en boutique)`, target: { type: "product", id: handle, label: d.title, href: "atelier:/catalogue" } };
       }
       const extra = (await kv.get<Product[]>(DEMO_KEYS.extra)) ?? [];
       await kv.set(DEMO_KEYS.extra, [...extra, product]);
@@ -264,17 +264,17 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       ...brandEmail({ preheader: body.slice(0, 90), title: subject, paragraphs: body.split(/\n{2,}/), signature: "Avec toute notre attention,\nl’atelier Awrea Paris" }),
     });
     await updateInbox(messageId, { status: "answered", answer: { body, date: new Date().toISOString(), by: "agent" } });
-    return { summary: `Réponse envoyée à ${msg.email} — « ${subject} »`, target: { type: "message", id: messageId, label: msg.email, href: "/gestion/messages" } };
+    return { summary: `Réponse envoyée à ${msg.email} — « ${subject} »`, target: { type: "message", id: messageId, label: msg.email, href: "atelier:/messages" } };
   },
 
   async save_reply_draft({ messageId, body, note, sensitive }) {
     await updateInbox(messageId, { status: sensitive ? "escalated" : "drafted", draft: { body, agentNote: note, date: new Date().toISOString(), sensitive } });
-    return { summary: `Brouillon de réponse préparé${sensitive ? " — cas sensible, escaladé à la créatrice" : ""}`, target: { type: "message", id: messageId, href: "/gestion/messages" } };
+    return { summary: `Brouillon de réponse préparé${sensitive ? " — cas sensible, escaladé à la créatrice" : ""}`, target: { type: "message", id: messageId, href: "atelier:/messages" } };
   },
 
   async escalate_message({ messageId, reason }) {
     await updateInbox(messageId, { status: "escalated" });
-    return { summary: `Message escaladé à la créatrice : ${reason}`, target: { type: "message", id: messageId, href: "/gestion/messages" } };
+    return { summary: `Message escaladé à la créatrice : ${reason}`, target: { type: "message", id: messageId, href: "atelier:/messages" } };
   },
 
   async flag_order({ orderId, reason }) {
@@ -285,13 +285,13 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       to: atelierEmail(),
       subject: `Commande ${o.number} à vérifier`,
       tag: "alerte",
-      ...brandEmail({ preheader: reason, title: `Commande ${o.number} à vérifier`, paragraphs: [reason, `Cliente : ${o.name} (${o.email}). Total : ${formatPrice(o.total)}.`], cta: { label: "Ouvrir le tableau de bord", href: "/gestion" } }),
+      ...brandEmail({ preheader: reason, title: `Commande ${o.number} à vérifier`, paragraphs: [reason, `Cliente : ${o.name} (${o.email}). Total : ${formatPrice(o.total)}.`], cta: { label: "Ouvrir le tableau de bord", href: "atelier:/" } }),
     });
-    return { summary: `Commande ${o.number} signalée : ${reason}`, target: { type: "order", id: o.id, label: o.number, href: "/gestion/commandes" } };
+    return { summary: `Commande ${o.number} signalée : ${reason}`, target: { type: "order", id: o.id, label: o.number, href: "atelier:/commandes" } };
   },
 
   async alert_atelier({ subject, body }) {
-    await sendEmail({ to: atelierEmail(), subject, tag: "alerte", ...brandEmail({ preheader: body.slice(0, 90), title: subject, paragraphs: body.split(/\n{2,}/), cta: { label: "Ouvrir le tableau de bord", href: "/gestion" } }) });
+    await sendEmail({ to: atelierEmail(), subject, tag: "alerte", ...brandEmail({ preheader: body.slice(0, 90), title: subject, paragraphs: body.split(/\n{2,}/), cta: { label: "Ouvrir le tableau de bord", href: "atelier:/" } }) });
     return { summary: `Alerte envoyée à l’atelier : ${subject}` };
   },
 
@@ -323,7 +323,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
   async save_content_draft(d) {
     const draft = { id: `draft-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 5)}`, date: new Date().toISOString(), status: "draft" as const, ...d };
     await kv.push("content:drafts", draft, 200);
-    return { summary: `${d.kind === "instagram" ? "Post Instagram" : "Newsletter"} préparé : « ${d.title} »`, target: { type: "content", id: draft.id, label: d.title, href: "/gestion/contenus" } };
+    return { summary: `${d.kind === "instagram" ? "Post Instagram" : "Newsletter"} préparé : « ${d.title} »`, target: { type: "content", id: draft.id, label: d.title, href: "atelier:/contenus" } };
   },
 
   async send_report({ subject, summary, metrics }) {
@@ -338,11 +338,11 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
         title: subject,
         paragraphs: summary.split(/\n{2,}/),
         totals: Object.entries(metrics).map(([label, value]) => ({ label, value: String(value) })),
-        cta: { label: "Ouvrir le tableau de bord", href: "/gestion" },
+        cta: { label: "Ouvrir le tableau de bord", href: "atelier:/" },
         signature: "Votre agent Rapport",
       }),
     });
-    return { summary: `Rapport hebdomadaire envoyé : ${subject}`, target: { type: "report", id: report.id, href: "/gestion/rapports" } };
+    return { summary: `Rapport hebdomadaire envoyé : ${subject}`, target: { type: "report", id: report.id, href: "atelier:/rapports" } };
   },
 
   async refund_order({ orderId, reason }) {
@@ -356,7 +356,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       tag: "remboursement",
       ...brandEmail({ preheader: "Votre remboursement est en cours.", title: "Votre remboursement", paragraphs: [`Bonjour ${o.name.split(" ")[0]},`, `Nous avons procédé au remboursement de votre commande ${o.number}, soit ${formatPrice(o.total)}, sur votre moyen de paiement d’origine. Il apparaîtra sous quelques jours.`], signature: "Avec toute notre attention,\nl’atelier Awrea Paris" }),
     });
-    return { summary: `Commande ${o.number} remboursée (${formatPrice(o.total)})`, target: { type: "order", id: o.id, label: o.number, href: "/gestion/commandes" } };
+    return { summary: `Commande ${o.number} remboursée (${formatPrice(o.total)})`, target: { type: "order", id: o.id, label: o.number, href: "atelier:/commandes" } };
   },
 
   async change_price({ handle, price }) {
@@ -389,7 +389,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
     if (!o) throw new Error("Commande introuvable");
     if (adminEnabled) await shopifyCancelOrder(o.id, refund);
     else await setOrderStatus(o.id, refund ? "refunded" : "blocked");
-    return { summary: `Commande ${o.number} annulée${refund ? " et remboursée" : ""}`, target: { type: "order", id: o.id, label: o.number, href: "/gestion/commandes" } };
+    return { summary: `Commande ${o.number} annulée${refund ? " et remboursée" : ""}`, target: { type: "order", id: o.id, label: o.number, href: "atelier:/commandes" } };
   },
 
   async send_newsletter_all({ subject, preheader, paragraphs, cta }) {

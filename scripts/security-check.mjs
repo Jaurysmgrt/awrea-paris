@@ -6,8 +6,11 @@
  *  3. en-têtes de sécurité (CSP, HSTS avec préchargement, X-Frame-Options, nosniff,
  *     Referrer-Policy, Permissions-Policy) et absence de « unsafe-inline » dans les scripts ;
  *  4. vulnérabilités des dépendances (npm audit, niveau élevé et critique) ;
- *  5. journal interne des dernières 24 heures (/api/cron/security, avec CRON_SECRET) :
- *     échecs et blocages de connexion à l'Atelier, connexions inhabituelles, requêtes refusées.
+ *  5. Atelier invisible : routes internes en 404, robots.txt qui écarte « /prive- » sans révéler
+ *     l'adresse, aucune trace de l'Atelier dans les pages publiques et le plan du site ;
+ *  6. journal interne des dernières 24 heures (/api/cron/security, avec CRON_SECRET) :
+ *     échecs et blocages de connexion à l'Atelier, connexions inhabituelles, requêtes refusées,
+ *     réglages de l'accès (adresse secrète, comptes, double authentification de chacun).
  *
  * Usage : node scripts/security-check.mjs [https://www.awreaparis.com] [--json rapport.json]
  * Code de sortie 1 si un point critique est trouvé (le flux de maintenance ouvre alors une alerte).
@@ -99,14 +102,30 @@ try {
   add("alerte", "Dépendances", `npm audit indisponible : ${e.message}`);
 }
 
-// 5. journal interne
+// 5. Atelier invisible pour le public
+try {
+  const status = async (path) => (await fetch(new URL(path, site), { redirect: "manual", headers: { "User-Agent": "AwreaSecurityCheck/1.0" } })).status;
+  const text = async (path) => (await fetch(new URL(path, site), { headers: { "User-Agent": "AwreaSecurityCheck/1.0" } })).text();
+  const [page, api] = await Promise.all([status("/gestion"), status("/api/gestion/agents")]);
+  if (page !== 404 || api !== 404) add("critique", "Atelier", `Les routes internes de l'Atelier répondent (/gestion : ${page}, /api/gestion : ${api}) au lieu de 404.`);
+  else add("ok", "Atelier", "Routes internes de l'Atelier introuvables pour le public.");
+  const [robots, sitemap, home] = await Promise.all([text("/robots.txt"), text("/sitemap.xml"), text("/")]);
+  if (!/Disallow: \/prive-/.test(robots)) add("alerte", "Atelier", "robots.txt n'écarte pas « /prive- ».");
+  const leak = [robots, sitemap, home].some((t) => /\/prive-[a-z0-9]/.test(t) || /href="\/gestion/.test(t));
+  if (leak) add("critique", "Atelier", "Une page publique laisse voir l'adresse de l'Atelier.");
+  else add("ok", "Atelier", "Aucune trace de l'adresse de l'Atelier dans les pages publiques.");
+} catch (e) {
+  add("alerte", "Atelier", `Vérification de l'Atelier impossible : ${e.message}`);
+}
+
+// 6. journal interne
 if (process.env.CRON_SECRET) {
   try {
     const res = await fetch(new URL("/api/cron/security", site), { headers: { Authorization: `Bearer ${process.env.CRON_SECRET}` } });
     const j = await res.json();
     const d = j.digest ?? {};
-    add(j.ok ? "ok" : "alerte", "Journal", `24 h : ${d.adminLogins ?? 0} connexion(s), ${d.adminFailures ?? 0} échec(s), ${d.adminBlocked ?? 0} blocage(s), ${d.unusualLogins ?? 0} inhabituelle(s), ${d.csrfBlocked ?? 0} origine(s) étrangère(s), ${d.rateLimited ?? 0} excès de débit.`);
-    for (const w of j.warnings ?? []) add(/inhabituelle|suspects/.test(w) ? "critique" : "alerte", "Réglages", w);
+    add(j.ok ? "ok" : "alerte", "Journal", `24 h : ${d.adminLogins ?? 0} connexion(s), ${d.adminFailures ?? 0} échec(s), ${d.adminBlocked ?? 0} blocage(s), ${d.lockedAccounts ?? 0} compte(s) bloqué(s), ${d.unusualLogins ?? 0} inhabituelle(s), ${d.csrfBlocked ?? 0} origine(s) étrangère(s), ${d.rateLimited ?? 0} excès de débit.`);
+    for (const w of j.warnings ?? []) add(/inhabituelle|suspects|fermé|apparaît|au lieu de 404|n'est pas secrète/.test(w) ? "critique" : "alerte", "Réglages", w);
   } catch (e) {
     add("alerte", "Journal", `Journal de sécurité illisible : ${e.message}`);
   }

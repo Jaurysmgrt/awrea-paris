@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { acceptCookies, outbox } from "./helpers";
-import { adminLogin } from "./admin-auth";
+import { adminLogin, ATELIER } from "./admin-auth";
 
 /**
  * Après la commande, sans compte : facture PDF, suivi par numéro et e-mail, expédition et
@@ -47,7 +47,7 @@ test("facture, suivi sans compte, expédition, livraison, retour, remboursement 
 
   // Atelier : expédition (suivi) puis livraison, avec leurs e-mails
   await adminLogin(page);
-  await page.goto(`/gestion/commandes/${number}`);
+  await page.goto(`${ATELIER}/commandes/${number}`);
   await page.getByLabel("Numéro de suivi").fill("6A99999999999");
   await page.getByRole("button", { name: "Marquer comme expédiée" }).click();
   await page.getByRole("button", { name: "Marquer comme livrée" }).click();
@@ -69,7 +69,7 @@ test("facture, suivi sans compte, expédition, livraison, retour, remboursement 
   await expect(page.getByText("Toutes les pièces de cette commande font déjà l’objet d’un retour.")).toBeVisible();
 
   // Atelier : colis reçu, remboursement confirmé, avoir émis
-  await page.goto("/gestion/retours");
+  await page.goto(`${ATELIER}/retours`);
   const item = page.locator("li").filter({ hasText: number }).first();
   await item.getByRole("button", { name: "Colis reçu" }).click();
   await expect(item.getByText("Colis reçu à l’atelier")).toBeVisible();
@@ -77,6 +77,6 @@ test("facture, suivi sans compte, expédition, livraison, retour, remboursement 
   await item.getByRole("button", { name: /^Rembourser/ }).click();
   await expect(page.locator("li").filter({ hasText: number }).filter({ hasText: "Remboursée" })).toBeVisible();
   await expect.poll(() => outbox().some((m) => m.to === email && /Remboursement de votre retour/.test(m.subject))).toBeTruthy();
-  await page.goto("/gestion/factures");
+  await page.goto(`${ATELIER}/factures`);
   await expect(page.locator("tr").filter({ hasText: number }).filter({ hasText: /avoir de F-/ })).toBeVisible();
 });

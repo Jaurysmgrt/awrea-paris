@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { acceptCookies, outbox, signUp } from "./helpers";
-import { adminLogin } from "./admin-auth";
+import { adminLogin, ATELIER } from "./admin-auth";
 
 async function buy(page: Page, email: string) {
   await page.goto("/boutique/body-aura");
@@ -72,7 +72,7 @@ test.describe("Certificats d’authenticité", () => {
     await buy(page, `atelier.${Date.now().toString(36)}@exemple.fr`);
     const serial = (await page.locator(".confirmation__certificates a").first().getAttribute("href"))!.split("/").pop()!;
     await adminLogin(page);
-    await page.goto("/gestion/certificats");
+    await page.goto(`${ATELIER}/certificats`);
     await expect(page.getByRole("heading", { level: 1, name: "Certificats" })).toBeVisible();
     await page.getByRole("row", { name: new RegExp(serial) }).getByRole("link", { name: "Préparer" }).click();
     await expect(page.getByRole("heading", { level: 1, name: serial })).toBeVisible();

@@ -2,8 +2,10 @@
 /** Déposer l'étiquette prépayée d'un retour (PDF) : elle part aussitôt à la cliente. */
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
+import { useAtelier } from "./AtelierContext";
 
 export function LabelUpload({ id }: { id: string }) {
+  const { api } = useAtelier();
   const router = useRouter();
   const input = useId();
   const [state, setState] = useState<"idle" | "loading" | "error">("idle");
@@ -14,7 +16,7 @@ export function LabelUpload({ id }: { id: string }) {
       onSubmit={async (e) => {
         e.preventDefault();
         setState("loading");
-        const res = await fetch(`/api/gestion/retours/${encodeURIComponent(id)}/etiquette`, { method: "POST", body: new FormData(e.currentTarget) }).catch(() => null);
+        const res = await fetch(api(`/retours/${encodeURIComponent(id)}/etiquette`), { method: "POST", body: new FormData(e.currentTarget) }).catch(() => null);
         const j = res ? await res.json().catch(() => ({})) : {};
         setState(res?.ok ? "idle" : "error");
         setMessage(j.message ?? j.error ?? "");

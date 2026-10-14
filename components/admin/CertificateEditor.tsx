@@ -2,8 +2,10 @@
 /** Date de fabrication et mot de la créatrice d'un certificat (Atelier). */
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAtelier } from "./AtelierContext";
 
 export function CertificateEditor({ serial, madeOn, note, defaultWord }: { serial: string; madeOn: string; note: string; defaultWord: string }) {
+  const { api } = useAtelier();
   const router = useRouter();
   const [state, setState] = useState<"idle" | "busy" | "ok" | "error">("idle");
   return (
@@ -13,7 +15,7 @@ export function CertificateEditor({ serial, madeOn, note, defaultWord }: { seria
         e.preventDefault();
         setState("busy");
         const f = new FormData(e.currentTarget);
-        const res = await fetch(`/api/gestion/certificats/${serial}`, {
+        const res = await fetch(api(`/certificats/${serial}`), {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ madeOn: f.get("madeOn"), note: f.get("note") }),

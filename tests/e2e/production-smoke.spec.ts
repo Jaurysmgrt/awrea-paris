@@ -49,9 +49,9 @@ test.describe("Contrôle du site en ligne @prod", () => {
     expect(csp).toContain("frame-ancestors 'none'");
     expect(res.headers()["x-frame-options"]).toBe("DENY");
     expect(res.headers()["x-content-type-options"]).toBe("nosniff");
-    // l'Atelier n'est jamais accessible sans double authentification
-    expect((await request.post("/api/gestion/agents/seo")).status()).toBe(401);
-    await page.goto("/gestion");
-    await expect(page).toHaveURL(/\/gestion\/connexion/);
+    // l'Atelier est invisible : ses routes internes répondent comme une adresse inconnue
+    expect((await request.post("/api/gestion/agents/seo")).status()).toBe(404);
+    expect((await page.goto("/gestion"))!.status()).toBe(404);
+    expect(await (await request.get("/robots.txt")).text()).toContain("Disallow: /prive-");
   });
 });

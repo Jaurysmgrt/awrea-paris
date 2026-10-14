@@ -1,15 +1,17 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAtelier } from "./AtelierContext";
 
 export function MessageEditor({ id, subject, draft }: { id: string; subject: string; draft: string }) {
+  const { api } = useAtelier();
   const router = useRouter();
   const [s, setS] = useState(subject);
   const [body, setBody] = useState(draft);
   const [state, setState] = useState<"idle" | "busy" | "error">("idle");
   const post = async (payload: object) => {
     setState("busy");
-    const res = await fetch(`/api/gestion/messages/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    const res = await fetch(api(`/messages/${id}`), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     setState(res.ok ? "idle" : "error");
     if (res.ok) router.refresh();
   };

@@ -5,6 +5,7 @@
 import Link from "@/components/ui/Link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAtelier } from "./AtelierContext";
 
 type Uploaded = { id: string; url: string; name: string };
 const SIZES = ["XS", "S", "M", "L", "XL", "TU"] as const;
@@ -23,6 +24,7 @@ async function resize(file: File): Promise<{ data: string; width: number; height
 }
 
 export function CatalogueForm({ collections }: { collections: { handle: string; title: string }[] }) {
+  const { api } = useAtelier();
   const router = useRouter();
   const [photos, setPhotos] = useState<Uploaded[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -37,7 +39,7 @@ export function CatalogueForm({ collections }: { collections: { handle: string; 
     setUploading(true);
     for (const file of Array.from(files).slice(0, 8 - photos.length)) {
       const { data, width, height } = await resize(file);
-      const res = await fetch("/api/gestion/media", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: file.name, mediaType: "image/jpeg", data, width, height }) });
+      const res = await fetch(api("/media"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: file.name, mediaType: "image/jpeg", data, width, height }) });
       const j = await res.json();
       if (res.ok) setPhotos((p) => [...p, { id: j.id, url: j.url, name: file.name }]);
     }
@@ -59,7 +61,7 @@ export function CatalogueForm({ collections }: { collections: { handle: string; 
       sizes: SIZES.filter((s) => sizes[s].on).map((s) => ({ size: s, quantity: sizes[s].quantity, preorder: sizes[s].preorder })),
       mediaIds: photos.map((p) => p.id),
     };
-    const res = await fetch("/api/gestion/catalogue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const res = await fetch(api("/catalogue"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const j = await res.json().catch(() => ({}));
     if (!res.ok) {
       setState("error");

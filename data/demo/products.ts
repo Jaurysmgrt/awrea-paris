@@ -10,7 +10,7 @@ const portrait = (name: string, alt: string): Image => ({ src: `/media/img/${nam
 const care = {
   lace: [
     "Lavage à la main à l’eau froide, savon doux.",
-    "Ne pas essorer : presser délicatement dans une serviette, sécher à plat.",
+    "Ne pas essorer : presser délicatement dans une serviette, sécher à plat.",
     "Repassage doux sur l’envers, sous une pattemouille, en évitant la dentelle.",
     "Ranger à plat ou sur un cintre rembourré, à l’abri de la lumière.",
   ],
@@ -22,7 +22,7 @@ const care = {
   jersey: [
     "Lavage à la main ou programme délicat à 30 °C, dans un filet.",
     "Séchage à plat, sans sèche-linge.",
-    "Ne pas repasser les plis du drapé : un défroissage vapeur suffit.",
+    "Ne pas repasser les plis du drapé : un défroissage vapeur suffit.",
   ],
 };
 
@@ -54,8 +54,8 @@ export const products: Product[] = [
       alt: "Mouvement lent sur la dentelle de la robe Odessa",
     },
     description: [
-      "Odessa est née d’un geste simple : envelopper le corps de dentelle sans jamais l’enfermer. La dentelle florale noire épouse la silhouette jusqu’aux genoux puis s’ouvre en une traîne souple qui suit chacun de vos pas.",
-      "Le dos se ferme par un laçage de satin, monté à la main œillet après œillet. On le serre à sa mesure : la robe s’ajuste à vous, et non l’inverse.",
+      "Odessa est née d’un geste simple : envelopper le corps de dentelle sans jamais l’enfermer. La dentelle florale noire épouse la silhouette jusqu’aux genoux puis s’ouvre en une traîne souple qui suit chacun de vos pas.",
+      "Le dos se ferme par un laçage de satin, monté à la main œillet après œillet. On le serre à sa mesure : la robe s’ajuste à vous, et non l’inverse.",
       "Portée seule sur la peau ou sur un body en jersey, elle passe du dîner à la nuit sans rien perdre de sa retenue.",
     ],
     materials: [
@@ -148,7 +148,7 @@ export const products: Product[] = [
       alt: "Mouvement lent sur le satin du body Aura",
     },
     description: [
-      "Aura est la pièce claire de la collection : un satin ivoire qui accroche la lumière à chaque mouvement, brodé sur le bustier de motifs de dentelle ton sur ton.",
+      "Aura est la pièce claire de la collection : un satin ivoire qui accroche la lumière à chaque mouvement, brodé sur le bustier de motifs de dentelle ton sur ton.",
       "Ses bretelles fines se règlent à la main. Sous une veste d’homme ou avec la jupe Iris, il apporte la douceur que la dentelle noire appelle.",
     ],
     materials: [
@@ -194,7 +194,7 @@ export const products: Product[] = [
       alt: "Mouvement lent sur le drapé du top Kira",
     },
     description: [
-      "Kira se coupe en biais dans un jersey noir mat. L’ourlet descend en pointe sur une hanche et laisse l’autre libre : une ligne qui ne se fige jamais.",
+      "Kira se coupe en biais dans un jersey noir mat. L’ourlet descend en pointe sur une hanche et laisse l’autre libre : une ligne qui ne se fige jamais.",
       "Les épaules sont légèrement marquées, les manches longues. Sur un pantalon droit ou sur la jupe Iris, il dessine une silhouette nette et sensuelle.",
     ],
     materials: [
@@ -234,7 +234,7 @@ export const products: Product[] = [
       alt: "Mouvement lent sur la jupe de la robe Thaïs",
     },
     description: [
-      "Pièce unique. Thaïs reprend le drapé des statues grecques : un seul pan de jersey ivoire, noué sur l’épaule, qui tombe en plis libres jusqu’au sol.",
+      "Pièce unique. Thaïs reprend le drapé des statues grecques : un seul pan de jersey ivoire, noué sur l’épaule, qui tombe en plis libres jusqu’au sol.",
       "La jupe est peinte à la main de lettres noires, fragments d’une lettre de la créatrice. Il n’en existera jamais d’autre.",
     ],
     materials: [{ name: "Jersey de coton", percent: 100 }],
@@ -321,7 +321,7 @@ export const products: Product[] = [
     },
     description: [
       "Elia est façonné sur commande, à vos mesures. Un satin noir parsemé de reflets, des baleines souples qui tiennent sans comprimer, un liseré doré à l’encolure.",
-      "La première série est épuisée : chaque nouvelle pièce est désormais réalisée à la demande, dans un délai de six semaines.",
+      "La première série est épuisée : chaque nouvelle pièce est désormais réalisée à la demande, dans un délai de six semaines.",
     ],
     materials: [
       { name: "Satin de soie", percent: 80 },
@@ -369,7 +369,7 @@ export const products: Product[] = [
     completeTheLook: ["robe-thais"],
     seo: {
       title: "Étole Nyx — dentelle de Calais | Awrea Paris",
-      description: "Étole en dentelle de Calais noire bordée d’un feston, faite main à Paris. Série de six pièces, aujourd’hui épuisée : liste d’attente ouverte.",
+      description: "Étole en dentelle de Calais noire bordée d’un feston, faite main à Paris. Série de six pièces, aujourd’hui épuisée : liste d’attente ouverte.",
     },
     tags: ["accessoire", "dentelle"],
     publishedAt: "2026-03-02",

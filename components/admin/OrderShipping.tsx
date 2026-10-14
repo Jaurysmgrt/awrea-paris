@@ -3,11 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ActionButton } from "./ActionButton";
+import { useAtelier } from "./AtelierContext";
 
 export function OrderShipping({ number, status }: { number: string; status: string }) {
+  const { api } = useAtelier();
   const router = useRouter();
   const [error, setError] = useState("");
-  const endpoint = `/api/gestion/commandes/${encodeURIComponent(number)}`;
+  const endpoint = api(`/commandes/${encodeURIComponent(number)}`);
   if (status === "shipped") return <ActionButton endpoint={endpoint} body={{ action: "livree" }} label="Marquer comme livrée" />;
   if (!["paid", "in_production"].includes(status)) return null;
   return (

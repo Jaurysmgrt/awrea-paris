@@ -1,6 +1,7 @@
 import Link from "@/components/ui/Link";
 import { listCertificates } from "@/lib/certificates";
 import { formatDate } from "@/lib/format";
+import { atelierHref } from "@/lib/admin/path";
 
 /**
  * Certificats émis : un par pièce vendue. L'atelier y imprime le certificat papier (avec le code
@@ -18,7 +19,7 @@ export default async function CertificatsPage({ searchParams }: { searchParams: 
         </p>
         {commande ? (
           <p className="t-note">
-            Commande {commande} · <Link href="/gestion/certificats" className="text-link">voir tous les certificats</Link>
+            Commande {commande} · <Link href={atelierHref("/certificats")} className="text-link">voir tous les certificats</Link>
           </p>
         ) : null}
       </header>
@@ -53,7 +54,7 @@ export default async function CertificatsPage({ searchParams }: { searchParams: 
                     <td>{formatDate(c.madeOn)}</td>
                     <td>{c.customerId || c.claimedAt ? "Rattaché" : c.ownerEmailHash ? "Acheteuse" : "—"}</td>
                     <td>
-                      <Link href={`/gestion/certificats/${c.serial}`} className="text-link">
+                      <Link href={atelierHref(`/certificats/${c.serial}`)} className="text-link">
                         Préparer
                       </Link>
                     </td>

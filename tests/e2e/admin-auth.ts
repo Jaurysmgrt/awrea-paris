@@ -1,7 +1,8 @@
 /**
- * Connexion à l'Atelier pour les tests : mot de passe + double authentification.
- * À la première connexion, l'enrôlement est fait comme le ferait la créatrice (lecture de la clé,
- * code calculé comme le ferait l'application d'authentification) ; la clé est gardée pour la suite.
+ * Connexion à l'Atelier pour les tests : adresse secrète, compte autorisé, mot de passe, double
+ * authentification. À la première connexion, le compte est créé comme le ferait la créatrice
+ * (mot de passe d'installation, mot de passe personnel, lecture de la clé, code calculé comme le
+ * ferait l'application d'authentification) ; la clé est gardée pour la suite.
  * Les codes déjà utilisés étant refusés, on attend au besoin la période de 30 s suivante.
  */
 import { createHmac } from "node:crypto";
@@ -10,6 +11,13 @@ import path from "node:path";
 import { expect, type Page } from "@playwright/test";
 
 const SECRET_FILE = path.join(__dirname, "..", "..", ".data", "e2e-totp.txt");
+
+/** adresse secrète de l'Atelier pendant les tests (playwright.config.ts la donne au serveur) */
+export const ATELIER = process.env.E2E_ADMIN_PATH ?? "/prive-e2e0atelier0test";
+export const ATELIER_EMAIL = process.env.E2E_ATELIER_EMAIL ?? "contact@awreaparis.com";
+/** mot de passe d'installation, puis mot de passe personnel du compte de test */
+export const SETUP_PASSWORD = process.env.E2E_ATELIER_PASSWORD ?? "atelier-demo";
+export const PERSONAL_PASSWORD = process.env.E2E_ATELIER_PERSONAL ?? "Une robe noire pour les tests";
 let lastCounter = -1;
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -48,13 +56,28 @@ async function freshCode(page: Page, secret: string): Promise<string> {
 }
 
 export async function adminLogin(page: Page) {
-  await page.goto("/gestion");
-  await expect(page).toHaveURL(/\/gestion\/connexion/);
-  await page.getByLabel("Mot de passe").fill(process.env.E2E_ATELIER_PASSWORD ?? "atelier-demo");
+  await page.goto(ATELIER);
+  await expect(page).toHaveURL(new RegExp(`${ATELIER}/connexion`));
+  await page.getByLabel("Adresse e-mail").fill(ATELIER_EMAIL);
+  await page.getByLabel("Mot de passe").fill(PERSONAL_PASSWORD);
   await page.getByRole("button", { name: "Continuer" }).click();
+  const setup = page.getByLabel("Nouveau mot de passe");
   const enroll = page.locator(".totp-secret");
   const totpField = page.getByLabel("Code de l’application d’authentification");
-  await expect(enroll.or(totpField)).toBeVisible();
+  const refusedPassword = page.getByText("Adresse ou mot de passe incorrect.");
+  await expect(setup.or(enroll).or(totpField).or(refusedPassword)).toBeVisible();
+  if (await refusedPassword.isVisible()) {
+    // compte encore jamais configuré : mot de passe d'installation, puis mot de passe personnel
+    await page.getByLabel("Mot de passe").fill(SETUP_PASSWORD);
+    await page.getByRole("button", { name: "Continuer" }).click();
+    await expect(setup).toBeVisible();
+  }
+  if (await setup.isVisible()) {
+    await setup.fill(PERSONAL_PASSWORD);
+    await page.getByLabel("Le même, une seconde fois").fill(PERSONAL_PASSWORD);
+    await page.getByRole("button", { name: "Enregistrer et continuer" }).click();
+    await expect(enroll).toBeVisible();
+  }
   if (await enroll.isVisible()) {
     const secret = (await enroll.textContent())!.replace(/\s/g, "");
     fs.mkdirSync(path.dirname(SECRET_FILE), { recursive: true });

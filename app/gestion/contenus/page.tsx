@@ -3,6 +3,7 @@ import { imageAt } from "@/lib/media";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { CopyButton } from "@/components/admin/CopyButton";
 import { When } from "@/components/admin/Status";
+import { atelierApi } from "@/lib/admin/path";
 
 type Draft = { id: string; date: string; status: "draft" | "published" | "archived"; kind: "instagram" | "newsletter"; title: string; body: string; hashtags?: string[]; image?: string; subject?: string; preheader?: string };
 
@@ -15,7 +16,7 @@ export default async function ContenusPage() {
       <header className="admin-page__head">
         <h1 className="t-h1">Contenus</h1>
         <p className="t-lead">L’agent Contenu prépare chaque semaine trois posts Instagram et une lettre. L’envoi de la lettre à toute la liste vous est proposé dans les Validations.</p>
-        <ActionButton endpoint="/api/gestion/agents/contenu" label="Préparer de nouveaux contenus" busyLabel="L’agent écrit…" />
+        <ActionButton endpoint={atelierApi("/agents/contenu")} label="Préparer de nouveaux contenus" busyLabel="L’agent écrit…" />
       </header>
       <section className="panel" aria-labelledby="ig-title">
         <h2 id="ig-title" className="t-h3">Instagram</h2>
@@ -36,8 +37,8 @@ export default async function ContenusPage() {
                     <p className="t-note t-left">{(p.hashtags ?? []).map((h) => `#${h}`).join(" ")}</p>
                     <div className="proposal__actions">
                       <CopyButton text={text} label="Copier la légende" />
-                      {p.status !== "published" ? <ActionButton endpoint={`/api/gestion/contenus/${p.id}`} body={{ status: "published" }} label="Marquer publié" variant="quiet" /> : null}
-                      <ActionButton endpoint={`/api/gestion/contenus/${p.id}`} body={{ status: "archived" }} label="Archiver" variant="quiet" />
+                      {p.status !== "published" ? <ActionButton endpoint={atelierApi(`/contenus/${p.id}`)} body={{ status: "published" }} label="Marquer publié" variant="quiet" /> : null}
+                      <ActionButton endpoint={atelierApi(`/contenus/${p.id}`)} body={{ status: "archived" }} label="Archiver" variant="quiet" />
                     </div>
                   </div>
                 </li>
@@ -60,7 +61,7 @@ export default async function ContenusPage() {
                 <div className="prose">{l.body.split(/\n{2,}/).map((t, i) => <p key={i}>{t}</p>)}</div>
                 <div className="proposal__actions">
                   <CopyButton text={l.body} label="Copier le texte" />
-                  <ActionButton endpoint={`/api/gestion/contenus/${l.id}`} body={{ status: "archived" }} label="Archiver" variant="quiet" />
+                  <ActionButton endpoint={atelierApi(`/contenus/${l.id}`)} body={{ status: "archived" }} label="Archiver" variant="quiet" />
                 </div>
               </article>
             ))}

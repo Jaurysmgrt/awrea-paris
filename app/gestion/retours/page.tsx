@@ -7,6 +7,7 @@ import { listReturns, reasonLabel, statusLabel } from "@/lib/returns";
 import { formatDate, formatPrice } from "@/lib/format";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { LabelUpload } from "@/components/admin/LabelUpload";
+import { atelierHref, atelierApi } from "@/lib/admin/path";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,7 @@ export default async function RetoursPage() {
                 <li key={r.id} className="stack-s">
                   <p className="t-h4">
                     {r.id} ·{" "}
-                    <Link href={`/gestion/commandes/${encodeURIComponent(r.orderNumber)}`} className="text-link">
+                    <Link href={atelierHref(`/commandes/${encodeURIComponent(r.orderNumber)}`)} className="text-link">
                       {r.orderNumber}
                     </Link>{" "}
                     · {r.name}
@@ -51,12 +52,12 @@ export default async function RetoursPage() {
                   {r.comment ? <p className="t-note">« {r.comment} »</p> : null}
                   {r.labelPending ? <LabelUpload id={r.id} /> : null}
                   <div className="admin-actions">
-                    {r.status === "demande" ? <ActionButton endpoint={`/api/gestion/retours/${r.id}`} body={{ action: "recu" }} label="Colis reçu" variant="solid" /> : null}
+                    {r.status === "demande" ? <ActionButton endpoint={atelierApi(`/retours/${r.id}`)} body={{ action: "recu" }} label="Colis reçu" variant="solid" /> : null}
                     {refund.length ? (
-                      <ActionButton endpoint={`/api/gestion/retours/${r.id}`} body={{ action: "rembourser" }} label={`Rembourser ${formatPrice(total)}`} confirm={`Rembourser ${formatPrice(total)} à ${r.name} et émettre l’avoir ?`} />
+                      <ActionButton endpoint={atelierApi(`/retours/${r.id}`)} body={{ action: "rembourser" }} label={`Rembourser ${formatPrice(total)}`} confirm={`Rembourser ${formatPrice(total)} à ${r.name} et émettre l’avoir ?`} />
                     ) : null}
-                    {r.items.some((i) => i.wish === "echange") ? <ActionButton endpoint={`/api/gestion/retours/${r.id}`} body={{ action: "echanger" }} label="Expédier la nouvelle taille" /> : null}
-                    <ActionButton endpoint={`/api/gestion/retours/${r.id}`} body={{ action: "refuser", reason: "la pièce nous est revenue portée ou sans son certificat." }} label="Refuser" variant="quiet" confirm="Refuser ce retour ? La cliente sera prévenue par e-mail." />
+                    {r.items.some((i) => i.wish === "echange") ? <ActionButton endpoint={atelierApi(`/retours/${r.id}`)} body={{ action: "echanger" }} label="Expédier la nouvelle taille" /> : null}
+                    <ActionButton endpoint={atelierApi(`/retours/${r.id}`)} body={{ action: "refuser", reason: "la pièce nous est revenue portée ou sans son certificat." }} label="Refuser" variant="quiet" confirm="Refuser ce retour ? La cliente sera prévenue par e-mail." />
                   </div>
                 </li>
               );

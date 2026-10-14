@@ -4,6 +4,7 @@ import { getWaitlist } from "@/lib/waitlist";
 import { formatPrice } from "@/lib/format";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { When } from "@/components/admin/Status";
+import { atelierHref, atelierApi } from "@/lib/admin/path";
 
 export default async function CommandesPage() {
   const [orders, waitlist] = await Promise.all([getOrders(), getWaitlist()]);
@@ -13,7 +14,7 @@ export default async function CommandesPage() {
       <header className="admin-page__head">
         <h1 className="t-h1">Commandes</h1>
         <p className="t-lead">L’agent Commandes et stock surveille les ventes, remet en stock les retours, signale les commandes bloquées et prévient la liste d’attente.</p>
-        <ActionButton endpoint="/api/gestion/agents/commandes-stock" label="Lancer une vérification" busyLabel="Vérification…" />
+        <ActionButton endpoint={atelierApi("/agents/commandes-stock")} label="Lancer une vérification" busyLabel="Vérification…" />
       </header>
       <section className="panel" aria-labelledby="orders-title">
         <h2 id="orders-title" className="t-h3">Dernières commandes</h2>
@@ -37,7 +38,7 @@ export default async function CommandesPage() {
                 return (
                   <tr key={o.id} data-status={o.status}>
                     <th scope="row">
-                      <Link href={`/gestion/commandes/${encodeURIComponent(o.number)}`} className="text-link">
+                      <Link href={atelierHref(`/commandes/${encodeURIComponent(o.number)}`)} className="text-link">
                         {o.number}
                       </Link>
                     </th>
@@ -48,9 +49,9 @@ export default async function CommandesPage() {
                     <td><span className={`status status--${o.status === "blocked" ? "failed" : o.status === "delivered" || o.status === "shipped" ? "done" : "info"}`}>{statusLabel[o.status]}</span></td>
                     <td>{url ? <a href={url} className="text-link" target="_blank" rel="noopener noreferrer">{o.shipping.carrier}</a> : "—"}</td>
                     <td>
-                      <Link href={`/gestion/certificats?commande=${encodeURIComponent(o.number)}`} className="text-link">Préparer</Link>
+                      <Link href={atelierHref(`/certificats?commande=${encodeURIComponent(o.number)}`)} className="text-link">Préparer</Link>
                       <br />
-                      <ActionButton endpoint="/api/gestion/avis/demande" body={{ number: o.number }} label="Demander un avis" busyLabel="Envoi…" variant="quiet" />
+                      <ActionButton endpoint={atelierApi("/avis/demande")} body={{ number: o.number }} label="Demander un avis" busyLabel="Envoi…" variant="quiet" />
                     </td>
                   </tr>
                 );

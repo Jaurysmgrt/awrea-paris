@@ -5,8 +5,10 @@ import { MODEL } from "@/lib/ai/client";
 import { adminEnabled } from "@/lib/shopify/admin";
 import { services as providers } from "@/lib/config/providers";
 import { turnstileEnabled } from "@/lib/security/turnstile";
-import { usingDemoPassword } from "@/lib/auth/admin";
-import { recoveryCodesLeft } from "@/lib/auth/totp";
+import { currentAdmin, usingDemoPassword } from "@/lib/auth/admin";
+import { ACCOUNT_GUARD, emailKey, hasTotp, listAccounts, recoveryLeft } from "@/lib/auth/accounts";
+import { loginGuard } from "@/lib/security/rate-limit";
+import { atelierApi, atelierPathIsSecret } from "@/lib/admin/path";
 import { cspMode } from "@/lib/security/headers";
 import { securityDigest, securityEvents, type SecurityEventType } from "@/lib/security/audit";
 import { isSupabaseConfigured } from "@/lib/db/supabase";
@@ -18,15 +20,20 @@ const EVENT_LABELS: Record<SecurityEventType, string> = {
   admin_password_fail: "Mot de passe refusé",
   admin_code_fail: "Code de double authentification refusé",
   admin_login_ok: "Connexion réussie",
-  admin_login_blocked: "Connexion bloquée (trop d’essais)",
-  admin_login_unusual: "Connexion inhabituelle — alerte envoyée",
+  admin_login_blocked: "Connexion bloquée après trop d’essais",
+  admin_login_unusual: "Connexion inhabituelle, alerte envoyée",
   admin_enrolled: "Double authentification configurée",
+  admin_password_set: "Mot de passe personnel choisi",
+  admin_account_locked: "Compte bloqué une demi-heure, alerte envoyée",
+  admin_revoked: "Sessions fermées par le lien « ce n’était pas moi »",
 };
 
 export default async function ReglagesPage() {
-  const [events, digest, codesLeft] = await Promise.all([securityEvents(30), securityDigest(24), recoveryCodesLeft()]);
+  const [events, digest, accounts, me] = await Promise.all([securityEvents(30), securityDigest(24), listAccounts(), currentAdmin()]);
+  const locked = await Promise.all(accounts.map((a) => loginGuard.blocked("admin-compte", emailKey(a.email), ACCOUNT_GUARD)));
   const security = [
-    { name: "Double authentification de l’Atelier", ok: true, hint: `Obligatoire · ${codesLeft} code(s) de secours restant(s)` },
+    { name: "Adresse secrète de l’Atelier", ok: atelierPathIsSecret(), hint: "ADMIN_PATH, de la forme /prive- suivie d’au moins douze lettres ou chiffres" },
+    { name: "Double authentification de chaque compte", ok: accounts.every((a) => hasTotp(a)), hint: "Obligatoire. ATELIER_ACCOUNTS liste les adresses autorisées" },
     { name: "Protection anti-robots des formulaires (Turnstile)", ok: turnstileEnabled, hint: "NEXT_PUBLIC_TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY" },
     { name: `Politique de sécurité du contenu (${cspMode === "strict" ? "stricte, nonce par page" : "statique"})`, ok: process.env.NODE_ENV === "production", hint: "CSP_MODE" },
     { name: "Base clientes avec sécurité par ligne (Supabase)", ok: isSupabaseConfigured, hint: "NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY" },
@@ -45,7 +52,7 @@ export default async function ReglagesPage() {
     })),
     { name: "Shopify Admin (agents)", ok: adminEnabled, state: adminEnabled ? "Shopify" : "Simulation", hint: "SHOPIFY_CLIENT_ID et SHOPIFY_CLIENT_SECRET (ou SHOPIFY_ADMIN_ACCESS_TOKEN)" },
     { name: "Tâches planifiées sécurisées", ok: Boolean(process.env.CRON_SECRET), state: process.env.CRON_SECRET ? "Active" : "À configurer", hint: "CRON_SECRET" },
-    { name: "Mot de passe du tableau de bord", ok: !usingDemoPassword(), state: usingDemoPassword() ? "Démonstration" : "Personnel", hint: "ATELIER_PASSWORD" },
+    { name: "Mot de passe d’installation de l’Atelier", ok: !usingDemoPassword(), state: usingDemoPassword() ? "Démonstration" : "Personnel", hint: "ATELIER_PASSWORD, sert seulement à la première connexion d’un compte" },
   ];
   return (
     <div className="admin-page stack-l">
@@ -78,6 +85,28 @@ export default async function ReglagesPage() {
             ))}
           </tbody>
         </table></div>
+        <h3 className="t-label">Comptes autorisés</h3>
+        <div className="table-scroll"><table className="table">
+          <thead><tr><th scope="col">Adresse</th><th scope="col">État</th><th scope="col">Dernière connexion</th><th scope="col">Actions</th></tr></thead>
+          <tbody>
+            {accounts.map((a, i) => (
+              <tr key={a.email}>
+                <th scope="row">{a.email}{a.email === me ? " (vous)" : ""}</th>
+                <td>
+                  <span className={`status status--${a.passwordHash && hasTotp(a) && !locked[i] ? "done" : "info"}`}>
+                    {locked[i] ? "Bloqué une demi-heure" : !a.passwordHash ? "Première connexion à faire" : !hasTotp(a) ? "Double authentification à configurer" : `Prêt, ${recoveryLeft(a)} code(s) de secours`}
+                  </span>
+                </td>
+                <td>{a.lastLoginAt ? <When iso={a.lastLoginAt} /> : "Jamais"}</td>
+                <td className="proposal__actions">
+                  {locked[i] ? <ActionButton endpoint={atelierApi("/comptes")} body={{ action: "debloquer", email: a.email }} label="Débloquer" variant="quiet" /> : null}
+                  <ActionButton endpoint={atelierApi("/comptes")} body={{ action: "remettre-a-zero", email: a.email }} label="Remettre à zéro" variant="quiet" confirm={`Remettre à zéro le compte ${a.email} ? Son mot de passe et sa double authentification seront à refaire avec le mot de passe d’installation, et toutes les sessions seront fermées.`} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table></div>
+        <p className="t-note">La liste des adresses autorisées se règle dans Vercel (ATELIER_ACCOUNTS). Chaque connexion envoie un e-mail à la titulaire du compte.</p>
         <h3 className="t-label">Journal des connexions</h3>
         {events.length ? (
           <div className="table-scroll"><table className="table">
@@ -92,8 +121,8 @@ export default async function ReglagesPage() {
           <p className="t-note">Aucune connexion enregistrée pour l’instant.</p>
         )}
         <div className="proposal__actions">
-          <ActionButton endpoint="/api/gestion/securite/sessions" label="Déconnecter tous les appareils" confirm="Fermer toutes les sessions de l’Atelier, y compris celle-ci ?" />
-          <ActionButton endpoint="/api/gestion/securite/totp" label="Réinitialiser la double authentification" variant="quiet" confirm="Réinitialiser la double authentification ? Vous devrez scanner un nouveau QR code à la prochaine connexion." />
+          <ActionButton endpoint={atelierApi("/securite/sessions")} label="Déconnecter tous les appareils" confirm="Fermer toutes les sessions de l’Atelier, y compris celle-ci ?" />
+          <ActionButton endpoint={atelierApi("/securite/totp")} label="Réinitialiser la double authentification" variant="quiet" confirm="Réinitialiser la double authentification ? Vous devrez scanner un nouveau QR code à la prochaine connexion." />
         </div>
       </section>
       <section className="panel" aria-labelledby="policy-title">
@@ -119,7 +148,7 @@ export default async function ReglagesPage() {
         <section className="panel" aria-labelledby="reset-title">
           <h2 id="reset-title" className="t-h3">Données de démonstration</h2>
           <p className="t-body">Efface les commandes de test, messages, propositions, journaux et contenus générés, et rétablit les stocks d’origine.</p>
-          <ActionButton endpoint="/api/gestion/reset" label="Réinitialiser la démonstration" confirm="Effacer toutes les données de démonstration ?" />
+          <ActionButton endpoint={atelierApi("/reset")} label="Réinitialiser la démonstration" confirm="Effacer toutes les données de démonstration ?" />
         </section>
       ) : null}
     </div>

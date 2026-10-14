@@ -8,6 +8,10 @@
 import { identity } from "@/content/brand/identity";
 import { palette, fontStacks } from "@/styles/tokens";
 import { absolute } from "@/lib/seo/metadata";
+import { atelierHref } from "@/lib/admin/path";
+
+/** Adresse complète d'un lien d'e-mail ; « atelier:/retours » mène à l'adresse secrète de l'Atelier. */
+const linkOf = (href: string) => (href.startsWith("http") ? href : href.startsWith("atelier:") ? absolute(atelierHref(href.slice(8) || "/")) : absolute(href));
 import { formatPrice } from "@/lib/format";
 
 export interface EmailBlockItem {
@@ -72,7 +76,7 @@ export function brandEmail(input: BrandEmailInput): { html: string; text: string
   ${totals ? `<tr><td style="padding:16px 40px 0;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${totals}</table></td></tr>` : ""}
   ${
     input.cta
-      ? `<tr><td align="center" style="padding:32px 40px 8px;"><a href="${esc(input.cta.href.startsWith("http") ? input.cta.href : absolute(input.cta.href))}" style="display:inline-block;padding:16px 32px;border:1px solid ${ink};background:${ink};color:${ivory};${caps}text-decoration:none;">${esc(input.cta.label)}</a></td></tr>`
+      ? `<tr><td align="center" style="padding:32px 40px 8px;"><a href="${esc(linkOf(input.cta.href))}" style="display:inline-block;padding:16px 32px;border:1px solid ${ink};background:${ink};color:${ivory};${caps}text-decoration:none;">${esc(input.cta.label)}</a></td></tr>`
       : ""
   }
   <tr><td style="padding:32px 40px 40px;">
@@ -91,7 +95,7 @@ export function brandEmail(input: BrandEmailInput): { html: string; text: string
     ...input.paragraphs,
     ...(input.items ?? []).map((i) => `— ${i.title}${i.meta ? ` (${i.meta})` : ""}${i.price != null ? ` : ${formatPrice(i.price)}` : ""}`),
     ...(input.totals ?? []).map((t) => `${t.label} : ${t.value}`),
-    input.cta ? `\n${input.cta.label} : ${input.cta.href.startsWith("http") ? input.cta.href : absolute(input.cta.href)}` : "",
+    input.cta ? `\n${input.cta.label} : ${linkOf(input.cta.href)}` : "",
     "",
     input.signature ?? "",
     "",

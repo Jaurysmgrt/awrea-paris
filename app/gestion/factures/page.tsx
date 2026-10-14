@@ -5,6 +5,7 @@
 import { listInvoices, type Invoice } from "@/lib/invoices";
 import { formatDate, formatMonth, formatPrice } from "@/lib/format";
 import { vatFranchise } from "@/lib/commerce/international";
+import { atelierApi } from "@/lib/admin/path";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,7 @@ export default async function FacturesPage() {
                 <h2 id={`m-${m}`} className="t-h3">
                   {formatMonth(m)}
                 </h2>
-                <a href={`/api/gestion/factures/export?mois=${m}`} className="btn">
+                <a href={atelierApi(`/factures/export?mois=${m}`)} className="btn">
                   Export comptable (CSV)
                 </a>
               </div>
@@ -52,7 +53,7 @@ export default async function FacturesPage() {
                     {list.map((i) => (
                       <tr key={i.number}>
                         <th scope="row">
-                          <a className="text-link" href={`/api/gestion/factures/${encodeURIComponent(i.orderNumber)}${i.kind === "avoir" ? "?avoir=1" : ""}`} target="_blank" rel="noopener">
+                          <a className="text-link" href={atelierApi(`/factures/${encodeURIComponent(i.orderNumber)}${i.kind === "avoir" ? "?avoir=1" : ""}`)} target="_blank" rel="noopener">
                             {i.number}
                           </a>
                           {i.kind === "avoir" ? <span className="t-note"> · avoir de {i.refOf}</span> : null}

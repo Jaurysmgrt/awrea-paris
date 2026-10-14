@@ -1,6 +1,7 @@
 import { kv } from "@/lib/store";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { When } from "@/components/admin/Status";
+import { atelierApi } from "@/lib/admin/path";
 
 type Report = { id: string; date: string; subject: string; summary: string; metrics: Record<string, string | number> };
 
@@ -11,7 +12,7 @@ export default async function RapportsPage() {
       <header className="admin-page__head">
         <h1 className="t-h1">Rapports</h1>
         <p className="t-lead">Chaque lundi matin, l’agent Rapport vous envoie un résumé clair de la semaine. Les rapports sont aussi conservés ici.</p>
-        <ActionButton endpoint="/api/gestion/agents/rapport" label="Générer le rapport maintenant" busyLabel="Rédaction…" />
+        <ActionButton endpoint={atelierApi("/agents/rapport")} label="Générer le rapport maintenant" busyLabel="Rédaction…" />
       </header>
       {reports.length ? (
         reports.map((r, i) => (

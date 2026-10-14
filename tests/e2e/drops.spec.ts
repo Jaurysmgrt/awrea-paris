@@ -1,13 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
 import { acceptCookies, outbox } from "./helpers";
-import { adminLogin } from "./admin-auth";
+import { adminLogin, ATELIER } from "./admin-auth";
 
 /** Drops : page « Bientôt », accès anticipé des inscrites, vente privée protégée par mot de passe. */
 const PIECE = "robe-odessa";
 const at = (hours: number) => new Date(Date.now() + hours * 3_600_000).toISOString();
 
 async function createDrop(page: Page, data: Record<string, unknown>) {
-  const res = await page.request.post("/api/gestion/drops", { data });
+  const res = await page.request.post(`${ATELIER}/api/drops`, { data });
   expect(res.ok(), await res.text()).toBeTruthy();
 }
 async function variantOf(page: Page, handle: string): Promise<string> {
@@ -63,7 +63,7 @@ test.describe("Drops et lancements", () => {
       await expect(page.getByRole("button", { name: /^(Ajouter au panier|Précommander)$/ })).toBeVisible();
     } finally {
       await page.request.post("/api/cart", { data: { type: "clear" } });
-      await page.request.delete(`/api/gestion/drops?slug=${slug}`);
+      await page.request.delete(`${ATELIER}/api/drops?slug=${slug}`);
     }
   });
 
@@ -87,7 +87,7 @@ test.describe("Drops et lancements", () => {
       await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
     } finally {
       await page.request.post("/api/cart", { data: { type: "clear" } });
-      await page.request.delete(`/api/gestion/drops?slug=${slug}`);
+      await page.request.delete(`${ATELIER}/api/drops?slug=${slug}`);
     }
   });
 

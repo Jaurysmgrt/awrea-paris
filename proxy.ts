@@ -2,7 +2,10 @@
  * Proxy (Next.js 16 : remplace middleware.ts, s'exécute sur le runtime Node.js).
  *  - Pose la politique de sécurité du contenu de chaque page, avec un nonce unique (mode strict).
  *  - Refuse les requêtes d'API qui modifient des données depuis une autre origine (CSRF).
- *  - Protège le tableau de bord Atelier (/gestion) et son API (/api/gestion).
+ *  - Ouvre l'Atelier (tableau de bord, éditeur, et leur API) seulement par son adresse secrète
+ *    (ADMIN_PATH, lib/admin/path.ts), réécrite vers les routes internes /gestion et /api/gestion ;
+ *    ces routes internes répondent 404 au public, comme toute adresse inconnue. Pages et API de
+ *    l'Atelier : aucune indexation, aucun cache partagé, aucun référent transmis.
  *  - Rafraîchit la session Supabase des clientes sur l'espace compte (/compte, /api/account),
  *    comme le recommande @supabase/ssr.
  */
@@ -12,6 +15,7 @@ import { ADMIN_COOKIE, isAdminToken } from "@/lib/auth/admin";
 import { contentSecurityPolicy, cspEnabled, cspMode, newNonce } from "@/lib/security/headers";
 import { countRefusal } from "@/lib/security/rate-limit";
 import { providerOf } from "@/lib/config/providers";
+import { atelierBase, isInternalAtelierPath, toInternal } from "@/lib/admin/path";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY;
@@ -53,19 +57,47 @@ async function refreshCustomerSession(request: NextRequest, nonce: string | null
   return response;
 }
 
-async function protectAtelier(request: NextRequest, nonce: string | null) {
-  const { pathname } = request.nextUrl;
-  if (pathname === "/gestion/connexion" || pathname.startsWith("/api/gestion/login")) return forward(request, nonce);
-  if (await isAdminToken(request.cookies.get(ADMIN_COOKIE)?.value)) {
-    const res = forward(request, nonce);
-    res.headers.set("X-Robots-Tag", "noindex, nofollow");
-    return res;
-  }
-  if (pathname.startsWith("/api/")) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+/** Réponse identique à une adresse inconnue : rien ne révèle que l'Atelier existe. */
+function notFound(request: NextRequest, nonce: string | null) {
+  if (request.nextUrl.pathname.startsWith("/api/")) return NextResponse.json({ error: "Introuvable" }, { status: 404 });
   const url = request.nextUrl.clone();
-  url.pathname = "/gestion/connexion";
-  url.searchParams.set("suite", pathname);
-  return NextResponse.redirect(url);
+  url.pathname = "/__introuvable";
+  url.search = "";
+  return rewrite(request, url, nonce);
+}
+
+function rewrite(request: NextRequest, url: URL, nonce: string | null) {
+  if (!nonce) return NextResponse.rewrite(url, { request });
+  const headers = new Headers(request.headers);
+  headers.set("x-nonce", nonce);
+  headers.set("Content-Security-Policy", contentSecurityPolicy(nonce));
+  return NextResponse.rewrite(url, { request: { headers } });
+}
+
+/** Pages de l'Atelier ouvertes sans session : connexion et lien « ce n'était pas moi ». */
+const OPEN_PAGES = ["/connexion", "/revoquer"];
+
+async function protectAtelier(request: NextRequest, base: string, nonce: string | null) {
+  const target = toInternal(request.nextUrl.pathname, base)!;
+  const open = target.api ? target.rest.startsWith("/api/login") : OPEN_PAGES.includes(target.rest);
+  let response: NextResponse;
+  if (open || (await isAdminToken(request.cookies.get(ADMIN_COOKIE)?.value))) {
+    const url = request.nextUrl.clone();
+    url.pathname = target.internal;
+    response = rewrite(request, url, nonce);
+  } else if (target.api) {
+    response = NextResponse.json({ error: "Introuvable" }, { status: 404 });
+  } else {
+    const url = request.nextUrl.clone();
+    url.pathname = `${base}/connexion`;
+    url.search = "";
+    if (target.rest !== "/") url.searchParams.set("suite", target.rest);
+    response = NextResponse.redirect(url);
+  }
+  response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  response.headers.set("Cache-Control", "private, no-store");
+  response.headers.set("Referrer-Policy", "no-referrer");
+  return response;
 }
 
 /**
@@ -95,8 +127,10 @@ export async function proxy(request: NextRequest) {
   }
   const nonce = cspEnabled && cspMode === "strict" && isDocument(request) ? newNonce() : null;
 
+  const base = atelierBase();
   let response: NextResponse;
-  if (pathname.startsWith("/gestion") || pathname.startsWith("/api/gestion")) response = await protectAtelier(request, nonce);
+  if (base && toInternal(pathname, base)) response = await protectAtelier(request, base, nonce);
+  else if (isInternalAtelierPath(pathname)) response = notFound(request, nonce);
   else if (pathname.startsWith("/compte") || pathname.startsWith("/api/account")) response = await refreshCustomerSession(request, nonce);
   else response = forward(request, nonce);
 

@@ -1,6 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3100";
+/** adresse secrète de l'Atelier et comptes autorisés du serveur de test (tests/e2e/admin-auth.ts) */
+const ADMIN_PATH = process.env.E2E_ADMIN_PATH ?? "/prive-e2e0atelier0test";
+const ATELIER_ACCOUNTS = `${process.env.E2E_ATELIER_EMAIL ?? "contact@awreaparis.com"},${process.env.E2E_ATELIER_LOCKABLE ?? "bloquee@exemple.fr"}`;
 
 export default defineConfig({
   testDir: "tests/e2e",
@@ -22,5 +25,5 @@ export default defineConfig({
   ],
   webServer: process.env.BASE_URL
     ? undefined
-    : { command: "npx next start -p 3100", url: BASE_URL, reuseExistingServer: true, timeout: 120_000 },
+    : { command: "npx next start -p 3100", url: BASE_URL, reuseExistingServer: true, timeout: 120_000, env: { ADMIN_PATH, ATELIER_ACCOUNTS } },
 });

@@ -8,6 +8,7 @@ import { kv } from "@/lib/store";
 import { formatPrice } from "@/lib/format";
 import { When } from "@/components/admin/Status";
 import { ActionButton } from "@/components/admin/ActionButton";
+import { atelierHref, atelierApi } from "@/lib/admin/path";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +43,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
             <dt className="t-label">{segmentLabel[s]}</dt>
             <dd className="kpis__value">{counts[s]}</dd>
             <dd className="t-note">
-              <a href={`/gestion/clientes?segment=${s}`} className="text-link">
+              <a href={atelierHref(`/clientes?segment=${s}`)} className="text-link">
                 Voir la liste
               </a>
             </dd>
@@ -156,7 +157,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
             </tbody>
           </table>
         </div>
-        <ActionButton endpoint="/api/gestion/flows" label="Lancer les envois du jour" busyLabel="Envois…" />
+        <ActionButton endpoint={atelierApi("/flows")} label="Lancer les envois du jour" busyLabel="Envois…" />
         {sent.length ? (
           <ul className="stack">
             {sent.map((m, i) => (

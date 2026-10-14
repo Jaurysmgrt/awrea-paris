@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { acceptCookies } from "./helpers";
+import { acceptCookies, waitForHydration } from "./helpers";
 
 test.describe("En-tête épuré, recherche plein écran, mode Nuit", () => {
   test("l’en-tête n’offre que cinq entrées ; le reste vit dans le menu plein écran", async ({ page }) => {
@@ -19,6 +19,7 @@ test.describe("En-tête épuré, recherche plein écran, mode Nuit", () => {
   test("« / » ouvre la recherche ; résultats instantanés, page complète avec Entrée", async ({ page }) => {
     await acceptCookies(page);
     await page.goto("/boutique");
+    await waitForHydration(page);
     await page.keyboard.press("/");
     const dialog = page.getByRole("dialog", { name: "Recherche" });
     await expect(dialog).toBeVisible();

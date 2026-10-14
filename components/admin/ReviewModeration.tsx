@@ -2,8 +2,10 @@
 /** Relecture d'un avis : publier ou refuser, avec une réponse de la créatrice si elle le souhaite. */
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAtelier } from "./AtelierContext";
 
 export function ReviewModeration({ id, reply = "" }: { id: string; reply?: string }) {
+  const { api } = useAtelier();
   const router = useRouter();
   const [text, setText] = useState(reply);
   const [busy, setBusy] = useState(false);
@@ -11,7 +13,7 @@ export function ReviewModeration({ id, reply = "" }: { id: string; reply?: strin
   const act = async (status: "approved" | "rejected") => {
     setBusy(true);
     setError("");
-    const res = await fetch("/api/gestion/avis", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status, reply: text || null }) }).catch(() => null);
+    const res = await fetch(api("/avis"), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status, reply: text || null }) }).catch(() => null);
     setBusy(false);
     if (res?.ok) router.refresh();
     else setError("L’avis n’a pas pu être mis à jour.");

@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 import { absolute, siteUrl } from "@/lib/seo/metadata";
+import { ATELIER_PREFIX } from "@/lib/admin/path";
 
-const PRIVATE = ["/gestion", "/api/", "/commande", "/compte", "/liste-envies", "/boutique?", "/lab", "/suivi/"];
+// l'adresse secrète de l'Atelier commence par « /prive- » : seul ce préfixe figure ici, jamais la suite
+const PRIVATE = ["/gestion", ATELIER_PREFIX, "/api/", "/commande", "/compte", "/liste-envies", "/boutique?", "/lab", "/suivi/"];
 
 /** Moteurs de recherche ET moteurs de réponse IA sont explicitement bienvenus (objectif : être citée). */
 export default function robots(): MetadataRoute.Robots {

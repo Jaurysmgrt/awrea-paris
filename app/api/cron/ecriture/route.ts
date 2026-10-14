@@ -44,7 +44,7 @@ export async function GET(req: Request) {
       agent: "systeme",
       kind: "ecriture",
       status: "info",
-      summary: `Contrôle d’écriture de la nuit : ${total} texte(s) à relire`,
+      summary: `Contrôle d’écriture de la nuit : ${total} texte(s) à relire`,
       detail: [...found.map((f) => `${f.source} · ${f.label} : ${f.issues.map((i) => i.message).join(" ")}`), ...reports.map((r) => `${r.source} : ${r.issues.map((i) => i.message).join(" ")}`)].join("\n").slice(0, 4000),
     }).catch(() => {});
   }

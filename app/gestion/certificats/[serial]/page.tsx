@@ -5,6 +5,7 @@ import { CertificateEditor } from "@/components/admin/CertificateEditor";
 import { PrintButton } from "@/components/admin/PrintButton";
 import { certificateQr, claimCodeOf, creatorWord, getCertificate, toPublic } from "@/lib/certificates";
 import { identity } from "@/content/brand/identity";
+import { atelierHref } from "@/lib/admin/path";
 
 /**
  * Préparer un certificat : le certificat papier (avec le code de rattachement) et l'étiquette à
@@ -21,7 +22,7 @@ export default async function CertificatAtelierPage({ params }: { params: Promis
     <div className="admin-page stack-l">
       <header className="admin-page__head no-print">
         <p className="t-note">
-          <Link href="/gestion/certificats" className="text-link">
+          <Link href={atelierHref("/certificats")} className="text-link">
             Certificats
           </Link>
           {c.orderNumber ? ` · commande ${c.orderNumber}` : ""}

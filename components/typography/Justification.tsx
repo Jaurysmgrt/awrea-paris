@@ -14,6 +14,9 @@
  * - Aucun décalage visible : un paragraphe déjà à l'écran garde son nombre de lignes.
  * - Paresseux : seuls les paragraphes proches de l'écran sont traités, par petites tranches,
  *   pendant les temps morts du navigateur ; un changement de largeur les fait reprendre.
+ * - Dernier recours : si aucun réglage n'évite un trou (colonne étroite, mot très long, texte
+ *   récrit dans l'éditeur), le paragraphe passe en fer à gauche plutôt que de garder une lézarde.
+ *   Les lignes restent les mêmes (l'alignement ne change pas les coupures) : rien ne bouge.
  * - Les tests (tests/e2e/homogeneite.spec.ts) relancent le calcul avec l'évènement
  *   « awrea:justifier » (detail.tout : toute la page) et attendent `data-justification="pret"`.
  */
@@ -46,6 +49,8 @@ for (let ws = -0.08; ws <= 0.021; ws += 0.02) for (let ls = -0.012; ls <= 0.0121
 const GOOD = 1.3; // au-delà, on cherche un meilleur réglage
 const LOOSE = 1.8; // au-delà, on essaie aussi les réglages de secours
 const STUBBORN = 2; // au-delà, recherche fine
+/** espace le plus large toléré (rapporté à l'espace naturel) ; au-delà, fer à gauche */
+const HOLE = () => (window.innerWidth < 400 ? 2.35 : 1.9);
 
 type Measure = { lines: number; gaps: number[] };
 
@@ -98,6 +103,8 @@ const score = (m: Measure) => (m.gaps.length ? Math.max(...m.gaps) + 0.15 * m.ga
 function apply(p: HTMLElement, [ws, ls]: [number, number]) {
   p.style.wordSpacing = ws ? `${ws}em` : "";
   p.style.letterSpacing = ls ? `${ls}em` : "";
+  p.style.textAlign = "";
+  delete p.dataset.ferAGauche;
 }
 
 function balance(p: HTMLElement) {
@@ -123,6 +130,13 @@ function balance(p: HTMLElement) {
   if (best.s > LOOSE) tryAll(EXTRA);
   if (best.s > STUBBORN || (onScreen && best.s > LOOSE)) tryAll(FINE);
   apply(p, best.v);
+  const widest = Math.max(0, ...measure(p).gaps);
+  if (widest > HOLE()) {
+    // aucun réglage ne suffit : fer à gauche, sans réglage d'espacement (mêmes lignes, rien ne bouge)
+    apply(p, [0, 0]);
+    p.style.textAlign = "left";
+    p.dataset.ferAGauche = "1";
+  }
 }
 
 const candidate = (p: Element): p is HTMLParagraphElement =>

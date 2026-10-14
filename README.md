@@ -17,9 +17,9 @@ npm install
 npm run dev        # http://localhost:3000
 ```
 
-- Atelier : `/gestion` — mot de passe de démonstration `atelier-demo` (jamais accepté en
-  production), puis enrôlement de la double authentification avec une application
-  d'authentification.
+- Atelier : `/gestion` en démonstration (en production, l'adresse secrète `ADMIN_PATH`). Adresse
+  `contact@awreaparis.com`, mot de passe d'installation `atelier-demo` (jamais accepté en
+  production), puis mot de passe personnel et double authentification.
 - Variables : copier `.env.example` en `.env.local` et compléter au fur et à mesure.
 
 ## Vérifier

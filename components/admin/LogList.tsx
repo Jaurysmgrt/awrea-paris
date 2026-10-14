@@ -1,8 +1,18 @@
+"use client";
 import type { AgentAction } from "@/lib/agents/log";
 import Link from "@/components/ui/Link";
 import { AgentName, Status, When } from "./Status";
+import { useAtelier } from "./AtelierContext";
+
+/** Lien d'une action : « atelier:/messages » (et l'ancien « /gestion/messages ») mène à l'Atelier. */
+function targetHref(href: string, atelier: (p: string) => string): string {
+  if (href.startsWith("atelier:")) return atelier(href.slice(8) || "/");
+  if (href === "/gestion" || href.startsWith("/gestion/") || href.startsWith("/gestion#")) return atelier(href.slice(8) || "/");
+  return href;
+}
 
 export function LogList({ items }: { items: AgentAction[] }) {
+  const atelier = useAtelier();
   if (!items.length) return <p className="t-note">Aucune action pour le moment.</p>;
   return (
     <ol className="log">
@@ -12,7 +22,7 @@ export function LogList({ items }: { items: AgentAction[] }) {
           <div className="log__body">
             <p className="log__summary">
               {a.target?.href ? (
-                <Link href={a.target.href} className="text-link">
+                <Link href={targetHref(a.target.href, atelier.href)} className="text-link">
                   {a.summary}
                 </Link>
               ) : (

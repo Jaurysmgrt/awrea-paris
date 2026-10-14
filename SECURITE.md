@@ -88,7 +88,7 @@ plans. **Règles de pare-feu recommandées** (Vercel → Firewall, à créer par
 
 | Risque OWASP (2021) | Protection |
 | --- | --- |
-| A01 Contrôle d'accès | `proxy.ts` protège `/gestion` et `/api/gestion` ; chaque route d'administration revérifie la session ; RLS sur toutes les tables ; les données d'une cliente ne sont lues qu'avec sa session (et l'e-mail correspondant pour le suivi de commande). |
+| A01 Contrôle d'accès | `proxy.ts` n'ouvre l'Atelier que par son adresse secrète (`ADMIN_PATH`), `/gestion` et `/api/gestion` répondent 404 ; chaque route d'administration revérifie la session ; RLS sur toutes les tables ; les données d'une cliente ne sont lues qu'avec sa session (et l'e-mail correspondant pour le suivi de commande). |
 | A02 Cryptographie | HTTPS partout ; sessions signées HMAC-SHA256 ; secret TOTP chiffré AES-256-GCM ; codes de secours hachés ; comparaisons en temps constant. |
 | A03 Injection | Requêtes Supabase paramétrées, aucune requête SQL construite à la main ; toutes les entrées validées par des schémas Zod (longueurs, formats) ; échappement automatique de React ; trois seuls `dangerouslySetInnerHTML`, tous sur du contenu de confiance (script de `<head>`, QR code généré par le serveur, JSON-LD échappé). |
 | A04 Conception | Règle d'autonomie des agents centralisée (`lib/agents/policy.ts`) : argent et irréversible toujours validés par la créatrice. |
@@ -116,21 +116,43 @@ jeton de renouvellement à usage unique, session limitée à 30 jours et fermée
 visite (`supabase/config.toml`, à reporter dans le projet hébergé — les deux derniers réglages
 demandent le plan Pro de Supabase).
 
-**Atelier** — **double authentification obligatoire pour tous les accès admin et le tableau de
-bord Atelier** :
+**Atelier et éditeur visuel : strictement invisibles pour le public.**
 
-1. mot de passe (`ATELIER_PASSWORD`) + Turnstile ;
-2. code TOTP d'une application d'authentification (RFC 6238, fenêtre ±30 s, anti-rejeu) ou un
-   des 8 codes de secours à usage unique. Le premier accès impose l'enrôlement (QR code).
+- **Adresse non devinable** : l'Atelier ne s'ouvre que par `ADMIN_PATH` (`/prive-` suivi d'au moins
+  douze caractères tirés au hasard), réécrite par `proxy.ts` vers les routes internes `/gestion` et
+  `/api/gestion`. Ces routes internes répondent 404, comme toute adresse inconnue ; en production,
+  sans `ADMIN_PATH` valable, l'Atelier reste fermé.
+- **Aucun lien depuis le site**, aucune adresse dans les fichiers servis au public (l'adresse est
+  transmise aux seuls composants de l'Atelier, jamais par une variable publique).
+- **Exclu des moteurs** : `X-Robots-Tag: noindex, nofollow, noarchive` sur toutes les réponses de
+  l'Atelier, balise `robots` équivalente, `robots.txt` qui écarte `/prive-` et `/gestion` (le
+  préfixe seul, jamais l'adresse complète), aucune mise en cache partagée, aucun référent transmis.
+- **Comptes autorisés** (`ATELIER_ACCOUNTS`) : chacun a son mot de passe personnel (scrypt) et sa
+  **double authentification obligatoire** (TOTP RFC 6238, fenêtre ±30 s, anti-rejeu, 8 codes de
+  secours à usage unique). Le mot de passe d'installation (`ATELIER_PASSWORD`) ne sert qu'à la
+  première connexion d'un compte. Turnstile sur le formulaire.
+- **Blocage** : cinq échecs (mot de passe ou code) bloquent une adresse une demi-heure, même
+  inconnue (rien ne révèle quels comptes existent), et préviennent la titulaire par e-mail ; huit
+  échecs par quart d'heure bloquent l'adresse IP.
+- **Alerte à chaque connexion** : un e-mail part vers la titulaire du compte (copie à
+  `SECURITY_ALERT_EMAIL`), avec l'appareil, le réseau tronqué, le lieu approximatif, et un lien
+  « Ce n'était pas moi » qui ferme toutes les sessions et remet le compte à zéro. Une connexion
+  depuis un appareil ou un réseau inconnu depuis 90 jours est signalée comme inhabituelle.
+- **Brouillons jamais publics** : les modifications non publiées de l'éditeur ne sont rendues qu'en
+  mode Édition, après connexion à l'Atelier ; le site public ne lit que les versions publiées.
 
 Session de 12 h (cookie `HttpOnly`, `Secure`, `SameSite=Strict`) ; « Déconnecter tous les
-appareils » et la réinitialisation de la double authentification ferment aussitôt toutes les
-sessions ouvertes. Aucun mot de passe de démonstration n'est accepté sur le site de production.
+appareils », la remise à zéro d'un compte et le lien « Ce n'était pas moi » ferment aussitôt
+toutes les sessions ouvertes. Aucun mot de passe de démonstration n'est accepté en production.
 
-**Journal des connexions** (Atelier → Réglages → Sécurité) : chaque tentative est consignée
+**Contrôlé à chaque audit** par l'Agent Sécurité (`/api/cron/security`, `scripts/security-check.mjs`,
+bilan de maintenance) : adresse secrète réglée et valable, comptes autorisés avec mot de passe et
+double authentification, routes internes en 404, `robots.txt` sans l'adresse, page de connexion en
+`noindex`, adresse absente des pages publiques, blocages et connexions inhabituelles du jour.
+
+**Journal des connexions** (Atelier › Réglages › Sécurité) : chaque tentative est consignée
 (succès, échec du mot de passe ou du code, blocage) avec la famille d'appareil et le réseau
-tronqué (minimisation RGPD). Une connexion réussie depuis un appareil ou un réseau inconnu
-depuis 90 jours déclenche **un e-mail d'alerte** à la créatrice (`SECURITY_ALERT_EMAIL`).
+tronqué (minimisation RGPD).
 
 ## 5. Données
 

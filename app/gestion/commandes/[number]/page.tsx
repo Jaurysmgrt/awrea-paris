@@ -13,6 +13,7 @@ import { Logo } from "@/components/brand/Logo";
 import { When } from "@/components/admin/Status";
 import { OrderShipping } from "@/components/admin/OrderShipping";
 import { commerceMode } from "@/lib/commerce";
+import { atelierHref, atelierApi } from "@/lib/admin/path";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,7 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
     <div className="admin-page stack-l">
       <header className="admin-page__head no-print">
         <p className="t-label">
-          <Link href="/gestion/commandes" className="text-link">
+          <Link href={atelierHref("/commandes")} className="text-link">
             Commandes
           </Link>
         </p>
@@ -40,10 +41,10 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
         </p>
         <div className="admin-actions">
           <PrintButton label="Imprimer le bon de livraison" />
-          <Link href={`/api/gestion/factures/${encodeURIComponent(order.number)}`} className="btn" prefetch={false}>
+          <Link href={atelierApi(`/factures/${encodeURIComponent(order.number)}`)} className="btn" prefetch={false}>
             Facture
           </Link>
-          <Link href={`/gestion/certificats?commande=${encodeURIComponent(order.number)}`} className="btn">
+          <Link href={atelierHref(`/certificats?commande=${encodeURIComponent(order.number)}`)} className="btn">
             Certificats
           </Link>
         </div>

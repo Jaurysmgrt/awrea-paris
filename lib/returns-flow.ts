@@ -70,10 +70,10 @@ export async function submitReturn(order: Order, items: ReturnItem[], comment?: 
         ...(r.comment ? [`Son mot : « ${r.comment} »`] : []),
         pending ? "L’étiquette prépayée n’a pas pu être obtenue automatiquement : déposez-la dans l’Atelier, rubrique Retours." : "L’étiquette lui a été envoyée.",
       ],
-      cta: { label: "Ouvrir les retours", href: "/gestion/retours" },
+      cta: { label: "Ouvrir les retours", href: "atelier:/retours" },
     }),
   }).catch((e) => console.error("[retour] e-mail atelier", e));
-  await logAction({ agent: "systeme", kind: "flag_order", status: "info", summary: `Retour ${r.id} demandé (commande ${order.number})`, target: { type: "order", id: order.id, label: order.number, href: `/gestion/commandes/${encodeURIComponent(order.number)}` } });
+  await logAction({ agent: "systeme", kind: "flag_order", status: "info", summary: `Retour ${r.id} demandé (commande ${order.number})`, target: { type: "order", id: order.id, label: order.number, href: `atelier:/commandes/${encodeURIComponent(order.number)}` } });
   return r;
 }
 
@@ -145,7 +145,7 @@ export async function refundReturn(id: string): Promise<{ r: ReturnRequest; amou
       signature: "Avec toute notre attention,\nl’atelier Awrea Paris",
     }),
   }).catch(() => {});
-  await logAction({ agent: "systeme", kind: "refund_order", status: "approved", summary: `Remboursement du retour ${r.id} par la créatrice : ${formatPrice(amount)} (avoir ${note.number})`, target: { type: "order", id: order.id, label: order.number, href: `/gestion/commandes/${encodeURIComponent(order.number)}` } });
+  await logAction({ agent: "systeme", kind: "refund_order", status: "approved", summary: `Remboursement du retour ${r.id} par la créatrice : ${formatPrice(amount)} (avoir ${note.number})`, target: { type: "order", id: order.id, label: order.number, href: `atelier:/commandes/${encodeURIComponent(order.number)}` } });
   return { r, amount };
 }
 

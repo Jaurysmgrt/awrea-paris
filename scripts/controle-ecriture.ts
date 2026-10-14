@@ -25,7 +25,7 @@ const SHOW_TIPS = args.includes("--conseils");
 const SITE = args.includes("--site") ? args[args.indexOf("--site") + 1] : undefined;
 const JSON_OUT = args.includes("--json") ? args[args.indexOf("--json") + 1] : undefined;
 
-const SCAN = ["content", "app", "components", "lib", "emails"];
+const SCAN = ["content", "data", "app", "components", "lib", "emails"];
 const EXCLUDE = [/^app\/\(lab\)\//, /^lib\/writing\/rules\.ts$/, /\.d\.ts$/, /\.test\.tsx?$/];
 const PUBLIC_TEXT = ["public/llms.txt", "public/llms-full.txt"];
 

@@ -90,7 +90,10 @@ class FileKV implements KV {
     this.writing = this.writing.then(async () => {
       try {
         await fs.mkdir(path.dirname(this.file), { recursive: true });
-        await fs.writeFile(this.file, data);
+        // écriture atomique : un lecteur ne voit jamais un fichier à moitié écrit
+        const tmp = `${this.file}.${process.pid}.tmp`;
+        await fs.writeFile(tmp, data);
+        await fs.rename(tmp, this.file);
       } catch {
         /* système de fichiers en lecture seule : on reste en mémoire */
       }

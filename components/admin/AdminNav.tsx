@@ -1,38 +1,41 @@
 "use client";
 import Link from "@/components/ui/Link";
 import { usePathname, useRouter } from "next/navigation";
+import { useAtelier } from "./AtelierContext";
 
 const LINKS = [
-  { href: "/gestion", label: "Vue d’ensemble" },
-  { href: "/gestion/validations", label: "Validations" },
-  { href: "/gestion/messages", label: "Messages" },
-  { href: "/gestion/catalogue", label: "Catalogue" },
-  { href: "/gestion/commandes", label: "Commandes" },
-  { href: "/gestion/retours", label: "Retours" },
-  { href: "/gestion/factures", label: "Factures" },
-  { href: "/gestion/certificats", label: "Certificats" },
-  { href: "/gestion/drops", label: "Drops" },
-  { href: "/gestion/avis", label: "Avis" },
-  { href: "/gestion/clientes", label: "Clientes" },
-  { href: "/gestion/contenus", label: "Contenus" },
-  { href: "/gestion/seo", label: "SEO & IA" },
-  { href: "/gestion/rapports", label: "Rapports" },
-  { href: "/gestion/journal", label: "Journal des actions" },
-  { href: "/gestion/reglages", label: "Réglages" },
+  { href: "/", label: "Vue d’ensemble" },
+  { href: "/validations", label: "Validations" },
+  { href: "/messages", label: "Messages" },
+  { href: "/catalogue", label: "Catalogue" },
+  { href: "/commandes", label: "Commandes" },
+  { href: "/retours", label: "Retours" },
+  { href: "/factures", label: "Factures" },
+  { href: "/certificats", label: "Certificats" },
+  { href: "/drops", label: "Drops" },
+  { href: "/avis", label: "Avis" },
+  { href: "/clientes", label: "Clientes" },
+  { href: "/contenus", label: "Contenus" },
+  { href: "/seo", label: "SEO & IA" },
+  { href: "/rapports", label: "Rapports" },
+  { href: "/journal", label: "Journal des actions" },
+  { href: "/reglages", label: "Réglages" },
 ];
 
 export function AdminNav({ counts }: { counts: Record<string, number> }) {
   const pathname = usePathname();
   const router = useRouter();
+  const atelier = useAtelier();
   return (
     <nav className="admin-nav" aria-label="Tableau de bord">
       <ul>
         {LINKS.map((l) => {
-          const on = l.href === "/gestion" ? pathname === l.href : pathname.startsWith(l.href);
+          const href = atelier.href(l.href);
+          const on = l.href === "/" ? pathname === href : pathname.startsWith(href);
           const n = counts[l.href];
           return (
             <li key={l.href}>
-              <Link href={l.href} className="admin-nav__link" aria-current={on ? "page" : undefined}>
+              <Link href={href} className="admin-nav__link" aria-current={on ? "page" : undefined}>
                 <span>{l.label}</span>
                 {n ? <span className="admin-nav__count">{n}</span> : null}
               </Link>
@@ -44,8 +47,8 @@ export function AdminNav({ counts }: { counts: Record<string, number> }) {
         type="button"
         className="link link--quiet admin-nav__logout"
         onClick={async () => {
-          await fetch("/api/gestion/logout", { method: "POST" });
-          router.push("/gestion/connexion");
+          await fetch(atelier.api("/logout"), { method: "POST" });
+          router.push(atelier.href("/connexion"));
         }}
       >
         Se déconnecter

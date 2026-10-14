@@ -2,6 +2,7 @@ import { listInbox, type InboxMessage } from "@/lib/inbox";
 import { MessageEditor } from "@/components/admin/MessageEditor";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { When } from "@/components/admin/Status";
+import { atelierApi } from "@/lib/admin/path";
 
 const CHANNEL: Record<InboxMessage["channel"], string> = { contact: "Formulaire", "rendez-vous": "Rendez-vous", assistant: "Assistante", email: "E-mail", instagram: "Instagram" };
 const STATUS: Record<InboxMessage["status"], string> = { new: "Nouveau", drafted: "Brouillon prêt", escalated: "Pour vous", answered: "Répondu" };
@@ -39,7 +40,7 @@ export default async function MessagesPage() {
       <header className="admin-page__head">
         <h1 className="t-h1">Messages</h1>
         <p className="t-lead">L’agent Service client répond seul aux questions courantes. Les cas délicats vous attendent ici, avec un brouillon prêt.</p>
-        <ActionButton endpoint="/api/gestion/agents/service-client" label="Traiter les nouveaux messages" busyLabel="L’agent lit les messages…" />
+        <ActionButton endpoint={atelierApi("/agents/service-client")} label="Traiter les nouveaux messages" busyLabel="L’agent lit les messages…" />
       </header>
       <section className="panel" aria-labelledby="mine-title">
         <h2 id="mine-title" className="t-h3">Pour vous ({mine.length})</h2>

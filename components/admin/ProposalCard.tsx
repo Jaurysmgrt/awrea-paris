@@ -3,6 +3,7 @@ import type { Proposal } from "@/lib/agents/perform";
 import { formatPrice } from "@/lib/format";
 import { ActionButton } from "./ActionButton";
 import { AgentName, Status, When } from "./Status";
+import { atelierApi } from "@/lib/admin/path";
 
 /** Lecture humaine des paramètres d'une proposition. */
 function describe(p: Proposal): string[] {
@@ -43,8 +44,8 @@ export function ProposalCard({ p }: { p: Proposal }) {
       </ul>
       {p.status === "pending" ? (
         <div className="proposal__actions">
-          <ActionButton endpoint={`/api/gestion/proposals/${p.id}`} body={{ decision: "approve" }} label="Valider" busyLabel="Exécution…" variant="solid" confirm={p.action === "delete_product" || p.action === "send_newsletter_all" ? "Cette action est irréversible. Confirmer ?" : undefined} />
-          <ActionButton endpoint={`/api/gestion/proposals/${p.id}`} body={{ decision: "reject" }} label="Refuser" />
+          <ActionButton endpoint={atelierApi(`/proposals/${p.id}`)} body={{ decision: "approve" }} label="Valider" busyLabel="Exécution…" variant="solid" confirm={p.action === "delete_product" || p.action === "send_newsletter_all" ? "Cette action est irréversible. Confirmer ?" : undefined} />
+          <ActionButton endpoint={atelierApi(`/proposals/${p.id}`)} body={{ decision: "reject" }} label="Refuser" />
         </div>
       ) : p.result ? (
         <p className="t-note">{p.result}</p>

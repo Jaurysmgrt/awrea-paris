@@ -3,6 +3,7 @@ import { kv } from "@/lib/store";
 import type { AuditReport } from "@/lib/agents/seo-audit";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { When } from "@/components/admin/Status";
+import { atelierApi } from "@/lib/admin/path";
 
 export default async function SeoPage() {
   const [audits, ideas, llms] = await Promise.all([
@@ -17,7 +18,7 @@ export default async function SeoPage() {
       <header className="admin-page__head">
         <h1 className="t-h1">SEO et visibilité IA</h1>
         <p className="t-lead">Chaque semaine, l’agent audite le site, corrige les balises des fiches, publie un article du Journal et met à jour llms.txt pour les moteurs de réponse IA.</p>
-        <ActionButton endpoint="/api/gestion/agents/seo" label="Lancer un audit" busyLabel="Audit en cours…" />
+        <ActionButton endpoint={atelierApi("/agents/seo")} label="Lancer un audit" busyLabel="Audit en cours…" />
       </header>
       {last ? (
         <section className="panel" aria-labelledby="audit-title">

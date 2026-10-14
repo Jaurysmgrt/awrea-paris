@@ -2,6 +2,7 @@
 /** Créer ou modifier un drop : dates (heure de Paris), pièces, vente privée. */
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAtelier } from "./AtelierContext";
 
 type Piece = { handle: string; title: string };
 export type DropDraft = { slug: string; title: string; teaser: string; image?: string; products: string[]; earlyAccessAt: string; publicAt: string; privateSale: boolean; hasPassword?: boolean };
@@ -21,6 +22,7 @@ function isoToParis(iso: string): string {
 }
 
 export function DropEditor({ pieces, drop }: { pieces: Piece[]; drop?: DropDraft }) {
+  const { api } = useAtelier();
   const router = useRouter();
   const [privateSale, setPrivateSale] = useState(Boolean(drop?.privateSale));
   const [state, setState] = useState<{ busy: boolean; message: string; error: boolean }>({ busy: false, message: "", error: false });
@@ -31,7 +33,7 @@ export function DropEditor({ pieces, drop }: { pieces: Piece[]; drop?: DropDraft
         e.preventDefault();
         const f = new FormData(e.currentTarget);
         setState({ busy: true, message: "", error: false });
-        const res = await fetch("/api/gestion/drops", {
+        const res = await fetch(api("/drops"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

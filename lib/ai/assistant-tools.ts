@@ -200,7 +200,7 @@ export function assistantTools(ctx: AssistantContext) {
         kind: "transmission",
         status: "info",
         summary: `L’assistante a transmis une demande (${reason.replace(/_/g, " ")}) de ${email} à l’atelier`,
-        target: { type: "message", id: msg.id, label: email, href: "/gestion#messages" },
+        target: { type: "message", id: msg.id, label: email, href: "atelier:#messages" },
       });
       ctx.handoff = { email };
       return JSON.stringify({ transmis: true, delai_reponse: "sous 48 heures ouvrées, par e-mail" });

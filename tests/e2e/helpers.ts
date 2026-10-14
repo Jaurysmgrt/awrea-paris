@@ -40,10 +40,23 @@ export async function signUp(page: Page, email: string) {
 /** Stockage du serveur de test (mode démonstration) : même fichier que lib/store (STORE_FILE). */
 export function readStore(): Record<string, unknown> {
   const file = process.env.STORE_FILE ? path.resolve(process.env.STORE_FILE) : path.join(process.cwd(), ".data", "store.json");
-  return JSON.parse(fs.readFileSync(file, "utf8"));
+  // le serveur peut être en train d'écrire (ancien serveur sans écriture atomique) : on relit
+  for (let i = 0; ; i++) {
+    try {
+      return JSON.parse(fs.readFileSync(file, "utf8"));
+    } catch (e) {
+      if (i >= 20) throw e;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50);
+    }
+  }
 }
 
 /** Boîte d'envoi simulée du mode démonstration. */
 export function outbox(): { to: string; subject: string; text: string }[] {
   return (readStore()["email:outbox"] as { to: string; subject: string; text: string }[] | undefined) ?? [];
+}
+
+/** Page hydratée : les composants client ont monté leurs effets (raccourcis clavier, équilibreur). */
+export async function waitForHydration(page: import("@playwright/test").Page) {
+  await page.waitForFunction(() => document.documentElement.dataset.justification !== undefined, null, { timeout: 30_000 });
 }

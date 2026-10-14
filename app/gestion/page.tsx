@@ -13,6 +13,7 @@ import { LogList } from "@/components/admin/LogList";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { When } from "@/components/admin/Status";
 import { maintenanceLabels, maintenanceReports } from "@/lib/maintenance";
+import { atelierHref, atelierApi } from "@/lib/admin/path";
 
 export default async function GestionHome() {
   const [proposals, log, runs, orders, inbox, audits, [maintenance]] = await Promise.all([
@@ -51,7 +52,7 @@ export default async function GestionHome() {
           <dt className="t-label">À valider</dt>
           <dd className="kpis__value">{pending.length}</dd>
           <dd className="t-note">
-            <Link href="/gestion/validations" className="text-link">
+            <Link href={atelierHref("/validations")} className="text-link">
               Voir les propositions
             </Link>
           </dd>
@@ -60,7 +61,7 @@ export default async function GestionHome() {
           <dt className="t-label">Messages à traiter</dt>
           <dd className="kpis__value">{toAnswer.length}</dd>
           <dd className="t-note">
-            <Link href="/gestion/messages" className="text-link">
+            <Link href={atelierHref("/messages")} className="text-link">
               Ouvrir la boîte
             </Link>
           </dd>
@@ -141,9 +142,9 @@ export default async function GestionHome() {
                   )}
                 </p>
                 {a.cron ? (
-                  <ActionButton endpoint={`/api/gestion/agents/${a.id}`} label="Lancer maintenant" busyLabel="L’agent travaille…" />
+                  <ActionButton endpoint={atelierApi(`/agents/${a.id}`)} label="Lancer maintenant" busyLabel="L’agent travaille…" />
                 ) : (
-                  <Link href="/gestion/catalogue" className="btn">
+                  <Link href={atelierHref("/catalogue")} className="btn">
                     Nouvelle fiche
                   </Link>
                 )}
@@ -158,7 +159,7 @@ export default async function GestionHome() {
           <h2 id="log-title" className="t-h3">
             Dernières actions
           </h2>
-          <Link href="/gestion/journal" className="link">
+          <Link href={atelierHref("/journal")} className="link">
             Tout le journal
           </Link>
         </div>

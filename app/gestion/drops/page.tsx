@@ -2,6 +2,7 @@ import Link from "@/components/ui/Link";
 import { DropEditor } from "@/components/admin/DropEditor";
 import { getAllProducts } from "@/lib/commerce";
 import { dropPhase, dropSignups, listDrops } from "@/lib/drops";
+import { atelierHref } from "@/lib/admin/path";
 
 const PHASE = { bientot: "Annoncé", anticipe: "Accès anticipé en cours", ouvert: "Ouvert à toutes" } as const;
 const paris = (iso: string) => new Date(iso).toLocaleString("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
@@ -48,7 +49,7 @@ export default async function DropsPage({ searchParams }: { searchParams: Promis
                     <td>{paris(d.publicAt)}</td>
                     <td>{d.privateSale ? "—" : signups[i].length}</td>
                     <td>
-                      <Link href={`/bientot/${d.slug}`} className="text-link">Voir</Link> · <Link href={`/gestion/drops?modifier=${d.slug}`} className="text-link">Modifier</Link>
+                      <Link href={`/bientot/${d.slug}`} className="text-link">Voir</Link> · <Link href={atelierHref(`/drops?modifier=${d.slug}`)} className="text-link">Modifier</Link>
                     </td>
                   </tr>
                 ))}

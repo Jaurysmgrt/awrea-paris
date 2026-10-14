@@ -99,14 +99,24 @@ de mots de passe de votre gestionnaire, réglé sur 64 caractères, lettres et c
 | Variable | Valeur |
 | --- | --- |
 | `SESSION_SECRET` | 64 caractères aléatoires (protège les sessions et la double authentification) |
-| `ATELIER_PASSWORD` | le mot de passe de l'Atelier : long, unique, connu de vous seule |
+| `ADMIN_PATH` | l'adresse secrète de l'Atelier : `/prive-` suivi d'au moins douze lettres minuscules ou chiffres tirés au hasard, par exemple `/prive-7k2m9q4p1x8d` |
+| `ATELIER_ACCOUNTS` | les adresses e-mail autorisées à entrer dans l'Atelier, séparées par des virgules |
+| `ATELIER_PASSWORD` | le mot de passe d'installation : il ne sert qu'à la première connexion de chaque compte |
 | `CRON_SECRET` | 32 caractères aléatoires (protège les tâches planifiées) |
 | `ATELIER_EMAIL` | l'adresse de l'atelier (copies des demandes, rapports des agents) |
-| `SECURITY_ALERT_EMAIL` | l'adresse qui reçoit les alertes de connexion inhabituelle |
+| `SECURITY_ALERT_EMAIL` | une adresse qui reçoit une copie des alertes de connexion (facultatif) |
 
-**Vérifier** : ouvrir `/gestion`, entrer le mot de passe, scanner le QR code avec l'application
-d'authentification, **noter les codes de secours** dans le gestionnaire de mots de passe. Dans
-**Réglages**, « Mot de passe du tableau de bord » indique « Personnel ».
+Gardez l'adresse secrète dans votre gestionnaire de mots de passe, avec le site. Elle n'apparaît nulle
+part sur le site : ni lien, ni moteur de recherche. L'ancienne adresse `/gestion` répond « page
+introuvable », comme n'importe quelle adresse inconnue.
+
+**Vérifier** : ouvrir `https://votre-domaine/prive-…` (votre adresse secrète), saisir votre adresse
+e-mail et le mot de passe d'installation, choisir votre mot de passe personnel, scanner le QR code
+avec l'application d'authentification, **noter les codes de secours** dans le gestionnaire de mots
+de passe. Un e-mail « Connexion à l'Atelier » arrive aussitôt : il arrivera à chaque connexion, avec
+un lien « Ce n'était pas moi » qui ferme toutes les sessions. Dans **Réglages**, chaque compte
+autorisé apparaît avec son état. Cinq essais manqués bloquent un compte une demi-heure et préviennent
+sa titulaire.
 
 Ne jamais changer `SESSION_SECRET` ensuite sans raison : toutes les sessions seraient fermées et la
 double authentification serait à refaire.

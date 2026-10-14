@@ -29,7 +29,7 @@ export async function GET(req: Request) {
       preheader: `${count} facture(s) et avoir(s) pour ${formatMonth(month)}.`,
       title: `Comptabilité — ${formatMonth(month)}`,
       paragraphs: [`Vous trouverez ci-joint l’export du mois : ${count} facture(s) et avoir(s), une ligne par pièce comptable, montants hors taxes, TVA et toutes taxes comprises.`, "Les factures en PDF restent disponibles dans l’Atelier, rubrique Factures."],
-      cta: { label: "Ouvrir les factures", href: "/gestion/factures" },
+      cta: { label: "Ouvrir les factures", href: "atelier:/factures" },
     }),
   });
   return NextResponse.json({ ok: true, month, count, to: to.replace(/^(.).*(@.*)$/, "$1…$2") });
