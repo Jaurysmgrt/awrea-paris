@@ -104,6 +104,13 @@ export const SERVICES = {
     mock: "Sélection de photographies de la Maison",
     providers: { instagram: { label: "Instagram", keys: ["INSTAGRAM_ACCESS_TOKEN"] } },
   },
+  calendar: {
+    label: "Agenda de la créatrice (créneaux de rendez-vous)",
+    env: "CALENDAR_PROVIDER",
+    mock: "Disponibilités réglées dans l'Atelier, sans agenda extérieur",
+    // adresse iCal secrète de l'agenda (Google, Apple, Outlook) : ses occupations ferment les créneaux
+    providers: { ics: { label: "Agenda iCal (Google, Apple, Outlook)", keys: ["CALENDAR_ICS_URL"] } },
+  },
 } as const satisfies Record<string, ServiceSpec>;
 
 export type ServiceId = keyof typeof SERVICES;

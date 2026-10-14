@@ -12,7 +12,7 @@ test.describe("En-tête épuré, recherche plein écran, mode Nuit", () => {
     await page.getByRole("button", { name: "Menu" }).click();
     const menu = page.locator("#site-menu");
     // chaque entrée est précédée de son numéro romain (« II Collections »)
-    for (const name of ["Collections", "Silhouettes", "Journal"]) await expect(menu.getByRole("link", { name: new RegExp(`${name}$`) })).toBeVisible();
+    for (const name of ["Collections", "Outfits", "Journal"]) await expect(menu.getByRole("link", { name: new RegExp(`${name}$`) })).toBeVisible();
     await expect(menu.getByRole("link", { name: /Liste d’envies/ })).toBeVisible();
   });
 
