@@ -82,7 +82,7 @@ async function klaviyo(path: string, body: unknown) {
     headers: { Authorization: `Klaviyo-API-Key ${process.env.KLAVIYO_PRIVATE_KEY}`, revision: "2025-07-15", "Content-Type": "application/json", accept: "application/json" },
     body: JSON.stringify(body),
   });
-  if (!res.ok && res.status !== 202 && res.status !== 204) throw new Error(`Klaviyo ${path} : ${res.status}`);
+  if (!res.ok && res.status !== 202 && res.status !== 204) throw new Error(`Klaviyo ${path} : ${res.status}`);
 }
 
 /** Envoi d'un e-mail de scénario, au gabarit de la maison. */

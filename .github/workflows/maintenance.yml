@@ -101,7 +101,11 @@ jobs:
             1. Reproduisez chaque échec localement (les commandes figurent dans le bilan).
             2. Trouvez la cause réelle et corrigez-la au plus juste, dans le style du code existant.
             3. Relancez TOUTE la vérification : npm run lint && npm run typecheck && npm run audit:tokens
-               && npm run test:unit && npm run test:db && npm run build && npx playwright test.
+               && npm run audit:ecriture && npm run test:unit && npm run test:db && npm run build
+               && npx playwright test.
+               Un échec du contrôle d'écriture se corrige dans la voix de la créatrice (MARQUE.md § 2) :
+               reformuler la phrase, jamais ajouter une exception. Les textes stockés signalés « à relire »
+               (agents, assistante) ne se modifient pas : ils sont listés pour la créatrice dans l'Atelier.
             4. Seulement si tout est vert : créez la branche maintenance/$(date +%F), ajoutez sous
                « ## Maintenance quotidienne » de JOURNAL.md une ligne datée décrivant la correction,
                validez (message en français), poussez la branche, ouvrez une demande de fusion vers main

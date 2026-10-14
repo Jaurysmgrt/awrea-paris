@@ -37,7 +37,7 @@ export async function runSiteAudit(origin: string, maxPages = 80): Promise<Audit
     try {
       res = await fetch(origin + path, { headers: { "User-Agent": "AwreaSEOAgent/1.0" }, cache: "no-store" });
     } catch (e) {
-      issues.push({ page: path, kind: "statut", detail: `Inaccessible : ${e instanceof Error ? e.message : e}`, severity: "haute" });
+      issues.push({ page: path, kind: "statut", detail: `Inaccessible : ${e instanceof Error ? e.message : e}`, severity: "haute" });
       continue;
     }
     const html = await res.text();

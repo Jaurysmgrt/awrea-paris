@@ -21,7 +21,7 @@ export function ShareButton({ title, text, path }: { title: string; text: string
       await navigator.clipboard.writeText(url);
       setStatus("Lien copié.");
     } catch {
-      setStatus(`Lien : ${url}`);
+      setStatus(`Lien : ${url}`);
     }
   };
   return (

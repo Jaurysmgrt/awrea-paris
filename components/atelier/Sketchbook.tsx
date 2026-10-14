@@ -85,7 +85,7 @@ export function Sketchbook() {
     <div ref={root} className="sketchbook">
       {SKETCHES.map((s) => (
         <figure key={s.title} className="sketch" data-reveal>
-          <svg viewBox="0 0 200 400" role="img" aria-label={`Croquis : ${s.title}`}>
+          <svg viewBox="0 0 200 400" role="img" aria-label={`Croquis : ${s.title}`}>
             {s.paths.map((d, i) => (
               <path key={i} d={d} pathLength={1} className="sketch__line" />
             ))}

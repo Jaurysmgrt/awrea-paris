@@ -48,6 +48,6 @@ export async function sendEmail(mail: OutgoingEmail): Promise<{ id: string; deli
   });
   const json = (await res.json().catch(() => ({}))) as { id?: string };
   await kv.push("email:outbox", { id: json.id ?? "", ...record, delivered: res.ok }, 300);
-  if (!res.ok) throw new Error(`Resend : ${res.status}`);
+  if (!res.ok) throw new Error(`Resend : ${res.status}`);
   return { id: json.id ?? "", delivered: true };
 }

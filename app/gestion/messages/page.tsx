@@ -25,7 +25,7 @@ export default async function MessagesPage() {
       <p className="t-label t-soft">{m.email}{m.orderNumber ? ` · ${m.orderNumber}` : ""}{m.appointment ? ` · ${m.appointment.type}${m.appointment.preferredDate ? `, ${m.appointment.preferredDate}` : ""}${m.appointment.slot ? ` (${m.appointment.slot})` : ""}` : ""}</p>
       <blockquote className="message__body t-body">{m.message}</blockquote>
       {m.draft?.agentNote ? <p className="notice t-note">Note de l’agent : {m.draft.agentNote}</p> : null}
-      {editable ? <MessageEditor id={m.id} subject={m.subject.startsWith("Re") ? m.subject : `Re : ${m.subject}`} draft={m.draft?.body ?? ""} /> : null}
+      {editable ? <MessageEditor id={m.id} subject={m.subject.startsWith("Re") ? m.subject : `Re : ${m.subject}`} draft={m.draft?.body ?? ""} /> : null}
       {m.answer ? (
         <details className="disclosure">
           <summary>Réponse envoyée ({m.answer.by === "agent" ? "par l’agent" : "par vous"})</summary>

@@ -152,7 +152,7 @@ export function looksLikeCode(s: string): boolean {
 export function looksLikeProse(s: string): boolean {
   if (looksLikeCode(s)) return false;
   const words = s.match(/\p{L}{2,}/gu) ?? [];
-  return words.length >= 2 || /[À-ÖØ-öø-ÿŒœ’«»]/.test(s);
+  return words.length >= 2 || /[À-ÖØ-öø-ÿŒœ’«»]/.test(s) || /^\p{Lu}\p{Ll}+(?:\s|[.!?…:;]|$)/u.test(s.trim()) && /[\s.!?…:;]/.test(s.trim());
 }
 
 const excerptAt = (s: string, i: number, len: number) => {
@@ -268,10 +268,12 @@ export function fixTypography(text: string, lang: Lang = "fr"): string {
  * deviennent des virgules ou des points, les listes à tirets des phrases. La formulation reste à
  * relire (les formulations interdites sont signalées, jamais réécrites à l'aveugle).
  */
-export function softenDashes(text: string): string {
+export function softenDashes(text: string, opts: { continuation?: boolean } = {}): string {
+  // un morceau qui continue un texte déjà commencé ne commence pas une ligne
+  const listStart = opts.continuation ? /\n[ \t]*[-*•–—][ \t]+/g : /(?:^|\n)[ \t]*[-*•–—][ \t]+/g;
   return text
     .replace(/(\d)\s*[–—-]\s*(\d)/g, "$1 à $2")
-    .replace(/(?:^|\n)[ \t]*[-*•–—][ \t]+/g, (m) => (m.startsWith("\n") ? "\n" : ""))
+    .replace(listStart, (m) => (m.startsWith("\n") ? "\n" : ""))
     .replace(/\s+[—–]\s+([^—–\n.]+?)\s+[—–]\s+/g, ", $1, ")
     .replace(/\s*[—–]\s*$/gm, ".")
     .replace(/\s+[—–]\s+/g, ", ")
@@ -280,8 +282,15 @@ export function softenDashes(text: string): string {
 }
 
 /** Typographie + tirets, pour un texte généré qui part en ligne sans relecture humaine immédiate. */
-export function cleanGenerated(text: string, lang: Lang = "fr"): string {
-  return fixTypography(softenDashes(text), lang).replace(/!(?=\s|$)/g, ".").replace(EMOJI, (c) => (ALLOWED_SYMBOLS.has(c) ? c : ""));
+export function cleanGenerated(text: string, lang: Lang = "fr", opts: { continuation?: boolean } = {}): string {
+  const calm = softenDashes(text, opts)
+    .replace(/[?]\s*!+/g, "?")
+    .replace(/[ \t\u00a0]*!+(?=[\s\u00a0»”)]|$)/g, ".")
+    .replace(EMOJI, (c) => (ALLOWED_SYMBOLS.has(c) ? c : ""))
+    .replace(/\.{2}(?!\.)(?=\s|$)/g, ".")
+    .replace(/(\S)[ \t]{2,}(?=\S)/g, "$1 ")
+    .replace(/[ \t\u00a0]+$/gm, "");
+  return fixTypography(calm, lang);
 }
 
 export const errorsOf = (issues: WritingIssue[]) => issues.filter((i) => i.severity === "erreur");

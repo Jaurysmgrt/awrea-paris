@@ -3,6 +3,9 @@ import { rateLimit } from "@/lib/security/rate-limit";
 import { aiEnabled } from "@/lib/ai/client";
 import { recordExchange, runClaudeAssistant, runDemoAssistant, type StreamEvent } from "@/lib/ai/assistant";
 import Anthropic from "@anthropic-ai/sdk";
+import { streamCleaner } from "@/lib/writing/agents";
+import { checkText, errorsOf } from "@/lib/writing/rules";
+import { reportWriting } from "@/lib/writing/report";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,18 +31,31 @@ export async function POST(req: Request) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
-      let answer = "";
+      // la réponse est nettoyée au fil de l'eau : typographie, aucun tiret, aucun point d'exclamation
+      const cleaner = streamCleaner();
+      const emit = (e: StreamEvent) => controller.enqueue(encoder.encode(JSON.stringify(e) + "\n"));
       const send = (e: StreamEvent) => {
-        if (e.type === "text") answer += e.text;
-        if (e.type === "reset") answer = "";
-        controller.enqueue(encoder.encode(JSON.stringify(e) + "\n"));
+        if (e.type === "text") {
+          const ready = cleaner.push(e.text);
+          if (ready) emit({ type: "text", text: ready });
+          return;
+        }
+        if (e.type === "reset") cleaner.reset();
+        else {
+          const rest = cleaner.flush();
+          if (rest) emit({ type: "text", text: rest });
+        }
+        emit(e);
       };
       try {
         const ctx = aiEnabled ? await runClaudeAssistant(messages, page, send) : await runDemoAssistant(messages, send);
         if (ctx.pieces.size) send({ type: "pieces", items: [...ctx.pieces.values()].slice(0, 3) });
         if (ctx.handoff) send({ type: "handoff", email: ctx.handoff.email });
         send({ type: "done" });
+        const answer = cleaner.text();
         await recordExchange(messages[messages.length - 1].content, answer, page).catch(() => {});
+        const issues = errorsOf(checkText(answer, { prose: true }));
+        if (issues.length) await reportWriting("assistante", issues.map((i) => ({ ...i, path: "réponse", text: answer })), messages[messages.length - 1].content.slice(0, 200)).catch(() => {});
       } catch (err) {
         console.error("[assistant]", err);
         const message =

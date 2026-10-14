@@ -11,13 +11,13 @@ function describe(p: Proposal): string[] {
     case "change_price":
       return [`Pièce : ${params.handle}`, `Nouveau prix : ${formatPrice(Number(params.price))}`];
     case "refund_order":
-      return [`Commande : ${params.orderId}`, `Motif : ${params.reason}`];
+      return [`Commande : ${params.orderId}`, `Motif : ${params.reason}`];
     case "cancel_order":
-      return [`Commande : ${params.orderId}`, params.refund ? "Avec remboursement" : "Sans remboursement"];
+      return [`Commande : ${params.orderId}`, params.refund ? "Avec remboursement" : "Sans remboursement"];
     case "delete_product":
       return [`Pièce : ${params.handle}`, "La suppression est définitive."];
     case "send_newsletter_all":
-      return [`Objet : ${params.subject}`, `Aperçu : ${params.preheader}`, ...((params.paragraphs as string[]) ?? []).slice(0, 4)];
+      return [`Objet : ${params.subject}`, `Aperçu : ${params.preheader}`, ...((params.paragraphs as string[]) ?? []).slice(0, 4)];
     default:
       return [JSON.stringify(params).slice(0, 300)];
   }

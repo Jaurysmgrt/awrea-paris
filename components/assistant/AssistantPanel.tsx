@@ -176,7 +176,7 @@ export default function AssistantPanel({ open, onClose }: { open: boolean; onClo
           </li>
           {messages.map((m, i) => (
             <li key={i} className={`assistant__msg assistant__msg--${m.role}`} data-error={m.error}>
-              <span className="sr-only">{m.role === "user" ? "Vous : " : "Assistante : "}</span>
+              <span className="sr-only">{m.role === "user" ? "Vous : " : "Assistante : "}</span>
               {m.content ? (
                 <p className="assistant__bubble">
                   <RichText text={m.content} />
