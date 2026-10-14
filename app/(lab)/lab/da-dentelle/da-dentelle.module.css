@@ -1,0 +1,1620 @@
+/*
+ * DIRECTION « DENTELLE » — laboratoire du directeur artistique 1 (docs/EQUIPES.md).
+ *
+ * La page se lit comme une dentelle :
+ *   - le RÉSEAU : la grille de 12 colonnes au pas de 8 px, rendue visible par des picots ;
+ *   - les MOTIFS : les pièces et les mots, pleins, posés sur le réseau ;
+ *   - les JOURS : le blanc entre les motifs (au moins 40 % de la page) ;
+ *   - le FIL : tous les filets (1 px), qui commencent ou finissent par un picot ;
+ *   - le FESTON : le seul bord découpé, réservé aux bandes noires (galon, ourlet).
+ * Un seul verbe de mouvement : AJOURER (une image s'ouvre à travers des jours de tulle).
+ * Une seule durée (--dur) et une seule courbe (--ease) : les séquences enchaînent cette durée.
+ *
+ * Toutes les valeurs passent par le design system (styles/tokens.css) ; seules les unités
+ * internes des viewBox SVG sont écrites en dur (signalées « token-ok »).
+ */
+
+/* Rayon des jours de l'ajour : propriété enregistrée pour pouvoir l'animer. */
+@property --jour {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px; /* token-ok : valeur initiale d'une propriété enregistrée */
+}
+
+/* ================================================================== PAGE */
+.page {
+  --fil: var(--border-width-hair);
+  --picot: calc(var(--spacing-3xs) * 0.5); /* 4 px : le point d'attache */
+  --picot-l: var(--spacing-3xs); /* 8 px : picot de série */
+  --maille: var(--spacing-l); /* pas des jours : 32 → 48 */
+  --feston: var(--spacing-2xs); /* profondeur d'un feston : 8 */
+  --feston-l: var(--spacing-m); /* largeur d'un feston : 24 */
+  position: relative;
+  background: var(--bg);
+  color: var(--fg);
+}
+/* fiche : la barre d'achat ne recouvre jamais le pied de page (l'ourlet s'allonge d'autant) */
+.pagePiece .ourlet {
+  padding-bottom: calc(var(--spacing-l) + var(--spacing-3xl));
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--spacing-gutter);
+}
+
+/* un temps du récit : une section, un message, un appel au plus */
+.temps {
+  position: relative;
+  padding-block: var(--space-section);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* ============================================================ MÉDAILLON
+   Le monogramme AW de la Maison serti d'un anneau de picots, comme un médaillon de dentelle. */
+.medaillon {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  aspect-ratio: 1;
+  color: inherit;
+}
+.medaillonAnneau {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.medaillonCercle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--fil);
+  vector-effect: non-scaling-stroke;
+}
+.medaillonPicots circle {
+  fill: currentColor;
+}
+.medaillonAW {
+  width: 54%;
+  height: auto;
+}
+
+/* paragraphes qui ne sont pas du texte courant (titres en serif, étiquettes) :
+   jamais justifiés, jamais césurés */
+.sansJustif {
+  text-align: left;
+  hyphens: manual;
+  max-width: none;
+}
+
+/* ============================================================= LISIÈRE
+   L'en-tête est la lisière de la pièce de tissu : un bord droit, le monogramme à gauche,
+   cinq mots alignés sur les colonnes, et sous lui le réseau rendu visible par douze picots. */
+.lisiere {
+  position: relative;
+  z-index: var(--z-header);
+  background: var(--bg);
+  color: var(--fg);
+}
+.lisiereGrille {
+  align-items: center;
+  min-height: var(--spacing-header);
+}
+.lisiereMarque {
+  grid-column: 1 / span 3;
+  justify-self: start;
+  display: inline-grid;
+  place-items: center;
+  width: var(--spacing-touch);
+  height: var(--spacing-touch);
+  color: inherit;
+}
+.lisiereMarque > span {
+  width: 100%;
+  height: 100%;
+}
+.lisiereNav ul {
+  display: grid;
+  gap: 0;
+}
+.lisiereActions {
+  grid-column: 7 / -1;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-m);
+}
+.lisiereActions button {
+  min-height: var(--spacing-touch);
+}
+.lisiereCompte {
+  margin-left: var(--spacing-3xs);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 63.99rem) {
+  .lisiereNav {
+    position: absolute;
+    inset: 100% 0 auto 0;
+    z-index: var(--z-header);
+    padding: var(--spacing-xs) var(--spacing-gutter) var(--spacing-m);
+    background: var(--bg);
+    border-bottom: var(--fil) solid var(--line);
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      opacity var(--dur) var(--ease),
+      visibility 0s linear var(--dur);
+  }
+  .lisiereNav[data-ouvert="true"] {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity var(--dur) var(--ease);
+  }
+  .lisiereNav a {
+    min-height: var(--spacing-touch);
+  }
+}
+@media (min-width: 64rem) {
+  .lisiereNav {
+    grid-column: 4 / span 8;
+  }
+  /* les mots tombent sur les colonnes 4, 6, 8 et 10 de la grille */
+  .lisiereNav ul {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    column-gap: var(--spacing-gutter);
+  }
+  .lisiereNav li {
+    grid-column: span 2;
+  }
+  .lisiereActions {
+    grid-column: 12;
+  }
+  .lisiereMenu {
+    display: none;
+  }
+}
+
+/* ============================================================== RÉSEAU
+   Un fil sur toute la largeur, un picot au centre de chacune des douze colonnes. */
+.reseau {
+  position: relative;
+  height: var(--fil);
+  background: var(--line);
+}
+.reseau > span {
+  position: absolute;
+  top: 50%;
+  left: calc((100% - 11 * var(--spacing-gutter)) / 24 + var(--n) * ((100% - 11 * var(--spacing-gutter)) / 12 + var(--spacing-gutter)));
+  width: var(--picot);
+  height: var(--picot);
+  border-radius: var(--radius-full);
+  background: var(--fg);
+  transform: translate(-50%, -50%);
+}
+
+/* fil séparateur : un picot à chaque bout */
+.fil {
+  position: relative;
+  height: var(--fil);
+  background: var(--line);
+}
+.fil::before,
+.fil::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: var(--picot);
+  height: var(--picot);
+  border-radius: var(--radius-full);
+  background: var(--fg);
+  transform: translateY(-50%);
+}
+.fil::before {
+  left: 0;
+}
+.fil::after {
+  right: 0;
+}
+
+/* ============================================================ OUVERTURE
+   Pas d'affiche plein écran : un échantillon de dentelle à l'échelle, légendé comme
+   dans les livres d'échantillons des dentelliers, et le nom de la collection piqué sur un fil. */
+.ouverture {
+  padding-top: var(--spacing-l);
+}
+.ouvertureGrille {
+  row-gap: var(--space-block);
+  align-items: center;
+}
+.ouvertureTexte {
+  grid-column: 1 / -1;
+  display: grid;
+  justify-items: start;
+  gap: var(--space-title);
+}
+.ouvertureEchantillon {
+  grid-column: 1 / -1;
+}
+@media (min-width: 48rem) {
+  .ouvertureEchantillon {
+    grid-column: 3 / span 8;
+  }
+}
+@media (min-width: 64rem) {
+  .ouvertureTexte {
+    grid-column: 1 / span 6;
+  }
+  .ouvertureEchantillon {
+    grid-column: 8 / span 5;
+  }
+}
+.ouvertureChapeau {
+  max-width: var(--measure);
+}
+
+/* =============================================================== PIQUÉ
+   Titre écrit le long d'un fil (arbitrage 3a) : le fil avance de gauche à droite, chaque
+   lettre apparaît au passage de l'aiguille, et un picot ferme la couture. */
+.pique {
+  position: relative;
+  padding-bottom: var(--spacing-2xs);
+  text-wrap: balance;
+}
+.pique::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--fil);
+  background: var(--fg);
+  transform-origin: 0 50%;
+  animation: filer var(--dur) var(--ease) both;
+}
+.pique::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: var(--picot-l);
+  height: var(--picot-l);
+  border-radius: var(--radius-full);
+  background: var(--fg);
+  transform: translate(50%, 50%);
+  animation: piquer var(--dur) var(--ease) var(--dur) both;
+}
+.piqueMot {
+  white-space: nowrap;
+}
+.piqueLettre {
+  animation: piquer var(--dur) var(--ease) both;
+  animation-delay: calc(var(--i) / var(--n) * var(--dur));
+}
+@keyframes filer {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes piquer {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ================================================================ AJOUR
+   L'image apparaît d'abord à travers de petits jours disposés en quinconce, comme on voit à
+   travers un tulle ; les jours s'agrandissent jusqu'à se rejoindre et l'image est à nu.
+   Sans JavaScript, ou en animations apaisées : l'image est simplement là. */
+.ajour {
+  --maille: var(--spacing-xs); /* un tulle fin : jours de 16 px */
+  --jour: calc(var(--maille) * 0.5 + var(--fil)); /* jours rejoints : l'image est à nu */
+  position: relative;
+}
+.ajour[data-ajour="attente"],
+.ajour[data-ajour="ouvre"],
+.ajourOuverture:not([data-ajour="ouvert"]) {
+  -webkit-mask-image:
+    radial-gradient(circle at 50% 50%, var(--color-ink) var(--jour), transparent calc(var(--jour) + var(--fil))),
+    radial-gradient(circle at 50% 50%, var(--color-ink) var(--jour), transparent calc(var(--jour) + var(--fil)));
+  mask-image:
+    radial-gradient(circle at 50% 50%, var(--color-ink) var(--jour), transparent calc(var(--jour) + var(--fil))),
+    radial-gradient(circle at 50% 50%, var(--color-ink) var(--jour), transparent calc(var(--jour) + var(--fil)));
+  -webkit-mask-size: var(--maille) var(--maille);
+  mask-size: var(--maille) var(--maille);
+  -webkit-mask-position:
+    0 0,
+    calc(var(--maille) * 0.5) calc(var(--maille) * 0.5);
+  mask-position:
+    0 0,
+    calc(var(--maille) * 0.5) calc(var(--maille) * 0.5);
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+}
+.ajour[data-ajour="attente"] {
+  --jour: calc(-1 * var(--fil)); /* jours fermés, sans le moindre point de lumière */
+}
+.ajour[data-ajour="ouvre"] {
+  animation: ajourer var(--dur) var(--ease) both;
+}
+.ajourOuverture:not([data-ajour="ouvert"]) {
+  animation: ajourer var(--dur) var(--ease) var(--dur) both;
+}
+/* l'image se lève derrière un tulle dont les nœuds se défont : on part du moment où les jours se
+   touchent déjà (un filet), jamais d'une trame de points */
+@keyframes ajourer {
+  from {
+    --jour: calc(var(--maille) * 0.36);
+    opacity: 0;
+  }
+  to {
+    --jour: calc(var(--maille) * 0.5 + var(--fil));
+    opacity: 1;
+  }
+}
+
+/* ======================================================= ÉCHANTILLON
+   Image traitée comme une œuvre : un cordonnet (le fil qui cerne les motifs de la dentelle de
+   Calais) à 8 px de l'image, et une étiquette d'échantillon tirée des vraies données. */
+.cordonnet {
+  position: relative;
+  outline: var(--fil) solid var(--line);
+  outline-offset: var(--spacing-2xs);
+}
+.etiquette {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  column-gap: var(--spacing-m);
+  row-gap: var(--spacing-3xs);
+  margin-top: var(--spacing-m);
+  padding-top: var(--spacing-xs);
+  border-top: var(--fil) solid var(--line);
+}
+.etiquetteTexte {
+  display: grid;
+  gap: var(--spacing-3xs);
+}
+.etiquetteNom {
+  font-family: var(--font-display);
+  font-size: var(--text-step-1);
+  line-height: var(--leading-snug);
+}
+.etiquetteNumero {
+  font-family: var(--font-display);
+  font-size: var(--text-step-3);
+  line-height: var(--leading-tight);
+  white-space: nowrap;
+}
+.etiquetteNumero small {
+  font-size: var(--text-step-1);
+}
+
+/* ============================================================ RAPPORT
+   La collection comme un ensemble fini, posé en quinconce comme les mailles d'un tulle :
+   une maille sur deux porte une pièce, l'autre reste à jour. */
+.rapportTete {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-title);
+  justify-items: start;
+}
+
+.quinconce {
+  grid-column: 1 / -1;
+  margin-top: var(--space-block);
+  row-gap: var(--space-block);
+}
+.maille {
+  grid-column: 1 / span 10;
+}
+.maille:nth-child(even) {
+  grid-column: 3 / span 10;
+}
+@media (min-width: 48rem) {
+  .maille {
+    grid-column: 1 / span 6;
+  }
+  .maille:nth-child(even) {
+    grid-column: 7 / span 6;
+  }
+}
+@media (min-width: 64rem) {
+  .maille,
+  .maille:nth-child(even) {
+    grid-column: var(--col) / span 3;
+    grid-row: var(--rang);
+  }
+}
+.rapportAppel {
+  grid-column: 1 / -1;
+  margin-top: var(--space-block);
+}
+
+/* vignette : la pièce, son numéro, sa série en picots */
+.vignette {
+  display: grid;
+  gap: var(--spacing-xs);
+  color: inherit;
+}
+.vignetteMedia {
+  position: relative;
+  overflow: hidden;
+}
+/* vidéo au survol, révélée à travers les jours (arbitrage 3c) ; jamais au tactile */
+.vignetteVideo {
+  --maille: var(--spacing-xs);
+  --jour: calc(var(--maille) * 0.36); /* un filet serré, invisible tant que la vidéo n'est pas appelée */
+  opacity: 0;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-mask-image:
+    radial-gradient(circle at 50% 50%, var(--color-ink) var(--jour), transparent calc(var(--jour) + var(--fil))),
+    radial-gradient(circle at 50% 50%, var(--color-ink) var(--jour), transparent calc(var(--jour) + var(--fil)));
+  mask-image:
+    radial-gradient(circle at 50% 50%, var(--color-ink) var(--jour), transparent calc(var(--jour) + var(--fil))),
+    radial-gradient(circle at 50% 50%, var(--color-ink) var(--jour), transparent calc(var(--jour) + var(--fil)));
+  -webkit-mask-size: var(--maille) var(--maille);
+  mask-size: var(--maille) var(--maille);
+  -webkit-mask-position:
+    0 0,
+    calc(var(--maille) * 0.5) calc(var(--maille) * 0.5);
+  mask-position:
+    0 0,
+    calc(var(--maille) * 0.5) calc(var(--maille) * 0.5);
+  transition:
+    --jour var(--dur) var(--ease),
+    opacity var(--dur) var(--ease);
+}
+.vignetteMedia[data-video="on"] .vignetteVideo {
+  --jour: calc(var(--maille) * 0.5 + var(--fil));
+  opacity: 1;
+}
+.vignetteLegende {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: var(--spacing-xs);
+  row-gap: var(--spacing-2xs);
+}
+.vignetteNom {
+  font-family: var(--font-display);
+  font-size: var(--text-step-2);
+  line-height: var(--lh-step-2);
+  text-align: left;
+}
+.vignetteNumero {
+  font-family: var(--font-display);
+  font-size: var(--text-step-1);
+  line-height: var(--leading-snug);
+  white-space: nowrap;
+}
+.vignettePrix {
+  grid-column: 1 / -1;
+}
+.vignetteSerie {
+  grid-column: 1 / -1;
+}
+@media (hover: hover) {
+  .vignetteNom {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% var(--fil);
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size var(--dur) var(--ease);
+  }
+  .vignette:hover .vignetteNom {
+    background-size: 100% var(--fil);
+  }
+}
+
+/* ============================================================= SÉRIE
+   La série en picots, sur un fil : pleins = déjà numérotés, cerclé = le prochain numéro,
+   vides = à venir. Une information, jamais une pastille. */
+.serie {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding-block: var(--spacing-2xs);
+}
+.serie::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--fil);
+  background: var(--line);
+}
+.serie > span {
+  position: relative;
+  width: var(--picot-l);
+  height: var(--picot-l);
+  border: var(--fil) solid var(--fg);
+  border-radius: var(--radius-full);
+  background: var(--bg);
+}
+.serie > [data-etat="faite"] {
+  background: var(--fg);
+}
+.serie > [data-etat="prochaine"] {
+  outline: var(--fil) solid var(--fg);
+  outline-offset: calc(var(--fil) * 3);
+}
+.serieTexte {
+  color: var(--fg-soft);
+}
+.serieLigne {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--spacing-s);
+}
+
+/* ========================================================= LE MOT DANS LE JOUR
+   Le détail inattendu de l'accueil : une maille vide, un picot ; au survol, au clavier ou au
+   toucher, une phrase de la créatrice apparaît dans le jour. */
+.jourMot {
+  position: relative;
+  grid-column: 2 / span 10;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: var(--spacing-xs);
+  min-height: calc(var(--spacing-3xl) * 3);
+  text-align: center;
+}
+@media (min-width: 64rem) {
+  .jourMot {
+    grid-column: var(--col) / span 3;
+    grid-row: var(--rang);
+  }
+}
+/* le point d'esprit : un tulle semé de points, à peine visible, signale la maille habitée */
+.jourMot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, color-mix(in oklab, var(--fg) 26%, transparent) var(--fil), transparent calc(var(--fil) * 1.5)),
+    radial-gradient(circle, color-mix(in oklab, var(--fg) 26%, transparent) var(--fil), transparent calc(var(--fil) * 1.5));
+  background-size: var(--spacing-s) var(--spacing-s);
+  background-position:
+    0 0,
+    var(--spacing-2xs) var(--spacing-2xs);
+  -webkit-mask-image: radial-gradient(circle closest-side, var(--color-ink) 70%, transparent);
+  mask-image: radial-gradient(circle closest-side, var(--color-ink) 70%, transparent);
+  opacity: 0.8;
+  pointer-events: none;
+}
+.jourPicot {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--spacing-touch);
+  height: var(--spacing-touch);
+  color: var(--fg);
+}
+.jourPicot::before {
+  content: "";
+  width: var(--picot-l);
+  height: var(--picot-l);
+  border: var(--fil) solid currentColor;
+  border-radius: var(--radius-full);
+  background: var(--bg);
+  transition:
+    background-color var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.jourMot[data-ouvert="true"] .jourPicot::before {
+  background: currentColor;
+  transform: scale(1.5);
+}
+.jourCitation {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-2xs);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--dur) var(--ease),
+    visibility 0s linear var(--dur);
+}
+.jourMot[data-ouvert="true"] .jourCitation {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--dur) var(--ease);
+}
+.jourPhrase {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: var(--text-step-2);
+  line-height: var(--lh-step-2);
+}
+
+/* ================================================================ GALON
+   Une bande noire posée en travers de la page comme un galon de dentelle : ses deux bords
+   sont festonnés. Le halo de lumière y révèle la dentelle cachée (MARQUE.md § 3). */
+.galon {
+  position: relative;
+  margin-block: var(--spacing-2xs);
+  padding-block: var(--spacing-3xl);
+  background: var(--bg);
+  color: var(--fg);
+}
+.galon::before,
+.galon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--feston);
+  background: var(--bg);
+  -webkit-mask-size: var(--feston-l) var(--feston);
+  mask-size: var(--feston-l) var(--feston);
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+}
+.galon::before {
+  bottom: 100%;
+  -webkit-mask-image: radial-gradient(ellipse 50% 100% at 50% 100%, var(--color-ink) 96%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 100% at 50% 100%, var(--color-ink) 96%, transparent 100%);
+  -webkit-mask-position: 50% 100%;
+  mask-position: 50% 100%;
+}
+.galon::after {
+  top: 100%;
+  -webkit-mask-image: radial-gradient(ellipse 50% 100% at 50% 0%, var(--color-ink) 96%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 100% at 50% 0%, var(--color-ink) 96%, transparent 100%);
+  -webkit-mask-position: 50% 0%;
+  mask-position: 50% 0%;
+}
+.galon > :not(:first-child) {
+  position: relative;
+}
+.galonGrille {
+  row-gap: var(--space-title);
+}
+.galonTete {
+  grid-column: 1 / -1;
+}
+.galonBloc {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-block);
+  justify-items: start;
+}
+.galonCitation {
+  display: grid;
+  gap: var(--space-title);
+  justify-items: start;
+}
+@media (min-width: 64rem) {
+  .galonTete {
+    grid-column: 2 / span 10;
+  }
+  .galonBloc {
+    grid-column: 2 / span 8;
+  }
+}
+.galonPhrase {
+  font-family: var(--font-display);
+  font-size: var(--text-step-3);
+  line-height: var(--lh-step-3);
+  letter-spacing: var(--tracking-display);
+  text-wrap: balance;
+}
+.galonSignature {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+.galonSignature::before {
+  content: "";
+  width: var(--spacing-l);
+  height: var(--fil);
+  background: currentColor;
+}
+
+/* ============================================================== ATELIER */
+.atelierGrille {
+  row-gap: var(--space-block);
+  align-items: center;
+}
+.atelierMedia {
+  grid-column: 1 / -1;
+}
+.atelierTexte {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-title);
+  justify-items: start;
+}
+@media (min-width: 64rem) {
+  .atelierMedia {
+    grid-column: 1 / span 6;
+  }
+  .atelierTexte {
+    grid-column: 8 / span 5;
+  }
+}
+.atelierLegende {
+  margin-top: var(--spacing-m);
+}
+
+/* ============================================================== LETTRE
+   La lettre de l'atelier, sur un papier filigrané : le médaillon AW en filigrane très léger. */
+.lettre {
+  position: relative;
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-title);
+  justify-items: start;
+  padding-block: var(--space-block);
+  overflow: hidden;
+}
+@media (min-width: 64rem) {
+  .lettre {
+    grid-column: 4 / span 6;
+  }
+}
+.lettre > :not(.filigrane) {
+  position: relative;
+  width: 100%;
+}
+.lettre p {
+  max-width: var(--measure);
+}
+.filigrane {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--spacing-3xl) * 4);
+  height: calc(var(--spacing-3xl) * 4);
+  color: var(--fg);
+  opacity: 0.045;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* =============================================================== OURLET
+   Le pied de page est l'ourlet festonné de la pièce : noir, bord découpé, halo de lumière. */
+.ourlet {
+  position: relative;
+  margin-top: var(--spacing-2xs);
+  padding-block: var(--spacing-2xl) var(--spacing-l);
+  overflow-x: clip;
+  background: var(--bg);
+  color: var(--fg);
+}
+.ourlet::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: var(--feston);
+  background: var(--bg);
+  -webkit-mask: radial-gradient(ellipse 50% 100% at 50% 100%, var(--color-ink) 96%, transparent 100%) 50% 100% / var(--feston-l) var(--feston) repeat-x;
+  mask: radial-gradient(ellipse 50% 100% at 50% 100%, var(--color-ink) 96%, transparent 100%) 50% 100% / var(--feston-l) var(--feston) repeat-x;
+}
+/* le filigrane vit dans un calque rogné : il ne déborde pas, le feston reste visible */
+.ourletFond {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ourletGrille {
+  position: relative;
+  row-gap: var(--space-block);
+}
+.ourletDevise {
+  grid-column: 1 / -1;
+  font-family: var(--font-display);
+  font-size: var(--text-step-4);
+  line-height: var(--lh-step-4);
+  letter-spacing: var(--tracking-display);
+}
+.ourletLiens {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-l) var(--spacing-gutter);
+}
+@media (min-width: 64rem) {
+  .ourletDevise {
+    grid-column: 1 / span 10;
+  }
+  .ourletLiens {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.ourletLiens h2 {
+  margin-bottom: var(--spacing-2xs);
+  color: var(--fg-soft);
+}
+.ourletLiens ul {
+  display: grid;
+  gap: 0;
+}
+.ourletLiens a,
+.ourletLiens button {
+  min-height: var(--spacing-touch);
+  text-align: left;
+}
+.ourletBas {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--spacing-m);
+}
+.ourletBasLigne {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-s);
+  color: var(--fg-soft);
+}
+.ourletFiligrane {
+  position: absolute;
+  right: calc(-1 * var(--spacing-3xl));
+  top: var(--spacing-l);
+  width: calc(var(--spacing-3xl) * 4);
+  height: calc(var(--spacing-3xl) * 4);
+  color: var(--fg);
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+/* curseur monogramme : à côté du pointeur système (qui reste visible), seulement au-dessus
+   des images de dentelle et des galeries ; jamais au tactile ni en animations apaisées */
+.curseur {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: var(--z-drawer);
+  width: var(--spacing-l);
+  height: var(--spacing-l);
+  color: var(--color-ivory);
+  mix-blend-mode: difference;
+  pointer-events: none;
+  opacity: 0;
+  /* décalé en bas à droite du pointeur système, qui reste visible et dégagé */
+  transform: translate3d(var(--cx, 0), var(--cy, 0), 0) translate(var(--spacing-xs), var(--spacing-m));
+  transition: opacity var(--dur) var(--ease);
+}
+.curseur[data-on="true"] {
+  opacity: 1;
+}
+.curseur > span {
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================================ ÉCRAN D'OUVERTURE (première visite)
+   Le médaillon se dessine d'un fil noir très fin, puis le voile s'ajoure et s'efface :
+   moins de 2 s, jamais bloquant, absent en animations apaisées. */
+.voile {
+  --maille-voile: var(--spacing-2xs); /* un tulle très fin : 8 px */
+  --jour: calc(-1 * var(--fil)); /* voile plein */
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-transition);
+  display: grid;
+  place-items: center;
+  background: var(--color-ivory);
+  color: var(--color-ink);
+  pointer-events: none;
+  -webkit-mask-image:
+    radial-gradient(circle at 50% 50%, transparent var(--jour), var(--color-ink) calc(var(--jour) + var(--fil))),
+    radial-gradient(circle at 50% 50%, transparent var(--jour), var(--color-ink) calc(var(--jour) + var(--fil)));
+  mask-image:
+    radial-gradient(circle at 50% 50%, transparent var(--jour), var(--color-ink) calc(var(--jour) + var(--fil))),
+    radial-gradient(circle at 50% 50%, transparent var(--jour), var(--color-ink) calc(var(--jour) + var(--fil)));
+  -webkit-mask-size: var(--maille-voile) var(--maille-voile);
+  mask-size: var(--maille-voile) var(--maille-voile);
+  -webkit-mask-position:
+    0 0,
+    calc(var(--maille-voile) * 0.5) calc(var(--maille-voile) * 0.5);
+  mask-position:
+    0 0,
+    calc(var(--maille-voile) * 0.5) calc(var(--maille-voile) * 0.5);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  animation: voileAjoure var(--dur) var(--ease) var(--dur) both;
+}
+html[data-mode="dark"] .voile {
+  background: var(--color-night);
+  color: var(--color-ivory);
+}
+@keyframes voileAjoure {
+  from {
+    --jour: calc(-1 * var(--fil));
+    opacity: 1;
+    visibility: visible;
+  }
+  to {
+    --jour: calc(var(--maille-voile) * 0.5 + var(--fil));
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+.voileMedaillon {
+  width: var(--size-mark);
+  height: var(--size-mark);
+}
+/* l'anneau et le monogramme se dessinent d'un fil, les picots se posent un à un, puis le
+   monogramme se remplit */
+.medaillonTrace .medaillonCercle {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: tracer var(--dur) var(--ease) both;
+}
+.medaillonTrace .medaillonPicots circle {
+  animation: piquer var(--dur) var(--ease) both;
+}
+.medaillonTrace .medaillonAW path {
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 3; /* token-ok : unités du viewBox du monogramme (environ 1 px à l'écran) */
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation:
+    tracer var(--dur) var(--ease) both,
+    remplir var(--dur) var(--ease) var(--dur) both;
+}
+@keyframes tracer {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes remplir {
+  to {
+    fill: currentColor;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .voile {
+    display: none;
+  }
+}
+html[data-motion="reduce"] .voile {
+  display: none;
+}
+
+/* =================================================================== FICHE
+   La fiche est le dossier d'une pièce : la photographie et l'achat, puis le patron, la
+   matière, le carnet pratique. L'achat reste toujours à portée (barre d'achat). */
+.fiche {
+  padding-top: var(--spacing-l);
+}
+.ficheGrille {
+  row-gap: var(--space-block);
+}
+.ficheImage {
+  grid-column: 1 / -1;
+}
+.ficheAchat {
+  grid-column: 1 / -1;
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-m);
+}
+@media (min-width: 48rem) {
+  .ficheImage {
+    grid-column: 2 / span 10;
+  }
+  .ficheAchat {
+    grid-column: 2 / span 10;
+  }
+}
+@media (min-width: 64rem) {
+  .ficheImage {
+    grid-column: 1 / span 6;
+  }
+  .ficheAchat {
+    grid-column: 8 / span 5;
+  }
+}
+.ficheTitre {
+  display: grid;
+  gap: var(--spacing-xs);
+}
+
+/* numéro d'édition : la signature (« N° 3 / 5 » en Instrument Serif, très grand) */
+.edition {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-display);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+}
+.editionNo {
+  font-size: var(--text-step-2);
+}
+.editionN {
+  font-size: var(--text-step-5);
+}
+.editionTotal {
+  font-size: var(--text-step-3);
+}
+.editionBloc {
+  display: grid;
+  gap: var(--spacing-2xs);
+  padding-block: var(--spacing-xs);
+  border-block: var(--fil) solid var(--line);
+}
+.editionLigne {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--spacing-s);
+}
+
+.prix {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-light);
+  font-size: var(--text-step-1);
+  line-height: var(--leading-text);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* --------------------------------------------- TAILLE PAR MESURES
+   Pas une rangée de pastilles : la vérité de chaque taille (ses mesures en centimètres, son
+   état à l'atelier). Choisir sa taille, c'est choisir ses mesures. */
+.mesures {
+  display: grid;
+  gap: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.mesures legend {
+  padding: 0;
+  margin-bottom: var(--spacing-2xs);
+}
+.mesuresTete,
+.mesure {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) repeat(3, minmax(0, 1fr));
+  grid-template-areas:
+    "taille poitrine tour hanches"
+    "etat etat etat etat";
+  column-gap: var(--spacing-xs);
+  align-items: baseline;
+}
+.mesuresTete {
+  grid-template-areas: "taille poitrine tour hanches";
+  padding-bottom: var(--spacing-2xs);
+  color: var(--fg-soft);
+}
+@media (min-width: 30rem) {
+  .mesuresTete,
+  .mesure {
+    grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, 0.8fr)) minmax(0, 1.8fr);
+    grid-template-areas: "taille poitrine tour hanches etat";
+  }
+  .mesure {
+    align-items: center;
+  }
+}
+.mesuresNote {
+  color: var(--fg-soft);
+}
+.mesure {
+  position: relative;
+  min-height: var(--spacing-touch);
+  padding-block: var(--spacing-2xs);
+  border-top: var(--fil) solid var(--line);
+  cursor: pointer;
+  font-variant-numeric: lining-nums tabular-nums;
+  transition:
+    background-color var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+.mesure:last-of-type {
+  border-bottom: var(--fil) solid var(--line);
+}
+.mesureCellule {
+  padding-inline: var(--spacing-2xs);
+}
+.mesureTaille {
+  grid-area: taille;
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacing-2xs);
+}
+.mesureTaille b {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-step-1);
+}
+.mesurePoitrine {
+  grid-area: poitrine;
+}
+.mesureTour {
+  grid-area: tour;
+}
+.mesureHanches {
+  grid-area: hanches;
+}
+.mesureEtat {
+  grid-area: etat;
+  color: var(--fg-soft);
+}
+@media (min-width: 30rem) {
+  .mesureEtat {
+    text-align: right;
+  }
+}
+.mesure[data-epuisee="true"] .mesureTaille {
+  text-decoration: line-through;
+  text-decoration-thickness: var(--fil);
+}
+@media (hover: hover) {
+  .mesure:hover {
+    background: color-mix(in oklab, var(--fg) 6%, var(--bg));
+  }
+}
+/* la taille choisie s'inverse : noir sur blanc cassé devient blanc cassé sur noir */
+.mesure[data-choisie="true"],
+.mesure[data-choisie="true"]:hover {
+  background: var(--fg);
+  color: var(--bg);
+}
+.mesure[data-choisie="true"] .mesureEtat {
+  color: inherit;
+}
+.mesure:has(input:focus-visible) {
+  outline: var(--fil) solid var(--fg);
+  outline-offset: var(--spacing-3xs);
+}
+.mesure input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.achatStatut {
+  min-height: var(--spacing-m);
+}
+.achatActions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-s);
+}
+
+/* barre d'achat : toujours à portée quand le bouton principal n'est pas à l'écran */
+.barre {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-sticky);
+  background: var(--bg);
+  color: var(--fg);
+  border-top: var(--fil) solid var(--line);
+  padding-block: var(--spacing-xs) calc(var(--spacing-xs) + env(safe-area-inset-bottom));
+  visibility: hidden;
+  transform: translateY(100%);
+  transition:
+    transform var(--dur) var(--ease),
+    visibility 0s linear var(--dur);
+}
+.barre[data-visible="true"] {
+  visibility: visible;
+  transform: none;
+  transition: transform var(--dur) var(--ease);
+}
+.barre::before {
+  content: "";
+  position: absolute;
+  left: var(--spacing-gutter);
+  top: 0;
+  width: var(--picot);
+  height: var(--picot);
+  border-radius: var(--radius-full);
+  background: var(--fg);
+  transform: translate(-50%, -50%);
+}
+.barreGrille {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-s);
+}
+.barrePiece {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+.barreNom {
+  font-family: var(--font-display);
+  font-size: var(--text-step-1);
+  line-height: var(--leading-snug);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.barreActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+}
+.barreBouton {
+  width: auto;
+  white-space: nowrap;
+}
+@media (max-width: 29.99rem) {
+  .barreTaille {
+    display: none;
+  }
+}
+
+/* ============================================================= PATRON
+   Le croquis de la pièce, au trait, annoté comme une feuille de patronage ; les notes sont
+   reliées au dessin par des brides (les barrettes qui relient les motifs d'une dentelle). */
+.patronGrille {
+  row-gap: var(--space-block);
+}
+.patronCroquis {
+  grid-column: 1 / -1;
+}
+.patronTexte {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-title);
+  align-content: start;
+  justify-items: start;
+}
+.prose {
+  display: grid;
+  gap: var(--space-paragraph);
+}
+@media (min-width: 64rem) {
+  .patronCroquis {
+    grid-column: 1 / span 6;
+  }
+  .patronTexte {
+    grid-column: 8 / span 5;
+  }
+}
+.croquis {
+  position: relative;
+  aspect-ratio: 36 / 56;
+  max-height: calc(100svh - var(--spacing-xl));
+  margin-inline: auto;
+}
+.croquis svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.croquisTrait {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--fil);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.croquisDentelle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--fil);
+  vector-effect: non-scaling-stroke;
+  opacity: 0.55;
+}
+.croquisBride {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--fil);
+  vector-effect: non-scaling-stroke;
+  opacity: 0.7;
+}
+.croquisPicot {
+  fill: currentColor;
+}
+.croquisNote {
+  position: absolute;
+  width: 24%;
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-light);
+  font-size: var(--text-step--1);
+  line-height: var(--leading-text);
+  text-align: left;
+  transform: translateY(-50%);
+}
+.croquisNote[data-cote="gauche"] {
+  text-align: right;
+}
+.croquisNoteTitre {
+  display: block;
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-step--2);
+  letter-spacing: var(--tracking-label);
+  line-height: var(--leading-label);
+  text-transform: uppercase;
+}
+@media (max-width: 47.99rem) {
+  .croquisNote {
+    font-size: var(--text-step--2);
+  }
+}
+.mesureGeante {
+  display: grid;
+  gap: var(--spacing-2xs);
+}
+.mesureGeanteValeur {
+  font-family: var(--font-display);
+  font-size: var(--text-step-6);
+  line-height: var(--lh-step-6);
+  letter-spacing: var(--tracking-display);
+  white-space: nowrap;
+}
+.mesureGeanteValeur small {
+  font-size: var(--text-step-3);
+}
+
+/* ============================================================ MATIÈRE */
+.matiereGrille {
+  row-gap: var(--space-block);
+  align-items: center;
+}
+.matiereLoupe {
+  grid-column: 1 / -1;
+}
+.matiereTexte {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-title);
+  justify-items: start;
+}
+@media (min-width: 48rem) {
+  .matiereLoupe {
+    grid-column: 2 / span 10;
+  }
+}
+@media (min-width: 64rem) {
+  .matiereTexte {
+    grid-column: 1 / span 5;
+    grid-row: 1;
+  }
+  .matiereLoupe {
+    grid-column: 8 / span 5;
+    grid-row: 1;
+  }
+}
+.composition {
+  display: grid;
+  gap: 0;
+  width: 100%;
+  max-width: var(--measure);
+}
+.composition div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--spacing-s);
+  padding-block: var(--spacing-2xs);
+  border-top: var(--fil) solid var(--line);
+}
+.composition div:last-child {
+  border-bottom: var(--fil) solid var(--line);
+}
+.composition dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================= CARNET
+   Le pratique, lisible sans clic mais au second plan : une fiche technique, intitulés en
+   petites capitales dans la marge, texte à la mesure de la Maison. */
+.carnet {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0;
+}
+@media (min-width: 64rem) {
+  .carnet {
+    grid-column: 1 / span 10;
+  }
+}
+.carnetTitre {
+  margin-bottom: var(--space-title);
+}
+.carnetLigne {
+  display: grid;
+  gap: var(--spacing-xs);
+  padding-block: var(--spacing-m);
+  border-top: var(--fil) solid var(--line);
+}
+@media (min-width: 64rem) {
+  .carnetLigne {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    column-gap: var(--spacing-gutter);
+  }
+  .carnetLigne > h3 {
+    grid-column: 1 / span 3;
+  }
+  .carnetLigne > div {
+    grid-column: 4 / span 7;
+  }
+}
+.carnetLigne > div {
+  display: grid;
+  gap: var(--space-paragraph);
+}
+.carnetLigne ul {
+  display: grid;
+  gap: var(--spacing-2xs);
+  max-width: var(--measure);
+}
+.carnetLigne li {
+  position: relative;
+  padding-left: var(--spacing-m);
+}
+.carnetLigne li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(var(--leading-text) * 0.5em);
+  width: var(--picot);
+  height: var(--picot);
+  border-radius: var(--radius-full);
+  background: var(--fg);
+  transform: translateY(-50%);
+}
+
+/* ========================================================== SILHOUETTE */
+.silhouetteGrille {
+  row-gap: var(--space-block);
+  align-items: end;
+}
+.silhouetteImage {
+  grid-column: 1 / span 10;
+}
+.silhouetteTexte {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-title);
+  justify-items: start;
+}
+@media (min-width: 48rem) {
+  .silhouetteImage {
+    grid-column: 1 / span 5;
+  }
+  .silhouetteTexte {
+    grid-column: 6 / span 7;
+  }
+}
+@media (min-width: 64rem) {
+  .silhouetteImage {
+    grid-column: 2 / span 4;
+  }
+  .silhouetteTexte {
+    grid-column: 7 / span 5;
+  }
+}
+.silhouettePiece {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+  width: 100%;
+  padding-block: var(--spacing-xs);
+  border-block: var(--fil) solid var(--line);
+  color: inherit;
+}
+
+/* =============================================================== CHUTE
+   Le détail inattendu de la fiche : une chute de dentelle épinglée en bas de page. */
+.chute {
+  grid-column: 1 / -1;
+  display: grid;
+  justify-items: end;
+  margin-top: var(--space-block);
+}
+.chuteFigure {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-xs);
+  width: calc(var(--spacing-3xl) * 2);
+}
+@media (min-width: 64rem) {
+  .chute {
+    grid-column: 9 / span 4;
+  }
+}
+.chuteDefs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.chuteMedia {
+  position: relative;
+  aspect-ratio: 1;
+}
+.chuteMedia img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  clip-path: url(#da-dentelle-chute);
+}
+.chuteMedia svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.chuteEpingle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--fil);
+  vector-effect: non-scaling-stroke;
+}
+.chuteTete {
+  fill: currentColor;
+}
+
+
+/* ============================================ MODE NUIT ET ANIMATIONS APAISÉES */
+html[data-mode="dark"] .curseur {
+  color: var(--color-ivory);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pique::after,
+  .pique::before,
+  .piqueLettre {
+    animation: none;
+  }
+  .ajour {
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+  .vignetteVideo {
+    display: none;
+  }
+  .curseur {
+    display: none;
+  }
+}
+html[data-motion="reduce"] .pique::after,
+html[data-motion="reduce"] .pique::before,
+html[data-motion="reduce"] .piqueLettre {
+  animation: none;
+}
+html[data-motion="reduce"] .ajour {
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+html[data-motion="reduce"] .vignetteVideo,
+html[data-motion="reduce"] .curseur {
+  display: none;
+}
+
+/* nombres composés et groupes de mots qui ne se coupent pas (« vingt-neuf ») */
+.insecable {
+  white-space: nowrap;
+}
