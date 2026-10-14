@@ -46,3 +46,36 @@
 | 13/10 | Tests de bout en bout sur un serveur et un fichier de données séparés (`STORE_FILE`) | Ne pas perturber le serveur de développement des équipes. |
 | 13/10 | Sous la limite d'utilisation, les équipes travaillent une par une ; les agents interrompus sont relancés à la levée | Consigne du cahier des charges. |
 | 13/10 | Le choix de la direction fusionnée est fait par le chef de projet, sans attendre de validation | « Comme je ne valide pas, choisis toi-même la version fusionnée et documente le choix. » |
+
+## Écriture et édition
+
+| Date | Décision | Justification |
+| --- | --- | --- |
+| 14/10 | Règles d'écriture de la créatrice réunies dans un seul module (`lib/writing/rules.ts`), partagé par le script `npm run audit:ecriture` (CI et maintenance), l'éditeur visuel et les agents | Une seule définition de ce qui est interdit ; la CI échoue sur tiret, formulation interdite, point d'exclamation, emoji, apostrophe droite et typographie (corrigeable par `--fix`). |
+| 14/10 | Espace insécable ordinaire (U+00A0) devant ; : ! ? » et dans les guillemets | L'espace fine (U+202F) n'existe ni dans Instrument Serif ni dans Inter Tight : elle s'afficherait dans une police de secours. |
+| 14/10 | Textes des agents et de l'assistante : typographie et tirets corrigés automatiquement, formulations interdites signalées ; une publication automatique qui en contient devient une proposition à valider | La créatrice garde la main sur tout ce qui part en ligne sous son nom. |
+| 14/10 | Textes de la créatrice dans l'éditeur : signalés avec une suggestion, jamais bloqués ; un texte gardé malgré un signalement est inscrit dans `content/ecriture-acceptes.json` et ne bloque pas la CI | Consigne : « signale les problèmes avec une suggestion de correction, sans bloquer la créatrice ». |
+| 14/10 | **Éditeur visuel maison « Édition » plutôt que TinaCMS** (comparaison ci-dessous) | Il remplit tous les critères demandés sans compte extérieur ni abonnement, et sans ralentir le site. |
+
+### Pourquoi « Édition » plutôt que TinaCMS
+
+Le cahier des charges proposait TinaCMS, en autorisant un autre outil s'il répond mieux à tous les
+critères sans bloquer le développement. Comparaison faite le 14/10 :
+
+| Critère demandé | TinaCMS | Édition (maison) |
+| --- | --- | --- |
+| Cliquer sur un texte de la page pour le modifier sur place | Clic qui ouvre le champ dans un panneau latéral ; la page doit passer en composants client (`useTina`) | Texte modifié directement dans la page, composants serveur conservés (aucun poids ajouté pour les visiteuses) |
+| Double authentification, comptes autorisés, blocage, alerte à chaque connexion | Comptes Tina Cloud, hors de notre double authentification ; sinon serveur auto-hébergé à écrire | Même accès que l'Atelier : comptes autorisés, code à six chiffres, blocage, alerte e-mail |
+| Brouillons, publication programmée, historique et retour en un clic | Brouillons et flux éditorial réservés aux offres payantes ; pas de programmation native | Inclus : brouillon, programmation, historique de chaque page, retour en un clic |
+| Aperçu téléphone, tablette, ordinateur | Non natif | Inclus |
+| Garde-fous de la direction artistique (blocs, polices, couleurs, longueurs) | Possible par la configuration des champs | Natif : seuls les blocs du design system existent |
+| Recadrage, déclinaisons, point focal, texte alternatif automatique | Médiathèque simple, sans point focal | Inclus (sharp, point focal, texte alternatif proposé puis modifiable) |
+| Contrôle d'écriture non bloquant | À développer en extension | Même module que la CI, en direct pendant la saisie |
+| Version anglaise à côté du français | Documents séparés par langue | Champ anglais affiché à côté du français |
+| E-mails modifiables avec les mêmes blocs | Hors périmètre | Même éditeur, blocs d'e-mail dédiés |
+| Fonctionne en local sans compte, contenu dans Git | Oui (mode local) | Oui : `content/site/<langue>/*.json`, écrits directement en local |
+| En ligne | Tina Cloud (compte, abonnement selon l'usage) ou base et authentification à héberger | Stockage déjà prévu (Upstash) ; recopie dans Git par l'API GitHub si on la branche |
+
+Les contenus restent des fichiers JSON lisibles dans Git : un passage futur à un CMS fondé sur Git
+(TinaCMS compris) resterait possible sans réécrire les textes.
+

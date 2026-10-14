@@ -61,7 +61,7 @@ export const AGENTS: AgentInfo[] = [
   {
     id: "rapport",
     name: "Rapport",
-    mission: "Chaque lundi, vous envoie un résumé clair : ventes, pièces les plus vues, paniers abandonnés, recommandations.",
+    mission: "Chaque lundi, vous envoie un résumé clair : ventes, pièces les plus vues, paniers abandonnés, recommandations.",
     autonomy: "Agit seul.",
     schedule: "Chaque lundi à 8 h",
     cron: "0 6 * * 1",
@@ -81,6 +81,6 @@ export async function runAgent(id: string, opts: { origin: string; trigger: Agen
     case "rapport":
       return runRapportAgent(opts.trigger);
     default:
-      throw new Error(`Agent inconnu ou non planifiable : ${id}`);
+      throw new Error(`Agent inconnu ou non planifiable : ${id}`);
   }
 }

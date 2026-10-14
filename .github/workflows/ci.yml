@@ -1,5 +1,5 @@
 # Intégration continue : rien n'est fusionné ni déployé sans un passage au vert.
-# Lint, types, homogénéité du design system, recherche de clés secrètes, vulnérabilités,
+# Lint, types, homogénéité du design system, contrôle d'écriture, recherche de clés secrètes, vulnérabilités,
 # tests unitaires et de la base clientes, compilation, puis parcours complets (Playwright).
 name: Intégration continue
 
@@ -35,6 +35,8 @@ jobs:
       - run: npm run typecheck
       - name: Homogénéité du design system
         run: npm run audit:tokens
+      - name: Écriture de la créatrice (tirets, formulations interdites, typographie)
+        run: npm run audit:ecriture
       - name: Tests unitaires (garde-fous des agents)
         run: npm run test:unit
       - name: Base clientes et sécurité par ligne
@@ -57,6 +59,11 @@ jobs:
       - run: npm run build
       - name: Parcours complets (bureau et mobile, mode démonstration)
         run: npx playwright test
+      - name: Écriture des pages rendues
+        run: |
+          npx next start -p 3300 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:3300 && break; sleep 1; done
+          npm run audit:ecriture -- --site http://localhost:3300
       - name: Rapport en cas d'échec
         if: failure()
         uses: actions/upload-artifact@v4

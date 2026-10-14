@@ -38,7 +38,7 @@ export async function runCommandesStockAgent(trigger: AgentRun["trigger"] = "cro
         const p = products.find((x) => x.handle === l.handle);
         const v = p?.variants.find((x) => x.size === l.size);
         if (!p || !v) continue;
-        const r = await rec.act("update_stock", { handle: p.handle, size: v.size, quantity: v.quantity + l.quantity }, { summary: `Retour ${o.number} : ${p.title} (${v.size}) remise en stock`, rationale: "Pièce retournée, à vérifier à réception" });
+        const r = await rec.act("update_stock", { handle: p.handle, size: v.size, quantity: v.quantity + l.quantity }, { summary: `Retour ${o.number} : ${p.title} (${v.size}) remise en stock`, rationale: "Pièce retournée, à vérifier à réception" });
         if (r.status === "done") v.quantity += l.quantity;
       }
       memory.restocked.push(o.id);
@@ -70,7 +70,7 @@ export async function runCommandesStockAgent(trigger: AgentRun["trigger"] = "cro
       if (!p) continue;
       const available = g.size ? p.variants.some((v) => v.size === g.size && v.quantity > 0) : p.variants.some((v) => v.quantity > 0);
       if (available) {
-        await rec.act("notify_waitlist", { handle: p.handle, size: (g.size as "XS" | "S" | "M" | "L" | "XL" | "TU" | null) ?? null }, { summary: `Prévenir la liste d’attente : ${p.title}${g.size ? ` (${g.size})` : ""}`, rationale: "La pièce est de nouveau disponible" });
+        await rec.act("notify_waitlist", { handle: p.handle, size: (g.size as "XS" | "S" | "M" | "L" | "XL" | "TU" | null) ?? null }, { summary: `Prévenir la liste d’attente : ${p.title}${g.size ? ` (${g.size})` : ""}`, rationale: "La pièce est de nouveau disponible" });
       }
     }
 
@@ -82,7 +82,7 @@ export async function runCommandesStockAgent(trigger: AgentRun["trigger"] = "cro
       let reason: string | null = null;
       if (o.status === "blocked") reason = "Commande en attente (paiement à vérifier ou adresse incomplète).";
       else if (o.status === "paid" && age > 5) reason = `Payée depuis ${Math.floor(age)} jours et toujours pas expédiée.`;
-      else if (o.status === "in_production" && lead && age > lead * 7 + 7) reason = `Précommande en fabrication depuis ${Math.floor(age)} jours (délai annoncé : ${lead} semaines).`;
+      else if (o.status === "in_production" && lead && age > lead * 7 + 7) reason = `Précommande en fabrication depuis ${Math.floor(age)} jours (délai annoncé : ${lead} semaines).`;
       else if (o.status === "pending" && age > 2) reason = "Paiement en attente depuis plus de 48 heures.";
       if (reason) {
         await rec.act("flag_order", { orderId: o.id, reason }, { summary: `Commande ${o.number} à vérifier`, rationale: reason });
@@ -93,11 +93,11 @@ export async function runCommandesStockAgent(trigger: AgentRun["trigger"] = "cro
 
     // 5. Alerte de synthèse à l'atelier
     if (findings.length) {
-      let subject = `Atelier : ${findings.length} point(s) à regarder`;
+      let subject = `Atelier : ${findings.length} point(s) à regarder`;
       let body = findings.map((f) => `— ${f}`).join("\n\n");
       if (aiEnabled) {
         const msg = await generateStructured({
-          instructions: "Mission : agent Commandes et stock. Rédigez pour la créatrice une alerte brève, claire et calme (pas de panique, pas de jargon) : objet de 8 mots maximum, puis les points classés du plus urgent au moins urgent, chacun avec l'action conseillée.",
+          instructions: "Mission : agent Commandes et stock. Rédigez pour la créatrice une alerte brève, claire et calme (pas de panique, pas de jargon) : objet de 8 mots maximum, puis les points classés du plus urgent au moins urgent, chacun avec l’action conseillée.",
           content: `Constats du jour :\n${findings.map((f) => `- ${f}`).join("\n")}`,
           schema: z.object({ subject: z.string(), body: z.string().describe("Paragraphes séparés par une ligne vide") }),
           effort: "low",

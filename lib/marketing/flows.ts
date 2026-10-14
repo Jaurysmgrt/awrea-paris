@@ -37,12 +37,12 @@ export const flowCatalog: { id: FlowId; label: string; trigger: string; conditio
   { id: "expedition", label: "Expédition", trigger: "Commande remise au transporteur", condition: "Lien de suivi du colis" },
   { id: "livraison", label: "Livraison", trigger: "Commande livrée", condition: "Certificat, retours et échanges" },
   { id: "bienvenue", label: "Bienvenue", trigger: "Création du compte ou inscription aux lettres", condition: "Envoi immédiat" },
-  { id: "panier", label: "Panier abandonné", trigger: "Panier inchangé depuis 4 heures", condition: "Personnalisation et lettres acceptées ; une seule relance" },
+  { id: "panier", label: "Panier abandonné", trigger: "Panier inchangé depuis 4 heures", condition: "Personnalisation et lettres acceptées ; une seule relance" },
   { id: "apres-achat", label: "Après l’achat", trigger: "Deux jours après la livraison", condition: "Merci et conseils d’entretien de chaque pièce" },
   { id: "avis", label: "Demande d’avis", trigger: "14 jours après la livraison", condition: "Avis vérifié, une seule demande" },
   { id: "retour-stock", label: "Retour en stock", trigger: "Pièce de nouveau disponible", condition: "Inscription à la liste d’attente (agent Commandes et stock)" },
   { id: "anniversaire", label: "Anniversaire", trigger: "Le jour de l’anniversaire", condition: "Date renseignée et lettres acceptées" },
-  { id: "reactivation", label: "Réactivation", trigger: "Six mois sans commande ni visite", condition: "Lettres acceptées ; une fois par an au plus" },
+  { id: "reactivation", label: "Réactivation", trigger: "Six mois sans commande ni visite", condition: "Lettres acceptées ; une fois par an au plus" },
 ];
 
 const SIGNATURE = "Avec toute notre attention, l’atelier Awrea Paris.";
@@ -86,7 +86,7 @@ export async function onNewsletterSignup(email: string) {
       title: "Les lettres de l’atelier",
       paragraphs: [
         "Bonjour,",
-        "Merci de nous rejoindre. Quelques fois par saison, nous vous écrirons : une nouvelle pièce qui sort de l’atelier, les coulisses d’un shooting, l’ouverture d’une vente.",
+        "Merci de nous rejoindre. Quelques fois par saison, nous vous écrirons : une nouvelle pièce qui sort de l’atelier, les coulisses d’un shooting, l’ouverture d’une vente.",
         "Jamais d’urgence, jamais de bruit. Seulement ce qui mérite d’être raconté.",
       ],
       cta: { label: "Entrer dans l’atelier", href: absolute("/atelier") },
@@ -111,7 +111,7 @@ export async function onOrderShipped(order: Order) {
         order.shipping.relay
           ? `Elle vous attendra au point relais ${order.shipping.relay.name} (${order.shipping.relay.address}).`
           : url
-            ? `Vous pouvez suivre son voyage avec ${order.shipping.carrier} : numéro ${order.shipping.tracking}.`
+            ? `Vous pouvez suivre son voyage avec ${order.shipping.carrier} : numéro ${order.shipping.tracking}.`
             : "Vous recevrez le numéro de suivi du transporteur dès sa prise en charge.",
       ],
       cta: url ? { label: "Suivre le colis", href: url } : { label: "Suivre ma commande", href: absolute(orderLink(order)) },
@@ -150,7 +150,7 @@ async function sendAfterPurchase(order: Order) {
       title: "Prendre soin de votre pièce",
       paragraphs: [
         greet(order.name.split(" ")[0]),
-        "Votre pièce est arrivée chez vous. Elle a été façonnée à la main, fil après fil : quelques gestes simples lui permettront de traverser les années.",
+        "Votre pièce est arrivée chez vous. Elle a été façonnée à la main, fil après fil : quelques gestes simples lui permettront de traverser les années.",
         ...care,
         "Rangez-la à plat ou sur un cintre large, à l’abri de la lumière directe. Son certificat d’authenticité vous attend dans votre compte.",
       ],
@@ -201,7 +201,7 @@ export async function runDailyFlows(now = new Date()): Promise<DailyReport> {
         title: "Votre sélection vous attend",
         paragraphs: [
           greet(c.customers.first_name),
-          "Vous avez laissé quelques pièces dans votre panier. Elles vous attendent, sans aucune obligation : nos séries sont courtes, et nous préférons vous le dire simplement.",
+          "Vous avez laissé quelques pièces dans votre panier. Elles vous attendent, sans aucune obligation : nos séries sont courtes, et nous préférons vous le dire simplement.",
         ],
         items: c.lines.map((l) => ({ title: l.title, meta: `Taille ${l.size}`, price: l.unitPrice })),
         cta: { label: "Retrouver mon panier", href: absolute("/boutique") },
@@ -221,7 +221,7 @@ export async function runDailyFlows(now = new Date()): Promise<DailyReport> {
         const mail = brandEmail({
           preheader: "Un mot de l’atelier, pour votre anniversaire.",
           title: "Joyeux anniversaire",
-          paragraphs: [greet(b.first_name), "Toute l’équipe de l’atelier vous souhaite un très bel anniversaire. Que cette nouvelle année vous ressemble : lumineuse, juste, pleine de beaux gestes."],
+          paragraphs: [greet(b.first_name), "Toute l’équipe de l’atelier vous souhaite un très bel anniversaire. Que cette nouvelle année vous ressemble : lumineuse, juste, pleine de beaux gestes."],
           cta: { label: "Passer à l’atelier", href: absolute("/contact#rendez-vous") },
           signature: SIGNATURE,
         });
@@ -251,7 +251,7 @@ export async function runDailyFlows(now = new Date()): Promise<DailyReport> {
           ],
           cta: { label: "Voir les nouvelles pièces", href: absolute("/boutique") },
           signature: SIGNATURE,
-          footnote: "Vous ne souhaitez plus recevoir nos lettres ? Un clic sur le lien de désinscription suffit.",
+          footnote: "Vous ne souhaitez plus recevoir nos lettres ? Un clic sur le lien de désinscription suffit.",
         });
         await sendFlowEmail({ to: d.email, subject: "Des nouvelles de l’atelier", ...mail, flow: "reactivation" });
       });
@@ -268,7 +268,7 @@ export const contactEmail = identity.email;
 export async function sendReviewRequest(o: Order) {
   const mail = brandEmail({
     preheader: "Votre regard compte pour l’atelier.",
-    title: "Comment la portez-vous ?",
+    title: "Comment la portez-vous ?",
     paragraphs: [
       greet(o.name.split(" ")[0]),
       "Votre pièce vous accompagne depuis quelques jours. Nous aimerions savoir comment elle tombe, ce que vous ressentez en la portant, et si la taille vous a semblé juste.",
@@ -276,7 +276,7 @@ export async function sendReviewRequest(o: Order) {
     ],
     cta: { label: "Donner mon avis", href: absolute(`/avis/${encodeURIComponent(o.number)}?t=${encodeURIComponent(reviewToken(o))}`) },
     signature: SIGNATURE,
-    footnote: "Vous ne souhaitez plus recevoir de demande d’avis ? Répondez simplement à ce message.",
+    footnote: "Vous ne souhaitez plus recevoir de demande d’avis ? Répondez simplement à ce message.",
   });
-  await sendFlowEmail({ to: o.email, subject: "Comment la portez-vous ?", ...mail, flow: "avis" });
+  await sendFlowEmail({ to: o.email, subject: "Comment la portez-vous ?", ...mail, flow: "avis" });
 }

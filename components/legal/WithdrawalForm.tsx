@@ -24,7 +24,7 @@ export function WithdrawalForm() {
         <p className="t-label">Rétractation enregistrée</p>
         <p>
           Votre demande de rétractation a bien été reçue le {new Date(ack.at).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" })} (référence {ack.reference}). Un
-          accusé de réception vient de vous être envoyé par e-mail ; l’atelier vous adresse ensuite l’étiquette de retour.
+          accusé de réception vient de vous être envoyé par e-mail ; l’atelier vous adresse ensuite l’étiquette de retour.
         </p>
       </div>
     );
@@ -33,7 +33,7 @@ export function WithdrawalForm() {
   if (step === "confirm") {
     return (
       <div className="stack-m withdrawal">
-        <p className="t-body">Vérifiez votre demande avant de la confirmer :</p>
+        <p className="t-body">Vérifiez votre demande avant de la confirmer :</p>
         <dl className="withdrawal__summary">
           <div>
             <dt className="t-label">Nom</dt>
@@ -120,7 +120,7 @@ export function WithdrawalForm() {
         {field("order", "Numéro de commande", { required: true, placeholder: "AW-1031", maxLength: 40 })}
         {field("receivedAt", "Date de réception (facultatif)", { type: "date" })}
       </div>
-      {field("pieces", "Pièces concernées (facultatif : toutes par défaut)", { maxLength: 300 })}
+      {field("pieces", "Pièces concernées (facultatif : toutes par défaut)", { maxLength: 300 })}
       <Turnstile action="retractation" onToken={setToken} />
       <div>
         <button type="submit" className="btn btn--solid">

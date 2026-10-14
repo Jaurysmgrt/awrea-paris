@@ -64,7 +64,7 @@ export function assistantTools(ctx: AssistantContext) {
     description:
       "Cherche des pièces dans le catalogue Awrea Paris. À utiliser dès que la cliente évoque une pièce, une catégorie, une matière, une occasion, un budget ou une taille. Renvoie la liste des pièces correspondantes avec prix, édition, disponibilité et lien.",
     inputSchema: z.object({
-      query: z.string().max(120).optional().describe("Mots-clés libres : matière, occasion, nom de pièce (ex. « dentelle », « dîner », « Odessa »)"),
+      query: z.string().max(120).optional().describe("Mots-clés libres : matière, occasion, nom de pièce (ex. « dentelle », « dîner », « Odessa »)"),
       category: z.enum(["robe", "body", "top", "jupe", "accessoire"]).optional(),
       size: z.enum(["XS", "S", "M", "L", "XL"]).optional().describe("Ne garder que les pièces disponibles ou en précommande dans cette taille"),
       max_price_eur: z.number().positive().optional(),
@@ -94,11 +94,11 @@ export function assistantTools(ctx: AssistantContext) {
   const getPiece = betaZodTool({
     name: "get_piece",
     description:
-      "Donne la fiche complète d'une pièce : description, matières, entretien, coupe, taille portée par le mannequin, disponibilité par taille, délai de fabrication, numéro d'édition. À utiliser avant tout conseil précis sur une pièce.",
+      "Donne la fiche complète d’une pièce : description, matières, entretien, coupe, taille portée par le mannequin, disponibilité par taille, délai de fabrication, numéro d’édition. À utiliser avant tout conseil précis sur une pièce.",
     inputSchema: z.object({ handle: z.string().min(1).max(120).describe("Identifiant de la pièce, ex. robe-odessa") }),
     run: async ({ handle }) => {
       const p = await getProduct(handle);
-      if (!p) return JSON.stringify({ erreur: "Pièce introuvable. Utilisez search_pieces pour trouver l'identifiant exact." });
+      if (!p) return JSON.stringify({ erreur: "Pièce introuvable. Utilisez search_pieces pour trouver l’identifiant exact." });
       ctx.pieces.set(p.handle, card(p));
       return JSON.stringify({
         ...summary(p),
@@ -111,7 +111,7 @@ export function assistantTools(ctx: AssistantContext) {
         mannequin: p.model,
         tailles: p.variants.map((v) => ({ taille: v.size, statut: availabilityLabel(variantAvailability(p, v), p.leadTimeWeeks) })),
         delai_fabrication_semaines: p.leadTimeWeeks ?? null,
-        fait_main: "Fait main à Paris, dans l'atelier de la créatrice",
+        fait_main: "Fait main à Paris, dans l’atelier de la créatrice",
       });
     },
   });
@@ -146,7 +146,7 @@ export function assistantTools(ctx: AssistantContext) {
           .filter((r) => r.zone === zone)
           .map((r) => ({ mode: r.label, prix: r.price ? formatPrice(r.price) : "offert", offert_des: r.freeAboveThreshold ? formatPrice(shop.freeShippingThreshold) : null, delai: r.delay })),
         expedition: `Pièces disponibles expédiées sous ${shop.dispatchDays}.`,
-        douane: zone === "WORLD" ? "Droits et taxes d'importation à la charge du destinataire." : null,
+        douane: zone === "WORLD" ? "Droits et taxes d’importation à la charge du destinataire." : null,
       });
     },
   });
@@ -154,7 +154,7 @@ export function assistantTools(ctx: AssistantContext) {
   const trackOrder = betaZodTool({
     name: "track_order",
     description:
-      "Donne le statut et le lien de suivi d'une commande. Exige le numéro de commande (AW-xxxx) ET l'adresse e-mail utilisée lors de la commande : ne jamais donner d'information si l'e-mail ne correspond pas.",
+      "Donne le statut et le lien de suivi d’une commande. Exige le numéro de commande (AW-xxxx) ET l’adresse e-mail utilisée lors de la commande : ne jamais donner d’information si l’e-mail ne correspond pas.",
     inputSchema: z.object({ order_number: z.string().min(3).max(20), email: z.email() }),
     run: async ({ order_number, email }) => {
       const o = await getOrder(order_number);
@@ -176,12 +176,12 @@ export function assistantTools(ctx: AssistantContext) {
   const handoff = betaZodTool({
     name: "handoff_to_atelier",
     description:
-      "Transmet la conversation à l'atelier pour une réponse humaine de la créatrice. À utiliser quand la cliente le demande, pour une réclamation, un remboursement, un retour, une demande de sur-mesure ou de rendez-vous, une commande bloquée, un sujet sensible, ou toute question à laquelle vous ne pouvez pas répondre avec certitude. Demandez d'abord l'adresse e-mail de la cliente.",
+      "Transmet la conversation à l’atelier pour une réponse humaine de la créatrice. À utiliser quand la cliente le demande, pour une réclamation, un remboursement, un retour, une demande de sur-mesure ou de rendez-vous, une commande bloquée, un sujet sensible, ou toute question à laquelle vous ne pouvez pas répondre avec certitude. Demandez d’abord l’adresse e-mail de la cliente.",
     inputSchema: z.object({
       email: z.email(),
       name: z.string().max(120).optional(),
       reason: z.enum(["demande_cliente", "reclamation", "retour_remboursement", "sur_mesure_rendez_vous", "commande", "question_sans_reponse", "autre"]),
-      summary: z.string().min(10).max(1500).describe("Résumé factuel de la demande, en français, pour l'atelier"),
+      summary: z.string().min(10).max(1500).describe("Résumé factuel de la demande, en français, pour l’atelier"),
     }),
     run: async ({ email, name, reason, summary: text }) => {
       const msg: InboxMessage = {
@@ -190,7 +190,7 @@ export function assistantTools(ctx: AssistantContext) {
         channel: "assistant",
         name: name ?? "",
         email,
-        subject: `Transmis par l'assistante — ${reason.replace(/_/g, " ")}`,
+        subject: `Transmis par l’assistante — ${reason.replace(/_/g, " ")}`,
         message: text,
         status: "escalated",
       };
@@ -199,7 +199,7 @@ export function assistantTools(ctx: AssistantContext) {
         agent: "service-client",
         kind: "transmission",
         status: "info",
-        summary: `L'assistante a transmis une demande (${reason.replace(/_/g, " ")}) de ${email} à l'atelier`,
+        summary: `L’assistante a transmis une demande (${reason.replace(/_/g, " ")}) de ${email} à l’atelier`,
         target: { type: "message", id: msg.id, label: email, href: "/gestion#messages" },
       });
       ctx.handoff = { email };

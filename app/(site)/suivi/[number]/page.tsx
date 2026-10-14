@@ -152,7 +152,7 @@ export default async function CommandeSuivie({ params, searchParams }: { params:
             {eligibility.eligible ? (
               <>
                 <p className="t-body">
-                  Jusqu’au {formatDate(returnDeadline(order).toISOString())}, une pièce non portée peut revenir à l’atelier : remboursement, ou une autre taille. Le retour est offert depuis la France.
+                  Jusqu’au {formatDate(returnDeadline(order).toISOString())}, une pièce non portée peut revenir à l’atelier : remboursement, ou une autre taille. Le retour est offert depuis la France.
                 </p>
                 <ReturnForm number={order.number} token={t} lines={lines} returnDays={shop.returnDays} />
               </>

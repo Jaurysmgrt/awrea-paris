@@ -62,15 +62,15 @@ export function recommendSize(p: Product, m: Measures): FitAdvice | null {
   const offered = p.variants.some((v) => v.size === size);
   const why = between
     ? kind === "lacee"
-      ? `Vos mesures sont entre le ${between[0]} et le ${between[1]} : la pièce est lacée et s'ajuste, nous conseillons le ${size}.`
+      ? `Vos mesures sont entre le ${between[0]} et le ${between[1]} : la pièce est lacée et s’ajuste, nous conseillons le ${size}.`
       : kind === "satin"
-        ? `Vos mesures sont entre le ${between[0]} et le ${between[1]} : le satin ne cède pas, nous conseillons le ${size}.`
-        : `Vos mesures sont entre le ${between[0]} et le ${between[1]} : pour un tombé aisé, nous conseillons le ${size}.`
+        ? `Vos mesures sont entre le ${between[0]} et le ${between[1]} : le satin ne cède pas, nous conseillons le ${size}.`
+        : `Vos mesures sont entre le ${between[0]} et le ${between[1]} : pour un tombé aisé, nous conseillons le ${size}.`
     : `Nous vous conseillons le ${size}.`;
   const message = beyond
-    ? "Vos mesures dépassent notre guide : l'atelier peut réaliser cette pièce à vos mesures. Prenez rendez-vous, la créatrice vous répondra personnellement."
+    ? "Vos mesures dépassent notre guide : l’atelier peut réaliser cette pièce à vos mesures. Prenez rendez-vous, la créatrice vous répondra personnellement."
     : offered
       ? why
-      : `${why} Cette taille n'est pas proposée pour cette pièce : l'atelier peut l'ajuster pour vous sur rendez-vous.`;
+      : `${why} Cette taille n’est pas proposée pour cette pièce : l’atelier peut l’ajuster pour vous sur rendez-vous.`;
   return { size, between, offered: offered && !beyond, message };
 }

@@ -20,8 +20,8 @@ export const AUDITS_KEY = "seo:audits";
 export const IDEAS_KEY = "seo:ideas";
 
 const SeoFix = z.object({
-  title: z.string().describe("« Nom — matière principale | Awrea Paris », 60 caractères maximum"),
-  description: z.string().describe("140 à 155 caractères, une image sensorielle + « fait main à Paris »"),
+  title: z.string().describe("« Nom — matière principale | Awrea Paris », 60 caractères maximum"),
+  description: z.string().describe("140 à 155 caractères, une image sensorielle + « fait main à Paris »"),
 });
 
 const ArticleOut = z.object({
@@ -31,7 +31,7 @@ const ArticleOut = z.object({
   cover_handle: z.string().describe("handle de la pièce dont la première photo sert de couverture"),
   sections: z.array(z.object({ heading: z.string().nullable(), paragraphs: z.array(z.string()) })).describe("3 à 5 sections, 2 à 3 paragraphes chacune"),
   seo: z.object({ title: z.string().describe("60 caractères maximum"), description: z.string().describe("140 à 155 caractères") }),
-  next_ideas: z.array(z.object({ title: z.string(), angle: z.string(), target_query: z.string() })).describe("3 idées d'articles pour les semaines suivantes, chacune visant une requête de recherche"),
+  next_ideas: z.array(z.object({ title: z.string(), angle: z.string(), target_query: z.string() })).describe("3 idées d’articles pour les semaines suivantes, chacune visant une requête de recherche"),
 });
 
 const TARGET_QUERIES = ["robe dentelle noire fait main Paris", "body dentelle créatrice française", "pièce unique mode femme Paris", "Awrea Paris", "entretien dentelle", "mode éthique Paris créatrice"];
@@ -50,8 +50,8 @@ export async function runSeoAgent(origin: string, trigger: AgentRun["trigger"] =
     for (const p of toFix) {
       const fix = aiEnabled
         ? await generateStructured({
-            instructions: "Mission : agent SEO. Réécrivez la balise title et la meta description d'une fiche produit, en français, dans le ton de la maison, en respectant strictement les longueurs.",
-            content: `Pièce : ${p.title}\nAccroche : ${p.tagline}\nMatières : ${p.materials.map((m) => m.name).join(", ")}\nTitle actuel (${p.seo.title.length} car.) : ${p.seo.title}\nDescription actuelle (${p.seo.description.length} car.) : ${p.seo.description}\nRequêtes visées : ${TARGET_QUERIES.join(" ; ")}`,
+            instructions: "Mission : agent SEO. Réécrivez la balise title et la meta description d’une fiche produit, en français, dans le ton de la maison, en respectant strictement les longueurs.",
+            content: `Pièce : ${p.title}\nAccroche : ${p.tagline}\nMatières : ${p.materials.map((m) => m.name).join(", ")}\nTitle actuel (${p.seo.title.length} car.) : ${p.seo.title}\nDescription actuelle (${p.seo.description.length} car.) : ${p.seo.description}\nRequêtes visées : ${TARGET_QUERIES.join(" ; ")}`,
             schema: SeoFix,
             effort: "low",
           })
@@ -59,7 +59,7 @@ export async function runSeoAgent(origin: string, trigger: AgentRun["trigger"] =
             title: `${p.title} — ${p.materials[0]?.name.split(" ")[0].toLowerCase() ?? "création"} | Awrea Paris`.slice(0, 60),
             description: `${p.tagline} ${p.title}, pièce de créatrice faite main à Paris en série numérotée.`.slice(0, 158),
           };
-      await rec.act("update_product_content", { handle: p.handle, seo: { title: fix.title.slice(0, 70), description: fix.description.slice(0, 170) } }, { summary: `Balises SEO réécrites : ${p.title}`, rationale: `Title ${p.seo.title.length} car., description ${p.seo.description.length} car.` });
+      await rec.act("update_product_content", { handle: p.handle, seo: { title: fix.title.slice(0, 70), description: fix.description.slice(0, 170) } }, { summary: `Balises SEO réécrites : ${p.title}`, rationale: `Title ${p.seo.title.length} car., description ${p.seo.description.length} car.` });
     }
 
     // 3. Journal : un article par semaine au plus
@@ -71,8 +71,8 @@ export async function runSeoAgent(origin: string, trigger: AgentRun["trigger"] =
       let article: z.infer<typeof ArticleOut>;
       if (aiEnabled) {
         article = await generateStructured({
-          instructions: `Mission : agent SEO et éditorial. Écrivez un article du Journal d'Awrea Paris (700 à 1 000 mots) utile et sincère — savoir-faire, coulisses, matières ou conseils —, qui répond naturellement à une requête de recherche visée, sans bourrage de mots-clés. Ne mentionnez que des faits fournis. Proposez aussi trois idées pour les semaines suivantes.`,
-          content: `Articles déjà publiés : ${articles.map((a) => a.title).join(" ; ")}\nIdées en réserve : ${ideas.map((i) => `${i.title} (${i.target_query})`).join(" ; ") || "aucune"}\nRequêtes visées : ${TARGET_QUERIES.join(" ; ")}\nPièces (handle : description) :\n${catalogue}`,
+          instructions: `Mission : agent SEO et éditorial. Écrivez un article du Journal d’Awrea Paris (700 à 1 000 mots) utile et sincère — savoir-faire, coulisses, matières ou conseils —, qui répond naturellement à une requête de recherche visée, sans bourrage de mots-clés. Ne mentionnez que des faits fournis. Proposez aussi trois idées pour les semaines suivantes.`,
+          content: `Articles déjà publiés : ${articles.map((a) => a.title).join(" ; ")}\nIdées en réserve : ${ideas.map((i) => `${i.title} (${i.target_query})`).join(" ; ") || "aucune"}\nRequêtes visées : ${TARGET_QUERIES.join(" ; ")}\nPièces (handle : description) :\n${catalogue}`,
           schema: ArticleOut,
           effort: "high",
           maxTokens: 24000,
@@ -80,16 +80,16 @@ export async function runSeoAgent(origin: string, trigger: AgentRun["trigger"] =
       } else {
         const p = products.find((x) => !articles.some((a) => a.title.includes(x.title))) ?? products[0];
         article = {
-          title: `Dans l’atelier : ${p.title}, de l’esquisse au dernier point`,
+          title: `Dans l’atelier : ${p.title}, de l’esquisse au dernier point`,
           excerpt: `De la première esquisse au dernier point, l’histoire d’une pièce numérotée, faite main à Paris.`,
           category: "Coulisses",
           cover_handle: p.handle,
           sections: [
             { heading: null, paragraphs: [`${p.title} est née d’une image notée dans le carnet de la créatrice. ${p.tagline}`, "Comme chaque pièce de la maison, elle a été coupée, assemblée et finie à la main, à Paris, puis numérotée."] },
-            { heading: "La matière d’abord", paragraphs: [`${p.materials.map((m) => `${m.percent} % ${m.name.toLowerCase()}`).join(", ")} : la matière décide du tombé avant que le patron ne prenne forme. ${p.description[0] ?? ""}`] },
-            { heading: "Une série courte", paragraphs: [`${editionInfo(p).unique ? "C’est une pièce unique" : `La série compte ${editionInfo(p).total} pièces`} : lorsqu’elle est complète, elle ne revient pas à l’identique. Consommer plus juste commence là.`] },
+            { heading: "La matière d’abord", paragraphs: [`${p.materials.map((m) => `${m.percent} % ${m.name.toLowerCase()}`).join(", ")} : la matière décide du tombé avant que le patron ne prenne forme. ${p.description[0] ?? ""}`] },
+            { heading: "Une série courte", paragraphs: [`${editionInfo(p).unique ? "C’est une pièce unique" : `La série compte ${editionInfo(p).total} pièces`} : lorsqu’elle est complète, elle ne revient pas à l’identique. Consommer plus juste commence là.`] },
           ],
-          seo: { title: `Coulisses : ${p.title} | Awrea Paris`.slice(0, 60), description: `L’histoire de ${p.title}, pièce numérotée faite main à Paris par la créatrice d’Awrea Paris : matière, coupe et savoir-faire.`.slice(0, 158) },
+          seo: { title: `Coulisses : ${p.title} | Awrea Paris`.slice(0, 60), description: `L’histoire de ${p.title}, pièce numérotée faite main à Paris par la créatrice d’Awrea Paris : matière, coupe et savoir-faire.`.slice(0, 158) },
           next_ideas: [
             { title: "Comment choisir sa robe en dentelle noire", angle: "Guide de coupe et de taille", target_query: "robe dentelle noire fait main Paris" },
             { title: "Le body, pièce maîtresse d’une garde-robe sobre", angle: "Styliser un body de trois façons", target_query: "body dentelle créatrice française" },
@@ -110,7 +110,7 @@ export async function runSeoAgent(origin: string, trigger: AgentRun["trigger"] =
             seo: { title: article.seo.title.slice(0, 70), description: article.seo.description.slice(0, 170) },
           },
         },
-        { summary: `Article du Journal : « ${article.title} »`, rationale: "Publication hebdomadaire du Journal (référencement naturel et moteurs IA)" },
+        { summary: `Article du Journal : « ${article.title} »`, rationale: "Publication hebdomadaire du Journal (référencement naturel et moteurs IA)" },
       );
       await kv.set(IDEAS_KEY, article.next_ideas);
     }
@@ -118,13 +118,13 @@ export async function runSeoAgent(origin: string, trigger: AgentRun["trigger"] =
     // 4. Visibilité IA : notes d'actualité reprises dans llms.txt
     const current = await getCurrentCollection();
     const notes = [
-      current ? `Collection en cours : ${current.title} (${current.season}) — ${current.lead}` : "",
+      current ? `Collection en cours : ${current.title} (${current.season}) — ${current.lead}` : "",
       ...products.slice(0, 8).map((p) => `${p.title} : ${formatPrice(p.price)}, ${editionInfo(p).unique ? "pièce unique" : `série de ${editionInfo(p).total}`}, ${productAvailability(p) === "available" ? "disponible" : productAvailability(p) === "preorder" ? "sur commande" : "épuisée"}.`),
     ].filter(Boolean);
     await rec.act("update_ai_visibility", { notes: notes.slice(0, 12) }, { summary: "Mise à jour de llms.txt", rationale: "Informations à jour pour les moteurs de réponse IA" });
 
     const high = report.issues.filter((i) => i.severity === "haute").length;
-    return rec.finish(`Audit de ${report.pages} pages — score ${report.score}/100, ${report.issues.length} point(s) dont ${high} prioritaire(s) ; ${toFix.length} fiche(s) corrigée(s)`);
+    return rec.finish(`Audit de ${report.pages} pages — score ${report.score}/100, ${report.issues.length} point(s) dont ${high} prioritaire(s) ; ${toFix.length} fiche(s) corrigée(s)`);
   } catch (e) {
     rec.error(e);
     return rec.finish(report ? `Audit de ${report.pages} pages réalisé, corrections interrompues` : "Passage interrompu");

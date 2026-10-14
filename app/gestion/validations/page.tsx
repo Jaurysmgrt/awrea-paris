@@ -10,7 +10,7 @@ export default async function ValidationsPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Validations</h1>
-        <p className="t-lead">Seules les actions qui touchent à l’argent ou qui sont irréversibles vous sont demandées : {Object.values(POLICY).filter((p) => p.approval).map((p) => p.label.toLowerCase()).join(", ")}.</p>
+        <p className="t-lead">Seules les actions qui touchent à l’argent ou qui sont irréversibles vous sont demandées : {Object.values(POLICY).filter((p) => p.approval).map((p) => p.label.toLowerCase()).join(", ")}.</p>
       </header>
       <section className="panel" aria-labelledby="pending-title">
         <h2 id="pending-title" className="t-h3">

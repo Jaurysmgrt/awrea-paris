@@ -43,7 +43,7 @@ export async function upsertContact(c: ContactAttributes): Promise<void> {
         listIds: c.marketing && listId ? [listId] : undefined,
       }),
     });
-    if (!res.ok && res.status !== 204) throw new Error(`Brevo contacts : ${res.status}`);
+    if (!res.ok && res.status !== 204) throw new Error(`Brevo contacts : ${res.status}`);
     return;
   }
   if (marketingProvider === "klaviyo") {
@@ -103,7 +103,7 @@ export async function sendFlowEmail(mail: OutgoingEmail & { flow: string }): Pro
       }),
     });
     await kv.push("marketing:sent", { ...record, provider: "brevo", ok: res.ok }, 500);
-    if (!res.ok) throw new Error(`Brevo envoi : ${res.status}`);
+    if (!res.ok) throw new Error(`Brevo envoi : ${res.status}`);
     return;
   }
   await sendEmail({ ...mail, tag: mail.flow });

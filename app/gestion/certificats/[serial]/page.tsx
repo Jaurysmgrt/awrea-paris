@@ -27,7 +27,7 @@ export default async function CertificatAtelierPage({ params }: { params: Promis
           {c.orderNumber ? ` · commande ${c.orderNumber}` : ""}
         </p>
         <h1 className="t-h1">{c.serial}</h1>
-        <p className="t-lead">Vérifiez la date de fabrication, écrivez votre mot si vous le souhaitez, puis imprimez la feuille : le certificat à glisser dans le paquet, l’étiquette à coudre dans la pièce.</p>
+        <p className="t-lead">Vérifiez la date de fabrication, écrivez votre mot si vous le souhaitez, puis imprimez la feuille : le certificat à glisser dans le paquet, l’étiquette à coudre dans la pièce.</p>
       </header>
       <section className="panel no-print" aria-labelledby="edit-title">
         <h2 id="edit-title" className="t-h3">Date et mot de la créatrice</h2>
@@ -35,7 +35,7 @@ export default async function CertificatAtelierPage({ params }: { params: Promis
       </section>
       {code ? null : (
         <p className="t-note no-print">
-          Le code de rattachement de ce certificat ne peut plus être relu (clé de chiffrement changée) : la cliente le retrouve dans son e-mail de commande.
+          Le code de rattachement de ce certificat ne peut plus être relu (clé de chiffrement changée) : la cliente le retrouve dans son e-mail de commande.
         </p>
       )}
       <div className="no-print">

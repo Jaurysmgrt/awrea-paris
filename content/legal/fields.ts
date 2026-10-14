@@ -37,7 +37,7 @@ export const legalFields = {
   },
   capital: {
     short: "capital social",
-    label: "montant du capital social (sociétés uniquement ; supprimer la mention pour une entreprise individuelle)",
+    label: "montant du capital social (sociétés uniquement ; supprimer la mention pour une entreprise individuelle)",
     value: "",
     source: "Statuts ou Kbis",
     pages: ["mentions-legales", "cgv"],
@@ -65,7 +65,7 @@ export const legalFields = {
   },
   tva: {
     short: "n° de TVA",
-    label: "numéro de TVA intracommunautaire, ou la mention « TVA non applicable, art. 293 B du CGI » en franchise de TVA",
+    label: "numéro de TVA intracommunautaire, ou la mention « TVA non applicable, art. 293 B du CGI » en franchise de TVA",
     value: "",
     source: "Espace professionnel impots.gouv.fr",
     pages: ["mentions-legales", "cgv"],
@@ -79,7 +79,7 @@ export const legalFields = {
   },
   email: {
     short: "e-mail de contact",
-    label: "adresse e-mail de contact (à confirmer : contact@awreaparis.com est utilisée par défaut sur le site)",
+    label: "adresse e-mail de contact (à confirmer : contact@awreaparis.com est utilisée par défaut sur le site)",
     value: "",
     source: "Boîte de réception de la maison",
     pages: ["mentions-legales", "cgv", "confidentialite", "retractation"],
@@ -100,7 +100,7 @@ export const legalFields = {
   },
   mediateur: {
     short: "médiateur de la consommation",
-    label: "médiateur de la consommation : nom, adresse postale et site internet (adhésion obligatoire, articles L612-1 et suivants du Code de la consommation)",
+    label: "médiateur de la consommation : nom, adresse postale et site internet (adhésion obligatoire, articles L612-1 et suivants du Code de la consommation)",
     value: "",
     source: "Convention signée avec un médiateur référencé par la CECMC (liste sur economie.gouv.fr)",
     pages: ["cgv", "mentions-legales"],
@@ -114,7 +114,7 @@ export const legalFields = {
   },
   marque: {
     short: "n° d’enregistrement de la marque",
-    label: "numéro et date d’enregistrement de la marque « Awrea Paris » (INPI ou EUIPO), si elle est déposée ; sinon supprimer la mention",
+    label: "numéro et date d’enregistrement de la marque « Awrea Paris » (INPI ou EUIPO), si elle est déposée ; sinon supprimer la mention",
     value: "",
     source: "Certificat d’enregistrement INPI (data.inpi.fr) ou EUIPO",
     pages: ["propriete-intellectuelle"],
@@ -128,21 +128,21 @@ export const legalFields = {
   },
   regionBase: {
     short: "région d’hébergement de la base",
-    label: "région d’hébergement du projet Supabase (base clientes) — recommandé : Union européenne (Francfort ou Paris)",
+    label: "région d’hébergement du projet Supabase (base clientes) — recommandé : Union européenne (Francfort ou Paris)",
     value: "",
     source: "Réglages du projet Supabase (Project Settings → General)",
     pages: ["confidentialite"],
   },
   regionsPrestataires: {
     short: "régions d’hébergement",
-    label: "régions d’hébergement retenues pour Upstash (stockage technique) et Sentry (suivi des erreurs) — recommandé : Union européenne",
+    label: "régions d’hébergement retenues pour Upstash (stockage technique) et Sentry (suivi des erreurs) — recommandé : Union européenne",
     value: "",
     source: "Réglages des comptes Upstash et Sentry",
     pages: ["confidentialite"],
   },
   outilEmails: {
     short: "outil d’e-mails",
-    label: "outil d’e-mails marketing retenu : Brevo (France) ou Klaviyo (États-Unis)",
+    label: "outil d’e-mails marketing retenu : Brevo (France) ou Klaviyo (États-Unis)",
     value: "",
     source: "Choix de la maison",
     pages: ["confidentialite"],
@@ -156,7 +156,7 @@ export const legalFields = {
   },
   delaiConservationDevis: {
     short: "durée de conservation",
-    label: "durée de conservation des demandes de rendez-vous et de sur-mesure sans suite (proposé : 3 ans après le dernier échange)",
+    label: "durée de conservation des demandes de rendez-vous et de sur-mesure sans suite (proposé : 3 ans après le dernier échange)",
     value: "",
     source: "Décision de la maison (à valider)",
     pages: ["confidentialite"],
@@ -171,7 +171,7 @@ export type LegalFieldKey = keyof typeof legalFields;
  */
 export const commercialChecks = [
   "Seuil de livraison offerte, tarifs et délais de livraison (content/settings.ts → shop.shippingRates, freeShippingThreshold).",
-  "Délai de rétractation et de retour (14 jours minimum légal ; content/settings.ts → returnDays) et prise en charge des frais de retour (offerts en France, à la charge de la cliente hors de France : à confirmer).",
+  "Délai de rétractation et de retour (14 jours minimum légal ; content/settings.ts → returnDays) et prise en charge des frais de retour (offerts en France, à la charge de la cliente hors de France : à confirmer).",
   "Délais de fabrication des précommandes indiqués sur chaque fiche, et moment du débit pour une précommande (au moment de la commande par défaut avec Shopify).",
   "Durée de validité des cartes cadeaux (un an par défaut dans les CGV) et règles de cumul des codes de réduction.",
   "Prix de l’emballage cadeau (content/settings.ts → giftWrapPrice).",

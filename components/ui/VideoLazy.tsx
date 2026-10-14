@@ -97,7 +97,7 @@ export const VideoLazy = forwardRef<HTMLVideoElement | null, Props>(function Vid
         }}
       />
       {controls ? (
-        <button type="button" className="video__toggle icon-btn" onClick={toggle} aria-label={playing ? `Mettre en pause : ${label}` : `Lire : ${label}`}>
+        <button type="button" className="video__toggle icon-btn" onClick={toggle} aria-label={playing ? `Mettre en pause : ${label}` : `Lire : ${label}`}>
           <Icon name={playing ? "pause" : "play"} />
         </button>
       ) : null}

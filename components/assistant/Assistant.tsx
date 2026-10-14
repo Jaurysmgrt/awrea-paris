@@ -40,7 +40,7 @@ export function Assistant() {
         }}
       >
         <span className="assistant-launcher__mark" aria-hidden="true" />
-        <span className="assistant-launcher__label">{open ? "Fermer" : "Une question ?"}</span>
+        <span className="assistant-launcher__label">{open ? "Fermer" : "Une question ?"}</span>
       </button>
       {mounted ? <AssistantPanel open={open} onClose={close} /> : null}
     </>

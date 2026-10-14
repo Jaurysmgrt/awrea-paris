@@ -11,7 +11,7 @@ const TOKEN = /(\{\{[a-zA-Z]+\}\}|\[[^\]]+\]\([^)\s]+\)|\*\*[^*]+\*\*)/g;
 export function Todo({ field }: { field: LegalFieldKey }) {
   return (
     <mark className="todo" title={legalFields[field].label}>
-      [À COMPLÉTER : {legalFields[field].short}]
+      [À COMPLÉTER : {legalFields[field].short}]
     </mark>
   );
 }

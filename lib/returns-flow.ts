@@ -44,11 +44,11 @@ export async function submitReturn(order: Order, items: ReturnItem[], comment?: 
     tag: "retour",
     attachments: pdf ? [{ filename: `etiquette-${r.id}.pdf`, content: pdf }] : undefined,
     ...brandEmail({
-      preheader: pending ? "Votre demande est enregistrée ; l’étiquette suit." : "Votre étiquette de retour est jointe.",
+      preheader: pending ? "Votre demande est enregistrée ; l’étiquette suit." : "Votre étiquette de retour est jointe.",
       title: "Votre retour",
       paragraphs: [
         `Bonjour ${first(r)},`,
-        `Votre demande de retour ${r.id} pour la commande ${order.number} est enregistrée : ${list.join(" ; ")}.`,
+        `Votre demande de retour ${r.id} pour la commande ${order.number} est enregistrée : ${list.join(" ; ")}.`,
         pending
           ? "L’atelier vous envoie l’étiquette de retour par e-mail dans la journée."
           : "Imprimez l’étiquette jointe, collez-la sur le colis avec la pièce non portée, ses étiquettes et son certificat, puis déposez-le en bureau de poste.",
@@ -67,8 +67,8 @@ export async function submitReturn(order: Order, items: ReturnItem[], comment?: 
       title: `Retour ${r.id}`,
       paragraphs: [
         `${r.name} (${order.email}) retourne : ${items.map((i) => `${i.title}, taille ${i.size} — ${reasonLabel[i.reason]}, ${i.wish === "echange" ? `échange en ${i.exchangeSize}` : "remboursement"}`).join(" ; ")}.`,
-        ...(r.comment ? [`Son mot : « ${r.comment} »`] : []),
-        pending ? "L’étiquette prépayée n’a pas pu être obtenue automatiquement : déposez-la dans l’Atelier, rubrique Retours." : "L’étiquette lui a été envoyée.",
+        ...(r.comment ? [`Son mot : « ${r.comment} »`] : []),
+        pending ? "L’étiquette prépayée n’a pas pu être obtenue automatiquement : déposez-la dans l’Atelier, rubrique Retours." : "L’étiquette lui a été envoyée.",
       ],
       cta: { label: "Ouvrir les retours", href: "/gestion/retours" },
     }),
@@ -141,11 +141,11 @@ export async function refundReturn(id: string): Promise<{ r: ReturnRequest; amou
     ...brandEmail({
       preheader: `${formatPrice(amount)} remboursés.`,
       title: "Votre remboursement",
-      paragraphs: [`Bonjour ${first(r)},`, `Nous avons remboursé ${formatPrice(amount)} sur votre moyen de paiement d’origine : il apparaîtra sous quelques jours. L’avoir ${note.number} est joint à ce message.`],
+      paragraphs: [`Bonjour ${first(r)},`, `Nous avons remboursé ${formatPrice(amount)} sur votre moyen de paiement d’origine : il apparaîtra sous quelques jours. L’avoir ${note.number} est joint à ce message.`],
       signature: "Avec toute notre attention,\nl’atelier Awrea Paris",
     }),
   }).catch(() => {});
-  await logAction({ agent: "systeme", kind: "refund_order", status: "approved", summary: `Remboursement du retour ${r.id} par la créatrice : ${formatPrice(amount)} (avoir ${note.number})`, target: { type: "order", id: order.id, label: order.number, href: `/gestion/commandes/${encodeURIComponent(order.number)}` } });
+  await logAction({ agent: "systeme", kind: "refund_order", status: "approved", summary: `Remboursement du retour ${r.id} par la créatrice : ${formatPrice(amount)} (avoir ${note.number})`, target: { type: "order", id: order.id, label: order.number, href: `/gestion/commandes/${encodeURIComponent(order.number)}` } });
   return { r, amount };
 }
 
@@ -195,11 +195,11 @@ export async function refuseReturn(id: string, reason: string): Promise<ReturnRe
     ...brandEmail({
       preheader: "À propos de votre retour.",
       title: "Votre retour",
-      paragraphs: [`Bonjour ${first(r)},`, `Nous ne pouvons malheureusement pas accepter ce retour : ${reason}`, "Répondez simplement à ce message : l’atelier cherchera avec vous la meilleure solution."],
+      paragraphs: [`Bonjour ${first(r)},`, `Nous ne pouvons malheureusement pas accepter ce retour : ${reason}`, "Répondez simplement à ce message : l’atelier cherchera avec vous la meilleure solution."],
       signature: "Avec toute notre attention,\nl’atelier Awrea Paris",
     }),
   }).catch(() => {});
-  await logAction({ agent: "systeme", kind: "flag_order", status: "info", summary: `Retour ${r.id} refusé : ${reason}` });
+  await logAction({ agent: "systeme", kind: "flag_order", status: "info", summary: `Retour ${r.id} refusé : ${reason}` });
   return r;
 }
 
@@ -218,7 +218,7 @@ export async function uploadReturnLabel(id: string, pdf: Uint8Array): Promise<Re
     ...brandEmail({
       preheader: "Votre étiquette de retour est jointe.",
       title: "Votre étiquette",
-      paragraphs: [`Bonjour ${first(r)},`, "Voici votre étiquette de retour prépayée. Collez-la sur le colis et déposez-le en bureau de poste : nous vous écrirons à son arrivée."],
+      paragraphs: [`Bonjour ${first(r)},`, "Voici votre étiquette de retour prépayée. Collez-la sur le colis et déposez-le en bureau de poste : nous vous écrirons à son arrivée."],
       cta: { label: "Suivre mon retour", href: orderLink(order) },
       signature: "Avec toute notre attention,\nl’atelier Awrea Paris",
     }),

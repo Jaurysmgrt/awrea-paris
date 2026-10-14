@@ -51,7 +51,7 @@ export async function storefront<T>(query: string, variables: Record<string, unk
   });
   const json = (await res.json()) as { data?: T; errors?: { message: string }[] };
   if (!res.ok || json.errors?.length) {
-    throw new Error(`Shopify Storefront : ${json.errors?.map((e) => e.message).join(" ; ") ?? res.status}`);
+    throw new Error(`Shopify Storefront : ${json.errors?.map((e) => e.message).join(" ; ") ?? res.status}`);
   }
   return json.data as T;
 }

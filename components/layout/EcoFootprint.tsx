@@ -32,11 +32,11 @@ export function EcoFootprint() {
   const grams = bytes === null ? null : bytes * constants.gramsPerByteGrey;
   return (
     <p ref={ref} className="t-note eco-footprint">
-      Site éco-conçu : pages légères, vidéos compressées, une seule graisse par caractère.
+      Site éco-conçu : pages légères, vidéos compressées, une seule graisse par caractère.
       {bytes !== null && grams !== null ? (
         <>
           {" "}
-          Depuis votre arrivée : {fmtMo.format(bytes / 1e6)} Mo transférés, soit environ {fmtG.format(grams)} g d’équivalent CO₂.
+          Depuis votre arrivée : {fmtMo.format(bytes / 1e6)} Mo transférés, soit environ {fmtG.format(grams)} g d’équivalent CO₂.
         </>
       ) : null}
     </p>

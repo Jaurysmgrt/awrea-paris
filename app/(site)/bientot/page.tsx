@@ -8,7 +8,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 
 export const metadata = pageMetadata({
   title: "Bientôt | Awrea Paris",
-  description: "La prochaine série d’Awrea Paris : date d’ouverture, accès anticipé réservé aux inscrites, pièces numérotées faites main à Paris.",
+  description: "La prochaine série d’Awrea Paris : date d’ouverture, accès anticipé réservé aux inscrites, pièces numérotées faites main à Paris.",
   path: "/bientot",
 });
 export const dynamic = "force-dynamic";

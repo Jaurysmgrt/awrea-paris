@@ -18,7 +18,7 @@ export default async function DropsPage({ searchParams }: { searchParams: Promis
       <header className="admin-page__head">
         <h1 className="t-h1">Drops</h1>
         <p className="t-lead">
-          Annoncez une nouvelle série sur la page « Bientôt », ouvrez-la d’abord aux inscrites, puis à toutes. Une vente privée reste réservée aux personnes qui ont le mot de passe jusqu’à son ouverture.
+          Annoncez une nouvelle série sur la page « Bientôt », ouvrez-la d’abord aux inscrites, puis à toutes. Une vente privée reste réservée aux personnes qui ont le mot de passe jusqu’à son ouverture.
         </p>
       </header>
       <section className="panel" aria-labelledby="drops-list">
@@ -60,7 +60,7 @@ export default async function DropsPage({ searchParams }: { searchParams: Promis
         )}
       </section>
       <section className="panel" aria-labelledby="drop-form">
-        <h2 id="drop-form" className="t-h3">{editing ? `Modifier « ${editing.title} »` : "Annoncer une série"}</h2>
+        <h2 id="drop-form" className="t-h3">{editing ? `Modifier « ${editing.title} »` : "Annoncer une série"}</h2>
         <DropEditor
           key={editing?.slug ?? "nouveau"}
           pieces={pieces}

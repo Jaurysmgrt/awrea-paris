@@ -24,7 +24,7 @@ export default function PressePage() {
                 </p>
                 <h3 className="t-h3">{a.title}</h3>
                 <blockquote>
-                  <p className="t-lead">« {a.quote} »</p>
+                  <p className="t-lead">« {a.quote} »</p>
                 </blockquote>
               </li>
             ))}

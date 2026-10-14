@@ -32,7 +32,7 @@ const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 
 export function brandEmail(input: BrandEmailInput): { html: string; text: string } {
   const { ink, ivory, pearl, taupe, taupeDeep } = palette;
-  const caps = `font-family:${fontStacks.sans};font-size:11px;line-height:16px;letter-spacing:1.5px;text-transform:uppercase;`;
+  const caps = `font-family :${fontStacks.sans} ;font-size:11px;line-height:16px;letter-spacing:1.5px;text-transform:uppercase ;`;
   const p = (t: string) =>
     `<p lang="fr" style="margin:0 0 24px;font-family:${fontStacks.sans};font-weight:300;font-size:15px;line-height:24px;color:${ink};text-align:justify;hyphens:auto;-webkit-hyphens:auto;">${esc(t)}</p>`;
   const items = (input.items ?? [])
@@ -50,7 +50,7 @@ export function brandEmail(input: BrandEmailInput): { html: string; text: string
   const totals = (input.totals ?? [])
     .map(
       (t, i, arr) =>
-        `<tr><td style="padding:8px 0;${caps}color:${ink};${i === arr.length - 1 ? `border-top:1px solid ${ink};padding-top:16px;` : ""}">${esc(t.label)}</td><td align="right" style="padding:8px 0;font-family:${fontStacks.sans};font-weight:300;font-size:13px;line-height:16px;color:${ink};${i === arr.length - 1 ? `border-top:1px solid ${ink};padding-top:16px;` : ""}">${esc(t.value)}</td></tr>`,
+        `<tr><td style="padding:8px 0;${caps}color:${ink};${i === arr.length - 1 ? `border-top:1px solid ${ink} ;padding-top:16px ;` : ""}">${esc(t.label)}</td><td align="right" style="padding:8px 0;font-family:${fontStacks.sans};font-weight:300;font-size:13px;line-height:16px;color:${ink};${i === arr.length - 1 ? `border-top:1px solid ${ink} ;padding-top:16px ;` : ""}">${esc(t.value)}</td></tr>`,
     )
     .join("");
 

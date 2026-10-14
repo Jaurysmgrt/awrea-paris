@@ -31,7 +31,7 @@ export default async function RecherchePage({ searchParams }: { searchParams: Pr
         </form>
         {q ? (
           <p className="t-note" role="status">
-            {results.length ? `${results.length} résultat${results.length > 1 ? "s" : ""} pour « ${q} »` : `Rien ne répond encore à « ${q} ».`}
+            {results.length ? `${results.length} résultat${results.length > 1 ? "s" : ""} pour « ${q} »` : `Rien ne répond encore à « ${q} ».`}
           </p>
         ) : null}
       </PageHeader>
@@ -42,7 +42,7 @@ export default async function RecherchePage({ searchParams }: { searchParams: Pr
           ) : (
             <div className="search__empty stack-s">
               <p className="t-body">
-                Essayez une matière, une forme ou le nom d’une collection :{" "}
+                Essayez une matière, une forme ou le nom d’une collection :{" "}
                 {searchSuggestions.map((s, i) => (
                   <span key={s}>
                     {i ? ", " : ""}

@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     name: d.name,
     email: d.email,
     subject: "retour",
-    message: `Rétractation en ligne ${reference} — commande ${d.order}${d.pieces ? ` — pièces : ${d.pieces}` : " — toutes les pièces"}${d.receivedAt ? ` — reçue le ${d.receivedAt}` : ""}.${matches ? "" : " (Commande non retrouvée avec cette adresse e-mail : à vérifier.)"}`,
+    message: `Rétractation en ligne ${reference} — commande ${d.order}${d.pieces ? ` — pièces : ${d.pieces}` : " — toutes les pièces"}${d.receivedAt ? ` — reçue le ${d.receivedAt}` : ""}.${matches ? "" : " (Commande non retrouvée avec cette adresse e-mail : à vérifier.)"}`,
     orderNumber: d.order,
     status: "new",
   });
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     title: "Votre rétractation est enregistrée",
     paragraphs: [
       `Bonjour ${d.name.split(" ")[0]},`,
-      `Nous accusons réception de votre décision de vous rétracter, transmise le ${when} (heure de Paris), pour la commande ${d.order}${d.pieces ? ` (pièces concernées : ${d.pieces})` : ""}.`,
+      `Nous accusons réception de votre décision de vous rétracter, transmise le ${when} (heure de Paris), pour la commande ${d.order}${d.pieces ? ` (pièces concernées : ${d.pieces})` : ""}.`,
       "L’atelier vous adresse l’étiquette de retour. Merci de renvoyer la pièce dans les quatorze jours, non portée, avec ses étiquettes et son certificat. Le remboursement interviendra au plus tard quatorze jours après votre demande, sur le moyen de paiement utilisé, et peut être différé jusqu’à la réception de la pièce ou la preuve de son expédition.",
     ],
     signature: "Avec toute notre attention, l’atelier Awrea Paris.",

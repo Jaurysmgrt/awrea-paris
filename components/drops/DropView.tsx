@@ -56,7 +56,7 @@ export async function DropView({ drop, notice }: { drop: Drop; notice?: string |
                 ) : (
                   <>
                     <p className="t-body">
-                      Les inscrites découvrent la série quelques heures avant l’ouverture à toutes et peuvent l’acheter en premier. Un lien personnel vous est envoyé par e-mail : il ouvre votre accès.
+                      Les inscrites découvrent la série quelques heures avant l’ouverture à toutes et peuvent l’acheter en premier. Un lien personnel vous est envoyé par e-mail : il ouvre votre accès.
                     </p>
                     <DropSignupForm slug={drop.slug} />
                   </>

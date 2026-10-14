@@ -40,7 +40,7 @@ export default async function SeoPage() {
               </table>
             </div>
           ) : (
-            <p className="t-note">Aucun point relevé : tout est en ordre.</p>
+            <p className="t-note">Aucun point relevé : tout est en ordre.</p>
           )}
         </section>
       ) : (
@@ -49,14 +49,14 @@ export default async function SeoPage() {
       <section className="panel" aria-labelledby="ideas-title">
         <h2 id="ideas-title" className="t-h3">Idées d’articles</h2>
         {ideas?.length ? (
-          <ul className="stack">{ideas.map((i) => <li key={i.title} className="t-body"><strong>{i.title}</strong> — {i.angle} <span className="t-note">(requête : {i.target_query})</span></li>)}</ul>
+          <ul className="stack">{ideas.map((i) => <li key={i.title} className="t-body"><strong>{i.title}</strong> — {i.angle} <span className="t-note">(requête : {i.target_query})</span></li>)}</ul>
         ) : (
           <p className="t-note">Les idées apparaîtront après le premier passage.</p>
         )}
       </section>
       <section className="panel" aria-labelledby="llms-title">
         <h2 id="llms-title" className="t-h3">llms.txt</h2>
-        <p className="t-body">Fichier lu par ChatGPT, Perplexity, Gemini et les autres moteurs de réponse : <Link href="/llms.txt" className="text-link">/llms.txt</Link> · <Link href="/llms-full.txt" className="text-link">/llms-full.txt</Link>.</p>
+        <p className="t-body">Fichier lu par ChatGPT, Perplexity, Gemini et les autres moteurs de réponse : <Link href="/llms.txt" className="text-link">/llms.txt</Link> · <Link href="/llms-full.txt" className="text-link">/llms-full.txt</Link>.</p>
         {llms ? <><p className="t-note">Notes d’actualité mises à jour le {new Date(llms.updatedAt).toLocaleDateString("fr-FR")} :</p><ul className="stack">{llms.notes.map((n) => <li key={n} className="t-body">{n}</li>)}</ul></> : null}
       </section>
     </div>

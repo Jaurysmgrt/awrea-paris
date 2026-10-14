@@ -17,7 +17,7 @@ export default async function FacturesPage() {
       <header className="admin-page__head">
         <h1 className="t-h1">Factures</h1>
         <p className="t-lead">Chaque paiement donne sa facture, chaque remboursement son avoir, numérotés dans l’ordre et conservés dix ans. L’export du mois part seul à la comptabilité le 1er.</p>
-        {vatFranchise() ? <p className="t-note">Franchise en base de TVA : les factures portent la mention de l’article 293 B du CGI.</p> : null}
+        {vatFranchise() ? <p className="t-note">Franchise en base de TVA : les factures portent la mention de l’article 293 B du CGI.</p> : null}
       </header>
       {months.length ? (
         months.map((m) => {
@@ -73,7 +73,7 @@ export default async function FacturesPage() {
         })
       ) : (
         <section className="panel">
-          <p className="t-body">Aucune facture pour l’instant : la première sera émise au premier paiement.</p>
+          <p className="t-body">Aucune facture pour l’instant : la première sera émise au premier paiement.</p>
         </section>
       )}
     </div>

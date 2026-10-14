@@ -54,7 +54,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function nextNumber(kind: Invoice["kind"], year: number): Promise<string> {
   const lock = "invoices:lock";
   for (let i = 0; (await kv.incr(lock, 10)) > 1; i++) {
-    if (i > 50) throw new Error("factures : verrou occupé");
+    if (i > 50) throw new Error("factures : verrou occupé");
     await sleep(100);
   }
   try {
@@ -186,7 +186,7 @@ export async function accountingCsv(month: string): Promise<string> {
   const euros = (c: number) => (c / 100).toFixed(2).replace(".", ",");
   const esc = (v: string) => (/[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
   const sign = (i: Invoice) => (i.kind === "avoir" ? -1 : 1);
-  const head = ["Date", "Pièce", "Numéro", "Facture d'origine", "Commande", "Cliente", "Pays", "Régime", "Taux TVA", "Total HT", "TVA", "Total TTC", "Droits et taxes à l'importation", "Paiement"];
+  const head = ["Date", "Pièce", "Numéro", "Facture d’origine", "Commande", "Cliente", "Pays", "Régime", "Taux TVA", "Total HT", "TVA", "Total TTC", "Droits et taxes à l’importation", "Paiement"];
   const lines = rows.map((i) =>
     [
       i.issuedAt.slice(0, 10),

@@ -33,7 +33,7 @@ export function CertificateEditor({ serial, madeOn, note, defaultWord }: { seria
           Mot de la créatrice (facultatif)
         </label>
         <textarea id="cert-note" name="note" className="field__input" maxLength={240} defaultValue={note} placeholder={defaultWord} />
-        <p className="field__hint">Laissé vide, le certificat porte votre phrase : « {defaultWord} »</p>
+        <p className="field__hint">Laissé vide, le certificat porte votre phrase : « {defaultWord} »</p>
       </div>
       <div>
         <button type="submit" className="btn" disabled={state === "busy"}>

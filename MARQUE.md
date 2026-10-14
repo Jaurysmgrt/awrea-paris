@@ -34,11 +34,47 @@
 
 ## 2. Voix
 
-- Vouvoiement, phrases courtes, aucun emoji, aucune urgence artificielle, aucune promotion criarde.
-- Vocabulaire de maison de couture : « pièce » (jamais « article » ni « produit »), « la Maison »,
-  « l'atelier », « la créatrice », « découvrir », « façonnée », « numérotée ».
-- Prix sobres (« 690 € »), jamais barrés, jamais « -30 % ».
-- Voix éditoriale retenue : voir § 9 (choisie par l'équipe Contenu, critique éditorial).
+Tous les textes du site s'écrivent comme la créatrice écrit sous ses photos Instagram et dans sa
+lettre manuscrite : des phrases courtes, concrètes, sensibles, un peu poétiques mais jamais
+grandiloquentes. Cela vaut pour les pages, les fiches produits, les boutons, les messages d'erreur,
+les e-mails, les réponses de l'assistante et les pages légales. Corpus réel de sa voix :
+`content/brand/voix-creatrice.md`. Référence détaillée pour les agents : `content/brand/voice.md`.
+
+**Ce qu'on écrit.** Des choses réelles : la matière, le geste, le temps passé, le nombre de pièces,
+la sensation sur la peau. Une idée par phrase, des longueurs variées. Vouvoiement. Vocabulaire de
+maison de couture : « pièce » (jamais « article » ni « produit »), « la Maison », « l'atelier »,
+« la créatrice », « numérotée ». Prix sobres (« 690 € »), jamais barrés, jamais « -30 % ».
+
+**Ce qu'on n'écrit jamais** (contrôlé par `npm run audit:ecriture`, règles dans
+`lib/writing/rules.ts`) :
+
+- aucun tiret de ponctuation dans un texte visible : ni « — », ni « – », ni « - » isolé entre deux
+  parties de phrase, aucune liste à tirets ni à puces ; les traits d'union des mots composés restent
+  (prêt-à-porter, c'est-à-dire, peut-être). Deux-points et parenthèses au strict minimum ;
+- les formulations de machine ou de publicité : « Plongez dans », « Découvrez notre univers »,
+  « Bien plus qu'un vêtement », « Il ne s'agit pas seulement de… mais de… », « Non seulement… mais
+  aussi… », « Que vous soyez… ou… », « élégance intemporelle », « savoir-faire d'exception »,
+  « sublimer », « incarner », « écrin », « allier », « véritable », « un voyage », « révéler votre
+  féminité », « chaque pièce raconte une histoire », « l'art de », « une ode à », « pensée pour la
+  femme moderne » ;
+- les enfilades de trois adjectifs, les questions rhétoriques en ouverture, les phrases qui
+  commencent toutes de la même façon, les titres à deux-points, les superlatifs creux (« unique en son
+  genre », « incontournable », « exceptionnel »), les points d'exclamation et les emoji ;
+- « Découvrir » répété dans les boutons : des verbes concrets et variés (« Voir la robe »,
+  « Entrer dans l'atelier », « Lire la lettre », « Prendre rendez-vous »).
+
+**Typographie française.** Guillemets « » avec espaces insécables à l'intérieur, apostrophe
+typographique ’, espace insécable avant ; : ! ? et », majuscules accentuées (À, É), points de
+suspension en un caractère. L'espace fine n'existant pas dans nos polices, l'espace insécable
+(U+00A0) la remplace.
+
+**Chaîne d'écriture.** Chaque texte passe par Plume (réécriture), le Détecteur IA, la Lecture à voix
+haute, le Typographe, puis Cohérence qui valide (`docs/EQUIPES.md`, équipe Écriture). Les textes
+produits par les agents de gestion et l'assistante sont nettoyés et contrôlés automatiquement ; une
+formulation interdite transforme une publication automatique en proposition à valider.
+
+**Images.** Seulement les vraies photos et vidéos de la marque ; aucune image générée par IA ni de
+banque d'images. En attendant une photo : un emplacement vide élégant.
 
 ## 3. Direction artistique (octobre 2026)
 

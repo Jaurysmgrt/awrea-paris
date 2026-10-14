@@ -12,7 +12,7 @@ export default async function CataloguePage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Catalogue</h1>
-        <p className="t-lead">Déposez les photos d’une nouvelle pièce et quelques notes : l’agent Catalogue rédige la fiche dans le ton de la maison et la met en ligne.</p>
+        <p className="t-lead">Déposez les photos d’une nouvelle pièce et quelques notes : l’agent Catalogue rédige la fiche dans le ton de la maison et la met en ligne.</p>
       </header>
       <section className="panel" aria-labelledby="new-title">
         <h2 id="new-title" className="t-h3">Nouvelle pièce</h2>

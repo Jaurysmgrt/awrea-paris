@@ -10,7 +10,7 @@ import { logSecurityEvent, recordAdminLogin } from "@/lib/security/audit";
 
 /** Première connexion : QR code à scanner avec l'application d'authentification. */
 export async function GET() {
-  if (!(await hasPreAuth())) return NextResponse.json({ error: "Session expirée : saisissez à nouveau le mot de passe." }, { status: 401 });
+  if (!(await hasPreAuth())) return NextResponse.json({ error: "Session expirée : saisissez à nouveau le mot de passe." }, { status: 401 });
   if (await isEnrolled()) return NextResponse.json({ error: "La double authentification est déjà configurée." }, { status: 409 });
   const { secret, uri } = await startEnrollment();
   const svg = await QRCode.toString(uri, { type: "svg", margin: 0, color: { dark: palette.ink, light: palette.ivory }, errorCorrectionLevel: "M" });
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     await logSecurityEvent("admin_login_blocked", req, ip);
     return NextResponse.json({ error: "Trop de tentatives. Réessayez dans quelques minutes." }, { status: 429 });
   }
-  if (!(await hasPreAuth())) return NextResponse.json({ error: "Session expirée : saisissez à nouveau le mot de passe." }, { status: 401 });
+  if (!(await hasPreAuth())) return NextResponse.json({ error: "Session expirée : saisissez à nouveau le mot de passe." }, { status: 401 });
   const parsed = z.object({ code: z.string().trim().regex(/^\d{6}$/) }).safeParse(await req.json().catch(() => null));
   const recovery = parsed.success ? await confirmEnrollment(parsed.data.code) : null;
   if (!recovery) {

@@ -80,7 +80,7 @@ export async function POST(req: Request) {
 
   // paiement simulé : carte de test refusée
   if (d.paymentMethod === "card") {
-    if (d.testOutcome === "declined") return NextResponse.json({ error: "Paiement refusé par la banque (carte de test « refusée »). Essayez 4242 4242 4242 4242." }, { status: 402 });
+    if (d.testOutcome === "declined") return NextResponse.json({ error: "Paiement refusé par la banque (carte de test « refusée »). Essayez 4242 4242 4242 4242." }, { status: 402 });
     if (d.testOutcome !== "accepted") return NextResponse.json({ error: "Numéro de carte incomplet." }, { status: 400 });
   }
 
@@ -179,12 +179,12 @@ export async function POST(req: Request) {
       paragraphs: [
         `Bonjour ${d.firstName},`,
         anyPreorder
-          ? "Votre commande est confirmée. Une partie de vos pièces est désormais en fabrication à l’atelier : nous vous écrirons dès leur expédition."
+          ? "Votre commande est confirmée. Une partie de vos pièces est désormais en fabrication à l’atelier : nous vous écrirons dès leur expédition."
           : `Votre commande est confirmée. Votre pièce sera pliée dans du papier de soie et expédiée sous ${shop.dispatchDays}, avec son certificat numéroté.`,
         ...(certificates.length
           ? [
-              `Le certificat d’authenticité de chaque pièce est déjà en ligne : ${certificates.map((c) => `${c.certificate.productTitle} — ${certificateUrl(c.certificate.serial)}`).join(" ; ")}. Il est rattaché à votre compte.`,
-              `Si vous offrez une pièce, transmettez avec elle son code de rattachement : ${certificates.map((c) => `${c.certificate.productTitle} : ${c.claimCode}`).join(" ; ")}.`,
+              `Le certificat d’authenticité de chaque pièce est déjà en ligne : ${certificates.map((c) => `${c.certificate.productTitle} — ${certificateUrl(c.certificate.serial)}`).join(" ; ")}. Il est rattaché à votre compte.`,
+              `Si vous offrez une pièce, transmettez avec elle son code de rattachement : ${certificates.map((c) => `${c.certificate.productTitle} : ${c.claimCode}`).join(" ; ")}.`,
             ]
           : []),
       ],

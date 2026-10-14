@@ -40,7 +40,7 @@ export interface PerformOutcome {
 export async function perform<T extends ActionType>(agent: AgentId, action: T, rawParams: unknown, meta: { summary: string; rationale?: string }): Promise<PerformOutcome> {
   const parsed = ACTION_SCHEMAS[action].safeParse(rawParams);
   if (!parsed.success) {
-    const message = `Paramètres invalides pour « ${POLICY[action].label} » : ${parsed.error.issues.map((i) => `${i.path.join(".")} ${i.message}`).join(" ; ")}`;
+    const message = `Paramètres invalides pour « ${POLICY[action].label} » : ${parsed.error.issues.map((i) => `${i.path.join(".")} ${i.message}`).join(" ; ")}`;
     await logAction({ agent, kind: action, status: "failed", summary: meta.summary, detail: message });
     return { status: "failed", message };
   }
@@ -62,7 +62,7 @@ export async function perform<T extends ActionType>(agent: AgentId, action: T, r
     };
     await saveProposals([proposal as Proposal, ...list]);
     await logAction({ agent, kind: action, status: "proposed", summary: meta.summary, detail: meta.rationale, proposalId: proposal.id });
-    return { status: "proposed", message: `Proposition enregistrée : elle attend la validation de la créatrice dans le tableau de bord (${POLICY[action].why}).`, proposalId: proposal.id };
+    return { status: "proposed", message: `Proposition enregistrée : elle attend la validation de la créatrice dans le tableau de bord (${POLICY[action].why}).`, proposalId: proposal.id };
   }
 
   try {
@@ -86,18 +86,18 @@ export async function decide(id: string, decision: "approve" | "reject"): Promis
   p.decidedAt = new Date().toISOString();
   if (decision === "reject") {
     p.status = "rejected";
-    await logAction({ agent: p.agent, kind: p.action, status: "rejected", summary: `Refusé par la créatrice : ${p.summary}`, proposalId: p.id });
+    await logAction({ agent: p.agent, kind: p.action, status: "rejected", summary: `Refusé par la créatrice : ${p.summary}`, proposalId: p.id });
   } else {
     try {
       const executor = EXECUTORS[p.action] as unknown as (params: unknown) => Promise<ActionResult>;
       const result = await executor(p.params);
       p.status = "approved";
       p.result = result.summary;
-      await logAction({ agent: p.agent, kind: p.action, status: "approved", summary: `Validé par la créatrice : ${result.summary}`, target: result.target, proposalId: p.id });
+      await logAction({ agent: p.agent, kind: p.action, status: "approved", summary: `Validé par la créatrice : ${result.summary}`, target: result.target, proposalId: p.id });
     } catch (e) {
       p.status = "failed";
       p.result = e instanceof Error ? e.message : String(e);
-      await logAction({ agent: p.agent, kind: p.action, status: "failed", summary: `Échec après validation : ${p.summary}`, detail: p.result, proposalId: p.id });
+      await logAction({ agent: p.agent, kind: p.action, status: "failed", summary: `Échec après validation : ${p.summary}`, detail: p.result, proposalId: p.id });
     }
   }
   await saveProposals(list);

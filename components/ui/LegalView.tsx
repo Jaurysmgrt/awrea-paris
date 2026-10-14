@@ -61,12 +61,12 @@ function WithdrawalModel() {
       <p>
         À l’attention de <LegalText text="{{raisonSociale}}, {{siege}}, {{email}}" /> :
       </p>
-      <p>Je/Nous (*) vous notifie/notifions (*) par la présente ma/notre (*) rétractation du contrat portant sur la vente du bien (*)/pour la prestation de services (*) ci-dessous :</p>
-      <p>Commandé le (*)/reçu le (*) :</p>
-      <p>Nom du (des) consommateur(s) :</p>
-      <p>Adresse du (des) consommateur(s) :</p>
-      <p>Signature du (des) consommateur(s) (uniquement en cas de notification du présent formulaire sur papier) :</p>
-      <p>Date :</p>
+      <p>Je/Nous (*) vous notifie/notifions (*) par la présente ma/notre (*) rétractation du contrat portant sur la vente du bien (*)/pour la prestation de services (*) ci-dessous :</p>
+      <p>Commandé le (*)/reçu le (*) :</p>
+      <p>Nom du (des) consommateur(s) :</p>
+      <p>Adresse du (des) consommateur(s) :</p>
+      <p>Signature du (des) consommateur(s) (uniquement en cas de notification du présent formulaire sur papier) :</p>
+      <p>Date :</p>
       <p className="t-note">(*) Rayez la mention inutile.</p>
     </div>
   );

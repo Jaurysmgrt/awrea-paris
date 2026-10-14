@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     await logSecurityEvent("admin_login_blocked", req, ip);
     return NextResponse.json({ error: "Trop de tentatives. Réessayez dans quelques minutes." }, { status: 429 });
   }
-  if (!(await hasPreAuth())) return NextResponse.json({ error: "Session expirée : saisissez à nouveau le mot de passe." }, { status: 401 });
+  if (!(await hasPreAuth())) return NextResponse.json({ error: "Session expirée : saisissez à nouveau le mot de passe." }, { status: 401 });
   const parsed = z.object({ code: z.string().trim().min(6).max(12) }).safeParse(await req.json().catch(() => null));
   if (!parsed.success || !(await verifyAdminCode(parsed.data.code))) {
     await loginGuard.fail("admin", ip, GUARD);

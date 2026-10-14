@@ -17,7 +17,7 @@ export default async function AvisPage({ params, searchParams }: { params: Promi
     <>
       <PageHeader
         title="Votre avis"
-        lead={order ? "Comment tombe votre pièce, ce que vous ressentez en la portant, si la taille vous a semblé juste : votre regard aide d’autres femmes à choisir, et il guide l’atelier." : "Ce lien n’est plus valable. Écrivez-nous, nous vous en enverrons un nouveau."}
+        lead={order ? "Comment tombe votre pièce, ce que vous ressentez en la portant, si la taille vous a semblé juste : votre regard aide d’autres femmes à choisir, et il guide l’atelier." : "Ce lien n’est plus valable. Écrivez-nous, nous vous en enverrons un nouveau."}
         crumbs={[{ name: "Votre avis", path: `/avis/${number}` }]}
       />
       <Section theme="paper" className="section">

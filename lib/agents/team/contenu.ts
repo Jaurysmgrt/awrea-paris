@@ -18,7 +18,7 @@ const Out = z.object({
     .array(
       z.object({
         title: z.string().describe("Titre interne du post"),
-        caption: z.string().describe("3 à 6 lignes : une phrase poétique, une information concrète (pièce, matière, édition), une invitation sobre"),
+        caption: z.string().describe("3 à 6 lignes : une phrase poétique, une information concrète (pièce, matière, édition), une invitation sobre"),
         hashtags: z.array(z.string()).describe("5 à 8 hashtags sobres, sans #, en minuscules"),
         image_handle: z.string().describe("handle de la pièce dont la photo illustre le post"),
       }),
@@ -27,7 +27,7 @@ const Out = z.object({
   newsletter: z.object({
     subject: z.string().describe("6 mots maximum"),
     preheader: z.string(),
-    paragraphs: z.array(z.string()).describe("Une lettre courte de la créatrice : 3 à 4 paragraphes"),
+    paragraphs: z.array(z.string()).describe("Une lettre courte de la créatrice : 3 à 4 paragraphes"),
     cta_label: z.string(),
     cta_handle: z.string().describe("handle de la pièce mise en avant"),
   }),
@@ -44,11 +44,11 @@ export async function runContenuAgent(trigger: AgentRun["trigger"] = "cron"): Pr
     if (aiEnabled) {
       out = await generateStructured({
         instructions:
-          "Mission : agent Contenu. Préparez des contenus prêts à publier dans la direction artistique d'Awrea Paris : minimal, contrasté, sensuel, lumière de la dorure. Aucun emoji, aucune urgence artificielle, vouvoiement dans la newsletter. Variez les angles et évitez de répéter les contenus récents.",
-        content: `Collection en cours : ${collection ? `${collection.title} (${collection.season}) — ${collection.lead}` : "—"}
-Pièces récentes :
+          "Mission : agent Contenu. Préparez des contenus prêts à publier dans la direction artistique d’Awrea Paris : minimal, contrasté, sensuel, lumière de la dorure. Aucun emoji, aucune urgence artificielle, vouvoiement dans la newsletter. Variez les angles et évitez de répéter les contenus récents.",
+        content: `Collection en cours : ${collection ? `${collection.title} (${collection.season}) — ${collection.lead}` : "—"}
+Pièces récentes :
 ${recent.map((p) => `- ${p.handle} : ${p.title} — ${p.tagline} — ${formatPrice(p.price)} — ${editionInfo(p).unique ? "pièce unique" : `${editionInfo(p).remainingLabel}`}`).join("\n")}
-Contenus déjà préparés récemment : ${recentDrafts.join(" ; ") || "aucun"}`,
+Contenus déjà préparés récemment : ${recentDrafts.join(" ; ") || "aucun"}`,
         schema: Out,
         effort: "medium",
       });
@@ -58,7 +58,7 @@ Contenus déjà préparés récemment : ${recentDrafts.join(" ; ") || "aucun"}`,
         instagram: [
           { title: `${a.title} — la pièce`, caption: `${a.tagline}\n\n${a.title}, ${editionInfo(a).unique ? "pièce unique" : `série numérotée de ${editionInfo(a).total}`}. Faite main à Paris.\n\nÀ découvrir sur awreaparis.com`, hashtags: ["awreaparis", "faitmainaparis", "dentellenoire", "creatricefrancaise", "piecenumerotee", "consommerplusjuste"], image_handle: a.handle },
           { title: "Le geste de l’atelier", caption: `Une dentelle se coupe motif par motif, pour que les fleurs ne soient jamais tranchées au mauvais endroit.\n\nC’est lent. C’est voulu.\n\nL’atelier, à Paris.`, hashtags: ["awreaparis", "savoirfaire", "atelierparis", "faitmain", "dentelle"], image_handle: (b ?? a).handle },
-          { title: "Manifeste", caption: `La couleur n’est pas au rendez-vous mais la lumière de la dorure suffit à révéler l’essentiel.\n\nConsommer plus juste : peu de pièces, numérotées, au prix juste.`, hashtags: ["awreaparis", "consommerplusjuste", "modeethique", "creatriceparisienne", "slowfashion"], image_handle: (c ?? a).handle },
+          { title: "Manifeste", caption: `La couleur n’est pas au rendez-vous mais la lumière de la dorure suffit à révéler l’essentiel.\n\nConsommer plus juste : peu de pièces, numérotées, au prix juste.`, hashtags: ["awreaparis", "consommerplusjuste", "modeethique", "creatriceparisienne", "slowfashion"], image_handle: (c ?? a).handle },
         ],
         newsletter: {
           subject: collection ? `${collection.title}, à l’atelier` : "Nouvelles de l’atelier",
@@ -66,7 +66,7 @@ Contenus déjà préparés récemment : ${recentDrafts.join(" ; ") || "aucun"}`,
           paragraphs: [
             "Chère vous,",
             collection ? `${collection.title} est désormais entièrement sortie de l’atelier. ${collection.lead}` : "De nouvelles pièces viennent de sortir de l’atelier.",
-            `Parmi elles, ${a.title} : ${a.tagline.charAt(0).toLowerCase()}${a.tagline.slice(1)} Les séries sont courtes ; nous préférions vous l’écrire avant tout le monde.`,
+            `Parmi elles, ${a.title} : ${a.tagline.charAt(0).toLowerCase()}${a.tagline.slice(1)} Les séries sont courtes ; nous préférions vous l’écrire avant tout le monde.`,
             "L’atelier vous reçoit aussi sur rendez-vous pour un essayage, à Paris.",
           ],
           cta_label: `Découvrir ${a.title}`,
@@ -80,15 +80,15 @@ Contenus déjà préparés récemment : ${recentDrafts.join(" ; ") || "aucun"}`,
       await rec.act(
         "save_content_draft",
         { kind: "instagram", title: post.title, body: post.caption, hashtags: post.hashtags.map((h) => h.replace(/^#/, "")), image: p.images[0].src },
-        { summary: `Post Instagram préparé : ${post.title}` },
+        { summary: `Post Instagram préparé : ${post.title}` },
       );
     }
     const n = out.newsletter;
-    await rec.act("save_content_draft", { kind: "newsletter", title: n.subject, subject: n.subject, preheader: n.preheader, body: n.paragraphs.join("\n\n") }, { summary: `Newsletter préparée : ${n.subject}` });
+    await rec.act("save_content_draft", { kind: "newsletter", title: n.subject, subject: n.subject, preheader: n.preheader, body: n.paragraphs.join("\n\n") }, { summary: `Newsletter préparée : ${n.subject}` });
     await rec.act(
       "send_newsletter_all",
       { subject: n.subject, preheader: n.preheader, paragraphs: n.paragraphs, cta: { label: n.cta_label, href: `/boutique/${n.cta_handle}` } },
-      { summary: `Envoyer la newsletter « ${n.subject} » à toute la liste`, rationale: "Nouvelles pièces à présenter aux abonnées" },
+      { summary: `Envoyer la newsletter « ${n.subject} » à toute la liste`, rationale: "Nouvelles pièces à présenter aux abonnées" },
     );
     return rec.finish("3 posts Instagram et 1 newsletter préparés — envoi de la newsletter en attente de validation");
   } catch (e) {

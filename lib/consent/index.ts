@@ -63,7 +63,7 @@ export function newConsentId(): string {
  */
 export function consentHeadScript(): string {
   return [
-    "document.documentElement.classList.add('js');",
+    "document.documentElement.classList.add('js') ;",
     "try{",
     `var m=document.cookie.match(/(?:^|; )${CONSENT_COOKIE}=2\\.[A-Za-z0-9_-]+\\.[01]{3}\\.(\\d+)\\.([A-Za-z0-9_-]+)/);`,
     `if(m&&Date.now()-Number(m[1])<${CONSENT_MAX_AGE_MS}&&m[2]==='${CONSENT_POLICY_VERSION}')document.documentElement.dataset.consent='set'`,

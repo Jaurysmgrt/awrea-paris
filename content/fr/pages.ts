@@ -36,7 +36,7 @@ export const home = {
   seo: {
     title: "Awrea Paris — prêt-à-porter féminin fait main à Paris",
     description:
-      "Awrea Paris, créatrice française de prêt-à-porter féminin : dentelle noire, jersey, satin et dorure. Pièces uniques et séries numérotées, faites main à Paris.",
+      "Awrea Paris, créatrice française de prêt-à-porter féminin : dentelle noire, jersey, satin et dorure. Pièces uniques et séries numérotées, faites main à Paris.",
   },
   hero: {
     eyebrow: "Collection Automne-Hiver 2026",
@@ -74,13 +74,13 @@ export const home = {
   atelier: {
     eyebrow: "L’Atelier",
     title: "Des mains, un fil, le temps qu’il faut",
-    text: "Du croquis au dernier point, chaque pièce passe entre les mains de la créatrice. Patronage, coupe, montage de la dentelle, finitions dorées : rien n’est confié à une machine qui ne s’arrête jamais.",
+    text: "Du croquis au dernier point, chaque pièce passe entre les mains de la créatrice. Patronage, coupe, montage de la dentelle, finitions dorées : rien n’est confié à une machine qui ne s’arrête jamais.",
     cta: { href: "/atelier", label: "Entrer dans l’atelier" },
   },
   newsletter: {
     eyebrow: "Lettres de l’atelier",
     title: "Recevoir nos lettres",
-    text: "Une lettre par saison, jamais plus : les nouvelles pièces avant leur mise en ligne, les dates d’essayage à l’atelier, les coulisses des shootings.",
+    text: "Une lettre par saison, jamais plus : les nouvelles pièces avant leur mise en ligne, les dates d’essayage à l’atelier, les coulisses des shootings.",
   },
   instagram: {
     eyebrow: "Instagram",
@@ -92,7 +92,7 @@ export const maison = {
   seo: {
     title: "La Maison — histoire et manifeste | Awrea Paris",
     description:
-      "L’histoire d’Awrea Paris : une jeune créatrice parisienne, des pièces faites main en séries numérotées, la dentelle noire et la dorure, un manifeste — consommer plus juste.",
+      "L’histoire d’Awrea Paris : une jeune créatrice parisienne, des pièces faites main en séries numérotées, la dentelle noire et la dorure, un manifeste — consommer plus juste.",
   },
   h1: "La Maison",
   lead: "Awrea Paris est une maison de prêt-à-porter féminin fondée à Paris par une jeune créatrice. Elle dessine, coupe et coud chaque pièce à la main, en pièce unique ou en très petite série numérotée.",
@@ -107,20 +107,20 @@ export const maison = {
     {
       title: "Une lumière plutôt qu’une couleur",
       text: [
-        "Tout commence par une phrase écrite dans un carnet de croquis : « La couleur n’est pas au rendez-vous mais la lumière de la dorure suffit à révéler l’essentiel. » La palette de la maison tient en quatre teintes — le noir profond, l’ivoire, le gris perle, l’or chaud — et c’est la lumière, plus que la couleur, qui donne vie aux pièces.",
+        "Tout commence par une phrase écrite dans un carnet de croquis : « La couleur n’est pas au rendez-vous mais la lumière de la dorure suffit à révéler l’essentiel. » La palette de la maison tient en quatre teintes — le noir profond, l’ivoire, le gris perle, l’or chaud — et c’est la lumière, plus que la couleur, qui donne vie aux pièces.",
         "La dentelle noire en est la signature. Associée à des matières fluides, le jersey et le satin, elle dessine des silhouettes minimales et contrastées, sensuelles sans jamais être démonstratives.",
       ],
     },
     {
       title: "Le drapé, le mouvement",
       text: [
-        "La créatrice puise dans le drapé à la grecque : un pan de tissu, un nœud à l’épaule, et la silhouette se compose d’elle-même. Les pièces Awrea sont pensées pour le mouvement — elles prennent leur forme quand on marche, quand on danse, quand on se retourne.",
+        "La créatrice puise dans le drapé à la grecque : un pan de tissu, un nœud à l’épaule, et la silhouette se compose d’elle-même. Les pièces Awrea sont pensées pour le mouvement — elles prennent leur forme quand on marche, quand on danse, quand on se retourne.",
       ],
     },
     {
       title: "Fait main à Paris, et numéroté",
       text: [
-        "Chaque pièce est coupée, assemblée et finie à la main dans l’atelier parisien de la maison. Les séries sont volontairement courtes : une pièce unique, ou trois à dix exemplaires au plus. Chaque exemplaire reçoit son numéro et un certificat signé par la créatrice.",
+        "Chaque pièce est coupée, assemblée et finie à la main dans l’atelier parisien de la maison. Les séries sont volontairement courtes : une pièce unique, ou trois à dix exemplaires au plus. Chaque exemplaire reçoit son numéro et un certificat signé par la créatrice.",
         "Lorsqu’une série est complète, elle ne revient pas à l’identique. Certaines pièces peuvent être réalisées sur commande, à vos mesures, avec un délai de fabrication annoncé à l’avance.",
       ],
     },
@@ -146,7 +146,7 @@ export const maison = {
     points: [
       { title: "Moins, mais mieux", text: "Peu de pièces, des séries courtes et numérotées. Nous ne produisons jamais de stock que nous ne pourrions pas vendre." },
       { title: "Le prix juste", text: "Une création exclusive n’a pas besoin d’être réservée à l’ultra luxe. Nos prix reflètent le temps de travail et la matière, sans multiplication artificielle." },
-      { title: "La main et la proximité", text: "Tout est fait à Paris, dans l’atelier de la créatrice. Les dentelles viennent de maisons françaises lorsque c’est possible ; les chutes deviennent des accessoires." },
+      { title: "La main et la proximité", text: "Tout est fait à Paris, dans l’atelier de la créatrice. Les dentelles viennent de maisons françaises lorsque c’est possible ; les chutes deviennent des accessoires." },
       { title: "Des pièces qui durent", text: "Chaque pièce peut être retouchée et réparée à l’atelier. Une robe Awrea est faite pour traverser les saisons." },
     ],
   },
@@ -156,16 +156,16 @@ export const atelier = {
   seo: {
     title: "L’Atelier — savoir-faire et fabrication à la main | Awrea Paris",
     description:
-      "Dans l’atelier parisien d’Awrea Paris : croquis, patronage, coupe, montage de la dentelle, finitions dorées. Chaque pièce est faite main et numérotée.",
+      "Dans l’atelier parisien d’Awrea Paris : croquis, patronage, coupe, montage de la dentelle, finitions dorées. Chaque pièce est faite main et numérotée.",
   },
   h1: "L’Atelier",
   lead: "Une table de coupe, des rouleaux de dentelle, un carnet de croquis ouvert. C’est ici, à Paris, que chaque pièce Awrea prend forme, entre les mains de la créatrice.",
   steps: [
-    { number: "I", title: "Le croquis", text: "Tout commence au crayon, dans un carnet. Une ligne d’épaule, un drapé, un détail de dentelle. Les croquis sont nombreux ; peu deviennent des pièces." },
+    { number: "I", title: "Le croquis", text: "Tout commence au crayon, dans un carnet. Une ligne d’épaule, un drapé, un détail de dentelle. Les croquis sont nombreux ; peu deviennent des pièces." },
     { number: "II", title: "Le patronage", text: "Le croquis devient patron, à plat puis sur le mannequin. La toile est épinglée, ajustée, reprise jusqu’à ce que le tombé soit juste." },
     { number: "III", title: "La coupe", text: "La dentelle se coupe motif par motif, pour que les fleurs ne soient jamais tranchées au mauvais endroit. Un geste lent, qui ne pardonne pas l’erreur." },
     { number: "IV", title: "Le montage", text: "Les pièces sont assemblées à la main et à la machine familiale de l’atelier. Les coutures de la dentelle sont invisibles, rabattues à l’aiguille." },
-    { number: "V", title: "La dorure", text: "Le fil d’or est posé en dernier, à la main : un liseré, un bouton, une frontière entre deux matières. Juste assez pour accrocher la lumière." },
+    { number: "V", title: "La dorure", text: "Le fil d’or est posé en dernier, à la main : un liseré, un bouton, une frontière entre deux matières. Juste assez pour accrocher la lumière." },
     { number: "VI", title: "Le numéro", text: "Chaque pièce terminée reçoit son numéro d’édition et un certificat signé. Elle est pliée dans du papier de soie, glissée dans sa housse, et attend celle qui la portera." },
   ],
   sketches: {
@@ -192,7 +192,7 @@ export const contact = {
       "Écrire à Awrea Paris ou prendre rendez-vous à l’atelier parisien pour un essayage, une retouche ou une pièce sur mesure.",
   },
   h1: "Contact & rendez-vous",
-  lead: "Une question sur une pièce, une taille, une commande ? Écrivez-nous : l’atelier répond personnellement, en général sous 48 heures ouvrées.",
+  lead: "Une question sur une pièce, une taille, une commande ? Écrivez-nous : l’atelier répond personnellement, en général sous 48 heures ouvrées.",
   appointmentTypes: [
     { value: "essayage", label: "Essayage des pièces disponibles" },
     { value: "sur-mesure", label: "Pièce sur mesure" },
@@ -212,7 +212,7 @@ export const outfits = {
   seo: {
     title: "Outfits — tenues complètes | Awrea Paris",
     description:
-      "Les outfits Awrea Paris : des tenues complètes en dentelle noire, jersey et satin, composées par la créatrice et commandées en un geste. Pièces faites main à Paris.",
+      "Les outfits Awrea Paris : des tenues complètes en dentelle noire, jersey et satin, composées par la créatrice et commandées en un geste. Pièces faites main à Paris.",
   },
   h1: "Outfits",
   lead: "Chaque tenue est composée par la créatrice. Elle se commande entière, en un seul geste, ou pièce par pièce, à votre mesure.",
@@ -222,10 +222,10 @@ export const boutique = {
   seo: {
     title: "Boutique — robes, bodys et tops faits main | Awrea Paris",
     description:
-      "La boutique Awrea Paris : robe en dentelle noire, bodys, tops et jupes en jersey et satin. Pièces uniques et séries numérotées, faites main à Paris.",
+      "La boutique Awrea Paris : robe en dentelle noire, bodys, tops et jupes en jersey et satin. Pièces uniques et séries numérotées, faites main à Paris.",
   },
   h1: "Boutique",
-  lead: "Chaque pièce est faite main à Paris et numérotée. Les séries sont courtes ; certaines pièces peuvent être réalisées sur commande.",
+  lead: "Chaque pièce est faite main à Paris et numérotée. Les séries sont courtes ; certaines pièces peuvent être réalisées sur commande.",
   categories: [
     { value: "robe", label: "Robes" },
     { value: "body", label: "Bodys" },
@@ -243,7 +243,7 @@ export const collectionsPage = {
   seo: {
     title: "Collections — Lace is more, Lumière d’or | Awrea Paris",
     description:
-      "Les collections Awrea Paris : Lace is more, en dentelle noire, et Lumière d’or, en drapés et satins. Intentions, moodboards et pièces faites main à Paris.",
+      "Les collections Awrea Paris : Lace is more, en dentelle noire, et Lumière d’or, en drapés et satins. Intentions, moodboards et pièces faites main à Paris.",
   },
   h1: "Collections",
   lead: "Une collection par saison, quelques pièces seulement. Chacune part d’une intention, écrite dans le carnet de la créatrice.",
@@ -253,26 +253,26 @@ export const journalPage = {
   seo: {
     title: "Journal — moodboards et coulisses | Awrea Paris",
     description:
-      "Le Journal d’Awrea Paris : moodboards, coulisses des shootings, savoir-faire de la dentelle et lettres de l’atelier parisien.",
+      "Le Journal d’Awrea Paris : moodboards, coulisses des shootings, savoir-faire de la dentelle et lettres de l’atelier parisien.",
   },
   h1: "Journal",
-  lead: "Moodboards, coulisses des shootings, histoires de matières : les carnets de l’atelier, ouverts.",
+  lead: "Moodboards, coulisses des shootings, histoires de matières : les carnets de l’atelier, ouverts.",
 };
 
 export const pressePage = {
   seo: {
     title: "Presse — parutions et contact presse | Awrea Paris",
     description:
-      "Awrea Paris dans la presse : parutions, kit presse et contact pour les journalistes, stylistes et collaborations.",
+      "Awrea Paris dans la presse : parutions, kit presse et contact pour les journalistes, stylistes et collaborations.",
   },
   h1: "Presse",
-  lead: "Parutions, prêts de pièces pour shootings, collaborations : l’atelier répond à toutes les demandes presse.",
+  lead: "Parutions, prêts de pièces pour shootings, collaborations : l’atelier répond à toutes les demandes presse.",
 };
 
 export const account = {
   seo: {
     title: "Mon compte | Awrea Paris",
-    description: "Votre compte Awrea Paris : commandes, retours, adresses et liste d’envies.",
+    description: "Votre compte Awrea Paris : commandes, retours, adresses et liste d’envies.",
   },
   h1: "Mon compte",
 };
@@ -283,5 +283,5 @@ export const wishlist = {
     description: "Les pièces Awrea Paris que vous avez mises de côté.",
   },
   h1: "Liste d’envies",
-  empty: "Votre liste d’envies est vide. Touchez le losange « Garder » sur une pièce pour la retrouver ici.",
+  empty: "Votre liste d’envies est vide. Touchez le losange « Garder » sur une pièce pour la retrouver ici.",
 };

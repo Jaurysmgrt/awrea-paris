@@ -42,7 +42,7 @@ export const atelierMoments: Record<AtelierMoment["key"], AtelierMoment> = {
     video: v(4),
     caption: "Finitions",
     title: "Le dernier regard",
-    text: "Un dernier fil coupé, un dernier pli repassé ; puis la pièce reçoit son numéro et son certificat signé par la créatrice.",
+    text: "Un dernier fil coupé, un dernier pli repassé ; puis la pièce reçoit son numéro et son certificat signé par la créatrice.",
   },
 };
 

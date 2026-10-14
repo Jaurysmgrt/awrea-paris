@@ -13,7 +13,7 @@ export function AtelierNote({ moment, theme = "paper", link = true }: { moment: 
     <Section theme={theme} className="section atelier-note" labelledBy={id}>
       <div className="container atelier-note__grid">
         <figure className="atelier-note__media">
-          <VideoLazy src={moment.video.src} poster={moment.video.poster} label={`Dans l’atelier : ${moment.caption.toLowerCase()}`} className="media media--landscape" />
+          <VideoLazy src={moment.video.src} poster={moment.video.poster} label={`Dans l’atelier : ${moment.caption.toLowerCase()}`} className="media media--landscape" />
           <figcaption className="t-label t-soft atelier-note__caption">{moment.caption}</figcaption>
         </figure>
         <div className="atelier-note__text stack-s">

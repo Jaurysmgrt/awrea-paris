@@ -31,7 +31,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
       <header className="admin-page__head">
         <h1 className="t-h1">Clientes</h1>
         <p className="t-lead">
-          La base clientes ({customersMode === "supabase" ? "Supabase, synchronisée avec Shopify" : "mode démonstration"}) : segments, consentements, e-mails automatiques et
+          La base clientes ({customersMode === "supabase" ? "Supabase, synchronisée avec Shopify" : "mode démonstration"}) : segments, consentements, e-mails automatiques et
           ventes par source.
         </p>
       </header>
@@ -57,7 +57,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
         </div>
       </dl>
       <p className="t-note">
-        Règles : VIP à partir de {formatPrice(rules.vipMinSpent)} d’achats ou {rules.vipMinOrders} commandes ; fidèle à partir de {rules.loyalMinOrders} commandes ; nouvelle sinon. Les membres du
+        Règles : VIP à partir de {formatPrice(rules.vipMinSpent)} d’achats ou {rules.vipMinOrders} commandes ; fidèle à partir de {rules.loyalMinOrders} commandes ; nouvelle sinon. Les membres du
         Cercle qui deviennent VIP en reçoivent automatiquement les avantages.
       </p>
 
@@ -103,7 +103,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
 
       <section className="panel" aria-labelledby="sources-title">
         <h2 id="sources-title" className="t-h3">Ventes par source · 90 jours</h2>
-        <p className="t-note">Canal d’origine de chaque commande (Shopify, ou mesure d’audience acceptée sur le site). Les commandes sans information sont classées « non renseignée ».</p>
+        <p className="t-note">Canal d’origine de chaque commande (Shopify, ou mesure d’audience acceptée sur le site). Les commandes sans information sont classées « non renseignée ».</p>
         <div className="table-scroll">
           <table className="table">
             <thead>
@@ -133,7 +133,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
       <section className="panel" aria-labelledby="flows-title">
         <h2 id="flows-title" className="t-h3">E-mails automatiques</h2>
         <p className="t-note">
-          Outil : {marketingProvider === "brevo" ? "Brevo" : marketingProvider === "klaviyo" ? "Klaviyo (évènements) + envoi par le site" : "envoi par le site (aucun outil marketing configuré)"}. Gabarits à l’image de la
+          Outil : {marketingProvider === "brevo" ? "Brevo" : marketingProvider === "klaviyo" ? "Klaviyo (évènements) + envoi par le site" : "envoi par le site (aucun outil marketing configuré)"}. Gabarits à l’image de la
           maison, un seul envoi par évènement.
         </p>
         <div className="table-scroll">

@@ -8,7 +8,7 @@ import { Section } from "@/components/ui/Section";
 
 export const metadata = pageMetadata({
   title: "Questions fréquentes — tailles, commandes, livraison | Awrea Paris",
-  description: "Toutes les réponses sur Awrea Paris : fabrication à la main à Paris, pièces numérotées, tailles, précommandes, livraison, retours et sur mesure.",
+  description: "Toutes les réponses sur Awrea Paris : fabrication à la main à Paris, pièces numérotées, tailles, précommandes, livraison, retours et sur mesure.",
   path: "/faq",
 });
 
@@ -18,7 +18,7 @@ export default function FaqPage() {
       <JsonLd data={faqSchema(faq.flatMap((g) => g.items))} />
       <PageHeader
         title="Questions fréquentes"
-        lead="Les réponses aux questions que l’on nous pose le plus souvent. Une autre question ? Notre assistante vous répond à toute heure, et l’atelier sous 48 heures."
+        lead="Les réponses aux questions que l’on nous pose le plus souvent. Une autre question ? Notre assistante vous répond à toute heure, et l’atelier sous 48 heures."
         crumbs={[{ name: "Questions fréquentes", path: "/faq" }]}
       />
       <Section theme="ivory" className="section section--flush-top" aria-label="Questions">
@@ -51,7 +51,7 @@ export default function FaqPage() {
               </section>
             ))}
             <p className="t-body">
-              Vous ne trouvez pas votre réponse ? <Link href="/contact" className="text-link">Écrivez-nous</Link>.
+              Vous ne trouvez pas votre réponse ? <Link href="/contact" className="text-link">Écrivez-nous</Link>.
             </p>
           </div>
         </div>

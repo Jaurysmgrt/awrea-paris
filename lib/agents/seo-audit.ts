@@ -48,8 +48,8 @@ export async function runSiteAudit(origin: string, maxPages = 80): Promise<Audit
 
     const title = html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() ?? "";
     if (!title) issues.push({ page: path, kind: "title", detail: "Balise title absente", severity: "haute" });
-    else if (title.length > 65) issues.push({ page: path, kind: "title", detail: `Title trop long (${title.length} caractères) : « ${title} »`, severity: "basse" });
-    else if (title.length < 20) issues.push({ page: path, kind: "title", detail: `Title trop court : « ${title} »`, severity: "moyenne" });
+    else if (title.length > 65) issues.push({ page: path, kind: "title", detail: `Title trop long (${title.length} caractères) : « ${title} »`, severity: "basse" });
+    else if (title.length < 20) issues.push({ page: path, kind: "title", detail: `Title trop court : « ${title} »`, severity: "moyenne" });
     if (title) titles.set(title, [...(titles.get(title) ?? []), path]);
 
     const descTag = html.match(/<meta[^>]+name="description"[^>]*>/i)?.[0];
@@ -81,7 +81,7 @@ export async function runSiteAudit(origin: string, maxPages = 80): Promise<Audit
     }
   }
 
-  for (const [title, pages] of titles) if (pages.length > 1) issues.push({ page: pages.join(", "), kind: "doublon", detail: `Title identique sur ${pages.length} pages : « ${title} »`, severity: "moyenne" });
+  for (const [title, pages] of titles) if (pages.length > 1) issues.push({ page: pages.join(", "), kind: "doublon", detail: `Title identique sur ${pages.length} pages : « ${title} »`, severity: "moyenne" });
 
   const known = new Set(paths);
   for (const href of [...links].filter((h) => !known.has(h)).slice(0, 60)) {

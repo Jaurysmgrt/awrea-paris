@@ -34,19 +34,19 @@ export interface StoredMedia {
 }
 
 const Copy = z.object({
-  title: z.string().describe("Nom de la pièce : type + prénom évocateur, ex. « Robe Odessa ». Reprendre le nom des notes s'il est donné."),
-  tagline: z.string().describe("Une phrase d'accroche sensorielle, 12 à 22 mots"),
+  title: z.string().describe("Nom de la pièce : type + prénom évocateur, ex. « Robe Odessa ». Reprendre le nom des notes s’il est donné."),
+  tagline: z.string().describe("Une phrase d’accroche sensorielle, 12 à 22 mots"),
   category: z.enum(["robe", "body", "top", "jupe", "accessoire"]),
-  description: z.array(z.string()).describe("2 ou 3 paragraphes courts : la matière, le tombé, la façon de la porter"),
-  materials: z.array(z.object({ name: z.string(), percent: z.number() })).describe("Composition ; si inconnue, une seule ligne avec la matière principale et 100"),
+  description: z.array(z.string()).describe("2 ou 3 paragraphes courts : la matière, le tombé, la façon de la porter"),
+  materials: z.array(z.object({ name: z.string(), percent: z.number() })).describe("Composition ; si inconnue, une seule ligne avec la matière principale et 100"),
   lining: z.string().nullable(),
-  care: z.array(z.string()).describe("3 ou 4 consignes d'entretien adaptées aux matières"),
+  care: z.array(z.string()).describe("3 ou 4 consignes d’entretien adaptées aux matières"),
   fit: z.string().describe("Conseil de coupe et de taille, 1 à 2 phrases"),
   details: z.array(z.string()).describe("3 à 5 détails de façon"),
-  alts: z.array(z.string()).describe("Un texte alternatif par photo, dans l'ordre des photos : pièce, matière, pose, fond ; sans « image de »"),
+  alts: z.array(z.string()).describe("Un texte alternatif par photo, dans l’ordre des photos : pièce, matière, pose, fond ; sans « image de »"),
   seo: z.object({
-    title: z.string().describe("« Nom — matière principale | Awrea Paris », 60 caractères maximum"),
-    description: z.string().describe("140 à 155 caractères, image sensorielle + « fait main à Paris »"),
+    title: z.string().describe("« Nom — matière principale | Awrea Paris », 60 caractères maximum"),
+    description: z.string().describe("140 à 155 caractères, image sensorielle + « fait main à Paris »"),
   }),
   tags: z.array(z.string()).describe("3 à 6 mots-clés simples"),
   missing_information: z.array(z.string()).describe("Informations manquantes à confirmer par la créatrice (vide si rien ne manque)"),
@@ -68,20 +68,20 @@ export async function runCatalogueAgent(input: CatalogueInput, trigger: AgentRun
           type: "text",
           text: `Rédigez la fiche produit complète de cette nouvelle pièce, à partir des ${media.length} photo(s) ci-dessus et des notes de la créatrice.
 
-Notes de la créatrice :
+Notes de la créatrice :
 ${input.notes || "(aucune)"}
 
-Informations saisies :
-- Nom proposé : ${input.name ?? "(à proposer)"}
-- Catégorie : ${input.category ?? "(à déduire des photos)"}
-- Collection : ${collections.find((c) => c.handle === collection)?.title ?? collection}
-- Série : ${input.editionTotal === 1 ? "pièce unique" : input.editionTotal ? `${input.editionTotal} pièces numérotées` : "(non précisée)"}
-- Tailles : ${input.sizes.map((s) => `${s.size} (${s.quantity} en stock${s.preorder ? ", précommande possible" : ""})`).join(", ")}
-- Délai de fabrication en précommande : ${input.leadTimeWeeks ? `${input.leadTimeWeeks} semaines` : "(non précisé)"}`,
+Informations saisies :
+- Nom proposé : ${input.name ?? "(à proposer)"}
+- Catégorie : ${input.category ?? "(à déduire des photos)"}
+- Collection : ${collections.find((c) => c.handle === collection)?.title ?? collection}
+- Série : ${input.editionTotal === 1 ? "pièce unique" : input.editionTotal ? `${input.editionTotal} pièces numérotées` : "(non précisée)"}
+- Tailles : ${input.sizes.map((s) => `${s.size} (${s.quantity} en stock${s.preorder ? ", précommande possible" : ""})`).join(", ")}
+- Délai de fabrication en précommande : ${input.leadTimeWeeks ? `${input.leadTimeWeeks} semaines` : "(non précisé)"}`,
         },
       ];
       copy = await generateStructured({
-        instructions: "Mission : agent Catalogue. Vous rédigez des fiches produit prêtes à être publiées, fidèles aux photos et aux notes. Ne décrivez que ce qui est visible ou indiqué ; mettez le reste dans missing_information.",
+        instructions: "Mission : agent Catalogue. Vous rédigez des fiches produit prêtes à être publiées, fidèles aux photos et aux notes. Ne décrivez que ce qui est visible ou indiqué ; mettez le reste dans missing_information.",
         content,
         schema: Copy,
         effort: "high",
@@ -106,7 +106,7 @@ Informations saisies :
         alts: media.map((_, i) => `${name} en ${mat}, photographie ${i + 1} sur fond studio`),
         seo: { title: `${name} — ${mat} | Awrea Paris`.slice(0, 60), description: `${name} en ${mat}, pièce de créatrice façonnée à la main à Paris en série limitée et numérotée. Une lumière discrète, une coupe juste.`.slice(0, 160) },
         tags: [mat, cat, "fait main"],
-        missing_information: ["Mode démonstration : textes générés à partir d’un modèle, à relire."],
+        missing_information: ["Mode démonstration : textes générés à partir d’un modèle, à relire."],
       };
     }
 
@@ -137,12 +137,12 @@ Informations saisies :
           status: hasPrice ? "active" : "draft",
         },
       },
-      { summary: `Publication de la fiche « ${copy.title} »`, rationale: copy.missing_information.length ? `À confirmer : ${copy.missing_information.join(" ; ")}` : undefined },
+      { summary: `Publication de la fiche « ${copy.title} »`, rationale: copy.missing_information.length ? `À confirmer : ${copy.missing_information.join(" ; ")}` : undefined },
     );
     return rec.finish(
       outcome.status === "done"
-        ? `Fiche « ${copy.title} » ${hasPrice ? "publiée" : "créée en brouillon (prix manquant)"}${copy.missing_information.length ? ` — ${copy.missing_information.length} point(s) à confirmer` : ""}`
-        : `Échec de la publication : ${outcome.message}`,
+        ? `Fiche « ${copy.title} » ${hasPrice ? "publiée" : "créée en brouillon (prix manquant)"}${copy.missing_information.length ? ` — ${copy.missing_information.length} point(s) à confirmer` : ""}`
+        : `Échec de la publication : ${outcome.message}`,
     );
   } catch (e) {
     rec.error(e);

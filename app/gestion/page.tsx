@@ -38,7 +38,7 @@ export default async function GestionHome() {
       <header className="admin-page__head">
         <p className="eyebrow">{greeting}</p>
         <h1 className="t-h1">Bonjour.</h1>
-        <p className="t-lead">Voici l’atelier en un coup d’œil : ce que les agents ont fait, et ce qui attend votre décision.</p>
+        <p className="t-lead">Voici l’atelier en un coup d’œil : ce que les agents ont fait, et ce qui attend votre décision.</p>
       </header>
 
       <dl className="kpis">
@@ -114,7 +114,7 @@ export default async function GestionHome() {
             ) : null}
           </div>
         ) : (
-          <p className="t-note">L’agent de maintenance passe chaque nuit : vérifications, corrections testées, déploiement seulement si tout est vert.</p>
+          <p className="t-note">L’agent de maintenance passe chaque nuit : vérifications, corrections testées, déploiement seulement si tout est vert.</p>
         )}
       </section>
 

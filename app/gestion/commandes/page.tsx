@@ -43,7 +43,7 @@ export default async function CommandesPage() {
                     </th>
                     <td><When iso={o.createdAt} /></td>
                     <td>{o.name}<br /><span className="t-note">{o.email}</span></td>
-                    <td>{o.lines.map((l) => `${l.title} (${l.size}${l.editionLabel ? `, ${l.editionLabel}` : ""})`).join(", ")}{o.gift?.wrap ? <><br /><span className="t-note">Cadeau : « {o.gift.message} »</span></> : null}</td>
+                    <td>{o.lines.map((l) => `${l.title} (${l.size}${l.editionLabel ? `, ${l.editionLabel}` : ""})`).join(", ")}{o.gift?.wrap ? <><br /><span className="t-note">Cadeau : « {o.gift.message} »</span></> : null}</td>
                     <td>{formatPrice(o.total)}</td>
                     <td><span className={`status status--${o.status === "blocked" ? "failed" : o.status === "delivered" || o.status === "shipped" ? "done" : "info"}`}>{statusLabel[o.status]}</span></td>
                     <td>{url ? <a href={url} className="text-link" target="_blank" rel="noopener noreferrer">{o.shipping.carrier}</a> : "—"}</td>

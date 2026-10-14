@@ -34,7 +34,7 @@ async function accessToken(): Promise<string> {
     cache: "no-store",
   });
   const json = (await res.json().catch(() => ({}))) as { access_token?: string; expires_in?: number; error?: string };
-  if (!res.ok || !json.access_token) throw new Error(`Shopify Admin : jeton refusé (${json.error ?? res.status})`);
+  if (!res.ok || !json.access_token) throw new Error(`Shopify Admin : jeton refusé (${json.error ?? res.status})`);
   g.__awreaShopifyAdminToken = { value: json.access_token, expires: Date.now() + (json.expires_in ?? 86_399) * 1000 };
   return json.access_token;
 }
@@ -48,7 +48,7 @@ export async function admin<T>(query: string, variables: Record<string, unknown>
     cache: "no-store",
   });
   const json = (await res.json()) as { data?: T; errors?: { message: string }[] };
-  if (!res.ok || json.errors?.length) throw new Error(`Shopify Admin : ${json.errors?.map((e) => e.message).join(" ; ") ?? res.status}`);
+  if (!res.ok || json.errors?.length) throw new Error(`Shopify Admin : ${json.errors?.map((e) => e.message).join(" ; ") ?? res.status}`);
   return json.data as T;
 }
 

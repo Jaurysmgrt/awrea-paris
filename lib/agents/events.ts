@@ -23,7 +23,7 @@ export async function onOrderCreated(order: Order) {
         agent: "commandes-stock",
         kind: "rupture",
         status: "done",
-        summary: `Rupture : ${p.title} en taille ${v.size}${v.preorder ? " — la taille passe automatiquement en précommande" : " — liste d’attente ouverte"}`,
+        summary: `Rupture : ${p.title} en taille ${v.size}${v.preorder ? " — la taille passe automatiquement en précommande" : " — liste d’attente ouverte"}`,
         target: { type: "product", id: p.handle, label: p.title, href: `/boutique/${p.handle}` },
       });
     }

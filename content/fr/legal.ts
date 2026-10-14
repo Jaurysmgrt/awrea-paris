@@ -107,7 +107,7 @@ export const legalPages = {
     title: "Mentions légales",
     seo: {
       title: "Mentions légales | Awrea Paris",
-      description: "Mentions légales du site Awrea Paris : éditrice, directrice de la publication, hébergeur, propriété intellectuelle et médiation.",
+      description: "Mentions légales du site Awrea Paris : éditrice, directrice de la publication, hébergeur, propriété intellectuelle et médiation.",
     },
     updated: UPDATED,
     intro: "Informations légales relatives au site Awrea Paris, conformément à l’article 6 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l’économie numérique.",
@@ -152,7 +152,7 @@ export const legalPages = {
     title: "Propriété intellectuelle et droits réservés",
     seo: {
       title: "Propriété intellectuelle et droits réservés | Awrea Paris",
-      description: "Créations, marque, photographies et droit à l’image : ce qui est protégé sur le site Awrea Paris, ce qui est permis et comment signaler une contrefaçon.",
+      description: "Créations, marque, photographies et droit à l’image : ce qui est protégé sur le site Awrea Paris, ce qui est permis et comment signaler une contrefaçon.",
     },
     updated: UPDATED,
     intro: "Chaque pièce Awrea Paris est une création originale, dessinée et façonnée à la main. Les images qui la montrent sont le fruit du travail de photographes, de vidéastes et de mannequins dont les droits sont protégés.",
@@ -195,8 +195,8 @@ export const legalPages = {
           {
             list: [
               "Partager l’adresse d’une page du site, ou une publication des comptes officiels avec les outils de partage des réseaux sociaux.",
-              "Citer un court extrait de texte en mentionnant la source « Awrea Paris » et un lien vers la page.",
-              "Pour la presse : télécharger le kit presse et les visuels haute définition depuis l’[espace presse](/presse) ; chaque utilisation mentionne les crédits indiqués.",
+              "Citer un court extrait de texte en mentionnant la source « Awrea Paris » et un lien vers la page.",
+              "Pour la presse : télécharger le kit presse et les visuels haute définition depuis l’[espace presse](/presse) ; chaque utilisation mentionne les crédits indiqués.",
             ],
           },
         ],
@@ -223,11 +223,11 @@ export const legalPages = {
     title: "Conditions générales de vente",
     seo: {
       title: "Conditions générales de vente | Awrea Paris",
-      description: "Conditions générales de vente d’Awrea Paris : pièces rares et précommandes, prix TTC en euros, paiement, livraison, rétractation de 14 jours, garanties légales et médiation.",
+      description: "Conditions générales de vente d’Awrea Paris : pièces rares et précommandes, prix TTC en euros, paiement, livraison, rétractation de 14 jours, garanties légales et médiation.",
     },
     updated: UPDATED,
     version: legalVersions.cgv,
-    intro: `Les présentes conditions régissent les ventes conclues sur le site Awrea Paris entre ${COMPANY} (ci-après « Awrea Paris » ou « la maison ») et toute personne physique agissant à des fins non professionnelles (ci-après « la cliente »).`,
+    intro: `Les présentes conditions régissent les ventes conclues sur le site Awrea Paris entre ${COMPANY} (ci-après « Awrea Paris » ou « la maison ») et toute personne physique agissant à des fins non professionnelles (ci-après « la cliente »).`,
     sections: [
       {
         id: "objet",
@@ -239,7 +239,7 @@ export const legalPages = {
       },
       {
         id: "pieces",
-        title: "2. Les pièces : rareté et fait main",
+        title: "2. Les pièces : rareté et fait main",
         blocks: [
           "Les pièces sont façonnées à la main à Paris, en **pièce unique** ou en **série limitée numérotée**. Le numéro d’édition (par exemple « N° 3 / 5 ») et le nombre de pièces restantes sont indiqués sur chaque fiche ; une fois la série épuisée, une pièce peut, selon les cas, être proposée en précommande ou ne jamais être refaite.",
           "Les photographies et descriptions sont aussi fidèles que possible. De légères variations de teinte, de motif de dentelle ou de finition, propres au travail fait main, peuvent exister et ne constituent pas un défaut de conformité.",
@@ -324,7 +324,7 @@ export const legalPages = {
                 "Le consommateur dispose d’un délai de deux ans à compter de la délivrance du bien pour obtenir la mise en œuvre de la garantie légale de conformité en cas d’apparition d’un défaut de conformité. Durant ce délai, le consommateur n’est tenu d’établir que l’existence du défaut de conformité et non la date d’apparition de celui-ci.",
                 "La garantie légale de conformité donne au consommateur droit à la réparation ou au remplacement du bien dans un délai de trente jours suivant sa demande, sans frais et sans inconvénient majeur pour lui.",
                 "Si le bien est réparé dans le cadre de la garantie légale de conformité, le consommateur bénéficie d’une extension de six mois de la garantie initiale. Si le consommateur demande la réparation du bien, mais que le vendeur impose le remplacement, la garantie légale de conformité est renouvelée pour une période de deux ans à compter de la date de remplacement du bien.",
-                "Le consommateur peut obtenir une réduction du prix d’achat en conservant le bien ou mettre fin au contrat en se faisant rembourser intégralement contre restitution du bien, si : 1° le professionnel refuse de réparer ou de remplacer le bien ; 2° la réparation ou le remplacement du bien intervient après un délai de trente jours ; 3° la réparation ou le remplacement du bien occasionne un inconvénient majeur pour le consommateur, notamment lorsque le consommateur supporte définitivement les frais de reprise ou d’enlèvement du bien non conforme, ou s’il supporte les frais d’installation du bien réparé ou de remplacement ; 4° la non-conformité du bien persiste en dépit de la tentative de mise en conformité du vendeur restée infructueuse.",
+                "Le consommateur peut obtenir une réduction du prix d’achat en conservant le bien ou mettre fin au contrat en se faisant rembourser intégralement contre restitution du bien, si : 1° le professionnel refuse de réparer ou de remplacer le bien ; 2° la réparation ou le remplacement du bien intervient après un délai de trente jours ; 3° la réparation ou le remplacement du bien occasionne un inconvénient majeur pour le consommateur, notamment lorsque le consommateur supporte définitivement les frais de reprise ou d’enlèvement du bien non conforme, ou s’il supporte les frais d’installation du bien réparé ou de remplacement ; 4° la non-conformité du bien persiste en dépit de la tentative de mise en conformité du vendeur restée infructueuse.",
                 "Le consommateur a également droit à une réduction du prix du bien ou à la résolution du contrat lorsque le défaut de conformité est si grave qu’il justifie que la réduction du prix ou la résolution du contrat soit immédiate. Le consommateur n’est alors pas tenu de demander la réparation ou le remplacement du bien au préalable. Le consommateur n’a pas droit à la résolution de la vente si le défaut de conformité est mineur.",
                 "Toute période d’immobilisation du bien en vue de sa réparation ou de son remplacement suspend la garantie qui restait à courir jusqu’à la délivrance du bien remis en état.",
                 "Les droits mentionnés ci-dessus résultent de l’application des articles L. 217-1 à L. 217-32 du code de la consommation.",
@@ -376,7 +376,7 @@ export const legalPages = {
     title: "Conditions générales d’utilisation",
     seo: {
       title: "Conditions générales d’utilisation | Awrea Paris",
-      description: "Conditions d’utilisation du site et du compte cliente Awrea Paris : création du compte, avis, liste d’envies partagée, assistante IA, Cercle Awrea, ventes privées.",
+      description: "Conditions d’utilisation du site et du compte cliente Awrea Paris : création du compte, avis, liste d’envies partagée, assistante IA, Cercle Awrea, ventes privées.",
     },
     updated: UPDATED,
     version: legalVersions.cgu,
@@ -473,21 +473,21 @@ export const legalPages = {
               caption: "Traitements de données personnelles",
               head: ["Finalité", "Données", "Base légale", "Durée de conservation"],
               rows: [
-                ["Commandes, livraison, service après-vente", "Identité, coordonnées, adresses, contenu de la commande, échanges", "Exécution du contrat ; obligations comptables", "10 ans pour les pièces comptables, puis suppression"],
+                ["Commandes, livraison, service après-vente", "Identité, coordonnées, adresses, contenu de la commande, échanges", "Exécution du contrat ; obligations comptables", "10 ans pour les pièces comptables, puis suppression"],
                 ["Paiement", "Données de paiement traitées directement par le prestataire (jamais par la maison)", "Exécution du contrat", "Selon la politique du prestataire"],
-                ["Compte cliente", "E-mail, nom, téléphone, anniversaire (facultatif), tailles et mesures (facultatives), adresses, préférences", "Exécution des conditions d’utilisation", "Jusqu’à la suppression du compte ; 3 ans d’inactivité au plus"],
-                ["Liste d’envies, alertes de retour en stock", "E-mail, pièces et tailles choisies", "Consentement (alerte) ; conditions d’utilisation (compte)", "Jusqu’à l’envoi de l’alerte ou votre retrait, 2 ans au plus"],
-                ["Lettres de l’atelier et e-mails personnalisés (bienvenue, anniversaire, panier en attente, nouvelles)", "E-mail, prénom, segment de clientèle, ouvertures", "Consentement", "Jusqu’au retrait du consentement ; 3 ans sans interaction au plus"],
+                ["Compte cliente", "E-mail, nom, téléphone, anniversaire (facultatif), tailles et mesures (facultatives), adresses, préférences", "Exécution des conditions d’utilisation", "Jusqu’à la suppression du compte ; 3 ans d’inactivité au plus"],
+                ["Liste d’envies, alertes de retour en stock", "E-mail, pièces et tailles choisies", "Consentement (alerte) ; conditions d’utilisation (compte)", "Jusqu’à l’envoi de l’alerte ou votre retrait, 2 ans au plus"],
+                ["Lettres de l’atelier et e-mails personnalisés (bienvenue, anniversaire, panier en attente, nouvelles)", "E-mail, prénom, segment de clientèle, ouvertures", "Consentement", "Jusqu’au retrait du consentement ; 3 ans sans interaction au plus"],
                 ["E-mails après achat (conseils d’entretien, demande d’avis)", "E-mail, pièces achetées", "Intérêt légitime (suivi de la relation), opposable à tout moment", "Durée de la relation commerciale"],
-                ["Avis vérifiés", "Prénom et initiale, texte, taille, photo facultative", "Consentement", "Durée de publication ; retrait sur demande"],
-                ["Personnalisation (pièces vues, collections préférées, panier en attente)", "Identifiants de pièces, dates", "Consentement (catégorie « personnalisation »)", "13 mois"],
-                ["Mesure d’audience", "Données de navigation agrégées", "Consentement (catégorie « mesure d’audience »)", "13 mois pour les traceurs, 25 mois pour les statistiques"],
-                ["Publicité (Instagram, Facebook, TikTok, Google)", "Identifiants publicitaires, évènements (visite, ajout au panier, achat)", "Consentement (catégorie « publicité »)", "13 mois pour les traceurs"],
-                ["Assistante et styliste IA", "Messages échangés, photo d’inspiration le cas échéant", "Intérêt légitime (vous répondre) ; consentement (photo)", "Conversation conservée 30 jours ; photo analysée puis supprimée, jamais conservée"],
-                ["Contact, rendez-vous, sur-mesure", "Nom, e-mail, message, créneau, mesures communiquées", "Mesures précontractuelles ; intérêt légitime", "{{delaiConservationDevis}}"],
-                ["Certificats d’authenticité", "Numéro de série, pièce, commande, rattachement au compte", "Exécution du contrat", "Durée de vie du compte ; le certificat reste consultable sans donnée personnelle"],
+                ["Avis vérifiés", "Prénom et initiale, texte, taille, photo facultative", "Consentement", "Durée de publication ; retrait sur demande"],
+                ["Personnalisation (pièces vues, collections préférées, panier en attente)", "Identifiants de pièces, dates", "Consentement (catégorie « personnalisation »)", "13 mois"],
+                ["Mesure d’audience", "Données de navigation agrégées", "Consentement (catégorie « mesure d’audience »)", "13 mois pour les traceurs, 25 mois pour les statistiques"],
+                ["Publicité (Instagram, Facebook, TikTok, Google)", "Identifiants publicitaires, évènements (visite, ajout au panier, achat)", "Consentement (catégorie « publicité »)", "13 mois pour les traceurs"],
+                ["Assistante et styliste IA", "Messages échangés, photo d’inspiration le cas échéant", "Intérêt légitime (vous répondre) ; consentement (photo)", "Conversation conservée 30 jours ; photo analysée puis supprimée, jamais conservée"],
+                ["Contact, rendez-vous, sur-mesure", "Nom, e-mail, message, créneau, mesures communiquées", "Mesures précontractuelles ; intérêt légitime", "{{delaiConservationDevis}}"],
+                ["Certificats d’authenticité", "Numéro de série, pièce, commande, rattachement au compte", "Exécution du contrat", "Durée de vie du compte ; le certificat reste consultable sans donnée personnelle"],
                 ["Notifications (application installée)", "Abonnement technique du navigateur, thèmes choisis", "Consentement", "Jusqu’au désabonnement"],
-                ["Sécurité, prévention de la fraude et des robots", "Adresse IP, journaux techniques et d’erreurs", "Intérêt légitime (sécurité du site)", "Quelques minutes (limitation de débit) ; 90 jours (journaux d’erreurs)"],
+                ["Sécurité, prévention de la fraude et des robots", "Adresse IP, journaux techniques et d’erreurs", "Intérêt légitime (sécurité du site)", "Quelques minutes (limitation de débit) ; 90 jours (journaux d’erreurs)"],
                 ["Preuves de consentement aux cookies", "Identifiant aléatoire, choix, date, version de la politique, navigateur", "Obligation légale (preuve du consentement)", "25 mois"],
               ],
             },
@@ -513,10 +513,10 @@ export const legalPages = {
                 ["Upstash, Inc.", "Stockage technique (paniers, files d’envoi, limitation de débit)", "{{regionsPrestataires}}"],
                 ["{{outilEmails}}", "E-mails de la maison (lettres et scénarios automatiques)", "Selon l’outil retenu"],
                 ["Resend", "E-mails techniques (codes de connexion, confirmations)", "États-Unis"],
-                ["Anthropic PBC", "Assistante et styliste IA (modèle Claude) ; données non utilisées pour l’entraînement", "États-Unis"],
+                ["Anthropic PBC", "Assistante et styliste IA (modèle Claude) ; données non utilisées pour l’entraînement", "États-Unis"],
                 ["Cloudflare, Inc.", "Protection des formulaires contre les robots (Turnstile)", "États-Unis et réseau mondial"],
                 ["Sentry (Functional Software, Inc.)", "Suivi des erreurs techniques", "{{regionsPrestataires}}"],
-                ["Plausible Insights OÜ ou Google Ireland Limited", "Mesure d’audience, avec votre consentement", "Union européenne (Plausible) ; Union européenne et États-Unis (Google)"],
+                ["Plausible Insights OÜ ou Google Ireland Limited", "Mesure d’audience, avec votre consentement", "Union européenne (Plausible) ; Union européenne et États-Unis (Google)"],
                 ["Microsoft Ireland Operations Limited (Clarity)", "Analyse du parcours sur les pages (cartes de chaleur, saisies masquées), avec votre consentement", "Union européenne et États-Unis"],
                 ["Meta Platforms Ireland Limited, TikTok Technology Limited, Google Ireland Limited", "Publicité et mesure des campagnes, avec votre consentement", "Union européenne et États-Unis"],
                 ["La Poste (Colissimo), Chronopost, DHL", "Livraison des commandes", "Selon la destination"],
@@ -565,7 +565,7 @@ export const legalPages = {
     },
     updated: UPDATED,
     version: legalVersions.cookies,
-    intro: "Un cookie est un petit fichier déposé sur votre appareil ; d’autres traceurs (stockage local, pixels) fonctionnent de façon comparable. Nous n’utilisons que ceux qui sont nécessaires, et tous les autres uniquement avec votre accord.",
+    intro: "Un cookie est un petit fichier déposé sur votre appareil ; d’autres traceurs (stockage local, pixels) fonctionnent de façon comparable. Nous n’utilisons que ceux qui sont nécessaires, et tous les autres uniquement avec votre accord.",
     sections: [
       {
         id: "choix",
@@ -582,7 +582,7 @@ export const legalPages = {
         blocks: [
           {
             list: [
-              "**Nécessaires** — panier, connexion au compte, sécurité, mémorisation de vos choix. Toujours actifs : le site ne peut fonctionner sans eux.",
+              "**Nécessaires** — panier, connexion au compte, sécurité, mémorisation de vos choix. Toujours actifs : le site ne peut fonctionner sans eux.",
               "**Mesure d’audience** — compter les visites et les pièces consultées, de façon agrégée, pour améliorer le site.",
               "**Personnalisation** — se souvenir des pièces que vous avez regardées pour vous proposer une sélection, un accueil et des rappels qui vous ressemblent.",
               "**Publicité** — mesurer l’efficacité de nos campagnes sur Instagram, Facebook, TikTok et Google, et vous y montrer nos pièces.",
@@ -680,7 +680,7 @@ export const legalPages = {
       description: `Exercez votre droit de rétractation de ${shop.returnDays} jours en ligne, en deux étapes, et recevez aussitôt un accusé de réception.`,
     },
     updated: UPDATED,
-    intro: "Vous disposez de quatorze jours après la réception de votre pièce pour changer d’avis, sans avoir à vous justifier. Indiquez votre commande ci-dessous : vous recevrez aussitôt un accusé de réception par e-mail, puis l’étiquette de retour.",
+    intro: "Vous disposez de quatorze jours après la réception de votre pièce pour changer d’avis, sans avoir à vous justifier. Indiquez votre commande ci-dessous : vous recevrez aussitôt un accusé de réception par e-mail, puis l’étiquette de retour.",
     sections: [
       { id: "en-ligne", title: "Se rétracter du contrat ici", blocks: [{ widget: "withdrawal-form" }] },
       {
@@ -705,9 +705,9 @@ export type LegalSlug = keyof typeof legalPages;
 
 export const press = {
   articles: [
-    { outlet: "Revue de mode (exemple)", title: "Awrea Paris, la dentelle sans le luxe ostentatoire", date: "2026-09", quote: "Une jeune créatrice qui coud ses pièces à la main et les numérote : la preuve qu’une autre mode est possible.", url: "" },
+    { outlet: "Revue de mode (exemple)", title: "Awrea Paris, la dentelle sans le luxe ostentatoire", date: "2026-09", quote: "Une jeune créatrice qui coud ses pièces à la main et les numérote : la preuve qu’une autre mode est possible.", url: "" },
     { outlet: "Magazine culture (exemple)", title: "Cinq créatrices parisiennes à suivre", date: "2026-06", quote: "Ses drapés à la grecque et ses fils d’or ont quelque chose d’intemporel.", url: "" },
-    { outlet: "Blog mode responsable (exemple)", title: "Consommer plus juste : rencontre avec Awrea Paris", date: "2026-03", quote: "Des séries de cinq pièces, un prix juste, un atelier ouvert : un manifeste en acte.", url: "" },
+    { outlet: "Blog mode responsable (exemple)", title: "Consommer plus juste : rencontre avec Awrea Paris", date: "2026-03", quote: "Des séries de cinq pièces, un prix juste, un atelier ouvert : un manifeste en acte.", url: "" },
   ],
   contact: {
     title: "Contact presse",

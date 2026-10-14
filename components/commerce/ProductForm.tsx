@@ -80,14 +80,14 @@ export function ProductForm({ product, stickyBar = false }: { product: Product; 
           <p className="t-note product-form__status" aria-live="polite">
             {variant && a
               ? a === "preorder"
-                ? `Taille ${variant.size} sur commande : façonnée pour vous en ${product.leadTimeWeeks ?? 4} semaines, puis expédiée.`
+                ? `Taille ${variant.size} sur commande : façonnée pour vous en ${product.leadTimeWeeks ?? 4} semaines, puis expédiée.`
                 : a === "soldout"
                   ? `La taille ${variant.size} est épuisée.`
                   : `${availabilityLabel(a)} — expédiée sous ${shop.dispatchDays}.`
               : showError
                 ? "Merci de choisir une taille."
                 : ed.complete && product.leadTimeWeeks
-                  ? "Série complète : chaque pièce est désormais réalisée sur commande."
+                  ? "Série complète : chaque pièce est désormais réalisée sur commande."
                   : "Choisissez votre taille."}
           </p>
         </>

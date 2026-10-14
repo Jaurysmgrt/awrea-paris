@@ -90,7 +90,7 @@ export function DropEditor({ pieces, drop }: { pieces: Piece[]; drop?: DropDraft
       </fieldset>
       <label className="check t-note">
         <input type="checkbox" checked={privateSale} onChange={(e) => setPrivateSale(e.target.checked)} />
-        <span>Vente privée : jusqu’à l’ouverture à toutes, réservée aux personnes qui ont le mot de passe</span>
+        <span>Vente privée : jusqu’à l’ouverture à toutes, réservée aux personnes qui ont le mot de passe</span>
       </label>
       {privateSale ? (
         <div className="field">

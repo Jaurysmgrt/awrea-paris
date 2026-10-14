@@ -74,7 +74,7 @@ export function LoginForm({ next }: { next: string }) {
           <>
             <div className="totp-qr" role="img" aria-label="QR code de configuration de la double authentification" dangerouslySetInnerHTML={{ __html: enroll.svg }} />
             <p className="t-note">
-              Ou saisissez la clé à la main : <code className="totp-secret">{enroll.secret}</code>
+              Ou saisissez la clé à la main : <code className="totp-secret">{enroll.secret}</code>
             </p>
           </>
         ) : (

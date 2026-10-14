@@ -52,14 +52,14 @@ export function CertificateSheet({ c, qr, word, claimCode }: { c: PublicCertific
       <figure className="certificate__word">
         <figcaption className="t-label">Le mot de la créatrice</figcaption>
         <blockquote>
-          <p className="t-h4 t-center">« {word} »</p>
+          <p className="t-h4 t-center">« {word} »</p>
         </blockquote>
       </figure>
       <p className="t-h4 certificate__signature">La créatrice</p>
       <div className="certificate__seal">
         <div className="certificate__qr" role="img" aria-label={`QR code du certificat ${c.serial}`} dangerouslySetInnerHTML={{ __html: qr }} />
         <p className="t-label certificate__serial">{c.serial}</p>
-        {claimCode ? <p className="t-label certificate__claim">Code de rattachement : {claimCode}</p> : null}
+        {claimCode ? <p className="t-label certificate__claim">Code de rattachement : {claimCode}</p> : null}
       </div>
       <p className="t-label t-center certificate__foot">Fait main à Paris · Awrea Paris</p>
     </article>

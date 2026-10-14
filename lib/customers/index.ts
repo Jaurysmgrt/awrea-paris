@@ -180,7 +180,7 @@ export async function getProfile(s: CustomerSession): Promise<CustomerProfile | 
 export async function ensureProfile(s: CustomerSession, init?: { termsVersion?: string; marketingEmail?: boolean }): Promise<CustomerProfile> {
   const existing = await getProfile(s);
   if (isSupabaseConfigured) {
-    if (!existing) throw new Error("Profil introuvable : le déclencheur handle_new_user est-il installé ?");
+    if (!existing) throw new Error("Profil introuvable : le déclencheur handle_new_user est-il installé ?");
     if (init?.termsVersion && !existing.termsAcceptedAt) await acceptTerms(s, init.termsVersion);
     if (init?.marketingEmail && !existing.marketingEmail) return updateProfile(s, { marketingEmail: true });
     return (await getProfile(s)) ?? existing;

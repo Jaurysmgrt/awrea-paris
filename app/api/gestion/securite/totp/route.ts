@@ -12,6 +12,6 @@ export async function POST() {
   await resetEnrollment();
   await revokeAdminSessions();
   await clearAdminCookie();
-  await logAction({ agent: "rapport", kind: "sécurité", status: "done", summary: "Double authentification réinitialisée : nouvel enrôlement à la prochaine connexion" }).catch(() => {});
+  await logAction({ agent: "rapport", kind: "sécurité", status: "done", summary: "Double authentification réinitialisée : nouvel enrôlement à la prochaine connexion" }).catch(() => {});
   return NextResponse.json({ ok: true });
 }

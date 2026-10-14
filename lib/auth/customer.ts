@@ -72,9 +72,9 @@ export async function startEmailLogin(email: string, opts: { create: boolean; te
   const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
   await kv.set(`otp:${email.toLowerCase()}`, { code, exp: Date.now() + CODE_TTL_MS, attempts: 0, create: opts.create, termsVersion: opts.termsVersion, marketingEmail: opts.marketingEmail });
   const mail = brandEmail({
-    preheader: `Votre code de connexion : ${code}`,
+    preheader: `Votre code de connexion : ${code}`,
     title: "Votre code de connexion",
-    paragraphs: [`Voici votre code pour accéder à votre compte Awrea Paris : ${code}.`, "Il est valable dix minutes. Si vous n’êtes pas à l’origine de cette demande, ignorez simplement ce message."],
+    paragraphs: [`Voici votre code pour accéder à votre compte Awrea Paris : ${code}.`, "Il est valable dix minutes. Si vous n’êtes pas à l’origine de cette demande, ignorez simplement ce message."],
   });
   await sendEmail({ to: email, subject: "Votre code de connexion — Awrea Paris", ...mail, tag: "login-code" }).catch((e) => console.error("[auth] e-mail", e));
   return { ok: true, demoCode: showDemoCode() ? code : undefined };

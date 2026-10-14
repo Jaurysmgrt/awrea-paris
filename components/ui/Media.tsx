@@ -26,7 +26,7 @@ type Props = {
 
 const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
-export function Media({ image, sizes = "(min-width: 64rem) 50vw, 100vw", priority, className, imgClassName, ratio = "portrait", alt, decorative, hoverOnly }: Props) {
+export function Media({ image, sizes = "(min-width : 64rem) 50vw, 100vw", priority, className, imgClassName, ratio = "portrait", alt, decorative, hoverOnly }: Props) {
   const { src, srcSet: set } = srcSet(image.src);
   const img = (
     // eslint-disable-next-line @next/next/no-img-element

@@ -61,7 +61,7 @@ export function SizeFinder({ product, onPick }: { product: Product; onPick: (siz
       }}
     >
       <h3 className="t-label">Trouver ma taille</h3>
-      <p className="t-note">Vos mesures, prises à même la peau, en centimètres. Une seule suffit ; trois sont plus justes.</p>
+      <p className="t-note">Vos mesures, prises à même la peau, en centimètres. Une seule suffit ; trois sont plus justes.</p>
       <div className="form__row form__row--3">
         {FIELDS.map((f) => (
           <div key={f.key} className="field">

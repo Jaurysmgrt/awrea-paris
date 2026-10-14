@@ -17,6 +17,6 @@ export default async function DropPage({ params, searchParams }: Params) {
   const [{ slug }, sp] = await Promise.all([params, searchParams]);
   const drop = await getDrop(slug);
   if (!drop) notFound();
-  const notice = sp.acces === "invalide" ? "Ce lien d’accès n’est plus valable. Inscrivez-vous de nouveau : un nouveau lien vous sera envoyé." : null;
+  const notice = sp.acces === "invalide" ? "Ce lien d’accès n’est plus valable. Inscrivez-vous de nouveau : un nouveau lien vous sera envoyé." : null;
   return <DropView drop={drop} notice={notice} />;
 }

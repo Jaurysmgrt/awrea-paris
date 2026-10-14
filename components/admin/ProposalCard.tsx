@@ -9,15 +9,15 @@ function describe(p: Proposal): string[] {
   const params = p.params as Record<string, unknown>;
   switch (p.action) {
     case "change_price":
-      return [`Pièce : ${params.handle}`, `Nouveau prix : ${formatPrice(Number(params.price))}`];
+      return [`Pièce : ${params.handle}`, `Nouveau prix : ${formatPrice(Number(params.price))}`];
     case "refund_order":
       return [`Commande : ${params.orderId}`, `Motif : ${params.reason}`];
     case "cancel_order":
       return [`Commande : ${params.orderId}`, params.refund ? "Avec remboursement" : "Sans remboursement"];
     case "delete_product":
-      return [`Pièce : ${params.handle}`, "La suppression est définitive."];
+      return [`Pièce : ${params.handle}`, "La suppression est définitive."];
     case "send_newsletter_all":
-      return [`Objet : ${params.subject}`, `Aperçu : ${params.preheader}`, ...((params.paragraphs as string[]) ?? []).slice(0, 4)];
+      return [`Objet : ${params.subject}`, `Aperçu : ${params.preheader}`, ...((params.paragraphs as string[]) ?? []).slice(0, 4)];
     default:
       return [JSON.stringify(params).slice(0, 300)];
   }
@@ -43,7 +43,7 @@ export function ProposalCard({ p }: { p: Proposal }) {
       </ul>
       {p.status === "pending" ? (
         <div className="proposal__actions">
-          <ActionButton endpoint={`/api/gestion/proposals/${p.id}`} body={{ decision: "approve" }} label="Valider" busyLabel="Exécution…" variant="solid" confirm={p.action === "delete_product" || p.action === "send_newsletter_all" ? "Cette action est irréversible. Confirmer ?" : undefined} />
+          <ActionButton endpoint={`/api/gestion/proposals/${p.id}`} body={{ decision: "approve" }} label="Valider" busyLabel="Exécution…" variant="solid" confirm={p.action === "delete_product" || p.action === "send_newsletter_all" ? "Cette action est irréversible. Confirmer ?" : undefined} />
           <ActionButton endpoint={`/api/gestion/proposals/${p.id}`} body={{ decision: "reject" }} label="Refuser" />
         </div>
       ) : p.result ? (

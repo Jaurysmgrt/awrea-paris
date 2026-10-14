@@ -267,7 +267,7 @@ export function CartDrawer() {
                   <dd>{formatPrice(cart!.total)}</dd>
                 </div>
               </dl>
-              {hasPreorder ? <p className="t-note">Votre panier contient une pièce sur commande : l’ensemble sera expédié à la fin de sa fabrication.</p> : null}
+              {hasPreorder ? <p className="t-note">Votre panier contient une pièce sur commande : l’ensemble sera expédié à la fin de sa fabrication.</p> : null}
               {cart?.mode === "shopify" ? (
                 <form
                   className="stack"

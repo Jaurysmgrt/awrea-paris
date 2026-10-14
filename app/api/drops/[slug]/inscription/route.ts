@@ -32,8 +32,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
       title: "Votre accès anticipé",
       paragraphs: [
         "Bonjour,",
-        `Vous êtes inscrite à l’accès anticipé de ${drop.title}. Les pièces vous seront ouvertes ${parisDate(drop.earlyAccessAt)}, avant tout le monde ; l’ouverture à toutes aura lieu ${parisDate(drop.publicAt)}.`,
-        "Ce lien est personnel : ouvrez-le depuis le téléphone ou l’ordinateur avec lequel vous ferez votre achat.",
+        `Vous êtes inscrite à l’accès anticipé de ${drop.title}. Les pièces vous seront ouvertes ${parisDate(drop.earlyAccessAt)}, avant tout le monde ; l’ouverture à toutes aura lieu ${parisDate(drop.publicAt)}.`,
+        "Ce lien est personnel : ouvrez-le depuis le téléphone ou l’ordinateur avec lequel vous ferez votre achat.",
       ],
       cta: { label: "Ouvrir mon accès", href: link },
       signature: "Avec toute notre gratitude,\nLa Créatrice",

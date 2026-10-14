@@ -30,7 +30,7 @@ export function atelierAddress() {
   const a = identity.address;
   return {
     name: identity.name,
-    line: a.streetAddress || "[À COMPLÉTER : adresse de l’atelier]",
+    line: a.streetAddress || "[À COMPLÉTER : adresse de l’atelier]",
     zip: a.postalCode || "",
     city: a.addressLocality,
     country: a.addressCountry,

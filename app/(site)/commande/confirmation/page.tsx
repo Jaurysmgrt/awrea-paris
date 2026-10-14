@@ -86,7 +86,7 @@ export default async function ConfirmationPage({
                 </dl>
                 <p className="t-note">
                   {order.status === "in_production"
-                    ? "Une partie de votre commande est en fabrication : nous vous écrirons à l’expédition, avec le lien de suivi."
+                    ? "Une partie de votre commande est en fabrication : nous vous écrirons à l’expédition, avec le lien de suivi."
                     : `Expédition sous ${shop.dispatchDays}. Vous recevrez le lien de suivi par e-mail.`}
                 </p>
                 {certificates.length ? (

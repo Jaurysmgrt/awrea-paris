@@ -30,7 +30,7 @@ export default async function GestionLayout({ children }: { children: React.Reac
         <AdminNav counts={counts} />
         <div className="admin__modes">
           <span className="badge">{commerceMode === "shopify" ? "Shopify" : "Démonstration"}</span>
-          <span className="badge">{aiEnabled ? "Claude actif" : "IA : démo"}</span>
+          <span className="badge">{aiEnabled ? "Claude actif" : "IA : démo"}</span>
           {usingDemoPassword() ? <span className="badge">Mot de passe démo</span> : null}
         </div>
         <Link href="/" className="link link--quiet">

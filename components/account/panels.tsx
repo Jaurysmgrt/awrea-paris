@@ -528,7 +528,7 @@ export function ProfilePanel({ profile, onSaved }: { profile: CustomerProfile; o
               {key === "personalization" && p.personalization && !has("personalization") ? (
                 <>
                   {" "}
-                  Sur cet appareil, la personnalisation est désactivée dans vos choix de cookies :{" "}
+                  Sur cet appareil, la personnalisation est désactivée dans vos choix de cookies :{" "}
                   <button type="button" className="text-link" onClick={openSettings}>
                     les modifier
                   </button>

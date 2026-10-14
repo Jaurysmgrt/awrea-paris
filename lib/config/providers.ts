@@ -61,13 +61,13 @@ export const SERVICES = {
   email: {
     label: "E-mails transactionnels",
     env: "EMAIL_PROVIDER",
-    mock: "Boîte d'envoi simulée (lisible dans l'Atelier)",
+    mock: "Boîte d’envoi simulée (lisible dans l’Atelier)",
     providers: { resend: { label: "Resend", keys: ["RESEND_API_KEY"] } },
   },
   marketing: {
     label: "Lettres et scénarios e-mail",
     env: "MARKETING_PROVIDER",
-    mock: "Envoi par l'outil transactionnel du site",
+    mock: "Envoi par l’outil transactionnel du site",
     providers: {
       brevo: { label: "Brevo", keys: ["BREVO_API_KEY"] },
       klaviyo: { label: "Klaviyo", keys: ["KLAVIYO_PRIVATE_KEY"] },
@@ -86,16 +86,16 @@ export const SERVICES = {
     providers: { turnstile: { label: "Cloudflare Turnstile", keys: ["TURNSTILE_SECRET_KEY", "NEXT_PUBLIC_TURNSTILE_SITE_KEY"] } },
   },
   address: {
-    label: "Suggestions d'adresses (commande)",
+    label: "Suggestions d’adresses (commande)",
     env: "ADDRESS_PROVIDER",
     mock: "Quelques adresses de démonstration",
     // service public gratuit, sans clé : branché seulement s'il est demandé (ADDRESS_PROVIDER=ign)
-    providers: { ign: { label: "Géoplateforme de l'IGN (adresses françaises)", keys: [], optIn: true } },
+    providers: { ign: { label: "Géoplateforme de l’IGN (adresses françaises)", keys: [], optIn: true } },
   },
   labels: {
     label: "Étiquettes de retour prépayées",
     env: "LABELS_PROVIDER",
-    mock: "Étiquette de démonstration (l'atelier peut aussi déposer une vraie étiquette)",
+    mock: "Étiquette de démonstration (l’atelier peut aussi déposer une vraie étiquette)",
     providers: { colissimo: { label: "Colissimo Retour", keys: ["COLISSIMO_CONTRACT_NUMBER", "COLISSIMO_PASSWORD"] } },
   },
   instagram: {
@@ -107,7 +107,7 @@ export const SERVICES = {
   calendar: {
     label: "Agenda de la créatrice (créneaux de rendez-vous)",
     env: "CALENDAR_PROVIDER",
-    mock: "Disponibilités réglées dans l'Atelier, sans agenda extérieur",
+    mock: "Disponibilités réglées dans l’Atelier, sans agenda extérieur",
     // adresse iCal secrète de l'agenda (Google, Apple, Outlook) : ses occupations ferment les créneaux
     providers: { ics: { label: "Agenda iCal (Google, Apple, Outlook)", keys: ["CALENDAR_ICS_URL"] } },
   },

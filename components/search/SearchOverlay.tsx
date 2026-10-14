@@ -142,7 +142,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
           )
         ) : groups.length === 0 ? (
           <div className="search__empty stack-s">
-            <p className="t-h3">Rien ne répond encore à « {query.trim()} ».</p>
+            <p className="t-h3">Rien ne répond encore à « {query.trim()} ».</p>
             <p className="t-body t-soft">
               Essayez une matière, une forme ou le nom d’une collection — ou{" "}
               <Link href="/boutique" className="text-link" onClick={go}>

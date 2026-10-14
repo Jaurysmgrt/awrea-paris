@@ -65,7 +65,7 @@ export const shop = {
       ["L", "40", "92 cm", "74 cm", "100 cm"],
       ["XL", "42", "96 cm", "78 cm", "104 cm"],
     ],
-    note: "Mesures du corps, en centimètres. Entre deux tailles, nous vous conseillons la plus petite pour les pièces lacées et la plus grande pour les pièces en satin. L’atelier peut ajuster chaque pièce : prenez rendez-vous pour un essayage.",
+    note: "Mesures du corps, en centimètres. Entre deux tailles, nous vous conseillons la plus petite pour les pièces lacées et la plus grande pour les pièces en satin. L’atelier peut ajuster chaque pièce : prenez rendez-vous pour un essayage.",
   },
 } as const;
 

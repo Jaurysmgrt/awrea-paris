@@ -22,7 +22,7 @@ export const isSupabaseConfigured = providerOf("customers") === "supabase";
 const g = globalThis as unknown as { __awreaSupabaseAdmin?: SupabaseClient };
 
 export function supabaseAdmin(): SupabaseClient {
-  if (!isSupabaseConfigured) throw new Error("Supabase n'est pas configuré (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY).");
+  if (!isSupabaseConfigured) throw new Error("Supabase n’est pas configuré (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY).");
   return (g.__awreaSupabaseAdmin ??= createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: { headers: { "x-application": "awrea-paris" } },

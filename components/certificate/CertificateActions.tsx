@@ -17,7 +17,7 @@ export function CertificateActions({ serial, mine, signedIn }: { serial: string;
       </button>
       {state === "ok" ? (
         <p className="t-note t-left" role="status">
-          Cette pièce fait partie de votre collection : retrouvez-la dans <Link href="/compte#certificats" className="text-link">votre compte</Link>.
+          Cette pièce fait partie de votre collection : retrouvez-la dans <Link href="/compte#certificats" className="text-link">votre compte</Link>.
         </p>
       ) : signedIn ? (
         <form
@@ -39,7 +39,7 @@ export function CertificateActions({ serial, mine, signedIn }: { serial: string;
             }
           }}
         >
-          <p className="t-note t-left">On vous a offert cette pièce ? Rattachez-la à votre compte avec le code imprimé sur votre certificat.</p>
+          <p className="t-note t-left">On vous a offert cette pièce ? Rattachez-la à votre compte avec le code imprimé sur votre certificat.</p>
           <div className="field">
             <label htmlFor="claim-code" className="field__label">
               Code du certificat
@@ -57,7 +57,7 @@ export function CertificateActions({ serial, mine, signedIn }: { serial: string;
         </form>
       ) : (
         <p className="t-note t-left">
-          Cette pièce vous appartient ? <Link href="/compte" className="text-link">Connectez-vous</Link> pour la rattacher à votre compte.
+          Cette pièce vous appartient ? <Link href="/compte" className="text-link">Connectez-vous</Link> pour la rattacher à votre compte.
         </p>
       )}
     </div>

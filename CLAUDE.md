@@ -13,14 +13,15 @@ npm run build && npm start
 npm run lint           # doit rester à 0 erreur, 0 avertissement
 npm run typecheck
 npm run audit:tokens   # aucune valeur en dur hors du design system
+npm run audit:ecriture # écriture de la créatrice : tirets, formulations interdites, typographie
 npm run test:unit      # garde-fous de l'IA
 npm run test:db        # schéma Supabase et sécurité par ligne (PostgreSQL embarqué)
 npx playwright test    # parcours complets (lance `next start -p 3100` si BASE_URL est absent)
 node scripts/secret-scan.mjs
 ```
 
-Avant toute livraison : lint, types, audit des tokens, tests unitaires et de la base, compilation
-et parcours Playwright doivent être verts.
+Avant toute livraison : lint, types, audit des tokens, contrôle d'écriture, tests unitaires et de la
+base, compilation et parcours Playwright doivent être verts.
 
 ## Carte
 
@@ -46,8 +47,16 @@ et parcours Playwright doivent être verts.
   `tests/e2e/homogeneite.spec.ts`). Titres, boutons, prix et navigation jamais justifiés.
 - Luxe discret : un message et un appel à l'action par section, beaucoup de blanc, aucune
   bannière promotionnelle, aucun prix barré, cinq entrées de menu au plus.
-- Vocabulaire de maison de couture : « pièce », « la Maison », « l'atelier », « découvrir ».
+- Vocabulaire de maison de couture : « pièce », « la Maison », « l'atelier », « la créatrice ».
   Vouvoiement, aucun emoji, aucune urgence artificielle.
+- Écriture humaine (`MARQUE.md` § 2, `lib/writing/rules.ts`, `npm run audit:ecriture`) : aucun tiret
+  de ponctuation (—, –, « - » isolé) ni liste à tirets dans un texte visible, aucune formulation
+  interdite, aucun point d'exclamation, aucun emoji, apostrophe ’, guillemets « » et espaces
+  insécables avant ; : ! ? ». Boutons concrets et variés, jamais « Découvrir » à répétition.
+  Chaîne Plume → Détecteur IA → Lecture à voix haute → Typographe → Cohérence.
+- Aucun texte ni aucune image en dur dans les composants : tout vit dans les documents de contenu
+  (`content/site/<langue>/`), modifiables dans l'éditeur visuel « Édition » (`lib/edition/`).
+  Aucune image générée par IA ni de banque d'images.
 - Un seul `h1` par page. Mode Nuit (`html[data-mode="dark"]`) et animations apaisées
   (`html[data-motion="reduce"]`) à respecter dans tout nouveau composant. WCAG 2.1 AA (tests axe).
 - N'inventer aucune information sur l'entreprise : champ `[À COMPLÉTER]` via le registre légal.
@@ -61,6 +70,9 @@ vert du chef de projet, puis une réunion de synthèse dans `JOURNAL.md`.
 ## Sécurité (ne jamais affaiblir)
 
 - Clés uniquement dans les variables d'environnement (`.env.example`), jamais dans le code.
+- Atelier et éditeur invisibles du public : adresse secrète (`ADMIN_PATH`), aucun lien depuis le site,
+  `noindex` et `robots.txt`, comptes autorisés seulement, double authentification, blocage après
+  plusieurs échecs, alerte e-mail à chaque connexion ; brouillons jamais rendus hors du mode Édition.
 - CSP stricte à nonce (`proxy.ts`, `lib/security/headers.ts`), en-têtes de sécurité, contrôle
   d'origine CSRF, Turnstile, limitation de débit, double authentification de l'Atelier, RLS sur
   toutes les tables, validation Zod de toutes les entrées d'API.

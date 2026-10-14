@@ -48,15 +48,15 @@ export default async function RetoursPage() {
                       </li>
                     ))}
                   </ul>
-                  {r.comment ? <p className="t-note">« {r.comment} »</p> : null}
+                  {r.comment ? <p className="t-note">« {r.comment} »</p> : null}
                   {r.labelPending ? <LabelUpload id={r.id} /> : null}
                   <div className="admin-actions">
                     {r.status === "demande" ? <ActionButton endpoint={`/api/gestion/retours/${r.id}`} body={{ action: "recu" }} label="Colis reçu" variant="solid" /> : null}
                     {refund.length ? (
-                      <ActionButton endpoint={`/api/gestion/retours/${r.id}`} body={{ action: "rembourser" }} label={`Rembourser ${formatPrice(total)}`} confirm={`Rembourser ${formatPrice(total)} à ${r.name} et émettre l’avoir ?`} />
+                      <ActionButton endpoint={`/api/gestion/retours/${r.id}`} body={{ action: "rembourser" }} label={`Rembourser ${formatPrice(total)}`} confirm={`Rembourser ${formatPrice(total)} à ${r.name} et émettre l’avoir ?`} />
                     ) : null}
                     {r.items.some((i) => i.wish === "echange") ? <ActionButton endpoint={`/api/gestion/retours/${r.id}`} body={{ action: "echanger" }} label="Expédier la nouvelle taille" /> : null}
-                    <ActionButton endpoint={`/api/gestion/retours/${r.id}`} body={{ action: "refuser", reason: "la pièce nous est revenue portée ou sans son certificat." }} label="Refuser" variant="quiet" confirm="Refuser ce retour ? La cliente sera prévenue par e-mail." />
+                    <ActionButton endpoint={`/api/gestion/retours/${r.id}`} body={{ action: "refuser", reason: "la pièce nous est revenue portée ou sans son certificat." }} label="Refuser" variant="quiet" confirm="Refuser ce retour ? La cliente sera prévenue par e-mail." />
                   </div>
                 </li>
               );

@@ -19,7 +19,7 @@ export function sessionsConfigured(): boolean {
 export const sessionSecret = () => {
   const s = process.env.SESSION_SECRET;
   if (s && s.length >= 32) return s;
-  if (process.env.VERCEL) throw new Error("SESSION_SECRET manquant ou trop court (32 caractères au moins) : sessions désactivées.");
+  if (process.env.VERCEL) throw new Error("SESSION_SECRET manquant ou trop court (32 caractères au moins) : sessions désactivées.");
   return s ?? DEV_SECRET;
 };
 

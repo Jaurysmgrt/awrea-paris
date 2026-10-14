@@ -200,8 +200,8 @@ export function CheckoutForm() {
               </div>
             ) : null}
           </dl>
-          {exp ? <p className="t-note">Droits et taxes payés dès maintenant : rien à régler à la livraison. Estimation indicative en mode test.</p> : null}
-          {cart.gift.wrap && cart.gift.message ? <p className="t-note">Message cadeau : « {cart.gift.message} »</p> : null}
+          {exp ? <p className="t-note">Droits et taxes payés dès maintenant : rien à régler à la livraison. Estimation indicative en mode test.</p> : null}
+          {cart.gift.wrap && cart.gift.message ? <p className="t-note">Message cadeau : « {cart.gift.message} »</p> : null}
         </div>
   ) : null;
 
@@ -281,7 +281,7 @@ export function CheckoutForm() {
         }}
       >
         <p className="notice t-note">
-          Mode test : aucun paiement réel n’est effectué. Carte de test acceptée : 4242 4242 4242 4242 — carte refusée : 4000 0000 0000 0002.
+          Mode test : aucun paiement réel n’est effectué. Carte de test acceptée : 4242 4242 4242 4242 — carte refusée : 4000 0000 0000 0002.
         </p>
 
         <section className="express" aria-labelledby="express-title">
@@ -304,7 +304,7 @@ export function CheckoutForm() {
               </button>
             ))}
           </div>
-          <p className="t-note">En production, l’adresse est reprise de votre portefeuille ; en mode test, complétez-la ci-dessous.</p>
+          <p className="t-note">En production, l’adresse est reprise de votre portefeuille ; en mode test, complétez-la ci-dessous.</p>
         </section>
 
         <fieldset className="checkout-step">
@@ -437,7 +437,7 @@ export function CheckoutForm() {
                   );
                 })}
               </div>
-              {preorder ? <p className="t-note">Votre commande contient une pièce sur commande : l’ensemble sera expédié à la fin de sa fabrication.</p> : null}
+              {preorder ? <p className="t-note">Votre commande contient une pièce sur commande : l’ensemble sera expédié à la fin de sa fabrication.</p> : null}
             </fieldset>
             {rate?.relay ? (
               <fieldset className="field">
@@ -457,13 +457,13 @@ export function CheckoutForm() {
                     ))}
                   </div>
                 ) : (
-                  <p className="t-note">Indiquez votre code postal : les points relais les plus proches apparaîtront ici.</p>
+                  <p className="t-note">Indiquez votre code postal : les points relais les plus proches apparaîtront ici.</p>
                 )}
               </fieldset>
             ) : null}
             {rate?.pickup ? (
               <p className="notice t-note">
-                Retrait à l’atelier : dès que votre pièce est prête, nous vous écrivons pour convenir d’un rendez-vous. Vous pouvez aussi{" "}
+                Retrait à l’atelier : dès que votre pièce est prête, nous vous écrivons pour convenir d’un rendez-vous. Vous pouvez aussi{" "}
                 <Link href="/rendez-vous">choisir un créneau</Link> dès maintenant.
               </p>
             ) : null}

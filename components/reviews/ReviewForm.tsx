@@ -61,7 +61,7 @@ export function ReviewForm({ number, token, handle, title, size }: { number: str
       </h2>
       <div className="field">
         <label htmlFor={`${id}-body`} className="field__label">
-          Comment la portez-vous ?
+          Comment la portez-vous ?
         </label>
         <textarea id={`${id}-body`} name="body" className="field__input" required minLength={20} maxLength={1500} />
       </div>

@@ -25,7 +25,7 @@ const PAPER = hex(palette.ivory);
 
 /** « carte bancaire », « paiement en 3 ou 4 fois », mais « PayPal », « Apple Pay » (noms propres) */
 const payment = (m: string) => (/^(Carte|Paiement)/.test(m) ? m.charAt(0).toLowerCase() + m.slice(1) : m);
-const field = (k: LegalFieldKey) => legalFields[k].value || `[À COMPLÉTER : ${legalFields[k].short}]`;
+const field = (k: LegalFieldKey) => legalFields[k].value || `[À COMPLÉTER : ${legalFields[k].short}]`;
 const countryName = (code?: string) => shop.countries.find((c) => c.code === code)?.name ?? code ?? "";
 
 let fonts: Promise<Record<"display" | "light" | "regular", Uint8Array>> | null = null;

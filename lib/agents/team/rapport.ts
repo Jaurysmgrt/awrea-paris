@@ -15,8 +15,8 @@ import { getAnalytics } from "../analytics";
 import { RunRecorder, type AgentRun } from "../run";
 
 const Out = z.object({
-  subject: z.string().describe("Objet de l'e-mail, 8 mots maximum, avec le chiffre d'affaires de la semaine"),
-  summary: z.string().describe("4 à 6 paragraphes courts séparés par une ligne vide : la semaine en une phrase, ventes, pièces et visites, clientes, ce que les agents ont fait, puis exactement 3 recommandations concrètes numérotées"),
+  subject: z.string().describe("Objet de l’e-mail, 8 mots maximum, avec le chiffre d’affaires de la semaine"),
+  summary: z.string().describe("4 à 6 paragraphes courts séparés par une ligne vide : la semaine en une phrase, ventes, pièces et visites, clientes, ce que les agents ont fait, puis exactement 3 recommandations concrètes numérotées"),
 });
 
 export async function runRapportAgent(trigger: AgentRun["trigger"] = "cron"): Promise<AgentRun> {
@@ -49,18 +49,18 @@ export async function runRapportAgent(trigger: AgentRun["trigger"] = "cron"): Pr
     };
 
     const facts = `Semaine du ${new Date(since).toLocaleDateString("fr-FR")} au ${new Date().toLocaleDateString("fr-FR")}
-Ventes : ${week.length} commande(s), ${pieces} pièce(s), ${formatPrice(revenue)}. Pièces vendues : ${[...sold].map(([t, n]) => `${t} ×${n}`).join(", ") || "aucune"}.
-Pièces les plus vues : ${views.map((v) => `${v.title} (${v.views} vues)`).join(", ")}.
-Visites : ${analytics.sessions}. Sources : ${analytics.topSources.map((s) => `${s.source} ${Math.round(s.share * 100)} %`).join(", ")}.
-Paniers abandonnés : ${abandoned.map((a) => `${a.items.join(" + ")} (${formatPrice(a.value)})`).join(" ; ") || "aucun"}.
-Messages clientes : ${msgs.length} reçus, ${msgs.filter((m) => m.status === "answered").length} répondus automatiquement, ${msgs.filter((m) => m.status === "escalated" || m.status === "drafted").length} en attente de la créatrice.
-Ruptures sans précommande : ${lowStock.join(", ") || "aucune"}.
-Actions des agents : ${weekLog.filter((a) => a.status === "done").length} réalisées, ${pending.length} validation(s) en attente (${pending.map((p) => p.summary).join(" ; ") || "aucune"}).`;
+Ventes : ${week.length} commande(s), ${pieces} pièce(s), ${formatPrice(revenue)}. Pièces vendues : ${[...sold].map(([t, n]) => `${t} ×${n}`).join(", ") || "aucune"}.
+Pièces les plus vues : ${views.map((v) => `${v.title} (${v.views} vues)`).join(", ")}.
+Visites : ${analytics.sessions}. Sources : ${analytics.topSources.map((s) => `${s.source} ${Math.round(s.share * 100)} %`).join(", ")}.
+Paniers abandonnés : ${abandoned.map((a) => `${a.items.join(" + ")} (${formatPrice(a.value)})`).join(" ; ") || "aucun"}.
+Messages clientes : ${msgs.length} reçus, ${msgs.filter((m) => m.status === "answered").length} répondus automatiquement, ${msgs.filter((m) => m.status === "escalated" || m.status === "drafted").length} en attente de la créatrice.
+Ruptures sans précommande : ${lowStock.join(", ") || "aucune"}.
+Actions des agents : ${weekLog.filter((a) => a.status === "done").length} réalisées, ${pending.length} validation(s) en attente (${pending.map((p) => p.summary).join(" ; ") || "aucune"}).`;
 
     let out: z.infer<typeof Out>;
     if (aiEnabled) {
       out = await generateStructured({
-        instructions: "Mission : agent Rapport. Rédigez pour la créatrice le rapport hebdomadaire : clair, chaleureux, factuel, sans jargon, en vous appuyant uniquement sur les chiffres fournis. Terminez par trois recommandations concrètes et réalisables cette semaine.",
+        instructions: "Mission : agent Rapport. Rédigez pour la créatrice le rapport hebdomadaire : clair, chaleureux, factuel, sans jargon, en vous appuyant uniquement sur les chiffres fournis. Terminez par trois recommandations concrètes et réalisables cette semaine.",
         content: facts,
         schema: Out,
         effort: "medium",
@@ -68,17 +68,17 @@ Actions des agents : ${weekLog.filter((a) => a.status === "done").length} réali
     } else {
       const top = views[0];
       out = {
-        subject: `Votre semaine : ${formatPrice(revenue)}, ${week.length} commande(s)`,
+        subject: `Votre semaine : ${formatPrice(revenue)}, ${week.length} commande(s)`,
         summary: [
-          `Bonjour, voici votre semaine à l’atelier : ${week.length} commande(s) pour ${formatPrice(revenue)}, ${pieces} pièce(s) parties vers leurs nouvelles propriétaires.`,
+          `Bonjour, voici votre semaine à l’atelier : ${week.length} commande(s) pour ${formatPrice(revenue)}, ${pieces} pièce(s) parties vers leurs nouvelles propriétaires.`,
           `${top ? `${top.title} reste la pièce la plus regardée (${top.views} vues).` : ""} ${analytics.sessions} visites cette semaine, dont près de la moitié depuis Instagram.`,
-          `${abandoned.length} panier(s) abandonné(s), pour ${formatPrice(abandoned.reduce((s, a) => s + a.value, 0))}. ${msgs.length} message(s) de clientes reçus ; les questions courantes ont reçu une réponse automatique.`,
-          `Les agents ont mené ${weekLog.filter((a) => a.status === "done").length} action(s) ; ${pending.length} validation(s) vous attendent dans le tableau de bord.`,
-          `Trois recommandations :\n1. ${top ? `Mettre ${top.title} en avant dans la prochaine lettre.` : "Préparer la prochaine lettre."}\n2. ${lowStock.length ? `Décider du sort de ${lowStock[0]} : précommande ou série close.` : "Prévoir la prochaine série selon les pièces les plus vues."}\n3. ${pending.length ? "Traiter les validations en attente." : "Proposer des essayages à l’atelier aux clientes hésitantes."}`,
+          `${abandoned.length} panier(s) abandonné(s), pour ${formatPrice(abandoned.reduce((s, a) => s + a.value, 0))}. ${msgs.length} message(s) de clientes reçus ; les questions courantes ont reçu une réponse automatique.`,
+          `Les agents ont mené ${weekLog.filter((a) => a.status === "done").length} action(s) ; ${pending.length} validation(s) vous attendent dans le tableau de bord.`,
+          `Trois recommandations :\n1. ${top ? `Mettre ${top.title} en avant dans la prochaine lettre.` : "Préparer la prochaine lettre."}\n2. ${lowStock.length ? `Décider du sort de ${lowStock[0]} : précommande ou série close.` : "Prévoir la prochaine série selon les pièces les plus vues."}\n3. ${pending.length ? "Traiter les validations en attente." : "Proposer des essayages à l’atelier aux clientes hésitantes."}`,
         ].join("\n\n"),
       };
     }
-    await rec.act("send_report", { subject: out.subject, summary: out.summary, metrics }, { summary: `Rapport hebdomadaire : ${out.subject}` });
+    await rec.act("send_report", { subject: out.subject, summary: out.summary, metrics }, { summary: `Rapport hebdomadaire : ${out.subject}` });
     return rec.finish(`Rapport envoyé — ${formatPrice(revenue)}, ${week.length} commande(s)`);
   } catch (e) {
     rec.error(e);

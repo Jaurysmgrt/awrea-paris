@@ -51,7 +51,7 @@ export const ProductDraftSchema = z.object({
   tagline: z.string().min(5).max(200),
   category: z.enum(["robe", "body", "top", "jupe", "accessoire"]),
   collection: z.string().max(80),
-  price: z.number().int().positive().describe("Prix en centimes d'euro"),
+  price: z.number().int().positive().describe("Prix en centimes d’euro"),
   edition_total: z.number().int().min(1).max(50),
   lead_time_weeks: z.number().int().min(1).max(16).optional(),
   sizes: z.array(z.object({ size: Size, quantity: z.number().int().min(0).max(50), preorder: z.boolean() })).min(1),
@@ -187,13 +187,13 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       };
       if (d.status === "draft") {
         await kv.push("demo:products:drafts", product, 100);
-        return { summary: `Fiche « ${d.title} » enregistrée en brouillon (non visible en boutique)`, target: { type: "product", id: handle, label: d.title, href: "/gestion/catalogue" } };
+        return { summary: `Fiche « ${d.title} » enregistrée en brouillon (non visible en boutique)`, target: { type: "product", id: handle, label: d.title, href: "/gestion/catalogue" } };
       }
       const extra = (await kv.get<Product[]>(DEMO_KEYS.extra)) ?? [];
       await kv.set(DEMO_KEYS.extra, [...extra, product]);
     }
     refresh();
-    return { summary: `Fiche « ${d.title} » publiée (${formatPrice(d.price)}, ${d.edition_total === 1 ? "pièce unique" : `série de ${d.edition_total}`})`, target: { type: "product", id: handle, label: d.title, href: `/boutique/${handle}` } };
+    return { summary: `Fiche « ${d.title} » publiée (${formatPrice(d.price)}, ${d.edition_total === 1 ? "pièce unique" : `série de ${d.edition_total}`})`, target: { type: "product", id: handle, label: d.title, href: `/boutique/${handle}` } };
   },
 
   async update_product_content({ handle, tagline, description, seo, alts }) {
@@ -209,7 +209,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
     }
     refresh();
     const what = [tagline && "accroche", description && "description", seo && "balises SEO", alts?.length && `${alts.length} texte(s) alternatif(s)`].filter(Boolean).join(", ");
-    return { summary: `${p.title} : ${what || "contenu"} mis à jour`, target: { type: "product", id: handle, label: p.title, href: `/boutique/${handle}` } };
+    return { summary: `${p.title} : ${what || "contenu"} mis à jour`, target: { type: "product", id: handle, label: p.title, href: `/boutique/${handle}` } };
   },
 
   async update_stock({ handle, size, quantity }) {
@@ -240,7 +240,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
           title: `${p.title} vous attend`,
           paragraphs: [
             "Bonjour,",
-            message ?? `Vous nous aviez demandé de vous prévenir : une nouvelle pièce ${p.title}${w.size ? ` en taille ${w.size}` : ""} vient de sortir de l’atelier. Les séries sont courtes ; nous vous écrivons avant tout le monde.`,
+            message ?? `Vous nous aviez demandé de vous prévenir : une nouvelle pièce ${p.title}${w.size ? ` en taille ${w.size}` : ""} vient de sortir de l’atelier. Les séries sont courtes ; nous vous écrivons avant tout le monde.`,
           ],
           items: [{ title: p.title, meta: w.size ? `Taille ${w.size}` : "Fait main à Paris", price: p.price, image: imageAt(p.images[0].src, 480) }],
           cta: { label: "Voir la pièce", href: `/boutique/${p.handle}` },
@@ -264,7 +264,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       ...brandEmail({ preheader: body.slice(0, 90), title: subject, paragraphs: body.split(/\n{2,}/), signature: "Avec toute notre attention,\nl’atelier Awrea Paris" }),
     });
     await updateInbox(messageId, { status: "answered", answer: { body, date: new Date().toISOString(), by: "agent" } });
-    return { summary: `Réponse envoyée à ${msg.email} — « ${subject} »`, target: { type: "message", id: messageId, label: msg.email, href: "/gestion/messages" } };
+    return { summary: `Réponse envoyée à ${msg.email} — « ${subject} »`, target: { type: "message", id: messageId, label: msg.email, href: "/gestion/messages" } };
   },
 
   async save_reply_draft({ messageId, body, note, sensitive }) {
@@ -274,7 +274,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
 
   async escalate_message({ messageId, reason }) {
     await updateInbox(messageId, { status: "escalated" });
-    return { summary: `Message escaladé à la créatrice : ${reason}`, target: { type: "message", id: messageId, href: "/gestion/messages" } };
+    return { summary: `Message escaladé à la créatrice : ${reason}`, target: { type: "message", id: messageId, href: "/gestion/messages" } };
   },
 
   async flag_order({ orderId, reason }) {
@@ -285,14 +285,14 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       to: atelierEmail(),
       subject: `Commande ${o.number} à vérifier`,
       tag: "alerte",
-      ...brandEmail({ preheader: reason, title: `Commande ${o.number} à vérifier`, paragraphs: [reason, `Cliente : ${o.name} (${o.email}). Total : ${formatPrice(o.total)}.`], cta: { label: "Ouvrir le tableau de bord", href: "/gestion" } }),
+      ...brandEmail({ preheader: reason, title: `Commande ${o.number} à vérifier`, paragraphs: [reason, `Cliente : ${o.name} (${o.email}). Total : ${formatPrice(o.total)}.`], cta: { label: "Ouvrir le tableau de bord", href: "/gestion" } }),
     });
-    return { summary: `Commande ${o.number} signalée : ${reason}`, target: { type: "order", id: o.id, label: o.number, href: "/gestion/commandes" } };
+    return { summary: `Commande ${o.number} signalée : ${reason}`, target: { type: "order", id: o.id, label: o.number, href: "/gestion/commandes" } };
   },
 
   async alert_atelier({ subject, body }) {
     await sendEmail({ to: atelierEmail(), subject, tag: "alerte", ...brandEmail({ preheader: body.slice(0, 90), title: subject, paragraphs: body.split(/\n{2,}/), cta: { label: "Ouvrir le tableau de bord", href: "/gestion" } }) });
-    return { summary: `Alerte envoyée à l’atelier : ${subject}` };
+    return { summary: `Alerte envoyée à l’atelier : ${subject}` };
   },
 
   async publish_article({ article: a }) {
@@ -311,7 +311,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
     const list = (await kv.get<Article[]>(JOURNAL_KEY)) ?? [];
     await kv.set(JOURNAL_KEY, [article, ...list.filter((x) => x.slug !== slug)]);
     refresh();
-    return { summary: `Article publié dans le Journal : « ${a.title} »`, target: { type: "article", id: slug, label: a.title, href: `/journal/${slug}` } };
+    return { summary: `Article publié dans le Journal : « ${a.title} »`, target: { type: "article", id: slug, label: a.title, href: `/journal/${slug}` } };
   },
 
   async update_ai_visibility({ notes }) {
@@ -323,7 +323,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
   async save_content_draft(d) {
     const draft = { id: `draft-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 5)}`, date: new Date().toISOString(), status: "draft" as const, ...d };
     await kv.push("content:drafts", draft, 200);
-    return { summary: `${d.kind === "instagram" ? "Post Instagram" : "Newsletter"} préparé : « ${d.title} »`, target: { type: "content", id: draft.id, label: d.title, href: "/gestion/contenus" } };
+    return { summary: `${d.kind === "instagram" ? "Post Instagram" : "Newsletter"} préparé : « ${d.title} »`, target: { type: "content", id: draft.id, label: d.title, href: "/gestion/contenus" } };
   },
 
   async send_report({ subject, summary, metrics }) {
@@ -342,7 +342,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
         signature: "Votre agent Rapport",
       }),
     });
-    return { summary: `Rapport hebdomadaire envoyé : ${subject}`, target: { type: "report", id: report.id, href: "/gestion/rapports" } };
+    return { summary: `Rapport hebdomadaire envoyé : ${subject}`, target: { type: "report", id: report.id, href: "/gestion/rapports" } };
   },
 
   async refund_order({ orderId, reason }) {
@@ -369,7 +369,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       await kv.set(DEMO_KEYS.price, prices);
     }
     refresh();
-    return { summary: `Prix de ${p.title} : ${formatPrice(p.price)} → ${formatPrice(price)}`, target: { type: "product", id: handle, label: p.title, href: `/boutique/${handle}` } };
+    return { summary: `Prix de ${p.title} : ${formatPrice(p.price)} → ${formatPrice(price)}`, target: { type: "product", id: handle, label: p.title, href: `/boutique/${handle}` } };
   },
 
   async delete_product({ handle }) {
@@ -381,7 +381,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       await kv.set(DEMO_KEYS.removed, [...new Set([...removed, handle])]);
     }
     refresh();
-    return { summary: `Pièce supprimée : ${p.title}`, target: { type: "product", id: handle, label: p.title } };
+    return { summary: `Pièce supprimée : ${p.title}`, target: { type: "product", id: handle, label: p.title } };
   },
 
   async cancel_order({ orderId, refund }) {
@@ -395,9 +395,9 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
   async send_newsletter_all({ subject, preheader, paragraphs, cta }) {
     const subs = (await kv.get<{ email: string }[]>("newsletter:subscribers")) ?? [];
     for (const s of subs) {
-      await sendEmail({ to: s.email, subject, tag: "newsletter", ...brandEmail({ preheader, title: subject, paragraphs, cta, signature: "La Créatrice", footnote: "Vous recevez cette lettre car vous vous êtes inscrite sur awreaparis.com. Désinscription : répondez simplement « stop »." }) });
+      await sendEmail({ to: s.email, subject, tag: "newsletter", ...brandEmail({ preheader, title: subject, paragraphs, cta, signature: "La Créatrice", footnote: "Vous recevez cette lettre car vous vous êtes inscrite sur awreaparis.com. Désinscription : répondez simplement « stop »." }) });
     }
-    return { summary: `Newsletter « ${subject} » envoyée à ${subs.length} abonnée(s)` };
+    return { summary: `Newsletter « ${subject} » envoyée à ${subs.length} abonnée(s)` };
   },
 };
 

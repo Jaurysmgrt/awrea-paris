@@ -18,7 +18,7 @@ export function brandVoice(): string {
   try {
     voiceCache = readFileSync(path.join(process.cwd(), "content/brand/voice.md"), "utf8");
   } catch {
-    voiceCache = `${identity.name} — ${identity.description} Manifeste : ${identity.manifesto} Ton élégant et chaleureux, vouvoiement.`;
+    voiceCache = `${identity.name} — ${identity.description} Manifeste : ${identity.manifesto} Ton élégant et chaleureux, vouvoiement.`;
   }
   return voiceCache;
 }
@@ -29,20 +29,20 @@ export function shopFacts(): string {
     .join("\n");
   const sizes = [shop.sizeGuide.headers.join(" | "), ...shop.sizeGuide.rows.map((r) => r.join(" | "))].join("\n");
   return `# Identité
-Nom : ${identity.name} (aussi : ${identity.alternateNames.join(", ")})
-Description : ${identity.description}
-Manifeste : ${identity.manifesto}
-Phrase de la créatrice : « ${identity.founderQuote} »
-Instagram : ${identity.social.instagram} (${identity.social.instagramHandle}) · E-mail : ${identity.email}
-Atelier : ${[identity.address.streetAddress, `${identity.address.postalCode} ${identity.address.addressLocality}`.trim()].filter(Boolean).join(", ")}, sur rendez-vous
+Nom : ${identity.name} (aussi : ${identity.alternateNames.join(", ")})
+Description : ${identity.description}
+Manifeste : ${identity.manifesto}
+Phrase de la créatrice : « ${identity.founderQuote} »
+Instagram : ${identity.social.instagram} (${identity.social.instagramHandle}) · E-mail : ${identity.email}
+Atelier : ${[identity.address.streetAddress, `${identity.address.postalCode} ${identity.address.addressLocality}`.trim()].filter(Boolean).join(", ")}, sur rendez-vous
 
 # Boutique
-Expédition des pièces disponibles : ${shop.dispatchDays}. Précommandes : expédiées à la fin du délai de fabrication indiqué sur la pièce.
-Livraison :
+Expédition des pièces disponibles : ${shop.dispatchDays}. Précommandes : expédiées à la fin du délai de fabrication indiqué sur la pièce.
+Livraison :
 ${rates}
-Retours : ${shop.returnDays} jours après réception, pièce non portée avec son certificat ; pièces sur mesure ni reprises ni échangées.
-Emballage cadeau : ${formatPrice(shop.giftWrapPrice)}, avec un message recopié à la main.
-Paiement : ${shop.paymentMethods.join(", ")}. Commande possible sans compte.
+Retours : ${shop.returnDays} jours après réception, pièce non portée avec son certificat ; pièces sur mesure ni reprises ni échangées.
+Emballage cadeau : ${formatPrice(shop.giftWrapPrice)}, avec un message recopié à la main.
+Paiement : ${shop.paymentMethods.join(", ")}. Commande possible sans compte.
 
 # Guide des tailles (mesures du corps)
 ${sizes}

@@ -24,7 +24,7 @@ export default async function SharedWishlistPage({ params }: { params: Promise<{
   const title = shared.firstName ? `Les envies de ${shared.firstName}` : "Une liste d’envies";
   return (
     <>
-      <PageHeader title={title} crumbs={[{ name: "Liste d’envies partagée", path: `/liste-envies/partagee/${token}` }]} lead="Une sélection de pièces Awrea Paris, partagée avec vous. Pour faire plaisir, chaque pièce peut être offerte : message manuscrit, emballage de l’atelier et prix masqué sur le bordereau." />
+      <PageHeader title={title} crumbs={[{ name: "Liste d’envies partagée", path: `/liste-envies/partagee/${token}` }]} lead="Une sélection de pièces Awrea Paris, partagée avec vous. Pour faire plaisir, chaque pièce peut être offerte : message manuscrit, emballage de l’atelier et prix masqué sur le bordereau." />
       <Section theme="ivory" className="section section--flush-top">
         <div className="container stack-l">
           {products.length ? (

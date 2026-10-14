@@ -14,7 +14,7 @@ type Piece = { handle: string; title: string; price: string; image: string; edit
 type Msg = { role: "user" | "assistant"; content: string; pieces?: Piece[]; handoff?: string; error?: boolean };
 
 const STORAGE = "awrea_assistant";
-const SUGGESTIONS = ["Quelle taille choisir ?", "Quels sont les délais de livraison ?", "Suivre ma commande", "Parler à la créatrice"];
+const SUGGESTIONS = ["Quelle taille choisir ?", "Quels sont les délais de livraison ?", "Suivre ma commande", "Parler à la créatrice"];
 const TOOL_LABELS: Record<string, string> = {
   search_pieces: "Je parcours les pièces…",
   get_piece: "J’ouvre la fiche de la pièce…",
@@ -260,7 +260,7 @@ export default function AssistantPanel({ open, onClose }: { open: boolean; onClo
           </button>
         </form>
         <p className="assistant__foot t-note">
-          Assistante d’intelligence artificielle : ses réponses peuvent comporter des erreurs.{" "}
+          Assistante d’intelligence artificielle : ses réponses peuvent comporter des erreurs.{" "}
           <Link href="/contact" className="text-link">
             Écrire à l’atelier
           </Link>

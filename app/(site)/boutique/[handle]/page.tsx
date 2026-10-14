@@ -122,7 +122,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                     <p>{product.fit}</p>
                     {product.model ? <p>{product.model}</p> : null}
                     <p>
-                      Un doute ? <Link href="/contact#rendez-vous">Prenez rendez-vous pour un essayage</Link> à l’atelier, ou posez la question à notre assistante en bas de l’écran.
+                      Un doute ? <Link href="/contact#rendez-vous">Prenez rendez-vous pour un essayage</Link> à l’atelier, ou posez la question à notre assistante en bas de l’écran.
                     </p>
                   </div>
                 </details>

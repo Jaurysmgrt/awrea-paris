@@ -60,7 +60,7 @@ export default function ContactPage() {
             Essayage, sur mesure, retouche
           </h2>
           <p className="t-body">
-            L’atelier vous reçoit à Paris pour essayer les pièces disponibles, ajuster une taille ou imaginer une pièce à vos mesures. Indiquez-nous vos préférences : la
+            L’atelier vous reçoit à Paris pour essayer les pièces disponibles, ajuster une taille ou imaginer une pièce à vos mesures. Indiquez-nous vos préférences : la
             créatrice vous propose un créneau par e-mail.
           </p>
           <ContactForm kind="rendez-vous" />

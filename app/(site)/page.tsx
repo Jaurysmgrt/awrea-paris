@@ -37,7 +37,7 @@ export default async function HomePage() {
       {/* ------------------------------------------------ OUVERTURE */}
       <Section theme="ink" className="hero" labelledBy="hero-title">
         <LaceReveal
-          label="Film de la collection Lace is more : dentelle noire et satin en mouvement"
+          label="Film de la collection Lace is more : dentelle noire et satin en mouvement"
           video={{
             src: "/media/video/hero-desktop.mp4",
             mobileSrc: "/media/video/hero-mobile.mp4",
@@ -140,7 +140,7 @@ export default async function HomePage() {
           </div>
           <span className="ornament" aria-hidden="true" />
           <blockquote className="manifesto__quote">
-            <p className="t-body t-center">« {identity.founderQuote} »</p>
+            <p className="t-body t-center">« {identity.founderQuote} »</p>
             <footer className="t-label">{identity.founderTitle}</footer>
           </blockquote>
           <Link href={home.manifesto.cta.href} className="btn btn--solid">

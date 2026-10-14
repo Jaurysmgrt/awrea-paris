@@ -96,7 +96,7 @@ export async function saveReturn(r: ReturnRequest) {
 async function nextId(): Promise<string> {
   const lock = "returns:lock";
   for (let i = 0; (await kv.incr(lock, 10)) > 1; i++) {
-    if (i > 50) throw new Error("retours : verrou occupé");
+    if (i > 50) throw new Error("retours : verrou occupé");
     await sleep(100);
   }
   try {
@@ -121,7 +121,7 @@ export function returnDeadline(order: Order): Date {
 /** Pièces encore retournables : livrées (ou expédiées), dans le délai, pas déjà retournées, hors sur-mesure. */
 export async function returnable(order: Order): Promise<{ eligible: boolean; reason?: string; lines: Order["lines"] }> {
   if (!["shipped", "delivered"].includes(order.status)) return { eligible: false, reason: "Le retour s’ouvre dès l’expédition de la commande.", lines: [] };
-  if (returnDeadline(order) < new Date()) return { eligible: false, reason: `Le délai de retour de ${shop.returnDays} jours après la livraison est dépassé. Écrivez-nous : l’atelier trouvera une solution.`, lines: [] };
+  if (returnDeadline(order) < new Date()) return { eligible: false, reason: `Le délai de retour de ${shop.returnDays} jours après la livraison est dépassé. Écrivez-nous : l’atelier trouvera une solution.`, lines: [] };
   const done = (await returnsOf(order.number)).filter((r) => r.status !== "refuse").flatMap((r) => r.items);
   const left = order.lines.filter((l) => !l.handle.startsWith("sur-mesure")).filter((l) => {
     const already = done.filter((d) => d.handle === l.handle && d.size === l.size).length;

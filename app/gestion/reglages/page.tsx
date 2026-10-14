@@ -40,7 +40,7 @@ export default async function ReglagesPage() {
       ok: s.provider !== "mock",
       state: s.provider === "mock" ? `Simulation — ${s.providerLabel}` : s.id === "ai" ? `${s.providerLabel} (${MODEL})` : s.providerLabel,
       hint: s.missing.length
-        ? `${s.env}=${s.requested} demandé : manque ${s.missing.join(", ")}`
+        ? `${s.env}=${s.requested} demandé : manque ${s.missing.join(", ")}`
         : `${s.env} · ${Object.values(s.keys).map((k) => k.join(", ")).join(" ou ")}`,
     })),
     { name: "Shopify Admin (agents)", ok: adminEnabled, state: adminEnabled ? "Shopify" : "Simulation", hint: "SHOPIFY_CLIENT_ID et SHOPIFY_CLIENT_SECRET (ou SHOPIFY_ADMIN_ACCESS_TOKEN)" },
@@ -67,7 +67,7 @@ export default async function ReglagesPage() {
       <section className="panel" aria-labelledby="sec-title">
         <h2 id="sec-title" className="t-h3">Sécurité</h2>
         <p className="t-body">
-          Dernières 24 heures : {digest.adminLogins} connexion(s), {digest.adminFailures} échec(s), {digest.adminBlocked} blocage(s), {digest.unusualLogins} connexion(s)
+          Dernières 24 heures : {digest.adminLogins} connexion(s), {digest.adminFailures} échec(s), {digest.adminBlocked} blocage(s), {digest.unusualLogins} connexion(s)
           inhabituelle(s), {digest.csrfBlocked} requête(s) d’origine étrangère et {digest.rateLimited} excès de débit refusés.
         </p>
         <div className="table-scroll"><table className="table">
@@ -92,8 +92,8 @@ export default async function ReglagesPage() {
           <p className="t-note">Aucune connexion enregistrée pour l’instant.</p>
         )}
         <div className="proposal__actions">
-          <ActionButton endpoint="/api/gestion/securite/sessions" label="Déconnecter tous les appareils" confirm="Fermer toutes les sessions de l’Atelier, y compris celle-ci ?" />
-          <ActionButton endpoint="/api/gestion/securite/totp" label="Réinitialiser la double authentification" variant="quiet" confirm="Réinitialiser la double authentification ? Vous devrez scanner un nouveau QR code à la prochaine connexion." />
+          <ActionButton endpoint="/api/gestion/securite/sessions" label="Déconnecter tous les appareils" confirm="Fermer toutes les sessions de l’Atelier, y compris celle-ci ?" />
+          <ActionButton endpoint="/api/gestion/securite/totp" label="Réinitialiser la double authentification" variant="quiet" confirm="Réinitialiser la double authentification ? Vous devrez scanner un nouveau QR code à la prochaine connexion." />
         </div>
       </section>
       <section className="panel" aria-labelledby="policy-title">
@@ -119,7 +119,7 @@ export default async function ReglagesPage() {
         <section className="panel" aria-labelledby="reset-title">
           <h2 id="reset-title" className="t-h3">Données de démonstration</h2>
           <p className="t-body">Efface les commandes de test, messages, propositions, journaux et contenus générés, et rétablit les stocks d’origine.</p>
-          <ActionButton endpoint="/api/gestion/reset" label="Réinitialiser la démonstration" confirm="Effacer toutes les données de démonstration ?" />
+          <ActionButton endpoint="/api/gestion/reset" label="Réinitialiser la démonstration" confirm="Effacer toutes les données de démonstration ?" />
         </section>
       ) : null}
     </div>

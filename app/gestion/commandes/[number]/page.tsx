@@ -100,7 +100,7 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
             <div>
               <dt className="t-label">Cadeau</dt>
               <dd>
-                Emballage cadeau{order.gift.message ? ` — « ${order.gift.message} »` : ""}
+                Emballage cadeau{order.gift.message ? ` — « ${order.gift.message} »` : ""}
                 {hide ? " · prix masqués sur le bon" : ""}
                 {order.gift.deliveryDate ? ` · à livrer le ${formatDate(order.gift.deliveryDate)}` : ""}
               </dd>
@@ -110,7 +110,7 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
             <dt className="t-label">Paiement</dt>
             <dd>
               {order.paymentMethod}
-              {exp ? ` · export : droits ${formatPrice(exp.duty)}, taxe du pays ${formatPrice(exp.importVat)}` : order.taxes ? ` · dont TVA ${formatPrice(order.taxes.vat)}` : ""}
+              {exp ? ` · export : droits ${formatPrice(exp.duty)}, taxe du pays ${formatPrice(exp.importVat)}` : order.taxes ? ` · dont TVA ${formatPrice(order.taxes.vat)}` : ""}
             </dd>
           </div>
         </dl>
@@ -184,7 +184,7 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
             ))}
           </tbody>
         </table>
-        {order.gift?.wrap && order.gift.message ? <p className="slip__message">« {order.gift.message} »</p> : null}
+        {order.gift?.wrap && order.gift.message ? <p className="slip__message">« {order.gift.message} »</p> : null}
         <p className="t-note slip__foot">
           {identity.name} · fait main à Paris · {identity.email}
         </p>
