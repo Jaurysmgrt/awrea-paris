@@ -24,12 +24,13 @@ test.describe("Drops et lancements", () => {
     await acceptCookies(page);
     await adminLogin(page);
     const slug = `essai-${Date.now().toString(36)}`;
+    // variante lue avant l'annonce : pendant le drop, le catalogue public masque la pièce
+    const variant = await variantOf(page, PIECE);
     await createDrop(page, { slug, title: "Série d’essai", teaser: "Une série annoncée pour vérifier l’accès anticipé des inscrites.", products: [PIECE], earlyAccessAt: at(-1), publicAt: at(48), privateSale: false });
     try {
       // la pièce quitte la boutique et ne s'achète plus sans accès
       await page.goto("/boutique");
       await expect(page.locator(`main a[href="/boutique/${PIECE}"]`)).toHaveCount(0);
-      const variant = await variantOf(page, PIECE);
       expect((await page.request.post("/api/cart", { data: { type: "add", variantId: variant } })).status()).toBe(403);
       await page.goto(`/boutique/${PIECE}`);
       await expect(page.locator(".drop-gate")).toContainText("réservée aux inscrites");
@@ -70,9 +71,9 @@ test.describe("Drops et lancements", () => {
     await acceptCookies(page);
     await adminLogin(page);
     const slug = `privee-${Date.now().toString(36)}`;
+    const variant = await variantOf(page, PIECE);
     await createDrop(page, { slug, title: "Vente privée d’essai", teaser: "Quelques pièces réservées, le temps d’une soirée à l’atelier.", products: [PIECE], earlyAccessAt: at(-2), publicAt: at(24), privateSale: true, password: "dentelle-noire" });
     try {
-      const variant = await variantOf(page, PIECE);
       expect((await page.request.post("/api/cart", { data: { type: "add", variantId: variant } })).status()).toBe(403);
       await page.goto(`/bientot/${slug}`);
       await page.getByLabel("Mot de passe de la vente privée").fill("au-hasard");

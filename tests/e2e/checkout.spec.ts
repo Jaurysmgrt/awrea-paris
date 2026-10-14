@@ -9,13 +9,15 @@ test.describe("Parcours d’achat complet (mode test)", () => {
     await expect(page.getByText("Certificat d’édition")).toBeVisible();
 
     // taille obligatoire
-    await page.getByRole("button", { name: "Ajouter au panier" }).click();
+    // les boutons principaux de la fiche (la barre d'achat du téléphone en reprend les libellés)
+    const actions = page.locator(".product-form__actions");
+    await actions.getByRole("button", { name: "Ajouter au panier" }).click();
     await expect(page.getByText("Merci de choisir une taille.")).toBeVisible();
 
     // première taille commandable : en stock, ou sur commande quand les essais précédents ont
     // épuisé le stock de démonstration
     await page.locator('.product-form .chip:not([data-unavailable="true"])').first().click();
-    await page.getByRole("button", { name: /^(Ajouter au panier|Précommander)$/ }).click();
+    await actions.getByRole("button", { name: /^(Ajouter au panier|Précommander)$/ }).click();
 
     const drawer = page.locator("dialog.drawer");
     await expect(drawer).toBeVisible();
@@ -68,13 +70,13 @@ test.describe("Parcours d’achat complet (mode test)", () => {
     await expect(page.getByText("Cette pièce est aujourd’hui épuisée.", { exact: false })).toBeVisible();
     await page.locator("#liste-attente").getByLabel("Adresse e-mail").fill("attente@exemple.fr");
     await page.locator("#liste-attente").getByText(/J’accepte d’être contactée/).click();
-    await page.getByRole("button", { name: "Être prévenue" }).click();
+    await page.locator("#liste-attente").getByRole("button", { name: "Être prévenue" }).click();
     await expect(page.getByRole("status").filter({ hasText: "C’est noté" })).toBeVisible();
   });
 
   test("silhouette achetable en un geste", async ({ page }) => {
     await acceptCookies(page);
-    await page.goto("/silhouettes");
+    await page.goto("/outfits");
     const first = page.locator(".silhouette").first();
     const pickers = first.locator(".outfit .size-picker");
     const n = await pickers.count();

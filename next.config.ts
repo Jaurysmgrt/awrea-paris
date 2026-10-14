@@ -15,7 +15,15 @@ const config: NextConfig = {
   // interrupteur de la protection anti-robots, connu du navigateur (lib/config/providers.ts)
   env: { AWREA_CAPTCHA: providerOf("captcha") },
   // la référence de ton est lue à l'exécution par l'assistante et les agents
-  outputFileTracingIncludes: { "/**": ["./content/brand/voice.md"] },
+  outputFileTracingIncludes: {
+    "/**": ["./content/brand/voice.md"],
+    // polices des factures et étiquettes PDF (lues sur le disque par pdf-lib)
+    "/api/factures/**": ["./assets/pdf/**"],
+    "/api/gestion/**": ["./assets/pdf/**"],
+    "/api/checkout": ["./assets/pdf/**"],
+    "/api/retours/**": ["./assets/pdf/**"],
+    "/api/cron/**": ["./assets/pdf/**"],
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [360, 480, 640, 828, 1080, 1280, 1600, 1920],
@@ -27,6 +35,8 @@ const config: NextConfig = {
   },
   async redirects() {
     return [
+      // ancienne page « Silhouettes », devenue « Outfits » (rubrique Instagram de la Maison)
+      { source: "/silhouettes", destination: "/outfits", permanent: true },
       {
         source: "/:path*",
         has: [{ type: "host", value: alternateHost }],

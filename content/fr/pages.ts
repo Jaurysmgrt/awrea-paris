@@ -7,17 +7,18 @@ export const nav = {
   primary: [
     { href: "/boutique", label: "Boutique" },
     { href: "/collections", label: "Collections" },
-    { href: "/silhouettes", label: "Silhouettes" },
+    { href: "/outfits", label: "Outfits" },
     { href: "/la-maison", label: "La Maison" },
     { href: "/atelier", label: "L’Atelier" },
-    { href: "/journal", label: "Journal" },
   ],
   secondary: [
+    { href: "/journal", label: "Journal" },
     { href: "/bientot", label: "Bientôt" },
     { href: "/presse", label: "Presse" },
     { href: "/contact", label: "Contact & rendez-vous" },
     { href: "/faq", label: "Questions fréquentes" },
     { href: "/livraison-retours", label: "Livraison & retours" },
+    { href: "/suivi", label: "Suivre une commande" },
   ],
   legal: [
     { href: "/cgv", label: "Conditions générales de vente" },
@@ -68,7 +69,7 @@ export const home = {
     eyebrow: "Shop the look",
     title: "Composer la silhouette",
     text: "Touchez les points lumineux pour découvrir chaque pièce de la silhouette.",
-    cta: { href: "/silhouettes", label: "Toutes les silhouettes" },
+    cta: { href: "/outfits", label: "Découvrir les outfits" },
   },
   atelier: {
     eyebrow: "L’Atelier",
@@ -206,14 +207,15 @@ export const contact = {
   ],
 };
 
-export const silhouettes = {
+/** Rubrique « Outfits » du compte Instagram de la Maison (ancienne page « Silhouettes », redirigée). */
+export const outfits = {
   seo: {
-    title: "Silhouettes — tenues complètes | Awrea Paris",
+    title: "Outfits — tenues complètes | Awrea Paris",
     description:
-      "Les silhouettes Awrea Paris : des tenues complètes en dentelle noire, jersey et satin, à composer et commander en un geste. Pièces faites main à Paris.",
+      "Les outfits Awrea Paris : des tenues complètes en dentelle noire, jersey et satin, composées par la créatrice et commandées en un geste. Pièces faites main à Paris.",
   },
-  h1: "Silhouettes",
-  lead: "Des tenues composées par la créatrice. Ajoutez la silhouette entière à votre panier en un geste, ou choisissez pièce par pièce.",
+  h1: "Outfits",
+  lead: "Chaque tenue est composée par la créatrice. Elle se commande entière, en un seul geste, ou pièce par pièce, à votre mesure.",
 };
 
 export const boutique = {

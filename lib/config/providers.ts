@@ -92,6 +92,12 @@ export const SERVICES = {
     // service public gratuit, sans clé : branché seulement s'il est demandé (ADDRESS_PROVIDER=ign)
     providers: { ign: { label: "Géoplateforme de l'IGN (adresses françaises)", keys: [], optIn: true } },
   },
+  labels: {
+    label: "Étiquettes de retour prépayées",
+    env: "LABELS_PROVIDER",
+    mock: "Étiquette de démonstration (l'atelier peut aussi déposer une vraie étiquette)",
+    providers: { colissimo: { label: "Colissimo Retour", keys: ["COLISSIMO_CONTRACT_NUMBER", "COLISSIMO_PASSWORD"] } },
+  },
   instagram: {
     label: "Publications Instagram",
     env: "INSTAGRAM_PROVIDER",

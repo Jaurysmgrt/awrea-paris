@@ -14,12 +14,18 @@ export interface OutgoingEmail {
   text: string;
   replyTo?: string;
   tag?: string;
+  /** pièces jointes (facture PDF, export comptable…) */
+  attachments?: { filename: string; content: Uint8Array | string }[];
 }
+
+const base64 = (c: Uint8Array | string) => Buffer.from(c).toString("base64");
 
 export async function sendEmail(mail: OutgoingEmail): Promise<{ id: string; delivered: boolean }> {
   const key = providerOf("email") === "resend" ? process.env.RESEND_API_KEY : undefined;
   const from = process.env.EMAIL_FROM ?? `${identity.name} <${identity.email}>`;
-  const record = { ...mail, from, date: new Date().toISOString() };
+  // boîte d'envoi : le nom et la taille des pièces jointes, jamais leur contenu
+  const { attachments, ...rest } = mail;
+  const record = { ...rest, from, date: new Date().toISOString(), attachments: attachments?.map((a) => ({ filename: a.filename, size: Buffer.from(a.content).length })) };
   if (!key) {
     const id = `outbox-${Date.now()}`;
     await kv.push("email:outbox", { id, ...record, delivered: false }, 300);
@@ -29,7 +35,16 @@ export async function sendEmail(mail: OutgoingEmail): Promise<{ id: string; deli
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to: [mail.to], subject: mail.subject, html: mail.html, text: mail.text, reply_to: mail.replyTo, tags: mail.tag ? [{ name: "type", value: mail.tag }] : undefined }),
+    body: JSON.stringify({
+      from,
+      to: [mail.to],
+      subject: mail.subject,
+      html: mail.html,
+      text: mail.text,
+      reply_to: mail.replyTo,
+      tags: mail.tag ? [{ name: "type", value: mail.tag }] : undefined,
+      attachments: attachments?.map((a) => ({ filename: a.filename, content: base64(a.content) })),
+    }),
   });
   const json = (await res.json().catch(() => ({}))) as { id?: string };
   await kv.push("email:outbox", { id: json.id ?? "", ...record, delivered: res.ok }, 300);

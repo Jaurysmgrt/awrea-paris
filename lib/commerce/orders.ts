@@ -6,6 +6,8 @@ import type { Order, OrderStatus } from "./types";
 
 export const ORDERS_KEY = "orders";
 export const ORDER_STATUS_KEY = "orders:status"; // surcharges de statut (démo)
+export const ORDER_DELIVERED_KEY = "orders:delivered"; // dates de livraison (démo)
+export const ORDER_TRACKING_KEY = "orders:tracking"; // transporteur et numéro de suivi (démo)
 
 export async function getOrders(): Promise<Order[]> {
   if (adminEnabled) {
@@ -15,9 +17,14 @@ export async function getOrders(): Promise<Order[]> {
       console.error("[orders] Shopify indisponible :", e);
     }
   }
-  const [created, overrides] = await Promise.all([kv.get<Order[]>(ORDERS_KEY), kv.get<Record<string, OrderStatus>>(ORDER_STATUS_KEY)]);
+  const [created, overrides, delivered, tracking] = await Promise.all([
+    kv.get<Order[]>(ORDERS_KEY),
+    kv.get<Record<string, OrderStatus>>(ORDER_STATUS_KEY),
+    kv.get<Record<string, string>>(ORDER_DELIVERED_KEY),
+    kv.get<Record<string, { carrier: string; tracking: string }>>(ORDER_TRACKING_KEY),
+  ]);
   return [...(created ?? []), ...demoOrders]
-    .map((o) => ({ ...o, status: overrides?.[o.id] ?? o.status }))
+    .map((o) => ({ ...o, status: overrides?.[o.id] ?? o.status, deliveredAt: delivered?.[o.id] ?? o.deliveredAt, shipping: { ...o.shipping, ...(tracking?.[o.id] ?? {}) } }))
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
@@ -31,10 +38,20 @@ export async function saveOrder(order: Order) {
   await kv.set(ORDERS_KEY, [order, ...list.filter((o) => o.id !== order.id)]);
 }
 
+/** Démonstration : transporteur et numéro de suivi saisis dans l'Atelier. */
+export async function setOrderTracking(id: string, carrier: string, tracking: string) {
+  const map = (await kv.get<Record<string, { carrier: string; tracking: string }>>(ORDER_TRACKING_KEY)) ?? {};
+  await kv.set(ORDER_TRACKING_KEY, { ...map, [id]: { carrier, tracking } });
+}
+
 export async function setOrderStatus(id: string, status: OrderStatus) {
   const map = (await kv.get<Record<string, OrderStatus>>(ORDER_STATUS_KEY)) ?? {};
   map[id] = status;
   await kv.set(ORDER_STATUS_KEY, map);
+  if (status === "delivered") {
+    const dates = (await kv.get<Record<string, string>>(ORDER_DELIVERED_KEY)) ?? {};
+    await kv.set(ORDER_DELIVERED_KEY, { ...dates, [id]: dates[id] ?? new Date().toISOString() });
+  }
 }
 
 async function shopifyOrders(): Promise<Order[]> {

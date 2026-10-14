@@ -4,6 +4,7 @@ import { getProfile, listAddresses, listOrders, listWaitlist, getWishlist } from
 import { statusLabel, trackingUrl } from "@/lib/commerce/orders";
 import { legalVersions } from "@/content/legal-versions";
 import { certificatesFor } from "@/lib/certificates";
+import { orderLink } from "@/lib/commerce/order-access";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,8 @@ export async function GET() {
     user: { id: session.id, email: session.email },
     profile,
     needsTerms: !profile?.termsAcceptedAt || profile.termsVersion !== legalVersions.cgu,
-    orders: orders.map((o) => ({ ...o, statusLabel: statusLabel[o.status], trackingUrl: trackingUrl(o.shipping.carrier, o.shipping.tracking) })),
+    // lien signé vers le suivi de chaque commande : retours, échanges et facture en libre-service
+    orders: orders.map((o) => ({ ...o, statusLabel: statusLabel[o.status], trackingUrl: trackingUrl(o.shipping.carrier, o.shipping.tracking), followUrl: orderLink(o) })),
     addresses,
     waitlist,
     wishlist,

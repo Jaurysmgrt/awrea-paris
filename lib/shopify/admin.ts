@@ -236,6 +236,44 @@ export async function shopifyRefundOrder(orderId: string, note: string) {
   assertNoErrors("Remboursement", r.refundCreate);
 }
 
+/**
+ * Remboursement partiel : les pièces retournées (repérées par leur pièce et leur taille), sans la
+ * livraison ; Shopify calcule la transaction à rembourser et remet les pièces en stock.
+ */
+export async function shopifyRefundLines(orderId: string, items: { handle: string; size: string }[], note: string) {
+  const o = await admin<{ order: { lineItems: { nodes: { id: string; quantity: number; variantTitle: string | null; product: { handle: string } | null }[] } } | null }>(
+    `query L($id: ID!) { order(id: $id) { lineItems(first: 50) { nodes { id quantity variantTitle product { handle } } } } }`,
+    { id: orderId },
+  );
+  if (!o.order) throw new Error("Commande introuvable");
+  const wanted = new Map<string, number>();
+  for (const it of items) {
+    const line = o.order.lineItems.nodes.find((l) => l.product?.handle === it.handle && (l.variantTitle ?? "TU") === it.size);
+    if (!line) throw new Error(`Pièce ${it.handle} (${it.size}) introuvable dans la commande`);
+    wanted.set(line.id, Math.min(line.quantity, (wanted.get(line.id) ?? 0) + 1));
+  }
+  const refundLineItems = [...wanted].map(([lineItemId, quantity]) => ({ lineItemId, quantity }));
+  const d = await admin<{ order: { suggestedRefund: { suggestedTransactions: { gateway: string; parentTransaction: { id: string } | null; amountSet: { shopMoney: { amount: string } } }[] } } | null }>(
+    `query R($id: ID!, $lines: [RefundLineItemInput!]) { order(id: $id) { suggestedRefund(refundShipping: false, refundLineItems: $lines) {
+      suggestedTransactions { gateway parentTransaction { id } amountSet { shopMoney { amount } } }
+    } } }`,
+    { id: orderId, lines: refundLineItems },
+  );
+  const r = await admin<{ refundCreate: UserErrors }>(
+    `mutation R($input: RefundInput!) { refundCreate(input: $input) { userErrors { field message } } }`,
+    {
+      input: {
+        orderId,
+        note,
+        notify: true,
+        refundLineItems: refundLineItems.map((l) => ({ ...l, restockType: "RETURN" })),
+        transactions: (d.order?.suggestedRefund.suggestedTransactions ?? []).map((t) => ({ orderId, gateway: t.gateway, kind: "REFUND", amount: t.amountSet.shopMoney.amount, parentId: t.parentTransaction?.id })),
+      },
+    },
+  );
+  assertNoErrors("Remboursement", r.refundCreate);
+}
+
 export async function shopifyCancelOrder(orderId: string, refund: boolean) {
   const r = await admin<{ orderCancel: { orderCancelUserErrors: { message: string }[] } }>(
     `mutation C($orderId: ID!, $refund: Boolean!) { orderCancel(orderId: $orderId, reason: CUSTOMER, refund: $refund, restock: true, notifyCustomer: true) { orderCancelUserErrors { message } } }`,

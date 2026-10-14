@@ -11,7 +11,7 @@ import type { Order } from "@/lib/commerce/types";
 import type { Address, CustomerProfile, Sizes, WaitlistItem } from "@/lib/customers/types";
 import type { PublicCertificate } from "@/lib/certificates";
 
-export type AccountOrder = Order & { statusLabel: string; trackingUrl: string | null };
+export type AccountOrder = Order & { statusLabel: string; trackingUrl: string | null; followUrl?: string };
 
 const SIZES = ["XS", "S", "M", "L", "XL"] as const;
 const COUNTRIES = shop.countries;
@@ -72,17 +72,17 @@ export function OrdersPanel({ orders }: { orders: AccountOrder[] }) {
                 {t.orders.track} ({o.shipping.carrier} {o.shipping.tracking})
               </a>
             ) : null}
+            {o.followUrl ? (
+              <Link href={o.followUrl} className="link">
+                {t.orders.follow}
+              </Link>
+            ) : null}
           </li>
         ))}
       </ul>
       <div className="stack">
         <h3 className="t-label">{t.orders.returns}</h3>
         <p className="t-body">{t.orders.returnsNote}</p>
-        <div>
-          <Link href="/contact?sujet=retour" className="btn">
-            {t.orders.returns}
-          </Link>
-        </div>
       </div>
     </div>
   );

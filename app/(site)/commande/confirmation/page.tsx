@@ -10,6 +10,7 @@ import { PurchaseTracker } from "@/components/analytics/PurchaseTracker";
 import { AtelierNote } from "@/components/ui/AtelierNote";
 import { atelierMoments } from "@/content/fr/coulisses";
 import { certificatesOfOrder } from "@/lib/certificates";
+import { orderAccessToken, orderLink } from "@/lib/commerce/order-access";
 
 export const metadata = pageMetadata({
   title: "Merci | Awrea Paris",
@@ -22,7 +23,7 @@ export const dynamic = "force-dynamic";
 export default async function ConfirmationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ n?: string; t?: string }>;
+  searchParams: Promise<{ n?: string; t?: string; a?: string }>;
 }) {
   const sp = await searchParams;
   const token = verify<{ n: string }>(sp.t);
@@ -108,9 +109,14 @@ export default async function ConfirmationPage({
               </div>
             ) : null}
             <div className="confirmation__actions">
-              <Link href="/compte" className="btn">
+              <Link href={order ? orderLink(order) : "/suivi"} className="btn">
                 Suivre ma commande
               </Link>
+              {order ? (
+                <a href={`/api/factures/${encodeURIComponent(order.number)}?t=${encodeURIComponent(orderAccessToken(order))}`} className="link link--quiet">
+                  Télécharger la facture
+                </a>
+              ) : null}
               <Link href="/boutique" className="link link--quiet">
                 Continuer la visite
               </Link>

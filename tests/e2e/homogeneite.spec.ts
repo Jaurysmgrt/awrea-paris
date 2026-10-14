@@ -10,7 +10,7 @@ import { auditInPage, hyphenateJustified, type DesignAudit } from "./design-audi
  * naturelle — 2,5 sur les plus petits téléphones — et 45 à 75 caractères par ligne sur ordinateur).
  */
 const PAGES = [
-  "/", "/collections", "/collections/lace-is-more", "/boutique", "/boutique/robe-odessa", "/boutique/body-aura", "/silhouettes",
+  "/", "/collections", "/collections/lace-is-more", "/boutique", "/boutique/robe-odessa", "/boutique/body-aura", "/outfits",
   "/la-maison", "/atelier", "/journal", "/journal/moodboard-lace-is-more", "/presse", "/contact", "/faq", "/livraison-retours",
   "/cgv", "/cgu", "/mentions-legales", "/propriete-intellectuelle", "/confidentialite", "/cookies", "/assistant-ia", "/retractation",
   "/compte", "/liste-envies", "/recherche", "/page-inexistante",

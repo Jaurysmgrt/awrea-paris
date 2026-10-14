@@ -174,6 +174,8 @@ export interface Order {
   email: string;
   name: string;
   status: OrderStatus;
+  /** date de livraison, quand elle est connue (point de départ du délai de retour) */
+  deliveredAt?: string;
   lines: { title: string; size: Size; quantity: number; unitPrice: number; handle: string; editionLabel?: string }[];
   total: number;
   shipping: {
@@ -189,6 +191,10 @@ export interface Order {
   };
   /** adresse de livraison et de facturation */
   address?: Address;
+  /** remise appliquée (code avantage) */
+  discount?: { code: string; label: string; amount: number };
+  /** part payée par carte cadeau */
+  giftCard?: { code: string; amount: number };
   taxes?: OrderTaxes;
   gift?: GiftOptions;
   paymentMethod: string;

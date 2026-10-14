@@ -11,6 +11,8 @@ import { identity } from "@/content/brand/identity";
 import { PrintButton } from "@/components/admin/PrintButton";
 import { Logo } from "@/components/brand/Logo";
 import { When } from "@/components/admin/Status";
+import { OrderShipping } from "@/components/admin/OrderShipping";
+import { commerceMode } from "@/lib/commerce";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +48,15 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
           </Link>
         </div>
       </header>
+
+      {commerceMode === "demo" ? (
+        <section className="panel no-print" aria-labelledby="ship-title">
+          <h2 id="ship-title" className="t-h3">
+            Expédition
+          </h2>
+          <OrderShipping number={order.number} status={order.status} />
+        </section>
+      ) : null}
 
       <section className="panel no-print" aria-labelledby="client-title">
         <h2 id="client-title" className="t-h3">

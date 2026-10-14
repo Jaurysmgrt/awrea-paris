@@ -3,9 +3,11 @@
  *
  * | Scénario            | Déclencheur                                        | Condition                         |
  * |---------------------|----------------------------------------------------|-----------------------------------|
+ * | Expédition          | commande remise au transporteur (lien de suivi)    | relation contractuelle            |
+ * | Livraison           | commande livrée                                    | relation contractuelle            |
  * | Bienvenue           | création du compte / inscription aux lettres       | —                                 |
  * | Panier abandonné    | panier d'une cliente connectée inchangé depuis 4 h | personnalisation + lettres        |
- * | Après l'achat       | commande livrée : conseils d'entretien             | relation contractuelle            |
+ * | Après l'achat       | 2 jours après la livraison : merci et entretien    | relation contractuelle            |
  * | Demande d'avis      | 14 jours après la livraison                        | relation contractuelle, opposable |
  * | Retour en stock     | pièce attendue de nouveau disponible               | inscription à la liste d'attente  |
  * | Anniversaire        | le jour J, si la date est renseignée               | lettres                           |
@@ -21,19 +23,22 @@ import { identity } from "@/content/brand/identity";
 import { brandEmail } from "@/lib/email/templates";
 import { absolute } from "@/lib/seo/metadata";
 import { kv } from "@/lib/store";
-import { getOrders } from "@/lib/commerce/orders";
+import { getOrders, trackingUrl } from "@/lib/commerce/orders";
+import { orderLink } from "@/lib/commerce/order-access";
 import { getProduct } from "@/lib/commerce";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/db/supabase";
 import type { Order } from "@/lib/commerce/types";
 import type { CustomerProfile } from "@/lib/customers/types";
 import { sendFlowEmail, trackEvent, upsertContact } from "./provider";
 
-export type FlowId = "bienvenue" | "panier" | "apres-achat" | "avis" | "retour-stock" | "anniversaire" | "reactivation";
+export type FlowId = "expedition" | "livraison" | "bienvenue" | "panier" | "apres-achat" | "avis" | "retour-stock" | "anniversaire" | "reactivation";
 
 export const flowCatalog: { id: FlowId; label: string; trigger: string; condition: string }[] = [
+  { id: "expedition", label: "Expédition", trigger: "Commande remise au transporteur", condition: "Lien de suivi du colis" },
+  { id: "livraison", label: "Livraison", trigger: "Commande livrée", condition: "Certificat, retours et échanges" },
   { id: "bienvenue", label: "Bienvenue", trigger: "Création du compte ou inscription aux lettres", condition: "Envoi immédiat" },
   { id: "panier", label: "Panier abandonné", trigger: "Panier inchangé depuis 4 heures", condition: "Personnalisation et lettres acceptées ; une seule relance" },
-  { id: "apres-achat", label: "Après l’achat", trigger: "Commande livrée", condition: "Conseils d’entretien de chaque pièce" },
+  { id: "apres-achat", label: "Après l’achat", trigger: "Deux jours après la livraison", condition: "Merci et conseils d’entretien de chaque pièce" },
   { id: "avis", label: "Demande d’avis", trigger: "14 jours après la livraison", condition: "Avis vérifié, une seule demande" },
   { id: "retour-stock", label: "Retour en stock", trigger: "Pièce de nouveau disponible", condition: "Inscription à la liste d’attente (agent Commandes et stock)" },
   { id: "anniversaire", label: "Anniversaire", trigger: "Le jour de l’anniversaire", condition: "Date renseignée et lettres acceptées" },
@@ -93,7 +98,50 @@ export async function onNewsletterSignup(email: string) {
 }
 
 /** Commande livrée : conseils d'entretien de chaque pièce reçue. */
+/** Commande remise au transporteur : le lien de suivi, et celui de la commande. */
+export async function onOrderShipped(order: Order) {
+  await once("expedition", order.id, async () => {
+    const url = trackingUrl(order.shipping.carrier, order.shipping.tracking);
+    const mail = brandEmail({
+      preheader: "Votre pièce a quitté l’atelier.",
+      title: "Votre pièce est en route",
+      paragraphs: [
+        greet(order.name.split(" ")[0]),
+        "Votre pièce a quitté l’atelier ce matin, pliée dans son papier de soie, avec son certificat.",
+        order.shipping.relay
+          ? `Elle vous attendra au point relais ${order.shipping.relay.name} (${order.shipping.relay.address}).`
+          : url
+            ? `Vous pouvez suivre son voyage avec ${order.shipping.carrier} : numéro ${order.shipping.tracking}.`
+            : "Vous recevrez le numéro de suivi du transporteur dès sa prise en charge.",
+      ],
+      cta: url ? { label: "Suivre le colis", href: url } : { label: "Suivre ma commande", href: absolute(orderLink(order)) },
+      signature: SIGNATURE,
+    });
+    await sendFlowEmail({ to: order.email, subject: "Votre pièce est en route", ...mail, flow: "expedition" });
+  });
+}
+
+/** Commande livrée : mot d'arrivée (certificat, retours) ; le merci et l'entretien suivent deux jours plus tard. */
 export async function onOrderDelivered(order: Order) {
+  await kv.set(`flows:delivered:${order.id}`, order.deliveredAt ?? new Date().toISOString());
+  await once("livraison", order.id, async () => {
+    const mail = brandEmail({
+      preheader: "Votre pièce est arrivée.",
+      title: "Votre pièce est arrivée",
+      paragraphs: [
+        greet(order.name.split(" ")[0]),
+        "Votre colis vient d’être livré. Nous espérons que la pièce vous ressemble dès le premier essayage.",
+        "Son certificat d’authenticité est en ligne. Si la taille ne tombe pas juste, un échange ou un retour se demande en quelques gestes, jusqu’à quatorze jours après la livraison.",
+      ],
+      cta: { label: "Ma commande, mon certificat", href: absolute(orderLink(order)) },
+      signature: SIGNATURE,
+    });
+    await sendFlowEmail({ to: order.email, subject: "Votre pièce est arrivée", ...mail, flow: "livraison" });
+  });
+}
+
+/** Merci et conseils d'entretien (deux jours après la livraison, tâche quotidienne). */
+async function sendAfterPurchase(order: Order) {
   await once("apres-achat", order.id, async () => {
     const products = await Promise.all(order.lines.map((l) => getProduct(l.handle)));
     const care = products.flatMap((p, i) => (p ? [`${order.lines[i].title} — ${p.care.join(" ")}`] : []));
@@ -117,15 +165,21 @@ export async function onOrderDelivered(order: Order) {
 type DailyReport = Record<FlowId, number>;
 
 export async function runDailyFlows(now = new Date()): Promise<DailyReport> {
-  const report: DailyReport = { bienvenue: 0, panier: 0, "apres-achat": 0, avis: 0, "retour-stock": 0, anniversaire: 0, reactivation: 0 };
+  const report: DailyReport = { expedition: 0, livraison: 0, bienvenue: 0, panier: 0, "apres-achat": 0, avis: 0, "retour-stock": 0, anniversaire: 0, reactivation: 0 };
   const day = 24 * 60 * 60 * 1000;
 
-  // demandes d'avis : 14 jours après la livraison (ou l'expédition, en démonstration)
+  // après la livraison : merci et entretien à 2 jours, demande d'avis à 14 jours
   const orders = await getOrders();
   for (const o of orders) {
     if (o.status !== "delivered") continue;
-    const deliveredAt = new Date(o.createdAt).getTime() + 4 * day;
-    if (now.getTime() - deliveredAt < 14 * day || now.getTime() - deliveredAt > 30 * day) continue;
+    const seen = await kv.get<string>(`flows:delivered:${o.id}`);
+    const deliveredAt = new Date(o.deliveredAt ?? seen ?? new Date(new Date(o.createdAt).getTime() + 4 * day).toISOString()).getTime();
+    const since = now.getTime() - deliveredAt;
+    if (since >= 2 * day && since <= 30 * day && !(await kv.get(`flows:sent:apres-achat:${o.id}`))) {
+      await sendAfterPurchase(o);
+      report["apres-achat"]++;
+    }
+    if (since < 14 * day || since > 30 * day) continue;
     const sent = await once("avis", o.id, () => sendReviewRequest(o));
     if (sent) report.avis++;
   }

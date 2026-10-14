@@ -8,6 +8,7 @@ const KEYS = [
   "demo:stock", "demo:produced", "demo:price", "demo:products:extra", "demo:products:removed", "demo:products:patch", "demo:products:drafts",
   "orders", "orders:status", "waitlist", "inbox", "agents:log", "agents:proposals", "agents:runs", "agents:commandes-stock:memory",
   "content:drafts", "reports", "seo:audits", "seo:ideas", "journal:articles", "ai:llms-notes", "email:outbox", "assistant:log", "certificates",
+  "invoices", "invoices:counters", "returns", "returns:counters", "orders:delivered", "orders:tracking",
 ];
 
 export async function POST() {

@@ -8,6 +8,8 @@ const LINKS = [
   { href: "/gestion/messages", label: "Messages" },
   { href: "/gestion/catalogue", label: "Catalogue" },
   { href: "/gestion/commandes", label: "Commandes" },
+  { href: "/gestion/retours", label: "Retours" },
+  { href: "/gestion/factures", label: "Factures" },
   { href: "/gestion/certificats", label: "Certificats" },
   { href: "/gestion/drops", label: "Drops" },
   { href: "/gestion/avis", label: "Avis" },

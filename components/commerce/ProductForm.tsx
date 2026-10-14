@@ -108,13 +108,13 @@ export function ProductForm({ product, stickyBar = false }: { product: Product; 
 
       {stickyBar ? (
         <div className="buy-bar" data-visible={barVisible} inert={!barVisible}>
-          <p className="buy-bar__info">
+          <div className="buy-bar__info">
             <span className="t-label buy-bar__title">{product.title}</span>
             <span className="price buy-bar__price">
               {formatPrice(product.price)}
               {variant && variant.size !== "TU" ? ` · ${variant.size}` : ""}
             </span>
-          </p>
+          </div>
           <button type="button" className="btn btn--solid buy-bar__btn" onClick={barAction} disabled={busy}>
             {soldOut ? "Être prévenue" : !variant ? "Choisir ma taille" : a === "preorder" ? "Précommander" : "Ajouter au panier"}
           </button>

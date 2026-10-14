@@ -6,7 +6,11 @@
  * En production, Shopify fait ce calcul lui-même (Marchés, droits et taxes à l'importation).
  */
 import { shop } from "@/content/settings";
+import { legalFields } from "@/content/legal/fields";
 import type { OrderTaxes } from "./types";
+
+/** Franchise en base de TVA (mention « art. 293 B du CGI » dans le registre légal) : aucune TVA facturée. */
+export const vatFranchise = () => /293\s*B/i.test(legalFields.tva.value);
 
 export type Zone = "FR" | "EU" | "WORLD";
 export type ShippingRate = (typeof shop.shippingRates)[number];
@@ -33,12 +37,13 @@ const round = (n: number) => Math.round(n);
 export function orderTaxes(country: string, goods: number, shipping: number): { taxes: OrderTaxes; total: number } {
   const zone = zoneOf(country);
   const rates = zone === "WORLD" ? shop.importRates[country] : undefined;
+  const fr = vatFranchise() ? 0 : shop.vatRate;
   if (!rates) {
     const total = goods + shipping;
-    return { taxes: { vatRate: shop.vatRate, vat: round(total - total / (1 + shop.vatRate)) }, total };
+    return { taxes: { vatRate: fr, vat: fr ? round(total - total / (1 + fr)) : 0 }, total };
   }
-  const exVat = round(goods / (1 + shop.vatRate));
-  const shippingExVat = round(shipping / (1 + shop.vatRate));
+  const exVat = round(goods / (1 + fr));
+  const shippingExVat = round(shipping / (1 + fr));
   // droits sur la valeur des pièces et du transport ; TVA du pays sur l'ensemble, droits compris
   const duty = round((exVat + shippingExVat) * rates.duty);
   const importVat = round((exVat + shippingExVat + duty) * rates.vat);

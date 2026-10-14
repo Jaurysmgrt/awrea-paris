@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { listReturns } from "@/lib/returns";
 import Link from "@/components/ui/Link";
 import { Logo } from "@/components/brand/Logo";
 import { AdminNav } from "@/components/admin/AdminNav";
@@ -13,8 +14,9 @@ export const dynamic = "force-dynamic";
 
 export default async function GestionLayout({ children }: { children: React.ReactNode }) {
   if (!(await isAdmin())) return <div className="admin-login-shell scene" data-theme="ink">{children}</div>;
-  const [proposals, inbox] = await Promise.all([getProposals(), listInbox(500)]);
+  const [proposals, inbox, returns] = await Promise.all([getProposals(), listInbox(500), listReturns()]);
   const counts = {
+    "/gestion/retours": returns.filter((r) => r.status === "demande" || r.status === "recu").length,
     "/gestion/validations": proposals.filter((p) => p.status === "pending").length,
     "/gestion/messages": inbox.filter((m) => m.status === "escalated" || m.status === "drafted" || m.status === "new").length,
   };

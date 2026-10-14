@@ -1578,4 +1578,39 @@ html[data-motion="reduce"] .hero__scroll::after {
   .drop-gate--pending {
     min-height: var(--spacing-3xl);
   }
+
+  /* ======================================================= SUIVI ET RETOURS */
+  .order-steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--spacing-2xs);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .order-steps__step {
+    padding-top: var(--spacing-xs);
+    border-top: var(--border-width-hair) solid var(--line);
+    color: var(--fg-soft);
+  }
+  .order-steps__step[data-done="true"] {
+    border-top-color: var(--fg);
+    color: var(--fg);
+  }
+  .return-lines {
+    display: grid;
+    gap: var(--spacing-s);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .return-line {
+    display: grid;
+    gap: var(--spacing-s);
+    padding-bottom: var(--spacing-s);
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .return-line__choices {
+    padding-left: var(--spacing-l);
+  }
 }

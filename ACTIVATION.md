@@ -54,6 +54,7 @@ fonctionnement.
 | 8 | Anthropic (Claude) | Assistante, styliste, agents de gestion | À l'usage (quelques euros à quelques dizaines d'euros / mois) |
 | 9 | Cloudflare Turnstile | Anti-robots des formulaires | Gratuit |
 | 10 | Instagram | Publications sur la page d'accueil | Gratuit |
+| 10 bis | Colissimo, adresses, comptabilité | Étiquettes de retour prépayées, suggestions d'adresses, export comptable | Contrat Colissimo ; le reste gratuit |
 | 11 | Mesure d'audience et publicité | Plausible ou Google Analytics, Clarity, pixels Meta, TikTok, Google Ads | Plausible environ 9 € / mois ; les autres gratuits |
 | 12 | Visibilité hors du site | Google, Bing, fiche Google, Merchant Center, boutique Instagram | Gratuit |
 | 13 | Maintenance automatique | Agent de nuit, sauvegardes (GitHub Actions) | Inclus dans GitHub ; Claude à l'usage |
@@ -217,7 +218,8 @@ dans la même organisation : recréer l'application depuis le compte propriétai
 évènements :
 
 - Création de commande, Mise à jour de commande (commandes, certificats, e-mails)
-- Création d'évènement de traitement (livraison : e-mail d'entretien, demande d'avis)
+- Création de traitement de commande (expédition : e-mail avec le lien de suivi)
+- Création d'évènement de traitement (livraison : e-mail d'arrivée, puis entretien et demande d'avis)
 - Création, Mise à jour et Suppression de produit ; Mise à jour de collection ; Mise à jour du
   niveau de stock (les pages de la boutique se régénèrent seules)
 
@@ -355,6 +357,39 @@ formulaire de contact s'envoie normalement.
 **Vérifier** : Réglages › « Publications Instagram » indique « Instagram » ; la page d'accueil montre
 les dernières publications.
 **Interrupteur** : `INSTAGRAM_PROVIDER`.
+
+## Étape 10 bis — Retours, adresses et comptabilité
+
+**Étiquettes de retour prépayées (Colissimo).** Sans elles, la cliente reçoit une étiquette de
+démonstration ; vous pouvez aussi, à tout moment, déposer une vraie étiquette dans l'Atelier ›
+Retours (elle lui est envoyée aussitôt).
+
+1. Avoir un contrat **Colissimo Entreprise** ([colissimo.entreprise.laposte.fr](https://www.colissimo.entreprise.laposte.fr)) avec
+   l'option « Colissimo Retour France ». Demander à votre conseiller l'accès au **service web
+   d'affranchissement** : numéro de contrat et mot de passe.
+2. Renseigner l'adresse de l'atelier (destinataire des retours) : `content/brand/identity.ts`
+   (rubrique `address`) — ou, une fois le gestionnaire de contenus en place, dans l'Atelier.
+
+| Variable | Valeur |
+| --- | --- |
+| `LABELS_PROVIDER` | `colissimo` |
+| `COLISSIMO_CONTRACT_NUMBER` | numéro de contrat |
+| `COLISSIMO_PASSWORD` | mot de passe du service web |
+
+**Vérifier** : passer une commande d'essai, la marquer expédiée puis livrée dans l'Atelier (mode
+démonstration) ou avec Shopify, demander un retour depuis le suivi de la commande : l'étiquette PDF
+arrive avec le numéro de suivi Colissimo. Si Colissimo refuse la demande, l'Atelier vous prévient et
+la rubrique Retours vous propose de déposer l'étiquette à la main.
+
+**Suggestions d'adresses** : `ADDRESS_PROVIDER` = `ign` (service public gratuit de l'IGN, aucune
+clé). **Vérifier** : à la commande, taper le début d'une adresse française : des propositions
+apparaissent.
+
+**Comptabilité** : `ACCOUNTING_EMAIL` = l'adresse de votre comptable. Le 1er de chaque mois, l'export
+du mois écoulé (factures et avoirs, format tableur) lui est envoyé ; il reste téléchargeable dans
+l'Atelier › Factures. **Avant la première vente**, compléter les mentions légales des factures
+(`LEGAL-A-COMPLETER.md` : dénomination, adresse, SIRET, TVA — ou la mention « TVA non applicable,
+art. 293 B du CGI » en franchise).
 
 ## Étape 11 — Mesure d'audience et publicité
 

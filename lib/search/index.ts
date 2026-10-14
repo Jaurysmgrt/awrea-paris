@@ -7,7 +7,7 @@ import "server-only";
 import { getPublicProducts, getCollections } from "@/lib/commerce";
 import { getArticles } from "@/lib/content/journal";
 import { editionInfo, productAvailability, availabilityLabel } from "@/lib/commerce/availability";
-import { atelier, boutique, contact, maison, pressePage, silhouettes } from "@/content/fr/pages";
+import { atelier, boutique, contact, maison, outfits, pressePage } from "@/content/fr/pages";
 import { faq } from "@/content/fr/faq";
 import { normalize, type SearchEntry } from "./match";
 
@@ -16,7 +16,7 @@ const clip = (s: string, n = 120) => (s.length > n ? `${s.slice(0, s.lastIndexOf
 const pages: { href: string; title: string; note: string; extra: string }[] = [
   { href: "/la-maison", title: "La Maison", note: maison.seo.description, extra: "creatrice manifeste consommer plus juste histoire paris" },
   { href: "/atelier", title: "L’Atelier", note: atelier.seo.description, extra: "savoir faire croquis dorure coupe couture fait main coulisses essayage" },
-  { href: "/silhouettes", title: "Silhouettes", note: silhouettes.seo.description, extra: "look tenue complete" },
+  { href: "/outfits", title: "Outfits", note: outfits.seo.description, extra: "look tenue complete silhouette outfit" },
   { href: "/contact#rendez-vous", title: "Rendez-vous à l’atelier", note: contact.seo.description, extra: "contact essayage sur mesure rendez vous prive conseil" },
   { href: "/faq", title: "Questions fréquentes", note: "Fabrication, tailles, précommandes, livraison, retours et sur-mesure.", extra: "aide question reponse" },
   { href: "/livraison-retours", title: "Livraison & retours", note: "Délais, frais, emballage, retours et échanges.", extra: "expedition colis retour echange remboursement delai" },

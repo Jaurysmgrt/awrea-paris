@@ -21,11 +21,13 @@ fs.mkdirSync(out, { recursive: true });
 const browser = await chromium.launch(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {});
 for (const [name, viewport] of [["ordinateur", { width: 1440, height: 900 }], ["mobile", { width: 390, height: 844 }]]) {
   const ctx = await browser.newContext({ viewport, deviceScaleFactor: 1, isMobile: name === "mobile", hasTouch: name === "mobile" });
-  await ctx.addCookies([{ name: "awrea_consent", value: "lab", url: base }]);
   const page = await ctx.newPage();
   for (const p of paths) {
     await page.goto(base + p, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
+    // bandeau cookies : refusé comme le ferait une visiteuse (le retirer du DOM dérange React)
+    const refuse = page.getByRole("button", { name: "Refuser" });
+    if (await refuse.isVisible().catch(() => false)) await refuse.click();
     // tout faire apparaître (images paresseuses, révélations au scroll), puis revenir en haut
     await page.evaluate(async () => {
       for (let y = 0; y < document.body.scrollHeight; y += Math.round(window.innerHeight * 0.8)) {
@@ -35,7 +37,12 @@ for (const [name, viewport] of [["ordinateur", { width: 1440, height: 900 }], ["
       window.scrollTo(0, 0);
       await new Promise((r) => setTimeout(r, 300));
       document.querySelectorAll("[data-pending]").forEach((el) => el.removeAttribute("data-pending"));
-      document.querySelector(".consent")?.remove();
+      // toutes les images chargées et décodées (sinon des zones grises apparaissent sur la capture)
+      await Promise.all(
+        Array.from(document.images).map((img) =>
+          img.complete ? img.decode().catch(() => {}) : new Promise((r) => img.addEventListener("load", r, { once: true }) || img.addEventListener("error", r, { once: true })),
+        ),
+      );
     });
     await page.waitForTimeout(1200);
     const file = path.join(out, `${p.split("/").filter(Boolean).slice(2).join("-") || "accueil"}-${name}.jpg`);

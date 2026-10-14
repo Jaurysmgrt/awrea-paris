@@ -29,6 +29,9 @@ import { onNewsletterSignup } from "@/lib/marketing/flows";
 import { upsertContact } from "@/lib/marketing/provider";
 import { orderTaxes, ratesFor, shippingPrice as priceOf } from "@/lib/commerce/international";
 import { findRelay } from "@/lib/commerce/relays";
+import { issueInvoice } from "@/lib/invoices";
+import { invoicePdf } from "@/lib/invoices/pdf";
+import { orderAccessToken, orderLink } from "@/lib/commerce/order-access";
 
 export const dynamic = "force-dynamic";
 
@@ -132,6 +135,8 @@ export async function POST(req: Request) {
     },
     address: { firstName: d.firstName, lastName: d.lastName, line1: d.address1, line2: d.address2, postalCode: d.zip, city: d.city, country: d.country, phone: d.phone },
     taxes,
+    ...(cart.discount ? { discount: cart.discount } : {}),
+    ...(cart.giftCard ? { giftCard: cart.giftCard } : {}),
     gift: cart.gift.wrap ? cart.gift : undefined,
     paymentMethod: PAYMENT_LABEL[d.paymentMethod],
     source: d.source ?? null,
@@ -150,6 +155,13 @@ export async function POST(req: Request) {
   }
   (await cookies()).delete(CART_COOKIE);
 
+  // facture émise dès le paiement (numérotation continue), jointe à l'e-mail de confirmation
+  const invoice = await issueInvoice(order).catch((e) => {
+    console.error("[checkout] facture", e);
+    return null;
+  });
+  const invoiceFile = invoice ? await invoicePdf(invoice).catch(() => null) : null;
+
   // un certificat d'authenticité numérique par pièce (QR code, rattachement au compte)
   const certificates = await issueCertificates(order).catch((e) => {
     console.error("[checkout] certificats", e);
@@ -160,6 +172,7 @@ export async function POST(req: Request) {
     to: d.email,
     subject: `Votre commande ${order.number}`,
     tag: "confirmation-commande",
+    attachments: invoice && invoiceFile ? [{ filename: `${invoice.number}.pdf`, content: invoiceFile }] : undefined,
     ...brandEmail({
       preheader: "Votre pièce est entre les mains de l’atelier.",
       title: "Merci pour votre commande",
@@ -182,7 +195,7 @@ export async function POST(req: Request) {
         ...(taxes.export ? [{ label: "Droits et taxes à l’importation", value: formatPrice(taxes.export.duty + taxes.export.importVat) }] : []),
         { label: taxes.export ? "Total, droits et taxes compris" : "Total", value: formatPrice(total) },
       ],
-      cta: { label: "Suivre ma commande", href: "/compte" },
+      cta: { label: "Suivre ma commande", href: orderLink(order) },
       signature: "Avec toute notre gratitude,\nLa Créatrice",
       footnote: `Commande ${order.number} · ${order.paymentMethod} · mode test`,
     }),
@@ -192,5 +205,5 @@ export async function POST(req: Request) {
   after(() => runCommandesStockAgent("evenement").catch((e) => console.error("[agent commandes-stock]", e)));
 
   const token = sign({ n: order.number }, 60 * 60 * 24 * 7);
-  return NextResponse.json({ ok: true, number: order.number, token });
+  return NextResponse.json({ ok: true, number: order.number, token, access: orderAccessToken(order) });
 }

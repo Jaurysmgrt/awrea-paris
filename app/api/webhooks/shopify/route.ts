@@ -10,11 +10,13 @@
  */
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { issueCertificates, sendCertificatesEmail } from "@/lib/certificates";
+import { issueInvoice } from "@/lib/invoices";
 import { revalidateTag } from "next/cache";
 import { NextResponse, after } from "next/server";
 import { admin, adminEnabled } from "@/lib/shopify/admin";
 import { upsertOrder } from "@/lib/customers/shopify-sync";
-import { onOrderDelivered } from "@/lib/marketing/flows";
+import { onOrderDelivered, onOrderShipped } from "@/lib/marketing/flows";
+import { getOrder } from "@/lib/commerce/orders";
 import { onOrderCreated } from "@/lib/agents/events";
 import { classifySource } from "@/components/analytics/source";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/db/supabase";
@@ -115,6 +117,15 @@ export async function POST(req: Request) {
       after(() => onOrderCreated(order).catch((e) => console.error("[webhook] agents", e)));
       // certificats d'authenticité : émis une seule fois par commande, envoyés à l'acheteuse
       after(() => issueCertificates(order).then((issued) => sendCertificatesEmail(order, issued)).catch((e) => console.error("[webhook] certificats", e)));
+      if (order.status !== "pending") after(() => issueInvoice(order).catch((e) => console.error("[webhook] facture", e)));
+    }
+  } else if (topic === "fulfillments/create" || topic === "fulfillments/update") {
+    // commande remise au transporteur : e-mail d'expédition avec le lien de suivi
+    const p = payload as { order_id?: number; tracking_number?: string | null; tracking_company?: string | null; status?: string };
+    const order = p.order_id ? await getOrder(`gid://shopify/Order/${p.order_id}`) : null;
+    if (order && p.status !== "cancelled") {
+      const shipped = { ...order, shipping: { ...order.shipping, carrier: p.tracking_company ?? order.shipping.carrier, tracking: p.tracking_number ?? order.shipping.tracking } };
+      after(() => onOrderShipped(shipped).catch((e) => console.error("[webhook] expédition", e)));
     }
   } else if (topic === "fulfillment_events/create" && payload.status === "delivered" && adminEnabled) {
     const orderId = `gid://shopify/Order/${payload.order_id}`;

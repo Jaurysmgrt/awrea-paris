@@ -39,7 +39,7 @@ export const faq: { title: string; items: FaqItem[] }[] = [
   {
     title: "Livraison et retours",
     items: [
-      { q: "Livrez-vous à l’international ?", a: "Oui. Nous livrons en France, dans l’Union européenne et à l’international par transporteur suivi. Les droits de douane hors Union européenne sont à la charge du destinataire." },
+      { q: "Livrez-vous à l’international ?", a: "Oui. Nous livrons en France, dans l’Union européenne et à l’international par transporteur suivi. Hors Union européenne, les droits de douane et taxes du pays sont calculés et réglés dès la commande : rien à payer à la livraison." },
       { q: "La livraison est-elle offerte ?", a: "La livraison en France est offerte dès 250 € d’achat, ainsi que la livraison dans l’Union européenne au-delà de ce même montant." },
       { q: "Combien de temps prend la livraison ?", a: "Les pièces disponibles sont expédiées sous 2 à 5 jours ouvrés, puis livrées en 1 à 7 jours selon la destination. Les précommandes sont expédiées à la fin du délai de fabrication indiqué." },
       { q: "Comment suivre mon colis ?", a: "Un e-mail avec le numéro de suivi vous est envoyé à l’expédition. Vous pouvez aussi retrouver le suivi dans votre compte ou en demandant à l’assistant du site avec votre numéro de commande." },
