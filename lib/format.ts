@@ -1,15 +1,11 @@
 import { identity } from "@/content/brand/identity";
 
-const euro = new Intl.NumberFormat(identity.locale, {
-  style: "currency",
-  currency: identity.currency,
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 2,
-});
+const euro = new Intl.NumberFormat(identity.locale, { style: "currency", currency: identity.currency, minimumFractionDigits: 0, maximumFractionDigits: 0 });
+const euroCents = new Intl.NumberFormat(identity.locale, { style: "currency", currency: identity.currency, minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-/** Montant en centimes → « 690 € » */
+/** Montant en centimes → « 690 € », ou « 612,50 € » quand il y a des centimes */
 export function formatPrice(cents: number): string {
-  return euro.format(cents / 100).replace(/ /g, " ");
+  return (cents % 100 === 0 ? euro : euroCents).format(cents / 100).replace(/ /g, " ");
 }
 
 const dateLong = new Intl.DateTimeFormat(identity.locale, { day: "numeric", month: "long", year: "numeric" });

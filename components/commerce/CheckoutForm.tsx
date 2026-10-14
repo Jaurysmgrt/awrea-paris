@@ -1,8 +1,10 @@
 "use client";
 /**
  * Tunnel de commande court, sans compte obligatoire — MODE TEST.
- * Trois étapes sur une seule page : coordonnées, livraison, paiement.
- * En production (Shopify), le bouton « Commander » du panier mène directement au checkout Shopify.
+ * Paiement express en tête, puis trois étapes sur une seule page : coordonnées, livraison, paiement.
+ * Suggestions d'adresses, points relais, retrait à l'atelier, droits et taxes calculés à l'avance
+ * hors Union européenne. En production (Shopify), le bouton « Commander » du panier mène au
+ * paiement Shopify, qui fait tout cela lui-même.
  */
 import Link from "@/components/ui/Link";
 import { useRouter } from "next/navigation";
@@ -14,16 +16,24 @@ import { formatPrice } from "@/lib/format";
 import { TermsCheckbox } from "@/components/account/TermsCheckbox";
 import { readSource } from "@/components/analytics/source";
 import { track } from "@/lib/analytics/track";
+import { orderTaxes, ratesFor, shippingPrice as priceOf } from "@/lib/commerce/international";
+import type { RelayPoint } from "@/lib/commerce/relays";
+import { AddressField } from "./AddressField";
 
-type Pay = "card" | "apple-pay" | "google-pay" | "paypal" | "installments";
+type Pay = "card" | "shop-pay" | "apple-pay" | "google-pay" | "paypal" | "installments";
 
 const PAY_OPTIONS: { id: Pay; label: string; note: string }[] = [
   { id: "card", label: "Carte bancaire", note: "Visa, Mastercard, American Express, Carte Bancaire" },
+  { id: "shop-pay", label: "Shop Pay", note: "Paiement accéléré, coordonnées enregistrées chez Shopify" },
   { id: "apple-pay", label: "Apple Pay", note: "Validation sur votre appareil Apple" },
   { id: "google-pay", label: "Google Pay", note: "Validation avec votre compte Google" },
   { id: "paypal", label: "PayPal", note: "Vous serez redirigée vers PayPal" },
   { id: "installments", label: "Paiement en 3 ou 4 fois", note: "Sans frais à partir de 100 €, sous réserve d’acceptation" },
 ];
+
+/** Paiement express : un geste, l'adresse reprise du portefeuille (en production, chez Shopify). */
+const EXPRESS: Pay[] = ["shop-pay", "apple-pay", "google-pay", "paypal"];
+const PAY_LABEL = Object.fromEntries(PAY_OPTIONS.map((o) => [o.id, o.label])) as Record<Pay, string>;
 
 /**
  * Mode test uniquement : la carte « refusée » de test (4000 0000 0000 0002) simule un refus.
@@ -40,6 +50,11 @@ export function CheckoutForm() {
   const router = useRouter();
   const [country, setCountry] = useState("FR");
   const [rateId, setRateId] = useState("fr-colissimo");
+  const [zip, setZip] = useState("");
+  const [city, setCity] = useState("");
+  const [relays, setRelays] = useState<RelayPoint[]>([]);
+  const [relayId, setRelayId] = useState("");
+  const emailRef = useRef<HTMLInputElement>(null);
   const [pay, setPay] = useState<Pay>("card");
   const [state, setState] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState("");
@@ -66,22 +81,44 @@ export function CheckoutForm() {
           city: a?.city,
           phone: a?.phone ?? j.profile?.phone ?? undefined,
         });
+        if (a?.postalCode) setZip(a.postalCode);
+        if (a?.city) setCity(a.city);
         if (a?.country && shop.countries.some((c) => c.code === a.country)) {
           setCountry(a.country);
-          const z = shop.countries.find((c) => c.code === a.country)?.zone;
-          setRateId(shop.shippingRates.find((r) => r.zone === z)?.id ?? "");
+          setRateId(ratesFor(a.country)[0]?.id ?? "");
         }
       })
       .catch(() => {});
   }, []);
 
-  const zone = shop.countries.find((c) => c.code === country)?.zone ?? "FR";
-  const rates = shop.shippingRates.filter((r) => r.zone === zone);
+  const rates = ratesFor(country);
   const rate = rates.find((r) => r.id === rateId) ?? rates[0];
   const merchandise = cart ? cart.subtotal - (cart.discount?.amount ?? 0) : 0;
-  const shippingPrice = rate ? (rate.freeAboveThreshold && merchandise >= shop.freeShippingThreshold ? 0 : rate.price) : 0;
-  const total = (cart?.total ?? 0) + shippingPrice;
+  const shippingPrice = rate ? priceOf(rate, merchandise) : 0;
+  // pièces et emballage (remises déduites), puis taxes du pays ; la carte cadeau paie le reste
+  const taxable = merchandise + (cart?.gift.wrap ? cart.giftWrapPrice : 0);
+  const { taxes, total: gross } = orderTaxes(country, taxable, shippingPrice);
+  const total = Math.max(0, gross - (cart?.giftCard?.amount ?? 0));
+  const exp = taxes.export;
+  const importLabel = shop.importRates[country]?.vatLabel ?? "TVA à l’importation";
   const preorder = cart?.lines.some((l) => l.preorder);
+
+  // points relais proches du code postal saisi
+  useEffect(() => {
+    if (!rate?.relay || zip.replace(/\s/g, "").length < 4) return;
+    const ctrl = new AbortController();
+    const t = setTimeout(() => {
+      fetch(`/api/livraison/relais?zip=${encodeURIComponent(zip)}&country=${country}`, { signal: ctrl.signal })
+        .then((r) => r.json())
+        .then((j) => setRelays(j.points ?? []))
+        .catch(() => {});
+    }, 300);
+    return () => {
+      clearTimeout(t);
+      ctrl.abort();
+    };
+  }, [rate?.relay, zip, country]);
+  const relayList = rate?.relay && zip.replace(/\s/g, "").length >= 4 ? relays : [];
 
   const summary = cart ? (
         <div className="checkout-summary__inner stack-m">
@@ -130,11 +167,40 @@ export function CheckoutForm() {
               <dt>Livraison</dt>
               <dd>{shippingPrice ? formatPrice(shippingPrice) : "Offerte"}</dd>
             </div>
+            {exp ? (
+              <>
+                <div>
+                  <dt>Pièces et livraison hors TVA française</dt>
+                  <dd>{formatPrice(exp.exVat)}</dd>
+                </div>
+                {exp.duty ? (
+                  <div>
+                    <dt>Droits de douane ({Math.round(exp.dutyRate * 100)} %)</dt>
+                    <dd>{formatPrice(exp.duty)}</dd>
+                  </div>
+                ) : null}
+                {exp.importVat ? (
+                  <div>
+                    <dt>
+                      {importLabel.charAt(0).toUpperCase() + importLabel.slice(1)} ({Math.round(exp.importVatRate * 1000) / 10} %)
+                    </dt>
+                    <dd>{formatPrice(exp.importVat)}</dd>
+                  </div>
+                ) : null}
+              </>
+            ) : null}
             <div className="totals__total">
-              <dt>Total TTC</dt>
+              <dt>{exp ? "Total, droits et taxes compris" : "Total TTC"}</dt>
               <dd>{formatPrice(total)}</dd>
             </div>
+            {!exp ? (
+              <div className="t-soft">
+                <dt>dont TVA ({Math.round(taxes.vatRate * 100)} %)</dt>
+                <dd>{formatPrice(taxes.vat)}</dd>
+              </div>
+            ) : null}
           </dl>
+          {exp ? <p className="t-note">Droits et taxes payés dès maintenant : rien à régler à la livraison. Estimation indicative en mode test.</p> : null}
           {cart.gift.wrap && cart.gift.message ? <p className="t-note">Message cadeau : « {cart.gift.message} »</p> : null}
         </div>
   ) : null;
@@ -170,12 +236,18 @@ export function CheckoutForm() {
       country,
       phone: f.get("phone") || undefined,
       shippingRateId: rate?.id,
+      relayId: rate?.relay ? relayId || undefined : undefined,
       paymentMethod: pay,
       // mode test : aucune donnée de carte ne quitte le navigateur, seulement l'issue simulée
       testOutcome: pay === "card" ? testOutcome(String(f.get("cardNumber") ?? "")) : undefined,
       acceptTerms: f.get("terms") === "on",
       source: readSource(),
     };
+    if (rate?.relay && !relayId) {
+      setState("error");
+      setError("Merci de choisir un point relais.");
+      return;
+    }
     const res = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).catch(() => null);
     const j = res ? await res.json().catch(() => ({})) : {};
     if (!res?.ok) {
@@ -212,6 +284,29 @@ export function CheckoutForm() {
           Mode test : aucun paiement réel n’est effectué. Carte de test acceptée : 4242 4242 4242 4242 — carte refusée : 4000 0000 0000 0002.
         </p>
 
+        <section className="express" aria-labelledby="express-title">
+          <h2 id="express-title" className="t-label">
+            Paiement express
+          </h2>
+          <div className="express__buttons">
+            {EXPRESS.map((id) => (
+              <button
+                key={id}
+                type="button"
+                className="btn express__btn"
+                aria-pressed={pay === id}
+                onClick={() => {
+                  setPay(id);
+                  emailRef.current?.focus();
+                }}
+              >
+                {PAY_LABEL[id]}
+              </button>
+            ))}
+          </div>
+          <p className="t-note">En production, l’adresse est reprise de votre portefeuille ; en mode test, complétez-la ci-dessous.</p>
+        </section>
+
         <fieldset className="checkout-step">
           <legend className="checkout-step__title">
             <span className="step__num">I</span>
@@ -222,7 +317,7 @@ export function CheckoutForm() {
               <label className="field__label" htmlFor="co-email">
                 E-mail
               </label>
-              <input className="field__input" id="co-email" name="email" key={`email-${prefill.email ?? ""}`} defaultValue={prefill.email} type="email" required autoComplete="email" />
+              <input ref={emailRef} className="field__input" id="co-email" name="email" key={`email-${prefill.email ?? ""}`} defaultValue={prefill.email} type="email" required autoComplete="email" />
               <span className="field__hint">Pour la confirmation et le suivi. Aucun compte n’est nécessaire.</span>
             </div>
             <label className="check t-note">
@@ -256,7 +351,17 @@ export function CheckoutForm() {
               <label className="field__label" htmlFor="co-address1">
                 Adresse
               </label>
-              <input className="field__input" id="co-address1" name="address1" key={`address1-${prefill.line1 ?? ""}`} defaultValue={prefill.line1} required autoComplete="address-line1" />
+              <AddressField
+                key={`address1-${prefill.line1 ?? ""}`}
+                id="co-address1"
+                name="address1"
+                defaultValue={prefill.line1}
+                country={country}
+                onPick={(a) => {
+                  setZip(a.postalCode);
+                  setCity(a.city);
+                }}
+              />
             </div>
             <div className="field">
               <label className="field__label" htmlFor="co-address2">
@@ -269,13 +374,13 @@ export function CheckoutForm() {
                 <label className="field__label" htmlFor="co-zip">
                   Code postal
                 </label>
-                <input className="field__input" id="co-zip" name="zip" key={`zip-${prefill.postalCode ?? ""}`} defaultValue={prefill.postalCode} required autoComplete="postal-code" />
+                <input className="field__input" id="co-zip" name="zip" value={zip} onChange={(e) => setZip(e.target.value)} required autoComplete="postal-code" />
               </div>
               <div className="field">
                 <label className="field__label" htmlFor="co-city">
                   Ville
                 </label>
-                <input className="field__input" id="co-city" name="city" key={`city-${prefill.city ?? ""}`} defaultValue={prefill.city} required autoComplete="address-level2" />
+                <input className="field__input" id="co-city" name="city" value={city} onChange={(e) => setCity(e.target.value)} required autoComplete="address-level2" />
               </div>
               <div className="field">
                 <label className="field__label" htmlFor="co-country">
@@ -288,8 +393,8 @@ export function CheckoutForm() {
                   autoComplete="country"
                   onChange={(e) => {
                     setCountry(e.target.value);
-                    const z = shop.countries.find((c) => c.code === e.target.value)?.zone;
-                    setRateId(shop.shippingRates.find((r) => r.zone === z)?.id ?? "");
+                    setRateId(ratesFor(e.target.value)[0]?.id ?? "");
+                    setRelayId("");
                   }}
                 >
                   {shop.countries.map((c) => (
@@ -313,7 +418,16 @@ export function CheckoutForm() {
                   const free = r.freeAboveThreshold && merchandise >= shop.freeShippingThreshold;
                   return (
                     <label key={r.id} className="option">
-                      <input type="radio" name="rate" value={r.id} checked={rate?.id === r.id} onChange={() => setRateId(r.id)} />
+                      <input
+                        type="radio"
+                        name="rate"
+                        value={r.id}
+                        checked={rate?.id === r.id}
+                        onChange={() => {
+                          setRateId(r.id);
+                          setRelayId("");
+                        }}
+                      />
                       <span className="option__body">
                         <span className="option__title">{r.label}</span>
                         <span className="t-note">{r.delay}</span>
@@ -325,6 +439,34 @@ export function CheckoutForm() {
               </div>
               {preorder ? <p className="t-note">Votre commande contient une pièce sur commande : l’ensemble sera expédié à la fin de sa fabrication.</p> : null}
             </fieldset>
+            {rate?.relay ? (
+              <fieldset className="field">
+                <legend className="field__label">Point relais</legend>
+                {relayList.length ? (
+                  <div className="options">
+                    {relayList.map((p) => (
+                      <label key={p.id} className="option">
+                        <input type="radio" name="relay" value={p.id} checked={relayId === p.id} onChange={() => setRelayId(p.id)} />
+                        <span className="option__body">
+                          <span className="option__title">{p.name}</span>
+                          <span className="t-note">
+                            {p.address} · {p.hours}
+                          </span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="t-note">Indiquez votre code postal : les points relais les plus proches apparaîtront ici.</p>
+                )}
+              </fieldset>
+            ) : null}
+            {rate?.pickup ? (
+              <p className="notice t-note">
+                Retrait à l’atelier : dès que votre pièce est prête, nous vous écrivons pour convenir d’un rendez-vous. Vous pouvez aussi{" "}
+                <Link href="/rendez-vous">choisir un créneau</Link> dès maintenant.
+              </p>
+            ) : null}
           </div>
         </fieldset>
 
@@ -376,7 +518,9 @@ export function CheckoutForm() {
             <button type="submit" className="btn btn--solid btn--block" disabled={state === "loading"}>
               {state === "loading"
                 ? "Paiement en cours…"
-                : pay === "apple-pay"
+                : pay === "shop-pay"
+                  ? `Payer avec Shop Pay — ${formatPrice(total)}`
+                  : pay === "apple-pay"
                   ? `Payer avec Apple Pay — ${formatPrice(total)}`
                   : pay === "google-pay"
                     ? `Payer avec Google Pay — ${formatPrice(total)}`

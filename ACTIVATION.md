@@ -133,7 +133,10 @@ Indispensable en ligne : sans lui, Vercel efface régulièrement la mémoire du 
    Google Pay, Shop Pay), ajouter **PayPal**. Paiement en 3 ou 4 fois : activer **Klarna** dans
    Shopify Payments, ou installer l'application **Alma** (société française).
 3. **Paramètres** › **Expédition et livraison** : tarifs Colissimo, Chronopost, international ;
-   seuil de livraison offerte. **Paramètres** › **Taxes et droits** : TVA française, et
+   seuil de livraison offerte (250 €) ; **points relais** : installer l'application officielle
+   **Mondial Relay** (le choix du point se fait alors dans le paiement Shopify) ; **retrait à
+   l'atelier** : « Retrait en magasin » sur l'adresse de l'atelier, avec la mention « sur
+   rendez-vous ». **Paramètres** › **Taxes et droits** : TVA française, et
    « droits et taxes à l'importation » calculés au paiement pour l'international.
 4. **Paramètres** › **Marchés** : France, Union européenne, Royaume-Uni, Suisse, États-Unis, avec
    leurs devises (euro, livre, franc suisse, dollar).
@@ -189,7 +192,9 @@ l'administration de la boutique.
 2. **Créer une application** › nom « Awrea — agents ».
 3. **Configuration** › **Accès** : cocher uniquement `read_products`, `write_products`,
    `read_inventory`, `write_inventory`, `read_locations`, `read_orders`, `write_orders`,
-   `read_customers`, `write_customers`. Publier la version.
+   `read_customers`, `write_customers`. Dans **Données clientes protégées**, demander l'accès
+   aux noms, e-mails, adresses et téléphones (nécessaire aux bons de livraison et aux factures).
+   Publier la version.
 4. **Installer** l'application sur la boutique.
 5. **Paramètres** de l'application : copier l'**identifiant client** et le **secret client**.
 

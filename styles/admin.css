@@ -475,4 +475,61 @@
     padding-top: var(--spacing-m);
     border-top: var(--border-width-hair) solid var(--line);
   }
+
+  /* ======================================== COMMANDE : FICHE ET BON DE LIVRAISON */
+  .admin-facts {
+    display: grid;
+    gap: var(--spacing-xs);
+    margin: 0;
+  }
+  .admin-facts > div {
+    display: grid;
+    gap: var(--spacing-3xs);
+  }
+  @media (min-width: 48rem) {
+    .admin-facts > div {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+      gap: var(--spacing-s);
+      align-items: baseline;
+    }
+  }
+  .admin-facts dd {
+    margin: 0;
+  }
+  .slip {
+    display: grid;
+    gap: var(--spacing-l);
+    padding: var(--spacing-l);
+    background: var(--color-ivory);
+    color: var(--color-ink);
+    border: var(--border-width-hair) solid var(--line);
+  }
+  .slip__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: var(--spacing-m);
+  }
+  .slip__logo {
+    width: var(--spacing-2xl);
+    height: auto;
+  }
+  .slip__ref {
+    display: grid;
+    gap: var(--spacing-3xs);
+    text-align: right;
+  }
+  .slip__address {
+    display: grid;
+    gap: var(--spacing-2xs);
+  }
+  .slip__message {
+    font-family: var(--font-display);
+    font-size: var(--text-step-1);
+    line-height: var(--leading-text);
+  }
+  .slip__foot {
+    border-top: var(--border-width-hair) solid var(--line);
+    padding-top: var(--spacing-s);
+  }
 }

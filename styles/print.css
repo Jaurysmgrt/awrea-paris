@@ -1,6 +1,6 @@
 /*
  * Impression soignée : certificat, récapitulatif de commande, facture, pages légales.
- * Papier blanc, encre noire, filets dorés conservés ; tout ce qui sert à naviguer disparaît.
+ * Papier blanc, encre noire, filets fins ; tout ce qui sert à naviguer disparaît.
  */
 @media print {
   @page {
@@ -89,5 +89,10 @@
   }
   .certificate-label {
     break-inside: avoid;
+  }
+  /* bon de livraison : seule la feuille s'imprime */
+  .slip {
+    border: 0;
+    padding: 0;
   }
 }

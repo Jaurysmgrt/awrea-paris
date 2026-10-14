@@ -15,7 +15,7 @@ const Action = z.discriminatedUnion("type", [
   z.object({ type: z.literal("remove"), lineId: z.string().min(1) }),
   z.object({ type: z.literal("discount"), code: z.string().max(60) }),
   z.object({ type: z.literal("giftCard"), code: z.string().max(60) }),
-  z.object({ type: z.literal("gift"), wrap: z.boolean(), message: z.string().max(300) }),
+  z.object({ type: z.literal("gift"), wrap: z.boolean(), message: z.string().max(300), hidePrices: z.boolean().optional(), deliveryDate: z.string().max(10).nullable().optional() }),
   z.object({ type: z.literal("checkout"), source: z.string().max(40).nullable().optional(), newsletter: z.boolean().optional(), email: z.email().nullable().optional() }),
   z.object({ type: z.literal("clear") }),
 ]);

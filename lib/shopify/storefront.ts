@@ -300,7 +300,7 @@ function mapCart(c: SCart): Cart {
     subtotal,
     discount: code ? { code, amount: discountAmount, label: code } : null,
     giftCard: c.appliedGiftCards[0] ? { code: `•••• ${c.appliedGiftCards[0].lastCharacters}`, amount: giftUsed } : null,
-    gift: { wrap: attr("Emballage cadeau") === "Oui", message: attr("Message cadeau") },
+    gift: { wrap: attr("Emballage cadeau") === "Oui", message: attr("Message cadeau"), hidePrices: attr("Prix masqués") !== "Non", deliveryDate: attr("Livraison souhaitée le") || null },
     giftWrapPrice: shop.giftWrapPrice,
     shippingEstimate: null,
     freeShippingThreshold: shop.freeShippingThreshold,

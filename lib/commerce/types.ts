@@ -116,6 +116,30 @@ export interface CartLine {
 export interface GiftOptions {
   wrap: boolean;
   message: string;
+  /** prix masqués sur le bon de livraison (pièce offerte) */
+  hidePrices?: boolean;
+  /** date de livraison souhaitée, AAAA-MM-JJ */
+  deliveryDate?: string | null;
+}
+
+export interface Address {
+  firstName: string;
+  lastName: string;
+  line1: string;
+  line2?: string;
+  postalCode: string;
+  city: string;
+  country: string;
+  phone?: string;
+}
+
+/** Taxes de la commande : TVA française incluse, ou export (hors TVA française, droits et TVA du pays payés à la commande). */
+export interface OrderTaxes {
+  vatRate: number;
+  vat: number;
+  /** droits et taxes à l'importation (commande Shopify) */
+  duties?: number;
+  export?: { exVat: number; duty: number; dutyRate: number; importVat: number; importVatRate: number };
 }
 
 export interface Cart {
@@ -152,7 +176,20 @@ export interface Order {
   status: OrderStatus;
   lines: { title: string; size: Size; quantity: number; unitPrice: number; handle: string; editionLabel?: string }[];
   total: number;
-  shipping: { method: string; price: number; country: string; tracking?: string; carrier?: string };
+  shipping: {
+    method: string;
+    price: number;
+    country: string;
+    tracking?: string;
+    carrier?: string;
+    /** point relais choisi */
+    relay?: { id: string; name: string; address: string };
+    /** retrait à l'atelier sur rendez-vous */
+    pickup?: boolean;
+  };
+  /** adresse de livraison et de facturation */
+  address?: Address;
+  taxes?: OrderTaxes;
   gift?: GiftOptions;
   paymentMethod: string;
   /** canal d'origine (mesure d'audience acceptée) : instagram, google, newsletter, direct… */

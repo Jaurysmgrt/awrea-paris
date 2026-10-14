@@ -48,3 +48,8 @@ test("une clé vide ou faite d'espaces ne compte pas", () => {
 test("Shopify : le jeton privé du canal Headless suffit", () => {
   assert.equal(resolveService("commerce", { SHOPIFY_STORE_DOMAIN: "awrea.myshopify.com", SHOPIFY_STOREFRONT_PRIVATE_TOKEN: "p" }).provider, "shopify");
 });
+
+test("service public sans clé (adresses) : seulement s'il est demandé", () => {
+  assert.equal(resolveService("address", {}).provider, "mock");
+  assert.equal(resolveService("address", { ADDRESS_PROVIDER: "ign" }).provider, "ign");
+});

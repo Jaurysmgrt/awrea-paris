@@ -9,6 +9,7 @@ import { legalVersions } from "@/content/legal-versions";
 import { GIFT_WRAP_VARIANT, shopifyCartCreate, shopifyCartGet, shopifyCartMutate, shopifyEnabled } from "@/lib/shopify/storefront";
 import { getAllProducts } from "./index";
 import { editionInfo } from "./availability";
+import { earliestGiftDate, latestGiftDate } from "./international";
 import type { Cart, Product } from "./types";
 
 export const CART_COOKIE = "awrea_cart";
@@ -20,9 +21,13 @@ interface DemoState {
   g: string | null;
   w: boolean;
   m: string;
+  /** prix masqués sur le bon de livraison */
+  h?: boolean;
+  /** date de livraison souhaitée */
+  dd?: string | null;
 }
 
-const emptyState = (): DemoState => ({ l: [], d: null, g: null, w: false, m: "" });
+const emptyState = (): DemoState => ({ l: [], d: null, g: null, w: false, m: "", h: true, dd: null });
 
 export type CartAction =
   | { type: "add"; variantId: string; quantity?: number }
@@ -31,7 +36,7 @@ export type CartAction =
   | { type: "remove"; lineId: string }
   | { type: "discount"; code: string }
   | { type: "giftCard"; code: string }
-  | { type: "gift"; wrap: boolean; message: string }
+  | { type: "gift"; wrap: boolean; message: string; hidePrices?: boolean; deliveryDate?: string | null }
   /** passage au paiement : preuve d'acceptation des CGV, canal d'origine, e-mail de la cliente connectée */
   | { type: "checkout"; source?: string | null; newsletter?: boolean; email?: string | null }
   | { type: "clear" };
@@ -86,7 +91,7 @@ export function computeDemoCart(state: DemoState, products: Product[]): Cart {
     subtotal,
     discount: rule ? { code: rule.code, amount: discountAmount, label: rule.label } : null,
     giftCard: card ? { code: card.code, amount: giftAmount } : null,
-    gift: { wrap: state.w, message: state.m },
+    gift: { wrap: state.w, message: state.m, hidePrices: state.h ?? true, deliveryDate: state.dd ?? null },
     giftWrapPrice: shop.giftWrapPrice,
     shippingEstimate,
     freeShippingThreshold: shop.freeShippingThreshold,
@@ -169,6 +174,8 @@ async function demoApply(state: DemoState, action: CartAction): Promise<DemoStat
     case "gift":
       s.w = action.wrap;
       s.m = action.message.slice(0, 300);
+      if (action.hidePrices !== undefined) s.h = action.hidePrices;
+      if (action.deliveryDate !== undefined) s.dd = checkGiftDate(action.deliveryDate, products, s.l);
       break;
     case "checkout":
       // démonstration : l'acceptation des CGV est recueillie sur la page de commande
@@ -177,6 +184,16 @@ async function demoApply(state: DemoState, action: CartAction): Promise<DemoStat
       return emptyState();
   }
   return s;
+}
+
+/** Date de livraison souhaitée : vide, ou au plus tôt après fabrication et expédition, au plus tard dans six mois. */
+function checkGiftDate(date: string | null, products: Product[], lines: { v: string }[]): string | null {
+  if (!date) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new CartError("Cette date n’est pas valable.");
+  const weeks = Math.max(0, ...lines.map((l) => findVariant(products, l.v)).map((f) => (f && f.v.quantity <= 0 ? (f.p.leadTimeWeeks ?? 4) : 0)));
+  if (date < earliestGiftDate(weeks)) throw new CartError(`Livraison possible à partir du ${new Date(earliestGiftDate(weeks)).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}.`);
+  if (date > latestGiftDate()) throw new CartError("Choisissez une date dans les six prochains mois.");
+  return date;
 }
 
 /* ---------------------------------------------------------------- SHOPIFY */
@@ -198,10 +215,15 @@ async function shopifyApply(cartId: string | null, action: CartAction): Promise<
     case "giftCard":
       return shopifyCartMutate("giftcard", cartId, action.code ? [action.code] : []);
     case "gift": {
-      const cart = await shopifyCartMutate("attributes", cartId, [
-        { key: "Emballage cadeau", value: action.wrap ? "Oui" : "Non" },
-        { key: "Message cadeau", value: action.message.slice(0, 300) },
-      ]);
+      const current = await shopifyCartGet(cartId);
+      const date = action.deliveryDate === undefined ? (current?.gift.deliveryDate ?? null) : action.deliveryDate;
+      if (date && (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date < earliestGiftDate() || date > latestGiftDate())) throw new CartError("Cette date de livraison n’est pas possible.");
+      const cart = await shopifyCartMutate("attributes", cartId, giftAttributes({
+        wrap: action.wrap,
+        message: action.message.slice(0, 300),
+        hidePrices: action.hidePrices ?? current?.gift.hidePrices ?? true,
+        deliveryDate: date,
+      }));
       if (GIFT_WRAP_VARIANT && action.wrap && !cart.lines.some((l) => l.variantId === GIFT_WRAP_VARIANT)) {
         return shopifyCartMutate("add", cartId, [{ merchandiseId: GIFT_WRAP_VARIANT, quantity: 1 }]);
       }
@@ -210,8 +232,7 @@ async function shopifyApply(cartId: string | null, action: CartAction): Promise<
     case "checkout": {
       const current = await shopifyCartGet(cartId);
       const attributes = [
-        { key: "Emballage cadeau", value: current?.gift.wrap ? "Oui" : "Non" },
-        { key: "Message cadeau", value: current?.gift.message ?? "" },
+        ...giftAttributes(current?.gift ?? { wrap: false, message: "" }),
         { key: "_cgv_version", value: legalVersions.cgv },
         { key: "_cgv_accepted_at", value: new Date().toISOString() },
         ...(action.source ? [{ key: "_source", value: action.source }] : []),
@@ -224,6 +245,16 @@ async function shopifyApply(cartId: string | null, action: CartAction): Promise<
     case "clear":
       return shopifyCartCreate([]);
   }
+}
+
+/** Options cadeau transmises à la commande Shopify (lisibles par l'atelier dans l'administration). */
+function giftAttributes(g: { wrap: boolean; message: string; hidePrices?: boolean; deliveryDate?: string | null }) {
+  return [
+    { key: "Emballage cadeau", value: g.wrap ? "Oui" : "Non" },
+    { key: "Message cadeau", value: g.message },
+    { key: "Prix masqués", value: g.wrap && g.hidePrices !== false ? "Oui" : "Non" },
+    { key: "Livraison souhaitée le", value: g.deliveryDate ?? "" },
+  ];
 }
 
 /* ------------------------------------------------------------------ API */

@@ -27,6 +27,8 @@ import { upsertOrder } from "@/lib/customers/shopify-sync";
 import { certificateUrl, issueCertificates } from "@/lib/certificates";
 import { onNewsletterSignup } from "@/lib/marketing/flows";
 import { upsertContact } from "@/lib/marketing/provider";
+import { orderTaxes, ratesFor, shippingPrice as priceOf } from "@/lib/commerce/international";
+import { findRelay } from "@/lib/commerce/relays";
 
 export const dynamic = "force-dynamic";
 
@@ -42,14 +44,15 @@ const Body = z.object({
   country: z.string().length(2),
   phone: z.string().max(30).optional(),
   shippingRateId: z.string(),
-  paymentMethod: z.enum(["card", "apple-pay", "google-pay", "paypal", "installments"]),
+  relayId: z.string().max(60).optional(),
+  paymentMethod: z.enum(["card", "shop-pay", "apple-pay", "google-pay", "paypal", "installments"]),
   // mode test : le site ne reçoit jamais de numéro de carte, seulement l'issue simulée
   testOutcome: z.enum(["accepted", "declined", "incomplete"]).optional(),
   acceptTerms: z.literal(true),
   source: z.string().max(40).nullable().optional(),
 });
 
-const PAYMENT_LABEL = { card: "Carte bancaire", "apple-pay": "Apple Pay", "google-pay": "Google Pay", paypal: "PayPal", installments: "Paiement en 3 ou 4 fois" } as const;
+const PAYMENT_LABEL = { card: "Carte bancaire", "shop-pay": "Shop Pay", "apple-pay": "Apple Pay", "google-pay": "Google Pay", paypal: "PayPal", installments: "Paiement en 3 ou 4 fois" } as const;
 
 export async function POST(req: Request) {
   if (shopifyEnabled) return NextResponse.json({ error: "Le paiement est géré par Shopify." }, { status: 400 });
@@ -62,12 +65,15 @@ export async function POST(req: Request) {
   const blocked = await assertCanBuy(cart.lines.map((l) => l.productHandle));
   if (blocked) return NextResponse.json({ error: blocked }, { status: 403 });
 
-  // livraison
-  const zone = shop.countries.find((c) => c.code === d.country)?.zone;
-  const rate = shop.shippingRates.find((r) => r.id === d.shippingRateId && r.zone === zone);
-  if (!zone || !rate) return NextResponse.json({ error: "Ce mode de livraison n’est pas disponible pour ce pays." }, { status: 400 });
+  // livraison : mode proposé pour ce pays, point relais vérifié
+  const rate = ratesFor(d.country).find((r) => r.id === d.shippingRateId);
+  if (!rate) return NextResponse.json({ error: "Ce mode de livraison n’est pas disponible pour ce pays." }, { status: 400 });
+  const relay = rate.relay ? findRelay(d.relayId ?? "", d.zip, d.country) : null;
+  if (rate.relay && !relay) return NextResponse.json({ error: "Merci de choisir un point relais." }, { status: 400 });
   const merchandise = cart.subtotal - (cart.discount?.amount ?? 0);
-  const shippingPrice = rate.freeAboveThreshold && merchandise >= shop.freeShippingThreshold ? 0 : rate.price;
+  const shippingPrice = priceOf(rate, merchandise);
+  // taxes : TVA française incluse, ou export avec droits et TVA du pays payés à la commande
+  const { taxes, total: gross } = orderTaxes(d.country, merchandise + (cart.gift.wrap ? cart.giftWrapPrice : 0), shippingPrice);
 
   // paiement simulé : carte de test refusée
   if (d.paymentMethod === "card") {
@@ -106,7 +112,7 @@ export async function POST(req: Request) {
   }
   await Promise.all([kv.set(DEMO_KEYS.stock, stock), kv.set(DEMO_KEYS.produced, produced)]);
 
-  const total = cart.total + shippingPrice;
+  const total = Math.max(0, gross - (cart.giftCard?.amount ?? 0));
   const count = (await getOrders()).length;
   const order: Order = {
     id: `o-${Date.now().toString(36)}`,
@@ -117,7 +123,15 @@ export async function POST(req: Request) {
     status: anyPreorder ? "in_production" : "paid",
     lines,
     total,
-    shipping: { method: rate.label, price: shippingPrice, country: d.country },
+    shipping: {
+      method: rate.label,
+      price: shippingPrice,
+      country: d.country,
+      ...(relay ? { relay: { id: relay.id, name: relay.name, address: relay.address } } : {}),
+      ...(rate.pickup ? { pickup: true } : {}),
+    },
+    address: { firstName: d.firstName, lastName: d.lastName, line1: d.address1, line2: d.address2, postalCode: d.zip, city: d.city, country: d.country, phone: d.phone },
+    taxes,
     gift: cart.gift.wrap ? cart.gift : undefined,
     paymentMethod: PAYMENT_LABEL[d.paymentMethod],
     source: d.source ?? null,
@@ -163,9 +177,10 @@ export async function POST(req: Request) {
       ],
       items: lines.map((l) => ({ title: l.title, meta: `Taille ${l.size} · ${l.editionLabel}`, price: l.unitPrice, image: imageAt(products.find((p) => p.handle === l.handle)?.images[0].src ?? "", 480) })),
       totals: [
-        { label: "Livraison", value: shippingPrice ? formatPrice(shippingPrice) : "Offerte" },
+        { label: relay ? `Livraison en point relais — ${relay.name}` : rate.pickup ? "Retrait à l’atelier" : "Livraison", value: shippingPrice ? formatPrice(shippingPrice) : "Offerte" },
         ...(cart.gift.wrap ? [{ label: "Emballage cadeau", value: formatPrice(cart.giftWrapPrice) }] : []),
-        { label: "Total", value: formatPrice(total) },
+        ...(taxes.export ? [{ label: "Droits et taxes à l’importation", value: formatPrice(taxes.export.duty + taxes.export.importVat) }] : []),
+        { label: taxes.export ? "Total, droits et taxes compris" : "Total", value: formatPrice(total) },
       ],
       cta: { label: "Suivre ma commande", href: "/compte" },
       signature: "Avec toute notre gratitude,\nLa Créatrice",

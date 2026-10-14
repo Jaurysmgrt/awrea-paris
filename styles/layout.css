@@ -776,6 +776,31 @@
     height: var(--border-width-hair);
     background: var(--line);
   }
+  .drawer__suggest {
+    display: grid;
+    gap: var(--spacing-xs);
+    padding-block: var(--spacing-m);
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .drawer__suggest-list {
+    display: grid;
+    gap: var(--spacing-xs);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .suggest__link {
+    display: grid;
+    grid-template-columns: var(--spacing-2xl) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--spacing-s);
+    color: inherit;
+    text-decoration: none;
+  }
+  .suggest__text {
+    display: grid;
+    gap: var(--spacing-3xs);
+  }
   .drawer__progress span {
     display: block;
     height: 100%;

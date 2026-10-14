@@ -42,7 +42,11 @@ async function shopifyOrders(): Promise<Order[]> {
     id: string; name: string; createdAt: string; email: string | null; displayFinancialStatus: string; displayFulfillmentStatus: string;
     customer: { displayName: string } | null; totalPriceSet: { shopMoney: { amount: string } };
     shippingLine: { title: string; originalPriceSet: { shopMoney: { amount: string } } } | null;
-    shippingAddress: { countryCodeV2: string } | null;
+    shippingAddress: { countryCodeV2: string; firstName: string | null; lastName: string | null; address1: string | null; address2: string | null; zip: string | null; city: string | null; phone: string | null } | null;
+    customAttributes: { key: string; value: string | null }[];
+    totalTaxSet: { shopMoney: { amount: string } } | null;
+    taxLines: { ratePercentage: number | null }[];
+    currentTotalDutiesSet: { shopMoney: { amount: string } } | null;
     fulfillments: { trackingInfo: { number: string; company: string }[] }[];
     lineItems: { nodes: { title: string; quantity: number; variantTitle: string | null; originalUnitPriceSet: { shopMoney: { amount: string } }; product: { handle: string } | null }[] };
     paymentGatewayNames: string[];
@@ -50,7 +54,9 @@ async function shopifyOrders(): Promise<Order[]> {
   const data = await admin<{ orders: { nodes: N[] } }>(`query { orders(first: 100, sortKey: CREATED_AT, reverse: true) { nodes {
     id name createdAt email displayFinancialStatus displayFulfillmentStatus paymentGatewayNames
     customer { displayName } totalPriceSet { shopMoney { amount } }
-    shippingLine { title originalPriceSet { shopMoney { amount } } } shippingAddress { countryCodeV2 }
+    shippingLine { title originalPriceSet { shopMoney { amount } } }
+    shippingAddress { countryCodeV2 firstName lastName address1 address2 zip city phone }
+    customAttributes { key value } totalTaxSet { shopMoney { amount } } taxLines { ratePercentage } currentTotalDutiesSet { shopMoney { amount } }
     fulfillments(first: 3) { trackingInfo { number company } }
     lineItems(first: 20) { nodes { title quantity variantTitle originalUnitPriceSet { shopMoney { amount } } product { handle } } }
   } } }`);
@@ -69,10 +75,28 @@ async function shopifyOrders(): Promise<Order[]> {
       lines: o.lineItems.nodes.map((l) => ({ title: l.title, size: (l.variantTitle ?? "TU") as Order["lines"][number]["size"], quantity: l.quantity, unitPrice: c(l.originalUnitPriceSet.shopMoney.amount), handle: l.product?.handle ?? "" })),
       total: c(o.totalPriceSet.shopMoney.amount),
       shipping: { method: o.shippingLine?.title ?? "", price: c(o.shippingLine?.originalPriceSet.shopMoney.amount ?? "0"), country: o.shippingAddress?.countryCodeV2 ?? "", tracking: track?.number, carrier: track?.company },
+      address: o.shippingAddress?.address1
+        ? {
+            firstName: o.shippingAddress.firstName ?? "",
+            lastName: o.shippingAddress.lastName ?? "",
+            line1: o.shippingAddress.address1,
+            line2: o.shippingAddress.address2 ?? undefined,
+            postalCode: o.shippingAddress.zip ?? "",
+            city: o.shippingAddress.city ?? "",
+            country: o.shippingAddress.countryCodeV2,
+            phone: o.shippingAddress.phone ?? undefined,
+          }
+        : undefined,
+      gift: attr(o, "Emballage cadeau") === "Oui"
+        ? { wrap: true, message: attr(o, "Message cadeau"), hidePrices: attr(o, "Prix masqués") !== "Non", deliveryDate: attr(o, "Livraison souhaitée le") || null }
+        : undefined,
+      taxes: { vatRate: (o.taxLines[0]?.ratePercentage ?? 0) / 100, vat: c(o.totalTaxSet?.shopMoney.amount ?? "0"), ...(o.currentTotalDutiesSet ? { duties: c(o.currentTotalDutiesSet.shopMoney.amount) } : {}) },
       paymentMethod: o.paymentGatewayNames.join(", "),
     };
   });
 }
+
+const attr = (o: { customAttributes: { key: string; value: string | null }[] }, key: string) => o.customAttributes.find((a) => a.key === key)?.value ?? "";
 
 export const statusLabel: Record<OrderStatus, string> = {
   pending: "En attente de paiement",

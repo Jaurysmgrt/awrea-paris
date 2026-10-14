@@ -9,8 +9,12 @@ import { shop } from "@/content/settings";
 import { TermsCheckbox } from "@/components/account/TermsCheckbox";
 import { readSource } from "@/components/analytics/source";
 import { track } from "@/lib/analytics/track";
+import { earliestGiftDate, latestGiftDate } from "@/lib/commerce/international";
+import type { Image } from "@/lib/commerce/types";
 
-/** Panier latéral : lignes, livraison offerte, emballage cadeau, codes, accès au paiement. */
+type Suggestion = { handle: string; title: string; tagline: string; price: number; image: Image };
+
+/** Panier latéral : lignes, suggestions, livraison offerte, cadeau, codes, accès au paiement. */
 export function CartDrawer() {
   const { cart, isOpen, close, dispatch, busy, error } = useCart();
   const ref = useRef<HTMLDialogElement>(null);
@@ -23,6 +27,21 @@ export function CartDrawer() {
     setMessage(giftMessage);
   }
   const [terms, setTerms] = useState(false);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const lineKey = (cart?.lines ?? []).map((l) => l.productHandle).join(",");
+
+  // pièces associées par la créatrice à celles du panier (rechargées quand le panier change)
+  useEffect(() => {
+    if (!isOpen || !lineKey) return;
+    let cancelled = false;
+    fetch("/api/cart/suggestions", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j) => !cancelled && setSuggestions(j.suggestions ?? []))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, lineKey]);
 
   useEffect(() => {
     const d = ref.current;
@@ -41,6 +60,9 @@ export function CartDrawer() {
   const remaining = cart ? Math.max(0, cart.freeShippingThreshold - (cart.subtotal - (cart.discount?.amount ?? 0))) : shop.freeShippingThreshold;
   const progress = cart ? Math.min(1, (cart.subtotal - (cart.discount?.amount ?? 0)) / cart.freeShippingThreshold) : 0;
   const hasPreorder = lines.some((l) => l.preorder);
+  const leadWeeks = Math.max(0, ...lines.filter((l) => l.preorder).map((l) => l.leadTimeWeeks ?? 4));
+  const gift = cart?.gift;
+  const setGift = (patch: { hidePrices?: boolean; deliveryDate?: string | null }) => dispatch({ type: "gift", wrap: true, message, ...patch });
 
   return (
     <dialog
@@ -147,7 +169,51 @@ export function CartDrawer() {
                     <span className="field__hint">{300 - message.length} caractères restants</span>
                   </div>
                 ) : null}
+                {gift?.wrap ? (
+                  <>
+                    <label className="check">
+                      <input type="checkbox" checked={gift.hidePrices !== false} onChange={(e) => setGift({ hidePrices: e.target.checked })} />
+                      <span>Masquer les prix sur le bon de livraison</span>
+                    </label>
+                    <div className="field">
+                      <label htmlFor="gift-date" className="field__label">
+                        Date de livraison souhaitée (facultatif)
+                      </label>
+                      <input
+                        id="gift-date"
+                        type="date"
+                        className="field__input"
+                        min={earliestGiftDate(leadWeeks)}
+                        max={latestGiftDate()}
+                        value={gift.deliveryDate ?? ""}
+                        onChange={(e) => setGift({ deliveryDate: e.target.value || null })}
+                      />
+                      <span className="field__hint">L’atelier expédie pour une remise ce jour-là, ni avant, ni après.</span>
+                    </div>
+                  </>
+                ) : null}
               </div>
+
+              {suggestions.length ? (
+                <section className="drawer__suggest" aria-labelledby="suggest-title">
+                  <h3 id="suggest-title" className="t-label">
+                    Pour compléter
+                  </h3>
+                  <ul className="drawer__suggest-list">
+                    {suggestions.map((s) => (
+                      <li key={s.handle} className="suggest">
+                        <Link href={`/boutique/${s.handle}`} onClick={close} className="suggest__link">
+                          <Media image={s.image} ratio="portrait" sizes="5rem" decorative />
+                          <span className="suggest__text">
+                            <span className="t-h4">{s.title}</span>
+                            <span className="price">{formatPrice(s.price)}</span>
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
 
               <details className="disclosure" open={codesOpen} onToggle={(e) => setCodesOpen((e.target as HTMLDetailsElement).open)}>
                 <summary>Code avantage ou carte cadeau</summary>
@@ -225,7 +291,7 @@ export function CartDrawer() {
                   Commander
                 </Link>
               )}
-              <p className="t-label t-soft t-center drawer__pay">Sans compte · Carte · Apple Pay · Google Pay · PayPal · 3 ou 4 fois</p>
+              <p className="t-label t-soft t-center drawer__pay">Sans compte · Carte · Shop Pay · Apple Pay · Google Pay · PayPal · 3 ou 4 fois</p>
             </footer>
           </>
         )}

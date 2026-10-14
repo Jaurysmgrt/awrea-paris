@@ -85,6 +85,13 @@ export const SERVICES = {
     mock: "Vérification ignorée (démonstration)",
     providers: { turnstile: { label: "Cloudflare Turnstile", keys: ["TURNSTILE_SECRET_KEY", "NEXT_PUBLIC_TURNSTILE_SITE_KEY"] } },
   },
+  address: {
+    label: "Suggestions d'adresses (commande)",
+    env: "ADDRESS_PROVIDER",
+    mock: "Quelques adresses de démonstration",
+    // service public gratuit, sans clé : branché seulement s'il est demandé (ADDRESS_PROVIDER=ign)
+    providers: { ign: { label: "Géoplateforme de l'IGN (adresses françaises)", keys: [], optIn: true } },
+  },
   instagram: {
     label: "Publications Instagram",
     env: "INSTAGRAM_PROVIDER",

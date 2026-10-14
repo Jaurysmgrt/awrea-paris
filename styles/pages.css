@@ -1314,6 +1314,23 @@
     gap: var(--spacing-l);
     align-items: start;
   }
+  .checkout-summary {
+    padding: var(--spacing-m);
+  }
+  .checkout-summary__toggle {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-s);
+    min-height: var(--spacing-touch);
+  }
+  .checkout-summary__body[data-open="false"] {
+    display: none;
+  }
+  .checkout-summary__body[data-open="true"] {
+    padding-top: var(--spacing-m);
+  }
   @media (min-width: 64rem) {
     .checkout {
       grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
@@ -1334,23 +1351,9 @@
     .checkout-summary__body[data-open="false"] {
       display: block;
     }
-  }
-  .checkout-summary {
-    padding: var(--spacing-m);
-  }
-  .checkout-summary__toggle {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--spacing-s);
-    min-height: var(--spacing-touch);
-  }
-  .checkout-summary__body[data-open="false"] {
-    display: none;
-  }
-  .checkout-summary__body[data-open="true"] {
-    padding-top: var(--spacing-m);
+    .checkout-summary__body {
+      padding-top: 0;
+    }
   }
   .checkout-step {
     border: 0;
@@ -1369,6 +1372,49 @@
   .options {
     display: grid;
     gap: var(--spacing-2xs);
+  }
+  .express {
+    display: grid;
+    gap: var(--spacing-xs);
+  }
+  .express__buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-2xs);
+  }
+  @media (min-width: 48rem) {
+    .express__buttons {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .express__btn[aria-pressed="true"] {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .combo {
+    position: relative;
+  }
+  .combo__list {
+    position: absolute;
+    z-index: var(--z-sticky);
+    inset-inline: 0;
+    top: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--bg);
+    border: var(--border-width-hair) solid var(--fg);
+    border-top: 0;
+  }
+  .combo__option {
+    padding: var(--spacing-xs) var(--spacing-s);
+    cursor: pointer;
+    font-size: var(--text-step--1);
+  }
+  .combo__option[aria-selected="true"],
+  .combo__option:hover {
+    background: var(--fg);
+    color: var(--bg);
   }
   .option {
     display: grid;

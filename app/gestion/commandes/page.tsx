@@ -36,7 +36,11 @@ export default async function CommandesPage() {
                 const url = trackingUrl(o.shipping.carrier, o.shipping.tracking);
                 return (
                   <tr key={o.id} data-status={o.status}>
-                    <th scope="row">{o.number}</th>
+                    <th scope="row">
+                      <Link href={`/gestion/commandes/${encodeURIComponent(o.number)}`} className="text-link">
+                        {o.number}
+                      </Link>
+                    </th>
                     <td><When iso={o.createdAt} /></td>
                     <td>{o.name}<br /><span className="t-note">{o.email}</span></td>
                     <td>{o.lines.map((l) => `${l.title} (${l.size}${l.editionLabel ? `, ${l.editionLabel}` : ""})`).join(", ")}{o.gift?.wrap ? <><br /><span className="t-note">Cadeau : « {o.gift.message} »</span></> : null}</td>
