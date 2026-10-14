@@ -39,8 +39,9 @@ test.describe("Drops et lancements", () => {
       await expect(page.getByRole("heading", { level: 1, name: "Série d’essai" })).toBeVisible();
       await expect(page.locator(".countdown__date")).toContainText("heure de Paris");
       const email = `inscrite.${Date.now().toString(36)}@exemple.fr`;
-      await page.getByLabel("Adresse e-mail").fill(email);
-      await page.getByRole("button", { name: "Réserver mon accès anticipé" }).click();
+      const form = page.getByRole("region", { name: "Réserver votre accès anticipé" });
+      await form.getByLabel("Adresse e-mail").fill(email);
+      await form.getByRole("button", { name: "Réserver mon accès anticipé" }).click();
       await expect(page.getByRole("status").filter({ hasText: "lien d’accès" })).toBeVisible();
       let link = "";
       await expect

@@ -20,7 +20,7 @@ export const accountCopy = {
     resend: "Renvoyer un code",
     change: "Changer d’adresse",
     demo: "Mode démonstration : aucun e-mail n’est envoyé, voici votre code :",
-    noAccount: "Pas besoin de compte pour commander : il sert seulement à retrouver vos commandes, vos tailles et vos envies.",
+    noAccount: "Le compte n’est jamais nécessaire pour commander : il garde simplement vos commandes, vos tailles et vos envies.",
     oauthUnavailable: "La connexion avec Google ou Apple sera disponible dès que la base clientes sera reliée (Supabase). En attendant, utilisez votre adresse e-mail.",
     failed: "La connexion n’a pas abouti. Merci de réessayer.",
   },

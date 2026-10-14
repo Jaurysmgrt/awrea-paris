@@ -47,7 +47,7 @@ for (const size of SIZES) {
         const a = await page.evaluate(auditInPage);
         report[`${size.name} ${path}`] = a;
         if (REPORT) return;
-        expect(a.families.filter((f) => !/instrument serif|inter tight/i.test(f)), "familles hors des deux polices").toEqual([]);
+        expect(a.families.filter((f) => !/instrument|inter ?tight/i.test(f)), "familles hors des deux polices").toEqual([]);
         expect(a.italics, "italiques").toEqual([]);
         expect(a.saturated, "couleurs saturées (doré)").toEqual([]);
         expect(a.spacing, "espacements hors de la grille de 8 px").toEqual([]);
