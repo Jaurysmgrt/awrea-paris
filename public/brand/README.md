@@ -1,13 +1,14 @@
-# Logo Awrea Paris — emplacements
+# Logo Awrea Paris
 
-Logo **provisoire** (généré par `scripts/build-logo.py` à partir des polices du site) :
+Fichiers **officiels** (ressources-awrea/LOGO), préparés par `npm run ressources` :
 
-- `logo-noir.svg`, `logo-blanc.svg` — monogramme « AW » et « PARIS » dessous ;
-- `monogramme-noir.svg`, `monogramme-blanc.svg` — monogramme seul ;
-- `logo.svg`, `monogram.svg` — versions utilisées par le site en masque (elles prennent la couleur
-  du texte).
+- `awrea-logo.png` : logo complet, « AWREA » et « PARIS » espacé dessous (LOGO ENTIER) ;
+- `awrea-monogramme.png` : monogramme « AW » et « PARIS » dessous (LOGO MINI) ;
+- `awrea-aw.png` : monogramme « AW » seul, pour les petites tailles.
 
-Pour mettre les fichiers **officiels** : les déposer ici (SVG monochromes, fond transparent) sous les
-noms `logo.svg`, `monogram.svg` et éventuellement `wordmark.svg` (logotype horizontal), puis indiquer
-leurs chemins dans `content/brand/assets.ts` (ex. `src: "/brand/logo.svg"`). Le favicon se remplace
-dans `app/icon.svg` et `app/apple-icon.png`.
+Fond transparent, dessin noir : le site les affiche en masque CSS, ils prennent la couleur du texte
+(mode Nuit compris). Les icônes `app/icon.png` et `app/apple-icon.png` en sont tirées.
+
+**À fournir par la Maison** : le logo en SVG (vectoriel). Le déposer ici puis indiquer son chemin dans
+`content/brand/assets.ts`. Les anciens fichiers provisoires (`logo*.svg`, `monogram*.svg`) ne sont
+plus utilisés par le site.
