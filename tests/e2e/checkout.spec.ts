@@ -32,7 +32,7 @@ test.describe("Parcours d’achat complet (mode test)", () => {
     await drawer.getByText("Code avantage ou carte cadeau").click();
     await drawer.getByLabel("Code avantage").fill("BIENVENUE");
     await drawer.getByRole("button", { name: "Appliquer" }).first().click();
-    await expect(drawer.getByText("Bienvenue — 10 %")).toBeVisible();
+    await expect(drawer.getByText("Bienvenue, 10 %")).toBeVisible();
 
     await drawer.getByRole("link", { name: "Commander" }).click();
     await expect(page).toHaveURL(/\/commande$/);
