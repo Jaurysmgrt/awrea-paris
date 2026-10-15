@@ -29,26 +29,28 @@ Cercle…) seront construites directement sur les documents de contenu et l'édi
 1. [x] **Contrôle d'écriture** : règles communes (`lib/writing/rules.ts`), script
    `npm run audit:ecriture` (sources et pages rendues), dans la CI ; corrections typographiques
    sûres appliquées à tout le code (`--fix`).
-2. [ ] **Maintenance et agents** : contrôle dans le bilan de nuit, textes des agents nettoyés et
+2. [x] **Maintenance et agents** : contrôle dans le bilan de nuit, textes des agents nettoyés et
    contrôlés (une formulation interdite fait d'une publication une proposition), réponses de
    l'assistante nettoyées, contrôle nocturne des textes stockés.
-3. [ ] **Accès admin invisible** : adresse secrète, aucun lien, `noindex` et `robots.txt`, comptes
+3. [x] **Accès admin invisible** : adresse secrète, aucun lien, `noindex` et `robots.txt`, comptes
    autorisés, double authentification, blocage après échecs, alerte e-mail à chaque connexion,
    contrôles ajoutés à l'audit de sécurité.
 4. [ ] **Contenus centralisés** : tous les textes et images du site dans `content/site/<langue>/`,
    lus par un seul accès (`lib/edition/`), plus aucun texte en dur dans les composants.
-5. [ ] **Éditeur visuel « Édition »** : textes cliquables sur la page, images par glisser-déposer
+5. [x] **Éditeur visuel « Édition »** : textes cliquables sur la page, images par glisser-déposer
    (recadrage, déclinaisons, point focal, texte alternatif), blocs de mise en page, modèles de pages,
    aperçus téléphone, tablette, ordinateur, brouillons, publication programmée, historique et retour
    en un clic, garde-fous, version anglaise à côté, contrôle d'écriture, guide d'accueil.
 6. [ ] **Réécriture complète** dans la voix de la créatrice (Plume → Détecteur IA → Lecture à voix
    haute → Typographe → Cohérence), consignée dans `JOURNAL.md` ; zéro erreur au contrôle.
-7. [ ] **E-mails modifiables sans code** : bibliothèque de blocs dans la DA, rendu Gmail, Apple Mail,
+7. [x] **E-mails modifiables sans code** : bibliothèque de blocs dans la DA, rendu Gmail, Apple Mail,
    Outlook, mobile, clair et sombre ; export compatible Brevo et Klaviyo ; galerie d'aperçu locale.
-8. [ ] **Nouveaux agents** : équipes de construction (`.claude/agents/`) et rôles de gestion
+8. [x] **Nouveaux agents** : équipes de construction (`.claude/agents/`) et rôles de gestion
    quotidienne dans l'Atelier.
-9. [ ] Documentation : `ACTIVATION.md` (éditeur, recopie Git, e-mails), `GUIDE-CREATRICE.md`
-   (« Modifier un texte, une image, une page, un e-mail », avec captures).
+9. [ ] Documentation : `ACTIVATION.md` (éditeur, recopie Git, e-mails : fait), `GUIDE-CREATRICE.md`
+   (« Modifier un texte, une image, une page, un e-mail », avec captures : après l'application du
+   design, pour que les captures montrent le site final).
+10. [ ] Migration des e-mails existants vers les documents d'e-mails (avec la centralisation, point 4).
 
 ## Phase B — Boutique complète et fonctionnelle (mode simulé)
 
