@@ -4,6 +4,7 @@
  */
 import { kv } from "@/lib/store";
 import { maintenanceReports } from "@/lib/maintenance";
+import { recentErrors } from "@/lib/errors/report";
 import type { Finding, RoleOutcome } from "./types";
 
 export async function runInstagram(): Promise<RoleOutcome> {
@@ -31,4 +32,14 @@ async function fromMaintenance(re: RegExp, label: string): Promise<RoleOutcome> 
 }
 
 export const runAccessibilite = () => fromMaintenance(/accessib|axe|contraste|clavier|lecteur/i, "l’accessibilité");
-export const runPerformance = () => fromMaintenance(/perform|lighthouse|lcp|cls|inp|poids|vitesse/i, "la vitesse");
+/** Vitesse (contrôle de la nuit) et erreurs relevées sur le site pendant la semaine. */
+export async function runPerformance(now = new Date()): Promise<RoleOutcome> {
+  const base = await fromMaintenance(/perform|lighthouse|lcp|cls|inp|poids|vitesse/i, "la vitesse");
+  const week = (await recentErrors(300)).filter((e) => now.getTime() - new Date(e.date).getTime() < 7 * 86_400_000);
+  if (!week.length) return base;
+  const byMessage = new Map<string, number>();
+  for (const e of week) byMessage.set(e.message, (byMessage.get(e.message) ?? 0) + 1);
+  const top = [...byMessage].sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const findings: Finding[] = top.map(([message, n]) => ({ gravite: n >= 10 ? "urgent" : "attention", titre: `Erreur vue ${n} fois cette semaine`, detail: message.slice(0, 160), lien: "/", cible: message.slice(0, 60) }));
+  return { resume: `${base.resume} ${week.length} erreur${week.length > 1 ? "s" : ""} relevée${week.length > 1 ? "s" : ""} sur le site cette semaine.`, findings: [...base.findings, ...findings] };
+}

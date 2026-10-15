@@ -14,6 +14,9 @@ test("Équipe : chaque rôle passe, rend un résumé, et apparaît dans l'Atelie
   expect((await request.post(`${ATELIER}/api/equipe/avis`)).status()).toBe(404);
   expect((await request.get("/api/cron/equipe")).status()).toBe(401);
 
+  // une erreur du navigateur arrive au suivi des erreurs, sans jeton ni adresse
+  expect((await request.post("/api/erreurs", { data: { message: "Essai d’erreur pour l’Équipe, contact camille@exemple.fr", path: "/boutique?jeton=secret" } })).status()).toBe(204);
+
   await adminLogin(page);
   for (const id of ROLES) {
     const r = await page.request.post(`${ATELIER}/api/equipe/${id}`);
@@ -21,6 +24,11 @@ test("Équipe : chaque rôle passe, rend un résumé, et apparaît dans l'Atelie
     const { report } = await r.json();
     expect(report.resume.length, id).toBeGreaterThan(5);
     expect(report.erreurs, id).toEqual([]);
+    if (id === "performance") {
+      const f = report.findings.find((x: { detail?: string }) => x.detail?.includes("Essai d’erreur"));
+      expect(f, JSON.stringify(report.findings)).toBeTruthy();
+      expect(f.detail).not.toContain("camille@exemple.fr");
+    }
   }
   await page.goto(`${ATELIER}/equipe`);
   await expect(page.getByRole("heading", { level: 1, name: "Équipe" })).toBeVisible();

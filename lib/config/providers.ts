@@ -111,6 +111,12 @@ export const SERVICES = {
     // adresse iCal secrète de l'agenda (Google, Apple, Outlook) : ses occupations ferment les créneaux
     providers: { ics: { label: "Agenda iCal (Google, Apple, Outlook)", keys: ["CALENDAR_ICS_URL"] } },
   },
+  errors: {
+    label: "Suivi des erreurs",
+    env: "ERRORS_PROVIDER",
+    mock: "Erreurs gardées dans le stockage technique, relevées par le rôle Performance",
+    providers: { sentry: { label: "Sentry", keys: ["SENTRY_DSN"] } },
+  },
 } as const satisfies Record<string, ServiceSpec>;
 
 export type ServiceId = keyof typeof SERVICES;

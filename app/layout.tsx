@@ -10,6 +10,7 @@ import { cspEnabled, cspMode } from "@/lib/security/headers";
 import { Justification } from "@/components/typography/Justification";
 import { TextsRoot } from "@/components/content/TextsRoot";
 import { EditionRoot } from "@/components/edition/EditionRoot";
+import { ErrorReporter } from "@/components/analytics/ErrorReporter";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -46,6 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {/* textes des composants interactifs montés partout (lus dans content/site, modifiables dans l'éditeur) */}
         <TextsRoot ids={["site", "commerce", "catalogue"]}>{children}</TextsRoot>
         <Justification />
+        <ErrorReporter />
         {/* éditeur visuel : rendu pour la créatrice connectée en mode Édition seulement */}
         <EditionRoot />
       </body>

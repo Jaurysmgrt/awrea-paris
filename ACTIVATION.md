@@ -421,6 +421,18 @@ variable vide = outil éteint.
 **Vérifier** : accepter les cookies sur le site, visiter deux pages : la visite apparaît en direct
 dans l'outil. Refuser les cookies dans une fenêtre privée : rien ne doit apparaître.
 
+### Suivi des erreurs (facultatif)
+
+[sentry.io](https://sentry.io/signup/) › choisir l'hébergement **EU** (Francfort) › créer un projet
+« Next.js » › **Settings** › **Client Keys (DSN)** › copier le DSN.
+
+| Variable | Valeur |
+| --- | --- |
+| `SENTRY_DSN` | `https://…@….ingest.de.sentry.io/…` |
+
+Sans Sentry, les erreurs du site restent visibles dans l'Atelier › Équipe › Performance.
+**Interrupteur** : `ERRORS_PROVIDER` (`sentry` ou `mock`).
+
 ## Étape 12 — Visibilité hors du site
 
 1. **Google Search Console** ([search.google.com/search-console](https://search.google.com/search-console)) :
