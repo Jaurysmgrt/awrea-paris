@@ -11,5 +11,9 @@
     "label": "Désinscription des lettres",
     "kind": "page",
     "chemin": "/lettres/desinscription"
+  },
+  "email-rappel-rendez-vous": {
+    "label": "Rappel de rendez-vous",
+    "kind": "email"
   }
 }

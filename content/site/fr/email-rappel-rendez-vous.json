@@ -1,0 +1,67 @@
+{
+  "nom": "Rappel de rendez-vous",
+  "quand": "La veille de chaque rendez-vous, à la cliente.",
+  "famille": "service",
+  "sujet": "À demain, {prenom}",
+  "preheader": "Votre rendez-vous : {quand}.",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la cliente",
+      "exemple": "Camille"
+    },
+    "quand": {
+      "description": "Le jour et l’heure du rendez-vous",
+      "exemple": "jeudi 16 octobre à 14 h 30"
+    },
+    "rendezvous": {
+      "description": "Le rendez-vous",
+      "exemple": "Essayage à l’atelier"
+    },
+    "visio": {
+      "description": "Le lien de l’appel vidéo, pour un rendez-vous à distance",
+      "exemple": ""
+    },
+    "annulation": {
+      "description": "Le lien pour annuler",
+      "exemple": "https://www.awreaparis.com/rendez-vous/annuler"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-rdv0entete",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-rdv0titre",
+      "type": "titre",
+      "titre": "À demain"
+    },
+    {
+      "id": "b-rdv0texte",
+      "type": "texte",
+      "texte": "Bonjour {prenom},\n\n{rendezvous}, {quand}. Nous vous attendons, et nous aurons le temps."
+    },
+    {
+      "id": "b-rdv0visio",
+      "type": "texte",
+      "texte": "Le rendez-vous se fait en appel vidéo. Le lien, à ouvrir un peu avant l’heure : {visio}",
+      "si": "visio"
+    },
+    {
+      "id": "b-rdv0annul",
+      "type": "texte",
+      "texte": "Un empêchement ? Vous pouvez annuler ici, la place servira à une autre cliente : {annulation}"
+    },
+    {
+      "id": "b-rdv0signe",
+      "type": "signature",
+      "texte": "À demain,\nL’atelier Awrea Paris"
+    },
+    {
+      "id": "b-rdv0pied",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

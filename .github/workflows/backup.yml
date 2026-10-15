@@ -125,3 +125,18 @@ jobs:
           AWS_DEFAULT_REGION: auto
         if: env.BACKUP_S3_BUCKET != ''
         run: aws s3 cp sauvegarde/ "s3://$BACKUP_S3_BUCKET/$(date -u +%Y-%m-%d)/" --recursive --endpoint-url "$BACKUP_S3_ENDPOINT"
+
+      # compte rendu dans l'Atelier (rôle « Sauvegarde ») : réussite, test de restauration, copie hors site
+      - name: Prévenir l'Atelier
+        if: always()
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://www.awreaparis.com' }}
+          OK: ${{ job.status == 'success' }}
+          HORS_SITE: ${{ env.BACKUP_S3_BUCKET != '' }}
+          LIEN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -n "$CRON_SECRET" ] || { echo "CRON_SECRET absent : compte rendu non déposé."; exit 0; }
+          curl -fsS -X POST "$SITE_URL/api/cron/sauvegarde" \
+            -H "Authorization: Bearer $CRON_SECRET" -H "Content-Type: application/json" \
+            -d "{\"ok\": $OK, \"restauration\": $OK, \"horsSite\": $HORS_SITE, \"lien\": \"$LIEN\"}" || echo "Atelier injoignable : compte rendu non déposé."
