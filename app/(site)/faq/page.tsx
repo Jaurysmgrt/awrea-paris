@@ -7,8 +7,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
 
 export const metadata = pageMetadata({
-  title: "Questions fréquentes — tailles, commandes, livraison | Awrea Paris",
-  description: "Toutes les réponses sur Awrea Paris : fabrication à la main à Paris, pièces numérotées, tailles, précommandes, livraison, retours et sur mesure.",
+  title: "Questions fréquentes, des tailles à la livraison | Awrea Paris",
+  description: "Choisir votre taille, attendre une précommande, renvoyer une pièce. L’atelier répond ici à vos questions sur ses pièces numérotées, faites main à Paris.",
   path: "/faq",
 });
 

@@ -83,7 +83,7 @@ export function ProductForm({ product, stickyBar = false }: { product: Product; 
                 ? `Taille ${variant.size} sur commande : façonnée pour vous en ${product.leadTimeWeeks ?? 4} semaines, puis expédiée.`
                 : a === "soldout"
                   ? `La taille ${variant.size} est épuisée.`
-                  : `${availabilityLabel(a)} — expédiée sous ${shop.dispatchDays}.`
+                  : `${availabilityLabel(a)}, expédiée sous ${shop.dispatchDays}.`
               : showError
                 ? "Merci de choisir une taille."
                 : ed.complete && product.leadTimeWeeks

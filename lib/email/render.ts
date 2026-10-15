@@ -149,8 +149,8 @@ ${prefix("[data-ogsc]")}
 function blockHtml(b: EmailBlock, ctx: EmailContext, unsubscribe: string): string {
   const f = fonts(ctx);
   const c = light;
-  const caps = `font-family:${f.sans};font-weight:400;font-size:11px;line-height:16px;letter-spacing:1.5px;text-transform:uppercase;`;
-  const body = `font-family:${f.sans};font-weight:300;font-size:15px;line-height:24px;color:${c.ink};`;
+  const caps = `font-family :${f.sans} ;font-weight:400;font-size:11px;line-height:16px;letter-spacing:1.5px;text-transform:uppercase ;`;
+  const body = `font-family :${f.sans} ;font-weight:300;font-size:15px;line-height:24px;color :${c.ink} ;`;
   const row = (inner: string, pad = "0 48px 32px") => `<tr><td class="e-pad" style="padding:${pad};">${inner}</td></tr>`;
   switch (b.type) {
     case "entete": {
@@ -211,7 +211,7 @@ ${p.price ? `<div class="e-soft" style="${body}color:${c.soft};padding-top:8px;"
         .join("");
       const totals = (ctx.totals ?? [])
         .map((t, i, all) => {
-          const last = i === all.length - 1 ? `border-top:1px solid ${c.ink};padding-top:16px;` : "";
+          const last = i === all.length - 1 ? `border-top:1px solid ${c.ink} ;padding-top:16px ;` : "";
           return `<tr><td class="e-ink" style="padding:8px 0;${caps}color:${c.ink};${last}">${esc(t.label)}</td><td align="right" class="e-ink" style="padding:8px 0;${body}${last}">${esc(t.value)}</td></tr>`;
         })
         .join("");
@@ -261,7 +261,7 @@ export function renderEmail(doc: EmailDoc, ctx: EmailContext): RenderedEmail {
   const blocks = doc.blocs.filter((b) => !Object.values(b).some((v) => typeof v === "string" && isTodoText(v)) && (ctx.syntax ? true : blockShown(b, ctx.vars)));
   const rows = blocks.map((b) => blockHtml(b, ctx, unsubscribe)).join("\n");
   const c = light;
-  const spacer = "&#847;&zwnj;&nbsp;".repeat(40);
+  const spacer = "&#847;&zwnj;&nbsp ;".repeat(40);
   const gmailDark = ctx.client === "gmail" && ctx.dark ? ` style="filter:invert(1) hue-rotate(180deg);"` : "";
   const html = `<!doctype html>
 <html lang="fr" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"${gmailDark}>

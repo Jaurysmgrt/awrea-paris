@@ -22,12 +22,12 @@ export async function GET(req: Request) {
   const to = process.env.ACCOUNTING_EMAIL || process.env.ATELIER_EMAIL || identity.email;
   await sendEmail({
     to,
-    subject: `Export comptable — ${formatMonth(month)}`,
+    subject: `Export comptable, ${formatMonth(month)}`,
     tag: "export-comptable",
     attachments: [{ filename: `awrea-comptabilite-${month}.csv`, content: csv }],
     ...brandEmail({
       preheader: `${count} facture(s) et avoir(s) pour ${formatMonth(month)}.`,
-      title: `Comptabilité — ${formatMonth(month)}`,
+      title: `Comptabilité, ${formatMonth(month)}`,
       paragraphs: [`Vous trouverez ci-joint l’export du mois : ${count} facture(s) et avoir(s), une ligne par pièce comptable, montants hors taxes, TVA et toutes taxes comprises.`, "Les factures en PDF restent disponibles dans l’Atelier, rubrique Factures."],
       cta: { label: "Ouvrir les factures", href: "atelier:/factures" },
     }),

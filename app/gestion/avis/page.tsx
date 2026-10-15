@@ -12,7 +12,7 @@ export default async function AvisPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Avis</h1>
-        <p className="t-lead">Chaque avis vient d’une cliente qui a acheté la pièce. Relisez-le, publiez-le ou refusez-le ; vous pouvez y répondre en quelques mots.</p>
+        <p className="t-lead">Les avis viennent tous de clientes qui ont acheté la pièce. Relisez-les, puis publiez-les ou refusez-les. Vous pouvez y répondre en quelques mots.</p>
       </header>
       <section className="panel" aria-labelledby="pending-title">
         <h2 id="pending-title" className="t-h3">À relire ({pending.length})</h2>
@@ -21,7 +21,7 @@ export default async function AvisPage() {
             {pending.map((r) => (
               <li key={r.id} className="admin-review stack-s">
                 <p className="t-label">
-                  <Link href={`/boutique/${r.productHandle}`} className="text-link">{r.productHandle}</Link> · {r.authorName} · commande {r.orderNumber || "—"} · {formatDate(r.createdAt)}
+                  <Link href={`/boutique/${r.productHandle}`} className="text-link">{r.productHandle}</Link> · {r.authorName} · commande {r.orderNumber || "non renseignée"} · {formatDate(r.createdAt)}
                   {r.size ? ` · taille ${r.size}` : ""}
                   {r.fit ? ` · ${fitLabel[r.fit].toLowerCase()}` : ""}
                 </p>

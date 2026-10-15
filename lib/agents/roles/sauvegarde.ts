@@ -27,7 +27,7 @@ export async function runSauvegarde(now = new Date()): Promise<RoleOutcome> {
   }
   const hours = Math.round((now.getTime() - new Date(last.date).getTime()) / 3_600_000);
   if (!last.ok) findings.push({ gravite: "urgent", titre: "La dernière sauvegarde a échoué", detail: last.details, lien: "/reglages", cible: last.date });
-  else if (!last.restauration) findings.push({ gravite: "urgent", titre: "La dernière sauvegarde ne s’est pas relue", detail: "Le test de restauration a échoué : la sauvegarde ne servirait à rien en cas de besoin.", lien: "/reglages", cible: `${last.date}:restauration` });
+  else if (!last.restauration) findings.push({ gravite: "urgent", titre: "La dernière sauvegarde ne s’est pas relue", detail: "Le test de restauration a échoué : la sauvegarde ne servirait à rien en cas de besoin.", lien: "/reglages", cible: `${last.date}:restauration` });
   if (hours > 26) findings.push({ gravite: "urgent", titre: `Dernière sauvegarde il y a ${hours} heures`, detail: "Elle devrait avoir lieu chaque nuit.", lien: "/reglages", cible: `${last.date}:age` });
   if (last.ok && !last.horsSite) findings.push({ gravite: "info", titre: "Sauvegarde gardée seulement dans GitHub", detail: "Une copie hors site se branche avec BACKUP_S3_BUCKET (ACTIVATION.md, étape 13)." , cible: "hors-site" });
   return { resume: last.ok && last.restauration && hours <= 26 ? `Sauvegarde de la nuit faite et relue (il y a ${hours} heure${hours > 1 ? "s" : ""}).` : "La sauvegarde demande votre attention.", findings };

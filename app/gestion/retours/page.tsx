@@ -45,7 +45,7 @@ export default async function RetoursPage() {
                   <ul className="stack-s">
                     {r.items.map((i, k) => (
                       <li key={k} className="t-body">
-                        {i.title}, taille {i.size} — {reasonLabel[i.reason]} — {i.wish === "echange" ? `échange en ${i.exchangeSize}` : `remboursement ${formatPrice(i.unitPrice)}`}
+                        {i.title}, taille {i.size} · {reasonLabel[i.reason]} · {i.wish === "echange" ? `échange en ${i.exchangeSize}` : `remboursement ${formatPrice(i.unitPrice)}`}
                       </li>
                     ))}
                   </ul>
@@ -75,7 +75,7 @@ export default async function RetoursPage() {
           <ul className="stack-s">
             {done.map((r) => (
               <li key={r.id} className="t-body">
-                {r.id} · {r.orderNumber} · {r.name} — {statusLabel[r.status]}
+                {r.id} · {r.orderNumber} · {r.name} · {statusLabel[r.status]}
               </li>
             ))}
           </ul>

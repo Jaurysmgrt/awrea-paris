@@ -24,7 +24,7 @@ const i = (name: string, alt: string, width = 1200, height = 1800) => ({ src: `/
 export const articles: Article[] = [
   {
     slug: "moodboard-lace-is-more",
-    title: "Moodboard : la dentelle comme une ombre",
+    title: "La dentelle comme une ombre",
     excerpt: "Avant la première coupe, un mur d’images. Retour sur les inspirations de la collection Lace is more.",
     category: "Moodboard",
     date: "2026-09-02",
@@ -39,13 +39,13 @@ export const articles: Article[] = [
       { type: "p", text: "De ce moodboard sont sorties quatre pièces. Une robe longue, lacée dans le dos ; deux bodys, l’un noir, l’autre ivoire ; un top coupé en biais. Moins de pièces, mais des pièces qui restent." },
     ],
     seo: {
-      title: "Moodboard Lace is more — la dentelle comme une ombre | Awrea Paris",
+      title: "Moodboard Lace is more, la dentelle comme une ombre | Awrea Paris",
       description: "Les inspirations de la collection Lace is more d’Awrea Paris : la dentelle noire en plein jour, les drapés antiques, la lumière qui filtre.",
     },
   },
   {
     slug: "coulisses-shooting-studio-blanc",
-    title: "Coulisses : une journée en studio blanc",
+    title: "Une journée en studio blanc",
     excerpt: "Fonds blancs et gris, une seule source de lumière, quatre pièces. Récit du shooting de la collection.",
     category: "Coulisses",
     date: "2026-09-18",
@@ -81,7 +81,7 @@ export const articles: Article[] = [
       { type: "p", text: "Pliez la dentelle dans du papier de soie ou suspendez-la sur un cintre rembourré, dans la housse en coton fournie avec votre pièce. Et si un fil se défait, apportez-la à l’atelier : nous réparons toutes nos pièces." },
     ],
     seo: {
-      title: "Comment entretenir une pièce en dentelle — conseils d’atelier | Awrea Paris",
+      title: "Entretenir la dentelle, les gestes de l’atelier | Awrea Paris",
       description: "Laver, sécher et ranger une robe ou un body en dentelle : les conseils de l’atelier Awrea Paris pour faire durer vos pièces faites main.",
     },
   },

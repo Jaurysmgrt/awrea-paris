@@ -134,7 +134,7 @@ const ACCENTED_CAPS: [RegExp, string][] = [
 
 /** Symboles typographiques autorisés bien qu'ils figurent parmi les pictogrammes Unicode. */
 const ALLOWED_SYMBOLS = new Set(["©", "®", "™", "↗", "↘", "→", "←", "↑", "↓", "↔", "↕", "↖", "↙"]);
-const EMOJI = /\p{Extended_Pictographic}|\p{Regional_Indicator}|‍|️/gu;
+const EMOJI = /\p{Extended_Pictographic}|\p{Regional_Indicator}|\u200d|\ufe0f/gu;
 
 /** Chaîne technique (classe CSS, chemin, expression) plutôt que texte lisible. */
 export function looksLikeCode(s: string): boolean {
@@ -185,7 +185,7 @@ export function checkText(text: string, ctx: TextContext = {}): WritingIssue[] {
   // 1. tirets de ponctuation (— et –) : partout ; « - » isolé : dans la prose
   for (const m of text.matchAll(/[—–]/g)) add("tiret", "erreur", "Tiret de ponctuation : la créatrice n’en utilise jamais.", m.index!, 1, dashSuggestion(text, m.index!));
   if (prose) {
-    for (const m of text.matchAll(/(?<=\S)[  ]-[  ](?=\S)/g)) add("tiret", "erreur", "Tiret isolé entre deux parties de phrase.", m.index!, 3, dashSuggestion(text, m.index! + 1));
+    for (const m of text.matchAll(/(?<=\S)[ \u00a0]-[ \u00a0](?=\S)/g)) add("tiret", "erreur", "Tiret isolé entre deux parties de phrase.", m.index!, 3, dashSuggestion(text, m.index! + 1));
     for (const m of text.matchAll(/(?:^|\n)[ \t]*([-*•])[ \t]+\S/g)) add("liste-tirets", "erreur", "Liste à tirets ou à puces : écrire des phrases complètes.", m.index!, 3, "Transformer chaque ligne en phrase, ou aérer la mise en page sans puces.");
   }
 
@@ -198,9 +198,9 @@ export function checkText(text: string, ctx: TextContext = {}): WritingIssue[] {
   }
 
   // 3. point d'exclamation (prose), emoji (partout)
-  if (prose) for (const m of text.matchAll(/(?<=[\p{L}\d\s »)”.…])!(?![=\p{L}\d])/gu)) add("exclamation", "erreur", "Point d’exclamation : la Maison n’élève jamais la voix.", m.index!, 1, "Finir par un point.");
+  if (prose) for (const m of text.matchAll(/(?<=[\p{L}\d\s\u00a0»)”.…])!(?![=\p{L}\d])/gu)) add("exclamation", "erreur", "Point d’exclamation : la Maison n’élève jamais la voix.", m.index!, 1, "Finir par un point.");
   for (const m of text.matchAll(EMOJI)) {
-    if (ALLOWED_SYMBOLS.has(m[0]) || m[0] === "️" || m[0] === "‍") continue;
+    if (ALLOWED_SYMBOLS.has(m[0]) || m[0] === "\ufe0f" || m[0] === "\u200d") continue;
     add("emoji", "erreur", "Emoji : à retirer.", m.index!, m[0].length, "Supprimer l’emoji.");
   }
 
@@ -220,7 +220,7 @@ export function checkText(text: string, ctx: TextContext = {}): WritingIssue[] {
   }
 
   // 5. règles propres aux rôles
-  if (ctx.role === "titre" && /[^\s ]\s*:\s/.test(text)) add("titre-deux-points", "erreur", "Titre à deux-points.", text.indexOf(":"), 1, "Garder une seule idée dans le titre.");
+  if (ctx.role === "titre" && /[^\s\u00a0]\s*:\s/.test(text)) add("titre-deux-points", "erreur", "Titre à deux-points.", text.indexOf(":"), 1, "Garder une seule idée dans le titre.");
   if (ctx.role === "bouton" && /^\s*d[ée]couvr/iu.test(text)) add("bouton-decouvrir", "erreur", "Bouton « Découvrir » : choisir un verbe concret.", 0, text.length, "« Voir la robe », « Entrer dans l’atelier », « Lire la lettre ».");
 
   // 6. conseils (relecture humaine)

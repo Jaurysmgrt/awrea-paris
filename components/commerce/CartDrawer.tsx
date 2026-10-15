@@ -89,7 +89,7 @@ export function CartDrawer() {
           <div className="drawer__empty stack-m">
             <p className="t-lead t-center">Votre panier attend sa première pièce.</p>
             <Link href="/boutique" className="btn btn--block" onClick={close}>
-              Découvrir la boutique
+              Entrer dans la boutique
             </Link>
           </div>
         ) : (
@@ -98,7 +98,7 @@ export function CartDrawer() {
               <div className="drawer__shipping">
                 <p className="t-note">
                   {remaining > 0 ? (
-                    <>Plus que {formatPrice(remaining)} pour la livraison offerte en France et en Europe.</>
+                    <>La livraison est offerte en France et en Europe dès {formatPrice(cart?.freeShippingThreshold ?? shop.freeShippingThreshold)}.</>
                   ) : (
                     <>La livraison vous est offerte en France et en Europe.</>
                   )}
@@ -126,7 +126,7 @@ export function CartDrawer() {
                         {l.editionLabel ? ` · ${l.editionLabel}` : ""}
                       </p>
                       {l.preorder ? (
-                        <p className="t-note">Sur commande — fabrication {l.leadTimeWeeks ? `sous ${l.leadTimeWeeks} semaines` : "à l’atelier"}.</p>
+                        <p className="t-note">{l.leadTimeWeeks ? `Sur commande. Comptez ${l.leadTimeWeeks} semaines à l’atelier.` : "Sur commande. Une pièce cousue pour vous à l’atelier."}</p>
                       ) : null}
                       <div className="cart-line__actions">
                         <div className="qty" role="group" aria-label={`Quantité de ${l.title}`}>
@@ -150,7 +150,7 @@ export function CartDrawer() {
               <div className="drawer__gift">
                 <label className="check">
                   <input type="checkbox" checked={cart?.gift.wrap ?? false} onChange={(e) => dispatch({ type: "gift", wrap: e.target.checked, message })} />
-                  <span>Emballage cadeau avec un mot écrit à la main — {formatPrice(shop.giftWrapPrice)}</span>
+                  <span>Emballage cadeau avec un mot écrit à la main, {formatPrice(shop.giftWrapPrice)}</span>
                 </label>
                 {cart?.gift.wrap ? (
                   <div className="field">

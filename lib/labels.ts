@@ -127,7 +127,7 @@ export async function demoLabelPdf(r: ReturnRequest, order: Order): Promise<Uint
     t(s.toUpperCase(), x, 7);
     page.pushOperators(setCharacterSpacing(0));
   };
-  t(prepaid ? "Retour prépayé — démonstration" : "Bordereau de retour", M + 16, 14, serif);
+  t(prepaid ? "Retour prépayé · démonstration" : "Bordereau de retour", M + 16, 14, serif);
   y -= 14;
   t(r.label?.carrier ?? "", M + 16, 8);
   const qr = await QRCode.toBuffer(`${r.id} ${r.label?.tracking ?? ""}`, { margin: 0, width: 240, color: { dark: palette.ink, light: "#ffffff" } });
@@ -149,7 +149,7 @@ export async function demoLabelPdf(r: ReturnRequest, order: Order): Promise<Uint
     t(l, M + 16, 11);
   }
   y -= 28;
-  t(`Retour ${r.id} · commande ${r.orderNumber} · suivi ${r.label?.tracking ?? "—"}`, M + 16, 8);
+  t(`Retour ${r.id} · commande ${r.orderNumber} · suivi ${r.label?.tracking ?? "à venir"}`, M + 16, 8);
   // consignes sous le cadre
   y = top - H - 40;
   for (const l of [

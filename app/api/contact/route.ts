@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     channel: d.kind,
     name: d.name,
     email: d.email,
-    subject: d.kind === "rendez-vous" ? `Rendez-vous — ${d.appointmentType ?? "essayage"}` : (d.subject ?? "autre"),
+    subject: d.kind === "rendez-vous" ? `Rendez-vous, ${d.appointmentType ?? "essayage"}` : (d.subject ?? "autre"),
     message: d.message,
     orderNumber: d.orderNumber,
     appointment: d.kind === "rendez-vous" ? { type: d.appointmentType ?? "essayage", preferredDate: d.preferredDate, slot: d.slot } : undefined,

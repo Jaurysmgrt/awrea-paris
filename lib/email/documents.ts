@@ -56,10 +56,10 @@ export async function renderEmailDoc(id: string, opts: EmailRenderOptions = {}):
 export async function sendDocEmail(id: string, to: string, opts: EmailRenderOptions & { tag?: string; replyTo?: string; attachments?: Parameters<typeof sendEmail>[0]["attachments"] } = {}) {
   const { tag, replyTo, attachments, ...render } = opts;
   const doc = await emailDoc(id, render.locale ?? "fr", render.draft);
-  if (!doc) throw new Error(`E-mail introuvable : ${id}`);
+  if (!doc) throw new Error(`E-mail introuvable : ${id}`);
   // une lettre porte toujours son lien de désinscription, et l'en-tête qui l'offre en un clic
   const lettre = doc.famille === "lettre";
   const mail = await renderEmailDoc(id, { ...render, unsubscribe: lettre ? unsubscribePage(to) : undefined });
-  if (!mail) throw new Error(`E-mail introuvable : ${id}`);
+  if (!mail) throw new Error(`E-mail introuvable : ${id}`);
   return sendEmail({ to, subject: mail.subject, html: mail.html, text: mail.text, tag: tag ?? id, replyTo, attachments, headers: lettre ? unsubscribeHeaders(to) : undefined });
 }

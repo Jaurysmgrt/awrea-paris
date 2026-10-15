@@ -50,7 +50,7 @@ export default async function RendezVousAtelier() {
                       {a.message ? <><br /><span className="t-note">{a.message}</span></> : null}
                     </td>
                     <td>
-                      <ActionButton endpoint={atelierApi("/rendez-vous")} body={{ action: "annuler", id: a.id }} label="Annuler" variant="quiet" confirm={`Annuler le rendez-vous de ${a.name} ? Elle reçoit un e-mail pour en choisir un autre.`} />
+                      <ActionButton endpoint={atelierApi("/rendez-vous")} body={{ action: "annuler", id: a.id }} label="Annuler" variant="quiet" confirm={`Annuler le rendez-vous de ${a.name} ? Elle reçoit un e-mail pour en choisir un autre.`} />
                     </td>
                   </tr>
                 ))}
@@ -69,7 +69,7 @@ export default async function RendezVousAtelier() {
 
       <section className="panel stack" aria-labelledby="agenda">
         <h2 id="agenda" className="t-h3">Dans votre agenda</h2>
-        <p className="t-note">Ajoutez cette adresse à votre agenda (Google : « Ajouter un agenda à partir d’une URL » ; Apple : « Nouvel abonnement ») pour y voir chaque rendez-vous. Gardez-la pour vous : elle donne accès aux noms des clientes.</p>
+        <p className="t-note">Ajoutez cette adresse à votre agenda (Google : « Ajouter un agenda à partir d’une URL » ; Apple : « Nouvel abonnement ») pour y voir chaque rendez-vous. Gardez-la pour vous : elle donne accès aux noms des clientes.</p>
         <CopyButton text={feed} label="Copier l’adresse de l’agenda" />
         <p className="t-note">Pour que les moments déjà pris dans votre agenda ne soient pas proposés, son adresse secrète iCal se renseigne dans CALENDAR_ICS_URL (ACTIVATION.md).</p>
       </section>

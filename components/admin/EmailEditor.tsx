@@ -65,7 +65,7 @@ function TextField({ path, label, value, multiline, onChange }: { path: string; 
       ) : (
         <input id={id} className={s.input} value={value} maxLength={rule.max} onChange={(e) => onChange(e.target.value.replace(/\n/g, " "))} />
       )}
-      {/^\[[^\]]+\]$/.test(value.trim()) ? <p className={s.hint}>Texte à écrire : tant qu’il reste entre crochets, ce bloc n’apparaît pas dans l’e-mail.</p> : null}
+      {/^\[[^\]]+\]$/.test(value.trim()) ? <p className={s.hint}>Texte à écrire : tant qu’il reste entre crochets, ce bloc n’apparaît pas dans l’e-mail.</p> : null}
       {blocked && value.trim() ? <p className={s.issue}>{blocked}</p> : null}
       {issues.slice(0, 3).map((i, k) => (
         <p key={k} className={s.issue}>
@@ -214,12 +214,12 @@ function BlockFields({ block, index, doc, products, onChange }: { block: EmailBl
             <option value="">Toujours</option>
             {vars.map((v) => (
               <option key={`si-${v}`} value={`si:${v}`}>
-                Seulement quand il y a : {doc.variables[v].description.toLowerCase()}
+                Seulement quand il y a : {doc.variables[v].description.toLowerCase()}
               </option>
             ))}
             {vars.map((v) => (
               <option key={`sauf-${v}`} value={`sauf:${v}`}>
-                Seulement sans : {doc.variables[v].description.toLowerCase()}
+                Seulement sans : {doc.variables[v].description.toLowerCase()}
               </option>
             ))}
           </select>
@@ -268,7 +268,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
       }
       setError("");
       setDirty(false);
-      setStatus("Brouillon enregistré. Rien ne part avant « Publier ».");
+      setStatus("Brouillon enregistré. Rien ne part avant « Publier ».");
     }, 1200);
     return () => window.clearTimeout(t);
   }, [atelier, dirty, doc, id]);
@@ -455,7 +455,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
           <h2 id="exporter" className={s.cardTitle}>
             Exporter la version publiée
           </h2>
-          <p className={s.hint}>Pour un service d’envoi : le gabarit garde sa mise en page, et les repères prennent la syntaxe du service.</p>
+          <p className={s.hint}>Pour un service d’envoi : le gabarit garde sa mise en page, et les repères prennent la syntaxe du service.</p>
           <div className={s.actions}>
             <a className={s.btn} href={`${atelier.api("/edition/email/export")}?id=${id}&pour=brevo`}>
               Pour Brevo

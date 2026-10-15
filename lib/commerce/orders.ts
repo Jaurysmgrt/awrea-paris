@@ -123,7 +123,7 @@ export const statusLabel: Record<OrderStatus, string> = {
   delivered: "Livrée",
   returned: "Retour en cours",
   refunded: "Remboursée",
-  blocked: "En attente — l’atelier vous contacte",
+  blocked: "En attente, l’atelier vous contacte",
 };
 
 export function trackingUrl(carrier?: string, number?: string): string | null {

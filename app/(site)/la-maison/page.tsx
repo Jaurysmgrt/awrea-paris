@@ -21,7 +21,7 @@ export default function MaisonPage() {
         <div className="container grid-12 maison-intro">
           <div className="maison-intro__media" data-reveal>
             <Media
-              image={{ src: "/media/img/creatrice", alt: "Portrait en satin ivoire et longs gants, lumière douce — univers de la créatrice", width: 1200, height: 1500 }}
+              image={{ src: "/media/img/creatrice", alt: "Portrait en noir et blanc, long gant de satin brodé de dentelle et collier de perles, la main posée sur l’épaule", width: 1200, height: 1500 }}
               ratio="look"
               priority
               sizes="(min-width: 64rem) 40vw, 100vw"

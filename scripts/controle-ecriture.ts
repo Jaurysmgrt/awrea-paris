@@ -309,7 +309,7 @@ async function scanSite(base: string) {
     const metas = [...html.matchAll(/<meta[^>]+(?:name|property)="(?:description|og:title|og:description|twitter:title|twitter:description)"[^>]+content="([^"]*)"/g)].map((m) => decode(m[1]));
     const title = [...html.matchAll(/<title>([^<]*)<\/title>/g)].map((m) => decode(m[1]));
     const body = htmlText(html.replace(/<head[\s\S]*?<\/head>/i, " ").replace(/<(svg|template)[\s\S]*?<\/\1>/gi, " ").replace(/<(?:p|li|h\d|button|a|label|figcaption|dt|dd|blockquote|summary|th|option|span)[^>]*>/gi, "\n$&"));
-    const blocks = [...body.split(/\n+/), ...attrs, ...metas, ...title].map((b) => b.replace(/\s+/g, " ").trim()).filter((b) => /\p{L}/u.test(b));
+    const blocks = [...body.split(/\n+/), ...attrs, ...metas, ...title].map((b) => b.replace(/[ \t\r\n]+/g, " ").trim()).filter((b) => /\p{L}/u.test(b));
     for (const b of blocks) {
       const issues = checkText(b, { lang, prose: true });
       for (const i of issues) {

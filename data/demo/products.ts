@@ -68,7 +68,7 @@ export const products: Product[] = [
     details: ["Laçage dos en satin, œillets cousus main", "Manches longues en dentelle", "Traîne de 30 cm", "Certificat numéroté signé par la créatrice"],
     completeTheLook: ["body-gaia", "top-kira"],
     seo: {
-      title: "Robe Odessa — dentelle noire faite main | Awrea Paris",
+      title: "Robe Odessa, dentelle noire faite main | Awrea Paris",
       description: "Robe longue en dentelle noire lacée dans le dos, façonnée à la main à Paris en série numérotée de cinq pièces. Une colonne de lumière et d’ombre.",
     },
     tags: ["dentelle", "soirée", "série limitée"],
@@ -115,7 +115,7 @@ export const products: Product[] = [
     details: ["Fil doré cousu main", "Fermeture pressions à l’entrejambe", "Bonnets amovibles", "Série numérotée de huit pièces"],
     completeTheLook: ["robe-odessa", "jupe-iris"],
     seo: {
-      title: "Body Gaïa — jersey et dentelle noire | Awrea Paris",
+      title: "Body Gaïa, jersey et dentelle noire | Awrea Paris",
       description: "Body en jersey fluide et dentelle noire souligné d’un fil d’or cousu main. Créatrice française, série numérotée de huit pièces, fait main à Paris.",
     },
     tags: ["body", "dentelle", "dorure"],
@@ -161,7 +161,7 @@ export const products: Product[] = [
     details: ["Broderie ton sur ton", "Bretelles réglables", "Fermeture pressions", "Série numérotée de six pièces"],
     completeTheLook: ["jupe-iris", "robe-odessa"],
     seo: {
-      title: "Body Aura — satin ivoire brodé | Awrea Paris",
+      title: "Body Aura, satin ivoire brodé | Awrea Paris",
       description: "Body en satin ivoire brodé de dentelle ton sur ton, à bretelles fines. Créatrice française, série numérotée de six pièces, façonnée à la main à Paris.",
     },
     tags: ["body", "satin"],
@@ -207,7 +207,7 @@ export const products: Product[] = [
     details: ["Ourlet asymétrique", "Coupe en biais", "Épaules structurées", "Série numérotée de dix pièces"],
     completeTheLook: ["jupe-iris", "body-gaia"],
     seo: {
-      title: "Top Kira — jersey noir asymétrique | Awrea Paris",
+      title: "Top Kira, jersey noir asymétrique | Awrea Paris",
       description: "Top en jersey noir à ourlet asymétrique, coupé en biais et cousu main à Paris. Pièce de créatrice en série numérotée de dix exemplaires.",
     },
     tags: ["top", "jersey", "drapé"],
@@ -244,7 +244,7 @@ export const products: Product[] = [
     details: ["Pièce unique", "Lettres peintes à la main", "Laçage dos", "Certificat signé"],
     completeTheLook: ["etole-nyx"],
     seo: {
-      title: "Robe Thaïs — pièce unique drapée | Awrea Paris",
+      title: "Robe Thaïs, pièce unique drapée | Awrea Paris",
       description: "Robe drapée à la grecque en jersey ivoire, peinte à la main de lettres noires. Pièce unique de créatrice, faite main à Paris.",
     },
     tags: ["pièce unique", "drapé", "jersey"],
@@ -287,7 +287,7 @@ export const products: Product[] = [
     details: ["Coupe en biais", "Bouton doré", "Longueur cheville", "Série numérotée de dix pièces"],
     completeTheLook: ["top-kira", "body-aura"],
     seo: {
-      title: "Jupe Iris — satin coupé en biais | Awrea Paris",
+      title: "Jupe Iris, satin coupé en biais | Awrea Paris",
       description: "Jupe longue en satin coupé en biais, taille haute et bouton doré. Créatrice française, faite main à Paris en série numérotée de dix pièces.",
     },
     tags: ["jupe", "satin"],
@@ -333,7 +333,7 @@ export const products: Product[] = [
     details: ["Fabrication à la commande", "Baleines souples", "Liseré doré", "Ajusté à vos mesures"],
     completeTheLook: ["jupe-iris"],
     seo: {
-      title: "Corset Elia — satin noir sur commande | Awrea Paris",
+      title: "Corset Elia, satin noir sur commande | Awrea Paris",
       description: "Corset en satin noir et liseré doré, réalisé à vos mesures dans l’atelier parisien de la créatrice. Précommande, délai de fabrication de six semaines.",
     },
     tags: ["corset", "précommande", "sur mesure"],
@@ -368,7 +368,7 @@ export const products: Product[] = [
     details: ["Dentelle de Calais", "Bord festonné", "180 × 60 cm"],
     completeTheLook: ["robe-thais"],
     seo: {
-      title: "Étole Nyx — dentelle de Calais | Awrea Paris",
+      title: "Étole Nyx, dentelle de Calais | Awrea Paris",
       description: "Étole en dentelle de Calais noire bordée d’un feston, faite main à Paris. Série de six pièces, aujourd’hui épuisée : liste d’attente ouverte.",
     },
     tags: ["accessoire", "dentelle"],

@@ -23,6 +23,6 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Rapport illisible." }, { status: 400 });
   const report = { date: new Date().toISOString(), ...parsed.data };
   await saveMaintenanceReport(report);
-  await logAction({ agent: "systeme", kind: "maintenance", status: report.status === "alerte" || report.status === "annule" ? "failed" : "done", summary: `Maintenance quotidienne — ${report.summary}`, detail: report.details.join("\n") || undefined }).catch(() => {});
+  await logAction({ agent: "systeme", kind: "maintenance", status: report.status === "alerte" || report.status === "annule" ? "failed" : "done", summary: `Maintenance quotidienne · ${report.summary}`, detail: report.details.join("\n") || undefined }).catch(() => {});
   return NextResponse.json({ ok: true });
 }

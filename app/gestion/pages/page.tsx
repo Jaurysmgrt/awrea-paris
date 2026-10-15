@@ -6,11 +6,11 @@ import { NewPageForm } from "@/components/admin/NewPageForm";
 import { ActionButton } from "@/components/admin/ActionButton";
 
 const GROUPS: { kind: DocInfo["kind"]; title: string; intro: string }[] = [
-  { kind: "page", title: "Pages du site", intro: "L’accueil, la Maison, les services : chaque texte et chaque photo se change sur la page elle-même." },
-  { kind: "modele", title: "Pages créées", intro: "Événements, articles du Journal, collections : invisibles du public tant qu’elles ne sont pas publiées." },
+  { kind: "page", title: "Pages du site", intro: "L’accueil, la Maison, les services : chaque texte et chaque photo se change sur la page elle-même." },
+  { kind: "modele", title: "Pages créées", intro: "Événements, articles du Journal, collections : invisibles du public tant qu’elles ne sont pas publiées." },
   { kind: "textes", title: "Textes de l’interface", intro: "Menu, boutons, messages du panier et du compte." },
   { kind: "legal", title: "Pages légales", intro: "Les champs entre crochets attendent une information à compléter." },
-  { kind: "email", title: "E-mails", intro: "Confirmation de commande, expédition, lettre : modifiables comme une page." },
+  { kind: "email", title: "E-mails", intro: "Confirmation de commande, expédition, lettre : modifiables comme une page." },
 ];
 
 /** Pages modifiables dans l'éditeur visuel, leur état, et la création d'une page depuis un modèle. */
@@ -31,7 +31,7 @@ export default async function PagesPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Pages</h1>
-        <p className="t-lead">Ouvrez une page pour la modifier directement sur le site. Rien ne change en ligne avant « Publier », et chaque version reste dans l’historique.</p>
+        <p className="t-lead">Ouvrez une page pour la modifier directement sur le site. Rien ne change en ligne avant « Publier », et chaque version reste dans l’historique.</p>
       </header>
 
       <section className="panel stack" aria-labelledby="nouvelle-page">
@@ -48,7 +48,7 @@ export default async function PagesPage() {
                 <span className="t-body t-left">
                   {docs.find((d) => d.id === p.doc)?.label ?? p.doc} · {p.locale === "en" ? "anglais" : "français"} · <When iso={p.at} />
                 </span>
-                <ActionButton endpoint={`${atelierApi("/edition/programme")}?id=${p.id}&annuler=1`} label="Annuler" variant="quiet" confirm="Annuler cette publication programmée ? Les modifications restent en brouillon." />
+                <ActionButton endpoint={`${atelierApi("/edition/programme")}?id=${p.id}&annuler=1`} label="Annuler" variant="quiet" confirm="Annuler cette publication programmée ? Les modifications restent en brouillon." />
               </li>
             ))}
           </ul>
@@ -92,7 +92,7 @@ export default async function PagesPage() {
                               </a>
                             ) : null}
                             {d.kind === "modele" ? (
-                              <ActionButton endpoint={atelierApi("/edition/pages/supprimer")} body={{ id: d.id }} label="Supprimer" variant="quiet" confirm={`Supprimer la page « ${d.label} » ? Elle disparaît du site et de l’historique, sans retour possible.`} />
+                              <ActionButton endpoint={atelierApi("/edition/pages/supprimer")} body={{ id: d.id }} label="Supprimer" variant="quiet" confirm={`Supprimer la page « ${d.label} » ? Elle disparaît du site et de l’historique, sans retour possible.`} />
                             ) : null}
                           </span>
                         </td>

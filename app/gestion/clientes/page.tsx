@@ -64,7 +64,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
 
       <section className="panel" aria-labelledby="customers-title">
         <h2 id="customers-title" className="t-h3">
-          {segment && SEGMENTS.includes(segment as Segment) ? `Clientes — ${segmentLabel[segment as Segment]}` : "Toutes les clientes"} ({shown.length})
+          {segment && SEGMENTS.includes(segment as Segment) ? `Clientes · ${segmentLabel[segment as Segment]}` : "Toutes les clientes"} ({shown.length})
         </h2>
         <div className="table-scroll">
           <table className="table">
@@ -83,7 +83,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
               {shown.slice(0, 200).map((c) => (
                 <tr key={c.id}>
                   <th scope="row">
-                    {[c.firstName, c.lastName].filter(Boolean).join(" ") || "—"}
+                    {[c.firstName, c.lastName].filter(Boolean).join(" ") || "Nom inconnu"}
                     <br />
                     <span className="t-note">{c.email}</span>
                   </th>
@@ -92,9 +92,9 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
                   </td>
                   <td>{c.ordersCount}</td>
                   <td>{formatPrice(c.totalSpent)}</td>
-                  <td>{c.lastOrderAt ? <When iso={c.lastOrderAt} /> : "—"}</td>
+                  <td>{c.lastOrderAt ? <When iso={c.lastOrderAt} /> : "Aucune"}</td>
                   <td>{c.marketingEmail ? "Oui" : "Non"}</td>
-                  <td>{c.cercleMember ? "Membre" : "—"}</td>
+                  <td>{c.cercleMember ? "Membre" : "Non"}</td>
                 </tr>
               ))}
             </tbody>
@@ -134,8 +134,8 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
       <section className="panel" aria-labelledby="flows-title">
         <h2 id="flows-title" className="t-h3">E-mails automatiques</h2>
         <p className="t-note">
-          Outil : {marketingProvider === "brevo" ? "Brevo" : marketingProvider === "klaviyo" ? "Klaviyo (évènements) + envoi par le site" : "envoi par le site (aucun outil marketing configuré)"}. Gabarits à l’image de la
-          maison, un seul envoi par évènement.
+          Outil : {marketingProvider === "brevo" ? "Brevo" : marketingProvider === "klaviyo" ? "Klaviyo pour les évènements, envoi par le site" : "envoi par le site (aucun outil marketing configuré)"}. Tous les e-mails partagent le même gabarit, noir et blanc cassé, dans les
+          caractères du site. Un évènement n’en déclenche qu’un seul.
         </p>
         <div className="table-scroll">
           <table className="table">
@@ -162,7 +162,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
           <ul className="stack">
             {sent.map((m, i) => (
               <li key={i} className="t-note">
-                <When iso={m.date} /> — {m.subject} → {m.to} ({m.flow})
+                <When iso={m.date} /> · « {m.subject} » pour {m.to} ({m.flow})
               </li>
             ))}
           </ul>
@@ -176,7 +176,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
           <ul className="stack">
             {rgpd.map((r, i) => (
               <li key={i} className="t-note">
-                <When iso={r.at} /> — {r.kind}
+                <When iso={r.at} /> · {r.kind}
               </li>
             ))}
           </ul>

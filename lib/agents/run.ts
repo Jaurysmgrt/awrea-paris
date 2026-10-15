@@ -59,7 +59,7 @@ export class RunRecorder {
       agent: this.run.agent,
       kind: "passage",
       status: "info",
-      summary: `Passage terminé (${this.run.mode === "claude" ? "Claude" : "démonstration"}) — ${summary}`,
+      summary: `Passage terminé (${this.run.mode === "claude" ? "Claude" : "démonstration"}). ${summary}`,
       detail: this.run.errors.length ? this.run.errors.join("\n") : undefined,
     });
     return this.run;

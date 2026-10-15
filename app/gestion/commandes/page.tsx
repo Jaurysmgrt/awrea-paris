@@ -47,7 +47,7 @@ export default async function CommandesPage() {
                     <td>{o.lines.map((l) => `${l.title} (${l.size}${l.editionLabel ? `, ${l.editionLabel}` : ""})`).join(", ")}{o.gift?.wrap ? <><br /><span className="t-note">Cadeau : « {o.gift.message} »</span></> : null}</td>
                     <td>{formatPrice(o.total)}</td>
                     <td><span className={`status status--${o.status === "blocked" ? "failed" : o.status === "delivered" || o.status === "shipped" ? "done" : "info"}`}>{statusLabel[o.status]}</span></td>
-                    <td>{url ? <a href={url} className="text-link" target="_blank" rel="noopener noreferrer">{o.shipping.carrier}</a> : "—"}</td>
+                    <td>{url ? <a href={url} className="text-link" target="_blank" rel="noopener noreferrer">{o.shipping.carrier}</a> : "Aucun"}</td>
                     <td>
                       <Link href={atelierHref(`/certificats?commande=${encodeURIComponent(o.number)}`)} className="text-link">Préparer</Link>
                       <br />
@@ -65,7 +65,7 @@ export default async function CommandesPage() {
         {pendingWait.length ? (
           <ul className="stack">
             {pendingWait.map((w, i) => (
-              <li key={i} className="t-body">{w.email} — {w.handle}{w.size ? ` (${w.size})` : ""} · inscrite le {new Date(w.date).toLocaleDateString("fr-FR")}</li>
+              <li key={i} className="t-body">{w.email} attend {w.handle}{w.size ? ` (${w.size})` : ""} · inscrite le {new Date(w.date).toLocaleDateString("fr-FR")}</li>
             ))}
           </ul>
         ) : (

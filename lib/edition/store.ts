@@ -226,7 +226,7 @@ export async function removeDoc(doc: string, by: string) {
     await Promise.all([kv.del(draftKey(doc, locale)), kv.del(publishedKey(doc, locale)), kv.del(historyKey(doc, locale))]);
     await fs.rm(fileOf(doc, locale), { force: true });
     fileCache.delete(fileOf(doc, locale));
-    void removeFromGit(doc, locale, `Édition : ${doc} (${locale}) supprimé par ${by}`).catch((e) => console.error("[édition] suppression Git", e));
+    void removeFromGit(doc, locale, `Édition : ${doc} (${locale}) supprimé par ${by}`).catch((e) => console.error("[édition] suppression Git", e));
   }
   refresh(doc);
 }

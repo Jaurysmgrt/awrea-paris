@@ -23,7 +23,7 @@ export async function runAntiFraude(now = new Date()): Promise<RoleOutcome> {
     if (!reasons.length) continue;
     const already = log.some((a) => a.kind === "flag_order" && a.summary.includes(o.number));
     findings.push({ gravite: "attention", titre: `Commande ${o.number} à regarder avant l’envoi`, detail: reasons.join(" ; "), lien: `/commandes/${o.number}`, cible: o.number });
-    if (!already) await perform("anti-fraude", "flag_order", { orderId: o.id, reason: `À vérifier avant l’envoi : ${reasons.join(" ; ")}.` }, { summary: `Commande ${o.number} mise de côté pour vérification`, rationale: reasons.join(" ; ") });
+    if (!already) await perform("anti-fraude", "flag_order", { orderId: o.id, reason: `À vérifier avant l’envoi : ${reasons.join(" ; ")}.` }, { summary: `Commande ${o.number} mise de côté pour vérification`, rationale: reasons.join(" ; ") });
   }
   return { resume: findings.length ? `${findings.length} commande${findings.length > 1 ? "s" : ""} mise${findings.length > 1 ? "s" : ""} de côté pour vérification.` : `${recent.length} commande${recent.length > 1 ? "s" : ""} récente${recent.length > 1 ? "s" : ""}, rien d’inhabituel.`, findings };
 }
@@ -35,13 +35,13 @@ export async function runComptabilite(now = new Date()): Promise<RoleOutcome> {
   // ventes à distance vers les autres pays de l'Union depuis le 1er janvier
   const eu = orders.filter((o) => o.createdAt.startsWith(String(year)) && zoneOf(o.shipping.country) === "EU" && o.status !== "refunded").reduce((s, o) => s + o.total, 0);
   const share = eu / OSS_THRESHOLD;
-  if (share >= 1) findings.push({ gravite: "urgent", titre: `Seuil européen dépassé : ${formatPrice(eu)} de ventes à distance cette année`, detail: "La TVA du pays de chaque cliente s’applique désormais : inscription au guichet unique OSS à faire avec votre comptable.", lien: "/factures", cible: `oss:${year}` });
-  else if (share >= 0.8) findings.push({ gravite: "attention", titre: `Seuil européen bientôt atteint : ${formatPrice(eu)} sur ${formatPrice(OSS_THRESHOLD)}`, detail: "À en parler avec votre comptable avant de le dépasser.", lien: "/factures", cible: `oss:${year}` });
+  if (share >= 1) findings.push({ gravite: "urgent", titre: `Seuil européen dépassé, ${formatPrice(eu)} de ventes à distance cette année`, detail: "La TVA du pays de chaque cliente s’applique désormais : inscription au guichet unique OSS à faire avec votre comptable.", lien: "/factures", cible: `oss:${year}` });
+  else if (share >= 0.8) findings.push({ gravite: "attention", titre: `Seuil européen bientôt atteint, ${formatPrice(eu)} sur ${formatPrice(OSS_THRESHOLD)}`, detail: "À en parler avec votre comptable avant de le dépasser.", lien: "/factures", cible: `oss:${year}` });
   // suite des numéros de factures de l'année, sans trou
   for (const kind of ["facture", "avoir"] as const) {
     const nums = invoices.filter((i) => i.kind === kind && i.issuedAt.startsWith(String(year))).map((i) => Number(i.number.split("-").pop())).filter((n) => Number.isFinite(n)).sort((a, b) => a - b);
     const holes = nums.filter((n, i) => i > 0 && n !== nums[i - 1] + 1);
-    if (holes.length) findings.push({ gravite: "urgent", titre: `Numérotation des ${kind}s interrompue`, detail: `Après le numéro ${nums[nums.indexOf(holes[0]) - 1]}, la suite reprend à ${holes[0]}. Une facture ne se supprime jamais : une erreur se corrige par un avoir.`, lien: "/factures", cible: `${kind}:${year}` });
+    if (holes.length) findings.push({ gravite: "urgent", titre: `Numérotation des ${kind}s interrompue`, detail: `Après le numéro ${nums[nums.indexOf(holes[0]) - 1]}, la suite reprend à ${holes[0]}. Une facture ne se supprime jamais : une erreur se corrige par un avoir.`, lien: "/factures", cible: `${kind}:${year}` });
   }
-  return { resume: `Ventes à distance dans l’Union cette année : ${formatPrice(eu)} (${Math.round(share * 100)} % du seuil). ${invoices.length} facture${invoices.length > 1 ? "s" : ""} et avoir${invoices.length > 1 ? "s" : ""} au registre.`, findings };
+  return { resume: `Ventes à distance dans l’Union cette année : ${formatPrice(eu)} (${Math.round(share * 100)} % du seuil). ${invoices.length} facture${invoices.length > 1 ? "s" : ""} et avoir${invoices.length > 1 ? "s" : ""} au registre.`, findings };
 }

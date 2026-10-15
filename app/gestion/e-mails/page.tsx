@@ -7,7 +7,7 @@ import Link from "@/components/ui/Link";
 
 const FAMILLES = [
   { id: "commande", title: "Commandes", intro: "Envoyés par Shopify. Une fois modifiés ici, exportez-les vers les notifications Shopify." },
-  { id: "service", title: "Service", intro: "Envoyés par le site : retours, rendez-vous, compte, certificats." },
+  { id: "service", title: "Service", intro: "Envoyés par le site : retours, rendez-vous, compte, certificats." },
   { id: "lettre", title: "Lettres", intro: "Les lettres de l’atelier et les messages qui suivent une inscription." },
 ] as const;
 
@@ -30,7 +30,7 @@ export default async function EmailsPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">E-mails</h1>
-        <p className="t-lead">Chaque e-mail se compose comme une page : des blocs dans l’allure de la Maison, des textes que vous écrivez, un aperçu dans chaque messagerie. Rien ne change avant « Publier ».</p>
+        <p className="t-lead">Chaque e-mail se compose comme une page : des blocs dans l’allure de la Maison, des textes que vous écrivez, un aperçu dans chaque messagerie. Rien ne change avant « Publier ».</p>
       </header>
       {FAMILLES.map((f) => {
         const items = list.filter((m) => m.doc.famille === f.id);
@@ -43,7 +43,7 @@ export default async function EmailsPage() {
               {items.map((m) => (
                 <li key={m.id} className="email-gallery__item stack">
                   <div className="email-gallery__frame">
-                    <iframe title={`Aperçu : ${m.label}`} sandbox="" srcDoc={m.html} loading="lazy" tabIndex={-1} />
+                    <iframe title={`Aperçu : ${m.label}`} sandbox="" srcDoc={m.html} loading="lazy" tabIndex={-1} />
                   </div>
                   <h3 className="t-h4">{m.label}</h3>
                   <p className="t-note t-left">{m.doc.quand}</p>

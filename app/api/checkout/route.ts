@@ -183,14 +183,14 @@ export async function POST(req: Request) {
           : `Votre commande est confirmée. Votre pièce sera pliée dans du papier de soie et expédiée sous ${shop.dispatchDays}, avec son certificat numéroté.`,
         ...(certificates.length
           ? [
-              `Le certificat d’authenticité de chaque pièce est déjà en ligne : ${certificates.map((c) => `${c.certificate.productTitle} — ${certificateUrl(c.certificate.serial)}`).join(" ; ")}. Il est rattaché à votre compte.`,
+              `Le certificat d’authenticité de chaque pièce est déjà en ligne : ${certificates.map((c) => `${c.certificate.productTitle}, ${certificateUrl(c.certificate.serial)}`).join(" ; ")}. Il est rattaché à votre compte.`,
               `Si vous offrez une pièce, transmettez avec elle son code de rattachement : ${certificates.map((c) => `${c.certificate.productTitle} : ${c.claimCode}`).join(" ; ")}.`,
             ]
           : []),
       ],
       items: lines.map((l) => ({ title: l.title, meta: `Taille ${l.size} · ${l.editionLabel}`, price: l.unitPrice, image: imageAt(products.find((p) => p.handle === l.handle)?.images[0].src ?? "", 480) })),
       totals: [
-        { label: relay ? `Livraison en point relais — ${relay.name}` : rate.pickup ? "Retrait à l’atelier" : "Livraison", value: shippingPrice ? formatPrice(shippingPrice) : "Offerte" },
+        { label: relay ? `Livraison en point relais, ${relay.name}` : rate.pickup ? "Retrait à l’atelier" : "Livraison", value: shippingPrice ? formatPrice(shippingPrice) : "Offerte" },
         ...(cart.gift.wrap ? [{ label: "Emballage cadeau", value: formatPrice(cart.giftWrapPrice) }] : []),
         ...(taxes.export ? [{ label: "Droits et taxes à l’importation", value: formatPrice(taxes.export.duty + taxes.export.importVat) }] : []),
         { label: taxes.export ? "Total, droits et taxes compris" : "Total", value: formatPrice(total) },

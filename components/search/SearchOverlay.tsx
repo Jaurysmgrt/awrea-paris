@@ -128,7 +128,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
           </div>
         ) : !entries ? (
           failed ? (
-            <p className="t-body search__empty">La recherche est momentanément indisponible. La boutique reste ouverte à toutes vos envies.</p>
+            <p className="t-body search__empty">La recherche ne répond pas pour l’instant. Toutes les pièces restent visibles dans la boutique.</p>
           ) : (
             <div className="search__skeleton" aria-hidden="true">
               {Array.from({ length: 4 }, (_, i) => (
@@ -144,7 +144,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
           <div className="search__empty stack-s">
             <p className="t-h3">Rien ne répond encore à « {query.trim()} ».</p>
             <p className="t-body t-soft">
-              Essayez une matière, une forme ou le nom d’une collection — ou{" "}
+              Essayez une matière, une forme ou le nom d’une collection. Ou{" "}
               <Link href="/boutique" className="text-link" onClick={go}>
                 parcourez toute la boutique
               </Link>

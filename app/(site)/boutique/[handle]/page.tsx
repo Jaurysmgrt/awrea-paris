@@ -143,7 +143,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                 <p className="t-label t-soft">
                   {categoryLabel} · Réf. {product.variants[0]?.sku.replace(/-[A-Z]+$/, "")}
                 </p>
-                <ShareButton title={`${product.title} — Awrea Paris`} text={product.tagline} path={`/boutique/${product.handle}`} />
+                <ShareButton title={`${product.title}, Awrea Paris`} text={product.tagline} path={`/boutique/${product.handle}`} />
               </div>
             </div>
           </div>

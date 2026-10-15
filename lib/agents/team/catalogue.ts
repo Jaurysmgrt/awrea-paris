@@ -35,7 +35,7 @@ export interface StoredMedia {
 
 const Copy = z.object({
   title: z.string().describe("Nom de la pièce : type + prénom évocateur, ex. « Robe Odessa ». Reprendre le nom des notes s’il est donné."),
-  tagline: z.string().describe("Une phrase d’accroche sensorielle, 12 à 22 mots"),
+  tagline: z.string().describe("Une phrase d’accroche sur la matière ou le geste, 12 à 22 mots"),
   category: z.enum(["robe", "body", "top", "jupe", "accessoire"]),
   description: z.array(z.string()).describe("2 ou 3 paragraphes courts : la matière, le tombé, la façon de la porter"),
   materials: z.array(z.object({ name: z.string(), percent: z.number() })).describe("Composition ; si inconnue, une seule ligne avec la matière principale et 100"),
@@ -45,8 +45,8 @@ const Copy = z.object({
   details: z.array(z.string()).describe("3 à 5 détails de façon"),
   alts: z.array(z.string()).describe("Un texte alternatif par photo, dans l’ordre des photos : pièce, matière, pose, fond ; sans « image de »"),
   seo: z.object({
-    title: z.string().describe("« Nom — matière principale | Awrea Paris », 60 caractères maximum"),
-    description: z.string().describe("140 à 155 caractères, image sensorielle + « fait main à Paris »"),
+    title: z.string().describe("« Nom, matière principale | Awrea Paris », 60 caractères au plus"),
+    description: z.string().describe("140 à 155 caractères, une image concrète, puis « fait main à Paris »"),
   }),
   tags: z.array(z.string()).describe("3 à 6 mots-clés simples"),
   missing_information: z.array(z.string()).describe("Informations manquantes à confirmer par la créatrice (vide si rien ne manque)"),
@@ -66,22 +66,22 @@ export async function runCatalogueAgent(input: CatalogueInput, trigger: AgentRun
         ...media.map((m) => ({ type: "image" as const, source: { type: "base64" as const, media_type: m.mediaType, data: m.data } })),
         {
           type: "text",
-          text: `Rédigez la fiche produit complète de cette nouvelle pièce, à partir des ${media.length} photo(s) ci-dessus et des notes de la créatrice.
+          text: `Rédigez la fiche complète de cette nouvelle pièce, d’après les ${media.length} photo(s) ci-dessus et les notes de la créatrice.
 
 Notes de la créatrice :
 ${input.notes || "(aucune)"}
 
-Informations saisies :
-- Nom proposé : ${input.name ?? "(à proposer)"}
-- Catégorie : ${input.category ?? "(à déduire des photos)"}
-- Collection : ${collections.find((c) => c.handle === collection)?.title ?? collection}
-- Série : ${input.editionTotal === 1 ? "pièce unique" : input.editionTotal ? `${input.editionTotal} pièces numérotées` : "(non précisée)"}
-- Tailles : ${input.sizes.map((s) => `${s.size} (${s.quantity} en stock${s.preorder ? ", précommande possible" : ""})`).join(", ")}
-- Délai de fabrication en précommande : ${input.leadTimeWeeks ? `${input.leadTimeWeeks} semaines` : "(non précisé)"}`,
+Informations saisies par la créatrice.
+Nom proposé : ${input.name ?? "(à proposer)"}
+Catégorie : ${input.category ?? "(à déduire des photos)"}
+Collection : ${collections.find((c) => c.handle === collection)?.title ?? collection}
+Série : ${input.editionTotal === 1 ? "pièce unique" : input.editionTotal ? `${input.editionTotal} pièces numérotées` : "(non précisée)"}
+Tailles : ${input.sizes.map((s) => `${s.size} (${s.quantity} en stock${s.preorder ? ", précommande possible" : ""})`).join(", ")}
+Délai de fabrication en précommande : ${input.leadTimeWeeks ? `${input.leadTimeWeeks} semaines` : "(non précisé)"}`,
         },
       ];
       copy = await generateStructured({
-        instructions: "Mission : agent Catalogue. Vous rédigez des fiches produit prêtes à être publiées, fidèles aux photos et aux notes. Ne décrivez que ce qui est visible ou indiqué ; mettez le reste dans missing_information.",
+        instructions: "Mission : agent Catalogue. Vous rédigez la fiche d’une pièce, prête à paraître. Décrivez seulement ce que montrent les photos et ce que disent les notes ; le reste va dans missing_information. Parlez de la matière, du tombé, de la façon de porter la pièce, en phrases courtes. On dit « pièce », jamais « article » ni « produit ». Le ton juste, à ne pas recopier : « La dentelle se pose sur la peau sans la serrer. Le satin, lui, tombe droit. »",
         content,
         schema: Copy,
         effort: "high",
@@ -92,11 +92,11 @@ Informations saisies :
       const mat = input.notes.match(/(dentelle|satin|jersey|soie|coton|tulle)/i)?.[1]?.toLowerCase() ?? "dentelle";
       copy = {
         title: name,
-        tagline: `${{ robe: "Une robe", body: "Un body", top: "Un top", jupe: "Une jupe", accessoire: "Une pièce" }[cat]} en ${mat}, ${cat === "body" || cat === "top" ? "façonné" : "façonnée"} à la main à Paris pour révéler la lumière.`,
+        tagline: `${{ robe: "Une robe", body: "Un body", top: "Un top", jupe: "Une jupe", accessoire: "Une pièce" }[cat]} en ${mat}, ${cat === "body" || cat === "top" ? "façonné" : "façonnée"} à la main dans l’atelier, à Paris.`,
         category: cat,
         description: [
           `${name} est née dans l’atelier parisien de la maison. ${input.notes ? input.notes.replace(/\s+/g, " ").slice(0, 220) : `Le ${mat} y est travaillé à la main, point après point.`}`,
-          "Elle se porte seule ou avec les autres pièces de la collection, du jour à la nuit, sans rien perdre de sa retenue.",
+          "Chaque exemplaire est numéroté et accompagné d’un certificat signé par la créatrice.",
         ],
         materials: [{ name: mat.charAt(0).toUpperCase() + mat.slice(1), percent: 100 }],
         lining: null,
@@ -104,7 +104,7 @@ Informations saisies :
         fit: "Coupe ajustée. Prenez votre taille habituelle ; l’atelier peut ajuster la pièce sur rendez-vous.",
         details: ["Fait main à Paris", "Certificat numéroté signé par la créatrice"],
         alts: media.map((_, i) => `${name} en ${mat}, photographie ${i + 1} sur fond studio`),
-        seo: { title: `${name} — ${mat} | Awrea Paris`.slice(0, 60), description: `${name} en ${mat}, pièce de créatrice façonnée à la main à Paris en série limitée et numérotée. Une lumière discrète, une coupe juste.`.slice(0, 160) },
+        seo: { title: `${name}, ${mat} | Awrea Paris`.slice(0, 60), description: `${name} en ${mat}, une pièce coupée et cousue à la main dans l’atelier, à Paris, puis numérotée.`.slice(0, 160) },
         tags: [mat, cat, "fait main"],
         missing_information: ["Mode démonstration : textes générés à partir d’un modèle, à relire."],
       };
@@ -141,7 +141,7 @@ Informations saisies :
     );
     return rec.finish(
       outcome.status === "done"
-        ? `Fiche « ${copy.title} » ${hasPrice ? "publiée" : "créée en brouillon (prix manquant)"}${copy.missing_information.length ? ` — ${copy.missing_information.length} point(s) à confirmer` : ""}`
+        ? `Fiche « ${copy.title} » ${hasPrice ? "publiée" : "créée en brouillon (prix manquant)"}${copy.missing_information.length ? `, ${copy.missing_information.length} point(s) à confirmer` : ""}`
         : `Échec de la publication : ${outcome.message}`,
     );
   } catch (e) {

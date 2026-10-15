@@ -18,14 +18,14 @@ export function brandVoice(): string {
   try {
     voiceCache = readFileSync(path.join(process.cwd(), "content/brand/voice.md"), "utf8");
   } catch {
-    voiceCache = `${identity.name} — ${identity.description} Manifeste : ${identity.manifesto} Ton élégant et chaleureux, vouvoiement.`;
+    voiceCache = `Référence de ton d’${identity.name}, version courte. ${identity.description} Manifeste : ${identity.manifesto} Des phrases courtes et concrètes, le vouvoiement. Aucun tiret, aucun point d’exclamation, aucun emoji.`;
   }
   return voiceCache;
 }
 
 export function shopFacts(): string {
   const rates = shop.shippingRates
-    .map((r) => `- ${r.label} : ${r.price ? formatPrice(r.price) : "offert"}${r.freeAboveThreshold ? ` (offert dès ${formatPrice(shop.freeShippingThreshold)})` : ""} — ${r.delay}`)
+    .map((r) => `${r.label} : ${r.price ? formatPrice(r.price) : "offert"}${r.freeAboveThreshold ? ` (offert dès ${formatPrice(shop.freeShippingThreshold)})` : ""}, ${r.delay}.`)
     .join("\n");
   const sizes = [shop.sizeGuide.headers.join(" | "), ...shop.sizeGuide.rows.map((r) => r.join(" | "))].join("\n");
   return `# Identité

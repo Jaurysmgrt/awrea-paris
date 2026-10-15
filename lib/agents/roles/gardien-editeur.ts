@@ -23,18 +23,18 @@ export async function runGardienEditeur(now = new Date()): Promise<RoleOutcome> 
       if (draft) {
         drafts++;
         const days = Math.floor((now.getTime() - new Date(draft.updatedAt).getTime()) / DAY);
-        if (days >= 7) findings.push({ gravite: "attention", titre: `« ${d.label} » attend d’être publiée depuis ${days} jours`, detail: `Brouillon ${locale === "en" ? "anglais" : "français"} modifié par ${draft.by}.`, lien: "/pages", cible: `${d.id}:${locale}` });
+        if (days >= 7) findings.push({ gravite: "attention", titre: `« ${d.label} » attend d’être publiée depuis ${days} jours`, detail: `Brouillon ${locale === "en" ? "anglais" : "français"} modifié par ${draft.by}.`, lien: "/pages", cible: `${d.id}:${locale}` });
       }
       const live = await publishedDoc(d.id, locale);
       if (!live || d.kind === "email") continue;
       const left = todos(live);
-      if (left.length) findings.push({ gravite: "attention", titre: `« ${d.label} » montre encore ${left.length} texte${left.length > 1 ? "s" : ""} à écrire`, detail: "Des repères entre crochets sont visibles sur le site.", lien: "/pages", cible: `${d.id}:todo` });
+      if (left.length) findings.push({ gravite: "attention", titre: `« ${d.label} » montre encore ${left.length} texte${left.length > 1 ? "s" : ""} à écrire`, detail: "Des repères entre crochets sont visibles sur le site.", lien: "/pages", cible: `${d.id}:todo` });
       const issues = scanTexts(live, locale === "en" ? "en" : "fr").filter((i) => i.severity === "erreur");
-      if (issues.length) findings.push({ gravite: "info", titre: `« ${d.label} » : ${issues.length} point${issues.length > 1 ? "s" : ""} d’écriture à revoir`, detail: issues.slice(0, 3).map((i) => i.message).join(" "), lien: "/pages", cible: `${d.id}:ecriture` });
+      if (issues.length) findings.push({ gravite: "info", titre: `« ${d.label} » a ${issues.length} point${issues.length > 1 ? "s" : ""} d’écriture à revoir`, detail: issues.slice(0, 3).map((i) => i.message).join(" "), lien: "/pages", cible: `${d.id}:ecriture` });
     }
   }
   const soon = (await scheduled()).filter((s) => new Date(s.at).getTime() - now.getTime() < DAY);
-  for (const s of soon) findings.push({ gravite: "info", titre: `Publication programmée : ${docs.find((d) => d.id === s.doc)?.label ?? s.doc}`, detail: new Date(s.at).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" }), lien: "/pages", cible: s.id });
+  for (const s of soon) findings.push({ gravite: "info", titre: `Publication programmée de « ${docs.find((d) => d.id === s.doc)?.label ?? s.doc} »`, detail: new Date(s.at).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" }), lien: "/pages", cible: s.id });
   const resume = findings.length
     ? `${drafts} brouillon${drafts > 1 ? "s" : ""} en cours, ${findings.filter((f) => f.gravite !== "info").length} point${findings.length > 1 ? "s" : ""} à regarder.`
     : drafts

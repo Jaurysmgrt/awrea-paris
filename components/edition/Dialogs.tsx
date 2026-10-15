@@ -269,7 +269,7 @@ export function ScheduleDialog({ docs, api, onClose, onDone }: { docs: Docs; api
 const STEPS: { title: string; text: string }[] = [
   {
     title: "Bienvenue dans l’édition",
-    text: "Vous êtes sur le vrai site, et vous seule voyez ces outils. Tout ce que vous changez reste en brouillon : la page en ligne ne bouge pas tant que vous n’avez pas appuyé sur « Publier ».",
+    text: "Vous êtes sur le vrai site, et vous seule voyez ces outils. Tout ce que vous changez reste en brouillon : la page en ligne ne bouge pas tant que vous n’avez pas appuyé sur « Publier ».",
   },
   {
     title: "Changer un texte",
@@ -281,11 +281,11 @@ const STEPS: { title: string; text: string }[] = [
   },
   {
     title: "Composer une page",
-    text: "Au survol d’une section, de petits boutons apparaissent : monter, descendre, dupliquer, supprimer, ajouter une section après. La bibliothèque ne propose que des sections dessinées pour la Maison.",
+    text: "Au survol d’une section, de petits boutons apparaissent : monter, descendre, dupliquer, supprimer, ajouter une section après. La bibliothèque ne propose que des sections dessinées pour la Maison.",
   },
   {
     title: "Vérifier, publier, revenir en arrière",
-    text: "« Aperçu » montre la page sur téléphone, tablette et ordinateur. « Publier » la met en ligne, « Programmer » choisit le jour et l’heure. « Historique » garde chaque version et remet l’ancienne en ligne d’un clic.",
+    text: "« Aperçu » montre la page sur téléphone, tablette et ordinateur. « Publier » la met en ligne, « Programmer » choisit le jour et l’heure. « Historique » garde chaque version et remet l’ancienne en ligne d’un clic.",
   },
 ];
 
@@ -299,7 +299,7 @@ export function Guide({ email, onClose }: { email: string; onClose: () => void }
       </p>
       <h2 className={s.sheetTitle}>{STEPS[step].title}</h2>
       <p className={s.text}>{STEPS[step].text}</p>
-      {last ? <p className={s.hint}>Ce guide reste dans « Plus », puis « Aide ». Vous êtes connectée avec {email}.</p> : null}
+      {last ? <p className={s.hint}>Ce guide reste dans « Plus », puis « Aide ». Vous êtes connectée avec {email}.</p> : null}
       <div className={s.row}>
         {step > 0 ? (
           <button type="button" className={s.btnQuiet} onClick={() => setStep(step - 1)}>

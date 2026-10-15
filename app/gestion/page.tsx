@@ -68,7 +68,7 @@ export default async function GestionHome() {
         </div>
         <div>
           <dt className="t-label">Santé SEO</dt>
-          <dd className="kpis__value">{audits[0] ? `${audits[0].score}/100` : "—"}</dd>
+          <dd className="kpis__value">{audits[0] ? `${audits[0].score}/100` : "·"}</dd>
           <dd className="t-note">{audits[0] ? `${audits[0].issues.length} point(s) relevé(s)` : "Aucun audit encore"}</dd>
         </div>
       </dl>
@@ -135,7 +135,7 @@ export default async function GestionHome() {
                 <p className="t-note team__last">
                   {last ? (
                     <>
-                      Dernier passage <When iso={last.startedAt} /> — {last.summary}
+                      Dernier passage le <When iso={last.startedAt} />. {last.summary}
                     </>
                   ) : (
                     "Pas encore de passage."

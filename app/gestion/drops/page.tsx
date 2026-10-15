@@ -47,7 +47,7 @@ export default async function DropsPage({ searchParams }: { searchParams: Promis
                     <td>{PHASE[dropPhase(d)]}</td>
                     <td>{paris(d.earlyAccessAt)}</td>
                     <td>{paris(d.publicAt)}</td>
-                    <td>{d.privateSale ? "—" : signups[i].length}</td>
+                    <td>{d.privateSale ? "·" : signups[i].length}</td>
                     <td>
                       <Link href={`/bientot/${d.slug}`} className="text-link">Voir</Link> · <Link href={atelierHref(`/drops?modifier=${d.slug}`)} className="text-link">Modifier</Link>
                     </td>

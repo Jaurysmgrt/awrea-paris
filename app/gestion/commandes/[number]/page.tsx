@@ -74,8 +74,8 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
             <dt className="t-label">Livraison</dt>
             <dd>
               {order.shipping.method}
-              {order.shipping.relay ? ` — ${order.shipping.relay.name}, ${order.shipping.relay.address}` : ""}
-              {order.shipping.pickup ? " — rendez-vous à fixer avec la cliente" : ""}
+              {order.shipping.relay ? ` · ${order.shipping.relay.name}, ${order.shipping.relay.address}` : ""}
+              {order.shipping.pickup ? ", rendez-vous à fixer avec la cliente" : ""}
               {url ? (
                 <>
                   {" "}
@@ -101,7 +101,7 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
             <div>
               <dt className="t-label">Cadeau</dt>
               <dd>
-                Emballage cadeau{order.gift.message ? ` — « ${order.gift.message} »` : ""}
+                Emballage cadeau{order.gift.message ? `, avec le mot « ${order.gift.message} »` : ""}
                 {hide ? " · prix masqués sur le bon" : ""}
                 {order.gift.deliveryDate ? ` · à livrer le ${formatDate(order.gift.deliveryDate)}` : ""}
               </dd>
@@ -179,13 +179,13 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
               <tr key={`${l.handle}-${i}`}>
                 <th scope="row">{l.title}</th>
                 <td>{l.size}</td>
-                <td>{l.editionLabel ?? "—"}</td>
+                <td>{l.editionLabel ?? ""}</td>
                 {hide ? null : <td>{formatPrice(l.unitPrice * l.quantity)}</td>}
               </tr>
             ))}
           </tbody>
         </table>
-        {order.gift?.wrap && order.gift.message ? <p className="slip__message">« {order.gift.message} »</p> : null}
+        {order.gift?.wrap && order.gift.message ? <p className="slip__message">« {order.gift.message} »</p> : null}
         <p className="t-note slip__foot">
           {identity.name} · fait main à Paris · {identity.email}
         </p>

@@ -32,7 +32,7 @@ export interface RoleInfo {
 }
 
 export const ROLES: RoleInfo[] = [
-  { id: "gardien-editeur", name: "Gardien de l’éditeur", mission: "Repère les brouillons oubliés, les publications programmées du jour, les textes encore entre crochets et les points d’écriture sur les pages en ligne.", autonomy: "Prévient seulement : il ne publie et ne modifie rien.", cadence: { kind: "quotidien" }, schedule: "Chaque matin", run: runGardienEditeur },
+  { id: "gardien-editeur", name: "Gardien de l’éditeur", mission: "Repère les brouillons oubliés, les publications programmées du jour, les textes encore entre crochets et les points d’écriture sur les pages en ligne.", autonomy: "Prévient seulement : il ne publie et ne modifie rien.", cadence: { kind: "quotidien" }, schedule: "Chaque matin", run: runGardienEditeur },
   { id: "avis", name: "Avis clientes", mission: "Présente les avis à modérer, repère ceux qui demandent une réponse de la créatrice et prépare une réponse.", autonomy: "Prépare seul. La publication d’un avis et la réponse restent vos décisions.", cadence: { kind: "quotidien" }, schedule: "Chaque matin", run: runAvis },
   { id: "retours", name: "Retours et échanges", mission: "Suit chaque retour, de la demande au remboursement, et relance ce qui traîne.", autonomy: "Relance seul. Tout remboursement vous est proposé.", cadence: { kind: "quotidien" }, schedule: "Chaque matin", run: runRetours },
   { id: "logistique", name: "Logistique", mission: "Vérifie que chaque commande payée part dans le délai annoncé et que les colis avancent.", autonomy: "Signale seul les commandes en retard.", cadence: { kind: "quotidien" }, schedule: "Chaque matin", run: runLogistique },
@@ -46,7 +46,7 @@ export const ROLES: RoleInfo[] = [
   { id: "production", name: "Production", mission: "Range les pièces à coudre par date promise et prévient quand un délai de précommande se resserre.", autonomy: "Prévient seulement.", cadence: { kind: "quotidien" }, schedule: "Chaque matin", run: runProduction },
   { id: "presse", name: "Presse et influence", mission: "Trie les demandes de presse et de partenariat et prépare les réponses.", autonomy: "Prépare seul. Les prêts de pièces vous sont proposés.", cadence: { kind: "quotidien" }, schedule: "Chaque matin", run: runPresse },
   { id: "instagram", name: "Instagram", mission: "Vérifie que les publications de la semaine sont prêtes et que la boutique Instagram suit le catalogue.", autonomy: "Prépare seul.", cadence: { kind: "hebdomadaire", jour: 1 }, schedule: "Chaque lundi", run: runInstagram },
-  { id: "publicite", name: "Publicité", mission: "Lit les résultats des campagnes et propose où mettre, ou ne plus mettre, l’argent.", autonomy: "Propose seulement : toute dépense passe par vous.", cadence: { kind: "hebdomadaire", jour: 1 }, schedule: "Chaque lundi", run: runPublicite },
+  { id: "publicite", name: "Publicité", mission: "Lit les résultats des campagnes et propose où mettre, ou ne plus mettre, l’argent.", autonomy: "Propose seulement : toute dépense passe par vous.", cadence: { kind: "hebdomadaire", jour: 1 }, schedule: "Chaque lundi", run: runPublicite },
   { id: "accessibilite", name: "Accessibilité", mission: "Relit le contrôle d’accessibilité de la nuit (contrastes, clavier, lecteurs d’écran) et dit ce qui a changé.", autonomy: "Prévient seulement.", cadence: { kind: "hebdomadaire", jour: 0 }, schedule: "Chaque dimanche", run: runAccessibilite },
   { id: "performance", name: "Performance", mission: "Suit la vitesse des pages et leur poids, et signale ce qui ralentit.", autonomy: "Prévient seulement.", cadence: { kind: "hebdomadaire", jour: 0 }, schedule: "Chaque dimanche", run: runPerformance },
   { id: "sauvegarde", name: "Sauvegarde", mission: "Vérifie chaque jour que la sauvegarde de la nuit a eu lieu et qu’elle se relit.", autonomy: "Prévient seulement.", cadence: { kind: "quotidien" }, schedule: "Chaque matin", run: runSauvegarde },
@@ -58,7 +58,7 @@ const REPORT_KEY = (id: RoleId) => `roles:rapport:${id}`;
 
 export async function runRole(id: RoleId, trigger: RoleReport["trigger"], now = new Date()): Promise<RoleReport> {
   const info = roleInfo(id);
-  if (!info?.run) throw new Error(`Rôle en préparation : ${info?.name ?? id}`);
+  if (!info?.run) throw new Error(`Rôle en préparation : ${info?.name ?? id}`);
   const since = new Date(now.getTime() - 1000).toISOString();
   const report: RoleReport = { role: id, at: now.toISOString(), mode: aiEnabled ? "claude" : "demo", trigger, resume: "", findings: [], actions: { done: 0, proposed: 0, failed: 0 }, controle: [], erreurs: [] };
   try {
@@ -74,7 +74,7 @@ export async function runRole(id: RoleId, trigger: RoleReport["trigger"], now = 
   report.actions = { done: mine.filter((a) => a.status === "done").length, proposed: mine.filter((a) => a.status === "proposed").length, failed: mine.filter((a) => a.status === "failed").length };
   report.controle = controle(report, { since, role: id, proposals, log });
   await kv.set(REPORT_KEY(id), report);
-  await logAction({ agent: id, kind: "passage", status: report.erreurs.length ? "failed" : "info", summary: `${info.name} : ${report.resume}`, detail: [...report.erreurs, ...report.controle.map((c) => `Contrôle : ${c.titre}`)].join("\n") || undefined });
+  await logAction({ agent: id, kind: "passage", status: report.erreurs.length ? "failed" : "info", summary: `${info.name} : ${report.resume}`, detail: [...report.erreurs, ...report.controle.map((c) => `Contrôle : ${c.titre}`)].join("\n") || undefined });
   return report;
 }
 

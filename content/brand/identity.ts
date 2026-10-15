@@ -14,7 +14,7 @@ export const identity = {
   founderQuote:
     "La couleur n’est pas au rendez-vous mais la lumière de la dorure suffit à révéler l’essentiel.",
   description:
-    "Awrea Paris est une marque de prêt-à-porter féminin fondée par une jeune créatrice parisienne. Chaque pièce est fabriquée à la main à Paris, en pièce unique ou en très petite série numérotée, autour d’une signature : la dentelle noire associée à des matières fluides — jersey, satin — et la dorure mêlée aux couleurs neutres.",
+    "Awrea Paris est une maison de prêt-à-porter féminin fondée par une jeune créatrice parisienne. Chaque pièce est fabriquée à la main à Paris, en pièce unique ou en très petite série numérotée. Sa signature, c’est la dentelle noire posée sur des matières fluides, le jersey et le satin. Certaines pièces portent une touche de dorure.",
   shortDescription:
     "Prêt-à-porter féminin fait main à Paris. Dentelle noire, jersey, satin et dorure, en pièces uniques et séries numérotées.",
   manifesto: "Consommer plus juste. Une création exclusive n’a pas besoin d’être réservée à l’ultra luxe.",

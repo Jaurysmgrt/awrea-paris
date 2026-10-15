@@ -27,9 +27,9 @@ export function OutfitAdd({ title, products }: { title: string; products: Produc
               <Price amount={p.price} />
             </div>
             {p.variants.some((v) => v.quantity > 0 || v.preorder) ? (
-              <SizePicker product={p} value={sizes[p.handle]?.id ?? null} onChange={(v) => setSizes((s) => ({ ...s, [p.handle]: v }))} legend={`Taille — ${p.title}`} />
+              <SizePicker product={p} value={sizes[p.handle]?.id ?? null} onChange={(v) => setSizes((s) => ({ ...s, [p.handle]: v }))} legend={`Taille · ${p.title}`} />
             ) : (
-              <p className="t-note">Épuisée — non incluse.</p>
+              <p className="t-note">Cette pièce est partie. Les autres s’ajoutent sans elle.</p>
             )}
           </li>
         ))}
@@ -45,7 +45,7 @@ export function OutfitAdd({ title, products }: { title: string; products: Produc
           )
         }
       >
-        {ready ? `Ajouter la silhouette — ${formatPrice(total)}` : "Choisir une taille pour chaque pièce"}
+        {ready ? `Ajouter la silhouette, ${formatPrice(total)}` : "Choisir une taille pour chaque pièce"}
       </button>
     </div>
   );

@@ -28,7 +28,7 @@ export async function runRetours(now = new Date()): Promise<RoleOutcome> {
   const findings: Finding[] = [];
   for (const r of all) {
     if (r.status === "demande" && days(r.createdAt, now) >= 7) findings.push({ gravite: "attention", titre: `Retour ${r.id} demandé il y a ${days(r.createdAt, now)} jours, colis pas encore reçu`, detail: `${r.name}, commande ${r.orderNumber}.`, lien: "/retours", cible: r.id });
-    if (r.labelPending) findings.push({ gravite: "urgent", titre: `Retour ${r.id} : l’étiquette n’a pas pu être créée`, detail: "Déposez l’étiquette dans la fiche du retour pour que la cliente puisse renvoyer sa pièce.", lien: "/retours", cible: `${r.id}:etiquette` });
+    if (r.labelPending) findings.push({ gravite: "urgent", titre: `Retour ${r.id} sans étiquette`, detail: "Déposez l’étiquette dans la fiche du retour pour que la cliente puisse renvoyer sa pièce.", lien: "/retours", cible: `${r.id}:etiquette` });
     if (r.status === "recu" && days(r.updatedAt, now) >= 2) findings.push({ gravite: "urgent", titre: `Retour ${r.id} reçu depuis ${days(r.updatedAt, now)} jours`, detail: r.items.some((i) => i.wish === "echange") ? "Un échange attend son envoi." : "Le remboursement attend votre accord dans les Validations (14 jours au plus après réception).", lien: r.items.some((i) => i.wish === "echange") ? "/retours" : "/validations", cible: `${r.id}:recu` });
   }
   const open = all.filter((r) => r.status === "demande" || r.status === "recu").length;
@@ -54,7 +54,7 @@ export async function runAvis(now = new Date()): Promise<RoleOutcome> {
   for (const r of pending) {
     const age = days(r.createdAt, now);
     const fit = r.fit && r.fit !== "juste";
-    if (age >= 3 || fit) findings.push({ gravite: age >= 7 ? "attention" : "info", titre: `Avis sur ${r.productHandle} en attente depuis ${age} jour${age > 1 ? "s" : ""}`, detail: fit ? "La cliente signale une taille qui ne tombe pas juste : une réponse de votre main rassure les suivantes." : undefined, lien: "/avis", cible: r.id });
+    if (age >= 3 || fit) findings.push({ gravite: age >= 7 ? "attention" : "info", titre: `Avis sur ${r.productHandle} en attente depuis ${age} jour${age > 1 ? "s" : ""}`, detail: fit ? "La cliente signale une taille qui ne tombe pas juste : une réponse de votre main rassure les suivantes." : undefined, lien: "/avis", cible: r.id });
   }
   return { resume: pending.length ? `${plural(pending.length, "avis attend", "avis attendent")} votre lecture.` : "Aucun avis en attente.", findings };
 }

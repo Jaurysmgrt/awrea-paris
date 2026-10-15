@@ -41,7 +41,7 @@ export function WishlistView() {
         <p className="t-lead">{copy.empty}</p>
         <div>
           <Link href="/boutique" className="btn">
-            Découvrir la boutique
+            Aller à la boutique
           </Link>
         </div>
       </div>

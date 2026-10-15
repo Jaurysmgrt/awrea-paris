@@ -69,7 +69,7 @@ export function CatalogueForm({ collections }: { collections: { handle: string; 
       return;
     }
     setState(j.run?.failed ? "error" : "done");
-    setResult(j.run?.summary + (j.run?.errors?.length ? ` — ${j.run.errors.join(" ; ")}` : ""));
+    setResult(j.run?.summary + (j.run?.errors?.length ? `. À revoir : ${j.run.errors.join(" ; ")}` : ""));
     router.refresh();
   }
 
@@ -179,7 +179,7 @@ export function CatalogueForm({ collections }: { collections: { handle: string; 
       </div>
       {state === "done" ? (
         <p className="notice t-body" role="status">
-          {result} — <Link href="/boutique" className="text-link">voir la boutique</Link>
+          {result} · <Link href="/boutique" className="text-link">voir la boutique</Link>
         </p>
       ) : state === "error" ? (
         <p className="field__error" role="alert">

@@ -128,14 +128,14 @@ export const legalFields = {
   },
   regionBase: {
     short: "région d’hébergement de la base",
-    label: "région d’hébergement du projet Supabase (base clientes) — recommandé : Union européenne (Francfort ou Paris)",
+    label: "région d’hébergement du projet Supabase (base clientes), de préférence dans l’Union européenne (Francfort ou Paris)",
     value: "",
     source: "Réglages du projet Supabase (Project Settings → General)",
     pages: ["confidentialite"],
   },
   regionsPrestataires: {
     short: "régions d’hébergement",
-    label: "régions d’hébergement retenues pour Upstash (stockage technique) et Sentry (suivi des erreurs) — recommandé : Union européenne",
+    label: "régions d’hébergement retenues pour Upstash (stockage technique) et Sentry (suivi des erreurs), de préférence dans l’Union européenne",
     value: "",
     source: "Réglages des comptes Upstash et Sentry",
     pages: ["confidentialite"],

@@ -62,9 +62,10 @@ export default async function CommandeSuivie({ params, searchParams }: { params:
             </h2>
             <p className="t-body">
               {order.shipping.method}
-              {order.shipping.relay ? ` — ${order.shipping.relay.name}, ${order.shipping.relay.address}` : ""}
-              {order.shipping.pickup ? " — nous vous écrivons pour convenir du rendez-vous à l’atelier." : ""}
-              {order.gift?.deliveryDate ? ` Remise souhaitée le ${formatDate(order.gift.deliveryDate)}.` : ""}
+              {order.shipping.relay ? ` · ${order.shipping.relay.name}, ${order.shipping.relay.address}` : ""}
+              {order.shipping.pickup ? ". Nous vous écrivons pour choisir le jour avec vous" : ""}
+              {order.gift?.deliveryDate ? `. Remise souhaitée le ${formatDate(order.gift.deliveryDate)}` : ""}
+              .
             </p>
             {url ? (
               <p>
@@ -111,7 +112,7 @@ export default async function CommandeSuivie({ params, searchParams }: { params:
               {certificates.map((c) => (
                 <li key={c.serial}>
                   <Link className="link" href={`/certificat/${c.serial}`}>
-                    Certificat d’authenticité — {c.productTitle}
+                    Certificat d’authenticité · {c.productTitle}
                   </Link>
                 </li>
               ))}
@@ -127,7 +128,7 @@ export default async function CommandeSuivie({ params, searchParams }: { params:
                 {returns.map((r) => (
                   <li key={r.id} className="stack-s">
                     <p className="t-body">
-                      <span className="t-label">{r.id}</span> — {returnStatus[r.status]} ·{" "}
+                      <span className="t-label">{r.id}</span> · {returnStatus[r.status]} ·{" "}
                       {r.items.map((i) => `${i.title} (${i.wish === "echange" ? `échange en ${i.exchangeSize}` : "remboursement"})`).join(", ")}
                     </p>
                     {r.labelPending ? (

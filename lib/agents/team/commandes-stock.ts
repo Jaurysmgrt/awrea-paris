@@ -51,10 +51,10 @@ export async function runCommandesStockAgent(trigger: AgentRun["trigger"] = "cro
         const before = memory.alerted[v.id];
         if (v.quantity === 0 && before !== 0) {
           memory.alerted[v.id] = 0;
-          findings.push(`${p.title} — taille ${v.size} : rupture${v.preorder && !ed.complete ? " (passe en précommande)" : v.preorder ? " (sur commande)" : " (liste d’attente ouverte)"}`);
+          findings.push(`${p.title}, taille ${v.size} : rupture${v.preorder && !ed.complete ? " (passe en précommande)" : v.preorder ? " (sur commande)" : " (liste d’attente ouverte)"}`);
         } else if (v.quantity === 1 && before !== 1) {
           memory.alerted[v.id] = 1;
-          findings.push(`${p.title} — taille ${v.size} : dernière pièce en stock`);
+          findings.push(`${p.title}, taille ${v.size} : dernière pièce en stock`);
         } else if (v.quantity > 1 && before !== undefined) {
           delete memory.alerted[v.id];
         }
@@ -94,11 +94,11 @@ export async function runCommandesStockAgent(trigger: AgentRun["trigger"] = "cro
     // 5. Alerte de synthèse à l'atelier
     if (findings.length) {
       let subject = `Atelier : ${findings.length} point(s) à regarder`;
-      let body = findings.map((f) => `— ${f}`).join("\n\n");
+      let body = findings.map((f) => `${f}`).join("\n\n");
       if (aiEnabled) {
         const msg = await generateStructured({
-          instructions: "Mission : agent Commandes et stock. Rédigez pour la créatrice une alerte brève, claire et calme (pas de panique, pas de jargon) : objet de 8 mots maximum, puis les points classés du plus urgent au moins urgent, chacun avec l’action conseillée.",
-          content: `Constats du jour :\n${findings.map((f) => `- ${f}`).join("\n")}`,
+          instructions: "Mission : agent Commandes et stock. Vous écrivez à la créatrice une alerte courte et calme, sans jargon. Un objet de huit mots au plus. Puis un paragraphe par point, du plus urgent au moins urgent, chacun avec l’action conseillée. Ni tiret ni puce devant les points.",
+          content: `Constats du jour :\n${findings.map((f) => `${f}`).join("\n")}`,
           schema: z.object({ subject: z.string(), body: z.string().describe("Paragraphes séparés par une ligne vide") }),
           effort: "low",
         });

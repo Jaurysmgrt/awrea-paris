@@ -15,6 +15,6 @@ export async function POST(req: Request) {
   if (info?.kind !== "modele") return bad("Seules les pages créées dans l’éditeur peuvent être supprimées.");
   await removeDoc(info.id, who.email);
   await unregisterPage(info.id);
-  await logAction({ agent: "systeme", kind: "edition", status: "done", summary: `Page « ${info.label} » supprimée par ${who.email}` }).catch(() => {});
+  await logAction({ agent: "systeme", kind: "edition", status: "done", summary: `Page « ${info.label} » supprimée par ${who.email}` }).catch(() => {});
   return NextResponse.json({ ok: true });
 }

@@ -60,7 +60,7 @@ test("facture, suivi sans compte, expédition, livraison, retour, remboursement 
   await page.getByLabel("Raison", { exact: true }).selectOption("tombe");
   await page.getByLabel(/Je renvoie la pièce non portée/).check();
   await page.getByRole("button", { name: "Demander le retour" }).click();
-  await expect(page.getByText(/R-\d{4}-\d{4} — Retour demandé/)).toBeVisible();
+  await expect(page.getByText(/R-\d{4}-\d{4} · Retour demandé/)).toBeVisible();
   const labelHref = await page.getByRole("link", { name: "Étiquette de retour (PDF)" }).getAttribute("href");
   const label = await page.request.get(labelHref!);
   expect((await label.body()).subarray(0, 5).toString("latin1")).toBe("%PDF-");

@@ -122,8 +122,8 @@ export const legalPages = {
         id: "hebergement",
         title: "Hébergement",
         blocks: [
-          "Le site est hébergé par **Vercel Inc.**, 440 N Barranca Avenue #4133, Covina, CA 91723, États-Unis — vercel.com — téléphone : {{hebergeurTelephone}}.",
-          "La boutique, les commandes et les paiements s’appuient sur **Shopify International Limited**, Victoria Buildings, 2e étage, 1-2 Haddington Road, Dublin 4, D04 XN32, Irlande — shopify.com.",
+          "Le site est hébergé par **Vercel Inc.**, 440 N Barranca Avenue #4133, Covina, CA 91723, États-Unis (vercel.com), téléphone : {{hebergeurTelephone}}.",
+          "La boutique, les commandes et les paiements s’appuient sur **Shopify International Limited**, Victoria Buildings, 2e étage, 1-2 Haddington Road, Dublin 4, D04 XN32, Irlande (shopify.com).",
           "La base clientes est hébergée par **Supabase, Inc.** (supabase.com), dans la région {{regionBase}}.",
         ],
       },
@@ -239,7 +239,7 @@ export const legalPages = {
       },
       {
         id: "pieces",
-        title: "2. Les pièces : rareté et fait main",
+        title: "2. Des pièces rares, faites à la main",
         blocks: [
           "Les pièces sont façonnées à la main à Paris, en **pièce unique** ou en **série limitée numérotée**. Le numéro d’édition (par exemple « N° 3 / 5 ») et le nombre de pièces restantes sont indiqués sur chaque fiche ; une fois la série épuisée, une pièce peut, selon les cas, être proposée en précommande ou ne jamais être refaite.",
           "Les photographies et descriptions sont aussi fidèles que possible. De légères variations de teinte, de motif de dentelle ou de finition, propres au travail fait main, peuvent exister et ne constituent pas un défaut de conformité.",
@@ -339,7 +339,7 @@ export const legalPages = {
         id: "service",
         title: "11. Service client",
         blocks: [
-          { list: ["Par e-mail : {{email}}", "Par téléphone : {{telephone}} — {{horaires}}", "Par le [formulaire de contact](/contact) ou depuis votre [compte](/compte)", "Par l’assistante du site, qui peut à tout moment transmettre votre demande à l’atelier"] },
+          { list: ["Par e-mail : {{email}}", "Par téléphone : {{telephone}}, {{horaires}}", "Par le [formulaire de contact](/contact) ou depuis votre [compte](/compte)", "Par l’assistante du site, qui peut à tout moment transmettre votre demande à l’atelier"] },
           "Toute réclamation peut être adressée par ces moyens ; la maison y répond dans les meilleurs délais.",
         ],
       },
@@ -361,7 +361,7 @@ export const legalPages = {
       },
       {
         id: "annexe",
-        title: "Annexe — Formulaire type de rétractation",
+        title: "Annexe, formulaire type de rétractation",
         blocks: [
           "Ce formulaire (annexe à l’article R221-1 du Code de la consommation) n’est à compléter et à renvoyer que si vous souhaitez vous rétracter. Vous pouvez aussi utiliser la [fonction de rétractation en ligne](/retractation).",
           { widget: "withdrawal-model" },
@@ -530,7 +530,7 @@ export const legalPages = {
         id: "transferts",
         title: "4. Transferts hors de l’Union européenne",
         blocks: [
-          "Lorsque des données sont traitées hors de l’Union européenne, ces transferts sont encadrés par une décision d’adéquation de la Commission européenne (notamment le cadre de protection des données UE–États-Unis pour les entreprises certifiées, ou la décision relative au Canada) ou, à défaut, par les clauses contractuelles types adoptées par la Commission, complétées si nécessaire de mesures techniques. Vous pouvez en obtenir une copie en nous écrivant.",
+          "Lorsque des données sont traitées hors de l’Union européenne, ces transferts sont encadrés par une décision d’adéquation de la Commission européenne (notamment le cadre de protection des données UE-États-Unis pour les entreprises certifiées, ou la décision relative au Canada) ou, à défaut, par les clauses contractuelles types adoptées par la Commission, complétées si nécessaire de mesures techniques. Vous pouvez en obtenir une copie en nous écrivant.",
         ],
       },
       {
@@ -546,7 +546,7 @@ export const legalPages = {
         blocks: [
           "Vous disposez d’un droit d’accès, de rectification, d’effacement, de limitation, de portabilité et d’opposition, du droit de retirer votre consentement à tout moment, et du droit de définir des directives relatives au sort de vos données après votre décès.",
           "Depuis votre [compte](/compte#donnees), vous pouvez télécharger l’ensemble de vos données et supprimer votre compte vous-même. Vous pouvez aussi écrire à {{email}} ou au siège ({{siege}}) ; une preuve d’identité peut être demandée en cas de doute. Nous répondons dans un délai d’un mois.",
-          "Vous pouvez introduire une réclamation auprès de la Commission nationale de l’informatique et des libertés (CNIL), 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07 — cnil.fr.",
+          "Vous pouvez introduire une réclamation auprès de la Commission nationale de l’informatique et des libertés (CNIL), 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07 (cnil.fr).",
         ],
       },
       { id: "mineures", title: "7. Mineures", blocks: ["Le compte est réservé aux personnes âgées d’au moins quinze ans. Si vous pensez qu’une personne plus jeune nous a transmis des données, écrivez-nous pour que nous les supprimions."] },
@@ -582,10 +582,10 @@ export const legalPages = {
         blocks: [
           {
             list: [
-              "**Nécessaires** — panier, connexion au compte, sécurité, mémorisation de vos choix. Toujours actifs : le site ne peut fonctionner sans eux.",
-              "**Mesure d’audience** — compter les visites et les pièces consultées, de façon agrégée, pour améliorer le site.",
-              "**Personnalisation** — se souvenir des pièces que vous avez regardées pour vous proposer une sélection, un accueil et des rappels qui vous ressemblent.",
-              "**Publicité** — mesurer l’efficacité de nos campagnes sur Instagram, Facebook, TikTok et Google, et vous y montrer nos pièces.",
+              "**Nécessaires.** Le panier, la connexion au compte, la sécurité, la mémorisation de vos choix. Toujours actifs : le site ne peut fonctionner sans eux.",
+              "**Mesure d’audience.** Compter les visites et les pièces consultées, de façon agrégée, pour améliorer le site.",
+              "**Personnalisation.** Se souvenir des pièces et des collections que vous avez regardées, pour vous proposer une sélection à votre retour. Garder votre panier en attente, pour vous le rappeler.",
+              "**Publicité.** Mesurer l’efficacité de nos campagnes sur Instagram, Facebook, TikTok et Google, et vous y montrer nos pièces.",
             ],
           },
         ],
@@ -665,7 +665,7 @@ export const legalPages = {
         id: "gestion",
         title: "L’intelligence artificielle à l’atelier",
         blocks: [
-          "La maison utilise aussi des agents d’intelligence artificielle pour les tâches quotidiennes (rédaction des fiches, préparation des réponses, suivi des stocks, rapports). Toute décision qui engage de l’argent ou qui est irréversible — remboursement, changement de prix, suppression, envoi d’une lettre à toutes les clientes — est validée par une personne.",
+          "La maison utilise aussi des agents d’intelligence artificielle pour les tâches quotidiennes (rédaction des fiches, préparation des réponses, suivi des stocks, rapports). Une personne valide toute décision qui engage de l’argent ou qui ne peut pas être annulée. C’est le cas d’un remboursement, d’un changement de prix, d’une suppression ou d’une lettre envoyée à toutes les clientes.",
         ],
       },
     ],
@@ -705,9 +705,9 @@ export type LegalSlug = keyof typeof legalPages;
 
 export const press = {
   articles: [
-    { outlet: "Revue de mode (exemple)", title: "Awrea Paris, la dentelle sans le luxe ostentatoire", date: "2026-09", quote: "Une jeune créatrice qui coud ses pièces à la main et les numérote : la preuve qu’une autre mode est possible.", url: "" },
-    { outlet: "Magazine culture (exemple)", title: "Cinq créatrices parisiennes à suivre", date: "2026-06", quote: "Ses drapés à la grecque et ses fils d’or ont quelque chose d’intemporel.", url: "" },
-    { outlet: "Blog mode responsable (exemple)", title: "Consommer plus juste : rencontre avec Awrea Paris", date: "2026-03", quote: "Des séries de cinq pièces, un prix juste, un atelier ouvert : un manifeste en acte.", url: "" },
+    { outlet: "Revue de mode (exemple)", title: "Awrea Paris, la dentelle sans le luxe ostentatoire", date: "2026-09", quote: "[À COMPLÉTER : citation exacte de l’article, recopiée mot pour mot]", url: "" },
+    { outlet: "Magazine culture (exemple)", title: "Cinq créatrices parisiennes à suivre", date: "2026-06", quote: "[À COMPLÉTER : citation exacte de l’article, recopiée mot pour mot]", url: "" },
+    { outlet: "Blog mode responsable (exemple)", title: "Consommer plus juste, rencontre avec Awrea Paris", date: "2026-03", quote: "[À COMPLÉTER : citation exacte de l’article, recopiée mot pour mot]", url: "" },
   ],
   contact: {
     title: "Contact presse",

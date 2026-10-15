@@ -93,13 +93,13 @@ export function brandEmail(input: BrandEmailInput): { html: string; text: string
     input.title.toUpperCase(),
     "",
     ...input.paragraphs,
-    ...(input.items ?? []).map((i) => `— ${i.title}${i.meta ? ` (${i.meta})` : ""}${i.price != null ? ` : ${formatPrice(i.price)}` : ""}`),
+    ...(input.items ?? []).map((i) => `${i.title}${i.meta ? ` (${i.meta})` : ""}${i.price != null ? ` : ${formatPrice(i.price)}` : ""}`),
     ...(input.totals ?? []).map((t) => `${t.label} : ${t.value}`),
     input.cta ? `\n${input.cta.label} : ${linkOf(input.cta.href)}` : "",
     "",
     input.signature ?? "",
     "",
-    `${identity.name} — ${identity.tagline}`,
+    `${identity.name}. ${identity.tagline}`,
   ].join("\n");
 
   return { html, text };

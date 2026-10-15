@@ -37,7 +37,7 @@ export async function submitReturn(order: Order, items: ReturnItem[], comment?: 
   r.labelPending = Boolean(pending);
   await saveReturn(r);
   const pdf = await returnLabelPdf(r, order);
-  const list = items.map((i) => `${i.title} (taille ${i.size}) — ${i.wish === "echange" ? `échange contre la taille ${i.exchangeSize}` : "remboursement"}`);
+  const list = items.map((i) => `${i.title} en taille ${i.size}, ${i.wish === "echange" ? `pour un échange contre la taille ${i.exchangeSize}` : "pour un remboursement"}`);
   await sendEmail({
     to: order.email,
     subject: `Votre retour ${r.id}`,
@@ -60,13 +60,13 @@ export async function submitReturn(order: Order, items: ReturnItem[], comment?: 
   }).catch((e) => console.error("[retour] e-mail cliente", e));
   await sendEmail({
     to: process.env.ATELIER_EMAIL || identity.email,
-    subject: `Retour ${r.id} — commande ${order.number}${pending ? " (étiquette à déposer)" : ""}`,
+    subject: `Retour ${r.id} pour la commande ${order.number}${pending ? " (étiquette à déposer)" : ""}`,
     tag: "retour-atelier",
     ...brandEmail({
       preheader: `${items.length} pièce(s) en retour`,
       title: `Retour ${r.id}`,
       paragraphs: [
-        `${r.name} (${order.email}) retourne : ${items.map((i) => `${i.title}, taille ${i.size} — ${reasonLabel[i.reason]}, ${i.wish === "echange" ? `échange en ${i.exchangeSize}` : "remboursement"}`).join(" ; ")}.`,
+        `${r.name} (${order.email}) retourne : ${items.map((i) => `${i.title} en taille ${i.size}, motif « ${reasonLabel[i.reason]} », ${i.wish === "echange" ? `échange en ${i.exchangeSize}` : "remboursement"}`).join(" ; ")}.`,
         ...(r.comment ? [`Son mot : « ${r.comment} »`] : []),
         pending ? "L’étiquette prépayée n’a pas pu être obtenue automatiquement : déposez-la dans l’Atelier, rubrique Retours." : "L’étiquette lui a été envoyée.",
       ],

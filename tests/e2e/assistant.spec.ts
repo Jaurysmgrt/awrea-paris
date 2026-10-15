@@ -16,7 +16,7 @@ test.describe("Assistante clientes (mode démonstration sans clé API)", () => {
 
     await panel.getByLabel("Votre question").fill("Je voudrais parler à la créatrice, mon e-mail est cliente.test@exemple.fr");
     await panel.getByRole("button", { name: "Envoyer" }).click();
-    await expect(panel.getByText(/Transmis à l’atelier/)).toBeVisible();
+    await expect(panel.getByText(/Votre message est à l’atelier/)).toBeVisible();
 
     // la conversation survit à une navigation
     await page.getByRole("link", { name: "Robe Odessa" }).first().click();

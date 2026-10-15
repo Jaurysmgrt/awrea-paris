@@ -10,13 +10,13 @@ export const shop = {
   returnDays: 14,
   dispatchDays: "2 à 5 jours ouvrés",
   shippingRates: [
-    { id: "fr-colissimo", zone: "FR", label: "France — Colissimo suivi", price: 900, delay: "2 à 3 jours ouvrés après expédition", freeAboveThreshold: true },
-    { id: "fr-relay", zone: "FR", label: "France — Point relais Mondial Relay", price: 600, delay: "3 à 5 jours ouvrés après expédition", freeAboveThreshold: true, relay: true },
-    { id: "fr-express", zone: "FR", label: "France — Chronopost express", price: 1800, delay: "24 h après expédition", freeAboveThreshold: false },
+    { id: "fr-colissimo", zone: "FR", label: "Colissimo suivi en France", price: 900, delay: "2 à 3 jours ouvrés après expédition", freeAboveThreshold: true },
+    { id: "fr-relay", zone: "FR", label: "Point relais Mondial Relay en France", price: 600, delay: "3 à 5 jours ouvrés après expédition", freeAboveThreshold: true, relay: true },
+    { id: "fr-express", zone: "FR", label: "Chronopost express en France", price: 1800, delay: "24 h après expédition", freeAboveThreshold: false },
     { id: "fr-atelier", zone: "FR", label: "Retrait à l’atelier, Paris (sur rendez-vous)", price: 0, delay: "dès que la pièce est prête", freeAboveThreshold: false, pickup: true },
-    { id: "eu-relay", zone: "EU", label: "Europe — Point relais Mondial Relay", price: 1200, delay: "4 à 7 jours ouvrés après expédition", freeAboveThreshold: true, relay: true, countries: ["BE", "LU", "ES", "NL", "DE", "IT"] },
-    { id: "eu-dhl", zone: "EU", label: "Union européenne — DHL Express", price: 2500, delay: "2 à 4 jours ouvrés après expédition", freeAboveThreshold: true },
-    { id: "world-dhl", zone: "WORLD", label: "International — DHL Express", price: 4500, delay: "3 à 7 jours ouvrés après expédition, droits et taxes payés à la commande", freeAboveThreshold: false },
+    { id: "eu-relay", zone: "EU", label: "Point relais Mondial Relay en Europe", price: 1200, delay: "4 à 7 jours ouvrés après expédition", freeAboveThreshold: true, relay: true, countries: ["BE", "LU", "ES", "NL", "DE", "IT"] },
+    { id: "eu-dhl", zone: "EU", label: "DHL Express dans l’Union européenne", price: 2500, delay: "2 à 4 jours ouvrés après expédition", freeAboveThreshold: true },
+    { id: "world-dhl", zone: "WORLD", label: "DHL Express à l’international", price: 4500, delay: "3 à 7 jours ouvrés après expédition, droits et taxes payés à la commande", freeAboveThreshold: false },
   ] as { id: string; zone: "FR" | "EU" | "WORLD"; label: string; price: number; delay: string; freeAboveThreshold: boolean; relay?: boolean; pickup?: boolean; countries?: string[] }[],
   /**
    * Livraisons hors Union européenne : la pièce part hors TVA française, et les droits de douane et
@@ -52,8 +52,8 @@ export const shop = {
   paymentMethods: ["Carte bancaire", "Shop Pay", "Apple Pay", "Google Pay", "PayPal", "Paiement en 3 ou 4 fois"],
   /** Codes de démonstration (en production : réductions et cartes cadeaux Shopify) */
   demoDiscounts: [
-    { code: "BIENVENUE", type: "percent" as const, value: 10, label: "Bienvenue — 10 %" },
-    { code: "ATELIER", type: "fixed" as const, value: 3000, label: "Atelier — 30 €" },
+    { code: "BIENVENUE", type: "percent" as const, value: 10, label: "Bienvenue, 10 %" },
+    { code: "ATELIER", type: "fixed" as const, value: 3000, label: "Atelier, 30 €" },
   ],
   demoGiftCards: [{ code: "CADEAU-AWREA-100", balance: 10000 }],
   sizeGuide: {

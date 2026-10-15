@@ -38,7 +38,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
       cta: { label: "Ouvrir mon accès", href: link },
       signature: "Avec toute notre gratitude,\nLa Créatrice",
     });
-    await sendEmail({ to: email, subject: `Accès anticipé — ${drop.title}`, tag: "drop-acces", ...mail }).catch((e) => console.error("[drops] e-mail", e));
+    await sendEmail({ to: email, subject: `${drop.title}, votre accès anticipé`, tag: "drop-acces", ...mail }).catch((e) => console.error("[drops] e-mail", e));
   });
   return NextResponse.json({ ok: true, message: "C’est noté. Votre lien d’accès vient de partir par e-mail." });
 }

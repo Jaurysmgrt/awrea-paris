@@ -46,7 +46,7 @@ export default function ContactPage() {
                     <br />
                   </>
                 ) : null}
-                {identity.address.postalCode} {identity.address.addressLocality} — sur rendez-vous
+                {identity.address.postalCode} {identity.address.addressLocality}, sur rendez-vous
               </address>
             </div>
           </aside>

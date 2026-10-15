@@ -17,6 +17,6 @@ export function TextsProvider({ docs, children }: { docs: Record<string, unknown
 export function useTexts<T>(doc: string): T {
   const all = useContext(TextsContext);
   const t = all[doc];
-  if (t === undefined) throw new Error(`Textes « ${doc} » non transmis : ajouter un <TextsRoot ids={["${doc}"]}> au-dessus du composant.`);
+  if (t === undefined) throw new Error(`Textes absents pour le document ${doc}. Ajouter un TextsRoot qui le transmet au-dessus du composant.`);
   return t as T;
 }

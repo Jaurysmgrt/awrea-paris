@@ -37,7 +37,7 @@ export function OrdersPanel({ orders }: { orders: AccountOrder[] }) {
       <p className="t-body">
         {t.orders.empty}{" "}
         <Link href="/boutique" className="text-link">
-          Découvrir la boutique
+          Les pièces vous attendent dans la boutique
         </Link>
         .
       </p>
@@ -59,7 +59,7 @@ export function OrdersPanel({ orders }: { orders: AccountOrder[] }) {
                   <Link href={`/boutique/${l.handle}`} className="link-plain">
                     {l.title}
                   </Link>{" "}
-                  — taille {l.size}
+                  · taille {l.size}
                   {l.editionLabel ? ` · ${l.editionLabel}` : ""}
                 </li>
               ))}
@@ -141,7 +141,7 @@ export function SizesPanel({ profile, onSaved }: { profile: CustomerProfile; onS
               {t.sizes[k]}
             </label>
             <select id={`size-${k}`} className="field__input" value={sizes[k] ?? ""} onChange={(e) => setSizes((s) => ({ ...s, [k]: e.target.value || undefined }))}>
-              <option value="">—</option>
+              <option value="">À choisir</option>
               {SIZES.map((s) => (
                 <option key={s} value={s}>
                   {s}

@@ -18,14 +18,14 @@ export async function runPublicite(): Promise<RoleOutcome> {
   // pixels publicitaires branchés (ACTIVATION.md, étape 11)
   const tracked = [process.env.NEXT_PUBLIC_META_PIXEL_ID, process.env.NEXT_PUBLIC_GOOGLE_ADS_ID, process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID].filter(Boolean);
   return {
-    resume: tracked.length ? "Mesure branchée : les propositions viendront avec les premiers résultats. Aucune dépense sans votre accord." : "Aucune campagne ni mesure branchée : rien à proposer pour l’instant.",
+    resume: tracked.length ? "Mesure branchée : les propositions viendront avec les premiers résultats. Aucune dépense sans votre accord." : "Aucune campagne ni mesure branchée : rien à proposer pour l’instant.",
     findings: [],
   };
 }
 
 async function fromMaintenance(re: RegExp, label: string): Promise<RoleOutcome> {
   const [last] = await maintenanceReports(1);
-  if (!last) return { resume: `Pas encore de contrôle de nuit : ${label} sera relue dès le premier passage.`, findings: [] };
+  if (!last) return { resume: `Pas encore de contrôle de nuit : ${label} sera relue dès le premier passage.`, findings: [] };
   const lines = last.details.filter((d) => re.test(d));
   const findings: Finding[] = lines.slice(0, 6).map((d) => ({ gravite: last.status === "alerte" ? "attention" : "info", titre: d.slice(0, 140), lien: "/", cible: d.slice(0, 60) }));
   return { resume: lines.length ? `${lines.length} remarque${lines.length > 1 ? "s" : ""} au dernier contrôle.` : `Rien à signaler sur ${label} au dernier contrôle.`, findings };

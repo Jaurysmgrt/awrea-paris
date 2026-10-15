@@ -17,12 +17,12 @@ export default async function SeoPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">SEO et visibilité IA</h1>
-        <p className="t-lead">Chaque semaine, l’agent audite le site, corrige les balises des fiches, publie un article du Journal et met à jour llms.txt pour les moteurs de réponse IA.</p>
+        <p className="t-lead">Le dimanche à 5 h, l’agent audite le site et corrige les balises des fiches. Il publie aussi un article du Journal et met à jour llms.txt pour les moteurs de réponse IA.</p>
         <ActionButton endpoint={atelierApi("/agents/seo")} label="Lancer un audit" busyLabel="Audit en cours…" />
       </header>
       {last ? (
         <section className="panel" aria-labelledby="audit-title">
-          <h2 id="audit-title" className="t-h3">Dernier audit — <When iso={last.date} /></h2>
+          <h2 id="audit-title" className="t-h3">Dernier audit du <When iso={last.date} /></h2>
           <dl className="kpis">
             <div><dt className="t-label">Score</dt><dd className="kpis__value">{last.score}/100</dd></div>
             <div><dt className="t-label">Pages auditées</dt><dd className="kpis__value">{last.pages}</dd></div>
@@ -50,7 +50,7 @@ export default async function SeoPage() {
       <section className="panel" aria-labelledby="ideas-title">
         <h2 id="ideas-title" className="t-h3">Idées d’articles</h2>
         {ideas?.length ? (
-          <ul className="stack">{ideas.map((i) => <li key={i.title} className="t-body"><strong>{i.title}</strong> — {i.angle} <span className="t-note">(requête : {i.target_query})</span></li>)}</ul>
+          <ul className="stack">{ideas.map((i) => <li key={i.title} className="t-body"><strong>{i.title}</strong> · {i.angle} <span className="t-note">(requête : {i.target_query})</span></li>)}</ul>
         ) : (
           <p className="t-note">Les idées apparaîtront après le premier passage.</p>
         )}

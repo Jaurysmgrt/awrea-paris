@@ -11,7 +11,7 @@ export const collections: Collection[] = [
     lead: "Quatre pièces, une seule matière fil conducteur : la dentelle noire, posée sur la peau comme une ombre qui laisse passer la lumière.",
     intention: [
       "J’ai voulu une collection qui se retire plutôt qu’elle ne s’impose. La dentelle dit tout en cachant presque tout : elle dessine, elle suggère, elle laisse la peau respirer entre ses fils.",
-      "Autour d’elle, des matières qui coulent — un jersey de viscose qui enveloppe, un satin qui accroche la lumière. Et partout, un fil d’or, discret, qui relie les pièces entre elles.",
+      "Autour d’elle, des matières qui coulent. Un jersey de viscose qui enveloppe, un satin qui accroche la lumière. Et partout, un fil d’or, discret, qui relie les pièces entre elles.",
       "Lace is more, c’est l’idée qu’une seule matière, bien travaillée, suffit à composer une garde-robe entière. Moins de pièces, mais des pièces qui restent.",
     ],
     cover: img("collection-lace", "Robe en dentelle noire portée de dos, silhouette élancée sur fond studio", 1200, 1600),
@@ -24,7 +24,7 @@ export const collections: Collection[] = [
     ],
     products: ["robe-odessa", "body-gaia", "body-aura", "top-kira"],
     seo: {
-      title: "Lace is more — collection dentelle noire | Awrea Paris",
+      title: "Lace is more, collection en dentelle noire | Awrea Paris",
       description: "Lace is more, la collection automne-hiver d’Awrea Paris : robe, bodys et top en dentelle noire, jersey et satin, faits main à Paris en séries numérotées.",
     },
   },
@@ -46,7 +46,7 @@ export const collections: Collection[] = [
     ],
     products: ["robe-thais", "jupe-iris", "corset-elia", "etole-nyx"],
     seo: {
-      title: "Lumière d’or — collection drapés et satin | Awrea Paris",
+      title: "Lumière d’or, collection de drapés et de satin | Awrea Paris",
       description: "Lumière d’or, première collection d’Awrea Paris : drapés à la grecque, satins clairs et dorure. Pièces uniques et sur commande, faites main à Paris.",
     },
   },

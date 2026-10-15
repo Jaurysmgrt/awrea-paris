@@ -24,7 +24,7 @@ export default async function BientotPage() {
         <div className="container-text stack-m">
           <NewsletterForm source="bientot" />
           <p className="t-note">
-            En attendant, <Link href="/boutique" className="text-link">découvrez les pièces disponibles</Link>.
+            En attendant, <Link href="/boutique" className="text-link">voici les pièces disponibles</Link>.
           </p>
         </div>
       </Section>

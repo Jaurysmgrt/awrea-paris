@@ -120,7 +120,7 @@ export default function AssistantPanel({ open, onClose }: { open: boolean; onClo
         });
         if (!res.ok || !res.body) {
           const j = await res.json().catch(() => ({}));
-          update((m) => ({ ...m, content: j.error ?? "Je rencontre une difficulté technique. Vous pouvez écrire directement à l’atelier.", error: true }));
+          update((m) => ({ ...m, content: j.error ?? "Je n’arrive pas à vous répondre pour l’instant. Vous pouvez écrire directement à l’atelier.", error: true }));
           return;
         }
         const reader = res.body.getReader();
@@ -207,7 +207,7 @@ export default function AssistantPanel({ open, onClose }: { open: boolean; onClo
                   ))}
                 </ul>
               ) : null}
-              {m.handoff ? <p className="t-note assistant__handoff">Transmis à l’atelier — réponse à {m.handoff} sous 48 heures ouvrées.</p> : null}
+              {m.handoff ? <p className="t-note assistant__handoff">Votre message est à l’atelier. Nous vous écrirons à {m.handoff}.</p> : null}
             </li>
           ))}
           {status ? (

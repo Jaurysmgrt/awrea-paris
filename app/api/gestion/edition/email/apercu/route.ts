@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   const target = body.success ? docAndLocale(body.data.id, body.data.locale) : null;
   if (!body.success || !target || (await documentInfo(target.doc))?.kind !== "email") return bad("E-mail inconnu.");
   const parsed = EmailDocSchema.safeParse(body.data.doc);
-  if (!parsed.success) return bad("Aperçu impossible : un élément de l’e-mail n’est pas reconnu.");
+  if (!parsed.success) return bad("Aperçu impossible : un élément de l’e-mail n’est pas reconnu.");
   const doc = parsed.data as EmailDoc;
   const vars = Object.fromEntries(Object.entries(doc.variables).map(([k, v]) => [k, body.data.cas[k] === false ? "" : v.exemple]));
   const handles = doc.blocs.flatMap((b) => (b.type === "produit" ? ((b.pieces as string[] | undefined) ?? []) : []));

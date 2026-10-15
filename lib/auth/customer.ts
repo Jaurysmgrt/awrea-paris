@@ -76,7 +76,7 @@ export async function startEmailLogin(email: string, opts: { create: boolean; te
     title: "Votre code de connexion",
     paragraphs: [`Voici votre code pour accéder à votre compte Awrea Paris : ${code}.`, "Il est valable dix minutes. Si vous n’êtes pas à l’origine de cette demande, ignorez simplement ce message."],
   });
-  await sendEmail({ to: email, subject: "Votre code de connexion — Awrea Paris", ...mail, tag: "login-code" }).catch((e) => console.error("[auth] e-mail", e));
+  await sendEmail({ to: email, subject: "Votre code de connexion à Awrea Paris", ...mail, tag: "login-code" }).catch((e) => console.error("[auth] e-mail", e));
   return { ok: true, demoCode: showDemoCode() ? code : undefined };
 }
 

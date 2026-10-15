@@ -67,7 +67,7 @@ function item(p: Product, v: Variant, target: FeedTarget, collectionTitle: strin
     "<item>",
     tag("id", v.sku),
     tag("item_group_id", p.handle),
-    tag("title", `${p.title} — ${size}`),
+    tag("title", `${p.title} · ${size}`),
     tag("description", [p.tagline, ...p.description].join(" ").slice(0, 4900)),
     tag("link", absolute(`/boutique/${p.handle}`)),
     tag("image_link", imageUrl(p.images[0].src)),

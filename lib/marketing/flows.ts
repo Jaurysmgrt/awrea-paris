@@ -144,7 +144,7 @@ export async function onOrderDelivered(order: Order) {
 async function sendAfterPurchase(order: Order) {
   await once("apres-achat", order.id, async () => {
     const products = await Promise.all(order.lines.map((l) => getProduct(l.handle)));
-    const care = products.flatMap((p, i) => (p ? [`${order.lines[i].title} — ${p.care.join(" ")}`] : []));
+    const care = products.flatMap((p, i) => (p ? [`${order.lines[i].title}. ${p.care.join(" ")}`] : []));
     const mail = brandEmail({
       preheader: "Quelques gestes pour que votre pièce traverse les années.",
       title: "Prendre soin de votre pièce",

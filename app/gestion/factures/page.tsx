@@ -62,7 +62,7 @@ export default async function FacturesPage() {
                         <td>{i.orderNumber}</td>
                         <td>{i.buyer.name}</td>
                         <td>{formatPrice(i.totals.ht)}</td>
-                        <td>{i.regime === "tva" ? formatPrice(i.totals.vat) : i.regime === "export" ? "exonérée" : "—"}</td>
+                        <td>{i.regime === "tva" ? formatPrice(i.totals.vat) : i.regime === "export" ? "exonérée" : "non applicable"}</td>
                         <td>{formatPrice(i.totals.ttc)}</td>
                       </tr>
                     ))}

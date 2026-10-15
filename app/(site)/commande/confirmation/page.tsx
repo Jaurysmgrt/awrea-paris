@@ -72,7 +72,7 @@ export default async function ConfirmationPage({
                 </ul>
                 <dl className="totals">
                   <div>
-                    <dt>Livraison — {order.shipping.method}</dt>
+                    <dt>Livraison · {order.shipping.method}</dt>
                     <dd>
                       {order.shipping.price
                         ? formatPrice(order.shipping.price)

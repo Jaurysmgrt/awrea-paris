@@ -17,10 +17,10 @@ export async function runDrops(now = new Date()): Promise<RoleOutcome> {
     const until = (new Date(d.earlyAccessAt).getTime() - now.getTime()) / DAY;
     if (until < 0 || until > 7) continue;
     const signups = await dropSignups(d.slug).catch(() => []);
-    findings.push({ gravite: "info", titre: `« ${d.title} » ouvre aux inscrites le ${fmt(d.earlyAccessAt)}`, detail: `${signups.length} inscrite${signups.length > 1 ? "s" : ""}, ${d.products.length} pièce${d.products.length > 1 ? "s" : ""}.`, lien: "/drops", cible: d.slug });
-    if (!d.products.length) findings.push({ gravite: "urgent", titre: `« ${d.title} » n’a encore aucune pièce`, lien: "/drops", cible: `${d.slug}:pieces` });
-    if (new Date(d.publicAt) < new Date(d.earlyAccessAt)) findings.push({ gravite: "urgent", titre: `« ${d.title} » ouvre au public avant les inscrites`, detail: "Les deux dates sont à revoir.", lien: "/drops", cible: `${d.slug}:dates` });
-    if (d.privateSale && !d.passwordHash) findings.push({ gravite: "urgent", titre: `Vente privée « ${d.title} » sans mot de passe`, lien: "/drops", cible: `${d.slug}:mdp` });
+    findings.push({ gravite: "info", titre: `« ${d.title} » ouvre aux inscrites le ${fmt(d.earlyAccessAt)}`, detail: `${signups.length} inscrite${signups.length > 1 ? "s" : ""}, ${d.products.length} pièce${d.products.length > 1 ? "s" : ""}.`, lien: "/drops", cible: d.slug });
+    if (!d.products.length) findings.push({ gravite: "urgent", titre: `« ${d.title} » n’a encore aucune pièce`, lien: "/drops", cible: `${d.slug}:pieces` });
+    if (new Date(d.publicAt) < new Date(d.earlyAccessAt)) findings.push({ gravite: "urgent", titre: `« ${d.title} » ouvre au public avant les inscrites`, detail: "Les deux dates sont à revoir.", lien: "/drops", cible: `${d.slug}:dates` });
+    if (d.privateSale && !d.passwordHash) findings.push({ gravite: "urgent", titre: `Vente privée « ${d.title} » sans mot de passe`, lien: "/drops", cible: `${d.slug}:mdp` });
   }
   return { resume: findings.length ? `${findings.filter((f) => f.gravite === "info").length} série${findings.length > 1 ? "s" : ""} dans les sept jours.` : "Aucune série dans les sept prochains jours.", findings };
 }

@@ -17,7 +17,7 @@ export function Footer() {
         <div className="site-footer__brand">
           <Link href="/" className="site-footer__logo">
             <Logo decorative />
-            <span className="sr-only">Awrea Paris — accueil</span>
+            <span className="sr-only">Awrea Paris, page d’accueil</span>
           </Link>
           <p className="t-h2 site-footer__script">Consommer plus juste</p>
           <p className="t-note site-footer__desc">{identity.shortDescription}</p>

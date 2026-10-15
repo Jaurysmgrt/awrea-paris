@@ -50,9 +50,9 @@ export default async function CertificatsPage({ searchParams }: { searchParams: 
                       {c.size ? ` (${c.size})` : ""}
                     </td>
                     <td>{c.editionTotal === 1 ? "Pièce unique" : c.editionNumber ? `N° ${c.editionNumber} / ${c.editionTotal}` : "Sur commande"}</td>
-                    <td>{c.orderNumber ?? "—"}</td>
+                    <td>{c.orderNumber ?? "Aucune"}</td>
                     <td>{formatDate(c.madeOn)}</td>
-                    <td>{c.customerId || c.claimedAt ? "Rattaché" : c.ownerEmailHash ? "Acheteuse" : "—"}</td>
+                    <td>{c.customerId || c.claimedAt ? "Rattaché" : c.ownerEmailHash ? "Acheteuse" : "Aucun"}</td>
                     <td>
                       <Link href={atelierHref(`/certificats/${c.serial}`)} className="text-link">
                         Préparer

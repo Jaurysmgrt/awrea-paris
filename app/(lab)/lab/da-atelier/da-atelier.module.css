@@ -70,15 +70,16 @@ html[data-motion="reduce"] .page [data-curseur] {
   z-index: var(--z-header);
 }
 .headerBar {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--spacing-m);
+  column-gap: var(--spacing-m);
   min-height: var(--header-h);
 }
 .logo {
   display: block;
+  grid-column: 1;
   height: calc(var(--header-h) * 0.66);
-  margin-right: auto;
   color: inherit;
 }
 .logoSvg {
@@ -87,6 +88,8 @@ html[data-motion="reduce"] .page [data-curseur] {
 }
 .nav {
   display: none;
+  grid-column: 2;
+  justify-self: end;
 }
 .navList {
   list-style: none;
@@ -95,6 +98,7 @@ html[data-motion="reduce"] .page [data-curseur] {
 }
 .headerTools {
   display: flex;
+  grid-column: 3;
   align-items: center;
   gap: var(--spacing-m);
 }
@@ -110,6 +114,7 @@ html[data-motion="reduce"] .page [data-curseur] {
     position: absolute;
     top: 100%;
     inset-inline: 0;
+    justify-self: stretch;
     z-index: var(--z-header);
     padding: var(--spacing-m) var(--spacing-gutter);
     background: var(--bg);
@@ -572,6 +577,9 @@ html[data-motion="reduce"] .page [data-curseur] {
   left: var(--x);
   top: var(--y);
   z-index: var(--z-base);
+  /* un point : l'épingle et sa note s'organisent autour de lui */
+  width: 0;
+  height: 0;
 }
 .secretBtn {
   display: grid;
@@ -1039,7 +1047,7 @@ html[data-motion="reduce"] .page [data-curseur] {
 
 /* ========================================================================= FICHE */
 .fiche {
-  padding-top: var(--spacing-l);
+  padding-top: var(--spacing-m);
   padding-bottom: var(--space-section);
 }
 .ficheTete {

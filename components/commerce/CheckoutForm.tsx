@@ -135,7 +135,7 @@ export function CheckoutForm() {
                     Taille {l.size} · Qté {l.quantity}
                     {l.editionLabel ? ` · ${l.editionLabel}` : ""}
                   </p>
-                  {l.preorder ? <p className="t-note">Sur commande — {l.leadTimeWeeks ?? 4} semaines de fabrication</p> : null}
+                  {l.preorder ? <p className="t-note">Sur commande. Comptez {l.leadTimeWeeks ?? 4} semaines à l’atelier.</p> : null}
                 </div>
               </li>
             ))}
@@ -212,7 +212,7 @@ export function CheckoutForm() {
         <p className="t-lead">Votre panier est vide.</p>
         <div>
           <Link href="/boutique" className="btn">
-            Découvrir la boutique
+            Revenir à la boutique
           </Link>
         </div>
       </div>
@@ -281,7 +281,7 @@ export function CheckoutForm() {
         }}
       >
         <p className="notice t-note">
-          Mode test : aucun paiement réel n’est effectué. Carte de test acceptée : 4242 4242 4242 4242 — carte refusée : 4000 0000 0000 0002.
+          Mode test : rien n’est débité. La carte 4242 4242 4242 4242 est acceptée. La carte 4000 0000 0000 0002 est refusée.
         </p>
 
         <section className="express" aria-labelledby="express-title">
@@ -519,15 +519,15 @@ export function CheckoutForm() {
               {state === "loading"
                 ? "Paiement en cours…"
                 : pay === "shop-pay"
-                  ? `Payer avec Shop Pay — ${formatPrice(total)}`
+                  ? `Payer ${formatPrice(total)} avec Shop Pay`
                   : pay === "apple-pay"
-                  ? `Payer avec Apple Pay — ${formatPrice(total)}`
+                  ? `Payer ${formatPrice(total)} avec Apple Pay`
                   : pay === "google-pay"
-                    ? `Payer avec Google Pay — ${formatPrice(total)}`
+                    ? `Payer ${formatPrice(total)} avec Google Pay`
                     : pay === "paypal"
-                      ? `Continuer avec PayPal — ${formatPrice(total)}`
+                      ? `Régler ${formatPrice(total)} sur PayPal`
                       : pay === "installments"
-                        ? `Payer en plusieurs fois — ${formatPrice(total)}`
+                        ? `Payer ${formatPrice(total)} en plusieurs fois`
                         : `Payer ${formatPrice(total)}`}
             </button>
             <p className="t-note t-center">Paiement sécurisé. Vos données bancaires ne transitent jamais par nos serveurs.</p>

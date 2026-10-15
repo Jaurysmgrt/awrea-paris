@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     name: d.name,
     email: d.email,
     subject: "retour",
-    message: `Rétractation en ligne ${reference} — commande ${d.order}${d.pieces ? ` — pièces : ${d.pieces}` : " — toutes les pièces"}${d.receivedAt ? ` — reçue le ${d.receivedAt}` : ""}.${matches ? "" : " (Commande non retrouvée avec cette adresse e-mail : à vérifier.)"}`,
+    message: `Rétractation en ligne ${reference} pour la commande ${d.order}.${d.pieces ? ` Pièces concernées : ${d.pieces}.` : " Elle porte sur toutes les pièces."}${d.receivedAt ? ` Commande reçue le ${d.receivedAt}.` : ""}${matches ? "" : " (Commande non retrouvée avec cette adresse e-mail : à vérifier.)"}`,
     orderNumber: d.order,
     status: "new",
   });
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     signature: "Avec toute notre attention, l’atelier Awrea Paris.",
     footnote: `Référence ${reference} · à conserver comme preuve de votre demande.`,
   });
-  await sendEmail({ to: d.email, subject: `Rétractation enregistrée — ${d.order}`, ...mail, tag: "retractation" }).catch((e) => console.error("[rétractation] e-mail", e));
+  await sendEmail({ to: d.email, subject: `Rétractation enregistrée pour la commande ${d.order}`, ...mail, tag: "retractation" }).catch((e) => console.error("[rétractation] e-mail", e));
   after(() => runServiceClientAgent("evenement").catch((e) => console.error("[agent service-client]", e)));
   return NextResponse.json({ ok: true, reference, at });
 }

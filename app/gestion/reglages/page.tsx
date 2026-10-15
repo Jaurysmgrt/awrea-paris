@@ -45,7 +45,7 @@ export default async function ReglagesPage() {
     ...Object.values(providers).map((s) => ({
       name: s.label,
       ok: s.provider !== "mock",
-      state: s.provider === "mock" ? `Simulation — ${s.providerLabel}` : s.id === "ai" ? `${s.providerLabel} (${MODEL})` : s.providerLabel,
+      state: s.provider === "mock" ? `Simulation · ${s.providerLabel}` : s.id === "ai" ? `${s.providerLabel} (${MODEL})` : s.providerLabel,
       hint: s.missing.length
         ? `${s.env}=${s.requested} demandé : manque ${s.missing.join(", ")}`
         : `${s.env} · ${Object.values(s.keys).map((k) => k.join(", ")).join(" ou ")}`,
@@ -132,7 +132,7 @@ export default async function ReglagesPage() {
           <thead><tr><th scope="col">Action</th><th scope="col">Décision</th></tr></thead>
           <tbody>
             {Object.entries(POLICY).map(([k, p]) => (
-              <tr key={k}><th scope="row">{p.label}</th><td>{p.approval ? <span className="status status--proposed">Votre validation — {p.why}</span> : <span className="status status--done">Autonome</span>}</td></tr>
+              <tr key={k}><th scope="row">{p.label}</th><td>{p.approval ? <span className="status status--proposed">Votre validation · {p.why}</span> : <span className="status status--done">Autonome</span>}</td></tr>
             ))}
           </tbody>
         </table></div>

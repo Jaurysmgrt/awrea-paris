@@ -34,7 +34,7 @@ export const nav = {
 
 export const home = {
   seo: {
-    title: "Awrea Paris — prêt-à-porter féminin fait main à Paris",
+    title: "Awrea Paris, prêt-à-porter féminin fait main à Paris",
     description:
       "Awrea Paris, créatrice française de prêt-à-porter féminin : dentelle noire, jersey, satin et dorure. Pièces uniques et séries numérotées, faites main à Paris.",
   },
@@ -42,7 +42,7 @@ export const home = {
     eyebrow: "Collection Automne-Hiver 2026",
     title: "Lace is more",
     lead: "La dentelle noire, posée sur la peau comme une ombre qui laisse passer la lumière.",
-    cta: { href: "/collections/lace-is-more", label: "Découvrir la collection" },
+    cta: { href: "/collections/lace-is-more", label: "Voir la collection" },
     h1: "Awrea Paris, prêt-à-porter féminin fait main à Paris",
   },
   collection: {
@@ -69,7 +69,7 @@ export const home = {
     eyebrow: "Shop the look",
     title: "Composer la silhouette",
     text: "Touchez les points lumineux pour découvrir chaque pièce de la silhouette.",
-    cta: { href: "/outfits", label: "Découvrir les outfits" },
+    cta: { href: "/outfits", label: "Parcourir les outfits" },
   },
   atelier: {
     eyebrow: "L’Atelier",
@@ -90,9 +90,9 @@ export const home = {
 
 export const maison = {
   seo: {
-    title: "La Maison — histoire et manifeste | Awrea Paris",
+    title: "La Maison, son histoire et son manifeste | Awrea Paris",
     description:
-      "L’histoire d’Awrea Paris : une jeune créatrice parisienne, des pièces faites main en séries numérotées, la dentelle noire et la dorure, un manifeste — consommer plus juste.",
+      "L’histoire d’Awrea Paris : une jeune créatrice parisienne, des pièces faites main en séries numérotées, la dentelle noire et la dorure. Et un manifeste, consommer plus juste.",
   },
   h1: "La Maison",
   lead: "Awrea Paris est une maison de prêt-à-porter féminin fondée à Paris par une jeune créatrice. Elle dessine, coupe et coud chaque pièce à la main, en pièce unique ou en très petite série numérotée.",
@@ -107,14 +107,14 @@ export const maison = {
     {
       title: "Une lumière plutôt qu’une couleur",
       text: [
-        "Tout commence par une phrase écrite dans un carnet de croquis : « La couleur n’est pas au rendez-vous mais la lumière de la dorure suffit à révéler l’essentiel. » La palette de la maison tient en quatre teintes — le noir profond, l’ivoire, le gris perle, l’or chaud — et c’est la lumière, plus que la couleur, qui donne vie aux pièces.",
+        "Tout commence par une phrase écrite dans un carnet de croquis : « La couleur n’est pas au rendez-vous mais la lumière de la dorure suffit à révéler l’essentiel. » Les pièces n’ont que quatre teintes, le noir profond, l’ivoire, le gris perle et l’or chaud de la dorure. C’est la lumière, plus que la couleur, qui leur donne vie.",
         "La dentelle noire en est la signature. Associée à des matières fluides, le jersey et le satin, elle dessine des silhouettes minimales et contrastées, sensuelles sans jamais être démonstratives.",
       ],
     },
     {
       title: "Le drapé, le mouvement",
       text: [
-        "La créatrice puise dans le drapé à la grecque : un pan de tissu, un nœud à l’épaule, et la silhouette se compose d’elle-même. Les pièces Awrea sont pensées pour le mouvement — elles prennent leur forme quand on marche, quand on danse, quand on se retourne.",
+        "La créatrice puise dans le drapé à la grecque : un pan de tissu, un nœud à l’épaule, et la silhouette se compose d’elle-même. Les pièces Awrea sont pensées pour le mouvement. Elles prennent leur forme quand on marche, quand on danse, quand on se retourne.",
       ],
     },
     {
@@ -154,7 +154,7 @@ export const maison = {
 
 export const atelier = {
   seo: {
-    title: "L’Atelier — savoir-faire et fabrication à la main | Awrea Paris",
+    title: "L’Atelier, savoir-faire et fabrication à la main | Awrea Paris",
     description:
       "Dans l’atelier parisien d’Awrea Paris : croquis, patronage, coupe, montage de la dentelle, finitions dorées. Chaque pièce est faite main et numérotée.",
   },
@@ -210,7 +210,7 @@ export const contact = {
 /** Rubrique « Outfits » du compte Instagram de la Maison (ancienne page « Silhouettes », redirigée). */
 export const outfits = {
   seo: {
-    title: "Outfits — tenues complètes | Awrea Paris",
+    title: "Outfits, des tenues complètes | Awrea Paris",
     description:
       "Les outfits Awrea Paris : des tenues complètes en dentelle noire, jersey et satin, composées par la créatrice et commandées en un geste. Pièces faites main à Paris.",
   },
@@ -220,7 +220,7 @@ export const outfits = {
 
 export const boutique = {
   seo: {
-    title: "Boutique — robes, bodys et tops faits main | Awrea Paris",
+    title: "Boutique de robes, bodys et tops faits main | Awrea Paris",
     description:
       "La boutique Awrea Paris : robe en dentelle noire, bodys, tops et jupes en jersey et satin. Pièces uniques et séries numérotées, faites main à Paris.",
   },
@@ -241,7 +241,7 @@ export const boutique = {
 
 export const collectionsPage = {
   seo: {
-    title: "Collections — Lace is more, Lumière d’or | Awrea Paris",
+    title: "Les collections Lace is more et Lumière d’or | Awrea Paris",
     description:
       "Les collections Awrea Paris : Lace is more, en dentelle noire, et Lumière d’or, en drapés et satins. Intentions, moodboards et pièces faites main à Paris.",
   },
@@ -251,7 +251,7 @@ export const collectionsPage = {
 
 export const journalPage = {
   seo: {
-    title: "Journal — moodboards et coulisses | Awrea Paris",
+    title: "Journal, moodboards et coulisses | Awrea Paris",
     description:
       "Le Journal d’Awrea Paris : moodboards, coulisses des shootings, savoir-faire de la dentelle et lettres de l’atelier parisien.",
   },
@@ -261,7 +261,7 @@ export const journalPage = {
 
 export const pressePage = {
   seo: {
-    title: "Presse — parutions et contact presse | Awrea Paris",
+    title: "Presse, parutions et contact | Awrea Paris",
     description:
       "Awrea Paris dans la presse : parutions, kit presse et contact pour les journalistes, stylistes et collaborations.",
   },

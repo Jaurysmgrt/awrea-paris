@@ -25,7 +25,7 @@ export function EditionNumber({ product, variant = "certificate" }: { product: P
         ) : (
           <>
             <span className="certificate__no">N°</span>
-            <span className="certificate__n">{ed.complete ? "—" : ed.nextNumber}</span>
+            <span className="certificate__n">{ed.complete ? "·" : ed.nextNumber}</span>
             <span className="certificate__slash">/</span>
             <span className="certificate__total">{ed.total}</span>
           </>

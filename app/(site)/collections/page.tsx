@@ -31,7 +31,7 @@ export default async function CollectionsPage() {
               <p className="t-lead">{c.lead}</p>
               <p className="t-label t-soft">{c.products.length} pièces</p>
               <Link href={`/collections/${c.handle}`} className={`btn ${i % 2 ? "btn--solid" : ""}`}>
-                Découvrir {c.title}
+                Voir la collection {c.title}
               </Link>
             </div>
           </div>

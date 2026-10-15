@@ -106,7 +106,7 @@ export function Header() {
 
           <Link href="/" className="site-header__logo">
             <Logo className="site-header__logo-svg" decorative />
-            <span className="sr-only">Awrea Paris — accueil</span>
+            <span className="sr-only">Awrea Paris, page d’accueil</span>
           </Link>
 
           <div className="site-header__right">

@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Requête invalide" }, { status: 400 });
   try {
     const r = await EXECUTORS.update_stock(parsed.data);
-    await logAction({ agent: "systeme", kind: "update_stock", status: "done", summary: `Par l’atelier — ${r.summary}`, target: r.target });
+    await logAction({ agent: "systeme", kind: "update_stock", status: "done", summary: `Par l’atelier · ${r.summary}`, target: r.target });
     return NextResponse.json({ ok: true, summary: r.summary });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 400 });

@@ -21,7 +21,7 @@ export function controle(outcome: RoleOutcome, ctx: { since: string; role: strin
   for (const a of acted) {
     if (a.status === "done" && SENSITIVE.has(a.kind)) out.push({ gravite: "urgent", titre: "Action sensible faite sans votre accord", detail: a.summary, lien: "/journal", cible: a.id });
   }
-  if (acted.filter((a) => a.kind === "alert_atelier").length > 5) out.push({ gravite: "attention", titre: "Trop d’alertes en un seul passage", detail: "Le rôle doit regrouper ses alertes : l’essentiel se perd sinon." });
+  if (acted.filter((a) => a.kind === "alert_atelier").length > 5) out.push({ gravite: "attention", titre: "Trop d’alertes en un seul passage", detail: "Le rôle doit regrouper ses alertes : l’essentiel se perd sinon." });
   for (const f of outcome.findings) if (f.gravite === "urgent" && !f.lien) out.push({ gravite: "attention", titre: "Alerte urgente sans endroit où agir", detail: f.titre });
   return out;
 }

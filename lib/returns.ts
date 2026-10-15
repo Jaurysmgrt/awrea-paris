@@ -29,7 +29,7 @@ export const reasonLabel: Record<ReturnReason, string> = {
 };
 
 export const statusLabel: Record<ReturnStatus, string> = {
-  demande: "Retour demandé — en attente du colis",
+  demande: "Retour demandé, en attente du colis",
   recu: "Colis reçu à l’atelier",
   rembourse: "Remboursée",
   "echange-expedie": "Nouvelle taille expédiée",

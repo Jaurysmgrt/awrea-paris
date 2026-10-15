@@ -152,7 +152,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
           { key: "materials", type: "json", value: JSON.stringify(d.materials) },
           { key: "care", type: "list.single_line_text_field", value: JSON.stringify(d.care) },
           { key: "fit", type: "multi_line_text_field", value: d.fit },
-          { key: "model", type: "single_line_text_field", value: d.model || "—" },
+          { key: "model", type: "single_line_text_field", value: d.model || "La taille portée sur les photos reste à préciser par l’atelier." },
           { key: "details", type: "list.single_line_text_field", value: JSON.stringify(d.details.length ? d.details : ["Fait main à Paris"]) },
         ],
         images: d.images.map((i) => ({ url: i.src.startsWith("http") ? i.src : `${identity.url}${i.src}`, alt: i.alt })),
@@ -237,10 +237,10 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
         tag: "liste-attente",
         ...brandEmail({
           preheader: "Une nouvelle pièce vient de sortir de l’atelier.",
-          title: `${p.title} vous attend`,
+          title: `${p.title}, de nouveau disponible`,
           paragraphs: [
             "Bonjour,",
-            message ?? `Vous nous aviez demandé de vous prévenir : une nouvelle pièce ${p.title}${w.size ? ` en taille ${w.size}` : ""} vient de sortir de l’atelier. Les séries sont courtes ; nous vous écrivons avant tout le monde.`,
+            message ?? `Vous nous aviez demandé de vous prévenir : une nouvelle pièce ${p.title}${w.size ? ` en taille ${w.size}` : ""} vient de sortir de l’atelier.`,
           ],
           items: [{ title: p.title, meta: w.size ? `Taille ${w.size}` : "Fait main à Paris", price: p.price, image: imageAt(p.images[0].src, 480) }],
           cta: { label: "Voir la pièce", href: `/boutique/${p.handle}` },
@@ -264,17 +264,17 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       ...brandEmail({ preheader: body.slice(0, 90), title: subject, paragraphs: body.split(/\n{2,}/), signature: "Avec toute notre attention,\nl’atelier Awrea Paris" }),
     });
     await updateInbox(messageId, { status: "answered", answer: { body, date: new Date().toISOString(), by: "agent" } });
-    return { summary: `Réponse envoyée à ${msg.email} — « ${subject} »`, target: { type: "message", id: messageId, label: msg.email, href: "atelier:/messages" } };
+    return { summary: `Réponse « ${subject} » envoyée à ${msg.email}`, target: { type: "message", id: messageId, label: msg.email, href: "atelier:/messages" } };
   },
 
   async save_reply_draft({ messageId, body, note, sensitive }) {
     await updateInbox(messageId, { status: sensitive ? "escalated" : "drafted", draft: { body, agentNote: note, date: new Date().toISOString(), sensitive } });
-    return { summary: `Brouillon de réponse préparé${sensitive ? " — cas sensible, escaladé à la créatrice" : ""}`, target: { type: "message", id: messageId, href: "atelier:/messages" } };
+    return { summary: `Brouillon de réponse préparé${sensitive ? ", cas sensible confié à la créatrice" : ""}`, target: { type: "message", id: messageId, href: "atelier:/messages" } };
   },
 
   async escalate_message({ messageId, reason }) {
     await updateInbox(messageId, { status: "escalated" });
-    return { summary: `Message escaladé à la créatrice : ${reason}`, target: { type: "message", id: messageId, href: "atelier:/messages" } };
+    return { summary: `Message confié à la créatrice : ${reason}`, target: { type: "message", id: messageId, href: "atelier:/messages" } };
   },
 
   async flag_order({ orderId, reason }) {
@@ -354,7 +354,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       to: o.email,
       subject: `Remboursement de votre commande ${o.number}`,
       tag: "remboursement",
-      ...brandEmail({ preheader: "Votre remboursement est en cours.", title: "Votre remboursement", paragraphs: [`Bonjour ${o.name.split(" ")[0]},`, `Nous avons procédé au remboursement de votre commande ${o.number}, soit ${formatPrice(o.total)}, sur votre moyen de paiement d’origine. Il apparaîtra sous quelques jours.`], signature: "Avec toute notre attention,\nl’atelier Awrea Paris" }),
+      ...brandEmail({ preheader: "Votre remboursement est en cours.", title: "Votre remboursement", paragraphs: [`Bonjour ${o.name.split(" ")[0]},`, `Votre commande ${o.number} vous est remboursée : ${formatPrice(o.total)}, sur le moyen de paiement utilisé lors de l’achat. La somme apparaît sur votre relevé d’ici quelques jours.`], signature: "Avec toute notre attention,\nl’atelier Awrea Paris" }),
     });
     return { summary: `Commande ${o.number} remboursée (${formatPrice(o.total)})`, target: { type: "order", id: o.id, label: o.number, href: "atelier:/commandes" } };
   },

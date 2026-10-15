@@ -9,7 +9,7 @@ import { dur, loadGsap, prefersReducedMotion } from "@/lib/motion";
 
 const SKETCHES: { title: string; paths: string[]; gold: string[] }[] = [
   {
-    title: "Robe Odessa — dos lacé, traîne",
+    title: "Robe Odessa, dos lacé et traîne",
     paths: [
       "M100 14 C88 14 86 30 90 40 C93 47 107 47 110 40 C114 30 112 14 100 14 Z",
       "M96 8 C96 2 104 2 104 8",
@@ -25,7 +25,7 @@ const SKETCHES: { title: string; paths: string[]; gold: string[] }[] = [
     gold: ["M95 84 L105 92 L95 100 L105 108 L95 116 L105 124 L95 132 L105 140"],
   },
   {
-    title: "Body Gaïa — bustier, fil d’or",
+    title: "Body Gaïa, fil d’or sur le bustier",
     paths: [
       "M100 16 C89 16 87 31 91 40 C94 47 106 47 109 40 C113 31 111 16 100 16 Z",
       "M94 47 L92 66 M106 47 L108 66",
@@ -40,7 +40,7 @@ const SKETCHES: { title: string; paths: string[]; gold: string[] }[] = [
     gold: ["M70 84 C84 96 116 96 130 84"],
   },
   {
-    title: "Top Kira — biais, ourlet asymétrique",
+    title: "Top Kira, coupé en biais, ourlet asymétrique",
     paths: [
       "M100 14 C89 14 87 29 91 38 C94 45 106 45 109 38 C113 29 111 14 100 14 Z",
       "M96 45 L95 58 M104 45 L105 58",

@@ -66,7 +66,7 @@ export const EMAIL_BLOCKS: BlockDef[] = [
   {
     type: "produit",
     label: "Pièce",
-    description: "Une pièce de la boutique : sa photographie, son nom, son prix, le lien vers sa page.",
+    description: "Une pièce de la boutique : sa photographie, son nom, son prix, le lien vers sa page.",
     fields: [{ key: "pieces", label: "Pièce", kind: "pieces", max: 1 }],
     create: () => ({ pieces: [] }),
   },

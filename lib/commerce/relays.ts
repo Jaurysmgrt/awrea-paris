@@ -18,7 +18,7 @@ export function relayPoints(zip: string, country: string): RelayPoint[] {
     id: `MR-${country}-${z}-${n}`,
     name: `Point relais de démonstration ${n}`,
     address: `${["Rue", "Avenue", "Place"][n - 1]} du relais ${n}, ${z}`,
-    hours: n === 3 ? "Du mardi au samedi, 10 h – 19 h" : "Du lundi au samedi, 9 h – 19 h",
+    hours: n === 3 ? "Du mardi au samedi, de 10 h à 19 h" : "Du lundi au samedi, de 9 h à 19 h",
   }));
 }
 

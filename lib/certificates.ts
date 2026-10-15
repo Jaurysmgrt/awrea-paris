@@ -276,12 +276,12 @@ export async function sendCertificatesEmail(order: Order, issued: { certificate:
     paragraphs: [
       first ? `Bonjour ${first},` : "Bonjour,",
       "Chaque pièce Awrea Paris est accompagnée d’un certificat signé par la créatrice. Sa version numérique est déjà en ligne, et rattachée à votre compte si vous en avez un avec cette adresse.",
-      ...issued.map((x) => `${x.certificate.productTitle}${x.certificate.editionNumber && x.certificate.editionTotal > 1 ? `, N° ${x.certificate.editionNumber} / ${x.certificate.editionTotal}` : ""} — ${certificateUrl(x.certificate.serial)}`),
+      ...issued.map((x) => `${x.certificate.productTitle}${x.certificate.editionNumber && x.certificate.editionTotal > 1 ? `, N° ${x.certificate.editionNumber} / ${x.certificate.editionTotal}` : ""} : ${certificateUrl(x.certificate.serial)}`),
       `Si vous offrez une pièce, transmettez avec elle son code de rattachement : ${issued.map((x) => `${x.certificate.productTitle} : ${x.claimCode}`).join(" ; ")}.`,
     ],
     cta: { label: "Voir mes certificats", href: "/compte#certificats" },
     signature: "Avec toute notre gratitude,\nLa Créatrice",
     footnote: `Commande ${order.number}`,
   });
-  await sendEmail({ to: order.email, subject: `Certificat d’authenticité — commande ${order.number}`, tag: "certificats", ...mail });
+  await sendEmail({ to: order.email, subject: `Certificat d’authenticité de votre commande ${order.number}`, tag: "certificats", ...mail });
 }

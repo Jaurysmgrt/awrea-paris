@@ -64,7 +64,7 @@ export async function invoicePdf(inv: Invoice): Promise<Uint8Array> {
   const light = await doc.embedFont(f.light, { subset: true });
   const regular = await doc.embedFont(f.regular, { subset: true });
   const title = `${inv.kind === "facture" ? "Facture" : "Avoir"} ${inv.number}`;
-  doc.setTitle(`${title} — ${identity.name}`);
+  doc.setTitle(`${title} · ${identity.name}`);
   doc.setAuthor(identity.name);
   doc.setCreator(identity.name);
   doc.setLanguage("fr-FR");
@@ -113,7 +113,7 @@ export async function invoicePdf(inv: Invoice): Promise<Uint8Array> {
   // vendeuse et acheteuse
   const col2 = W / 2 + 8;
   const sellerLines = [
-    `${field("raisonSociale")} — ${field("formeJuridique")}`,
+    `${field("raisonSociale")}, ${field("formeJuridique")}`,
     legalFields.capital.value ? `Capital de ${legalFields.capital.value}` : "",
     field("siege"),
     `SIRET ${field("siret")} · ${field("immatriculation")}`,
@@ -190,7 +190,7 @@ export async function invoicePdf(inv: Invoice): Promise<Uint8Array> {
   // mentions
   y -= 12;
   const notes = [
-    inv.kind === "facture" ? `Réglée le ${formatDate(inv.saleDate)} par ${payment(inv.paymentMethod)}.` : `Remboursement par ${payment(inv.paymentMethod)}${inv.reason ? ` — ${inv.reason}` : ""}.`,
+    inv.kind === "facture" ? `Réglée le ${formatDate(inv.saleDate)} par ${payment(inv.paymentMethod)}.` : `Remboursement par ${payment(inv.paymentMethod)}${inv.reason ? `, ${inv.reason}` : ""}.`,
     inv.regime === "franchise" ? "TVA non applicable, article 293 B du code général des impôts." : "",
     inv.regime === "export" ? "Exonération de TVA, article 262 I du code général des impôts (livraison hors de l’Union européenne). Droits et taxes du pays d’arrivée réglés à la commande." : "",
     "Pièces façonnées à la main à Paris. Facture conservée dix ans par la maison.",

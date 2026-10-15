@@ -21,7 +21,7 @@ export default async function MessagesPage() {
         </span>
       </header>
       <h3 className="t-h4">
-        {m.name || m.email} — {m.subject}
+        {m.name || m.email} · {m.subject}
       </h3>
       <p className="t-label t-soft">{m.email}{m.orderNumber ? ` · ${m.orderNumber}` : ""}{m.appointment ? ` · ${m.appointment.type}${m.appointment.preferredDate ? `, ${m.appointment.preferredDate}` : ""}${m.appointment.slot ? ` (${m.appointment.slot})` : ""}` : ""}</p>
       <blockquote className="message__body t-body">{m.message}</blockquote>

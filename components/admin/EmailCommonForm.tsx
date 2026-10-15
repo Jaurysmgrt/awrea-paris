@@ -34,7 +34,7 @@ export function EmailCommonForm({ fields }: { fields: CommonField[] }) {
         }
         const res = await post(atelier.api("/edition/publier"), { docs: ["email-commun"] });
         setBusy(false);
-        setStatus(res?.ok ? "Publié. Tous les e-mails reprennent ces textes." : "Rien à publier : aucun texte n’a changé.");
+        setStatus(res?.ok ? "Publié. Tous les e-mails reprennent ces textes." : "Rien à publier : aucun texte n’a changé.");
       }}
     >
       {fields.map((f) => {

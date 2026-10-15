@@ -52,7 +52,7 @@ function summary(p: Product) {
     accroche: p.tagline,
     categorie: p.category,
     prix: formatPrice(p.price),
-    edition: ed.unique ? "pièce unique" : `${ed.label} — ${ed.remainingLabel}`,
+    edition: ed.unique ? "pièce unique" : `${ed.label} · ${ed.remainingLabel}`,
     disponibilite: availabilityLabel(productAvailability(p), p.leadTimeWeeks),
     url: `/boutique/${p.handle}`,
   };
@@ -146,7 +146,7 @@ export function assistantTools(ctx: AssistantContext) {
           .filter((r) => r.zone === zone)
           .map((r) => ({ mode: r.label, prix: r.price ? formatPrice(r.price) : "offert", offert_des: r.freeAboveThreshold ? formatPrice(shop.freeShippingThreshold) : null, delai: r.delay })),
         expedition: `Pièces disponibles expédiées sous ${shop.dispatchDays}.`,
-        douane: zone === "WORLD" ? "Droits et taxes d’importation à la charge du destinataire." : null,
+        douane: zone === "WORLD" ? "Droits de douane et taxes du pays calculés et réglés dès la commande, rien à payer à la livraison." : null,
       });
     },
   });
@@ -154,7 +154,7 @@ export function assistantTools(ctx: AssistantContext) {
   const trackOrder = betaZodTool({
     name: "track_order",
     description:
-      "Donne le statut et le lien de suivi d’une commande. Exige le numéro de commande (AW-xxxx) ET l’adresse e-mail utilisée lors de la commande : ne jamais donner d’information si l’e-mail ne correspond pas.",
+      "Donne le statut et le lien de suivi d’une commande. Exige les deux, le numéro de commande (AW-xxxx) et l’adresse e-mail utilisée pour cette commande. Si l’e-mail ne correspond pas, ne donnez aucune information.",
     inputSchema: z.object({ order_number: z.string().min(3).max(20), email: z.email() }),
     run: async ({ order_number, email }) => {
       const o = await getOrder(order_number);
@@ -176,7 +176,7 @@ export function assistantTools(ctx: AssistantContext) {
   const handoff = betaZodTool({
     name: "handoff_to_atelier",
     description:
-      "Transmet la conversation à l’atelier pour une réponse humaine de la créatrice. À utiliser quand la cliente le demande, pour une réclamation, un remboursement, un retour, une demande de sur-mesure ou de rendez-vous, une commande bloquée, un sujet sensible, ou toute question à laquelle vous ne pouvez pas répondre avec certitude. Demandez d’abord l’adresse e-mail de la cliente.",
+      "Transmet la conversation à l’atelier pour une réponse humaine de la créatrice. À utiliser quand la cliente le demande, pour une réclamation, un remboursement, un retour, une demande de sur mesure ou de rendez-vous, une commande bloquée, un sujet sensible, ou toute question à laquelle vous ne pouvez pas répondre avec certitude. Demandez d’abord l’adresse e-mail de la cliente.",
     inputSchema: z.object({
       email: z.email(),
       name: z.string().max(120).optional(),
@@ -190,7 +190,7 @@ export function assistantTools(ctx: AssistantContext) {
         channel: "assistant",
         name: name ?? "",
         email,
-        subject: `Transmis par l’assistante — ${reason.replace(/_/g, " ")}`,
+        subject: "Message transmis par l’assistante",
         message: text,
         status: "escalated",
       };
@@ -199,7 +199,7 @@ export function assistantTools(ctx: AssistantContext) {
         agent: "service-client",
         kind: "transmission",
         status: "info",
-        summary: `L’assistante a transmis une demande (${reason.replace(/_/g, " ")}) de ${email} à l’atelier`,
+        summary: `L’assistante a transmis à l’atelier une demande de ${email}`,
         target: { type: "message", id: msg.id, label: email, href: "atelier:#messages" },
       });
       ctx.handoff = { email };
