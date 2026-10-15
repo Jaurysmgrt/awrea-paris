@@ -45,7 +45,9 @@ for (const vp of VIEWPORTS) {
           // mêmes exclusions que la règle de styles/base.css : étiquettes, titres, prix, boutons
           const notText = ".t-label, .eyebrow, .price, .t-h1, .t-h2, .t-h3, .t-h4, .t-display, .t-giant, .t-center, .t-left, .badge";
           const prose = Array.from(document.querySelectorAll(`main .prose p:not(${notText}), main p.t-body:not(${notText})`)).filter((p) => p.tagName === "P");
-          const notJustified = prose.filter((p) => getComputedStyle(p).textAlign !== "justify").length;
+          // un paragraphe qu'aucun réglage ne justifie sans trou passe volontairement en fer à gauche
+          // (components/typography/Justification.tsx, data-fer-a-gauche) : la règle CSS s'applique bien
+          const notJustified = prose.filter((p) => getComputedStyle(p).textAlign !== "justify" && !(p as HTMLElement).dataset.ferAGauche).length;
           return { overflow: de.scrollWidth - de.clientWidth, offenders, h1: document.querySelectorAll("h1").length, imgsNoAlt, badJustify, notJustified, lang: de.lang };
         });
         expect(r.overflow, `Débordement horizontal : ${r.offenders.join(", ")}`).toBeLessThanOrEqual(1);
