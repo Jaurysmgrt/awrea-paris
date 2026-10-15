@@ -20,6 +20,7 @@ const LINKS = [
   { href: "/contenus", label: "Contenus" },
   { href: "/seo", label: "SEO & IA" },
   { href: "/rapports", label: "Rapports" },
+  { href: "/equipe", label: "Équipe" },
   { href: "/journal", label: "Journal des actions" },
   { href: "/reglages", label: "Réglages" },
 ];

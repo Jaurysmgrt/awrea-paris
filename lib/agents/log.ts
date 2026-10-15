@@ -3,8 +3,10 @@
  * et consultables dans le tableau de bord Atelier.
  */
 import { kv } from "@/lib/store";
+import type { RoleId } from "./roles/types";
 
-export type AgentId = "catalogue" | "service-client" | "commandes-stock" | "seo" | "contenu" | "rapport" | "systeme";
+/** agents de l'équipe d'origine, rôles de gestion quotidienne (lib/agents/roles) et actions du système */
+export type AgentId = "catalogue" | "service-client" | "commandes-stock" | "seo" | "contenu" | "rapport" | "systeme" | RoleId;
 
 export type ActionStatus = "done" | "proposed" | "approved" | "rejected" | "failed" | "info";
 
