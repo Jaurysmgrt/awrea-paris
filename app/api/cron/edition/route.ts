@@ -1,4 +1,4 @@
-/** Publications programmées de l'éditeur : chaque heure (GitHub Actions) et chaque matin (Vercel Cron). */
+/** Publications programmées de l’éditeur : tous les quarts d’heure (Vercel Cron), et à chaque ouverture de l’éditeur. */
 import { NextResponse } from "next/server";
 import { isCronAuthorized } from "@/lib/security/cron";
 import { runScheduled } from "@/lib/edition/store";

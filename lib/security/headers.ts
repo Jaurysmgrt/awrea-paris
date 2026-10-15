@@ -48,6 +48,8 @@ function directives(nonce?: string, selfFrame = false): Record<string, string[]>
       "'self'",
       "data:",
       "blob:",
+      // photos déposées dans l'éditeur visuel (Supabase Storage, dossier « medias »)
+      supabase,
       "https://cdn.shopify.com",
       "https://www.facebook.com",
       "https://www.google-analytics.com",

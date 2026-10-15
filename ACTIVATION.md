@@ -58,6 +58,7 @@ fonctionnement.
 | 11 | Mesure d'audience et publicité | Plausible ou Google Analytics, Clarity, pixels Meta, TikTok, Google Ads | Plausible environ 9 € / mois ; les autres gratuits |
 | 12 | Visibilité hors du site | Google, Bing, fiche Google, Merchant Center, boutique Instagram | Gratuit |
 | 13 | Maintenance automatique | Agent de nuit, sauvegardes (GitHub Actions) | Inclus dans GitHub ; Claude à l'usage |
+| 14 | Éditeur visuel et e-mails | Modifier textes, photos, pages et e-mails sans code | Inclus (Upstash et Supabase des étapes 3 et 5) |
 
 Les étapes 0 à 4 sont nécessaires avant d'ouvrir la boutique au public ; les autres peuvent venir
 ensuite, dans n'importe quel ordre.
@@ -298,7 +299,9 @@ Supabase › **Authentication** › **Users** et dans l'Atelier › Clientes.
 | `EMAIL_FROM` | `Awrea Paris <atelier@awreaparis.com>` |
 
 **Vérifier** : Réglages › « E-mails transactionnels » indique « Resend » ; une demande envoyée par
-le formulaire de contact arrive dans la boîte de l'atelier.
+le formulaire de contact arrive dans la boîte de l'atelier. Chaque lettre envoyée par le site porte
+son lien de désinscription et l'en-tête « List-Unsubscribe » : Gmail et Apple Mail proposent alors
+la désinscription en un clic, comme ils l'exigent des expéditeurs de lettres.
 **Interrupteur** : `EMAIL_PROVIDER` (`mock` = boîte d'envoi simulée, lisible dans l'Atelier).
 
 ## Étape 7 — Brevo (lettre d'information et e-mails automatiques)
@@ -453,6 +456,45 @@ Google » (quelques jours après l'envoi du sitemap).
 
 **Vérifier** : onglet **Actions** › « Maintenance » › **Run workflow** : le rapport apparaît dans
 l'Atelier et dans `JOURNAL.md`.
+
+## Étape 14 — Éditeur visuel et e-mails modifiables
+
+L'éditeur ne demande **aucun nouveau compte** : il utilise Upstash (étape 3) pour les brouillons,
+l'historique et les versions publiées, et Supabase (étape 5) pour les photos déposées.
+
+1. **Photos** : Supabase › **Storage** › **New bucket** › nom `medias`, cocher **Public bucket**.
+   Les photos déposées dans l'éditeur y sont rangées en plusieurs tailles (WebP). Sans ce dossier,
+   elles restent dans Upstash (suffisant pour essayer, pas pour un catalogue de photos).
+2. **Sauvegarde dans GitHub (conseillé)** : GitHub › **Settings** (du compte) › **Developer
+   settings** › **Fine-grained tokens** › **Generate new token** : dépôt `awrea-paris` seulement,
+   permission **Contents : Read and write**, expiration un an. Dans Vercel :
+
+| Variable | Valeur |
+| --- | --- |
+| `EDITION_GITHUB_TOKEN` | le jeton (`github_pat_…`) |
+| `EDITION_GITHUB_REPO` | `propriétaire/awrea-paris` |
+| `EDITION_GITHUB_BRANCH` | `main` |
+
+   Chaque publication est alors aussi enregistrée dans le dépôt (`content/site/`), qui garde
+   l'archive de tous les contenus et relance un déploiement.
+3. **Publications programmées** : rien à faire, Vercel Cron les publie tous les quarts d'heure
+   (`vercel.json`, `CRON_SECRET` de l'étape 2), et l'éditeur publie aussi celles arrivées à
+   échéance dès qu'il s'ouvre.
+4. **E-mails** : l'Atelier › **E-mails** montre chaque e-mail tel qu'il arrive (Apple Mail, Gmail,
+   Outlook, téléphone, clair et sombre). Les e-mails du site partent directement avec la version
+   publiée. Pour les services d'envoi :
+   - **Brevo** : l'e-mail › **Pour Brevo** télécharge le gabarit ; Brevo › **Campagnes** ›
+     **Modèles** › **Nouveau modèle** › **Importer un modèle** › **Importer un fichier HTML**.
+   - **Klaviyo** : **Pour Klaviyo** ; Klaviyo › **Content** › **Templates** › **Create Template** ›
+     **Import** › **HTML**.
+   - **Notifications Shopify** (confirmation de commande, expédition) : **Pour Shopify** ;
+     Shopify › **Paramètres** › **Notifications** › l'e-mail › **Modifier le code** : remplacer le
+     contenu par celui du fichier, **Aperçu**, puis **Enregistrer**.
+5. **Interrupteur** : `EDITION_STORAGE` (`stockage` en ligne, `fichiers` en local ; vide conseillé).
+
+**Vérifier** : Atelier › **Pages** › **Modifier** sur l'accueil ; changer un mot ; le site public
+ne change pas ; **Publier** ; le site public montre le nouveau mot ; **Historique** › la version
+précédente › **Remettre en ligne**.
 
 ---
 

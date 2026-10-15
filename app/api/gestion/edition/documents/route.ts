@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { editor, bad } from "@/lib/edition/api";
 import { LOCALES } from "@/lib/edition/config";
-import { draftOf, historyOf, isDocId, publishedDoc, scheduled } from "@/lib/edition/store";
+import { draftOf, historyOf, isDocId, publishedDoc, runScheduled, scheduled } from "@/lib/edition/store";
 import { documentInfo } from "@/lib/edition/documents";
 
 /** Brouillon et version publiée de chaque document de la page, en français et en anglais. */
@@ -11,6 +11,8 @@ export async function GET(req: Request) {
   if ("response" in who) return who.response;
   const ids = z.array(z.string().refine(isDocId)).max(20).safeParse((new URL(req.url).searchParams.get("ids") ?? "").split(",").filter(Boolean));
   if (!ids.success) return bad("Documents inconnus.");
+  // les publications programmées arrivées à échéance partent dès que l'éditeur s'ouvre
+  await runScheduled().catch((e) => console.error("[édition] publications programmées", e));
   const programme = await scheduled();
   const docs = Object.fromEntries(
     await Promise.all(
