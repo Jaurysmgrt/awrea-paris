@@ -1,0 +1,70 @@
+# Contrôle après chaque mise en ligne, avec retour automatique à la version précédente.
+#
+# Vercel signale chaque déploiement à GitHub. Quand la PRODUCTION vient d'être mise à jour, les
+# parcours du site en ligne (sans rien modifier) et le contrôle de sécurité sont relancés ; en cas
+# d'échec, la production revient en quelques secondes au déploiement précédent (vercel rollback),
+# la créatrice est prévenue (tableau de bord Atelier, e-mail de GitHub) et un ticket est ouvert.
+#
+# Prérequis : secrets VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID et CRON_SECRET,
+# variable SITE_URL.
+name: Contrôle après mise en ligne
+
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: deploiement-production
+  cancel-in-progress: false
+
+jobs:
+  controler:
+    if: github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SITE_URL: ${{ vars.SITE_URL || 'https://www.awreaparis.com' }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Laisser le domaine basculer sur le nouveau déploiement
+        run: sleep 45
+      - name: Parcours et sécurité du site en ligne
+        id: controle
+        continue-on-error: true
+        run: |
+          BASE_URL="$SITE_URL" npx playwright test production-smoke --project=desktop --reporter=line
+          node scripts/security-check.mjs "$SITE_URL"
+      - name: Retour à la version précédente
+        if: steps.controle.outcome == 'failure'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npx --yes vercel@60.1.3 rollback --yes --token "$VERCEL_TOKEN"
+          npx --yes vercel@60.1.3 rollback status --token "$VERCEL_TOKEN" || true
+      - name: Prévenir la créatrice
+        if: steps.controle.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ROLLED_BACK: "1"
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          mkdir -p maintenance
+          node scripts/maintenance-report.mjs
+          gh issue create --title "Mise en ligne annulée automatiquement ($(date -u +%F))" \
+            --body "Le déploiement ${{ github.event.deployment.sha }} ne passait pas les contrôles du site en ligne : la production est revenue à la version précédente. Détails : $RUN_URL" || true
+          exit 1

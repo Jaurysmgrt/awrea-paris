@@ -1,0 +1,48 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": [
+    "cdg1"
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/commandes-stock",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/service-client",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/flows",
+      "schedule": "30 8 * * *"
+    },
+    {
+      "path": "/api/cron/rapport",
+      "schedule": "0 6 * * 1"
+    },
+    {
+      "path": "/api/cron/contenu",
+      "schedule": "0 7 * * 3"
+    },
+    {
+      "path": "/api/cron/seo",
+      "schedule": "0 3 * * 0"
+    },
+    {
+      "path": "/api/cron/comptabilite",
+      "schedule": "0 6 1 * *"
+    },
+    {
+      "path": "/api/cron/ecriture",
+      "schedule": "30 4 * * *"
+    },
+    {
+      "path": "/api/cron/edition",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/equipe",
+      "schedule": "10 5 * * *"
+    }
+  ]
+}

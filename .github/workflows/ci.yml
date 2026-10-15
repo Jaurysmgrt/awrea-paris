@@ -1,0 +1,73 @@
+# Intégration continue : rien n'est fusionné ni déployé sans un passage au vert.
+# Lint, types, homogénéité du design system, contrôle d'écriture, recherche de clés secrètes, vulnérabilités,
+# tests unitaires et de la base clientes, compilation, puis parcours complets (Playwright).
+name: Intégration continue
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verifications:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Clés secrètes absentes du dépôt
+        run: node scripts/secret-scan.mjs
+      - name: Vulnérabilités des dépendances de production
+        run: npm audit --omit=dev --audit-level=high
+      - run: npm run lint
+      - run: npm run typecheck
+      - name: Homogénéité du design system
+        run: npm run audit:tokens
+      - name: Écriture de la créatrice (tirets, formulations interdites, typographie)
+        run: npm run audit:ecriture
+      - name: Tests unitaires (garde-fous des agents)
+        run: npm run test:unit
+      - name: Base clientes et sécurité par ligne
+        run: npm run test:db
+
+  parcours:
+    needs: verifications
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - name: Parcours complets (bureau et mobile, mode démonstration)
+        run: npx playwright test
+      - name: Écriture des pages rendues
+        run: |
+          npx next start -p 3300 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:3300 && break; sleep 1; done
+          npm run audit:ecriture -- --site http://localhost:3300
+      - name: Rapport en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapport-playwright
+          path: test-results/
+          retention-days: 7

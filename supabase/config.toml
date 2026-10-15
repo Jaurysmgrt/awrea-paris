@@ -1,0 +1,64 @@
+# Configuration Supabase (CLI) — base clientes d'Awrea Paris.
+# Sert au développement local (`supabase start`) et décrit les réglages d'authentification à
+# reporter sur le projet hébergé (`supabase config push`, ou Authentication → Settings) :
+# jetons courts renouvelés, sessions qui expirent, codes à usage unique de 10 minutes.
+# Aucune clé ici : les secrets OAuth sont lus dans l'environnement (env(...)).
+project_id = "awrea-paris"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://www.awreaparis.com/api/account/callback", "http://localhost:3000/api/account/callback"]
+# jeton d'accès d'une heure, renouvelé automatiquement ; un jeton de renouvellement ne sert qu'une fois
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+
+[auth.sessions]
+# une session dure au plus 30 jours, et se ferme après 7 jours sans visite
+timebox = "720h"
+inactivity_timeout = "168h"
+
+[auth.rate_limit]
+email_sent = 4
+sign_in_sign_ups = 30
+token_verifications = 30
+token_refresh = 150
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+secure_password_change = true
+max_frequency = "60s"
+otp_length = 6
+otp_expiry = 600
+
+# code de connexion à six chiffres, aux couleurs de la maison (à coller aussi dans le tableau de bord
+# Supabase : ACTIVATION.md, étape 5)
+[auth.email.template.magic_link]
+subject = "Votre code de connexion — Awrea Paris"
+content_path = "./supabase/templates/code-de-connexion.html"
+
+[auth.external.google]
+enabled = false
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
+skip_nonce_check = false
+
+[auth.external.apple]
+enabled = false
+client_id = "env(SUPABASE_AUTH_APPLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_APPLE_SECRET)"
