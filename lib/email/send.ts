@@ -14,6 +14,8 @@ export interface OutgoingEmail {
   text: string;
   replyTo?: string;
   tag?: string;
+  /** en-têtes supplémentaires (désinscription en un clic des lettres) */
+  headers?: Record<string, string>;
   /** pièces jointes (facture PDF, export comptable…) */
   attachments?: { filename: string; content: Uint8Array | string }[];
 }
@@ -42,6 +44,7 @@ export async function sendEmail(mail: OutgoingEmail): Promise<{ id: string; deli
       html: mail.html,
       text: mail.text,
       reply_to: mail.replyTo,
+      headers: mail.headers,
       tags: mail.tag ? [{ name: "type", value: mail.tag }] : undefined,
       attachments: attachments?.map((a) => ({ filename: a.filename, content: base64(a.content) })),
     }),

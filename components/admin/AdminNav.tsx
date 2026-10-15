@@ -15,6 +15,8 @@ const LINKS = [
   { href: "/drops", label: "Drops" },
   { href: "/avis", label: "Avis" },
   { href: "/clientes", label: "Clientes" },
+  { href: "/pages", label: "Pages" },
+  { href: "/e-mails", label: "E-mails" },
   { href: "/contenus", label: "Contenus" },
   { href: "/seo", label: "SEO & IA" },
   { href: "/rapports", label: "Rapports" },

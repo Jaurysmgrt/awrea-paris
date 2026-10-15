@@ -36,7 +36,7 @@ const scriptHosts = [
 /** Site servi en HTTPS (Vercel, production ou prévisualisation) : forçage du HTTPS. */
 const https = process.env.VERCEL === "1" || process.env.FORCE_HTTPS === "1";
 
-function directives(nonce?: string): Record<string, string[]> {
+function directives(nonce?: string, selfFrame = false): Record<string, string[]> {
   return {
     "default-src": ["'self'"],
     // avec un nonce, « strict-dynamic » fait foi pour les navigateurs récents ; la liste des
@@ -82,12 +82,13 @@ function directives(nonce?: string): Record<string, string[]> {
     "object-src": ["'none'"],
     "base-uri": ["'self'"],
     "form-action": ["'self'"],
-    "frame-ancestors": ["'none'"],
+    // l'aperçu de l'éditeur (créatrice connectée seulement) affiche la page dans un cadre du site lui-même
+    "frame-ancestors": [selfFrame ? "'self'" : "'none'"],
   };
 }
 
-export function contentSecurityPolicy(nonce?: string): string {
-  return [...Object.entries(directives(nonce)).map(([k, v]) => `${k} ${v.join(" ")}`), ...(https ? ["upgrade-insecure-requests"] : [])].join("; ");
+export function contentSecurityPolicy(nonce?: string, opts: { selfFrame?: boolean } = {}): string {
+  return [...Object.entries(directives(nonce, opts.selfFrame)).map(([k, v]) => `${k} ${v.join(" ")}`), ...(https ? ["upgrade-insecure-requests"] : [])].join("; ");
 }
 
 /** Nonce imprévisible, nouveau à chaque page servie. */

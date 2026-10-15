@@ -16,7 +16,8 @@ const config: NextConfig = {
   env: { AWREA_CAPTCHA: providerOf("captcha") },
   // la référence de ton est lue à l'exécution par l'assistante et les agents
   outputFileTracingIncludes: {
-    "/**": ["./content/brand/voice.md"],
+    // documents de contenu (content/site), relus à chaque publication de l’éditeur
+    "/**": ["./content/brand/voice.md", "./content/site/**/*.json"],
     // polices des factures et étiquettes PDF (lues sur le disque par pdf-lib)
     "/api/factures/**": ["./assets/pdf/**"],
     "/api/gestion/**": ["./assets/pdf/**"],

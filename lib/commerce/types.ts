@@ -9,6 +9,8 @@ export interface Image {
   alt: string;
   width: number;
   height: number;
+  /** point focal réglé dans l'éditeur (pourcentages) : guide chaque recadrage */
+  focal?: { x: number; y: number };
 }
 
 export interface Video {

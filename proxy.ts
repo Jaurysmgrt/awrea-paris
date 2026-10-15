@@ -119,6 +119,17 @@ function foreignOrigin(request: NextRequest): boolean {
   }
 }
 
+/**
+ * Aperçu de l'éditeur : la page (brouillon compris) s'affiche dans un cadre de l'éditeur, sur le
+ * site lui-même, pour la créatrice connectée en mode Édition seulement. Partout ailleurs, aucune
+ * intégration dans un cadre n'est permise.
+ */
+async function isEditorPreview(request: NextRequest): Promise<boolean> {
+  if (request.nextUrl.searchParams.get("apercu") !== "1") return false;
+  if (!request.cookies.get("__prerender_bypass")) return false;
+  return isAdminToken(request.cookies.get(ADMIN_COOKIE)?.value);
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (pathname.startsWith("/api/") && !pathname.startsWith("/api/webhooks/") && !pathname.startsWith("/api/cron/") && foreignOrigin(request)) {
@@ -134,6 +145,13 @@ export async function proxy(request: NextRequest) {
   else if (pathname.startsWith("/compte") || pathname.startsWith("/api/account")) response = await refreshCustomerSession(request, nonce);
   else response = forward(request, nonce);
 
+  if (isDocument(request) && (await isEditorPreview(request))) {
+    response.headers.set("X-Frame-Options", "SAMEORIGIN");
+    response.headers.set("Cache-Control", "private, no-store");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    if (cspEnabled) response.headers.set("Content-Security-Policy", contentSecurityPolicy(nonce ?? undefined, { selfFrame: true }));
+    return response;
+  }
   if (nonce) response.headers.set("Content-Security-Policy", contentSecurityPolicy(nonce));
   return response;
 }

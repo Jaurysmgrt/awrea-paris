@@ -683,6 +683,22 @@
   .media__caption {
     margin-top: var(--spacing-2xs);
   }
+  /* emplacement vide élégant : la photographie de la Maison n'est pas encore là (jamais d'image
+     inventée) ; un fil fin et le monogramme en filigrane tiennent sa place */
+  .media--vide {
+    display: grid;
+    place-items: center;
+    background: var(--media-bg);
+    outline: var(--border-width-hair) solid var(--line);
+    outline-offset: calc(var(--spacing-xs) * -1);
+  }
+  .media--vide::after {
+    content: "";
+    width: var(--spacing-xl);
+    aspect-ratio: 1;
+    background: var(--line);
+    mask: url("/brand/monogram.svg") center / contain no-repeat;
+  }
 
   .reveal-img[data-pending] img,
   .reveal-img[data-pending] video {

@@ -1,0 +1,15 @@
+{
+  "email-commun": {
+    "label": "Textes communs à tous les e-mails",
+    "kind": "email"
+  },
+  "email-lettre": {
+    "label": "Lettre de l’atelier",
+    "kind": "email"
+  },
+  "lettres": {
+    "label": "Désinscription des lettres",
+    "kind": "page",
+    "chemin": "/lettres/desinscription"
+  }
+}

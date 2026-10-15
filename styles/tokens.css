@@ -186,6 +186,7 @@
   --z-assistant: 70;
   --z-transition: 90;
   --z-cookie: 95;
+  --z-edition: 99; /* outils de l'éditeur visuel, au-dessus de tout (mode Édition seulement) */
 }
 
 /* ------------------------------------------------------------ PALIERS

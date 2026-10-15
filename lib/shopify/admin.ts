@@ -61,6 +61,18 @@ export async function subscribeNewsletter(email: string): Promise<void> {
   );
 }
 
+/** Désinscription : le consentement marketing de la cliente passe à « désinscrite » dans Shopify. */
+export async function unsubscribeNewsletter(email: string): Promise<void> {
+  if (!adminEnabled) return;
+  const found = await admin<{ customers: { nodes: { id: string }[] } }>(`query Find($q: String!) { customers(first: 1, query: $q) { nodes { id } } }`, { q: `email:${JSON.stringify(email)}` });
+  const id = found.customers.nodes[0]?.id;
+  if (!id) return;
+  await admin(
+    `mutation Unsub($input: CustomerEmailMarketingConsentUpdateInput!) { customerEmailMarketingConsentUpdate(input: $input) { userErrors { field message } } }`,
+    { input: { customerId: id, emailMarketingConsent: { marketingState: "UNSUBSCRIBED", marketingOptInLevel: "SINGLE_OPT_IN" } } },
+  );
+}
+
 /* ------------------------------------------------------------------------
  * Opérations utilisées par les agents (mode Shopify).
  * À valider sur une boutique de développement avant la mise en production.

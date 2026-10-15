@@ -65,6 +65,20 @@ export async function upsertContact(c: ContactAttributes): Promise<void> {
   }
 }
 
+/** Retire le consentement aux lettres dans l'outil d'e-mails (désinscription). */
+export async function unsubscribeContact(email: string): Promise<void> {
+  if (marketingProvider === "brevo") return upsertContact({ email, marketing: false });
+  if (marketingProvider === "klaviyo" && process.env.KLAVIYO_LIST_ID) {
+    await klaviyo("profile-subscription-bulk-delete-jobs", {
+      data: {
+        type: "profile-subscription-bulk-delete-job",
+        attributes: { profiles: { data: [{ type: "profile", attributes: { email, subscriptions: { email: { marketing: { consent: "UNSUBSCRIBED" } } } } }] } },
+        relationships: { list: { data: { type: "list", id: process.env.KLAVIYO_LIST_ID } } },
+      },
+    });
+  }
+}
+
 /** Évènement (Klaviyo) : permet aussi de construire des scénarios directement dans Klaviyo. */
 export async function trackEvent(email: string, name: string, properties: Record<string, unknown> = {}) {
   if (marketingProvider !== "klaviyo") return;
