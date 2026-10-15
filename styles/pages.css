@@ -1614,3 +1614,29 @@ html[data-motion="reduce"] .hero__scroll::after {
     padding-left: var(--spacing-l);
   }
 }
+
+/* Prise de rendez-vous : trois rendez-vous côte à côte, puis les jours et les heures en pastilles */
+@layer components {
+  .booking__types {
+    display: grid;
+    gap: var(--space-block);
+  }
+  @media (min-width: 48rem) {
+    .booking__types {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .booking__type {
+    padding: var(--spacing-m);
+    border: var(--border-width-hair) solid var(--line);
+    transition: border-color var(--dur) var(--ease);
+  }
+  .booking__type:has(input:checked) {
+    border-color: var(--accent);
+  }
+  .booking__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2xs);
+  }
+}

@@ -3,8 +3,8 @@
  * modifiable dans l'Atelier › E-mails) ; le matin, la créatrice reçoit le programme du jour.
  */
 import { kv } from "@/lib/store";
-import { siteUrl } from "@/lib/seo/metadata";
-import { APPOINTMENT_TYPES, cancelToken, listAppointments } from "@/lib/appointments";
+import { APPOINTMENT_TYPES, listAppointments } from "@/lib/appointments";
+import { cancelLink, whenOf } from "@/lib/appointments-notify";
 import { sendDocEmail } from "@/lib/email/documents";
 import { logAction } from "@/lib/agents/log";
 import type { Finding, RoleOutcome } from "./types";
@@ -25,10 +25,10 @@ export async function runRendezVous(now = new Date()): Promise<RoleOutcome> {
     if (day !== tomorrow) continue;
     const flag = `rendez-vous:rappel:${a.id}`;
     if (await kv.get(flag)) continue;
-    const quand = `${paris(a.start, { weekday: "long", day: "numeric", month: "long" })} à ${hour}`;
+    const quand = whenOf(a.start);
     try {
       await sendDocEmail("email-rappel-rendez-vous", a.email, {
-        vars: { prenom: a.name.split(" ")[0] ?? "", quand, rendezvous: APPOINTMENT_TYPES[a.type].label, visio: a.videoUrl ?? "", annulation: `${siteUrl}/rendez-vous/annuler?id=${encodeURIComponent(a.id)}&jeton=${cancelToken(a.id)}` },
+        vars: { prenom: a.name.split(" ")[0] ?? "", quand, rendezvous: APPOINTMENT_TYPES[a.type].label, visio: a.videoUrl ?? "", annulation: cancelLink(a) },
         tag: "rappel-rendez-vous",
       });
       await kv.set(flag, now.toISOString());

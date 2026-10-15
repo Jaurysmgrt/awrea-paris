@@ -15,5 +15,22 @@
   "email-rappel-rendez-vous": {
     "label": "Rappel de rendez-vous",
     "kind": "email"
+  },
+  "rendez-vous": {
+    "label": "Prendre rendez-vous",
+    "kind": "page",
+    "chemin": "/rendez-vous"
+  },
+  "email-confirmation-rendez-vous": {
+    "label": "Confirmation de rendez-vous",
+    "kind": "email"
+  },
+  "email-nouveau-rendez-vous": {
+    "label": "Nouveau rendez-vous (pour l’atelier)",
+    "kind": "email"
+  },
+  "email-annulation-rendez-vous": {
+    "label": "Rendez-vous annulé par l’atelier",
+    "kind": "email"
   }
 }
