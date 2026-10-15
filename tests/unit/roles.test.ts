@@ -25,3 +25,16 @@ test("Contrôle : proposition sans raison, doublon, action sensible sans accord,
   assert.ok(titres.includes("Action sensible faite sans votre accord"));
   assert.ok(titres.includes("Alerte urgente sans endroit où agir"));
 });
+
+test("Anti-fraude : première commande élevée, rafale, hors de l’Union ; une cliente fidèle passe", async () => {
+  const { suspicion } = await import("@/lib/agents/roles/regles");
+  const o = (n: string, email: string, total: number, at: string, country = "FR") => ({ id: n, number: n, createdAt: at, email, name: "Essai", status: "paid", lines: [], total, shipping: { method: "x", price: 0, country }, paymentMethod: "Carte" }) as never;
+  const big = o("AW-1", "a@exemple.fr", 200_000, "2026-10-15T08:00:00Z");
+  assert.match(suspicion(big, [big]).join(), /première commande/);
+  const fidele = [o("AW-2", "b@exemple.fr", 30_000, "2026-01-10T08:00:00Z"), o("AW-3", "b@exemple.fr", 200_000, "2026-10-15T08:00:00Z")];
+  assert.deepEqual(suspicion(fidele[1], fidele), []);
+  const rafale = [1, 2, 3].map((i) => o(`AW-1${i}`, "c@exemple.fr", 20_000, `2026-10-15T0${i}:00:00Z`));
+  assert.match(suspicion(rafale[2], rafale).join(), /3 commandes/);
+  const loin = o("AW-9", "d@exemple.fr", 120_000, "2026-10-15T08:00:00Z", "US");
+  assert.match(suspicion(loin, [loin]).join(), /hors de l’Union/);
+});
