@@ -42,6 +42,13 @@
 
 | Date | Décision | Justification |
 | --- | --- | --- |
+| 15/10 | Dix-huit rôles de gestion quotidienne (`lib/agents/roles/`), un passage planifié par matin pour tous (`/api/cron/equipe`), chacun relu par le Contrôle (critique indépendant) | Un seul cron Vercel au lieu de dix-huit ; chaque rôle prévient ou propose, l'argent et l'irréversible restent soumis à la créatrice. |
+| 15/10 | Rendez-vous réservés en ligne sur l'agenda de l'atelier (heure de Paris, verrou contre les doubles réservations), lien d'annulation signé, abonnement iCal pour la créatrice | Plus d'aller-retour par e-mail pour fixer un essayage ; l'agenda personnel de la créatrice ferme les créneaux déjà pris. |
+| 15/10 | Suivi des erreurs : Sentry par son API d'envoi, sans bibliothèque, et repli local | Aucun poids ajouté au site ; rien de personnel n'est transmis (ni jeton, ni e-mail, ni cookie). |
+
+
+| Date | Décision | Justification |
+| --- | --- | --- |
 | 13/10 | Propositions de design construites dans un laboratoire isolé (`app/(lab)`), supprimé après la fusion | Les trois directions travaillent sans se voir, sur les vraies pièces. |
 | 13/10 | Tests de bout en bout sur un serveur et un fichier de données séparés (`STORE_FILE`) | Ne pas perturber le serveur de développement des équipes. |
 | 13/10 | Sous la limite d'utilisation, les équipes travaillent une par une ; les agents interrompus sont relancés à la levée | Consigne du cahier des charges. |
@@ -56,6 +63,12 @@
 | 14/10 | Textes des agents et de l'assistante : typographie et tirets corrigés automatiquement, formulations interdites signalées ; une publication automatique qui en contient devient une proposition à valider | La créatrice garde la main sur tout ce qui part en ligne sous son nom. |
 | 14/10 | Textes de la créatrice dans l'éditeur : signalés avec une suggestion, jamais bloqués ; un texte gardé malgré un signalement est inscrit dans `content/ecriture-acceptes.json` et ne bloque pas la CI | Consigne : « signale les problèmes avec une suggestion de correction, sans bloquer la créatrice ». |
 | 14/10 | **Éditeur visuel maison « Édition » plutôt que TinaCMS** (comparaison ci-dessous) | Il remplit tous les critères demandés sans compte extérieur ni abonnement, et sans ralentir le site. |
+| 15/10 | Contenus en documents JSON (`content/site/<langue>/`), lus par `getDoc` ; textes des composants interactifs transmis par `TextsRoot` ; repères `{nom}` remplis à l'affichage ; registre par équipe (`content/site/registre/`) | Un seul accès aux textes, modifiable dans l'éditeur sans toucher au code ; plusieurs équipes migrent en parallèle sans se gêner. |
+| 15/10 | L'interface de l'Atelier et de l'éditeur reste écrite dans le code | Outils de la créatrice, pas le site public : les rendre modifiables ajouterait des documents sans gain pour elle. |
+| 15/10 | Aperçu de l'éditeur dans un cadre du site : `frame-src` et `frame-ancestors 'self'` seulement pour une session de l'Atelier en mode Édition ; partout ailleurs, aucun cadre | L'aperçu téléphone, tablette, ordinateur montre le brouillon tel quel, sans ouvrir le site à l'intégration par un autre site. |
+| 15/10 | E-mails : même éditeur, blocs dédiés (en-tête au monogramme, photographie, texte, pièce, bouton, détail de commande, signature, pied légal), blocs conditionnels « si » et « sauf », rendu maison (tableaux, mode sombre, bouton pour Outlook) ; export Brevo, Klaviyo, Shopify Liquid | Un e-mail se compose comme une page ; aucun service d'éditeur d'e-mails à payer ; les services d'envoi reçoivent un gabarit importable. |
+| 15/10 | Paragraphes des e-mails alignés à gauche, pas justifiés | Gmail et Outlook ne coupent pas les mots : la justification y creuserait des trous. Même logique que le fer à gauche du site quand l'équilibre échoue. |
+| 15/10 | Désinscription des lettres par lien signé (un an) et en-tête `List-Unsubscribe` en un clic ; la page demande une confirmation | Obligation légale et exigence de Gmail et Apple Mail ; un robot qui suit les liens ne désinscrit personne. |
 
 ### Pourquoi « Édition » plutôt que TinaCMS
 

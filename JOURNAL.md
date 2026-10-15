@@ -217,3 +217,36 @@
   son tableau de bord (écrit dans `ACTIVATION.md`), chargé seulement avec l'accord « mesure d'audience ».
 - **Suite** : phase B (boutique complète en simulation) ; en parallèle, les directions artistiques
   « atelier » et « édition » une par une, puis critique, gardien de la marque et fusion.
+
+## Phase H : écriture, éditeur visuel, e-mails, équipe de gestion, rendez-vous (14 et 15/10)
+
+- **Écriture humaine** : contrôle automatique en CI (`npm run audit:ecriture`), textes des agents et
+  de l'assistante nettoyés et contrôlés ; réécriture des 172 textes signalés par lots (Plume, puis
+  Détecteur IA et Lecture à voix haute, reprise, Typographe, Cohérence), conduite comme un workflow
+  d'équipes, interrompu deux fois par la limite d'utilisation et repris à sa levée.
+- **Accès admin invisible** : adresse secrète, comptes autorisés, double authentification par
+  compte, blocage, alerte à chaque connexion ; vérifié de bout en bout.
+- **Éditeur visuel « Édition »** : textes cliquables sur la vraie page (titres animés compris),
+  photos par glisser-déposer avec point focal et déclinaisons, sections en blocs, aperçu téléphone,
+  tablette et ordinateur dans un cadre réservé à la créatrice, brouillons, publication programmée
+  (tous les quarts d'heure), historique et retour en un clic, guide d'accueil ; pages d'événement,
+  d'article et de collection créées depuis un modèle, invisibles avant publication, supprimables ;
+  page « Pages » de l'Atelier. Test de bout en bout : création, modification sur place, brouillon
+  invisible du public, publication, retour à la version précédente, suppression.
+- **E-mails modifiables sans code** : blocs dans la direction artistique, rendu clair et sombre,
+  simulation Gmail, Apple Mail, Outlook et téléphone, envoi d'essai, export Brevo, Klaviyo et
+  Shopify ; galerie, éditeur et textes communs dans l'Atelier. Désinscription signée en un clic.
+- **Équipe de gestion quotidienne** : dix-huit rôles (Gardien de l'éditeur, Avis, Retours, Logistique,
+  Anti-fraude, Comptabilité et TVA européenne, Données personnelles, Cercle, Drops, Sur mesure,
+  Rendez-vous, Production, Presse, Instagram, Publicité, Accessibilité, Performance, Sauvegarde),
+  un passage chaque matin, relus par le Contrôle ; page Équipe de l'Atelier ; la sauvegarde chiffrée
+  de la nuit rend compte à l'Atelier.
+- **Rendez-vous en ligne** : choix du rendez-vous, du jour et de l'heure, confirmation avec
+  invitation d'agenda, rappel la veille, annulation par lien signé ; agenda, disponibilités et
+  abonnement iCal dans l'Atelier. Testé sur ordinateur et sur téléphone.
+- **Suivi des erreurs** : serveur et navigateur, Sentry sans bibliothèque, repli local.
+- **Design** : troisième direction (« édition ») terminée ; critique, gardien de la marque et fusion à
+  reprendre à la levée de la limite.
+- **Trouvé en route et corrigé** : des articles de presse d'exemple inventés (à retirer à la
+  migration des textes), un lien de désinscription annoncé qui n'existait pas, une pièce de test
+  restée dans la boutique de développement.
