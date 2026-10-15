@@ -8,11 +8,13 @@ import { consentHeadScript } from "@/lib/consent";
 import { prefsHeadScript } from "@/lib/prefs";
 import { cspEnabled, cspMode } from "@/lib/security/headers";
 import { Justification } from "@/components/typography/Justification";
+import { TextsRoot } from "@/components/content/TextsRoot";
+import { EditionRoot } from "@/components/edition/EditionRoot";
 import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: `${identity.name} — prêt-à-porter féminin fait main à Paris`, template: `%s | ${identity.name}` },
+  title: { default: `${identity.name}, prêt-à-porter féminin fait main à Paris`, template: `%s | ${identity.name}` },
   description: identity.shortDescription,
   applicationName: identity.name,
   authors: [{ name: identity.name, url: siteUrl }],
@@ -41,8 +43,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: consentHeadScript() + prefsHeadScript() }} />
       </head>
       <body>
-        {children}
+        {/* textes des composants interactifs montés partout (lus dans content/site, modifiables dans l'éditeur) */}
+        <TextsRoot ids={["site", "commerce", "catalogue"]}>{children}</TextsRoot>
         <Justification />
+        {/* éditeur visuel : rendu pour la créatrice connectée en mode Édition seulement */}
+        <EditionRoot />
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 import { listDocuments, MODELES, type DocInfo } from "@/lib/edition/documents";
 import { draftOf, historyOf, scheduled } from "@/lib/edition/store";
-import { atelierApi } from "@/lib/admin/path";
+import { atelierApi, atelierHref } from "@/lib/admin/path";
 import { When } from "@/components/admin/Status";
 import { NewPageForm } from "@/components/admin/NewPageForm";
 import { ActionButton } from "@/components/admin/ActionButton";
@@ -80,7 +80,22 @@ export default async function PagesPage() {
                         <th scope="row">{d.label}</th>
                         <td>{st.draft ? "Modifiée, pas encore en ligne" : st.live ? "En ligne" : "Brouillon"}</td>
                         <td>{st.publishedAt ? <When iso={st.publishedAt} /> : "Version d’origine"}</td>
-                        <td>{d.chemin ? <a className="link" href={open(d.chemin)}>Modifier</a> : null}</td>
+                        <td>
+                          <span className="proposal__actions">
+                            {d.kind === "email" ? (
+                              <a className="link" href={atelierHref(d.id === "email-commun" ? "/e-mails#communs" : `/e-mails/${d.id}`)}>
+                                Modifier
+                              </a>
+                            ) : d.chemin ? (
+                              <a className="link" href={open(d.chemin)}>
+                                Modifier
+                              </a>
+                            ) : null}
+                            {d.kind === "modele" ? (
+                              <ActionButton endpoint={atelierApi("/edition/pages/supprimer")} body={{ id: d.id }} label="Supprimer" variant="quiet" confirm={`Supprimer la page « ${d.label} » ? Elle disparaît du site et de l’historique, sans retour possible.`} />
+                            ) : null}
+                          </span>
+                        </td>
                       </tr>
                     );
                   })}

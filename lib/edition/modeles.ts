@@ -15,7 +15,7 @@ export function modelePage(modele: Modele, titre: string): Record<string, unknow
       chapeau: TODO("Dire en une phrase ce qui se passe, où et quand"),
       date: TODO("Date et heures, par exemple « samedi 14 mars, de 11 h à 19 h »"),
       lieu: TODO("Lieu et adresse"),
-      sections: [b("grande-image"), b("texte"), b("galerie"), b("appel", { cta: { label: "Prendre rendez-vous", href: "/rendez-vous" } })],
+      sections: [b("grande-image"), b("texte"), b("galerie"), b("appel", { cta: { label: "Prendre rendez-vous", href: "/contact" } })],
       seo,
     };
   }

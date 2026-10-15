@@ -9,7 +9,7 @@ import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { kv } from "@/lib/store";
-import { contentDir, isDocId } from "./store";
+import { contentDir, isDocId, publishedDoc } from "./store";
 
 export type DocKind = "page" | "textes" | "email" | "legal" | "modele";
 export type Modele = "evenement" | "article" | "collection";
@@ -91,4 +91,11 @@ export async function registerPage(modele: Modele, titre: string, slug: string, 
 export async function unregisterPage(id: string) {
   const custom = (await kv.get<DocInfo[]>(CUSTOM_KEY).catch(() => null)) ?? [];
   await kv.set(CUSTOM_KEY, custom.filter((d) => d.id !== id));
+}
+
+/** Pages créées depuis un modèle et publiées (plan du site, recherche). */
+export async function publishedModelePages(): Promise<DocInfo[]> {
+  const custom = (await listDocuments()).filter((d) => d.kind === "modele" && d.chemin);
+  const live = await Promise.all(custom.map(async (d) => ((await publishedDoc(d.id, "fr").catch(() => null)) ? d : null)));
+  return live.filter((d): d is DocInfo => d !== null);
 }

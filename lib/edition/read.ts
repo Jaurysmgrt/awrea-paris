@@ -42,3 +42,14 @@ export async function getDoc<T>(doc: string, locale: Locale = DEFAULT_LOCALE, op
   if (content === null || content === undefined) throw new Error(`Contenu introuvable : content/site/${locale}/${doc}.json`);
   return content as T;
 }
+
+/** Comme getDoc, mais null si le document n'existe pas (page créée depuis un modèle, pas encore publiée). */
+export async function findDoc<T>(doc: string, locale: Locale = DEFAULT_LOCALE, opts: { plain?: boolean } = {}): Promise<T | null> {
+  if (await isEditing()) {
+    const draft = await readDoc(doc, locale, { draft: true });
+    if (draft === null || draft === undefined) return null;
+    return (opts.plain ? draft : stegaEncodeDeep(draft, doc, locale)) as T;
+  }
+  const content = editionStorage() === "fichiers" ? await readDoc(doc, locale) : await publishedCached(doc, locale);
+  return (content ?? null) as T | null;
+}

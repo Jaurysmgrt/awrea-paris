@@ -164,14 +164,17 @@ function blockHtml(b: EmailBlock, ctx: EmailContext, unsubscribe: string): strin
     }
     case "titre":
       return row(`<h1 class="e-ink e-title" style="margin:0;font-family:${f.display};font-weight:400;font-size:32px;line-height:40px;color:${c.ink};text-align:center;">${fill(String(b.titre ?? ""), ctx)}</h1>`);
-    case "texte":
+    case "texte": {
+      // les repères sont remplis avant le découpage : une réponse de plusieurs paragraphes les garde
+      const raw = ctx.syntax ? String(b.texte ?? "") : fill(String(b.texte ?? ""), ctx, false);
       return row(
-        String(b.texte ?? "")
+        raw
           .split(/\n{2,}/)
           .filter((p) => p.trim())
-          .map((p, i, all) => `<p class="e-ink" lang="fr" style="margin:0 0 ${i === all.length - 1 ? 0 : 24}px;${body}">${fill(p.trim(), ctx).replace(/\n/g, "<br>")}</p>`)
+          .map((p, i, all) => `<p class="e-ink" lang="fr" style="margin:0 0 ${i === all.length - 1 ? 0 : 24}px;${body}">${(ctx.syntax ? fill(p.trim(), ctx) : esc(p.trim())).replace(/\n/g, "<br>")}</p>`)
           .join(""),
       );
+    }
     case "image": {
       const img = b.image as Img | undefined;
       if (!img?.src) return "";
@@ -282,7 +285,7 @@ function textOf(blocks: EmailBlock[], ctx: EmailContext, unsubscribe: string): s
   const out: string[] = [];
   for (const b of blocks) {
     if (b.type === "titre") out.push(fill(String(b.titre ?? ""), ctx, false).toUpperCase(), "");
-    if (b.type === "texte") out.push(...String(b.texte ?? "").split(/\n{2,}/).map((p) => fill(p.trim(), ctx, false)), "");
+    if (b.type === "texte") out.push(...fill(String(b.texte ?? ""), ctx, false).split(/\n{2,}/).map((p) => p.trim()).filter(Boolean), "");
     if (b.type === "bouton" && (b.lien as Lien | null)?.label) out.push(`${fill((b.lien as Lien).label, ctx, false)} : ${href((b.lien as Lien).href, ctx)}`, "");
     if (b.type === "produit") {
       const p = ctx.products?.[String((b.pieces as string[] | undefined)?.[0] ?? "")];

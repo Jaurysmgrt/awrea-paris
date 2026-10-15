@@ -151,6 +151,11 @@
   html[data-edition][data-edition-mode="modifier"] [data-ed-bloc]:hover {
     box-shadow: inset 0 0 0 var(--border-width-hair) var(--line);
   }
+  /* le bandeau des cookies ne recouvre pas la barre d'édition (la créatrice l'a déjà vu) */
+  html[data-edition] .consent,
+  html[data-apercu] .consent {
+    display: none;
+  }
   /* la barre d'édition ne cache jamais le bas de la page */
   html[data-edition] body {
     padding-bottom: var(--spacing-3xl);

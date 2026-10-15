@@ -76,13 +76,13 @@ function directives(nonce?: string, selfFrame = false): Record<string, string[]>
       "https://*.clarity.ms",
       "https://analytics.tiktok.com",
     ],
-    "frame-src": ["https://challenges.cloudflare.com", "https://www.googletagmanager.com", "https://td.doubleclick.net"],
+    // l'éditeur de la créatrice affiche l'aperçu de la page dans un cadre du site lui-même
+    "frame-src": [...(selfFrame ? ["'self'"] : []), "https://challenges.cloudflare.com", "https://www.googletagmanager.com", "https://td.doubleclick.net"],
     "worker-src": ["'self'", "blob:"],
     "manifest-src": ["'self'"],
     "object-src": ["'none'"],
     "base-uri": ["'self'"],
     "form-action": ["'self'"],
-    // l'aperçu de l'éditeur (créatrice connectée seulement) affiche la page dans un cadre du site lui-même
     "frame-ancestors": [selfFrame ? "'self'" : "'none'"],
   };
 }

@@ -4,15 +4,20 @@
  * n'est rendu que pour la créatrice connectée en mode Édition), ni dans le cadre de l'aperçu.
  */
 import dynamic from "next/dynamic";
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 const EditionMode = dynamic(() => import("./EditionMode").then((m) => m.EditionMode), { ssr: false });
 
 const noop = () => () => {};
-/** vrai dans la page elle-même, faux dans le cadre de l'aperçu et au rendu serveur */
-const isTopWindow = () => window.self === window.top && !new URLSearchParams(window.location.search).has("apercu");
+/** vrai sur une page du site elle-même ; faux dans le cadre de l'aperçu, dans l'Atelier et au rendu serveur */
+const onSitePage = (base: string) => () =>
+  window.self === window.top && !new URLSearchParams(window.location.search).has("apercu") && window.location.pathname !== base && !window.location.pathname.startsWith(`${base}/`);
 
 export function EditionLoader(props: { base: string; email: string; guideDone: boolean }) {
-  const top = useSyncExternalStore(noop, isTopWindow, () => false);
-  return top ? <EditionMode {...props} /> : null;
+  const show = useSyncExternalStore(noop, onSitePage(props.base), () => false);
+  // dans le cadre de l'aperçu, la page se montre telle que le public la verra, sans le bandeau des cookies
+  useEffect(() => {
+    if (window.self !== window.top && new URLSearchParams(window.location.search).has("apercu")) document.documentElement.dataset.apercu = "1";
+  }, []);
+  return show ? <EditionMode {...props} /> : null;
 }

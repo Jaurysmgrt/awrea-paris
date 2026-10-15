@@ -15,7 +15,8 @@ import { kv } from "@/lib/store";
 import { DEFAULT_LOCALE, editionStorage, type Locale } from "./config";
 import { changedPaths, getAt, setAt, type Path } from "./paths";
 import { localize, withFallback } from "./merge";
-import { syncToGit } from "./github";
+import { removeFromGit, syncToGit } from "./github";
+import { LOCALES } from "./config";
 
 export interface Draft {
   content: unknown;
@@ -211,4 +212,21 @@ export async function runScheduled(now = new Date()): Promise<Scheduled[]> {
     if (draft && JSON.stringify(draft.content) === JSON.stringify(s.content)) await discardDraft(s.doc, s.locale);
   }
   return due;
+}
+
+/**
+ * Supprime un document entier (page créée depuis un modèle) : brouillons, version publiée,
+ * historique, programmations et fichier, dans toutes les langues. Irréversible : l'Atelier le
+ * demande à la créatrice avant.
+ */
+export async function removeDoc(doc: string, by: string) {
+  if (!isDocId(doc)) return;
+  await kv.set(SCHEDULE_KEY, (await scheduled()).filter((s) => s.doc !== doc));
+  for (const locale of LOCALES) {
+    await Promise.all([kv.del(draftKey(doc, locale)), kv.del(publishedKey(doc, locale)), kv.del(historyKey(doc, locale))]);
+    await fs.rm(fileOf(doc, locale), { force: true });
+    fileCache.delete(fileOf(doc, locale));
+    void removeFromGit(doc, locale, `Édition : ${doc} (${locale}) supprimé par ${by}`).catch((e) => console.error("[édition] suppression Git", e));
+  }
+  refresh(doc);
 }

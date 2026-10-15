@@ -5,6 +5,7 @@
  * Animation CSS seule (aucun JavaScript), neutralisée si les animations sont apaisées.
  */
 import { Fragment } from "react";
+import { stegaClean } from "@/lib/edition/stega";
 
 type Props = {
   text: string;
@@ -15,7 +16,11 @@ type Props = {
 
 export function SplitTitle({ text, as: Tag = "h1", className = "", id }: Props) {
   let i = 0;
-  const words = text.split(" ");
+  // mode Édition : la marque invisible reste d'un seul tenant, à la fin du titre animé, pour que
+  // l'éditeur retrouve le texte d'un clic sur n'importe quelle lettre
+  const clean = stegaClean(text);
+  const mark = clean !== text && text.startsWith(clean) ? text.slice(clean.length) : "";
+  const words = clean.split(" ");
   return (
     <Tag id={id} className={`split ${className}`}>
       <span className="sr-only">{text}</span>
@@ -33,6 +38,7 @@ export function SplitTitle({ text, as: Tag = "h1", className = "", id }: Props) 
             </span>
           </Fragment>
         ))}
+        {mark}
       </span>
     </Tag>
   );

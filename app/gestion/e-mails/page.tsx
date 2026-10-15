@@ -1,4 +1,5 @@
-import { emailIds, renderEmailDoc, emailDoc } from "@/lib/email/documents";
+import { emailIds, renderEmailDoc, emailDoc, emailCommon } from "@/lib/email/documents";
+import { EmailCommonForm } from "@/components/admin/EmailCommonForm";
 import { draftOf, historyOf } from "@/lib/edition/store";
 import { atelierHref } from "@/lib/admin/path";
 import { When } from "@/components/admin/Status";
@@ -12,7 +13,7 @@ const FAMILLES = [
 
 /** Galerie des e-mails : chacun tel qu'il arrive, avec ses exemples, et son état. */
 export default async function EmailsPage() {
-  const ids = await emailIds();
+  const [ids, commun] = await Promise.all([emailIds(), emailCommon("fr", true)]);
   const list = (
     await Promise.all(
       ids.map(async ({ id, label }) => {
@@ -59,6 +60,20 @@ export default async function EmailsPage() {
         );
       })}
       {!list.length ? <p className="t-note">Aucun e-mail pour l’instant.</p> : null}
+      <section id="communs" className="panel stack" aria-labelledby="communs-titre">
+        <h2 id="communs-titre" className="t-h3">Textes communs</h2>
+        <p className="t-note">Repris en bas de chaque e-mail.</p>
+        <EmailCommonForm
+          fields={[
+            { key: "devise", label: "Devise", value: commun.devise },
+            { key: "lignePied", label: "Ligne sous la devise", value: commun.lignePied },
+            { key: "mentions", label: "Mentions (raison sociale, adresse)", value: commun.mentions },
+            { key: "desinscription", label: "Lien de désinscription des lettres", value: commun.desinscription },
+            { key: "voirPiece", label: "Lien sous une pièce", value: commun.voirPiece },
+            { key: "total", label: "Dernière ligne d’une commande", value: commun.total },
+          ]}
+        />
+      </section>
     </div>
   );
 }
