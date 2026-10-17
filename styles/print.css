@@ -1,0 +1,98 @@
+/*
+ * Impression soignée : certificat, récapitulatif de commande, facture, pages légales.
+ * Papier blanc, encre noire, filets fins ; tout ce qui sert à naviguer disparaît.
+ */
+@media print {
+  @page {
+    margin: 16mm 14mm;
+  }
+  html,
+  html[data-mode="dark"] {
+    color-scheme: light;
+    background: none;
+  }
+  body,
+  html[data-mode="dark"] body {
+    --bg: var(--color-ivory);
+    --fg: var(--color-ink);
+    --fg-soft: var(--color-ink-soft);
+    --line: color-mix(in oklab, var(--color-ink) 25%, transparent);
+    background: none !important;
+    color: var(--color-ink) !important;
+  }
+  .site-header,
+  .site-footer,
+  .site-menu,
+  .search,
+  .consent,
+  .drawer,
+  .drape,
+  .assistant-launcher,
+  .assistant,
+  .skip-link,
+  .light-halo,
+  .no-print,
+  .admin__side,
+  .envelope,
+  .breadcrumb {
+    display: none !important;
+  }
+  .scene,
+  [data-theme] {
+    --bg: var(--color-ivory);
+    --fg: var(--color-ink);
+    --fg-soft: var(--color-ink-soft);
+    background: none !important;
+    color: var(--color-ink) !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  [data-reveal][data-pending] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  a {
+    text-decoration: none;
+  }
+  .certificate-page,
+  .confirmation,
+  .page-header {
+    padding-top: 0 !important;
+  }
+  .certificate-page__grid {
+    display: block;
+  }
+  .certificate,
+  .order,
+  .confirmation__details,
+  table,
+  .legal__box {
+    break-inside: avoid;
+  }
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+  /* Atelier : la feuille du certificat, puis l'étiquette à découper sur la même page */
+  .admin,
+  .admin__main {
+    display: block;
+    padding: 0;
+  }
+  .certificate-print {
+    gap: var(--spacing-m);
+  }
+  .certificate-label {
+    break-inside: avoid;
+  }
+  /* bon de livraison : seule la feuille s'imprime */
+  .slip {
+    border: 0;
+    padding: 0;
+  }
+}

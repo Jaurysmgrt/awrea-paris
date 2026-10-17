@@ -1,0 +1,66 @@
+{
+  "seo": {
+    "title": "Prendre rendez-vous à l’atelier | Awrea Paris",
+    "description": "Un essayage à l’atelier, un appel vidéo avec la créatrice ou un premier rendez-vous sur mesure : choisissez votre jour et votre heure."
+  },
+  "titre": "Prendre rendez-vous",
+  "chapeau": "Un essayage à l’atelier, un appel vidéo ou un premier rendez-vous sur mesure. Choisissez le jour et l’heure : ils vous sont réservés.",
+  "types": {
+    "essayage": {
+      "titre": "Essayage à l’atelier",
+      "texte": "Les pièces de votre choix vous attendent, à votre taille. La créatrice ajuste ce qui doit l’être.",
+      "duree": "Une heure"
+    },
+    "visio": {
+      "titre": "Appel vidéo avec la créatrice",
+      "texte": "Pour parler d’une pièce, d’une taille ou d’un projet, où que vous soyez.",
+      "duree": "Trente minutes"
+    },
+    "sur-mesure": {
+      "titre": "Premier rendez-vous sur mesure",
+      "texte": "Mesures, matières et premières idées pour votre pièce.",
+      "duree": "Une heure et demie"
+    }
+  },
+  "etapes": {
+    "type": "Le rendez-vous",
+    "jour": "Le jour",
+    "heure": "L’heure",
+    "vous": "Vous"
+  },
+  "aucunJour": "Aucun jour libre dans les semaines qui viennent. Écrivez-nous, nous trouverons un moment.",
+  "chargement": "Un instant…",
+  "champs": {
+    "nom": "Nom",
+    "email": "E-mail",
+    "telephone": "Téléphone (facultatif)",
+    "message": "Ce que vous aimeriez voir ou essayer (facultatif)",
+    "accord": "J’accepte que mes coordonnées servent à ce rendez-vous, et à rien d’autre."
+  },
+  "bouton": "Réserver ce moment",
+  "envoi": "Réservation…",
+  "confirme": {
+    "titre": "C’est noté",
+    "texte": "{rendezvous}, {quand}. Un e-mail de confirmation part à {email}, avec l’invitation pour votre agenda."
+  },
+  "erreur": "La réservation n’a pas abouti. Choisissez un autre moment, ou écrivez-nous.",
+  "annulation": {
+    "seo": {
+      "title": "Annuler un rendez-vous | Awrea Paris",
+      "description": "Annuler un rendez-vous à l’atelier Awrea Paris."
+    },
+    "titre": "Annuler le rendez-vous",
+    "texte": "{rendezvous}, {quand}. Si vous annulez, le moment revient à une autre cliente.",
+    "bouton": "Annuler le rendez-vous",
+    "attente": "Un instant…",
+    "fait": {
+      "titre": "C’est annulé",
+      "texte": "Le rendez-vous est libéré. Vous pouvez en prendre un autre quand vous le souhaitez."
+    },
+    "invalide": {
+      "titre": "Ce lien n’est plus valable",
+      "texte": "Le rendez-vous est peut-être déjà annulé. Écrivez-nous à {email} si besoin."
+    },
+    "erreur": "L’annulation n’a pas abouti. Réessayez dans un instant, ou écrivez-nous."
+  }
+}

@@ -1,0 +1,1872 @@
+/*
+ * AWREA PARIS, direction « atelier » (laboratoire de design, DA 2).
+ *
+ * La page se lit comme une table de coupe. Quelques signes de patronage, toujours au trait fin
+ * et chacun avec un seul sens : le trait de coupe (structure), la ligne de couture (le fil), le
+ * cran (un repère, un exemplaire), le droit-fil (le sens du tissu), la cote (une mesure), le
+ * feston (le bord de la dentelle), l'épingle (une note), le mètre ruban (la grille de 8 px).
+ *
+ * Règle de grille propre à la direction : sur grand écran, la première des douze colonnes est
+ * la valeur de couture. Elle ne reçoit que des signes (droit-fil, crans), jamais de texte.
+ *
+ * Valeurs uniquement par les tokens du design system (styles/tokens.css). Une seule durée
+ * (--dur) et une seule courbe (--ease) pour toute animation.
+ */
+
+/* ============================================================== PAGE ET GRILLE */
+.page {
+  position: relative;
+}
+/* curseur monogramme : seulement sur la dentelle et les pièces (arbitrage 1) */
+.page [data-curseur] {
+  cursor: var(--da-curseur, zoom-in);
+}
+@media (prefers-reduced-motion: reduce) {
+  .page [data-curseur] {
+    cursor: revert-layer;
+  }
+}
+html[data-motion="reduce"] .page [data-curseur] {
+  cursor: revert-layer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--spacing-gutter);
+}
+.grid > * {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+/* en-têtes de section : petite étiquette, puis le titre */
+.plancheTete > * + *,
+.matiereTete > * + *,
+.mesureTete > * + *,
+.registreTitre > * + *,
+.atelierTexte > :global(.eyebrow) + *,
+.lettresTexte > :global(.eyebrow) + *,
+.suiteTexte > :global(.eyebrow) + *,
+.manifesteTexte > :global(.eyebrow) + * {
+  margin-top: var(--spacing-xs);
+}
+
+.h2Grand {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-step-4);
+  line-height: var(--lh-step-4);
+  letter-spacing: var(--tracking-display);
+}
+
+.sectionCta {
+  margin-top: var(--space-title);
+}
+
+/* ===================================================================== EN-TÊTE */
+.header {
+  position: relative;
+  z-index: var(--z-header);
+}
+.headerBar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--spacing-m);
+  min-height: var(--header-h);
+}
+.logo {
+  display: block;
+  grid-column: 1;
+  height: calc(var(--header-h) * 0.66);
+  color: inherit;
+}
+.logoSvg {
+  height: 100%;
+  width: auto;
+}
+.nav {
+  display: none;
+  grid-column: 2;
+  justify-self: end;
+}
+.navList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.headerTools {
+  display: flex;
+  grid-column: 3;
+  align-items: center;
+  gap: var(--spacing-m);
+}
+.cartCount {
+  margin-left: var(--spacing-3xs);
+  font-family: var(--font-display);
+  font-size: var(--text-step-0);
+  letter-spacing: 0;
+}
+@media (max-width: 63.99rem) {
+  .nav[data-open="true"] {
+    display: block;
+    position: absolute;
+    top: 100%;
+    inset-inline: 0;
+    justify-self: stretch;
+    z-index: var(--z-header);
+    padding: var(--spacing-m) var(--spacing-gutter);
+    background: var(--bg);
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .navList {
+    display: grid;
+    gap: var(--spacing-3xs);
+  }
+}
+@media (min-width: 64rem) {
+  .nav {
+    display: block;
+  }
+  .navList {
+    display: flex;
+    gap: var(--spacing-l);
+  }
+  .menuBtn {
+    display: none;
+  }
+}
+
+/* le mètre ruban : un trait tous les 8 px (la grille du site), un plus long tous les 40 et 80 px */
+.ruler {
+  height: var(--spacing-3xs);
+  background-image:
+    linear-gradient(var(--fg), var(--fg)),
+    repeating-linear-gradient(to right, var(--fg) 0 var(--border-width-hair), transparent var(--border-width-hair) calc(var(--spacing-3xs) * 10)),
+    repeating-linear-gradient(to right, var(--fg-soft) 0 var(--border-width-hair), transparent var(--border-width-hair) calc(var(--spacing-3xs) * 5)),
+    repeating-linear-gradient(to right, var(--line) 0 var(--border-width-hair), transparent var(--border-width-hair) var(--spacing-3xs));
+  background-size:
+    100% var(--border-width-hair),
+    100% 100%,
+    100% 75%,
+    100% 50%;
+  background-position: left bottom;
+  background-repeat: no-repeat;
+}
+
+/* ========================================================= SIGNES DU PATRON */
+/* monogramme au trait */
+.monogramme {
+  display: block;
+  overflow: visible;
+}
+.monogramme path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--border-width-hair);
+  vector-effect: non-scaling-stroke;
+}
+.monogramme[data-draw] path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: dessin calc(var(--dur) * 2) var(--ease) infinite alternate both;
+}
+@keyframes dessin {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* épingle */
+.epingle {
+  display: block;
+  overflow: visible;
+}
+.epingle circle {
+  fill: var(--color-ivory);
+  stroke: var(--color-ink);
+  stroke-width: var(--border-width-hair);
+  vector-effect: non-scaling-stroke;
+}
+.epingle path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--border-width-hair);
+  vector-effect: non-scaling-stroke;
+}
+
+/* cote horizontale : la valeur au-dessus, la ligne et ses deux traits obliques */
+.cote {
+  display: grid;
+  gap: var(--spacing-3xs);
+  justify-items: center;
+  width: 100%;
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-light);
+  font-size: var(--text-step--1);
+  line-height: var(--leading-text);
+  color: var(--fg-soft);
+}
+.coteValue {
+  text-align: center;
+}
+.coteLine {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: var(--border-width-hair);
+  background: var(--fg);
+}
+.coteLine::before,
+.coteLine::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: var(--spacing-xs);
+  height: var(--border-width-hair);
+  background: var(--fg);
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+.coteLine::before {
+  left: 0;
+}
+.coteLine::after {
+  left: 100%;
+}
+
+/* feston : le bord d'une dentelle, en petits arcs */
+.feston {
+  height: var(--spacing-3xs);
+  background-image: radial-gradient(
+    circle at 50% 0,
+    transparent calc(var(--spacing-3xs) - var(--border-width-hair)),
+    var(--fg-soft) calc(var(--spacing-3xs) - var(--border-width-hair)) var(--spacing-3xs),
+    transparent var(--spacing-3xs)
+  );
+  background-size: var(--spacing-xs) var(--spacing-3xs);
+  background-repeat: repeat-x;
+  background-position: center top;
+}
+
+/* =========================================================== TITRE BÂTI (3a) */
+.stitch {
+  display: inline;
+}
+.stitchWord {
+  white-space: nowrap;
+}
+.stitchChar {
+  background-image: linear-gradient(var(--fg-soft), var(--fg-soft));
+  background-repeat: no-repeat;
+  background-position: 50% 100%;
+  background-size: 50% var(--border-width-hair);
+  animation: point var(--dur) var(--ease) both;
+  animation-delay: calc(var(--i) * var(--dur-stagger) * 0.5);
+}
+@keyframes point {
+  from {
+    opacity: 0;
+    background-size: 0% var(--border-width-hair);
+  }
+}
+
+/* ============================================================== NUMÉRO D'ÉDITION */
+.edition {
+  display: grid;
+  justify-items: start;
+  gap: var(--spacing-xs);
+}
+.editionLigne {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-3xs) var(--spacing-m);
+  justify-self: stretch;
+}
+.editionNo {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--tracking-display);
+  white-space: nowrap;
+  font-variant-numeric: lining-nums;
+}
+.edition[data-size="giant"] .editionNo {
+  font-size: var(--text-step-5);
+  line-height: var(--lh-step-5);
+}
+.edition[data-size="row"] .editionNo {
+  font-size: var(--text-step-2);
+  line-height: var(--lh-step-2);
+}
+.edition[data-size="fiche"] .editionNo {
+  font-size: var(--text-step-4);
+  line-height: var(--lh-step-4);
+}
+@media (min-width: 64rem) {
+  .edition[data-size="giant"] .editionNo {
+    font-size: var(--text-step-4);
+    line-height: var(--lh-step-4);
+  }
+}
+@media (min-width: 90rem) {
+  .edition[data-size="giant"] .editionNo {
+    font-size: var(--text-step-5);
+    line-height: var(--lh-step-5);
+  }
+}
+
+/* la série en crans : un repère par exemplaire, sur le bord d'une pièce de patron */
+.serie {
+  display: flex;
+  width: min(100%, calc(var(--n) * var(--spacing-xl)));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: var(--border-width-hair) solid var(--fg);
+}
+.cran {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  padding-top: var(--spacing-xs);
+  text-align: center;
+}
+/* le cran : un petit losange posé sur le trait, ouvert ou plein */
+.cran::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--border-width-hair));
+  left: 50%;
+  width: var(--spacing-3xs);
+  height: var(--spacing-3xs);
+  border-right: var(--border-width-hair) solid var(--fg);
+  border-bottom: var(--border-width-hair) solid var(--fg);
+  background: var(--bg);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.cran[data-etat="attribue"]::before {
+  background: var(--fg-soft);
+  border-color: var(--fg-soft);
+}
+.cranNum {
+  font-family: var(--font-display);
+  font-size: var(--text-step-1);
+  line-height: var(--leading-text);
+  font-variant-numeric: lining-nums;
+}
+.cran[data-etat="attribue"] .cranNum {
+  color: var(--fg-soft);
+}
+/* le prochain exemplaire : souligné d'un point de couture */
+.cran[data-etat="prochain"] .cranNum {
+  background-image: linear-gradient(var(--fg), var(--fg));
+  background-repeat: no-repeat;
+  background-position: 50% 100%;
+  background-size: 100% var(--border-width-hair);
+}
+.edition[data-size="row"] .cranNum {
+  font-size: var(--text-step-0);
+}
+.editionPhrase {
+  max-width: var(--measure);
+}
+
+/* ==================================================== PHOTOGRAPHIE EN PIÈCE DE PATRON */
+.patron {
+  margin: 0;
+}
+.patronFrame {
+  position: relative;
+  /* le trait de coupe, à 8 px de la pièce */
+  outline: var(--border-width-hair) solid var(--fg);
+  outline-offset: var(--spacing-3xs);
+}
+/* les crans : un trait qui coupe le contour, simple pour un devant, double pour un dos */
+.patronFrame::before,
+.patronFrame::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: var(--spacing-xs);
+  height: var(--border-width-hair);
+  background: var(--fg);
+}
+.patronFrame::before {
+  left: calc(-1 * var(--spacing-xs));
+}
+.patronFrame::after {
+  right: calc(-1 * var(--spacing-xs));
+}
+.patronFrame[data-vue="dos"]::before,
+.patronFrame[data-vue="dos"]::after {
+  height: var(--spacing-3xs);
+  background: none;
+  border-block: var(--border-width-hair) solid var(--fg);
+  transform: translateY(-50%);
+}
+@media (max-width: 63.99rem) {
+  .patronFrame {
+    margin-inline: var(--spacing-xs);
+  }
+}
+.patronImage :global(.media) {
+  background: var(--media-bg);
+}
+
+/* renvois lettrés posés sur la pièce */
+.repere,
+.repereKey {
+  display: inline-grid;
+  place-items: center;
+  width: var(--spacing-m);
+  height: var(--spacing-m);
+  border: var(--border-width-hair) solid var(--color-ink);
+  border-radius: var(--radius-full);
+  background: var(--color-ivory);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-step--2);
+  line-height: var(--leading-tight);
+}
+.repere {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+/* droit-fil, dans la valeur de couture (grand écran) */
+.droitFil {
+  display: none;
+  position: absolute;
+  top: 24%;
+  bottom: 24%;
+  left: calc(-1 * var(--spacing-l));
+  width: var(--border-width-hair);
+  background: var(--fg);
+}
+.droitFil::before,
+.droitFil::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: var(--spacing-3xs);
+  height: var(--spacing-3xs);
+  border-left: var(--border-width-hair) solid var(--fg);
+  border-top: var(--border-width-hair) solid var(--fg);
+}
+.droitFil::before {
+  top: 0;
+  transform: translate(-50%, 0) rotate(45deg);
+}
+.droitFil::after {
+  bottom: 0;
+  transform: translate(-50%, 0) rotate(-135deg);
+}
+.droitFilLabel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  padding-block: var(--spacing-3xs);
+  background: var(--bg);
+  writing-mode: vertical-rl;
+  transform: translate(-50%, -50%) rotate(180deg);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-step--2);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  line-height: var(--leading-label);
+  white-space: nowrap;
+}
+
+/* cote verticale hors de l'image : lignes d'attache, ligne de cote, traits obliques */
+.coteV {
+  display: none;
+  position: absolute;
+  left: 100%;
+  top: var(--from);
+  height: calc(var(--to) - var(--from));
+  width: var(--spacing-l);
+  border-top: var(--border-width-hair) solid var(--line);
+  border-bottom: var(--border-width-hair) solid var(--line);
+}
+.coteV::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: var(--border-width-hair);
+  background: var(--fg);
+}
+.coteVLabel {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + var(--spacing-xs));
+  width: var(--container-thumb-l);
+  transform: translateY(-50%);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-light);
+  font-size: var(--text-step--1);
+  line-height: var(--leading-text);
+}
+.coteVLabel::before,
+.coteVLabel::after {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--spacing-xs));
+  width: var(--spacing-xs);
+  height: var(--border-width-hair);
+  background: var(--fg);
+}
+@media (min-width: 64rem) {
+  .droitFil,
+  .coteV {
+    display: block;
+  }
+}
+
+.patronCaption {
+  display: grid;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-m);
+}
+.coteTexte {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-light);
+  font-size: var(--text-step--1);
+  line-height: var(--leading-text);
+}
+@media (min-width: 64rem) {
+  /* la cote se lit dans la marge : le texte reste pour les lecteurs d'écran */
+  .coteTexte {
+    position: absolute;
+    width: var(--spacing-hair);
+    height: var(--spacing-hair);
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+.reperes {
+  display: grid;
+  gap: var(--spacing-3xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.reperes li {
+  display: grid;
+  grid-template-columns: var(--spacing-m) minmax(0, 1fr);
+  gap: var(--spacing-xs);
+  align-items: center;
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-light);
+  font-size: var(--text-step--1);
+  line-height: var(--leading-text);
+}
+
+/* ================================================ ÉPINGLE CACHÉE (détail inattendu) */
+.secret {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  z-index: var(--z-base);
+  /* un point : l'épingle et sa note s'organisent autour de lui */
+  width: 0;
+  height: 0;
+}
+.secretBtn {
+  display: grid;
+  place-items: center;
+  width: var(--spacing-touch);
+  height: var(--spacing-touch);
+  translate: -50% -50%;
+  color: var(--color-ivory);
+}
+.secretBtn .epingle {
+  width: var(--spacing-xs);
+  height: var(--spacing-l);
+  rotate: 28deg;
+}
+.secretNote {
+  position: absolute;
+  /* la note s'ouvre autour de l'épingle, au même endroit de sa largeur : elle reste dans la photo */
+  left: 0;
+  bottom: var(--spacing-m);
+  display: grid;
+  gap: var(--spacing-3xs);
+  width: var(--container-popover);
+  padding: var(--spacing-xs) var(--spacing-m);
+  translate: calc(-1 * var(--x)) 0;
+  background: var(--color-ivory);
+  color: var(--color-ink);
+  border: var(--border-width-hair) solid var(--color-ink);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--dur) var(--ease),
+    visibility 0s linear var(--dur);
+}
+.secret:hover .secretNote,
+.secret[data-open="true"] .secretNote,
+.secretBtn:focus-visible + .secretNote {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--dur) var(--ease);
+}
+.secretQuote {
+  font-family: var(--font-display);
+  font-size: var(--text-step-1);
+  line-height: var(--leading-snug);
+}
+
+/* ======================================================================= ÉCHANTILLON */
+.swatch {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-3xs);
+  width: var(--size-mark);
+  color: var(--fg);
+}
+.swatchCut {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+}
+.swatchCut :global(.media) {
+  width: 100%;
+  height: 100%;
+  background: none;
+}
+.swatchImg {
+  transform: scale(2.4);
+  transform-origin: 46% 86%;
+}
+.swatchPin {
+  position: absolute;
+  top: calc(-1 * var(--spacing-xs));
+  left: 50%;
+  width: var(--spacing-xs);
+  height: var(--spacing-l);
+  rotate: 24deg;
+  color: var(--fg);
+}
+.swatchLabel {
+  color: var(--fg-soft);
+}
+@media (hover: hover) {
+  .swatch:hover .swatchLabel {
+    color: var(--fg);
+  }
+}
+
+/* ========================================================= DENTELLE AGRANDISSABLE */
+.zoom {
+  display: grid;
+  gap: var(--spacing-m);
+}
+.zoomImage {
+  display: block;
+  width: 100%;
+  padding: 0;
+}
+.zoomCrop {
+  object-position: 50% 96%;
+}
+/* le bas de l'image découpé en feston, comme une dentelle coupée motif par motif */
+.festonMask {
+  -webkit-mask-image:
+    linear-gradient(var(--color-ink), var(--color-ink)),
+    radial-gradient(circle closest-side, var(--color-ink) 96%, transparent);
+  mask-image:
+    linear-gradient(var(--color-ink), var(--color-ink)),
+    radial-gradient(circle closest-side, var(--color-ink) 96%, transparent);
+  -webkit-mask-size:
+    100% calc(100% - var(--spacing-3xs)),
+    var(--spacing-xs) var(--spacing-xs);
+  mask-size:
+    100% calc(100% - var(--spacing-3xs)),
+    var(--spacing-xs) var(--spacing-xs);
+  -webkit-mask-position:
+    top,
+    bottom;
+  mask-position:
+    top,
+    bottom;
+  -webkit-mask-repeat: no-repeat, repeat-x;
+  mask-repeat: no-repeat, repeat-x;
+}
+.zoomDialog {
+  width: min(calc(100% - 2 * var(--spacing-gutter)), var(--container-prose));
+  max-height: calc(100dvh - 2 * var(--spacing-gutter));
+  margin: auto;
+  padding: 0;
+  border: var(--border-width-hair) solid var(--fg);
+  background: var(--bg);
+  color: var(--fg);
+}
+.zoomDialog::backdrop {
+  background: color-mix(in oklab, var(--color-ink) 70%, transparent);
+}
+.zoomSheet {
+  display: grid;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-m);
+}
+.zoomFull {
+  width: 100%;
+  height: auto;
+  max-height: calc(100dvh - var(--spacing-3xl));
+  object-fit: contain;
+}
+.zoomClose {
+  justify-self: end;
+}
+
+/* ================================================== VIDÉO RÉVÉLÉE PAR LA DENTELLE (3c) */
+.laceVideo {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.laceVideo video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  -webkit-mask-image: url("/media/texture/lace-light.webp"), radial-gradient(circle, var(--color-ink) 49%, transparent 50%);
+  mask-image: url("/media/texture/lace-light.webp"), radial-gradient(circle, var(--color-ink) 49%, transparent 50%);
+  -webkit-mask-size:
+    var(--size-mark),
+    0% 0%;
+  mask-size:
+    var(--size-mark),
+    0% 0%;
+  -webkit-mask-repeat: repeat, no-repeat;
+  mask-repeat: repeat, no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  /* d'abord à travers les fils, puis la dentelle s'ouvre : deux temps de la même durée */
+  transition:
+    opacity var(--dur) var(--ease),
+    -webkit-mask-size var(--dur) var(--ease) var(--dur),
+    mask-size var(--dur) var(--ease) var(--dur);
+}
+.laceVideo[data-playing="true"] video {
+  opacity: 1;
+  -webkit-mask-size:
+    var(--size-mark),
+    300% 300%;
+  mask-size:
+    var(--size-mark),
+    300% 300%;
+}
+
+/* ============================================================== OUVERTURE (ACCUEIL) */
+.ouverture {
+  padding-top: var(--spacing-xl);
+  padding-bottom: var(--space-section);
+}
+.h1 {
+  display: grid;
+  gap: var(--spacing-m);
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-regular);
+}
+.kicker {
+  display: block;
+}
+.h1Phrase {
+  display: block;
+  font-size: var(--text-step-3);
+  line-height: var(--lh-step-3);
+  letter-spacing: var(--tracking-display);
+  text-wrap: balance;
+}
+.ouvertureLead {
+  margin-top: var(--space-title);
+}
+.ouvertureCta {
+  margin-top: var(--space-title);
+}
+.ouverturePiece {
+  margin-top: var(--space-block);
+}
+.ouvertureEdition {
+  margin-top: var(--space-block);
+}
+@media (min-width: 64rem) {
+  .ouvertureTexte {
+    grid-column: 2 / span 6;
+    grid-row: 1;
+  }
+  .ouverturePiece {
+    grid-column: 9 / span 3;
+    grid-row: 1 / span 2;
+    margin-top: 0;
+  }
+  .ouvertureEdition {
+    grid-column: 2 / span 6;
+    grid-row: 2;
+    align-self: end;
+  }
+}
+@media (min-width: 90rem) {
+  .ouverturePiece {
+    grid-column: 8 / span 4;
+  }
+}
+
+/* ============================================================= REGISTRE DES ÉDITIONS */
+.registreSection {
+  padding-bottom: var(--space-section);
+}
+.registreSection > .feston,
+.manifeste > .feston,
+.planche > .feston,
+.suite > .feston {
+  margin-bottom: var(--space-block);
+}
+.registreHead {
+  row-gap: var(--space-title);
+  align-items: end;
+}
+.registreMeta {
+  margin-top: var(--spacing-m);
+}
+@media (min-width: 64rem) {
+  .registreTitre {
+    grid-column: 2 / span 5;
+  }
+  .registreIntro {
+    grid-column: 8 / span 5;
+  }
+}
+@media (min-width: 64rem) {
+  .registreCta {
+    grid-column: 2 / span 6;
+  }
+}
+.registre {
+  margin: var(--space-block) 0 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: var(--border-width-hair) solid var(--line);
+}
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--spacing-gutter);
+  row-gap: var(--spacing-xs);
+  align-items: start;
+  padding-block: var(--spacing-l);
+  border-top: var(--border-width-hair) solid var(--line);
+  transition: border-color var(--dur) var(--ease);
+}
+.row:hover,
+.row:focus-within {
+  border-top-color: var(--fg);
+}
+.rowMedia {
+  position: relative;
+  grid-column: 1 / span 5;
+  grid-row: 1 / span 3;
+}
+.rowName,
+.rowEdition,
+.rowPrice {
+  grid-column: 6 / -1;
+}
+.rowTitle {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-step-2);
+  line-height: var(--lh-step-2);
+  letter-spacing: var(--tracking-display);
+}
+.rowLink {
+  color: inherit;
+}
+.rowLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-base);
+}
+.rowLink:focus-visible {
+  outline: none;
+}
+.row:has(.rowLink:focus-visible) {
+  outline: var(--border-width-hair) solid var(--fg);
+  outline-offset: var(--spacing-3xs);
+}
+.rowMatiere {
+  margin-top: var(--spacing-3xs);
+}
+.rowPrice {
+  margin: 0;
+}
+@media (min-width: 64rem) {
+  .row {
+    align-items: center;
+  }
+  .rowMedia {
+    grid-column: 2 / span 2;
+    grid-row: 1;
+  }
+  .rowName {
+    grid-column: 5 / span 3;
+    grid-row: 1;
+  }
+  .rowEdition {
+    grid-column: 8 / span 3;
+    grid-row: 1;
+  }
+  .rowPrice {
+    grid-column: 11 / span 2;
+    grid-row: 1;
+    text-align: right;
+  }
+  .rowTitle {
+    font-size: var(--text-step-3);
+    line-height: var(--lh-step-3);
+  }
+}
+
+/* ======================================================================== L'ATELIER */
+.atelier {
+  padding-block: var(--space-section);
+}
+.atelierMedia {
+  margin: 0;
+}
+.atelierMedia figcaption {
+  margin-top: var(--spacing-xs);
+}
+.atelierTexte {
+  margin-top: var(--space-block);
+}
+.atelierTexte > :global(.t-body) {
+  margin-top: var(--space-title);
+}
+.mesure {
+  margin-top: var(--space-title);
+  max-width: var(--container-text);
+}
+.mesureGeante {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-step-6);
+  line-height: var(--lh-step-6);
+  letter-spacing: var(--tracking-display);
+  font-variant-numeric: lining-nums;
+}
+.mesureUnite {
+  margin-left: var(--spacing-3xs);
+  font-size: var(--text-step-3);
+}
+.mesureCote {
+  margin-top: var(--spacing-xs);
+}
+@media (min-width: 64rem) {
+  .atelierMedia {
+    grid-column: 2 / span 5;
+    align-self: start;
+  }
+  .atelierTexte {
+    grid-column: 8 / span 5;
+    margin-top: 0;
+  }
+}
+
+/* ===================================================================== MANIFESTE */
+.manifeste {
+  padding-bottom: var(--space-section);
+}
+.manifesteCorps {
+  margin-top: var(--space-title);
+}
+.citation {
+  margin: var(--space-block) 0 0;
+  padding-left: var(--spacing-m);
+  /* une ligne de couture, en tirets fins */
+  border-left: var(--border-width-hair) dashed var(--fg);
+}
+.citation blockquote {
+  margin: 0;
+}
+.citation blockquote p {
+  max-width: var(--measure);
+  font-family: var(--font-display);
+  font-size: var(--text-step-2);
+  line-height: var(--lh-step-2);
+}
+.signature {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-m);
+}
+.signatureMark {
+  height: var(--spacing-l);
+  width: auto;
+}
+@media (min-width: 64rem) {
+  .manifesteTexte {
+    grid-column: 2 / span 7;
+  }
+}
+
+/* ======================================================================= LETTRES */
+.lettres {
+  padding-block: var(--space-section);
+}
+.lettresTexte > :global(.t-body) {
+  margin-top: var(--space-title);
+}
+.lettresTexte > :last-child {
+  margin-top: var(--space-title);
+}
+@media (min-width: 64rem) {
+  .lettresTexte {
+    grid-column: 2 / span 6;
+  }
+}
+
+/* ========================================================================= FICHE */
+.fiche {
+  padding-top: var(--spacing-m);
+  padding-bottom: var(--space-section);
+}
+.ficheTete {
+  position: relative;
+}
+.fichePhoto {
+  margin-top: var(--space-title);
+}
+.cartouche {
+  position: relative;
+  margin-top: var(--space-block);
+}
+.ficheEyebrow,
+.ficheTitre,
+.ficheSousTitre {
+  max-width: calc(100% - var(--size-mark) - var(--spacing-m));
+}
+.ficheTitre {
+  margin-top: var(--spacing-xs);
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-step-4);
+  line-height: var(--lh-step-4);
+  letter-spacing: var(--tracking-display);
+}
+.ficheSousTitre {
+  margin-top: var(--spacing-xs);
+  font-family: var(--font-display);
+  font-size: var(--text-step-1);
+  line-height: calc(var(--text-step-1) * var(--leading-text));
+}
+.fichePrix {
+  margin: 0;
+  font-size: var(--text-step-0);
+}
+.ficheForm {
+  margin-top: var(--spacing-m);
+}
+.ficheNotice {
+  margin-top: var(--spacing-m);
+}
+.ficheConseil {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-3xs) var(--spacing-xs);
+  margin-top: var(--spacing-m);
+}
+.ficheMention {
+  margin-top: var(--spacing-m);
+}
+@media (min-width: 64rem) {
+  .fichePhoto {
+    grid-column: 2 / span 4;
+    grid-row: 1 / span 2;
+    align-self: start;
+    margin-top: 0;
+  }
+  .ficheTete {
+    grid-column: 7 / span 6;
+    grid-row: 1;
+  }
+  .cartouche {
+    grid-column: 7 / span 6;
+    grid-row: 2;
+    margin-top: var(--space-title);
+  }
+  .ficheTitre {
+    font-size: var(--text-step-3);
+    line-height: var(--lh-step-3);
+  }
+  /* la barre d'achat devient une étiquette, en bas à droite, dès que le bouton quitte l'écran */
+  .ficheForm :global(.buy-bar) {
+    display: flex;
+    left: auto;
+    right: var(--spacing-gutter);
+    bottom: var(--spacing-gutter);
+    width: var(--container-text);
+    padding: var(--spacing-xs) var(--spacing-m);
+    border: var(--border-width-hair) solid var(--fg);
+  }
+}
+
+/* ===================================================================== LE DOS */
+.planche {
+  padding-bottom: var(--space-section);
+}
+.planchePhoto,
+.croquisVide {
+  margin-top: var(--space-block);
+}
+.plancheTexte {
+  margin-top: var(--space-block);
+}
+.plancheTexte > * + * {
+  margin-top: var(--space-paragraph);
+}
+@media (min-width: 64rem) {
+  .plancheTete {
+    grid-column: 2 / span 6;
+  }
+  .planchePhoto {
+    grid-column: 2 / span 4;
+    grid-row: 2;
+  }
+  .croquisVide {
+    grid-column: 7 / span 4;
+    grid-row: 2;
+  }
+  .plancheTexte {
+    grid-column: 2 / span 6;
+    grid-row: 3;
+  }
+}
+
+/* emplacement réservé au croquis : une feuille prête, repères d'angle, droit-fil, cartouche */
+.croquisVide {
+  margin-inline: 0;
+  margin-bottom: 0;
+}
+.feuille {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border: var(--border-width-hair) solid var(--line);
+}
+.feuilleCoins {
+  position: absolute;
+  inset: var(--spacing-xs);
+  background-image:
+    linear-gradient(var(--fg), var(--fg)),
+    linear-gradient(var(--fg), var(--fg)),
+    linear-gradient(var(--fg), var(--fg)),
+    linear-gradient(var(--fg), var(--fg)),
+    linear-gradient(var(--fg), var(--fg)),
+    linear-gradient(var(--fg), var(--fg)),
+    linear-gradient(var(--fg), var(--fg)),
+    linear-gradient(var(--fg), var(--fg));
+  background-size:
+    var(--spacing-xs) var(--border-width-hair),
+    var(--border-width-hair) var(--spacing-xs),
+    var(--spacing-xs) var(--border-width-hair),
+    var(--border-width-hair) var(--spacing-xs),
+    var(--spacing-xs) var(--border-width-hair),
+    var(--border-width-hair) var(--spacing-xs),
+    var(--spacing-xs) var(--border-width-hair),
+    var(--border-width-hair) var(--spacing-xs);
+  background-position:
+    left top,
+    left top,
+    right top,
+    right top,
+    left bottom,
+    left bottom,
+    right bottom,
+    right bottom;
+  background-repeat: no-repeat;
+}
+.feuilleFil {
+  position: absolute;
+  left: 50%;
+  top: 28%;
+  bottom: 28%;
+  width: var(--border-width-hair);
+  background: var(--line);
+}
+.feuilleFil::before,
+.feuilleFil::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: var(--spacing-3xs);
+  height: var(--spacing-3xs);
+  border-left: var(--border-width-hair) solid var(--line);
+  border-top: var(--border-width-hair) solid var(--line);
+}
+.feuilleFil::before {
+  top: 0;
+  transform: translate(-50%, 0) rotate(45deg);
+}
+.feuilleFil::after {
+  bottom: 0;
+  transform: translate(-50%, 0) rotate(-135deg);
+}
+.feuilleCartouche {
+  position: absolute;
+  right: var(--spacing-l);
+  bottom: var(--spacing-l);
+  display: grid;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  border: var(--border-width-hair) solid var(--fg);
+  background: var(--bg);
+  text-align: right;
+}
+.feuilleNote {
+  margin-top: var(--spacing-m);
+}
+
+/* ===================================================================== LA MATIÈRE */
+.matiere {
+  padding-block: var(--space-section);
+}
+.matiereZoom,
+.matiereTexte,
+.matiereVideo {
+  margin-top: var(--space-block);
+}
+.matiereVideo {
+  margin-inline: 0;
+  margin-bottom: 0;
+}
+.matiereVideo figcaption {
+  margin-top: var(--spacing-xs);
+}
+.fichePratique {
+  display: grid;
+  gap: var(--spacing-m);
+  margin: 0;
+}
+.fichePratique dt {
+  margin-bottom: var(--spacing-3xs);
+}
+.fichePratique dd {
+  margin: 0;
+}
+.soins {
+  display: grid;
+  gap: var(--spacing-3xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: soin;
+}
+/* une notice d'entretien numérotée, sans tirets */
+.soins li {
+  display: grid;
+  grid-template-columns: var(--spacing-m) minmax(0, 1fr);
+  counter-increment: soin;
+}
+.soins li::before {
+  content: counter(soin);
+  font-family: var(--font-display);
+  font-size: var(--text-step-0);
+  color: var(--fg-soft);
+}
+@media (min-width: 64rem) {
+  .matiereTete {
+    grid-column: 2 / span 6;
+  }
+  .matiereZoom {
+    grid-column: 2 / span 6;
+    grid-row: 2;
+  }
+  .matiereVideo {
+    grid-column: 9 / span 3;
+    grid-row: 2;
+    align-self: start;
+  }
+  .matiereTexte {
+    grid-column: 2 / span 6;
+    grid-row: 3;
+  }
+}
+
+/* ===================================================================== LA MESURE */
+.mesureSection {
+  padding-block: var(--space-section);
+}
+.mesureRubans,
+.mesureTexte {
+  margin-top: var(--space-block);
+}
+.mesureTexte > * + * {
+  margin-top: var(--space-paragraph);
+}
+@media (min-width: 64rem) {
+  .mesureTete {
+    grid-column: 2 / span 6;
+  }
+  .mesureRubans {
+    grid-column: 2 / span 6;
+  }
+  .mesureTexte {
+    grid-column: 8 / span 5;
+  }
+}
+
+/* le mètre ruban : une bande graduée au centimètre, chaque taille posée à sa valeur */
+.rubans {
+  display: grid;
+  gap: var(--spacing-l);
+}
+.ruban {
+  display: grid;
+  gap: var(--spacing-3xs);
+}
+.rubanBande {
+  position: relative;
+  padding-top: var(--spacing-xl);
+}
+.rubanMarques {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: var(--spacing-xl);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rubanMarque {
+  position: absolute;
+  left: var(--at);
+  bottom: 0;
+  display: grid;
+  justify-items: center;
+  padding-bottom: var(--spacing-3xs);
+  translate: -50% 0;
+}
+.rubanMarque::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: calc(-1 * var(--spacing-3xs));
+  width: var(--border-width-hair);
+  height: var(--spacing-xs);
+  background: var(--fg);
+}
+.rubanTaille {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-step--2);
+  letter-spacing: var(--tracking-label);
+  line-height: var(--leading-label);
+}
+.rubanValeur {
+  font-family: var(--font-display);
+  font-size: var(--text-step-0);
+  line-height: var(--leading-label);
+  font-variant-numeric: lining-nums;
+}
+.rubanGraduation {
+  display: block;
+  height: var(--spacing-m);
+  border-block: var(--border-width-hair) solid var(--fg);
+  background-image:
+    repeating-linear-gradient(to right, var(--fg) 0 var(--border-width-hair), transparent var(--border-width-hair) calc(100% / var(--cm) * 10)),
+    repeating-linear-gradient(to right, var(--fg) 0 var(--border-width-hair), transparent var(--border-width-hair) calc(100% / var(--cm) * 5)),
+    repeating-linear-gradient(to right, var(--fg-soft) 0 var(--border-width-hair), transparent var(--border-width-hair) calc(100% / var(--cm)));
+  background-size:
+    100% 100%,
+    100% 55%,
+    100% 30%;
+  background-position: left top;
+  background-repeat: no-repeat;
+}
+.rubanDizaines {
+  position: relative;
+  display: block;
+  height: var(--spacing-m);
+}
+.rubanDizaines span {
+  position: absolute;
+  top: var(--spacing-3xs);
+  left: var(--at);
+  translate: -50% 0;
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-light);
+  font-size: var(--text-step--2);
+  line-height: var(--leading-label);
+  color: var(--fg-soft);
+}
+
+/* ===================================================================== LA FAÇON */
+.facon {
+  padding-block: var(--space-section);
+}
+.faconTete > * + * {
+  margin-top: var(--spacing-xs);
+}
+.faconChaine,
+.faconTexte,
+.faconMedia {
+  margin-top: var(--space-block);
+}
+.faconMedia {
+  margin-inline: 0;
+  margin-bottom: 0;
+}
+.faconMedia figcaption {
+  margin-top: var(--spacing-xs);
+}
+.faconTexte > * + * {
+  margin-top: var(--space-paragraph);
+}
+@media (min-width: 64rem) {
+  .faconTete {
+    grid-column: 2 / span 6;
+    grid-row: 1;
+  }
+  .faconChaine {
+    grid-column: 2 / span 6;
+    grid-row: 2;
+  }
+  .faconTexte {
+    grid-column: 2 / span 6;
+    grid-row: 3;
+  }
+  .faconMedia {
+    grid-column: 9 / span 4;
+    grid-row: 1 / span 3;
+    align-self: center;
+    margin-top: 0;
+  }
+}
+
+/* la chaîne de cotes : verticale sur téléphone, horizontale sur grand écran */
+.chain {
+  display: grid;
+  gap: var(--spacing-m);
+}
+.chainSteps {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.chainStep {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--spacing-m);
+  min-height: max(var(--spacing-touch), calc(var(--h) * var(--spacing-3xs)));
+  padding-left: var(--spacing-m);
+  border-left: var(--border-width-hair) solid var(--fg);
+}
+/* trait oblique au départ de chaque étape */
+.chainStep::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--spacing-xs);
+  height: var(--border-width-hair);
+  background: var(--fg);
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+.chainStep:last-child::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: var(--spacing-xs);
+  height: var(--border-width-hair);
+  background: var(--fg);
+  transform: translate(-50%, 50%) rotate(-45deg);
+}
+.chainLabel {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-light);
+  font-size: var(--text-step--1);
+  line-height: var(--leading-text);
+}
+.chainLine {
+  display: none;
+}
+.chainHours {
+  font-family: var(--font-display);
+  font-size: var(--text-step-2);
+  line-height: var(--lh-step-2);
+  white-space: nowrap;
+}
+.chainTotal {
+  max-width: var(--container-text);
+}
+.chainEnd {
+  display: grid;
+  gap: var(--spacing-3xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-light);
+  font-size: var(--text-step--1);
+  line-height: var(--leading-text);
+}
+.chainEnd li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+}
+.chainMark {
+  font-family: var(--font-display);
+  font-size: var(--text-step-1);
+}
+@media (min-width: 64rem) {
+  .chainSteps {
+    grid-template-columns: var(--cols);
+  }
+  .chainStep {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    align-content: end;
+    row-gap: var(--spacing-xs);
+    min-height: 0;
+    padding-left: 0;
+    border-left: 0;
+  }
+  .chainStep::before,
+  .chainStep:last-child::after {
+    display: none;
+  }
+  .chainLabel {
+    padding-right: var(--spacing-xs);
+  }
+  .chainLine {
+    position: relative;
+    display: block;
+    height: var(--border-width-hair);
+    background: var(--fg);
+  }
+  .chainLine::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: var(--spacing-xs);
+    height: var(--border-width-hair);
+    background: var(--fg);
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+  .chainStep:last-child .chainLine::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    width: var(--spacing-xs);
+    height: var(--border-width-hair);
+    background: var(--fg);
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+  .chainTotal {
+    max-width: none;
+  }
+}
+
+/* ===================================================================== AVEC ODESSA */
+.suite {
+  padding-bottom: var(--space-section);
+}
+.suiteTexte > :global(.t-body) {
+  margin-top: var(--space-title);
+}
+.suitePiece {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--spacing-gutter);
+  margin-top: var(--space-block);
+}
+.suiteMedia {
+  grid-column: 1 / span 5;
+}
+.suiteInfo {
+  grid-column: 6 / -1;
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: var(--spacing-xs);
+}
+@media (min-width: 64rem) {
+  .suiteTexte {
+    grid-column: 2 / span 5;
+  }
+  .suitePiece {
+    grid-column: 8 / span 5;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin-top: 0;
+  }
+  .suiteMedia {
+    grid-column: 1 / span 2;
+  }
+  .suiteInfo {
+    grid-column: 3 / -1;
+  }
+}
+
+/* ================================================================= PIED DE PAGE */
+.footer {
+  overflow: hidden;
+  padding-bottom: var(--spacing-xl);
+}
+.footer > .feston {
+  margin-bottom: var(--space-block);
+}
+.footerGrid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--spacing-gutter);
+  row-gap: var(--space-block);
+}
+.footerGrid > * {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+.filigrane {
+  justify-self: center;
+  width: auto;
+  height: calc(var(--spacing-3xl) * 1.5);
+  margin-bottom: calc(-1 * var(--spacing-3xl));
+  color: color-mix(in oklab, var(--fg) 16%, transparent);
+  pointer-events: none;
+}
+.footerBrand {
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: var(--spacing-xs);
+}
+.footerLine {
+  max-width: var(--container-card);
+}
+.footerNav {
+  display: grid;
+  gap: var(--spacing-l);
+}
+.footerCol ul {
+  display: grid;
+  gap: var(--spacing-3xs);
+  margin: var(--spacing-xs) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.footerLink {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-light);
+  font-size: var(--text-step--1);
+  line-height: var(--leading-text);
+  text-decoration: underline;
+  text-decoration-thickness: var(--border-width-hair);
+  text-decoration-color: transparent;
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color var(--dur) var(--ease);
+}
+@media (hover: hover) {
+  .footerLink:hover {
+    text-decoration-color: currentColor;
+  }
+}
+.legende dl {
+  display: grid;
+  gap: var(--spacing-xs);
+  margin: var(--spacing-xs) 0 0;
+}
+.legendeRow {
+  display: grid;
+  gap: var(--spacing-3xs);
+}
+.legendeRow dt {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+.legendeRow dd {
+  margin: 0;
+}
+.signe {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: var(--spacing-l);
+  height: var(--spacing-xs);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.signe[data-signe="cote"] {
+  background-image: linear-gradient(var(--fg), var(--fg));
+  background-size: 100% var(--border-width-hair);
+}
+.signe[data-signe="cote"]::before,
+.signe[data-signe="cote"]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: var(--spacing-3xs);
+  height: var(--border-width-hair);
+  background: var(--fg);
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+.signe[data-signe="cote"]::before {
+  left: 0;
+}
+.signe[data-signe="cote"]::after {
+  left: 100%;
+}
+.signe[data-signe="couture"] {
+  background-image: repeating-linear-gradient(to right, var(--fg) 0 calc(var(--spacing-3xs) / 2), transparent calc(var(--spacing-3xs) / 2) var(--spacing-3xs));
+  background-size: 100% var(--border-width-hair);
+}
+.signe[data-signe="cran"] {
+  background-image: linear-gradient(var(--fg), var(--fg)), linear-gradient(var(--fg), var(--fg));
+  background-size:
+    100% var(--border-width-hair),
+    var(--border-width-hair) 100%;
+}
+.signe[data-signe="fil"] {
+  background-image: linear-gradient(var(--fg), var(--fg));
+  background-size: 100% var(--border-width-hair);
+}
+.signe[data-signe="fil"]::before,
+.signe[data-signe="fil"]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: calc(var(--spacing-3xs) * 0.75);
+  height: calc(var(--spacing-3xs) * 0.75);
+  border-left: var(--border-width-hair) solid var(--fg);
+  border-top: var(--border-width-hair) solid var(--fg);
+}
+.signe[data-signe="fil"]::before {
+  left: 0;
+  transform: translate(0, -50%) rotate(-45deg);
+}
+.signe[data-signe="fil"]::after {
+  right: 0;
+  transform: translate(0, -50%) rotate(135deg);
+}
+.signe[data-signe="feston"] {
+  background-image: radial-gradient(
+    circle at 50% 0,
+    transparent calc(var(--spacing-3xs) / 2 - var(--border-width-hair)),
+    var(--fg) calc(var(--spacing-3xs) / 2 - var(--border-width-hair)) calc(var(--spacing-3xs) / 2),
+    transparent calc(var(--spacing-3xs) / 2)
+  );
+  background-size: var(--spacing-3xs) calc(var(--spacing-3xs) / 2);
+  background-repeat: repeat-x;
+}
+.signe[data-signe="epingle"] {
+  background-image:
+    radial-gradient(circle, var(--fg) 0 calc(var(--spacing-3xs) / 3), transparent calc(var(--spacing-3xs) / 3 + var(--border-width-hair))),
+    linear-gradient(var(--fg), var(--fg));
+  background-size:
+    var(--spacing-3xs) var(--spacing-3xs),
+    calc(100% - var(--spacing-3xs)) var(--border-width-hair);
+  background-position:
+    left center,
+    right center;
+}
+.prefs {
+  align-self: start;
+}
+.chute {
+  display: grid;
+  justify-items: start;
+  gap: var(--spacing-xs);
+  margin: 0;
+}
+.chuteCut {
+  display: block;
+  width: var(--container-label);
+  aspect-ratio: 1;
+}
+.chuteCut :global(.media) {
+  width: 100%;
+  height: 100%;
+  background: none;
+}
+.chuteImg {
+  transform: scale(2.2);
+  transform-origin: 30% 90%;
+}
+.chuteNote {
+  max-width: var(--container-card);
+}
+@media (min-width: 48rem) {
+  .footerNav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--spacing-gutter);
+  }
+  .legende dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--spacing-l);
+  }
+}
+@media (min-width: 64rem) {
+  .footerBrand {
+    grid-column: 2 / span 3;
+  }
+  .footerNav {
+    grid-column: 5 / span 8;
+  }
+  .legende {
+    grid-column: 2 / span 6;
+  }
+  .legende {
+    grid-row: 2;
+  }
+  .chute {
+    grid-column: 8 / span 2;
+    grid-row: 2;
+  }
+  .prefs {
+    grid-column: 10 / span 3;
+    grid-row: 2;
+  }
+}
+
+/* =================================================================== CHARGEMENT */
+.loading {
+  display: grid;
+  place-items: center;
+  min-height: calc(var(--spacing-3xl) * 4);
+  color: var(--fg);
+}
+.loadingMark {
+  width: var(--size-mark);
+  height: auto;
+}
+
+/* =========================================================== MODE NUIT ET APAISÉ */
+html[data-mode="dark"] .feuilleCartouche {
+  background: var(--bg);
+}

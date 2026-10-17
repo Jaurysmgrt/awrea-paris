@@ -1,0 +1,163 @@
+/* =====================================================================
+   Blocs de l'éditeur « Édition » (lib/edition/blocks.ts) : chaque section qu'une page peut
+   assembler. Uniquement les tokens du design system ; la fusion de la direction artistique
+   (phase C) les reprendra.
+   ===================================================================== */
+@layer components {
+  .blocs__item {
+    padding-block: var(--space-section);
+  }
+  .blocs__item + .blocs__item {
+    padding-top: 0;
+  }
+  .blocs__item[data-theme="ink"] {
+    padding-block: 0;
+  }
+
+  /* grande image */
+  .bloc-image__media {
+    width: 100%;
+  }
+  .bloc-image--plein-ecran .bloc-image__media {
+    height: 100svh;
+  }
+  .bloc-image--haute .bloc-image__media {
+    aspect-ratio: 4 / 5;
+    max-height: 100svh;
+  }
+  .bloc-image--moyenne .bloc-image__media {
+    aspect-ratio: 3 / 2;
+  }
+
+  /* texte et image */
+  .bloc-texte-image {
+    align-items: center;
+    row-gap: var(--space-block);
+  }
+  .bloc-texte-image__texte,
+  .bloc-texte-image__media,
+  .bloc-tenue__texte,
+  .bloc-tenue__media {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 64rem) {
+    .bloc-texte-image--droite .bloc-texte-image__texte,
+    .bloc-tenue__texte {
+      grid-column: 2 / span 4;
+    }
+    .bloc-texte-image--droite .bloc-texte-image__media,
+    .bloc-tenue__media {
+      grid-column: 7 / span 6;
+    }
+    .bloc-texte-image--gauche .bloc-texte-image__media {
+      grid-column: 1 / span 6;
+      grid-row: 1;
+    }
+    .bloc-texte-image--gauche .bloc-texte-image__texte {
+      grid-column: 8 / span 4;
+      grid-row: 1;
+    }
+  }
+
+  /* citation */
+  .bloc-citation {
+    display: grid;
+    gap: var(--space-title);
+  }
+  .bloc-citation__texte {
+    text-wrap: balance;
+  }
+
+  /* galerie */
+  .bloc-galerie {
+    display: grid;
+    gap: var(--space-block);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (min-width: 64rem) {
+    .bloc-galerie--grille {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .bloc-galerie--quinconce .bloc-galerie__item:nth-child(even) {
+      margin-top: var(--space-section);
+    }
+  }
+
+  /* tenue */
+  .bloc-tenue {
+    align-items: start;
+    row-gap: var(--space-block);
+  }
+
+  /* croquis : la feuille attend le dessin scanné de la créatrice ; ses notes s'y posent */
+  .bloc-croquis {
+    display: grid;
+    gap: var(--space-title);
+  }
+  .bloc-croquis__feuille {
+    position: relative;
+    max-width: var(--measure);
+  }
+  .bloc-croquis__note {
+    position: absolute;
+    translate: -50% -50%;
+    max-width: 40%;
+    color: var(--fg);
+  }
+
+  /* invitation, lettre */
+  .bloc-appel {
+    display: grid;
+    justify-items: center;
+  }
+  .bloc-lettre__signature {
+    text-align: right;
+  }
+  .bloc-vide {
+    padding-block: var(--space-block);
+  }
+}
+
+/* =====================================================================
+   Mode Édition (créatrice connectée seulement) : ce qui se modifie se signale au survol par un
+   filet, la section survolée par un cadre, l'image où l'on dépose une photo par un cadre plein.
+   Rien de tout cela n'existe sur le site public (data-edition n'est posé que par l'éditeur).
+   ===================================================================== */
+@layer components {
+  html[data-edition][data-edition-mode="modifier"] [data-ed-src],
+  html[data-edition][data-edition-mode="modifier"] [data-ed-img],
+  html[data-edition][data-edition-mode="modifier"] [data-ed-attr] {
+    cursor: text;
+    outline: var(--border-width-hair) dashed transparent;
+    outline-offset: var(--spacing-hair);
+    transition: outline-color var(--dur) var(--ease);
+  }
+  html[data-edition][data-edition-mode="modifier"] [data-ed-img] {
+    cursor: pointer;
+  }
+  html[data-edition][data-edition-mode="modifier"] [data-ed-src]:hover,
+  html[data-edition][data-edition-mode="modifier"] [data-ed-img]:hover,
+  html[data-edition][data-edition-mode="modifier"] [data-ed-attr]:hover {
+    outline-color: var(--accent);
+  }
+  html[data-edition] [contenteditable="plaintext-only"] {
+    outline: var(--border-width-hair) solid var(--accent);
+    outline-offset: var(--spacing-hair);
+  }
+  html[data-edition] [data-ed-drop] {
+    outline: var(--border-width-hair) solid var(--accent);
+    outline-offset: calc(var(--spacing-3xs) * -1);
+  }
+  html[data-edition][data-edition-mode="modifier"] [data-ed-bloc]:hover {
+    box-shadow: inset 0 0 0 var(--border-width-hair) var(--line);
+  }
+  /* le bandeau des cookies ne recouvre pas la barre d'édition (la créatrice l'a déjà vu) */
+  html[data-edition] .consent,
+  html[data-apercu] .consent {
+    display: none;
+  }
+  /* la barre d'édition ne cache jamais le bas de la page */
+  html[data-edition] body {
+    padding-bottom: var(--spacing-3xl);
+  }
+}
