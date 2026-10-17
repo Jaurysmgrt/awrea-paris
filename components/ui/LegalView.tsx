@@ -59,7 +59,7 @@ function WithdrawalModel() {
       <p className="t-label">Formulaire de rétractation</p>
       <p>(Veuillez compléter et renvoyer le présent formulaire uniquement si vous souhaitez vous rétracter du contrat.)</p>
       <p>
-        À l’attention de <LegalText text="{{raisonSociale}}, {{siege}}, {{email}}" /> :
+        À l’attention de <LegalText text="{{raisonSociale}}, {{siege}}, {{email}}" />{"\u00a0"}:
       </p>
       <p>Je/Nous (*) vous notifie/notifions (*) par la présente ma/notre (*) rétractation du contrat portant sur la vente du bien (*)/pour la prestation de services (*) ci-dessous :</p>
       <p>Commandé le (*)/reçu le (*) :</p>

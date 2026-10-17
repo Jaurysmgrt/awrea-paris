@@ -140,7 +140,7 @@ export default async function HomePage() {
           </div>
           <span className="ornament" aria-hidden="true" />
           <blockquote className="manifesto__quote">
-            <p className="t-body t-center">« {identity.founderQuote} »</p>
+            <p className="t-body t-center">« {identity.founderQuote} »</p>
             <footer className="t-label">{identity.founderTitle}</footer>
           </blockquote>
           <Link href={home.manifesto.cta.href} className="btn btn--solid">

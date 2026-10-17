@@ -117,6 +117,10 @@ function htmlText(s: string): string {
     s
       .replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ")
       .replace(/<(?:br|\/p|\/div|\/td|\/tr|\/h\d|\/li|\/table)[^>]*>/gi, "\n")
+      // les séparateurs de React (<!-- -->) et les balises en ligne ne sont pas des espaces :
+      // « </mark>\u00a0: » se lit « ]\u00a0: », pas « ] \u00a0: »
+      .replace(/<!--[\s\S]*?-->/g, "")
+      .replace(/<\/?(?:a|abbr|b|bdi|bdo|cite|code|data|del|dfn|em|i|ins|kbd|mark|q|s|samp|small|span|strong|sub|sup|time|u|var|wbr)\b[^>]*>/gi, "")
       .replace(/<[^>]+>/g, " ")
       .replace(/[ \t]+/g, " "),
   );

@@ -328,7 +328,7 @@ export const products: Product[] = [
       { name: "Fil métallisé doré", percent: 20 },
     ],
     care: care.satin,
-    fit: "Réalisé à vos mesures après commande : l’atelier vous contacte pour les relever.",
+    fit: "Réalisé à vos mesures après commande : l’atelier vous contacte pour les relever.",
     model: "Le mannequin mesure 1,65 m et porte une taille XS.",
     details: ["Fabrication à la commande", "Baleines souples", "Liseré doré", "Ajusté à vos mesures"],
     completeTheLook: ["jupe-iris"],

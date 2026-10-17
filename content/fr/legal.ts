@@ -86,8 +86,8 @@ export const legalPages = {
         id: "retours",
         title: "Retours et échanges",
         blocks: [
-          `Vous disposez de ${shop.returnDays} jours à compter de la réception pour nous retourner une pièce non portée, dans son état d’origine et accompagnée de son certificat. Le plus simple : [la fonction de rétractation en ligne](/retractation), ou la rubrique « Commandes » de votre compte.`,
-          "Les frais de retour sont offerts en France : nous vous envoyons une étiquette prépayée. Depuis l’étranger, le retour est à votre charge. Le remboursement est effectué sur le moyen de paiement initial, au plus tard quatorze jours après votre demande (il peut être différé jusqu’à la réception de la pièce à l’atelier).",
+          `Vous disposez de ${shop.returnDays} jours à compter de la réception pour nous retourner une pièce non portée, dans son état d’origine et accompagnée de son certificat. Le plus simple : [la fonction de rétractation en ligne](/retractation), ou la rubrique « Commandes » de votre compte.`,
+          "Les frais de retour sont offerts en France : nous vous envoyons une étiquette prépayée. Depuis l’étranger, le retour est à votre charge. Le remboursement est effectué sur le moyen de paiement initial, au plus tard quatorze jours après votre demande (il peut être différé jusqu’à la réception de la pièce à l’atelier).",
           "Les pièces réalisées sur mesure ou personnalisées selon vos indications ne sont ni reprises ni échangées (article L221-28 du Code de la consommation). Le détail figure dans nos [conditions générales de vente](/cgv#retractation).",
         ],
       },
@@ -115,7 +115,7 @@ export const legalPages = {
       {
         id: "editeur",
         title: "Éditeur du site",
-        blocks: [`Le site est édité par ${COMPANY}.`, { list: ["Numéro de TVA intracommunautaire : {{tva}}", "Adresse e-mail : {{email}}", "Téléphone : {{telephone}}"] }],
+        blocks: [`Le site est édité par ${COMPANY}.`, { list: ["Numéro de TVA intracommunautaire : {{tva}}", "Adresse e-mail : {{email}}", "Téléphone : {{telephone}}"] }],
       },
       { id: "publication", title: "Directrice de la publication", blocks: ["{{directricePublication}}"] },
       {
@@ -130,13 +130,13 @@ export const legalPages = {
       {
         id: "propriete",
         title: "Propriété intellectuelle",
-        blocks: ["Les créations, photographies, vidéos, textes, logo et monogramme du site sont protégés. Leur reproduction est interdite sans autorisation écrite : voir la page [Propriété intellectuelle et droits réservés](/propriete-intellectuelle)."],
+        blocks: ["Les créations, photographies, vidéos, textes, logo et monogramme du site sont protégés. Leur reproduction est interdite sans autorisation écrite : voir la page [Propriété intellectuelle et droits réservés](/propriete-intellectuelle)."],
       },
-      { id: "credits", title: "Crédits", blocks: ["Photographies, vidéos et mannequins : {{creditsPhotos}}", "Conception et réalisation du site : Awrea Paris."] },
+      { id: "credits", title: "Crédits", blocks: ["Photographies, vidéos et mannequins : {{creditsPhotos}}", "Conception et réalisation du site : Awrea Paris."] },
       {
         id: "mediation",
         title: "Médiation de la consommation",
-        blocks: ["En cas de litige, vous pouvez recourir gratuitement au médiateur de la consommation : {{mediateur}}. Les conditions figurent à l’article 13 de nos [conditions générales de vente](/cgv#mediation)."],
+        blocks: ["En cas de litige, vous pouvez recourir gratuitement au médiateur de la consommation : {{mediateur}}. Les conditions figurent à l’article 13 de nos [conditions générales de vente](/cgv#mediation)."],
       },
       {
         id: "signalement",
@@ -169,7 +169,7 @@ export const legalPages = {
         id: "marque",
         title: "La marque, le logo et le monogramme",
         blocks: [
-          "Le nom « Awrea Paris », le logo et le monogramme « AW » sont des signes distinctifs de la maison. Enregistrement de la marque : {{marque}}.",
+          "Le nom « Awrea Paris », le logo et le monogramme « AW » sont des signes distinctifs de la maison. Enregistrement de la marque : {{marque}}.",
           "Leur utilisation, seule ou associée à d’autres signes, est interdite sans autorisation écrite préalable.",
         ],
       },
@@ -177,7 +177,7 @@ export const legalPages = {
         id: "images",
         title: "Photographies, vidéos et textes",
         blocks: [
-          "Les photographies et vidéos du site sont utilisées en vertu de contrats de cession de droits conclus avec leurs autrices et auteurs. Crédits : {{creditsPhotos}}.",
+          "Les photographies et vidéos du site sont utilisées en vertu de contrats de cession de droits conclus avec leurs autrices et auteurs. Crédits : {{creditsPhotos}}.",
           "Les textes, la mise en page, les animations et le code du site sont également protégés. Leur reproduction, même partielle, est interdite sans autorisation.",
         ],
       },
@@ -212,7 +212,7 @@ export const legalPages = {
       {
         id: "contrefacon",
         title: "Signaler une copie",
-        blocks: ["Si vous pensez avoir repéré une copie d’une pièce Awrea Paris, ou une utilisation non autorisée de nos images, écrivez-nous à {{email}} avec un lien ou une photo : nous vous remercions de votre vigilance."],
+        blocks: ["Si vous pensez avoir repéré une copie d’une pièce Awrea Paris, ou une utilisation non autorisée de nos images, écrivez-nous à {{email}} avec un lien ou une photo : nous vous remercions de votre vigilance."],
       },
     ],
   },
@@ -233,17 +233,17 @@ export const legalPages = {
         id: "objet",
         title: "1. Objet et acceptation",
         blocks: [
-          "Ces conditions s’appliquent à toute commande passée sur le site. Elles sont acceptées par la cliente au moment de la commande, au moyen d’une case à cocher ; la version acceptée (indiquée en haut de cette page) est conservée avec la commande.",
-          "Elles peuvent être modifiées à tout moment ; la version applicable est celle en vigueur à la date de la commande.",
+          "Ces conditions s’appliquent à toute commande passée sur le site. Elles sont acceptées par la cliente au moment de la commande, au moyen d’une case à cocher ; la version acceptée (indiquée en haut de cette page) est conservée avec la commande.",
+          "Elles peuvent être modifiées à tout moment ; la version applicable est celle en vigueur à la date de la commande.",
         ],
       },
       {
         id: "pieces",
         title: "2. Des pièces rares, faites à la main",
         blocks: [
-          "Les pièces sont façonnées à la main à Paris, en **pièce unique** ou en **série limitée numérotée**. Le numéro d’édition (par exemple « N° 3 / 5 ») et le nombre de pièces restantes sont indiqués sur chaque fiche ; une fois la série épuisée, une pièce peut, selon les cas, être proposée en précommande ou ne jamais être refaite.",
+          "Les pièces sont façonnées à la main à Paris, en **pièce unique** ou en **série limitée numérotée**. Le numéro d’édition (par exemple « N° 3 / 5 ») et le nombre de pièces restantes sont indiqués sur chaque fiche ; une fois la série épuisée, une pièce peut, selon les cas, être proposée en précommande ou ne jamais être refaite.",
           "Les photographies et descriptions sont aussi fidèles que possible. De légères variations de teinte, de motif de dentelle ou de finition, propres au travail fait main, peuvent exister et ne constituent pas un défaut de conformité.",
-          "Le guide des tailles et l’outil « Trouver ma taille » sont des aides au choix ; l’atelier peut vous conseiller avant l’achat et proposer un essayage sur rendez-vous.",
+          "Le guide des tailles et l’outil « Trouver ma taille » sont des aides au choix ; l’atelier peut vous conseiller avant l’achat et proposer un essayage sur rendez-vous.",
         ],
       },
       {
@@ -251,9 +251,9 @@ export const legalPages = {
         title: "3. Prix",
         blocks: [
           "Les prix sont indiqués en euros, toutes taxes comprises (TTC), hors frais de livraison. Les frais de livraison et, le cas échéant, d’emballage cadeau sont indiqués avant la validation de la commande.",
-          "Les prix affichés dans une autre devise (livre sterling, dollar américain, franc suisse) sont convertis au taux appliqué par notre plateforme de paiement ; le montant dû est celui affiché au moment du paiement.",
+          "Les prix affichés dans une autre devise (livre sterling, dollar américain, franc suisse) sont convertis au taux appliqué par notre plateforme de paiement ; le montant dû est celui affiché au moment du paiement.",
           "Pour une livraison hors de l’Union européenne, les droits de douane et taxes d’importation sont, selon la destination, calculés et réglés au moment de la commande (ils apparaissent alors avant le paiement) ou dus par la cliente à la réception.",
-          "La maison peut modifier ses prix à tout moment ; le prix applicable est celui affiché au moment de la commande.",
+          "La maison peut modifier ses prix à tout moment ; le prix applicable est celui affiché au moment de la commande.",
         ],
       },
       {
@@ -261,7 +261,7 @@ export const legalPages = {
         title: "4. Commande",
         blocks: [
           "La cliente choisit sa pièce et sa taille, vérifie son panier (codes, carte cadeau, emballage), indique ses coordonnées et son mode de livraison, accepte les présentes conditions puis valide sa commande avec obligation de paiement. Aucun compte n’est nécessaire.",
-          "Un e-mail de confirmation récapitule la commande : le contrat est conclu à sa réception. Pour toute commande d’un montant égal ou supérieur à 120 €, la maison conserve l’écrit qui la constate pendant dix ans et en garantit l’accès à la cliente sur simple demande (article L213-1 du Code de la consommation).",
+          "Un e-mail de confirmation récapitule la commande : le contrat est conclu à sa réception. Pour toute commande d’un montant égal ou supérieur à 120 €, la maison conserve l’écrit qui la constate pendant dix ans et en garantit l’accès à la cliente sur simple demande (article L213-1 du Code de la consommation).",
           "La maison peut refuser une commande anormale ou passée de mauvaise foi, notamment en cas de litige de paiement antérieur.",
         ],
       },
@@ -269,7 +269,7 @@ export const legalPages = {
         id: "rarete",
         title: "5. Pièces rares, précommandes et fabrication",
         blocks: [
-          "Les stocks sont tenus à jour par taille. Lorsqu’une même pièce unique est commandée au même instant par deux clientes, la commande dont le paiement est validé en premier est servie ; l’autre cliente est prévenue et intégralement remboursée sans délai.",
+          "Les stocks sont tenus à jour par taille. Lorsqu’une même pièce unique est commandée au même instant par deux clientes, la commande dont le paiement est validé en premier est servie ; l’autre cliente est prévenue et intégralement remboursée sans délai.",
           "Une pièce en **précommande** est fabriquée pour la cliente après sa commande. Le délai de fabrication est indiqué sur la fiche et dans l’e-mail de confirmation, et la date d’expédition estimée est rappelée dans le compte.",
           "Si ce délai devait être dépassé de plus de deux semaines, la cliente en est informée et peut annuler sa commande avec un remboursement intégral. Elle conserve en tout état de cause le droit de résoudre le contrat dans les conditions de l’article L216-6 du Code de la consommation.",
         ],
@@ -281,7 +281,7 @@ export const legalPages = {
           `Le paiement s’effectue par ${shop.paymentMethods.join(", ").toLowerCase()}. Les paiements par carte, Apple Pay et Google Pay sont traités par Shopify Payments (opéré par Stripe), les paiements PayPal par PayPal, le paiement en plusieurs fois par {{paiementFractionne}}, sous réserve d’acceptation par ce prestataire.`,
           "Les paiements sont sécurisés (chiffrement, authentification forte 3-D Secure). La maison n’a jamais accès aux données bancaires de la cliente.",
           "Le montant est débité au moment de la commande, y compris pour une précommande.",
-          "Les cartes cadeaux sont valables un an à compter de leur achat et utilisables en une ou plusieurs fois ; elles ne sont pas remboursables en espèces. Les codes de réduction ne sont pas cumulables, sauf mention contraire.",
+          "Les cartes cadeaux sont valables un an à compter de leur achat et utilisables en une ou plusieurs fois ; elles ne sont pas remboursables en espèces. Les codes de réduction ne sont pas cumulables, sauf mention contraire.",
         ],
       },
       {
@@ -290,7 +290,7 @@ export const legalPages = {
         blocks: [
           "Les zones, tarifs et délais de livraison sont détaillés sur la page [Livraison et retours](/livraison-retours) et rappelés avant le paiement. À défaut de date indiquée, la livraison intervient au plus tard trente jours après la commande (article L216-1 du Code de la consommation).",
           "Le risque de perte ou d’endommagement de la pièce est transféré à la cliente au moment où elle, ou une personne qu’elle a désignée, en prend physiquement possession (article L216-4 du Code de la consommation).",
-          "En cas de colis endommagé ou incomplet, nous vous invitons à émettre des réserves auprès du transporteur et à nous écrire rapidement, photographies à l’appui : l’atelier s’occupe de la suite.",
+          "En cas de colis endommagé ou incomplet, nous vous invitons à émettre des réserves auprès du transporteur et à nous écrire rapidement, photographies à l’appui : l’atelier s’occupe de la suite.",
         ],
       },
       {
@@ -298,18 +298,18 @@ export const legalPages = {
         title: "8. Droit de rétractation",
         blocks: [
           "La cliente dispose d’un délai de **quatorze jours** à compter de la réception de la pièce (ou de la dernière pièce, en cas de livraison en plusieurs fois) pour se rétracter, sans avoir à justifier de motif ni à supporter d’autres coûts que ceux prévus ci-dessous.",
-          "Pour exercer ce droit, la cliente informe la maison de sa décision avant l’expiration du délai : par la [fonction de rétractation en ligne](/retractation) (« Se rétracter du contrat ici »), par e-mail à {{email}}, par courrier à l’adresse du siège, ou au moyen du formulaire type figurant en annexe. Un accusé de réception lui est adressé sans délai sur un support durable.",
-          "La pièce est renvoyée au plus tard quatorze jours après la communication de la décision, non portée, dans son état d’origine, avec ses étiquettes et son certificat. Les frais de retour sont pris en charge par la maison pour un retour depuis la France (étiquette prépayée) ; depuis l’étranger, ils restent à la charge de la cliente. La responsabilité de la cliente peut être engagée en cas de dépréciation résultant d’une manipulation autre que celle nécessaire pour établir la nature et les caractéristiques de la pièce (article L221-23).",
-          "La maison rembourse la totalité des sommes versées, y compris les frais de livraison initiaux (sur la base du mode standard), au plus tard quatorze jours à compter du jour où elle est informée de la décision ; ce remboursement peut être différé jusqu’à la récupération de la pièce ou la preuve de son expédition. Il est effectué avec le moyen de paiement utilisé pour la commande.",
-          "**Exception** : conformément à l’article L221-28, 3° du Code de la consommation, le droit de rétractation ne s’applique pas aux pièces confectionnées selon les spécifications de la cliente ou nettement personnalisées (sur mesure, retouches demandées, broderie personnalisée). Les pièces uniques ou de série proposées telles quelles sur le site restent couvertes par le droit de rétractation.",
+          "Pour exercer ce droit, la cliente informe la maison de sa décision avant l’expiration du délai : par la [fonction de rétractation en ligne](/retractation) (« Se rétracter du contrat ici »), par e-mail à {{email}}, par courrier à l’adresse du siège, ou au moyen du formulaire type figurant en annexe. Un accusé de réception lui est adressé sans délai sur un support durable.",
+          "La pièce est renvoyée au plus tard quatorze jours après la communication de la décision, non portée, dans son état d’origine, avec ses étiquettes et son certificat. Les frais de retour sont pris en charge par la maison pour un retour depuis la France (étiquette prépayée) ; depuis l’étranger, ils restent à la charge de la cliente. La responsabilité de la cliente peut être engagée en cas de dépréciation résultant d’une manipulation autre que celle nécessaire pour établir la nature et les caractéristiques de la pièce (article L221-23).",
+          "La maison rembourse la totalité des sommes versées, y compris les frais de livraison initiaux (sur la base du mode standard), au plus tard quatorze jours à compter du jour où elle est informée de la décision ; ce remboursement peut être différé jusqu’à la récupération de la pièce ou la preuve de son expédition. Il est effectué avec le moyen de paiement utilisé pour la commande.",
+          "**Exception** : conformément à l’article L221-28, 3° du Code de la consommation, le droit de rétractation ne s’applique pas aux pièces confectionnées selon les spécifications de la cliente ou nettement personnalisées (sur mesure, retouches demandées, broderie personnalisée). Les pièces uniques ou de série proposées telles quelles sur le site restent couvertes par le droit de rétractation.",
         ],
       },
       {
         id: "retours",
         title: "9. Retours, échanges et remboursements",
         blocks: [
-          "Un échange de taille est possible dans la limite des pièces disponibles : il suit la même procédure qu’un retour. Lorsque la taille souhaitée n’existe plus, la pièce est remboursée.",
-          "Les demandes se font depuis la rubrique « Commandes » du compte, la [fonction de rétractation en ligne](/retractation) ou le [formulaire de contact](/contact).",
+          "Un échange de taille est possible dans la limite des pièces disponibles : il suit la même procédure qu’un retour. Lorsque la taille souhaitée n’existe plus, la pièce est remboursée.",
+          "Les demandes se font depuis la rubrique « Commandes » du compte, la [fonction de rétractation en ligne](/retractation) ou le [formulaire de contact](/contact).",
         ],
       },
       {
@@ -339,8 +339,8 @@ export const legalPages = {
         id: "service",
         title: "11. Service client",
         blocks: [
-          { list: ["Par e-mail : {{email}}", "Par téléphone : {{telephone}}, {{horaires}}", "Par le [formulaire de contact](/contact) ou depuis votre [compte](/compte)", "Par l’assistante du site, qui peut à tout moment transmettre votre demande à l’atelier"] },
-          "Toute réclamation peut être adressée par ces moyens ; la maison y répond dans les meilleurs délais.",
+          { list: ["Par e-mail : {{email}}", "Par téléphone : {{telephone}}, {{horaires}}", "Par le [formulaire de contact](/contact) ou depuis votre [compte](/compte)", "Par l’assistante du site, qui peut à tout moment transmettre votre demande à l’atelier"] },
+          "Toute réclamation peut être adressée par ces moyens ; la maison y répond dans les meilleurs délais.",
         ],
       },
       { id: "donnees", title: "12. Données personnelles", blocks: ["Les données nécessaires à la commande sont traitées conformément à notre [politique de confidentialité](/confidentialite)."] },
@@ -348,7 +348,7 @@ export const legalPages = {
         id: "mediation",
         title: "13. Médiation",
         blocks: [
-          "Après une réclamation écrite restée sans réponse satisfaisante, la cliente peut recourir gratuitement au médiateur de la consommation dont relève la maison, dans un délai d’un an à compter de sa réclamation (articles L612-1 et suivants du Code de la consommation) : {{mediateur}}.",
+          "Après une réclamation écrite restée sans réponse satisfaisante, la cliente peut recourir gratuitement au médiateur de la consommation dont relève la maison, dans un délai d’un an à compter de sa réclamation (articles L612-1 et suivants du Code de la consommation) : {{mediateur}}.",
         ],
       },
       {
@@ -356,7 +356,7 @@ export const legalPages = {
         title: "14. Droit applicable et juridictions",
         blocks: [
           "Les présentes conditions sont soumises au droit français, sans préjudice des dispositions protectrices de la loi du pays de résidence habituelle de la cliente lorsqu’elle réside dans un autre État de l’Union européenne.",
-          "À défaut de résolution amiable, le litige est porté devant la juridiction compétente selon les règles de droit commun ; la cliente peut notamment saisir la juridiction du lieu où elle demeurait au moment de la conclusion du contrat ou de la survenance du fait dommageable.",
+          "À défaut de résolution amiable, le litige est porté devant la juridiction compétente selon les règles de droit commun ; la cliente peut notamment saisir la juridiction du lieu où elle demeurait au moment de la conclusion du contrat ou de la survenance du fait dommageable.",
         ],
       },
       {
@@ -383,12 +383,12 @@ export const legalPages = {
     intro: "Ces conditions encadrent l’utilisation du site Awrea Paris et du compte cliente. Elles sont acceptées à la création du compte, au moyen d’une case à cocher.",
     sections: [
       { id: "objet", title: "1. Objet", blocks: [`Elles s’appliquent à toute visiteuse du site et à toute titulaire d’un compte. Les achats sont régis par les [conditions générales de vente](/cgv). L’éditeur du site est ${COMPANY} (voir les [mentions légales](/mentions-legales)).`] },
-      { id: "acces", title: "2. Accès au site", blocks: ["Le site est accessible gratuitement, sans compte. La maison s’efforce de le rendre disponible en permanence mais peut l’interrompre pour maintenance ou mise à jour ; une page d’attente l’indique alors."] },
+      { id: "acces", title: "2. Accès au site", blocks: ["Le site est accessible gratuitement, sans compte. La maison s’efforce de le rendre disponible en permanence mais peut l’interrompre pour maintenance ou mise à jour ; une page d’attente l’indique alors."] },
       {
         id: "compte",
         title: "3. Le compte cliente",
         blocks: [
-          "Le compte se crée et s’ouvre sans mot de passe : par un code à usage unique envoyé par e-mail, ou avec un compte Google ou Apple. La création suppose l’acceptation des présentes conditions.",
+          "Le compte se crée et s’ouvre sans mot de passe : par un code à usage unique envoyé par e-mail, ou avec un compte Google ou Apple. La création suppose l’acceptation des présentes conditions.",
           "Il est réservé aux personnes âgées d’au moins quinze ans. Les achats d’une personne mineure se font sous la responsabilité de ses représentants légaux.",
           "La titulaire fournit des informations exactes et veille à la sécurité de sa boîte e-mail et de son compte Google ou Apple, qui donnent accès au compte. Elle prévient la maison de toute utilisation qu’elle n’aurait pas autorisée.",
           "Le compte permet de retrouver ses commandes et certificats d’authenticité, d’enregistrer ses tailles et mesures, ses adresses, sa liste d’envies et ses alertes de retour en stock, de régler ses préférences, de télécharger ou de supprimer ses données.",
@@ -398,14 +398,14 @@ export const legalPages = {
         id: "fermeture",
         title: "4. Fermeture du compte",
         blocks: [
-          "La titulaire peut supprimer son compte à tout moment, depuis la rubrique « Mes données ». La maison peut suspendre ou fermer un compte en cas d’utilisation frauduleuse ou de manquement grave aux présentes conditions, après en avoir informé la titulaire, sauf urgence. Un compte resté inactif pendant trois ans est supprimé après un message de prévenance.",
+          "La titulaire peut supprimer son compte à tout moment, depuis la rubrique « Mes données ». La maison peut suspendre ou fermer un compte en cas d’utilisation frauduleuse ou de manquement grave aux présentes conditions, après en avoir informé la titulaire, sauf urgence. Un compte resté inactif pendant trois ans est supprimé après un message de prévenance.",
         ],
       },
       {
         id: "avis",
         title: "5. Avis et photos des clientes",
         blocks: [
-          "Seules les clientes ayant acheté une pièce peuvent publier un avis à son sujet ; l’avis est signalé comme « vérifié ». Il est publié avec le prénom et l’initiale du nom, sans note chiffrée.",
+          "Seules les clientes ayant acheté une pièce peuvent publier un avis à son sujet ; l’avis est signalé comme « vérifié ». Il est publié avec le prénom et l’initiale du nom, sans note chiffrée.",
           "Chaque avis est relu avant publication. Il peut être refusé s’il est sans rapport avec la pièce, injurieux, discriminatoire, s’il contient des données personnelles d’un tiers, de la publicité ou s’il porte atteinte aux droits d’autrui. Les avis ne sont ni achetés ni rémunérés, et les avis négatifs ne sont pas écartés pour ce seul motif.",
           "Les droits concédés sur les avis et photos sont précisés dans la page [Propriété intellectuelle](/propriete-intellectuelle#contenus-clientes).",
         ],
@@ -415,15 +415,15 @@ export const legalPages = {
         id: "ia",
         title: "7. Assistante et styliste IA",
         blocks: [
-          "Le site propose une assistante et une styliste fondées sur l’intelligence artificielle. Leurs réponses sont informatives : en cas de différence, les informations des fiches produits, des conditions de vente et de l’atelier font foi. Leur fonctionnement est expliqué dans la [notice de l’assistante IA](/assistant-ia).",
+          "Le site propose une assistante et une styliste fondées sur l’intelligence artificielle. Leurs réponses sont informatives : en cas de différence, les informations des fiches produits, des conditions de vente et de l’atelier font foi. Leur fonctionnement est expliqué dans la [notice de l’assistante IA](/assistant-ia).",
         ],
       },
       {
         id: "cercle",
         title: "8. Le Cercle Awrea, accès anticipés et ventes privées",
         blocks: [
-          "Le Cercle Awrea est un club gratuit, sans obligation d’achat : accès anticipé aux nouvelles pièces, invitations à l’atelier, aperçus des croquis. Toute titulaire d’un compte peut le rejoindre ou le quitter depuis son compte. Le statut VIP est attribué automatiquement selon le montant et le nombre des commandes.",
-          "Les accès anticipés et ventes privées peuvent être protégés par un mot de passe ou réservés aux inscrites. Ces accès sont personnels : leur diffusion publique peut entraîner la fermeture de la vente privée concernée.",
+          "Le Cercle Awrea est un club gratuit, sans obligation d’achat : accès anticipé aux nouvelles pièces, invitations à l’atelier, aperçus des croquis. Toute titulaire d’un compte peut le rejoindre ou le quitter depuis son compte. Le statut VIP est attribué automatiquement selon le montant et le nombre des commandes.",
+          "Les accès anticipés et ventes privées peuvent être protégés par un mot de passe ou réservés aux inscrites. Ces accès sont personnels : leur diffusion publique peut entraîner la fermeture de la vente privée concernée.",
         ],
       },
       {
@@ -462,7 +462,7 @@ export const legalPages = {
       {
         id: "responsable",
         title: "1. Responsable du traitement",
-        blocks: [`Le responsable du traitement est ${COMPANY}. Pour toute question relative à vos données : {{email}}. La maison n’a pas désigné de délégué à la protection des données (cette désignation n’est pas obligatoire pour elle).`],
+        blocks: [`Le responsable du traitement est ${COMPANY}. Pour toute question relative à vos données : {{email}}. La maison n’a pas désigné de délégué à la protection des données (cette désignation n’est pas obligatoire pour elle).`],
       },
       {
         id: "traitements",
@@ -498,7 +498,7 @@ export const legalPages = {
         id: "destinataires",
         title: "3. Destinataires et sous-traitants",
         blocks: [
-          "Vos données sont destinées à la maison et, pour ce qui les concerne, à ses sous-traitants, liés par contrat et tenus à la confidentialité :",
+          "Vos données sont destinées à la maison et, pour ce qui les concerne, à ses sous-traitants, liés par contrat et tenus à la confidentialité :",
           {
             table: {
               caption: "Sous-traitants et partenaires",
@@ -537,7 +537,7 @@ export const legalPages = {
         id: "securite",
         title: "5. Sécurité",
         blocks: [
-          "Le site est servi exclusivement en HTTPS. Les comptes sont cloisonnés dans la base par des règles de sécurité par ligne : chaque cliente n’accède qu’à ses propres données. Le tableau de bord de l’atelier est protégé par une double authentification obligatoire. Les tentatives de connexion sont limitées, les formulaires protégés contre les robots, la base sauvegardée chaque jour. Aucune donnée bancaire n’est stockée par la maison.",
+          "Le site est servi exclusivement en HTTPS. Les comptes sont cloisonnés dans la base par des règles de sécurité par ligne : chaque cliente n’accède qu’à ses propres données. Le tableau de bord de l’atelier est protégé par une double authentification obligatoire. Les tentatives de connexion sont limitées, les formulaires protégés contre les robots, la base sauvegardée chaque jour. Aucune donnée bancaire n’est stockée par la maison.",
         ],
       },
       {
@@ -545,13 +545,13 @@ export const legalPages = {
         title: "6. Vos droits",
         blocks: [
           "Vous disposez d’un droit d’accès, de rectification, d’effacement, de limitation, de portabilité et d’opposition, du droit de retirer votre consentement à tout moment, et du droit de définir des directives relatives au sort de vos données après votre décès.",
-          "Depuis votre [compte](/compte#donnees), vous pouvez télécharger l’ensemble de vos données et supprimer votre compte vous-même. Vous pouvez aussi écrire à {{email}} ou au siège ({{siege}}) ; une preuve d’identité peut être demandée en cas de doute. Nous répondons dans un délai d’un mois.",
+          "Depuis votre [compte](/compte#donnees), vous pouvez télécharger l’ensemble de vos données et supprimer votre compte vous-même. Vous pouvez aussi écrire à {{email}} ou au siège ({{siege}}) ; une preuve d’identité peut être demandée en cas de doute. Nous répondons dans un délai d’un mois.",
           "Vous pouvez introduire une réclamation auprès de la Commission nationale de l’informatique et des libertés (CNIL), 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07 (cnil.fr).",
         ],
       },
       { id: "mineures", title: "7. Mineures", blocks: ["Le compte est réservé aux personnes âgées d’au moins quinze ans. Si vous pensez qu’une personne plus jeune nous a transmis des données, écrivez-nous pour que nous les supprimions."] },
       { id: "cookies", title: "8. Cookies", blocks: ["Le détail des cookies et traceurs, et la façon de modifier vos choix, figurent dans la [politique cookies](/cookies)."] },
-      { id: "modifications", title: "9. Modifications", blocks: ["Cette politique peut évoluer ; la date et la version en vigueur sont indiquées en haut de la page. En cas de changement important, vous en serez informée."] },
+      { id: "modifications", title: "9. Modifications", blocks: ["Cette politique peut évoluer ; la date et la version en vigueur sont indiquées en haut de la page. En cas de changement important, vous en serez informée."] },
     ],
   },
 
@@ -571,8 +571,8 @@ export const legalPages = {
         id: "choix",
         title: "Votre choix",
         blocks: [
-          "À votre première visite, un bandeau vous propose d’accepter ou de refuser les cookies non nécessaires, avec la même simplicité, ou de choisir catégorie par catégorie : mesure d’audience, personnalisation, publicité. Aucun cookie non nécessaire n’est déposé avant votre choix.",
-          "Votre choix est conservé treize mois, puis vous est redemandé ; il l’est aussi à chaque évolution importante de cette politique. Une preuve de chaque choix est conservée, sans donnée d’identification directe. Lorsque vous retirez votre accord, les traceurs concernés sont effacés.",
+          "À votre première visite, un bandeau vous propose d’accepter ou de refuser les cookies non nécessaires, avec la même simplicité, ou de choisir catégorie par catégorie : mesure d’audience, personnalisation, publicité. Aucun cookie non nécessaire n’est déposé avant votre choix.",
+          "Votre choix est conservé treize mois, puis vous est redemandé ; il l’est aussi à chaque évolution importante de cette politique. Une preuve de chaque choix est conservée, sans donnée d’identification directe. Lorsque vous retirez votre accord, les traceurs concernés sont effacés.",
           { widget: "cookie-settings" },
         ],
       },
@@ -594,7 +594,7 @@ export const legalPages = {
       {
         id: "instagram",
         title: "Le flux Instagram",
-        blocks: ["Les images de notre compte Instagram sont récupérées par notre serveur et servies depuis notre propre domaine : leur affichage ne dépose aucun traceur d’Instagram sur votre appareil."],
+        blocks: ["Les images de notre compte Instagram sont récupérées par notre serveur et servies depuis notre propre domaine : leur affichage ne dépose aucun traceur d’Instagram sur votre appareil."],
       },
       {
         id: "navigateur",
@@ -620,7 +620,7 @@ export const legalPages = {
         id: "ia",
         title: "Vous échangez avec une intelligence artificielle",
         blocks: [
-          "L’assistante n’est pas une personne : c’est un programme fondé sur le modèle de langage Claude, conçu par la société Anthropic, que la maison a configuré avec ses propres informations (pièces, tailles, livraison, retours, histoire de la maison). La fenêtre de discussion le rappelle en permanence.",
+          "L’assistante n’est pas une personne : c’est un programme fondé sur le modèle de langage Claude, conçu par la société Anthropic, que la maison a configuré avec ses propres informations (pièces, tailles, livraison, retours, histoire de la maison). La fenêtre de discussion le rappelle en permanence.",
         ],
       },
       {
@@ -642,22 +642,22 @@ export const legalPages = {
         id: "limites",
         title: "Ses limites",
         blocks: [
-          "Ses réponses peuvent comporter des erreurs. Les informations des fiches produits, des [conditions générales de vente](/cgv) et de l’atelier font foi. Elle ne peut ni modifier une commande, ni accorder un remboursement, ni prendre d’engagement au nom de la maison : ces décisions sont toujours prises par une personne.",
+          "Ses réponses peuvent comporter des erreurs. Les informations des fiches produits, des [conditions générales de vente](/cgv) et de l’atelier font foi. Elle ne peut ni modifier une commande, ni accorder un remboursement, ni prendre d’engagement au nom de la maison : ces décisions sont toujours prises par une personne.",
         ],
       },
       {
         id: "humain",
         title: "Parler à une personne, à tout moment",
         blocks: [
-          "Écrivez simplement « je souhaite parler à quelqu’un », ou utilisez le lien « Écrire à l’atelier » sous la conversation : votre message est transmis à l’atelier, qui vous répond personnellement, en général sous 48 heures ouvrées. Vous pouvez aussi passer directement par le [formulaire de contact](/contact).",
+          "Écrivez simplement « je souhaite parler à quelqu’un », ou utilisez le lien « Écrire à l’atelier » sous la conversation : votre message est transmis à l’atelier, qui vous répond personnellement, en général sous 48 heures ouvrées. Vous pouvez aussi passer directement par le [formulaire de contact](/contact).",
         ],
       },
       {
         id: "donnees",
         title: "Vos messages et vos photos",
         blocks: [
-          "Vos messages sont traités par Anthropic, en qualité de sous-traitant, pour produire les réponses ; ils ne servent pas à entraîner ses modèles. La conversation est conservée dans votre navigateur le temps de votre visite, et une copie est gardée 30 jours par la maison pour améliorer les réponses.",
-          "Une photo d’inspiration envoyée à la styliste est analysée pour vous répondre, puis supprimée : elle n’est jamais conservée.",
+          "Vos messages sont traités par Anthropic, en qualité de sous-traitant, pour produire les réponses ; ils ne servent pas à entraîner ses modèles. La conversation est conservée dans votre navigateur le temps de votre visite, et une copie est gardée 30 jours par la maison pour améliorer les réponses.",
+          "Une photo d’inspiration envoyée à la styliste est analysée pour vous répondre, puis supprimée : elle n’est jamais conservée.",
           "N’indiquez ni données bancaires, ni informations de santé, ni données concernant d’autres personnes. Le détail figure dans la [politique de confidentialité](/confidentialite).",
         ],
       },
@@ -687,7 +687,7 @@ export const legalPages = {
         id: "conditions",
         title: "Les conditions",
         blocks: [
-          "La pièce est renvoyée au plus tard quatorze jours après votre demande, non portée, dans son état d’origine, avec ses étiquettes et son certificat. Le retour est offert depuis la France ; depuis l’étranger, il reste à votre charge.",
+          "La pièce est renvoyée au plus tard quatorze jours après votre demande, non portée, dans son état d’origine, avec ses étiquettes et son certificat. Le retour est offert depuis la France ; depuis l’étranger, il reste à votre charge.",
           "Le remboursement intervient au plus tard quatorze jours après votre demande, sur le moyen de paiement utilisé, et peut être différé jusqu’à la réception de la pièce ou la preuve de son expédition.",
           "Les pièces réalisées sur mesure ou personnalisées selon vos indications ne peuvent faire l’objet d’une rétractation (article L221-28 du Code de la consommation). Le détail figure à l’article 8 des [conditions générales de vente](/cgv#retractation).",
         ],
@@ -695,7 +695,7 @@ export const legalPages = {
       {
         id: "autres-moyens",
         title: "Autres moyens",
-        blocks: ["Vous pouvez aussi nous écrire à {{email}}, ou envoyer le formulaire ci-dessous par courrier à l’adresse du siège : {{siege}}.", { widget: "withdrawal-model" }],
+        blocks: ["Vous pouvez aussi nous écrire à {{email}}, ou envoyer le formulaire ci-dessous par courrier à l’adresse du siège : {{siege}}.", { widget: "withdrawal-model" }],
       },
     ],
   },

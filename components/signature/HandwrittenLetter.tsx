@@ -104,7 +104,7 @@ export function HandwrittenLetter({ lines, signature, label }: { lines: string[]
   return (
     <div ref={root} className="hw" data-written="false">
       <p className="sr-only">
-        {label} : {lines.join(" ")} {signature}
+        {label}{"\u00a0"}: {lines.join(" ")} {signature}
       </p>
       <div aria-hidden="true" className="hw__lines">
         {shown.map((line, i) => {
