@@ -12,9 +12,8 @@ async function createDrop(page: Page, data: Record<string, unknown>) {
 }
 async function variantOf(page: Page, handle: string): Promise<string> {
   const j = await (await page.request.get(`/api/products?handles=${handle}`)).json();
-  // une taille en précommande reste toujours commandable
-  const v = j.products[0].variants.find((x: { preorder: boolean; quantity: number }) => x.preorder || x.quantity > 0);
-  return v.id;
+  // pièce créée sur demande : toutes ses tailles se commandent
+  return (j.products[0].variants as { id: string }[])[0].id;
 }
 
 test.describe.configure({ mode: "serial" });
@@ -60,7 +59,7 @@ test.describe("Drops et lancements", () => {
       expect((await page.request.post("/api/cart", { data: { type: "add", variantId: variant } })).ok()).toBeTruthy();
       await page.goto(`/boutique/${PIECE}`);
       await expect(page.locator(".drop-gate")).toHaveCount(0);
-      await expect(page.getByRole("button", { name: /^(Ajouter au panier|Précommander)$/ })).toBeVisible();
+      await expect(page.locator(".product-form__actions").getByRole("button", { name: "Ajouter au panier" })).toBeVisible();
     } finally {
       await page.request.post("/api/cart", { data: { type: "clear" } });
       await page.request.delete(`${ATELIER}/api/drops?slug=${slug}`);

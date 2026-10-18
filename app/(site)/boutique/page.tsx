@@ -9,11 +9,11 @@ import { Section } from "@/components/ui/Section";
 import { ProductCard } from "@/components/commerce/ProductCard";
 import type { Category, Size } from "@/lib/commerce/types";
 
-type SP = { categorie?: string; taille?: string; disponibilite?: string };
+type SP = { categorie?: string; taille?: string };
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
-  const filtered = Boolean(sp.categorie || sp.taille || sp.disponibilite);
+  const filtered = Boolean(sp.categorie || sp.taille);
   // les vues filtrées ne sont pas indexées : la page canonique reste /boutique
   return pageMetadata({ ...boutique.seo, path: "/boutique", noindex: filtered });
 }
@@ -32,21 +32,13 @@ export default async function BoutiquePage({ searchParams }: { searchParams: Pro
   const sp = await searchParams;
   const category = boutique.categories.some((c) => c.value === sp.categorie) ? (sp.categorie as Category) : null;
   const size = SIZES.includes(sp.taille as Size) ? (sp.taille as Size) : null;
-  const availability = sp.disponibilite === "disponible" ? "available" : sp.disponibilite === "sur-commande" ? "preorder" : null;
-  const [products, all] = await Promise.all([getProducts({ category, size, availability }), getPublicProducts()]);
-  const active = [category, size, availability].filter(Boolean).length;
+  // pièces créées sur demande : plus de filtre de disponibilité, toutes se commandent
+  const [products, all] = await Promise.all([getProducts({ category, size }), getPublicProducts()]);
+  const active = [category, size].filter(Boolean).length;
 
   const groups = [
     { key: "categorie" as const, label: "Catégorie", options: boutique.categories.filter((c) => all.some((p) => p.category === c.value)).map((c) => ({ value: c.value, label: c.label })) },
     { key: "taille" as const, label: "Taille", options: SIZES.map((s) => ({ value: s, label: s })) },
-    {
-      key: "disponibilite" as const,
-      label: "Disponibilité",
-      options: [
-        { value: "disponible", label: "Disponible" },
-        { value: "sur-commande", label: "Sur commande" },
-      ],
-    },
   ];
 
   return (

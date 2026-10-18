@@ -9,6 +9,9 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* une seule face par police : le navigateur n'invente ni gras ni italique (Cormorant n'a pas
+       d'italique ; l'italique des titres est la vraie face de Fraunces) */
+    font-synthesis: none;
     scroll-padding-top: var(--header-h);
   }
 
@@ -27,8 +30,8 @@
     min-height: 100dvh;
     background: var(--bg);
     color: var(--fg);
-    font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-family: var(--font-body);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step-0);
     line-height: var(--leading-text);
     letter-spacing: var(--tracking-text);
@@ -87,11 +90,13 @@
     color: var(--bg);
   }
 
+  /* titres : Fraunces 72pt Italic, la police officielle des titres, toujours en italique */
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-weight: var(--font-weight-regular);
     line-height: var(--leading-snug);
     letter-spacing: var(--tracking-display);
@@ -105,7 +110,7 @@
      les lignes et évite les mots isolés, la mesure est tenue à 60–70 caractères ; espacement des
      mots et des lettres fixe. Jamais les étiquettes, titres, prix, boutons ni la navigation.
      Contrôlé page par page sur trois formats d'écran (tests/e2e/homogeneite.spec.ts). */
-  p:where(:not(.t-label, .eyebrow, .price, .t-h1, .t-h2, .t-h3, .t-h4, .t-display, .t-giant, .t-center, .t-left, .badge)) {
+  p:where(:not(.t-label, .t-nav, .eyebrow, .price, .t-h1, .t-h2, .t-h3, .t-h4, .t-display, .t-giant, .t-center, .t-left, .badge)) {
     max-width: var(--measure);
     text-align: justify;
     text-justify: inter-word;
@@ -126,8 +131,8 @@
     text-decoration: none;
   }
 
-  /* deux familles, jamais d'italique : les éléments que le navigateur penche ou passe en
-     chasse fixe gardent la typographie du site */
+  /* deux polices officielles ; l'italique n'existe que pour les titres (Fraunces) : les éléments
+     que le navigateur penche ou passe en chasse fixe gardent la typographie du texte courant */
   address,
   cite,
   dfn,
@@ -140,11 +145,17 @@
   i {
     font-weight: var(--font-weight-regular);
   }
+  /* Cormorant a un petit œil : les petites tailles du navigateur ne descendent jamais sous 16 px */
+  small,
+  sub,
+  sup {
+    font-size: max(var(--text-step--2), 0.8em); /* token-ok : relatif au texte, plancher du design system */
+  }
   code,
   kbd,
   samp,
   pre {
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-size: inherit;
   }
 
@@ -202,11 +213,12 @@
     transform: translateY(-200%);
     background: var(--color-ink);
     color: var(--color-ivory);
-    padding: var(--spacing-xs) var(--spacing-m);
-    font-family: var(--font-sans);
-    font-size: var(--text-step--2);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
+    padding: var(--spacing-2xs) var(--spacing-m);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-body);
+    font-size: var(--text-step-0);
+    line-height: var(--leading-label);
+    letter-spacing: var(--tracking-snug);
     transition: transform var(--dur) var(--ease);
   }
   .skip-link:focus {

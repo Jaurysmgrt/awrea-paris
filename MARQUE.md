@@ -87,22 +87,38 @@ banque d'images. En attendant une photo : un emplacement vide élégant.
 | Gris pierre | `#E4E2DD` | `--color-pearl` |
 | Gris taupe (textes secondaires) | `#8C8780` | `--color-taupe` |
 
-- **Aucun doré** nulle part : filets, survols, halos, icônes, boutons, e-mails.
+- **La dorure fait partie de l'identité dans les mots, les photos et les bijoux, jamais comme couleur
+  de l'interface** : aucun doré dans les filets, survols, halos, icônes, boutons, pastilles ni
+  e-mails.
 - Le taupe pur fait 3,3:1 sur le blanc cassé : il sert aux grands textes et aux textes secondaires
   sur fond noir (5,6:1). Les petits textes secondaires sur fond clair utilisent `--color-taupe-deep`
   (taupe mêlé de noir : 5,5:1 sur blanc cassé, 4,6:1 sur gris pierre). WCAG AA partout.
-- Filets : noirs (ou blanc cassé sur noir) et très fins (1 px). Pas d'arrondi, pas d'ombre.
-- Mode Nuit : version noire complète, automatique selon le téléphone, avec interrupteur.
+- Filets : noirs (ou blanc cassé sur noir) et très fins (1 px), comme sur les maquettes de
+  `ressources-awrea/DA PRÉSENTATION`. Aucune ombre.
+- Arrondis, seulement ceux des maquettes : boutons et pastilles noirs en pilule
+  (`--radius-pill`), photos des cartes de pièces aux angles arrondis (`--radius-card`, 16 px),
+  vignettes (`--radius-soft`, 8 px). Sections, grandes photos et champs restent droits.
+- Mode Nuit : version noire complète, automatique selon le téléphone, avec interrupteur. Boutons
+  et pastilles s'y inversent (blanc cassé, texte noir).
 
-### Typographie — deux familles, pas une de plus
+### Typographie — les deux polices officielles, pas une de plus
 
-- Polices **servies par le site** (fichiers dans `styles/fonts`, licence libre OFL) : aucun appel à
-  Google Fonts.
-- **Instrument Serif** (400, jamais en italique) : titres, en très grand format ; numéros d'édition.
-- **Inter Tight** : textes (300), navigation et boutons en **petites capitales espacées** (400,
-  11 px, interlettrage 0,14 em).
-- **Aucune calligraphie, aucun italique décoratif.** L'emphase passe par la graisse ou l'échelle.
-- Texte courant : 15 px, interlignage **1,6** (24 px) ; chapeaux 20 px (32 px).
+- Polices **officielles de la Maison** (`ressources-awrea/TYPO`, `RESSOURCES.md`), **servies par le
+  site** (WOFF2 dans `styles/fonts`, licence libre OFL) : aucun appel à Google Fonts.
+- **Fraunces 72pt Italic** (400) : tous les titres, en très grand format, interlignage serré,
+  **en italique** (c'est la seule face fournie : l'italique est permis pour les titres).
+- **Cormorant Garamond** (400) : textes courants, navigation, boutons, formulaires, prix. Pas de
+  faux italique ni de faux gras (aucune face fournie) : l'emphase passe par l'échelle, la police
+  des titres ou le soulignement.
+- La police du logo (Croisan, licence personnelle) n'est **jamais chargée** : le logo s'affiche à
+  partir des fichiers officiels (`content/brand/assets.ts`). Instrument Serif, Inter Tight et
+  General Sans sont retirées.
+- Cormorant a un petit œil : texte courant **20 px**, interlignage **1,6** (32 px) ; chapeaux 25 px
+  (40 px) ; notes 18 px ; **jamais sous 16 px** (étiquettes, fil d'Ariane, pastilles).
+- Navigation, liens et boutons en bas de casse, à peine espacés (0,02 em), comme sur les
+  maquettes ; les intitulés (colonnes du pied de page, surtitres, en-têtes de tableau) en capitales
+  à l'interlettrage mesuré (0,08 em).
+- **Aucune calligraphie.** Prix au format « 70,00 € », en chiffres alignés.
 
 ### Justification
 
