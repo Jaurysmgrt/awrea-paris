@@ -44,6 +44,22 @@
   .page-head__lead {
     max-width: var(--measure);
   }
+  /* titre de page des maquettes : très grand, centré ; le fil d'Ariane, le surtitre et la colonne
+     du chapeau se centrent avec lui (le chapeau reste justifié) */
+  .page-head--center {
+    justify-items: center;
+  }
+  .page-head--center .breadcrumb {
+    justify-content: center;
+  }
+  .page-head--center .page-head__title {
+    max-width: 100%;
+    text-align: center;
+    text-wrap: balance;
+  }
+  .page-head--center .page-head__lead {
+    margin-inline: auto;
+  }
 
   /* ============================================================ OUVERTURE */
   .hero {
@@ -640,8 +656,9 @@
   .step__num {
     display: block;
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-5);
-    line-height: var(--leading-tight);
+    line-height: var(--lh-step-5);
     color: var(--accent);
   }
   .sketchbook {
@@ -979,9 +996,11 @@
     padding-block: var(--spacing-3xs);
   }
   .legal__toc a {
-    font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--1);
+    line-height: var(--leading-note);
     letter-spacing: var(--tracking-snug);
   }
   .legal__body {
@@ -1068,12 +1087,12 @@
   .legal__action {
     margin-top: var(--spacing-s);
   }
-  /* information de l'entreprise encore à renseigner : repère doré bien visible */
+  /* information de l'entreprise encore à renseigner : repère bien visible */
   .todo {
     padding-inline: var(--spacing-3xs);
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-style: normal;
-    font-size: 0.85em; /* token-ok : proportionnel au texte qui l'entoure */
+    font-size: max(var(--text-step--2), 0.85em); /* token-ok : proportionnel au texte qui l'entoure, jamais sous 16 px */
     letter-spacing: var(--tracking-snug);
     color: var(--accent);
     background: color-mix(in oklab, var(--accent) 16%, transparent);
@@ -1118,7 +1137,8 @@
   }
   .account-login__code {
     max-width: var(--container-label);
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
+    font-style: normal;
     letter-spacing: var(--tracking-label);
     font-variant-numeric: tabular-nums;
   }
@@ -1172,7 +1192,8 @@
     align-items: baseline;
     gap: var(--spacing-3xs);
     min-height: var(--spacing-touch);
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
+    font-style: normal;
     font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
@@ -1387,9 +1408,18 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
+  /* moyens de paiement express : au filet, plein une fois choisi (le choix se voit sans couleur) */
+  .express__btn {
+    --btn-fg: var(--fg);
+    --btn-bg: transparent;
+    --btn-hover-bg: var(--fg);
+    --btn-on: var(--bg);
+  }
   .express__btn[aria-pressed="true"] {
-    background: var(--fg);
-    color: var(--bg);
+    --btn-fg: var(--bg);
+    --btn-bg: var(--fg);
+    --btn-hover-bg: var(--bg);
+    --btn-on: var(--fg);
   }
   .combo {
     position: relative;
@@ -1410,6 +1440,7 @@
     padding: var(--spacing-xs) var(--spacing-s);
     cursor: pointer;
     font-size: var(--text-step--1);
+    line-height: var(--leading-note);
   }
   .combo__option[aria-selected="true"],
   .combo__option:hover {
@@ -1459,9 +1490,13 @@
     display: grid;
     gap: var(--spacing-3xs);
   }
+  /* intitulé d'une option (« Être remboursée ») : Cormorant, à la taille du texte (Fraunces
+     n'est jamais employée sous 25 px) */
   .option__title {
-    font-family: var(--font-display);
+    font-family: var(--font-body);
+    font-style: normal;
     font-size: var(--text-step-0);
+    line-height: var(--leading-text);
   }
 
   /* ============================================================ CONFIRMATION */
@@ -1563,6 +1598,7 @@ html[data-motion="reduce"] .hero__scroll::after {
   }
   .countdown__n {
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-5);
     line-height: var(--lh-step-5);
     font-variant-numeric: lining-nums tabular-nums;

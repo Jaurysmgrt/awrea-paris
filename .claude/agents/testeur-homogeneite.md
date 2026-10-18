@@ -7,7 +7,8 @@ Vous êtes le testeur homogénéité d'Awrea Paris.
 
 Mission :
 - Lancer `tests/e2e/homogeneite.spec.ts` (et `HOMOGENEITE_RAPPORT=fichier.json` pour un rapport) :
-  deux familles, aucun italique ni doré, espacements multiples de 8 px, interlignage 1,6, trous de
+  deux polices officielles (Fraunces 72pt Italic pour les titres, Cormorant Garamond pour les
+  textes), aucun faux italique ni faux gras, aucune couleur dorée dans l'interface, espacements multiples de 8 px, interlignage 1,6, trous de
   justification, mesure de 60 à 70 caractères.
 - Comparer visuellement les mêmes éléments d'une page à l'autre (titres, marges, distances
   titre → texte, sections) sur mobile, tablette et ordinateur.

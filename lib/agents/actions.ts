@@ -11,14 +11,15 @@ import { getOrder, setOrderStatus } from "@/lib/commerce/orders";
 import type { Product } from "@/lib/commerce/types";
 import {
   adminEnabled,
+  PIECE_METAFIELDS,
   shopifyCancelOrder,
   shopifyCreateProduct,
   shopifyDeleteProduct,
   shopifyRefundOrder,
   shopifySetPrice,
-  shopifySetStock,
   shopifyUpdateProduct,
 } from "@/lib/shopify/admin";
+import { DEFAULT_LEAD_TIME } from "@/lib/commerce/availability";
 import { updateInbox, listInbox } from "@/lib/inbox";
 import { sendEmail } from "@/lib/email/send";
 import { brandEmail } from "@/lib/email/templates";
@@ -52,9 +53,11 @@ export const ProductDraftSchema = z.object({
   category: z.enum(["robe", "body", "top", "jupe", "accessoire"]),
   collection: z.string().max(80),
   price: z.number().int().positive().describe("Prix en centimes d’euro"),
-  edition_total: z.number().int().min(1).max(50),
-  lead_time_weeks: z.number().int().min(1).max(16).optional(),
-  sizes: z.array(z.object({ size: Size, quantity: z.number().int().min(0).max(50), preorder: z.boolean() })).min(1),
+  price_provisional: z.boolean().default(false),
+  /** délai de fabrication en semaines : chaque pièce est créée sur demande, sans stock */
+  lead_time: z.object({ min: z.number().int().min(1).max(26), max: z.number().int().min(1).max(26) }).optional(),
+  lead_time_provisional: z.boolean().default(true),
+  sizes: z.array(Size).min(1),
   images: z.array(ImageSchema).min(1),
   description: z.array(z.string().min(20)).min(1).max(4),
   materials: z.array(z.object({ name: z.string(), percent: z.number().min(0).max(100) })).min(1),
@@ -135,6 +138,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
     const existing = await getProduct(handle);
     if (existing) throw new Error(`Une pièce existe déjà sous l’adresse /boutique/${handle}.`);
     const code = d.title.split(" ").pop()!.slice(0, 3).toUpperCase();
+    const leadTime = d.lead_time && d.lead_time.min <= d.lead_time.max ? d.lead_time : DEFAULT_LEAD_TIME[d.category];
     if (adminEnabled) {
       await shopifyCreateProduct({
         handle,
@@ -146,9 +150,11 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
         seo: d.seo,
         metafields: [
           { key: "tagline", type: "single_line_text_field", value: d.tagline },
-          { key: "edition_total", type: "number_integer", value: String(d.edition_total) },
-          { key: "edition_produced", type: "number_integer", value: "0" },
-          ...(d.lead_time_weeks ? [{ key: "lead_time_weeks", type: "number_integer", value: String(d.lead_time_weeks) }] : []),
+          { ...PIECE_METAFIELDS.leadTimeMin, value: String(leadTime.min) },
+          { ...PIECE_METAFIELDS.leadTimeMax, value: String(leadTime.max) },
+          { ...PIECE_METAFIELDS.priceProvisional, value: String(d.price_provisional) },
+          { ...PIECE_METAFIELDS.leadTimeProvisional, value: String(d.lead_time_provisional) },
+          { ...PIECE_METAFIELDS.isNew, value: "true" },
           { key: "materials", type: "json", value: JSON.stringify(d.materials) },
           { key: "care", type: "list.single_line_text_field", value: JSON.stringify(d.care) },
           { key: "fit", type: "multi_line_text_field", value: d.fit },
@@ -156,7 +162,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
           { key: "details", type: "list.single_line_text_field", value: JSON.stringify(d.details.length ? d.details : ["Fait main à Paris"]) },
         ],
         images: d.images.map((i) => ({ url: i.src.startsWith("http") ? i.src : `${identity.url}${i.src}`, alt: i.alt })),
-        sizes: d.sizes.map((s) => ({ ...s, sku: `AW-${code}-${s.size}` })),
+        sizes: d.sizes.map((size) => ({ size, sku: `AW-${code}-${size}` })),
         price: d.price,
       });
     } else {
@@ -168,9 +174,11 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
         category: d.category,
         collection: d.collection,
         price: d.price,
-        edition: { total: d.edition_total, produced: 0 },
-        leadTimeWeeks: d.lead_time_weeks,
-        variants: d.sizes.map((s) => ({ id: `${handle}-${s.size.toLowerCase()}`, sku: `AW-${code}-${s.size}`, size: s.size, quantity: s.quantity, preorder: s.preorder })),
+        priceProvisional: d.price_provisional,
+        leadTime,
+        leadTimeProvisional: d.lead_time_provisional,
+        isNew: true,
+        variants: d.sizes.map((size) => ({ id: `${handle}-${size.toLowerCase()}`, sku: `AW-${code}-${size}`, size })),
         images: d.images,
         detailImage: d.images[d.images.length - 1],
         description: d.description,
@@ -193,7 +201,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       await kv.set(DEMO_KEYS.extra, [...extra, product]);
     }
     refresh();
-    return { summary: `Fiche « ${d.title} » publiée (${formatPrice(d.price)}, ${d.edition_total === 1 ? "pièce unique" : `série de ${d.edition_total}`})`, target: { type: "product", id: handle, label: d.title, href: `/boutique/${handle}` } };
+    return { summary: `Fiche « ${d.title} » publiée (${formatPrice(d.price)}, créée sur demande en ${leadTime.min} à ${leadTime.max} semaines)`, target: { type: "product", id: handle, label: d.title, href: `/boutique/${handle}` } };
   },
 
   async update_product_content({ handle, tagline, description, seo, alts }) {
@@ -212,17 +220,11 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
     return { summary: `${p.title} : ${what || "contenu"} mis à jour`, target: { type: "product", id: handle, label: p.title, href: `/boutique/${handle}` } };
   },
 
-  async update_stock({ handle, size, quantity }) {
+  // Modèle « sur demande » : aucune pièce n'a de stock. L'action reste déclarée (lib/agents/policy.ts)
+  // pour les journaux existants, mais refuse toute exécution.
+  async update_stock({ handle, size }) {
     const found = await findVariant(handle, size);
-    if (!found) throw new Error(`Taille ${size} introuvable pour ${handle}`);
-    if (adminEnabled) await shopifySetStock(found.id, quantity);
-    else {
-      const stock = (await kv.get<Record<string, number>>(DEMO_KEYS.stock)) ?? {};
-      stock[found.id] = quantity;
-      await kv.set(DEMO_KEYS.stock, stock);
-    }
-    refresh();
-    return { summary: `Stock ${found.p.title} taille ${size} → ${quantity}`, target: { type: "product", id: handle, label: found.p.title, href: `/boutique/${handle}` } };
+    throw new Error(`${found?.p.title ?? handle} est créée sur demande : il n’y a aucun stock à mettre à jour.`);
   },
 
   async notify_waitlist({ handle, size, message }) {

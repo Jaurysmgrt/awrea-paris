@@ -1,12 +1,15 @@
 /**
  * Flux produits pour Google Merchant Center (Shopping, fiches gratuites) et le catalogue Meta
- * (boutiques Instagram et Facebook) — format RSS 2.0 avec l'espace de noms Google, une entrée par
+ * (boutiques Instagram et Facebook) : format RSS 2.0 avec l'espace de noms Google, une entrée par
  * taille (variante) regroupée par pièce. Générés depuis le même catalogue que le site.
- * Les séries complètes (pièces adoptées) n'y figurent plus.
+ *
+ * Chaque pièce est créée sur demande, sans stock : elle se commande toujours. Google la déclare
+ * « en stock » avec son délai de préparation (min_handling_time / max_handling_time, en jours
+ * ouvrés : le délai de fabrication) ; Meta la déclare « disponible à la commande ».
  */
 import "server-only";
 import { getPublicProducts, getCollections } from "@/lib/commerce";
-import { editionInfo, variantAvailability } from "@/lib/commerce/availability";
+import { leadTimeText } from "@/lib/commerce/availability";
 import { imageAt } from "@/lib/media";
 import { absolute } from "@/lib/seo/metadata";
 import { identity } from "@/content/brand/identity";
@@ -36,15 +39,11 @@ export function productColor(p: Product): string {
   return /ivoire|écru|blanc/.test(text) ? "Ivoire" : "Noir";
 }
 
-function availability(p: Product, v: Variant, target: FeedTarget): { value: string; date?: string } {
-  const a = variantAvailability(p, v);
-  if (a === "preorder") {
-    const date = new Date(Date.now() + (p.leadTimeWeeks ?? 4) * 7 * 86_400_000).toISOString().slice(0, 10);
-    return { value: "preorder", date };
-  }
-  if (a === "soldout") return { value: target === "google" ? "out_of_stock" : "out of stock" };
-  return { value: target === "google" ? "in_stock" : "in stock" };
-}
+/** Disponibilité d'une pièce créée sur demande : toujours commandable. */
+const availability = (target: FeedTarget) => (target === "google" ? "in_stock" : "available for order");
+
+/** Délai de préparation (Google) : le délai de fabrication, en jours ouvrés (cinq par semaine). */
+const handlingDays = (p: Product) => ({ min: p.leadTime.min * 5, max: p.leadTime.max * 5 });
 
 function shipping(p: Product): string {
   const lines: string[] = [];
@@ -58,8 +57,7 @@ function shipping(p: Product): string {
 }
 
 function item(p: Product, v: Variant, target: FeedTarget, collectionTitle: string | undefined): string {
-  const edition = editionInfo(p);
-  const avail = availability(p, v, target);
+  const handling = handlingDays(p);
   const category = boutique.categories.find((c) => c.value === p.category)?.label ?? p.category;
   const size = v.size === "TU" ? "Taille unique" : v.size;
   const material = [...p.materials].sort((a, b) => b.percent - a.percent)[0]?.name;
@@ -72,8 +70,9 @@ function item(p: Product, v: Variant, target: FeedTarget, collectionTitle: strin
     tag("link", absolute(`/boutique/${p.handle}`)),
     tag("image_link", imageUrl(p.images[0].src)),
     ...p.images.slice(1, 10).map((i) => tag("additional_image_link", imageUrl(i.src))),
-    tag("availability", avail.value),
-    tag("availability_date", avail.date ? `${avail.date}T00:00+01:00` : undefined),
+    tag("availability", availability(target)),
+    target === "google" ? tag("min_handling_time", handling.min) : "",
+    target === "google" ? tag("max_handling_time", handling.max) : "",
     tag("price", money(p.price)),
     tag("brand", identity.name),
     tag("condition", "new"),
@@ -86,9 +85,9 @@ function item(p: Product, v: Variant, target: FeedTarget, collectionTitle: strin
     tag("size", size),
     tag("size_system", "FR"),
     tag("material", material),
-    target === "meta" ? tag("inventory", v.quantity) : "",
-    tag("custom_label_0", edition.unique ? "Pièce unique" : `Série de ${edition.total}`),
-    tag("custom_label_1", "Fait main à Paris"),
+    tag("custom_label_0", "Créée sur demande"),
+    tag("custom_label_1", "Artisans français"),
+    tag("custom_label_2", leadTimeText(p.leadTime)),
     shipping(p),
     "</item>",
   ].join("");
@@ -98,7 +97,7 @@ export async function buildFeed(target: FeedTarget): Promise<string> {
   const [products, collections] = await Promise.all([getPublicProducts(), getCollections()]);
   const titles = new Map(collections.map((c) => [c.handle, c.title]));
   const items = products
-    .filter((p) => p.images.length && !(editionInfo(p).complete && !p.variants.some((v) => v.preorder)))
+    .filter((p) => p.images.length && p.variants.length)
     .flatMap((p) => p.variants.map((v) => item(p, v, target, titles.get(p.collection))));
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">

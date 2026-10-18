@@ -15,7 +15,7 @@ import { ProductCard } from "@/components/commerce/ProductCard";
 import { InstagramGrid } from "@/components/home/InstagramGrid";
 import { getInstagramPosts } from "@/lib/instagram/feed";
 import { formatPrice, roman } from "@/lib/format";
-import { editionInfo } from "@/lib/commerce/availability";
+import { leadTimeText } from "@/lib/commerce/availability";
 
 export const metadata = pageMetadata({ ...home.seo, path: "/" });
 export const revalidate = 300;
@@ -88,7 +88,7 @@ export default async function HomePage() {
                       <span className="t-h4">{p.title}</span>
                       <span className="home-collection__dots" aria-hidden="true" />
                       <span className="price">{formatPrice(p.price)}</span>
-                      <span className="t-label t-soft">{editionInfo(p).unique ? "Unique" : `${editionInfo(p).total} pièces`}</span>
+                      <span className="t-label t-soft">{leadTimeText(p.leadTime)}</span>
                     </Link>
                   </li>
                 ))}

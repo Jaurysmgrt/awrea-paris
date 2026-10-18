@@ -18,12 +18,13 @@ const config: NextConfig = {
   outputFileTracingIncludes: {
     // documents de contenu (content/site), relus à chaque publication de l’éditeur
     "/**": ["./content/brand/voice.md", "./content/site/**/*.json"],
-    // polices des factures et étiquettes PDF (lues sur le disque par pdf-lib)
-    "/api/factures/**": ["./assets/pdf/**"],
-    "/api/gestion/**": ["./assets/pdf/**"],
-    "/api/checkout": ["./assets/pdf/**"],
-    "/api/retours/**": ["./assets/pdf/**"],
-    "/api/cron/**": ["./assets/pdf/**"],
+    // polices officielles des factures et étiquettes PDF (Fraunces 72pt Italic et Cormorant
+    // Garamond en TTF, assets/pdf) et logo officiel, lus sur le disque par pdf-lib
+    "/api/factures/**": ["./assets/pdf/**", "./public/brand/awrea-logo.png"],
+    "/api/gestion/**": ["./assets/pdf/**", "./public/brand/awrea-logo.png"],
+    "/api/checkout": ["./assets/pdf/**", "./public/brand/awrea-logo.png"],
+    "/api/retours/**": ["./assets/pdf/**", "./public/brand/awrea-logo.png"],
+    "/api/cron/**": ["./assets/pdf/**", "./public/brand/awrea-logo.png"],
   },
   images: {
     formats: ["image/avif", "image/webp"],
@@ -38,6 +39,11 @@ const config: NextConfig = {
     return [
       // ancienne page « Silhouettes », devenue « Outfits » (rubrique Instagram de la Maison)
       { source: "/silhouettes", destination: "/outfits", permanent: true },
+      // collection « Lace is more », devenue « Hypnotic Lace » (ressources officielles de la Maison)
+      { source: "/collections/lace-is-more", destination: "/collections/hypnotic-lace", permanent: true },
+      // collection et pièces retirées du catalogue : vers la liste des collections et la boutique
+      { source: "/collections/lumiere-d-or", destination: "/collections", permanent: true },
+      ...["robe-thais", "jupe-iris", "corset-elia", "etole-nyx"].map((handle) => ({ source: `/boutique/${handle}`, destination: "/boutique", permanent: true })),
       {
         source: "/:path*",
         has: [{ type: "host", value: alternateHost }],

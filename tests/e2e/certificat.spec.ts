@@ -4,8 +4,9 @@ import { adminLogin, ATELIER } from "./admin-auth";
 
 async function buy(page: Page, email: string) {
   await page.goto("/boutique/body-aura");
-  await page.locator('.product-form .chip:not([data-unavailable="true"])').first().click();
-  await page.getByRole("button", { name: /^(Ajouter au panier|Précommander)$/ }).click();
+  // pièce créée sur demande : toutes les tailles se commandent
+  await page.locator(".product-form .chip").first().click();
+  await page.locator(".product-form__actions").getByRole("button", { name: "Ajouter au panier" }).click();
   await page.locator("dialog.drawer").getByRole("link", { name: "Commander" }).click();
   await page.getByLabel("E-mail", { exact: true }).fill(email);
   await page.getByLabel("Prénom").fill("Inès");
@@ -27,10 +28,10 @@ test.describe("Certificats d’authenticité", () => {
     await buy(page, buyer);
 
     // la confirmation mène au certificat numérique
-    await page.locator(".confirmation__certificates").getByRole("link", { name: /^Body Aura/ }).click();
+    await page.locator(".confirmation__certificates").getByRole("link", { name: /^Le body Aura/ }).click();
     await expect(page).toHaveURL(/\/certificat\/AW-[A-Z0-9]+-\d{2,4}-[A-Z0-9]{4}$/);
     const serial = page.url().split("/").pop()!;
-    await expect(page.getByRole("heading", { level: 1, name: "Body Aura" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Le body Aura" })).toBeVisible();
     await expect(page.getByText("Certificat d’authenticité", { exact: true })).toBeVisible();
     await expect(page.getByRole("img", { name: `QR code du certificat ${serial}` })).toBeVisible();
     await expect(page.locator(".certificate__qr svg")).toBeVisible();
@@ -45,7 +46,7 @@ test.describe("Certificats d’authenticité", () => {
 
     // le code de rattachement est transmis avec la confirmation de commande
     const mail = outbox().find((m) => m.to === buyer && m.subject.startsWith("Votre commande"));
-    const code = mail?.text.match(/Body Aura : ([A-Z0-9]{4}-[A-Z0-9]{4})/)?.[1];
+    const code = mail?.text.match(/Le body Aura\s:\s([A-Z0-9]{4}-[A-Z0-9]{4})/)?.[1];
     expect(code, "code de rattachement dans l’e-mail").toBeTruthy();
 
     // la pièce est offerte : sa nouvelle propriétaire crée son compte et la rattache
