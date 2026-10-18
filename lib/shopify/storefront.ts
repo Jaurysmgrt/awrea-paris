@@ -5,15 +5,23 @@
  * Jeton : le jeton PRIVÉ du canal Headless (SHOPIFY_STOREFRONT_PRIVATE_TOKEN, recommandé : les
  * appels partent du serveur) ou, à défaut, le jeton public (SHOPIFY_STOREFRONT_ACCESS_TOKEN).
  *
- * Métachamps attendus sur les produits (namespace `awrea`, à créer dans l'admin Shopify) :
- *   edition_total (integer) · edition_produced (integer) · lead_time_weeks (integer)
+ * Modèle de la Maison : chaque pièce est créée SUR DEMANDE, sans stock. Le stock Shopify n'est donc
+ * ni lu ni affiché ; chaque taille doit rester « en vente » (inventaire non suivi, ou « continuer à
+ * vendre en cas de rupture de stock ») : une taille que Shopify dit indisponible est écartée.
+ *
+ * Métachamps attendus sur les produits (namespace `awrea`, à créer dans l'admin Shopify, avec
+ * l'accès à l'API Storefront, ACTIVATION.md étape 4.2) :
+ *   delai_min (integer) · delai_max (integer) : délai de fabrication en semaines
+ *   prix_provisoire (boolean) · delai_provisoire (boolean) · nouveau (boolean) · visuels_provisoires (boolean)
  *   tagline (single_line_text) · materials (json : [{name, percent}]) · care (list.single_line_text)
  *   fit (multi_line_text) · model (single_line_text) · details (list.single_line_text)
  *   lining (single_line_text) · complete_the_look (list.product_reference) · detail_image (file_reference)
  *   traceability (json : {steps: [{label, place, hours?}], origins: [{material, origin}]})
- * Option de variante : « Taille ». Stock : politique « continuer à vendre » = précommande.
+ * Option de variante : « Taille ». Sans délai renseigné, le délai provisoire de la catégorie
+ * s'applique (lib/commerce/availability.ts) et la pièce est signalée « délai provisoire ».
  */
 import type { Cart, Category, Collection, Image, Product, Size, Variant } from "@/lib/commerce/types";
+import { DEFAULT_LEAD_TIME, normalizeLeadTime } from "@/lib/commerce/availability";
 import { headers } from "next/headers";
 import { shop } from "@/content/settings";
 import { providerOf } from "@/lib/config/providers";
@@ -58,9 +66,12 @@ export async function storefront<T>(query: string, variables: Record<string, unk
 
 const MF = `
   tagline: metafield(namespace: "awrea", key: "tagline") { value }
-  editionTotal: metafield(namespace: "awrea", key: "edition_total") { value }
-  editionProduced: metafield(namespace: "awrea", key: "edition_produced") { value }
-  leadTime: metafield(namespace: "awrea", key: "lead_time_weeks") { value }
+  leadMin: metafield(namespace: "awrea", key: "delai_min") { value }
+  leadMax: metafield(namespace: "awrea", key: "delai_max") { value }
+  priceProvisional: metafield(namespace: "awrea", key: "prix_provisoire") { value }
+  leadProvisional: metafield(namespace: "awrea", key: "delai_provisoire") { value }
+  isNew: metafield(namespace: "awrea", key: "nouveau") { value }
+  imagesProvisional: metafield(namespace: "awrea", key: "visuels_provisoires") { value }
   materials: metafield(namespace: "awrea", key: "materials") { value }
   care: metafield(namespace: "awrea", key: "care") { value }
   fit: metafield(namespace: "awrea", key: "fit") { value }
@@ -77,10 +88,9 @@ const PRODUCT_FIELDS = `
   seo { title description }
   collections(first: 1) { nodes { handle } }
   priceRange { minVariantPrice { amount } }
-  compareAtPriceRange { minVariantPrice { amount } }
   images(first: 8) { nodes { url altText width height } }
   media(first: 8) { nodes { ... on Video { alt previewImage { url } sources { url mimeType height } } } }
-  variants(first: 20) { nodes { id sku availableForSale currentlyNotInStock quantityAvailable selectedOptions { name value } } }
+  variants(first: 20) { nodes { id sku availableForSale selectedOptions { name value } } }
   ${MF}
 `;
 
@@ -90,19 +100,29 @@ type SProduct = {
   seo: { title: string | null; description: string | null };
   collections: { nodes: { handle: string }[] };
   priceRange: { minVariantPrice: { amount: string } };
-  compareAtPriceRange: { minVariantPrice: { amount: string } };
   images: { nodes: SImage[] };
   media: { nodes: ({ alt?: string; previewImage?: { url: string }; sources?: { url: string; mimeType: string; height: number }[] } | Record<string, never>)[] };
-  variants: { nodes: { id: string; sku: string; availableForSale: boolean; currentlyNotInStock: boolean; quantityAvailable: number | null; selectedOptions: { name: string; value: string }[] }[] };
-  tagline?: { value: string } | null; editionTotal?: { value: string } | null; editionProduced?: { value: string } | null;
-  leadTime?: { value: string } | null; materials?: { value: string } | null; care?: { value: string } | null; fit?: { value: string } | null;
+  variants: { nodes: { id: string; sku: string; availableForSale: boolean; selectedOptions: { name: string; value: string }[] }[] };
+  tagline?: { value: string } | null;
+  leadMin?: { value: string } | null; leadMax?: { value: string } | null;
+  priceProvisional?: { value: string } | null; leadProvisional?: { value: string } | null; isNew?: { value: string } | null; imagesProvisional?: { value: string } | null;
+  materials?: { value: string } | null; care?: { value: string } | null; fit?: { value: string } | null;
   model?: { value: string } | null; details?: { value: string } | null; lining?: { value: string } | null; traceability?: { value: string } | null;
   completeTheLook?: { references: { nodes: { handle: string }[] } } | null;
   detailImage?: { reference: { image: SImage } | null } | null;
 };
 
-const toImage = (i: SImage, fallbackAlt: string): Image => ({ src: i.url, alt: i.altText ?? fallbackAlt, width: i.width, height: i.height });
+const toImage = (i: SImage, fallbackAlt: string, provisoire = false): Image => ({ src: i.url, alt: i.altText ?? fallbackAlt, width: i.width, height: i.height, ...(provisoire ? { provisoire: true } : {}) });
 const cents = (amount: string) => Math.round(parseFloat(amount) * 100);
+const int = (v?: { value: string } | null) => (v?.value ? parseInt(v.value, 10) : null);
+const bool = (v?: { value: string } | null) => v?.value === "true";
+
+/** Délai de fabrication d'une pièce : métachamps, ou délai provisoire de sa catégorie. */
+function leadTimeOf(min: { value: string } | null | undefined, max: { value: string } | null | undefined, category: Category) {
+  const fallback = DEFAULT_LEAD_TIME[category];
+  const leadTime = normalizeLeadTime(int(min), int(max), fallback);
+  return { leadTime, missing: !min?.value && !max?.value };
+}
 const list = (v?: { value: string } | null): string[] => {
   if (!v?.value) return [];
   try {
@@ -129,17 +149,23 @@ function parseTrace(value?: string): Product["trace"] {
 const CATEGORY_MAP: Record<string, Category> = { robe: "robe", robes: "robe", body: "body", bodys: "body", top: "top", tops: "top", jupe: "jupe", jupes: "jupe", accessoire: "accessoire", accessoires: "accessoire" };
 
 export function mapProduct(p: SProduct): Product {
-  const images = p.images.nodes.map((i) => toImage(i, p.title));
+  const provisoire = bool(p.imagesProvisional);
+  const images = p.images.nodes.map((i) => toImage(i, p.title, provisoire));
   const video = p.media.nodes.find((m): m is { alt?: string; previewImage?: { url: string }; sources?: { url: string; mimeType: string; height: number }[] } => "sources" in m && Array.isArray(m.sources));
   const mp4 = video?.sources?.filter((s) => s.mimeType === "video/mp4").sort((a, b) => a.height - b.height)[0];
-  const total = parseInt(p.editionTotal?.value ?? "1", 10);
-  const variants: Variant[] = p.variants.nodes.map((v) => ({
-    id: v.id,
-    sku: v.sku,
-    size: (v.selectedOptions.find((o) => /taille|size/i.test(o.name))?.value ?? "TU") as Size,
-    quantity: Math.max(0, v.quantityAvailable ?? (v.availableForSale && !v.currentlyNotInStock ? 1 : 0)),
-    preorder: v.availableForSale && v.currentlyNotInStock,
-  }));
+  const category = CATEGORY_MAP[p.productType.toLowerCase()] ?? "robe";
+  const { leadTime, missing } = leadTimeOf(p.leadMin, p.leadMax, category);
+  // pièce créée sur demande : le stock n'est pas lu ; une taille que Shopify refuse de vendre
+  // (inventaire suivi sans « continuer à vendre ») est écartée plutôt que d'échouer au panier
+  const refused = p.variants.nodes.filter((v) => !v.availableForSale);
+  if (refused.length) console.warn(`[shopify] ${p.handle} : ${refused.length} taille(s) non vendable(s), activer « continuer à vendre » (ACTIVATION.md, 4.2)`);
+  const variants: Variant[] = p.variants.nodes
+    .filter((v) => v.availableForSale)
+    .map((v) => ({
+      id: v.id,
+      sku: v.sku,
+      size: (v.selectedOptions.find((o) => /taille|size/i.test(o.name))?.value ?? "TU") as Size,
+    }));
   let materials: Product["materials"] = [];
   try {
     materials = p.materials?.value ? JSON.parse(p.materials.value) : [];
@@ -151,15 +177,16 @@ export function mapProduct(p: SProduct): Product {
     handle: p.handle,
     title: p.title,
     tagline: p.tagline?.value ?? "",
-    category: CATEGORY_MAP[p.productType.toLowerCase()] ?? "robe",
+    category,
     collection: p.collections.nodes[0]?.handle ?? "",
     price: cents(p.priceRange.minVariantPrice.amount),
-    compareAtPrice: cents(p.compareAtPriceRange.minVariantPrice.amount) || undefined,
-    edition: { total, produced: parseInt(p.editionProduced?.value ?? "0", 10) },
-    leadTimeWeeks: p.leadTime?.value ? parseInt(p.leadTime.value, 10) : undefined,
+    priceProvisional: bool(p.priceProvisional),
+    leadTime,
+    leadTimeProvisional: missing || bool(p.leadProvisional),
+    isNew: bool(p.isNew) || p.tags.some((t) => t.toLowerCase() === "nouveau"),
     variants,
     images,
-    detailImage: p.detailImage?.reference ? toImage(p.detailImage.reference.image, p.title) : images[images.length - 1],
+    detailImage: p.detailImage?.reference ? toImage(p.detailImage.reference.image, p.title, provisoire) : undefined,
     video: mp4 ? { src: mp4.url, poster: video?.previewImage?.url ?? "", alt: video?.alt ?? p.title } : undefined,
     description: p.description.split(/\n{2,}/).filter(Boolean),
     materials,
@@ -236,14 +263,14 @@ const CART_FIELDS = `
     id quantity
     attributes { key value }
     merchandise { ... on ProductVariant {
-      id currentlyNotInStock
+      id
       price { amount }
       selectedOptions { name value }
       image { url altText width height }
-      product { handle title
-        leadTime: metafield(namespace: "awrea", key: "lead_time_weeks") { value }
-        editionTotal: metafield(namespace: "awrea", key: "edition_total") { value }
-        editionProduced: metafield(namespace: "awrea", key: "edition_produced") { value }
+      product { handle title productType
+        leadMin: metafield(namespace: "awrea", key: "delai_min") { value }
+        leadMax: metafield(namespace: "awrea", key: "delai_max") { value }
+        imagesProvisional: metafield(namespace: "awrea", key: "visuels_provisoires") { value }
       }
     } }
   } }
@@ -259,10 +286,10 @@ type SCart = {
   lines: { nodes: {
     id: string; quantity: number;
     merchandise: {
-      id: string; currentlyNotInStock: boolean; price: { amount: string };
+      id: string; price: { amount: string };
       selectedOptions: { name: string; value: string }[];
       image: SImage | null;
-      product: { handle: string; title: string; leadTime: { value: string } | null; editionTotal: { value: string } | null; editionProduced: { value: string } | null };
+      product: { handle: string; title: string; productType: string; leadMin: { value: string } | null; leadMax: { value: string } | null; imagesProvisional: { value: string } | null };
     };
   }[] };
 };
@@ -274,20 +301,18 @@ function mapCart(c: SCart): Cart {
   const lines = c.lines.nodes
     .filter((l) => l.merchandise.id !== GIFT_WRAP_VARIANT)
     .map((l) => {
-      const total = parseInt(l.merchandise.product.editionTotal?.value ?? "0", 10);
-      const produced = parseInt(l.merchandise.product.editionProduced?.value ?? "0", 10);
+      const product = l.merchandise.product;
+      const category = CATEGORY_MAP[product.productType.toLowerCase()] ?? "robe";
       return {
         id: l.id,
         variantId: l.merchandise.id,
-        productHandle: l.merchandise.product.handle,
-        title: l.merchandise.product.title,
+        productHandle: product.handle,
+        title: product.title,
         size: (l.merchandise.selectedOptions.find((o) => /taille|size/i.test(o.name))?.value ?? "TU") as Size,
         quantity: l.quantity,
         unitPrice: cents(l.merchandise.price.amount),
-        image: l.merchandise.image ? toImage(l.merchandise.image, l.merchandise.product.title) : { src: "", alt: "", width: 1, height: 1 },
-        preorder: l.merchandise.currentlyNotInStock,
-        leadTimeWeeks: l.merchandise.product.leadTime?.value ? parseInt(l.merchandise.product.leadTime.value, 10) : undefined,
-        editionLabel: total > 1 ? `N° ${Math.min(total, produced + 1)} / ${total}` : total === 1 ? "Pièce unique" : undefined,
+        image: l.merchandise.image ? toImage(l.merchandise.image, product.title, bool(product.imagesProvisional)) : { src: "", alt: "", width: 1, height: 1 },
+        leadTime: leadTimeOf(product.leadMin, product.leadMax, category).leadTime,
       };
     });
   const subtotal = cents(c.cost.subtotalAmount.amount);

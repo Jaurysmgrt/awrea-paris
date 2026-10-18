@@ -6,7 +6,7 @@
 import "server-only";
 import { getPublicProducts, getCollections } from "@/lib/commerce";
 import { getArticles } from "@/lib/content/journal";
-import { editionInfo, productAvailability, availabilityLabel } from "@/lib/commerce/availability";
+import { leadTimeText } from "@/lib/commerce/availability";
 import { atelier, boutique, contact, maison, outfits, pressePage } from "@/content/fr/pages";
 import { faq } from "@/content/fr/faq";
 import { normalize, type SearchEntry } from "./match";
@@ -18,7 +18,7 @@ const pages: { href: string; title: string; note: string; extra: string }[] = [
   { href: "/atelier", title: "L’Atelier", note: atelier.seo.description, extra: "savoir faire croquis dorure coupe couture fait main coulisses essayage" },
   { href: "/outfits", title: "Outfits", note: outfits.seo.description, extra: "look tenue complete silhouette outfit" },
   { href: "/contact#rendez-vous", title: "Rendez-vous à l’atelier", note: contact.seo.description, extra: "contact essayage sur mesure rendez vous prive conseil" },
-  { href: "/faq", title: "Questions fréquentes", note: "Fabrication, tailles, précommandes, livraison, retours et sur-mesure.", extra: "aide question reponse" },
+  { href: "/faq", title: "Questions fréquentes", note: "Fabrication sur demande, tailles, livraison, retours et sur-mesure.", extra: "aide question reponse delai fabrication" },
   { href: "/livraison-retours", title: "Livraison & retours", note: "Délais, frais, emballage, retours et échanges.", extra: "expedition colis retour echange remboursement delai" },
   { href: "/presse", title: "Presse", note: pressePage.seo.description, extra: "dossier de presse journaliste contact presse" },
   { href: "/compte", title: "Mon compte", note: "Commandes, adresses, tailles et liste d’envies.", extra: "connexion commande suivi profil" },
@@ -35,8 +35,6 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
   const entries: SearchEntry[] = [];
 
   for (const p of products) {
-    const edition = editionInfo(p);
-    const availability = productAvailability(p);
     entries.push({
       kind: "piece",
       href: `/boutique/${p.handle}`,
@@ -52,8 +50,10 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
           collectionTitle.get(p.collection) ?? "",
           p.materials.map((m) => m.name).join(" "),
           p.tags.join(" "),
-          edition.unique ? "pièce unique" : "série numérotée",
-          availabilityLabel(availability),
+          // pièces créées sur demande : on les trouve aussi par « sur demande », « délai »…
+          "créée sur demande artisans français délai de fabrication",
+          leadTimeText(p.leadTime),
+          p.details.join(" "),
           p.description.slice(0, 2).join(" "),
         ].join(" "),
       ),

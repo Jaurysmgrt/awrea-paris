@@ -5,17 +5,42 @@
     overflow: hidden;
   }
 
-  /* ============================================================ LOGO */
+  /* ============================================================ LOGO
+     Fichier officiel en masque (components/brand/Logo.tsx) : le dessin prend la couleur du texte.
+     Les proportions du fichier (--logo-ratio : 708 / 293 pour le logo entier, 380 / 325 pour le
+     monogramme) tiennent le dessin : la classe du conteneur fixe la hauteur (en-tête) ou la
+     largeur (pied de page, Atelier, enveloppe), l'autre dimension suit, sans jamais déformer. */
   .logo-mask {
     display: block;
+    aspect-ratio: var(--logo-ratio);
+    height: 100%;
+    width: auto;
+    max-width: 100%;
     background-color: currentColor;
+    mask-image: var(--logo-src);
     mask-size: contain;
     mask-repeat: no-repeat;
     mask-position: center;
+    -webkit-mask-image: var(--logo-src);
     -webkit-mask-size: contain;
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-position: center;
-    height: 100%;
+    forced-color-adjust: none;
+  }
+  /* contraste forcé (Windows) : le masque garde la couleur du texte du système */
+  @media (forced-colors: active) {
+    .logo-mask {
+      background-color: CanvasText;
+    }
+  }
+  /* repli si le fichier manque : le nom en toutes lettres, dans la police des titres */
+  .logo-mask--nom {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-style: var(--font-style-display);
+    font-size: var(--text-step-2);
+    line-height: var(--lh-step-2);
+    white-space: nowrap;
   }
 
   /* =========================================================== EN-TÊTE */
@@ -181,6 +206,7 @@
     align-items: baseline;
     gap: var(--spacing-m);
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-4);
     line-height: var(--leading-tight);
     transition: color var(--dur) var(--ease);
@@ -271,6 +297,7 @@
     background: transparent;
     color: var(--fg);
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-3);
     line-height: var(--leading-tight);
     letter-spacing: var(--tracking-display);
@@ -345,6 +372,7 @@
   .search__piece-title,
   .search__row-title {
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-1);
     line-height: var(--leading-snug);
   }

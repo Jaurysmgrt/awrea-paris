@@ -175,22 +175,18 @@ async function issue(order: Order): Promise<{ certificate: Certificate; claimCod
     const p = products.find((x) => x.handle === line.handle);
     if (!p) continue;
     for (let i = 0; i < line.quantity; i++) {
-      const fromLabel = line.editionLabel?.match(/N°\s*(\d+)/)?.[1];
-      let number: number | null = fromLabel ? Number(fromLabel) : p.edition.total === 1 ? 1 : null;
-      if (number === null && !/commande/i.test(line.editionLabel ?? "")) {
-        // pilote Shopify : numéro attribué ici, de façon atomique
-        const n = await kv.incr(`edition:${p.handle}`, 10 * 365 * 86_400);
-        number = p.edition.produced + n <= p.edition.total ? p.edition.produced + n : null;
-      }
+      // pièces créées sur demande, sans série : un numéro de création unique par pièce (compteur
+      // atomique), inscrit dans le numéro du certificat ; plus de numéro d'édition « N° x / y »
+      const creation = await kv.incr(`creation:${p.handle}`, 10 * 365 * 86_400);
       const claimCode = `${random(4)}-${random(4)}`;
       const certificate: Certificate = {
-        serial: `AW-${productCode(p)}-${String(number ?? 0).padStart(2, "0")}-${random(4)}`,
+        serial: `AW-${productCode(p)}-${String(creation).padStart(2, "0")}-${random(4)}`,
         productHandle: p.handle,
         productTitle: p.title,
         size: line.size,
         image: p.images[0]?.src,
-        editionNumber: number,
-        editionTotal: p.edition.total,
+        editionNumber: null,
+        editionTotal: 0,
         collection: collections.find((c) => c.handle === p.collection)?.title,
         madeOn: order.createdAt.slice(0, 10),
         materials: p.materials.map((m) => `${m.percent}\u202f% ${m.name.toLowerCase()}`).join(", "), // espace fine insécable

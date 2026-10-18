@@ -189,6 +189,7 @@
     align-items: baseline;
     gap: var(--spacing-2xs);
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     line-height: var(--leading-tight);
     text-align: center;
   }
@@ -208,6 +209,7 @@
   }
   .certificate__unique {
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-3);
   }
   .certificate__head,
@@ -542,10 +544,12 @@
     height: auto;
     overflow: visible;
   }
+  /* lettre en Fraunces italique, de la couleur du texte de la scène (blanc cassé en mode Nuit) */
   .hw-line text,
   .hw-sign text {
     font-family: var(--font-display);
-    fill: var(--color-ink);
+    font-style: var(--font-style-display);
+    fill: var(--fg);
   }
   /* plus de plume : la ligne se révèle seule, sans geste calligraphique */
   .hw-nib {
@@ -610,12 +614,13 @@
   }
   .envelope__greeting {
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-2);
     line-height: var(--leading-snug);
     text-align: center;
   }
   .envelope__note {
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-size: var(--text-step--1);
     line-height: var(--leading-text);
     text-align: center;
@@ -623,7 +628,7 @@
     max-width: 30ch;
   }
   .envelope__ref {
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
@@ -632,6 +637,7 @@
   }
   .envelope__sign {
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-1);
     color: var(--color-ink);
     text-align: center;
@@ -707,7 +713,7 @@
     background: var(--color-ink);
     color: var(--color-ivory);
     border: var(--border-width-hair) solid color-mix(in oklab, var(--color-ivory) 30%, transparent);
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
@@ -791,7 +797,7 @@
     justify-self: end;
   }
   .assistant__bubble {
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-size: var(--text-step-0);
     line-height: var(--leading-text);
     text-align: left;

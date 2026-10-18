@@ -19,6 +19,7 @@ Prépare pour le site, sans jamais modifier les originaux :
 
 Relancer après avoir remplacé un fichier de ressources-awrea/ : `npm run ressources`.
 """
+import shutil
 import sys
 from pathlib import Path
 
@@ -32,6 +33,8 @@ FONTS_OUT = ROOT / "styles" / "fonts"
 BRAND_OUT = ROOT / "public" / "brand"
 IMG_OUT = ROOT / "public" / "media" / "img"
 LOCAL_ONLY = RES / "TYPO" / "web"
+PUBLIC_FONTS = ROOT / "public" / "fonts"
+PDF_FONTS = ROOT / "assets" / "pdf"
 
 # --------------------------------------------------------------------------- polices
 # Latin de base, Latin-1, Latin étendu A, ponctuation générale, euro, signes utiles.
@@ -69,13 +72,24 @@ def fonts() -> None:
     print("Polices")
     woff2(RES / "TYPO" / "POLICE TITRES.ttf", FONTS_OUT / "fraunces-72pt-italic-latin.woff2")
     woff2(RES / "TYPO" / "POLICE TEXTES.ttf", FONTS_OUT / "cormorant-garamond-latin-400.woff2")
+    # mêmes fichiers pour les e-mails (URL publique) et TTF complets pour les factures et étiquettes PDF
+    PUBLIC_FONTS.mkdir(parents=True, exist_ok=True)
+    PDF_FONTS.mkdir(parents=True, exist_ok=True)
+    for f in FONTS_OUT.glob("*"):
+        if f.name.startswith(("fraunces-", "cormorant-", "OFL-fraunces", "OFL-cormorant")):
+            shutil.copyfile(f, PUBLIC_FONTS / f.name)
+    shutil.copyfile(RES / "TYPO" / "POLICE TITRES.ttf", PDF_FONTS / "Fraunces72pt-Italic.ttf")
+    shutil.copyfile(RES / "TYPO" / "POLICE TEXTES.ttf", PDF_FONTS / "CormorantGaramond-Regular.ttf")
+    for lic in ("OFL-fraunces.txt", "OFL-cormorant-garamond.txt"):
+        shutil.copyfile(FONTS_OUT / lic, PDF_FONTS / lic)
+    print("  public/fonts et assets/pdf à jour")
     logo = RES / "TYPO" / "POLICE LOGO.otf"
     if logo.exists():
         woff2(logo, LOCAL_ONLY / "croisan.woff2", unicodes=None)
 
 
 # --------------------------------------------------------------------------- logo
-def transparent(src: Path, dest: Path, box: tuple[int, int, int, int] | None = None) -> Image.Image:
+def transparent(src: Path, dest: Path, box: tuple[int, int, int, int] | None = None, color: tuple[int, int, int] = (10, 10, 10)) -> Image.Image:
     """Fichier officiel, fond blanc rendu transparent : l'opacité vient de la luminance (déliés
     intacts, anticrénelage d'origine), le dessin prend la couleur du texte (masque CSS)."""
     im = Image.open(src).convert("L")
@@ -86,7 +100,7 @@ def transparent(src: Path, dest: Path, box: tuple[int, int, int, int] | None = N
     m = 6
     x0, y0, x1, y1 = max(bbox[0] - m, 0), max(bbox[1] - m, 0), min(bbox[2] + m, im.size[0]), min(bbox[3] + m, im.size[1])
     alpha = ink.crop((x0, y0, x1, y1)).point(lambda v: 0 if v < 6 else min(255, round(v * 1.04)))
-    png = Image.new("RGBA", alpha.size, (10, 10, 10, 0))
+    png = Image.new("RGBA", alpha.size, (*color, 0))
     png.putalpha(alpha)
     dest.parent.mkdir(parents=True, exist_ok=True)
     png.save(dest, optimize=True)
@@ -112,6 +126,8 @@ def icons(mono: Image.Image) -> None:
 def logos() -> None:
     print("Logo")
     transparent(RES / "LOGO" / "LOGO ENTIER.png", BRAND_OUT / "awrea-logo.png")
+    # version blanc cassé pour les fonds noirs des e-mails (les messageries ignorent les masques CSS)
+    transparent(RES / "LOGO" / "LOGO ENTIER.png", BRAND_OUT / "awrea-logo-blanc.png", color=(247, 246, 243))
     transparent(RES / "LOGO" / "LOGO MINI.png", BRAND_OUT / "awrea-monogramme.png")
     # monogramme sans « PARIS » (le dessin AW occupe le haut du fichier) pour les petites tailles
     aw = transparent(RES / "LOGO" / "LOGO MINI.png", BRAND_OUT / "awrea-aw.png", box=(0, 0, 564, 400))

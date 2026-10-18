@@ -18,7 +18,7 @@ import path from "node:path";
 import { kv } from "@/lib/store";
 import { providerOf } from "@/lib/config/providers";
 import { identity } from "@/content/brand/identity";
-import { logoPaths } from "@/content/brand/logo-paths";
+import { brandAssets } from "@/content/brand/assets";
 import { palette } from "@/styles/tokens";
 import type { Order } from "@/lib/commerce/types";
 import type { ReturnLabel, ReturnRequest } from "./returns";
@@ -103,14 +103,22 @@ async function colissimoReturnLabel(r: ReturnRequest, order: Order): Promise<{ p
   return { parcelNumber: report.labelV2Response.parcelNumber, pdf: new Uint8Array(buf.subarray(start, end + 5)) };
 }
 
-/** Étiquette (ou bordereau) de démonstration : A4, la partie à découper en haut. */
+/**
+ * Étiquette (ou bordereau) de démonstration : A4, la partie à découper en haut. Polices officielles
+ * (assets/pdf) : Fraunces italique pour le titre, Cormorant Garamond pour le texte ; logo officiel.
+ */
 export async function demoLabelPdf(r: ReturnRequest, order: Order): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.registerFontkit(fontkit);
   const dir = path.join(process.cwd(), "assets", "pdf");
-  const [display, regular] = await Promise.all([fs.readFile(path.join(dir, "InstrumentSerif-Regular.ttf")), fs.readFile(path.join(dir, "InterTight-400.ttf"))]);
+  const [display, regular] = await Promise.all([fs.readFile(path.join(dir, "Fraunces72pt-Italic.ttf")), fs.readFile(path.join(dir, "CormorantGaramond-Regular.ttf"))]);
   const serif = await doc.embedFont(display, { subset: true });
-  const sans = await doc.embedFont(regular, { subset: true });
+  const textFont = await doc.embedFont(regular, { subset: true });
+  // logo officiel (PNG noir à fond transparent) ; s'il manque, l'étiquette reste complète sans lui
+  const logoSrc = brandAssets.logo.src;
+  const logo = logoSrc?.endsWith(".png")
+    ? await fs.readFile(path.join(process.cwd(), "public", logoSrc)).then((b) => doc.embedPng(new Uint8Array(b)), () => null).catch(() => null)
+    : null;
   const ink = rgb(...([1, 3, 5].map((i) => parseInt(palette.ink.slice(i, i + 2), 16) / 255) as [number, number, number]));
   const page = doc.addPage([595.28, 841.89]);
   const M = 48;
@@ -121,15 +129,15 @@ export async function demoLabelPdf(r: ReturnRequest, order: Order): Promise<Uint
   const top = 841.89 - M;
   page.drawRectangle({ x: M, y: top - H, width: W, height: H, borderColor: ink, borderWidth: 0.75, borderDashArray: [4, 3] });
   let y = top - 32;
-  const t = (s: string, x: number, size: number, font = sans) => page.drawText(s, { x, y, size, font, color: ink });
+  const t = (s: string, x: number, size: number, font = textFont) => page.drawText(s, { x, y, size, font, color: ink });
   const label = (s: string, x: number) => {
-    page.pushOperators(setCharacterSpacing(1));
-    t(s.toUpperCase(), x, 7);
+    page.pushOperators(setCharacterSpacing(0.72));
+    t(s.toUpperCase(), x, 9);
     page.pushOperators(setCharacterSpacing(0));
   };
-  t(prepaid ? "Retour prépayé · démonstration" : "Bordereau de retour", M + 16, 14, serif);
-  y -= 14;
-  t(r.label?.carrier ?? "", M + 16, 8);
+  t(prepaid ? "Retour prépayé · démonstration" : "Bordereau de retour", M + 16, 16, serif);
+  y -= 16;
+  t(r.label?.carrier ?? "", M + 16, 10);
   const qr = await QRCode.toBuffer(`${r.id} ${r.label?.tracking ?? ""}`, { margin: 0, width: 240, color: { dark: palette.ink, light: "#ffffff" } });
   const qrImg = await doc.embedPng(qr);
   page.drawImage(qrImg, { x: M + W - 16 - 96, y: top - 16 - 96, width: 96, height: 96 });
@@ -138,18 +146,18 @@ export async function demoLabelPdf(r: ReturnRequest, order: Order): Promise<Uint
   const a = order.address;
   const from = a ? [`${a.firstName} ${a.lastName}`, a.line1, `${a.postalCode} ${a.city}`] : [order.name];
   for (const l of from) {
-    y -= 13;
-    t(l, M + 16, 9);
+    y -= 14;
+    t(l, M + 16, 11);
   }
   y -= 24;
   label("Destinataire", M + 16);
   const to = atelierAddress();
   for (const l of [to.name, to.line, `${to.zip} ${to.city}`.trim(), "France"]) {
-    y -= 15;
-    t(l, M + 16, 11);
+    y -= 16;
+    t(l, M + 16, 13);
   }
-  y -= 28;
-  t(`Retour ${r.id} · commande ${r.orderNumber} · suivi ${r.label?.tracking ?? "à venir"}`, M + 16, 8);
+  y -= 26;
+  t(`Retour ${r.id} · commande ${r.orderNumber} · suivi ${r.label?.tracking ?? "à venir"}`, M + 16, 10);
   // consignes sous le cadre
   y = top - H - 40;
   for (const l of [
@@ -158,9 +166,9 @@ export async function demoLabelPdf(r: ReturnRequest, order: Order): Promise<Uint
     prepaid ? "3. Déposez le colis dans un bureau de poste ou un point de retrait Colissimo." : "3. Déposez le colis chez le transporteur de votre choix (envoi à votre charge, avec suivi).",
     "Nous vous écrivons dès que l’atelier l’a reçu.",
   ]) {
-    t(l, M, 9);
-    y -= 15;
+    t(l, M, 11);
+    y -= 16;
   }
-  for (const d of [logoPaths.aw, logoPaths.paris]) page.drawSvgPath(d, { x: 595.28 - M - 40, y: 48 + 40, scale: 40 / Number(logoPaths.viewBox.split(" ")[2]), color: ink });
+  if (logo) page.drawImage(logo, { x: 595.28 - M - 80, y: 48, width: 80, height: (80 * logo.height) / logo.width });
   return doc.save();
 }

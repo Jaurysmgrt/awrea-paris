@@ -79,7 +79,7 @@
     gap: var(--spacing-s);
     min-height: var(--spacing-touch);
     padding: var(--spacing-2xs) var(--spacing-xs);
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
@@ -149,6 +149,7 @@
   }
   .kpis__value {
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-3);
     line-height: var(--leading-tight);
   }
@@ -160,7 +161,7 @@
     display: inline-block;
     padding: var(--spacing-3xs) var(--spacing-2xs);
     border: var(--border-width-hair) solid currentColor;
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-snug);
@@ -382,6 +383,7 @@
   }
   .report > summary {
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-1);
     letter-spacing: 0;
     text-transform: none;
@@ -423,7 +425,7 @@
   }
   .totp-secret,
   .recovery-codes code {
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     letter-spacing: var(--tracking-label);
     font-variant-numeric: tabular-nums;
     word-break: break-all;
@@ -525,6 +527,7 @@
   }
   .slip__message {
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-1);
     line-height: var(--leading-text);
   }

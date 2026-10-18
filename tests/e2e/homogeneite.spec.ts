@@ -4,13 +4,15 @@ import { acceptCookies } from "./helpers";
 import { auditInPage, hyphenateJustified, type DesignAudit } from "./design-audit";
 
 /**
- * Testeur « homogénéité » : chaque page, sur mobile, tablette et ordinateur — deux familles de
- * polices, aucun italique ni doré, espacements multiples de 8 px, interlignage 1,6, et des
- * paragraphes justifiés sans trous (espaces entre les mots au plus deux fois leur largeur
- * naturelle — 2,5 sur les plus petits téléphones — et 45 à 75 caractères par ligne sur ordinateur).
+ * Testeur « homogénéité » : chaque page, sur mobile, tablette et ordinateur. Les deux polices
+ * officielles seulement (Fraunces 72pt Italic pour les titres, Cormorant Garamond pour les textes ;
+ * next/font les nomme d'après les constantes d'app/fonts.ts), l'italique réservé aux titres, aucun
+ * texte sous 16 px, aucune dorure dans l'interface, espacements multiples de 8 px, interlignage 1,6,
+ * et des paragraphes justifiés sans trous (espaces entre les mots au plus deux fois leur largeur
+ * naturelle, 2,5 sur les plus petits téléphones, et 45 à 75 caractères par ligne sur ordinateur).
  */
 const PAGES = [
-  "/", "/collections", "/collections/lace-is-more", "/boutique", "/boutique/robe-odessa", "/boutique/body-aura", "/outfits",
+  "/", "/collections", "/collections/hypnotic-lace", "/boutique", "/boutique/robe-odessa", "/boutique/body-aura", "/outfits",
   "/la-maison", "/atelier", "/journal", "/journal/moodboard-lace-is-more", "/presse", "/contact", "/faq", "/livraison-retours",
   "/cgv", "/cgu", "/mentions-legales", "/propriete-intellectuelle", "/confidentialite", "/cookies", "/assistant-ia", "/retractation",
   "/compte", "/liste-envies", "/recherche", "/page-inexistante",
@@ -47,8 +49,9 @@ for (const size of SIZES) {
         const a = await page.evaluate(auditInPage);
         report[`${size.name} ${path}`] = a;
         if (REPORT) return;
-        expect(a.families.filter((f) => !/instrument|inter ?tight/i.test(f)), "familles hors des deux polices").toEqual([]);
-        expect(a.italics, "italiques").toEqual([]);
+        expect(a.families.filter((f) => !/fraunces|cormorant/i.test(f)), "familles hors des deux polices officielles").toEqual([]);
+        expect(a.italics, "italiques hors des titres en Fraunces").toEqual([]);
+        expect(a.small, "textes sous 16 px").toEqual([]);
         expect(a.saturated, "couleurs saturées (doré)").toEqual([]);
         expect(a.spacing, "espacements hors de la grille de 8 px").toEqual([]);
         expect(a.leading, "interlignage du texte courant différent de 1,6").toEqual([]);

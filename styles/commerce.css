@@ -9,9 +9,11 @@
     display: grid;
     gap: var(--spacing-2xs);
   }
+  /* photo de la carte aux angles arrondis (maquette PAGE PRODUIT) */
   .product-card__media {
     position: relative;
     overflow: hidden;
+    border-radius: var(--radius-card);
   }
   .product-card__img--alt {
     position: absolute;
@@ -46,13 +48,11 @@
     height: 100%;
     object-fit: cover;
   }
+  /* pastille noire « Nouveau » (.badge) : sa couleur reste celle du design system */
   .product-card__badge {
     position: absolute;
-    left: var(--spacing-2xs);
-    top: var(--spacing-2xs);
-    background: var(--bg);
-    color: var(--fg);
-    border-color: var(--fg);
+    left: var(--spacing-xs);
+    top: var(--spacing-xs);
   }
   .product-card__body {
     display: flex;
@@ -255,7 +255,7 @@
     display: inline-flex;
     align-items: center;
     border: var(--border-width-hair) solid var(--line);
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-size: var(--text-step--1);
     font-variant-numeric: tabular-nums;
   }
@@ -282,8 +282,8 @@
   .totals {
     display: grid;
     gap: var(--spacing-3xs);
-    font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-family: var(--font-body);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--1);
     letter-spacing: var(--tracking-snug);
   }
@@ -402,6 +402,7 @@
   }
   .trace__index {
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-0);
     line-height: var(--leading-text);
   }

@@ -1,18 +1,19 @@
 /**
  * Facture ou avoir en PDF (A4), dans la direction artistique de la maison : noir sur blanc cassé,
- * Instrument Serif pour les titres, Inter Tight pour le texte, filets fins, marges de 48 points.
+ * logo officiel, Fraunces italique pour les titres, Cormorant Garamond pour le texte (polices
+ * officielles en TTF dans assets/pdf), filets fins, marges de 48 points.
  * Mentions obligatoires : vendeuse (registre légal), acheteuse, numéro, dates, désignation,
  * quantités, prix unitaires hors taxes, taux et montant de TVA, totaux, paiement, régime de TVA.
  */
 import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { PDFDocument, rgb, setCharacterSpacing, type PDFFont, type PDFPage } from "pdf-lib";
+import { PDFDocument, rgb, setCharacterSpacing, type PDFFont, type PDFImage, type PDFPage } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 import { legalFields, type LegalFieldKey } from "@/content/legal/fields";
 import { identity } from "@/content/brand/identity";
 import { shop } from "@/content/settings";
-import { logoPaths } from "@/content/brand/logo-paths";
+import { brandAssets } from "@/content/brand/assets";
 import { palette } from "@/styles/tokens";
 import { formatDate, formatPrice } from "@/lib/format";
 import type { Invoice } from "./index";
@@ -28,15 +29,24 @@ const payment = (m: string) => (/^(Carte|Paiement)/.test(m) ? m.charAt(0).toLowe
 const field = (k: LegalFieldKey) => legalFields[k].value || `[À COMPLÉTER : ${legalFields[k].short}]`;
 const countryName = (code?: string) => shop.countries.find((c) => c.code === code)?.name ?? code ?? "";
 
-let fonts: Promise<Record<"display" | "light" | "regular", Uint8Array>> | null = null;
+/** Polices officielles (une seule graisse chacune) : titres en Fraunces 72pt Italic, texte en Cormorant Garamond. */
+let fonts: Promise<Record<"display" | "text", Uint8Array>> | null = null;
 function loadFonts() {
   const dir = path.join(process.cwd(), "assets", "pdf");
-  fonts ??= Promise.all(["InstrumentSerif-Regular.ttf", "InterTight-300.ttf", "InterTight-400.ttf"].map((f) => fs.readFile(path.join(dir, f)))).then(([display, light, regular]) => ({
+  fonts ??= Promise.all(["Fraunces72pt-Italic.ttf", "CormorantGaramond-Regular.ttf"].map((f) => fs.readFile(path.join(dir, f)))).then(([display, text]) => ({
     display: new Uint8Array(display),
-    light: new Uint8Array(light),
-    regular: new Uint8Array(regular),
+    text: new Uint8Array(text),
   }));
   return fonts;
+}
+
+/** Logo officiel (PNG noir à fond transparent, content/brand/assets.ts) ; s'il manque, le nom de la Maison le remplace. */
+let logoBytes: Promise<Uint8Array | null> | null = null;
+async function embedLogo(doc: PDFDocument): Promise<PDFImage | null> {
+  const src = brandAssets.logo.src;
+  logoBytes ??= src?.endsWith(".png") ? fs.readFile(path.join(process.cwd(), "public", src)).then((b) => new Uint8Array(b), () => null) : Promise.resolve(null);
+  const bytes = await logoBytes;
+  return bytes ? doc.embedPng(bytes).catch(() => null) : null;
 }
 
 /** Coupe un texte en lignes qui tiennent dans `width`. */
@@ -61,8 +71,8 @@ export async function invoicePdf(inv: Invoice): Promise<Uint8Array> {
   doc.registerFontkit(fontkit);
   const f = await loadFonts();
   const display = await doc.embedFont(f.display, { subset: true });
-  const light = await doc.embedFont(f.light, { subset: true });
-  const regular = await doc.embedFont(f.regular, { subset: true });
+  const body = await doc.embedFont(f.text, { subset: true });
+  const logo = await embedLogo(doc);
   const title = `${inv.kind === "facture" ? "Facture" : "Avoir"} ${inv.number}`;
   doc.setTitle(`${title} · ${identity.name}`);
   doc.setAuthor(identity.name);
@@ -74,16 +84,16 @@ export async function invoicePdf(inv: Invoice): Promise<Uint8Array> {
   const M = 48;
   let page: PDFPage = doc.addPage([W, H]);
   let y = H - M;
-  const text = (s: string, x: number, size: number, font: PDFFont = light, color = INK) => page.drawText(s, { x, y, size, font, color });
-  const right = (s: string, xRight: number, size: number, font: PDFFont = light, color = INK) => page.drawText(s, { x: xRight - font.widthOfTextAtSize(s, size), y, size, font, color });
+  const text = (s: string, x: number, size: number, font: PDFFont = body, color = INK) => page.drawText(s, { x, y, size, font, color });
+  const right = (s: string, xRight: number, size: number, font: PDFFont = body, color = INK) => page.drawText(s, { x: xRight - font.widthOfTextAtSize(s, size), y, size, font, color });
   const rule = (weight = 0.5, color = LINE) => page.drawLine({ start: { x: M, y }, end: { x: W - M, y }, thickness: weight, color });
-  // petites capitales espacées (0,14 em, comme sur le site) : espacement natif du PDF
+  // capitales à l'interlettrage mesuré (0,08 em, comme les étiquettes du site) : espacement natif du PDF
   const label = (s: string, x: number, size: number, color = INK, alignRight = false) => {
     const t = s.toUpperCase();
-    const spacing = size * 0.14;
-    const width = regular.widthOfTextAtSize(t, size) + spacing * (t.length - 1);
+    const spacing = size * 0.08;
+    const width = body.widthOfTextAtSize(t, size) + spacing * (t.length - 1);
     page.pushOperators(setCharacterSpacing(spacing));
-    page.drawText(t, { x: alignRight ? x - width : x, y, size, font: regular, color });
+    page.drawText(t, { x: alignRight ? x - width : x, y, size, font: body, color });
     page.pushOperators(setCharacterSpacing(0));
   };
   const ensure = (needed: number) => {
@@ -94,21 +104,26 @@ export async function invoicePdf(inv: Invoice): Promise<Uint8Array> {
   };
   page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: PAPER });
 
-  // en-tête : logo à gauche, titre à droite
-  const [, , lw, lh] = logoPaths.viewBox.split(" ").map(Number);
-  const logoScale = 64 / lw;
-  for (const d of [logoPaths.aw, logoPaths.paris]) page.drawSvgPath(d, { x: M, y: y, scale: logoScale, color: INK });
-  y -= 8;
-  right(title, W - M, 24, display);
-  y -= 18;
-  right(`Émis le ${formatDate(inv.issuedAt)}`, W - M, 9);
-  y -= 13;
-  right(`Commande ${inv.orderNumber} du ${formatDate(inv.saleDate)}`, W - M, 9);
-  if (inv.refOf) {
-    y -= 13;
-    right(`Annule et remplace en partie la facture ${inv.refOf}`, W - M, 9);
+  // en-tête : logo officiel à gauche, titre à droite
+  const logoW = 112;
+  const logoH = logo ? (logoW * logo.height) / logo.width : 24;
+  if (logo) page.drawImage(logo, { x: M, y: H - M - logoH, width: logoW, height: logoH });
+  else {
+    y -= 20;
+    text(identity.name, M, 20, display);
+    y = H - M;
   }
-  y = H - M - lh * logoScale - 32;
+  y -= 20;
+  right(title, W - M, 24, display);
+  y -= 20;
+  right(`Émis le ${formatDate(inv.issuedAt)}`, W - M, 11);
+  y -= 15;
+  right(`Commande ${inv.orderNumber} du ${formatDate(inv.saleDate)}`, W - M, 11);
+  if (inv.refOf) {
+    y -= 15;
+    right(`Annule et remplace en partie la facture ${inv.refOf}`, W - M, 11);
+  }
+  y = Math.min(y, H - M - logoH) - 32;
 
   // vendeuse et acheteuse
   const col2 = W / 2 + 8;
@@ -127,46 +142,46 @@ export async function invoicePdf(inv: Invoice): Promise<Uint8Array> {
     inv.buyer.email,
   ].filter(Boolean);
   const top = y;
-  label("Vendeuse", M, 7, SOFT);
-  y -= 16;
-  for (const l of sellerLines) for (const w of wrap(l, light, 9, W / 2 - M - 16)) {
-    text(w, M, 9);
-    y -= 13;
+  label("Vendeuse", M, 9, SOFT);
+  y -= 18;
+  for (const l of sellerLines) for (const w of wrap(l, body, 11, W / 2 - M - 16)) {
+    text(w, M, 11);
+    y -= 15;
   }
   const leftEnd = y;
   y = top;
-  label("Facturé à", col2, 7, SOFT);
-  y -= 16;
-  for (const l of buyerLines) for (const w of wrap(l, light, 9, W - M - col2)) {
-    text(w, col2, 9);
-    y -= 13;
+  label("Facturé à", col2, 9, SOFT);
+  y -= 18;
+  for (const l of buyerLines) for (const w of wrap(l, body, 11, W - M - col2)) {
+    text(w, col2, 11);
+    y -= 15;
   }
   y = Math.min(y, leftEnd) - 24;
 
   // lignes
   const cols = { qty: W - M - 220, unit: W - M - 150, vat: W - M - 80, total: W - M };
   rule(0.75, INK);
-  y -= 14;
-  label("Désignation", M, 7);
-  label("Qté", cols.qty, 7, INK, true);
-  label("PU HT", cols.unit, 7, INK, true);
-  label("TVA", cols.vat, 7, INK, true);
-  label("Total HT", cols.total, 7, INK, true);
+  y -= 15;
+  label("Désignation", M, 9);
+  label("Qté", cols.qty, 9, INK, true);
+  label("PU HT", cols.unit, 9, INK, true);
+  label("TVA", cols.vat, 9, INK, true);
+  label("Total HT", cols.total, 9, INK, true);
   y -= 10;
   rule();
   const rate = inv.vatRate;
   for (const l of inv.lines) {
     ensure(40);
-    y -= 16;
+    y -= 18;
     const unitHt = rate ? Math.round(l.unitTtc / (1 + rate)) : l.unitTtc;
-    text(l.title, M, 10, display);
-    right(String(l.quantity), cols.qty, 9);
-    right(formatPrice(unitHt), cols.unit, 9);
-    right(`${Math.round(rate * 1000) / 10} %`, cols.vat, 9);
-    right(formatPrice(unitHt * l.quantity), cols.total, 9);
+    text(l.title, M, 12, display);
+    right(String(l.quantity), cols.qty, 11);
+    right(formatPrice(unitHt), cols.unit, 11);
+    right(`${Math.round(rate * 1000) / 10} %`, cols.vat, 11);
+    right(formatPrice(unitHt * l.quantity), cols.total, 11);
     if (l.detail) {
-      y -= 12;
-      text(l.detail, M, 8, light, SOFT);
+      y -= 14;
+      text(l.detail, M, 10, body, SOFT);
     }
     y -= 8;
     rule();
@@ -175,10 +190,11 @@ export async function invoicePdf(inv: Invoice): Promise<Uint8Array> {
   // totaux
   ensure(140);
   y -= 20;
+  // une seule graisse : le total se distingue par la police des titres
   const totalsRow = (label: string, value: string, strong = false) => {
-    text(label, cols.vat - 160, strong ? 10 : 9, strong ? regular : light);
-    right(value, cols.total, strong ? 10 : 9, strong ? regular : light);
-    y -= 15;
+    text(label, cols.vat - 160, strong ? 13 : 11, strong ? display : body);
+    right(value, cols.total, strong ? 13 : 11, strong ? display : body);
+    y -= 17;
   };
   totalsRow("Total hors taxes", formatPrice(inv.totals.ht));
   if (inv.regime === "tva") totalsRow(`TVA ${Math.round(rate * 1000) / 10} %`, formatPrice(inv.totals.vat));
@@ -195,16 +211,16 @@ export async function invoicePdf(inv: Invoice): Promise<Uint8Array> {
     inv.regime === "export" ? "Exonération de TVA, article 262 I du code général des impôts (livraison hors de l’Union européenne). Droits et taxes du pays d’arrivée réglés à la commande." : "",
     "Pièces façonnées à la main à Paris. Facture conservée dix ans par la maison.",
   ].filter(Boolean);
-  for (const n of notes) for (const w of wrap(n, light, 8, W - 2 * M)) {
+  for (const n of notes) for (const w of wrap(n, body, 10, W - 2 * M)) {
     ensure(20);
-    text(w, M, 8, light, SOFT);
-    y -= 12;
+    text(w, M, 10, body, SOFT);
+    y -= 14;
   }
 
   // pied de page
   for (const p of doc.getPages()) {
     p.drawLine({ start: { x: M, y: M + 16 }, end: { x: W - M, y: M + 16 }, thickness: 0.5, color: LINE });
-    p.drawText(`${identity.name} · ${field("siege")} · ${identity.email}`, { x: M, y: M, size: 7, font: light, color: SOFT });
+    p.drawText(`${identity.name} · ${field("siege")} · ${identity.email}`, { x: M, y: M, size: 9, font: body, color: SOFT });
   }
   return doc.save();
 }
