@@ -1,14 +1,17 @@
 /**
  * Client Shopify Admin API (GraphQL) — utilisé côté serveur uniquement :
- * agents de gestion, inscriptions newsletter, liste d'attente.
+ * agents de gestion, inscriptions newsletter, réglages des pièces depuis l'Atelier (prix, délais de
+ * fabrication, indicateurs « provisoire »). Aucun stock n'est suivi : chaque pièce est créée sur
+ * demande (tailles en « continuer à vendre », inventaire non suivi).
  * Activé si la boutique Shopify est branchée (COMMERCE_PROVIDER) et si l'une des deux formes
  * d'accès est fournie :
  *  - application du Dev Dashboard (applications créées depuis 2026) : SHOPIFY_CLIENT_ID et
  *    SHOPIFY_CLIENT_SECRET ; le jeton, valable 24 h, est demandé puis renouvelé automatiquement
  *    (« client credentials ») ;
  *  - ancienne application personnalisée : jeton permanent SHOPIFY_ADMIN_ACCESS_TOKEN.
- * Portées nécessaires : read/write_products, read/write_inventory, read/write_orders,
- * read/write_customers, read/write_content (articles), read_analytics.
+ * Portées nécessaires : read/write_products (dont les métachamps des pièces), read/write_inventory
+ * (création des tailles sans suivi de stock), read/write_orders, read/write_customers,
+ * read/write_content (articles), read_analytics.
  */
 import { providerOf } from "@/lib/config/providers";
 
@@ -84,14 +87,6 @@ function assertNoErrors(label: string, r: UserErrors | null | undefined) {
   if (r?.userErrors?.length) throw new Error(`${label} : ${r.userErrors.map((e) => e.message).join(" ; ")}`);
 }
 
-let locationCache: string | null = null;
-export async function primaryLocationId(): Promise<string> {
-  if (locationCache) return locationCache;
-  const d = await admin<{ locations: { nodes: { id: string }[] } }>(`{ locations(first: 1) { nodes { id } } }`);
-  locationCache = d.locations.nodes[0]?.id ?? "";
-  return locationCache;
-}
-
 export async function productIdByHandle(handle: string): Promise<string | null> {
   const d = await admin<{ productByIdentifier: { id: string } | null }>(
     `query P($h: String!) { productByIdentifier(identifier: { handle: $h }) { id } }`,
@@ -110,9 +105,23 @@ export interface NewShopifyProduct {
   seo: { title: string; description: string };
   metafields: { key: string; type: string; value: string }[];
   images: { url: string; alt: string }[];
-  sizes: { size: string; quantity: number; preorder: boolean; sku: string }[];
+  /** tailles proposées : toutes se commandent, la pièce est créée sur demande */
+  sizes: { size: string; sku: string }[];
   price: number; // centimes
 }
+
+/**
+ * Métachamps des pièces (espace de noms `awrea`) propres au modèle « sur demande »
+ * (ACTIVATION.md, étape 4.2).
+ */
+export const PIECE_METAFIELDS = {
+  leadTimeMin: { key: "delai_min", type: "number_integer" },
+  leadTimeMax: { key: "delai_max", type: "number_integer" },
+  priceProvisional: { key: "prix_provisoire", type: "boolean" },
+  leadTimeProvisional: { key: "delai_provisoire", type: "boolean" },
+  isNew: { key: "nouveau", type: "boolean" },
+  imagesProvisional: { key: "visuels_provisoires", type: "boolean" },
+} as const;
 
 export async function shopifyCreateProduct(p: NewShopifyProduct): Promise<{ id: string; handle: string }> {
   const created = await admin<{ productCreate: UserErrors & { product: { id: string; handle: string } | null } }>(
@@ -136,7 +145,7 @@ export async function shopifyCreateProduct(p: NewShopifyProduct): Promise<{ id: 
   );
   assertNoErrors("Création du produit", created.productCreate);
   const product = created.productCreate.product!;
-  const locationId = await primaryLocationId();
+  // pièce créée sur demande : inventaire non suivi et vente toujours possible, dans chaque taille
   const variants = await admin<{ productVariantsBulkCreate: UserErrors }>(
     `mutation V($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
       productVariantsBulkCreate(productId: $productId, variants: $variants, strategy: REMOVE_STANDALONE_VARIANT) { userErrors { field message } }
@@ -146,9 +155,8 @@ export async function shopifyCreateProduct(p: NewShopifyProduct): Promise<{ id: 
       variants: p.sizes.map((s) => ({
         optionValues: [{ optionName: "Taille", name: s.size }],
         price: (p.price / 100).toFixed(2),
-        inventoryPolicy: s.preorder ? "CONTINUE" : "DENY",
-        inventoryItem: { sku: s.sku, tracked: true },
-        inventoryQuantities: [{ locationId, availableQuantity: s.quantity }],
+        inventoryPolicy: "CONTINUE",
+        inventoryItem: { sku: s.sku, tracked: false },
       })),
     },
   );
@@ -174,15 +182,33 @@ export async function shopifyUpdateProduct(handle: string, input: { title?: stri
   }
 }
 
+/**
+ * Les tailles d'une pièce n'ont pas toutes le même prix dans Shopify : un prix unique les
+ * écraserait. Le changement est refusé, la créatrice règle alors ces prix dans Shopify.
+ */
+export class MixedPricesError extends Error {
+  constructor(public readonly handle: string) {
+    super("Les tailles de cette pièce n’ont pas le même prix dans Shopify. Pour ne pas les écraser, modifiez ces prix directement dans Shopify.");
+  }
+}
+
+/**
+ * Prix unique pour toutes les tailles d'une pièce. Refusé (MixedPricesError) si les tailles ont
+ * aujourd'hui des prix différents ; rien n'est écrit si le prix est déjà celui de chaque taille.
+ */
 export async function shopifySetPrice(handle: string, cents: number) {
-  const d = await admin<{ productByIdentifier: { id: string; variants: { nodes: { id: string }[] } } | null }>(
-    `query P($h: String!) { productByIdentifier(identifier: { handle: $h }) { id variants(first: 50) { nodes { id } } } }`,
+  const d = await admin<{ productByIdentifier: { id: string; variants: { nodes: { id: string; price: string }[] } } | null }>(
+    `query P($h: String!) { productByIdentifier(identifier: { handle: $h }) { id variants(first: 50) { nodes { id price } } } }`,
     { h: handle },
   );
   if (!d.productByIdentifier) throw new Error(`Produit ${handle} introuvable`);
+  const variants = d.productByIdentifier.variants.nodes;
+  const current = new Set(variants.map((v) => Math.round(Number(v.price) * 100)));
+  if (current.size > 1) throw new MixedPricesError(handle);
+  if (current.size === 1 && current.has(cents)) return;
   const r = await admin<{ productVariantsBulkUpdate: UserErrors }>(
     `mutation P($productId: ID!, $variants: [ProductVariantsBulkInput!]!) { productVariantsBulkUpdate(productId: $productId, variants: $variants) { userErrors { field message } } }`,
-    { productId: d.productByIdentifier.id, variants: d.productByIdentifier.variants.nodes.map((v) => ({ id: v.id, price: (cents / 100).toFixed(2) })) },
+    { productId: d.productByIdentifier.id, variants: variants.map((v) => ({ id: v.id, price: (cents / 100).toFixed(2) })) },
   );
   assertNoErrors("Changement de prix", r.productVariantsBulkUpdate);
 }
@@ -194,24 +220,35 @@ export async function shopifyDeleteProduct(handle: string) {
   assertNoErrors("Suppression du produit", r.productDelete);
 }
 
-export async function shopifySetStock(variantId: string, quantity: number) {
-  const d = await admin<{ productVariant: { inventoryItem: { id: string } } | null }>(
-    `query V($id: ID!) { productVariant(id: $id) { inventoryItem { id } } }`,
-    { id: variantId },
+/**
+ * Réglages d'une pièce depuis l'Atelier : prix (toutes les tailles), délai de fabrication et
+ * indicateurs « provisoire » / « nouveau » (métachamps `awrea.*`).
+ */
+export async function shopifyUpdatePiece(
+  handle: string,
+  input: { price?: number; priceProvisional?: boolean; leadTime?: { min: number; max: number }; leadTimeProvisional?: boolean; isNew?: boolean },
+) {
+  const id = await productIdByHandle(handle);
+  if (!id) throw new Error(`Produit ${handle} introuvable`);
+  if (input.price !== undefined) await shopifySetPrice(handle, input.price);
+  const M = PIECE_METAFIELDS;
+  const metafields = [
+    ...(input.leadTime
+      ? [
+          { ...M.leadTimeMin, value: String(input.leadTime.min) },
+          { ...M.leadTimeMax, value: String(input.leadTime.max) },
+        ]
+      : []),
+    ...(input.priceProvisional !== undefined ? [{ ...M.priceProvisional, value: String(input.priceProvisional) }] : []),
+    ...(input.leadTimeProvisional !== undefined ? [{ ...M.leadTimeProvisional, value: String(input.leadTimeProvisional) }] : []),
+    ...(input.isNew !== undefined ? [{ ...M.isNew, value: String(input.isNew) }] : []),
+  ];
+  if (!metafields.length) return;
+  const r = await admin<{ metafieldsSet: UserErrors }>(
+    `mutation S($metafields: [MetafieldsSetInput!]!) { metafieldsSet(metafields: $metafields) { userErrors { field message } } }`,
+    { metafields: metafields.map((m) => ({ ownerId: id, namespace: "awrea", ...m })) },
   );
-  if (!d.productVariant) throw new Error("Taille introuvable");
-  const r = await admin<{ inventorySetQuantities: UserErrors }>(
-    `mutation S($input: InventorySetQuantitiesInput!) { inventorySetQuantities(input: $input) { userErrors { field message } } }`,
-    {
-      input: {
-        name: "available",
-        reason: "correction",
-        ignoreCompareQuantity: true,
-        quantities: [{ inventoryItemId: d.productVariant.inventoryItem.id, locationId: await primaryLocationId(), quantity }],
-      },
-    },
-  );
-  assertNoErrors("Mise à jour du stock", r.inventorySetQuantities);
+  assertNoErrors("Réglages de la pièce", r.metafieldsSet);
 }
 
 /** Remboursement intégral à partir du remboursement suggéré par Shopify. */
@@ -240,7 +277,8 @@ export async function shopifyRefundOrder(orderId: string, note: string) {
         note,
         notify: true,
         shipping: { fullRefund: true },
-        refundLineItems: s.refundLineItems.map((l) => ({ lineItemId: l.lineItem.id, quantity: l.quantity, restockType: "RETURN" })),
+        // aucune remise en stock : les pièces sont créées sur demande
+        refundLineItems: s.refundLineItems.map((l) => ({ lineItemId: l.lineItem.id, quantity: l.quantity, restockType: "NO_RESTOCK" })),
         transactions: s.suggestedTransactions.map((t) => ({ orderId, gateway: t.gateway, kind: "REFUND", amount: t.amountSet.shopMoney.amount, parentId: t.parentTransaction?.id })),
       },
     },
@@ -250,7 +288,8 @@ export async function shopifyRefundOrder(orderId: string, note: string) {
 
 /**
  * Remboursement partiel : les pièces retournées (repérées par leur pièce et leur taille), sans la
- * livraison ; Shopify calcule la transaction à rembourser et remet les pièces en stock.
+ * livraison ; Shopify calcule la transaction à rembourser (aucune remise en stock : pièces créées
+ * sur demande).
  */
 export async function shopifyRefundLines(orderId: string, items: { handle: string; size: string }[], note: string) {
   const o = await admin<{ order: { lineItems: { nodes: { id: string; quantity: number; variantTitle: string | null; product: { handle: string } | null }[] } } | null }>(
@@ -278,7 +317,7 @@ export async function shopifyRefundLines(orderId: string, items: { handle: strin
         orderId,
         note,
         notify: true,
-        refundLineItems: refundLineItems.map((l) => ({ ...l, restockType: "RETURN" })),
+        refundLineItems: refundLineItems.map((l) => ({ ...l, restockType: "NO_RESTOCK" })),
         transactions: (d.order?.suggestedRefund.suggestedTransactions ?? []).map((t) => ({ orderId, gateway: t.gateway, kind: "REFUND", amount: t.amountSet.shopMoney.amount, parentId: t.parentTransaction?.id })),
       },
     },
@@ -288,7 +327,7 @@ export async function shopifyRefundLines(orderId: string, items: { handle: strin
 
 export async function shopifyCancelOrder(orderId: string, refund: boolean) {
   const r = await admin<{ orderCancel: { orderCancelUserErrors: { message: string }[] } }>(
-    `mutation C($orderId: ID!, $refund: Boolean!) { orderCancel(orderId: $orderId, reason: CUSTOMER, refund: $refund, restock: true, notifyCustomer: true) { orderCancelUserErrors { message } } }`,
+    `mutation C($orderId: ID!, $refund: Boolean!) { orderCancel(orderId: $orderId, reason: CUSTOMER, refund: $refund, restock: false, notifyCustomer: true) { orderCancelUserErrors { message } } }`,
     { orderId, refund },
   );
   if (r.orderCancel.orderCancelUserErrors.length) throw new Error(r.orderCancel.orderCancelUserErrors.map((e) => e.message).join(" ; "));

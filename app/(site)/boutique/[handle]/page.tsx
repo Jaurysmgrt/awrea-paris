@@ -14,6 +14,8 @@ import { EditionNumber } from "@/components/signature/EditionNumber";
 import { ViewTracker } from "@/components/commerce/ViewTracker";
 import { shop } from "@/content/settings";
 import { formatPrice } from "@/lib/format";
+import { getDoc } from "@/lib/edition/read";
+import { delaiText, fill, type CatalogueTexts } from "@/lib/commerce/texts";
 import { AtelierNote } from "@/components/ui/AtelierNote";
 import { momentFor } from "@/content/fr/coulisses";
 import { DropGate, type DropInfo } from "@/components/drops/DropGate";
@@ -42,6 +44,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   const [collection, look, drop] = await Promise.all([getCollection(product.collection), getProductsByHandles(product.completeTheLook), dropOfProduct(product.handle)]);
   const dropInfo: DropInfo | null = drop ? { slug: drop.slug, title: drop.title, earlyAccessAt: drop.earlyAccessAt, publicAt: drop.publicAt, privateSale: drop.privateSale } : null;
   const categoryLabel = { robe: "Robe", body: "Body", top: "Top", jupe: "Jupe", accessoire: "Accessoire" }[product.category];
+  const t = await getDoc<CatalogueTexts>("catalogue");
 
   return (
     <>
@@ -99,13 +102,17 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                 <details className="disclosure">
                   <summary>Matières et entretien</summary>
                   <div className="disclosure__body prose">
-                    <ul>
-                      {product.materials.map((m) => (
-                        <li key={m.name}>
-                          {m.percent} % {m.name.toLowerCase()}
-                        </li>
-                      ))}
-                    </ul>
+                    {product.materials.length ? (
+                      <ul>
+                        {product.materials.map((m) => (
+                          <li key={m.name}>
+                            {m.percent} % {m.name.toLowerCase()}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>{t.matieresACompleter}</p>
+                    )}
                     {product.lining ? <p>{product.lining}</p> : null}
                     <h3>Entretien</h3>
                     <ul>
@@ -130,7 +137,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                   <summary>Livraison et retours</summary>
                   <div className="disclosure__body prose">
                     <p>
-                      Expédition sous {shop.dispatchDays} pour les pièces disponibles{product.leadTimeWeeks ? `, ${product.leadTimeWeeks} semaines de fabrication pour les pièces sur commande` : ""}. Livraison offerte en France et en Europe dès{" "}
+                      {fill(t.surDemande.livraison, { delai: delaiText(t, product.leadTime) })} Livraison offerte en France et en Europe dès{" "}
                       {formatPrice(shop.freeShippingThreshold)}.
                     </p>
                     <p>
