@@ -11,12 +11,14 @@ import { legalPages, type LegalBlock } from "@/content/fr/legal";
 import { legalPlain } from "@/lib/legal/plain";
 import { getPublicProducts, getCollections } from "@/lib/commerce";
 import { getArticles } from "@/lib/content/journal";
-import { editionInfo, productAvailability } from "@/lib/commerce/availability";
+import { leadTimeText, madeToOrderLabel } from "@/lib/commerce/availability";
 import { formatPrice } from "@/lib/format";
 import { kv } from "@/lib/store";
 import { absolute } from "./metadata";
+import type { Product } from "@/lib/commerce/types";
 
-const avail = { available: "disponible", preorder: "sur commande", soldout: "épuisée" } as const;
+/** Matières connues, ou rien : une composition encore inconnue n'est jamais inventée. */
+const materialsOf = (p: Product) => p.materials.map((m) => `${m.percent} % ${m.name.toLowerCase()}`).join(", ");
 
 export async function buildLlms(full: boolean): Promise<string> {
   const [products, collections, articles, notes] = await Promise.all([getPublicProducts(), getCollections(), getArticles(), kv.get<{ notes: string[]; updatedAt: string }>("ai:llms-notes")]);
@@ -35,12 +37,13 @@ export async function buildLlms(full: boolean): Promise<string> {
   L.push(`- Livraison : France (offerte dès ${formatPrice(shop.freeShippingThreshold)}), Union européenne et international. Retours sous ${shop.returnDays} jours.`);
   L.push("");
   L.push("## Collections");
-  for (const c of collections) L.push(`- [${c.title}](${absolute(`/collections/${c.handle}`)}) — ${c.season}${c.current ? " (collection en cours)" : ""} : ${c.lead}`);
+  for (const c of collections) L.push(`- [${c.title}](${absolute(`/collections/${c.handle}`)})${c.season ? ` · ${c.season}` : ""}${c.current ? " (collection en cours)" : ""} : ${c.lead}`);
   L.push("");
   L.push("## Pièces");
+  L.push("Chaque pièce est créée sur demande, sans stock, par des artisans français ; elle se commande dans toutes ses tailles et part après son délai de fabrication.");
   for (const p of products) {
-    const ed = editionInfo(p);
-    L.push(`- [${p.title}](${absolute(`/boutique/${p.handle}`)}) — ${formatPrice(p.price)} — ${ed.unique ? "pièce unique" : `série numérotée de ${ed.total} pièces`} — ${avail[productAvailability(p)]} — ${p.materials.map((m) => `${m.percent} % ${m.name.toLowerCase()}`).join(", ")}. ${p.tagline}`);
+    const mat = materialsOf(p);
+    L.push(`- [${p.title}](${absolute(`/boutique/${p.handle}`)}) · ${formatPrice(p.price)} · ${madeToOrderLabel(p)}${mat ? ` · ${mat}` : ""}. ${p.tagline}`);
   }
   L.push("");
   L.push("## Pages essentielles");
@@ -81,15 +84,18 @@ export async function buildLlms(full: boolean): Promise<string> {
   L.push("");
   L.push("## Fiches détaillées");
   for (const p of products) {
-    const ed = editionInfo(p);
+    const mat = materialsOf(p);
     L.push("");
     L.push(`### ${p.title}`);
-    L.push(`URL : ${absolute(`/boutique/${p.handle}`)} · Prix : ${formatPrice(p.price)} · ${ed.unique ? "Pièce unique" : `Série numérotée de ${ed.total} pièces (${ed.remainingLabel.toLowerCase()})`} · ${avail[productAvailability(p)]}${p.leadTimeWeeks ? ` · Précommande : ${p.leadTimeWeeks} semaines de fabrication` : ""}`);
+    L.push(`URL : ${absolute(`/boutique/${p.handle}`)} · Prix : ${formatPrice(p.price)} · Créée sur demande · Délai de fabrication : ${leadTimeText(p.leadTime)}`);
     for (const d of p.description) L.push(d);
-    L.push(`Matières : ${p.materials.map((m) => `${m.percent} % ${m.name.toLowerCase()}`).join(", ")}${p.lining ? `. ${p.lining}` : ""}`);
+    if (p.details.length) L.push(`Détails : ${p.details.join(", ")}.`);
+    if (mat || p.lining) L.push(`Matières : ${[mat, p.lining].filter(Boolean).join(". ")}`);
     L.push(`Coupe : ${p.fit}`);
-    L.push(`Entretien : ${p.care.join(" ")}`);
-    L.push("Fabrication : fait main à Paris, dans l’atelier de la créatrice.");
+    // entretien encore à fournir par la Maison : jamais publié tant qu'il n'est pas connu
+    const care = p.care.filter((c) => !c.includes("[À COMPLÉTER"));
+    if (care.length) L.push(`Entretien : ${care.join(" ")}`);
+    L.push("Fabrication : sur demande, sans stock, par des artisans français.");
   }
   L.push("");
   L.push("## Questions fréquentes");

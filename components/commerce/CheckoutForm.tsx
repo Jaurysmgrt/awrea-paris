@@ -11,29 +11,26 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "./CartProvider";
 import { Media } from "@/components/ui/Media";
+import { useTexts } from "@/components/content/Texts";
 import { shop } from "@/content/settings";
 import { formatPrice } from "@/lib/format";
+import { longestLeadTime } from "@/lib/commerce/availability";
+import { delaiText, fill, type CatalogueTexts, type CommerceTexts } from "@/lib/commerce/texts";
 import { TermsCheckbox } from "@/components/account/TermsCheckbox";
 import { readSource } from "@/components/analytics/source";
 import { track } from "@/lib/analytics/track";
 import { orderTaxes, ratesFor, shippingPrice as priceOf } from "@/lib/commerce/international";
 import type { RelayPoint } from "@/lib/commerce/relays";
 import { AddressField } from "./AddressField";
+import { ProvisionalNote } from "./ProvisionalNote";
 
 type Pay = "card" | "shop-pay" | "apple-pay" | "google-pay" | "paypal" | "installments";
 
-const PAY_OPTIONS: { id: Pay; label: string; note: string }[] = [
-  { id: "card", label: "Carte bancaire", note: "Visa, Mastercard, American Express, Carte Bancaire" },
-  { id: "shop-pay", label: "Shop Pay", note: "Paiement accéléré, coordonnées enregistrées chez Shopify" },
-  { id: "apple-pay", label: "Apple Pay", note: "Validation sur votre appareil Apple" },
-  { id: "google-pay", label: "Google Pay", note: "Validation avec votre compte Google" },
-  { id: "paypal", label: "PayPal", note: "Vous serez redirigée vers PayPal" },
-  { id: "installments", label: "Paiement en 3 ou 4 fois", note: "Sans frais à partir de 100 €, sous réserve d’acceptation" },
-];
+/** Moyens de paiement, dans l'ordre d'affichage (libellés : document « commerce », commande.moyens). */
+const PAY_OPTIONS: Pay[] = ["card", "shop-pay", "apple-pay", "google-pay", "paypal", "installments"];
 
 /** Paiement express : un geste, l'adresse reprise du portefeuille (en production, chez Shopify). */
 const EXPRESS: Pay[] = ["shop-pay", "apple-pay", "google-pay", "paypal"];
-const PAY_LABEL = Object.fromEntries(PAY_OPTIONS.map((o) => [o.id, o.label])) as Record<Pay, string>;
 
 /**
  * Mode test uniquement : la carte « refusée » de test (4000 0000 0000 0002) simule un refus.
@@ -46,6 +43,12 @@ function testOutcome(cardNumber: string): "accepted" | "declined" | "incomplete"
 }
 
 export function CheckoutForm() {
+  const texts = useTexts<CommerceTexts>("commerce");
+  const t = texts.commande;
+  const p = texts.panier;
+  const f = t.champs;
+  const tc = useTexts<CatalogueTexts>("catalogue");
+  const retrait = t.retrait.split("{lien}");
   const { cart } = useCart();
   const router = useRouter();
   const [country, setCountry] = useState("FR");
@@ -101,7 +104,8 @@ export function CheckoutForm() {
   const total = Math.max(0, gross - (cart?.giftCard?.amount ?? 0));
   const exp = taxes.export;
   const importLabel = shop.importRates[country]?.vatLabel ?? "TVA à l’importation";
-  const preorder = cart?.lines.some((l) => l.preorder);
+  // chaque pièce est créée sur demande : la commande part quand la dernière est prête
+  const longest = longestLeadTime((cart?.lines ?? []).map((l) => l.leadTime));
 
   // points relais proches du code postal saisi
   useEffect(() => {
@@ -131,18 +135,16 @@ export function CheckoutForm() {
                     <span className="t-h4">{l.title}</span>
                     <span className="price">{formatPrice(l.unitPrice * l.quantity)}</span>
                   </div>
-                  <p className="t-label t-soft">
-                    Taille {l.size} · Qté {l.quantity}
-                    {l.editionLabel ? ` · ${l.editionLabel}` : ""}
-                  </p>
-                  {l.preorder ? <p className="t-note">Sur commande. Comptez {l.leadTimeWeeks ?? 4} semaines à l’atelier.</p> : null}
+                  <p className="t-label t-soft">{fill(t.ligne, { taille: l.size, n: l.quantity })}</p>
+                  <p className="t-note t-left">{fill(t.delaiLigne, { delai: delaiText(tc, l.leadTime) })}</p>
+                  <ProvisionalNote image={l.image} />
                 </div>
               </li>
             ))}
           </ul>
           <dl className="totals">
             <div>
-              <dt>Sous-total</dt>
+              <dt>{p.sousTotal}</dt>
               <dd>{formatPrice(cart.subtotal)}</dd>
             </div>
             {cart.discount ? (
@@ -153,66 +155,64 @@ export function CheckoutForm() {
             ) : null}
             {cart.gift.wrap ? (
               <div>
-                <dt>Emballage cadeau</dt>
+                <dt>{p.emballage}</dt>
                 <dd>{formatPrice(cart.giftWrapPrice)}</dd>
               </div>
             ) : null}
             {cart.giftCard ? (
               <div>
-                <dt>Carte cadeau</dt>
+                <dt>{p.carteCadeau}</dt>
                 <dd>− {formatPrice(cart.giftCard.amount)}</dd>
               </div>
             ) : null}
             <div>
-              <dt>Livraison</dt>
-              <dd>{shippingPrice ? formatPrice(shippingPrice) : "Offerte"}</dd>
+              <dt>{p.livraison}</dt>
+              <dd>{shippingPrice ? formatPrice(shippingPrice) : p.offerte}</dd>
             </div>
             {exp ? (
               <>
                 <div>
-                  <dt>Pièces et livraison hors TVA française</dt>
+                  <dt>{t.horsTva}</dt>
                   <dd>{formatPrice(exp.exVat)}</dd>
                 </div>
                 {exp.duty ? (
                   <div>
-                    <dt>Droits de douane ({Math.round(exp.dutyRate * 100)} %)</dt>
+                    <dt>{fill(t.droits, { taux: Math.round(exp.dutyRate * 100) })}</dt>
                     <dd>{formatPrice(exp.duty)}</dd>
                   </div>
                 ) : null}
                 {exp.importVat ? (
                   <div>
-                    <dt>
-                      {importLabel.charAt(0).toUpperCase() + importLabel.slice(1)} ({Math.round(exp.importVatRate * 1000) / 10} %)
-                    </dt>
+                    <dt>{fill(t.tvaImport, { libelle: importLabel.charAt(0).toUpperCase() + importLabel.slice(1), taux: Math.round(exp.importVatRate * 1000) / 10 })}</dt>
                     <dd>{formatPrice(exp.importVat)}</dd>
                   </div>
                 ) : null}
               </>
             ) : null}
             <div className="totals__total">
-              <dt>{exp ? "Total, droits et taxes compris" : "Total TTC"}</dt>
+              <dt>{exp ? t.totalTaxes : t.totalTtc}</dt>
               <dd>{formatPrice(total)}</dd>
             </div>
             {!exp ? (
               <div className="t-soft">
-                <dt>dont TVA ({Math.round(taxes.vatRate * 100)} %)</dt>
+                <dt>{fill(t.dontTva, { taux: Math.round(taxes.vatRate * 100) })}</dt>
                 <dd>{formatPrice(taxes.vat)}</dd>
               </div>
             ) : null}
           </dl>
-          {exp ? <p className="t-note">Droits et taxes payés dès maintenant : rien à régler à la livraison. Estimation indicative en mode test.</p> : null}
-          {cart.gift.wrap && cart.gift.message ? <p className="t-note">Message cadeau : « {cart.gift.message} »</p> : null}
+          {exp ? <p className="t-note">{t.taxesPayees}</p> : null}
+          {cart.gift.wrap && cart.gift.message ? <p className="t-note">{fill(t.messageCadeau, { message: cart.gift.message })}</p> : null}
         </div>
   ) : null;
 
-  if (!cart) return <p className="t-note">Chargement…</p>;
+  if (!cart) return <p className="t-note">{t.chargement}</p>;
   if (!cart.lines.length) {
     return (
       <div className="stack-m">
-        <p className="t-lead">Votre panier est vide.</p>
+        <p className="t-lead">{t.vide}</p>
         <div>
           <Link href="/boutique" className="btn">
-            Revenir à la boutique
+            {t.videAction}
           </Link>
         </div>
       </div>
@@ -221,38 +221,38 @@ export function CheckoutForm() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const f = new FormData(e.currentTarget);
+    const form = new FormData(e.currentTarget);
     setState("loading");
     setError("");
     const body = {
-      email: f.get("email"),
-      newsletter: f.get("newsletter") === "on",
-      firstName: f.get("firstName"),
-      lastName: f.get("lastName"),
-      address1: f.get("address1"),
-      address2: f.get("address2") || undefined,
-      zip: f.get("zip"),
-      city: f.get("city"),
+      email: form.get("email"),
+      newsletter: form.get("newsletter") === "on",
+      firstName: form.get("firstName"),
+      lastName: form.get("lastName"),
+      address1: form.get("address1"),
+      address2: form.get("address2") || undefined,
+      zip: form.get("zip"),
+      city: form.get("city"),
       country,
-      phone: f.get("phone") || undefined,
+      phone: form.get("phone") || undefined,
       shippingRateId: rate?.id,
       relayId: rate?.relay ? relayId || undefined : undefined,
       paymentMethod: pay,
       // mode test : aucune donnée de carte ne quitte le navigateur, seulement l'issue simulée
-      testOutcome: pay === "card" ? testOutcome(String(f.get("cardNumber") ?? "")) : undefined,
-      acceptTerms: f.get("terms") === "on",
+      testOutcome: pay === "card" ? testOutcome(String(form.get("cardNumber") ?? "")) : undefined,
+      acceptTerms: form.get("terms") === "on",
       source: readSource(),
     };
     if (rate?.relay && !relayId) {
       setState("error");
-      setError("Merci de choisir un point relais.");
+      setError(t.relaisManquant);
       return;
     }
     const res = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).catch(() => null);
     const j = res ? await res.json().catch(() => ({})) : {};
     if (!res?.ok) {
       setState("error");
-      setError(j.error ?? "Le paiement n’a pas abouti. Merci de réessayer.");
+      setError(j.error ?? t.erreur);
       return;
     }
     router.push(`/commande/confirmation?n=${encodeURIComponent(j.number)}&t=${encodeURIComponent(j.token)}`);
@@ -260,9 +260,9 @@ export function CheckoutForm() {
 
   return (
     <div className="checkout">
-      <aside className="checkout-summary scene" data-theme="pearl" aria-label="Récapitulatif de la commande">
+      <aside className="checkout-summary scene" data-theme="pearl" aria-label={t.recapitulatif}>
         <button type="button" className="checkout-summary__toggle" aria-expanded={summaryOpen} onClick={() => setSummaryOpen((v) => !v)}>
-          <span className="t-label">{summaryOpen ? "Masquer" : "Afficher"} le récapitulatif</span>
+          <span className="t-label">{summaryOpen ? t.recapMasquer : t.recapAfficher}</span>
           <span className="price">{formatPrice(total)}</span>
         </button>
         <div className="checkout-summary__body" data-open={summaryOpen}>
@@ -280,9 +280,7 @@ export function CheckoutForm() {
           }
         }}
       >
-        <p className="notice t-note">
-          Mode test : rien n’est débité. La carte 4242 4242 4242 4242 est acceptée. La carte 4000 0000 0000 0002 est refusée.
-        </p>
+        <p className="notice t-note">{t.modeTest}</p>
 
         <section className="express" aria-labelledby="express-title">
           <h2 id="express-title" className="t-label">
@@ -300,29 +298,29 @@ export function CheckoutForm() {
                   emailRef.current?.focus();
                 }}
               >
-                {PAY_LABEL[id]}
+                {t.moyens[id].label}
               </button>
             ))}
           </div>
-          <p className="t-note">En production, l’adresse est reprise de votre portefeuille ; en mode test, complétez-la ci-dessous.</p>
+          <p className="t-note">{t.expressNote}</p>
         </section>
 
         <fieldset className="checkout-step">
           <legend className="checkout-step__title">
             <span className="step__num">I</span>
-            <span className="t-h3">Coordonnées</span>
+            <span className="t-h3">{t.etapes.coordonnees}</span>
           </legend>
           <div className="stack-m">
             <div className="field">
               <label className="field__label" htmlFor="co-email">
-                E-mail
+                {f.email}
               </label>
               <input ref={emailRef} className="field__input" id="co-email" name="email" key={`email-${prefill.email ?? ""}`} defaultValue={prefill.email} type="email" required autoComplete="email" />
-              <span className="field__hint">Pour la confirmation et le suivi. Aucun compte n’est nécessaire.</span>
+              <span className="field__hint">{f.emailAide}</span>
             </div>
             <label className="check t-note">
               <input type="checkbox" name="newsletter" />
-              <span>Recevoir les lettres de l’atelier (une par saison).</span>
+              <span>{f.lettres}</span>
             </label>
           </div>
         </fieldset>
@@ -330,26 +328,26 @@ export function CheckoutForm() {
         <fieldset className="checkout-step">
           <legend className="checkout-step__title">
             <span className="step__num">II</span>
-            <span className="t-h3">Livraison</span>
+            <span className="t-h3">{t.etapes.livraison}</span>
           </legend>
           <div className="stack-m">
             <div className="form__row">
               <div className="field">
                 <label className="field__label" htmlFor="co-first">
-                  Prénom
+                  {f.prenom}
                 </label>
                 <input className="field__input" id="co-first" name="firstName" key={`firstName-${prefill.firstName ?? ""}`} defaultValue={prefill.firstName} required autoComplete="given-name" />
               </div>
               <div className="field">
                 <label className="field__label" htmlFor="co-last">
-                  Nom
+                  {f.nom}
                 </label>
                 <input className="field__input" id="co-last" name="lastName" key={`lastName-${prefill.lastName ?? ""}`} defaultValue={prefill.lastName} required autoComplete="family-name" />
               </div>
             </div>
             <div className="field">
               <label className="field__label" htmlFor="co-address1">
-                Adresse
+                {f.adresse}
               </label>
               <AddressField
                 key={`address1-${prefill.line1 ?? ""}`}
@@ -365,26 +363,26 @@ export function CheckoutForm() {
             </div>
             <div className="field">
               <label className="field__label" htmlFor="co-address2">
-                Complément (facultatif)
+                {f.complement}
               </label>
               <input className="field__input" id="co-address2" name="address2" key={`address2-${prefill.line2 ?? ""}`} defaultValue={prefill.line2} autoComplete="address-line2" />
             </div>
             <div className="form__row form__row--3">
               <div className="field">
                 <label className="field__label" htmlFor="co-zip">
-                  Code postal
+                  {f.codePostal}
                 </label>
                 <input className="field__input" id="co-zip" name="zip" value={zip} onChange={(e) => setZip(e.target.value)} required autoComplete="postal-code" />
               </div>
               <div className="field">
                 <label className="field__label" htmlFor="co-city">
-                  Ville
+                  {f.ville}
                 </label>
                 <input className="field__input" id="co-city" name="city" value={city} onChange={(e) => setCity(e.target.value)} required autoComplete="address-level2" />
               </div>
               <div className="field">
                 <label className="field__label" htmlFor="co-country">
-                  Pays
+                  {f.pays}
                 </label>
                 <select
                   className="field__input"
@@ -407,12 +405,12 @@ export function CheckoutForm() {
             </div>
             <div className="field">
               <label className="field__label" htmlFor="co-phone">
-                Téléphone (pour le transporteur, facultatif)
+                {f.telephone}
               </label>
               <input className="field__input" id="co-phone" name="phone" key={`phone-${prefill.phone ?? ""}`} defaultValue={prefill.phone} type="tel" autoComplete="tel" />
             </div>
             <fieldset className="field">
-              <legend className="field__label">Mode de livraison</legend>
+              <legend className="field__label">{f.modeLivraison}</legend>
               <div className="options">
                 {rates.map((r) => {
                   const free = r.freeAboveThreshold && merchandise >= shop.freeShippingThreshold;
@@ -432,16 +430,16 @@ export function CheckoutForm() {
                         <span className="option__title">{r.label}</span>
                         <span className="t-note">{r.delay}</span>
                       </span>
-                      <span className="price">{r.price === 0 || free ? "Offerte" : formatPrice(r.price)}</span>
+                      <span className="price">{r.price === 0 || free ? p.offerte : formatPrice(r.price)}</span>
                     </label>
                   );
                 })}
               </div>
-              {preorder ? <p className="t-note">Votre commande contient une pièce sur commande : l’ensemble sera expédié à la fin de sa fabrication.</p> : null}
+              {longest ? <p className="t-note t-left">{fill(t.surDemande, { delai: delaiText(tc, longest) })}</p> : null}
             </fieldset>
             {rate?.relay ? (
               <fieldset className="field">
-                <legend className="field__label">Point relais</legend>
+                <legend className="field__label">{f.pointRelais}</legend>
                 {relayList.length ? (
                   <div className="options">
                     {relayList.map((p) => (
@@ -457,14 +455,15 @@ export function CheckoutForm() {
                     ))}
                   </div>
                 ) : (
-                  <p className="t-note">Indiquez votre code postal : les points relais les plus proches apparaîtront ici.</p>
+                  <p className="t-note">{f.pointRelaisAide}</p>
                 )}
               </fieldset>
             ) : null}
             {rate?.pickup ? (
               <p className="notice t-note">
-                Retrait à l’atelier : dès que votre pièce est prête, nous vous écrivons pour convenir d’un rendez-vous. Vous pouvez aussi{" "}
-                <Link href="/rendez-vous">choisir un créneau</Link> dès maintenant.
+                {retrait[0]}
+                <Link href="/rendez-vous">{t.retraitLien}</Link>
+                {retrait[1]}
               </p>
             ) : null}
           </div>
@@ -473,16 +472,16 @@ export function CheckoutForm() {
         <fieldset className="checkout-step">
           <legend className="checkout-step__title">
             <span className="step__num">III</span>
-            <span className="t-h3">Paiement</span>
+            <span className="t-h3">{t.etapes.paiement}</span>
           </legend>
           <div className="stack-m">
             <div className="options">
-              {PAY_OPTIONS.map((o) => (
-                <label key={o.id} className="option">
-                  <input type="radio" name="pay" value={o.id} checked={pay === o.id} onChange={() => setPay(o.id)} />
+              {PAY_OPTIONS.map((id) => (
+                <label key={id} className="option">
+                  <input type="radio" name="pay" value={id} checked={pay === id} onChange={() => setPay(id)} />
                   <span className="option__body">
-                    <span className="option__title">{o.label}</span>
-                    <span className="t-note">{o.note}</span>
+                    <span className="option__title">{t.moyens[id].label}</span>
+                    <span className="t-note">{t.moyens[id].note}</span>
                   </span>
                 </label>
               ))}
@@ -491,19 +490,19 @@ export function CheckoutForm() {
               <div className="form__row form__row--3 card-fields">
                 <div className="field">
                   <label className="field__label" htmlFor="co-card">
-                    Numéro de carte
+                    {f.carte}
                   </label>
                   <input className="field__input" id="co-card" name="cardNumber" inputMode="numeric" autoComplete="off" required defaultValue="4242 4242 4242 4242" />
                 </div>
                 <div className="field">
                   <label className="field__label" htmlFor="co-exp">
-                    Expiration
+                    {f.expiration}
                   </label>
-                  <input className="field__input" id="co-exp" name="exp" autoComplete="off" placeholder="MM / AA" required defaultValue="12 / 30" />
+                  <input className="field__input" id="co-exp" name="exp" autoComplete="off" placeholder={f.expirationExemple} required defaultValue="12 / 30" />
                 </div>
                 <div className="field">
                   <label className="field__label" htmlFor="co-cvc">
-                    Cryptogramme
+                    {f.cryptogramme}
                   </label>
                   <input className="field__input" id="co-cvc" name="cvc" inputMode="numeric" autoComplete="off" required defaultValue="123" />
                 </div>
@@ -517,20 +516,16 @@ export function CheckoutForm() {
             ) : null}
             <button type="submit" className="btn btn--solid btn--block" disabled={state === "loading"}>
               {state === "loading"
-                ? "Paiement en cours…"
-                : pay === "shop-pay"
-                  ? `Payer ${formatPrice(total)} avec Shop Pay`
-                  : pay === "apple-pay"
-                  ? `Payer ${formatPrice(total)} avec Apple Pay`
-                  : pay === "google-pay"
-                    ? `Payer ${formatPrice(total)} avec Google Pay`
-                    : pay === "paypal"
-                      ? `Régler ${formatPrice(total)} sur PayPal`
-                      : pay === "installments"
-                        ? `Payer ${formatPrice(total)} en plusieurs fois`
-                        : `Payer ${formatPrice(total)}`}
+                ? t.paiementEnCours
+                : pay === "paypal"
+                  ? fill(t.payerPaypal, { total: formatPrice(total) })
+                  : pay === "installments"
+                    ? fill(t.payerPlusieurs, { total: formatPrice(total) })
+                    : pay === "card"
+                      ? fill(t.payer, { total: formatPrice(total) })
+                      : fill(t.payerAvec, { total: formatPrice(total), moyen: t.moyens[pay].label })}
             </button>
-            <p className="t-note t-center">Paiement sécurisé. Vos données bancaires ne transitent jamais par nos serveurs.</p>
+            <p className="t-note t-center">{t.securite}</p>
           </div>
         </fieldset>
       </form>

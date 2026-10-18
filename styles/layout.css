@@ -5,17 +5,43 @@
     overflow: hidden;
   }
 
-  /* ============================================================ LOGO */
+  /* ============================================================ LOGO
+     Fichier officiel en masque (components/brand/Logo.tsx) : le dessin prend la couleur du texte.
+     Les proportions du fichier (--logo-ratio : 708 / 293 pour le logo entier, 380 / 325 pour le
+     monogramme) tiennent le dessin : le conteneur fixe la hauteur (en-tête : 100 % ; ailleurs
+     --logo-h, par exemple --size-logo, pour que « PARIS » reste lisible) ou, pour le cachet de
+     l'enveloppe, la largeur ; l'autre dimension suit, sans jamais déformer. */
   .logo-mask {
     display: block;
+    aspect-ratio: var(--logo-ratio);
+    height: var(--logo-h, 100%);
+    width: auto;
+    max-width: 100%;
     background-color: currentColor;
+    mask-image: var(--logo-src);
     mask-size: contain;
     mask-repeat: no-repeat;
     mask-position: center;
+    -webkit-mask-image: var(--logo-src);
     -webkit-mask-size: contain;
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-position: center;
-    height: 100%;
+    forced-color-adjust: none;
+  }
+  /* contraste forcé (Windows) : le masque garde la couleur du texte du système */
+  @media (forced-colors: active) {
+    .logo-mask {
+      background-color: CanvasText;
+    }
+  }
+  /* repli si le fichier manque : le nom en toutes lettres, dans la police des titres */
+  .logo-mask--nom {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-style: var(--font-style-display);
+    font-size: var(--text-step-2);
+    line-height: var(--lh-step-2);
+    white-space: nowrap;
   }
 
   /* =========================================================== EN-TÊTE */
@@ -181,8 +207,9 @@
     align-items: baseline;
     gap: var(--spacing-m);
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-4);
-    line-height: var(--leading-tight);
+    line-height: var(--lh-step-4);
     transition: color var(--dur) var(--ease);
   }
   .site-menu__primary a:hover,
@@ -271,8 +298,9 @@
     background: transparent;
     color: var(--fg);
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-3);
-    line-height: var(--leading-tight);
+    line-height: var(--lh-step-3);
     letter-spacing: var(--tracking-display);
     appearance: none;
   }
@@ -345,8 +373,9 @@
   .search__piece-title,
   .search__row-title {
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-1);
-    line-height: var(--leading-snug);
+    line-height: var(--lh-step-1);
   }
   .search__price {
     margin-top: var(--spacing-3xs);
@@ -400,8 +429,8 @@
     }
   }
   .site-footer__logo {
-    display: block;
-    width: calc(var(--spacing-2xl) * 1.1);
+    display: inline-block;
+    --logo-h: var(--size-logo);
     color: var(--color-ivory);
     transition: color var(--dur) var(--ease);
   }
@@ -504,7 +533,7 @@
   }
 
   /* ========================================================= COOKIES
-     Un filet doré, du papier ivoire, une typographie fine ; un fondu discret au bas de l'écran,
+     Un filet fin, du papier ivoire, une typographie fine ; un fondu discret au bas de l’écran,
      jamais de fenêtre bloquante. */
   html[data-consent="set"] .consent {
     display: none;

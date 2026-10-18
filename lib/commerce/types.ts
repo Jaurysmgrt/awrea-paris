@@ -1,8 +1,13 @@
-/** Modèle commerce commun aux pilotes `demo` et `shopify`. Montants en centimes d'euro. */
+/**
+ * Modèle commerce commun aux pilotes `demo` et `shopify`. Montants en centimes d'euro.
+ *
+ * Modèle de la Maison : chaque pièce est créée SUR DEMANDE, sans stock, par des artisans français.
+ * Il n'y a donc ni quantité en stock, ni rupture, ni série numérotée : toutes les tailles se
+ * commandent toujours, et chaque pièce annonce son délai de fabrication.
+ */
 
 export type Size = "XS" | "S" | "M" | "L" | "XL" | "TU";
 export type Category = "robe" | "body" | "top" | "jupe" | "accessoire";
-export type Availability = "available" | "low" | "preorder" | "soldout";
 
 export interface Image {
   src: string; // chemin sans extension de taille, ex. /media/img/odessa-1
@@ -11,6 +16,11 @@ export interface Image {
   height: number;
   /** point focal réglé dans l'éditeur (pourcentages) : guide chaque recadrage */
   focal?: { x: number; y: number };
+  /**
+   * Visuel provisoire (image générée en attendant les photographies de la Maison) : accompagné
+   * d'une mention discrète « visuel provisoire », repéré dans l'éditeur pour être remplacé.
+   */
+  provisoire?: boolean;
 }
 
 export interface Video {
@@ -19,12 +29,17 @@ export interface Video {
   alt: string;
 }
 
+/** Une taille de la pièce. Toutes se commandent : la pièce est confectionnée à cette taille. */
 export interface Variant {
   id: string;
   sku: string;
   size: Size;
-  quantity: number; // stock disponible pour cette taille
-  preorder: boolean; // fabrication à la commande possible quand quantity = 0
+}
+
+/** Délai de fabrication d'une pièce créée sur demande, en semaines (de… à…). */
+export interface LeadTime {
+  min: number;
+  max: number;
 }
 
 export interface Material {
@@ -48,15 +63,23 @@ export interface Product {
   category: Category;
   collection: string; // handle de collection
   price: number;
-  compareAtPrice?: number;
-  edition: {
-    total: number; // taille de la série (1 = pièce unique)
-    produced: number; // pièces déjà numérotées / vendues
-  };
-  leadTimeWeeks?: number; // délai de fabrication en précommande
+  /**
+   * les tailles n'ont pas toutes le même prix (boutique Shopify) : `price` est le plus bas, et
+   * l'Atelier ne remplace pas ces prix par un prix unique
+   */
+  priceVaries?: boolean;
+  /** prix provisoire, à confirmer par la Maison (signalé dans l'Atelier et dans ACTIVATION.md) */
+  priceProvisional?: boolean;
+  /** délai de fabrication : la pièce est créée après la commande */
+  leadTime: LeadTime;
+  /** délai provisoire, à confirmer par la Maison */
+  leadTimeProvisional?: boolean;
+  /** pastille « Nouveau » sur la carte de la pièce */
+  isNew?: boolean;
   variants: Variant[];
   images: Image[];
-  detailImage: Image; // pour la loupe dentelle
+  /** photographie de détail (loupe dentelle), quand il y en a une */
+  detailImage?: Image;
   video?: Video;
   description: string[];
   materials: Material[];
@@ -84,6 +107,8 @@ export interface Collection {
   moodboard: { image: Image; caption: string; span?: "tall" | "wide" | "square" }[];
   products: string[]; // handles
   current: boolean;
+  /** textes de la créatrice (accroche, intention) repris mot pour mot : jamais réécrits */
+  officiel?: boolean;
   seo: { title: string; description: string };
 }
 
@@ -110,9 +135,8 @@ export interface CartLine {
   quantity: number;
   unitPrice: number;
   image: Image;
-  preorder: boolean;
-  leadTimeWeeks?: number;
-  editionLabel?: string;
+  /** délai de fabrication de la pièce, annoncé dans le panier et au paiement */
+  leadTime: LeadTime;
 }
 
 export interface GiftOptions {
@@ -163,11 +187,15 @@ export interface Cart {
 export interface ProductFilter {
   category?: Category | null;
   size?: Size | null;
-  availability?: "available" | "preorder" | "all" | null;
   collection?: string | null;
 }
 
-export type OrderStatus = "pending" | "paid" | "in_production" | "shipped" | "delivered" | "returned" | "refunded" | "blocked";
+/**
+ * Étapes d'une commande : reçue (`paid`), en confection (`in_production`), prête (`ready`),
+ * expédiée (`shipped`), livrée (`delivered`) ; plus les cas particuliers (paiement en attente,
+ * retour, remboursement, commande bloquée).
+ */
+export type OrderStatus = "pending" | "paid" | "in_production" | "ready" | "shipped" | "delivered" | "returned" | "refunded" | "blocked";
 
 export interface Order {
   id: string;
@@ -178,7 +206,18 @@ export interface Order {
   status: OrderStatus;
   /** date de livraison, quand elle est connue (point de départ du délai de retour) */
   deliveredAt?: string;
-  lines: { title: string; size: Size; quantity: number; unitPrice: number; handle: string; editionLabel?: string }[];
+  lines: {
+    title: string;
+    size: Size;
+    quantity: number;
+    unitPrice: number;
+    handle: string;
+    /**
+     * @deprecated ancien numéro d'édition (« N° 3 / 5 »), présent seulement sur les commandes passées
+     * avant le modèle « sur demande ». Le numéro de création unique est porté par le certificat.
+     */
+    editionLabel?: string;
+  }[];
   total: number;
   shipping: {
     method: string;

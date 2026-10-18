@@ -27,11 +27,46 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
     await page.getByLabel("Nom (facultatif)").fill(name);
     await page.getByLabel("Catégorie").selectOption("top");
     await page.getByLabel("Prix (€)").fill("240");
-    await page.getByLabel("Vos notes").fill("Jersey noir coupé en biais, épaule drapée, se porte avec la jupe Iris.");
+    await page.getByLabel("Vos notes").fill("Jersey noir, col en V, manches amples, se porte avec la robe Odessa.");
     await page.getByRole("button", { name: "Rédiger et publier la fiche" }).click();
     await expect(page.getByRole("status").filter({ hasText: "publiée" })).toBeVisible({ timeout: 60_000 });
     await page.goto("/boutique");
     await expect(page.getByRole("heading", { name })).toBeVisible();
+  });
+
+  test("catalogue : la créatrice règle le prix, le délai de fabrication et l’indicateur provisoire", async ({ page }) => {
+    await login(page);
+    await page.goto(`${ATELIER}/catalogue`);
+    await expect(page.getByText(/Prix à confirmer/)).toContainText("Le top Kira");
+    const min = page.getByLabel("Le top Kira, délai le plus court en semaines");
+    const max = page.getByLabel("Le top Kira, délai le plus long en semaines");
+    const provisional = page.getByLabel("Le top Kira, délai provisoire");
+    const row = page.locator("tr", { has: min });
+    const before = { min: await min.inputValue(), max: await max.inputValue(), provisional: await provisional.isChecked() };
+    try {
+      await min.fill("3");
+      await max.fill("5");
+      await provisional.uncheck();
+      await row.getByRole("button", { name: "Enregistrer" }).click();
+      await expect(row.getByRole("status")).toContainText("C’est enregistré");
+      await page.goto("/boutique/top-kira");
+      await expect(page.locator(".product-form__made")).toContainText("3 à 5 semaines");
+      // un délai incohérent est refusé
+      await page.goto(`${ATELIER}/catalogue`);
+      await min.fill("6");
+      await max.fill("4");
+      await row.getByRole("button", { name: "Enregistrer" }).click();
+      await expect(row.getByRole("alert")).toContainText("Le délai le plus court vient d’abord");
+    } finally {
+      await page.goto(`${ATELIER}/catalogue`);
+      await min.fill(before.min);
+      await max.fill(before.max);
+      await provisional.setChecked(before.provisional);
+      if (await row.getByRole("button", { name: "Enregistrer" }).isEnabled()) {
+        await row.getByRole("button", { name: "Enregistrer" }).click();
+        await expect(row.getByRole("status")).toContainText("C’est enregistré");
+      }
+    }
   });
 
   test("message sensible escaladé, réponse de la créatrice, proposition validée", async ({ page, request }) => {

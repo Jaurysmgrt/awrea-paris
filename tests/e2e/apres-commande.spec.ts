@@ -8,8 +8,9 @@ import { adminLogin, ATELIER } from "./admin-auth";
  * réception, remboursement et avoir dans l'Atelier.
  */
 async function orderOne(page: Page, email: string) {
-  const products = (await (await page.request.get("/api/products?handles=top-kira")).json()).products as { variants: { id: string; size: string; quantity: number; preorder: boolean }[] }[];
-  const v = products[0].variants.find((x) => x.quantity > 0) ?? products[0].variants.find((x) => x.preorder)!;
+  // pièce créée sur demande : toutes ses tailles se commandent
+  const products = (await (await page.request.get("/api/products?handles=top-kira")).json()).products as { variants: { id: string; size: string }[] }[];
+  const v = products[0].variants[0];
   expect((await page.request.post("/api/cart", { data: { type: "clear" } })).ok()).toBeTruthy();
   expect((await page.request.post("/api/cart", { data: { type: "add", variantId: v.id } })).ok()).toBeTruthy();
   const res = await page.request.post("/api/checkout", {
@@ -56,7 +57,7 @@ test("facture, suivi sans compte, expédition, livraison, retour, remboursement 
 
   // retour en libre-service : remboursement, étiquette aussitôt
   await page.goto(follow);
-  await page.getByRole("checkbox", { name: /Top Kira/ }).check();
+  await page.getByRole("checkbox", { name: /Le top Kira/ }).check();
   await page.getByLabel("Raison", { exact: true }).selectOption("tombe");
   await page.getByLabel(/Je renvoie la pièce non portée/).check();
   await page.getByRole("button", { name: "Demander le retour" }).click();

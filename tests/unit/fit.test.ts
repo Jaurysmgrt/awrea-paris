@@ -3,27 +3,39 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fitKind, recommendSize } from "@/lib/fit";
 import { products } from "@/data/demo/products";
+import type { Product } from "@/lib/commerce/types";
 
-const odessa = products.find((p) => p.handle === "robe-odessa")!; // lacée
-const aura = products.find((p) => p.handle === "body-aura")!; // satin
+// pièces d'essai tirées du catalogue : la coupe se déduit des détails (laçage) ou de la matière
+// principale (satin) ; une composition encore inconnue n'est jamais supposée
+const base = products.find((p) => p.handle === "body-aura")!;
+const lacee: Product = { ...base, details: ["Laçage dans le dos"], tags: [], materials: [] };
+const satin: Product = { ...base, details: [], tags: [], materials: [{ name: "Satin", percent: 100 }] };
 
 test("mesures exactes du guide : la taille correspondante", () => {
-  assert.equal(recommendSize(odessa, { poitrine: 84, taille: 66, hanches: 92 })?.size, "S");
-  assert.equal(recommendSize(aura, { poitrine: 88 })?.size, "M");
+  assert.equal(recommendSize(lacee, { poitrine: 84, taille: 66, hanches: 92 })?.size, "S");
+  assert.equal(recommendSize(satin, { poitrine: 88 })?.size, "M");
 });
 
 test("entre deux tailles : la plus petite pour une pièce lacée, la plus grande pour le satin", () => {
-  assert.equal(fitKind(odessa), "lacee");
-  assert.equal(fitKind(aura), "satin");
-  assert.equal(recommendSize(odessa, { poitrine: 86 })?.size, "S");
-  assert.equal(recommendSize(aura, { poitrine: 86 })?.size, "M");
-  assert.deepEqual(recommendSize(aura, { poitrine: 86 })?.between, ["S", "M"]);
+  assert.equal(fitKind(lacee), "lacee");
+  assert.equal(fitKind(satin), "satin");
+  assert.equal(recommendSize(lacee, { poitrine: 86 })?.size, "S");
+  assert.equal(recommendSize(satin, { poitrine: 86 })?.size, "M");
+  assert.deepEqual(recommendSize(satin, { poitrine: 86 })?.between, ["S", "M"]);
+});
+
+test("composition inconnue : coupe souple, la plus grande des deux tailles, sans matière supposée", () => {
+  const inconnue = products.find((p) => p.materials.length === 0)!;
+  assert.equal(fitKind(inconnue), "souple");
+  const advice = recommendSize(inconnue, { poitrine: 86 });
+  assert.equal(advice?.size, "M");
+  assert.doesNotMatch(advice?.message ?? "", /satin|lacée/);
 });
 
 test("la mesure la plus large l'emporte ; au-delà du guide, l'atelier propose le sur-mesure", () => {
-  assert.equal(recommendSize(aura, { poitrine: 80, hanches: 100 })?.size, "L");
-  const big = recommendSize(aura, { poitrine: 120 });
+  assert.equal(recommendSize(satin, { poitrine: 80, hanches: 100 })?.size, "L");
+  const big = recommendSize(satin, { poitrine: 120 });
   assert.equal(big?.offered, false);
   assert.match(big?.message ?? "", /mesures/);
-  assert.equal(recommendSize(aura, {}), null);
+  assert.equal(recommendSize(satin, {}), null);
 });
