@@ -38,7 +38,8 @@ export default async function CommandeSuivie({ params, searchParams }: { params:
   const lines: ReturnableLine[] = await Promise.all(
     eligibility.lines.map(async (l, index) => {
       const p = await getProduct(l.handle);
-      const sizes = (p?.variants ?? []).filter((v) => v.size !== l.size && (v.quantity > 0 || v.preorder)).map((v) => v.size);
+      // pièces créées sur demande : toutes les autres tailles se commandent
+      const sizes = (p?.variants ?? []).filter((v) => v.size !== l.size).map((v) => v.size);
       return { index, title: l.title, size: l.size, price: formatPrice(l.unitPrice), sizes };
     }),
   );

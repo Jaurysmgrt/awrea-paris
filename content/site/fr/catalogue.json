@@ -1,1 +1,80 @@
-{}
+{
+  "nouveau": "Nouveau",
+  "visuelProvisoire": "Visuel provisoire",
+  "delai": {
+    "plage": "{min} à {max} semaines",
+    "fixe": "{n} semaines",
+    "une": "1 semaine"
+  },
+  "surDemande": {
+    "carte": "Sur demande, {delai}",
+    "fiche": "Pièce créée sur demande pour vous, sans stock, par des artisans français.",
+    "delaiLabel": "Délai de fabrication",
+    "delaiValeur": "{delai}, puis expédition",
+    "livraison": "La pièce est créée sur demande : comptez {delai} de fabrication avant son expédition.",
+    "ethique": "La Maison ne produit que ce qui est désiré, avec attention pour les artisans qui façonnent chaque pièce et pour l’environnement."
+  },
+  "certificat": {
+    "titre": "Certificat d’authenticité",
+    "numero": "Un numéro de création",
+    "texte": "Chaque pièce reçoit à votre commande un numéro de création unique, inscrit sur son certificat d’authenticité.",
+    "pied": "Créée sur demande par des artisans français"
+  },
+  "taille": {
+    "legende": "Taille",
+    "unique": "Taille unique",
+    "choisir": "Choisissez votre taille.",
+    "manquante": "Merci de choisir une taille.",
+    "choisie": "Taille {taille} : la pièce est confectionnée pour vous dans cette taille, en {delai}.",
+    "trouver": "Trouver ma taille",
+    "guideTitre": "Votre taille",
+    "fermerGuide": "Fermer le guide des tailles",
+    "legendePiece": "Taille, {piece}"
+  },
+  "mesures": {
+    "titre": "Trouver ma taille",
+    "aide": "Vos mesures, prises à même la peau, en centimètres. Une seule suffit ; trois sont plus justes.",
+    "poitrine": "Tour de poitrine",
+    "taille": "Tour de taille",
+    "hanches": "Tour de hanches",
+    "garder": "Garder mes mesures dans mon compte",
+    "voir": "Voir ma taille",
+    "choisir": "Choisir le {taille}",
+    "gardees": "Vos mesures sont gardées dans votre compte."
+  },
+  "achat": {
+    "ajouter": "Ajouter au panier",
+    "choisirTaille": "Choisir ma taille",
+    "choisirUneTaille": "Choisir une taille",
+    "annonceTaille": "{piece} en taille {taille} est dans votre panier.",
+    "annonce": "{piece} est dans votre panier."
+  },
+  "silhouette": {
+    "ajouter": "Ajouter la silhouette, {total}",
+    "choisir": "Choisir une taille pour chaque pièce",
+    "annonce": "Silhouette {titre} ajoutée au panier"
+  },
+  "fabrication": {
+    "titre": "Fabrication",
+    "creation": "Création",
+    "creationTexte": "sur demande, après la commande",
+    "confection": "Confection",
+    "confectionTexte": "par des artisans français",
+    "delai": "Délai",
+    "delaiTexte": "{delai} de fabrication",
+    "production": "Production",
+    "productionTexte": "à la demande, rien n’est fabriqué d’avance",
+    "etapes": "Les étapes",
+    "matieres": "Les matières",
+    "origineInconnue": "[À COMPLÉTER : origine de la matière, communiquée par la Maison]"
+  },
+  "matieresACompleter": "[À COMPLÉTER : composition exacte des matières, communiquée par la Maison]",
+  "galerie": {
+    "photos": "{piece}, photographies"
+  },
+  "completer": {
+    "surtitre": "Compléter le look",
+    "titre": "Pour l’accompagner"
+  },
+  "modele": "Chaque pièce est créée sur demande, sans stock, par des artisans français. Elle se commande dans toutes ses tailles et part de l’atelier après son délai de fabrication."
+}

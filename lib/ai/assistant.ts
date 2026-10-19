@@ -13,7 +13,7 @@ import { identity } from "@/content/brand/identity";
 import { shop } from "@/content/settings";
 import { formatPrice } from "@/lib/format";
 import { getAllProducts, getProduct } from "@/lib/commerce";
-import { availabilityLabel, editionInfo, productAvailability } from "@/lib/commerce/availability";
+import { leadTimeText, madeToOrderLabel } from "@/lib/commerce/availability";
 import { getOrder, statusLabel, trackingUrl } from "@/lib/commerce/orders";
 import { addInbox } from "@/lib/inbox";
 import { kv } from "@/lib/store";
@@ -136,7 +136,8 @@ export async function runDemoAssistant(turns: ChatTurn[], send: (e: StreamEvent)
   const last = turns[turns.length - 1]?.content ?? "";
   const q = norm(last);
   const products = await getAllProducts();
-  const mentioned = products.filter((p) => q.includes(norm(p.title.split(" ")[1] ?? p.title)));
+  // le nom propre de la pièce est le dernier mot de son titre (« La robe Odessa »)
+  const mentioned = products.filter((p) => q.includes(norm(p.title.split(" ").pop() ?? p.title)));
   const email = last.match(/[\w.+-]+@[\w-]+\.[\w.]+/)?.[0];
   const orderNo = last.match(/AW-?\s?\d{3,5}/i)?.[0]?.replace(/\s/g, "").toUpperCase().replace(/^AW(\d)/, "AW-$1");
   const say = async (text: string) => {
@@ -146,14 +147,13 @@ export async function runDemoAssistant(turns: ChatTurn[], send: (e: StreamEvent)
     }
   };
   const addCard = (p: (typeof products)[number]) => {
-    const ed = editionInfo(p);
     ctx.pieces.set(p.handle, {
       handle: p.handle,
       title: p.title,
       price: formatPrice(p.price),
       image: p.images[0]?.src ?? "",
-      edition: ed.unique ? "Pièce unique" : ed.complete ? "Sur commande" : ed.label,
-      availability: availabilityLabel(productAvailability(p), p.leadTimeWeeks),
+      edition: "Sur demande",
+      availability: madeToOrderLabel(p),
     });
   };
 
@@ -208,8 +208,8 @@ export async function runDemoAssistant(turns: ChatTurn[], send: (e: StreamEvent)
     send({ type: "tool", name: "get_piece" });
     const p = (await getProduct(mentioned[0].handle))!;
     addCard(p);
-    const ed = editionInfo(p);
-    await say(`[${p.title}](/boutique/${p.handle}). ${p.tagline} ${p.materials.map((m) => `${m.percent} % ${m.name.toLowerCase()}`).join(", ")}. ${ed.unique ? "C’est une pièce unique." : `Série numérotée de ${ed.total} pièces : ${ed.remainingLabel.toLowerCase()}.`} ${formatPrice(p.price)}, faite main à Paris.`);
+    const mat = p.materials.map((m) => `${m.percent} % ${m.name.toLowerCase()}`).join(", ");
+    await say(`[${p.title}](/boutique/${p.handle}). ${p.tagline}${mat ? ` ${mat}.` : ""} ${formatPrice(p.price)}. La pièce est créée sur demande par des artisans français : comptez ${leadTimeText(p.leadTime)} de fabrication.`);
   } else if (/dentelle|satin|jersey|robe|body|top|jupe|soir|diner|cadeau|noir|ivoire/.test(q)) {
     send({ type: "tool", name: "search_pieces" });
     const words = q.split(/\W+/).filter((w) => w.length > 3);

@@ -4,8 +4,11 @@ import { SplitTitle } from "./SplitTitle";
 
 /**
  * En-tête de page commun : fil d'Ariane, surtitre, H1 unique écrit au chargement, chapeau.
- * « giant » : pages éditoriales, où le titre devient une affiche (Instrument Serif géant face
- * aux petites capitales espacées du surtitre).
+ * Langage des maquettes (« Contact », « Mentions légales », « Collection Hypnotic Lace ») : un
+ * très grand titre en Fraunces italique, centré par défaut ; le chapeau garde sa justification et
+ * sa mesure, sa colonne est centrée sous le titre.
+ * « giant » : pages éditoriales, où le titre devient une affiche (encore plus grand).
+ * « align="left" » : titre au fer à gauche, quand une photo ou un formulaire l'accompagne.
  */
 export function PageHeader({
   title,
@@ -14,6 +17,7 @@ export function PageHeader({
   crumbs,
   theme = "ivory",
   giant = false,
+  align = "center",
   children,
 }: {
   title: string;
@@ -22,14 +26,15 @@ export function PageHeader({
   crumbs: { name: string; path: string }[];
   theme?: "ink" | "ivory" | "paper" | "pearl";
   giant?: boolean;
+  align?: "center" | "left";
   children?: React.ReactNode;
 }) {
   return (
     <Section theme={theme} as="header" className="page-header">
-      <div className="container page-head">
+      <div className={`container page-head page-head--${align}`}>
         <Breadcrumbs items={crumbs} />
         {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
-        <SplitTitle text={title} className={giant ? "t-giant" : "t-display"} />
+        <SplitTitle text={title} className={`page-head__title ${giant ? "t-giant" : "t-display"}`} />
         {lead ? <p className="t-lead page-head__lead">{lead}</p> : null}
         {children}
       </div>

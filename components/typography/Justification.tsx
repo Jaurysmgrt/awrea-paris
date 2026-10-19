@@ -7,6 +7,8 @@
  * paragraphe, parmi quelques réglages très légers de l'espacement des mots et des lettres
  * (±1 % au plus), celui qui donne les espaces les plus réguliers : on mesure les espaces réels de
  * chaque ligne (Range), on compare à l'espace naturel de la police, on garde le meilleur.
+ * L'espace naturel est mesuré dans la police réelle du paragraphe (Cormorant Garamond pour le texte
+ * courant : 0,234 em ; style, graisse, taille et famille calculés), une fois les polices chargées.
  *
  * - Amélioration progressive : sans JavaScript, la justification et la césure du navigateur
  *   restent en place. Seul le style du paragraphe change, jamais son contenu (aucun conflit avec
@@ -59,7 +61,8 @@ const naturalSpace = new Map<string, number>();
 
 function measure(p: HTMLElement): Measure {
   const cs = getComputedStyle(p);
-  const font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  // police réelle du paragraphe : le style compte (un paragraphe en Fraunces est en italique)
+  const font = `${cs.fontStyle === "normal" ? "" : `${cs.fontStyle} `}${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
   let nat = naturalSpace.get(font);
   if (!nat && canvas) {
     canvas.font = font;

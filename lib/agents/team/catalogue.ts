@@ -17,9 +17,12 @@ export interface CatalogueInput {
   category?: "robe" | "body" | "top" | "jupe" | "accessoire";
   collection?: string;
   priceEuros?: number;
-  editionTotal?: number;
-  leadTimeWeeks?: number;
-  sizes: { size: "XS" | "S" | "M" | "L" | "XL" | "TU"; quantity: number; preorder: boolean }[];
+  priceProvisional?: boolean;
+  /** délai de fabrication en semaines : chaque pièce est créée sur demande, sans stock */
+  leadTime?: { min: number; max: number };
+  leadTimeProvisional?: boolean;
+  /** tailles proposées (toutes se commandent) */
+  sizes: ("XS" | "S" | "M" | "L" | "XL" | "TU")[];
   /** identifiants de médias déposés dans le tableau de bord (/api/media/<id>) */
   mediaIds: string[];
 }
@@ -75,9 +78,9 @@ Informations saisies par la créatrice.
 Nom proposé : ${input.name ?? "(à proposer)"}
 Catégorie : ${input.category ?? "(à déduire des photos)"}
 Collection : ${collections.find((c) => c.handle === collection)?.title ?? collection}
-Série : ${input.editionTotal === 1 ? "pièce unique" : input.editionTotal ? `${input.editionTotal} pièces numérotées` : "(non précisée)"}
-Tailles : ${input.sizes.map((s) => `${s.size} (${s.quantity} en stock${s.preorder ? ", précommande possible" : ""})`).join(", ")}
-Délai de fabrication en précommande : ${input.leadTimeWeeks ? `${input.leadTimeWeeks} semaines` : "(non précisé)"}`,
+Fabrication : sur demande, sans stock, par des artisans français
+Tailles proposées : ${input.sizes.join(", ")}
+Délai de fabrication : ${input.leadTime ? `${input.leadTime.min} à ${input.leadTime.max} semaines` : "(non précisé)"}`,
         },
       ];
       copy = await generateStructured({
@@ -121,8 +124,9 @@ Délai de fabrication en précommande : ${input.leadTimeWeeks ? `${input.leadTi
           category: input.category ?? copy.category,
           collection,
           price: hasPrice ? Math.round(input.priceEuros! * 100) : 100,
-          edition_total: input.editionTotal ?? 5,
-          lead_time_weeks: input.leadTimeWeeks,
+          price_provisional: input.priceProvisional ?? false,
+          lead_time: input.leadTime,
+          lead_time_provisional: input.leadTimeProvisional ?? !input.leadTime,
           sizes: input.sizes,
           images: media.map((m, i) => ({ src: `/api/media/${m.id}`, alt: copy.alts[i] ?? copy.alts[0] ?? copy.title, width: m.width, height: m.height })),
           description: copy.description,

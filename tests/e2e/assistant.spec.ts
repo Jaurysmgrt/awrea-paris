@@ -12,14 +12,14 @@ test.describe("Assistante clientes (mode démonstration sans clé API)", () => {
     await panel.getByLabel("Votre question").fill("Je fais du 38, quelle taille pour la robe Odessa ?");
     await panel.getByRole("button", { name: "Envoyer" }).click();
     await expect(panel.getByText(/correspond à notre taille M/)).toBeVisible();
-    await expect(panel.locator(".assistant__piece", { hasText: "Robe Odessa" })).toBeVisible();
+    await expect(panel.locator(".assistant__piece", { hasText: "La robe Odessa" })).toBeVisible();
 
     await panel.getByLabel("Votre question").fill("Je voudrais parler à la créatrice, mon e-mail est cliente.test@exemple.fr");
     await panel.getByRole("button", { name: "Envoyer" }).click();
     await expect(panel.getByText(/Votre message est à l’atelier/)).toBeVisible();
 
     // la conversation survit à une navigation
-    await page.getByRole("link", { name: "Robe Odessa" }).first().click();
+    await panel.getByRole("link", { name: /La robe Odessa/ }).first().click();
     await expect(panel.getByText(/correspond à notre taille M/)).toBeVisible();
 
     // fermeture au clavier
