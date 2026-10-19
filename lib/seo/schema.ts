@@ -1,12 +1,14 @@
 /**
  * Données structurées Schema.org — toutes construites depuis content/brand/identity.ts
- * pour que le nom, la description et les liens soient identiques partout.
+ * pour que le nom, la description et les liens soient identiques partout. La description, l'e-mail
+ * et l'adresse de la Maison se corrigent donc à cet endroit seulement (création sur demande par des
+ * artisans français, coordonnées des mentions légales officielles).
  */
 import { identity } from "@/content/brand/identity";
-import { editionInfo, productAvailability } from "@/lib/commerce/availability";
+import { leadTimeText, type LeadTimeTemplates } from "@/lib/commerce/availability";
 import type { Product } from "@/lib/commerce/types";
 import type { FaqItem } from "@/content/fr/faq";
-import { absolute, siteUrl } from "./metadata";
+import { absolute, siteUrl } from "@/lib/seo/metadata";
 import { imageAt } from "@/lib/media";
 
 const orgId = `${siteUrl}/#organisation`;
@@ -32,7 +34,7 @@ export function organizationSchema() {
     email: identity.email,
     address: { "@type": "PostalAddress", ...Object.fromEntries(Object.entries(identity.address).filter(([, v]) => v)) },
     areaServed: ["FR", "EU", "Worldwide"],
-    knowsAbout: ["dentelle noire", "prêt-à-porter féminin", "couture main", "drapé", "satin", "jersey", "pièces uniques"],
+    knowsAbout: ["dentelle noire", "prêt-à-porter féminin", "drapé", "satin", "jersey", "dorure", "création sur demande"],
     sameAs: [identity.social.instagram, identity.social.linktree],
     priceRange: "€€",
     currenciesAccepted: "EUR",
@@ -66,26 +68,34 @@ export function breadcrumbSchema(items: { name: string; path: string }[]) {
   };
 }
 
-export function productSchema(p: Product) {
-  const availability = productAvailability(p);
-  const ed = editionInfo(p);
+/**
+ * Fiche d'une pièce. Chaque pièce est créée sur demande, sans stock : disponibilité
+ * schema.org/MadeToOrder, délai de fabrication en délai de préparation (jours ouvrés).
+ * `delai` : modèles du document « catalogue » (sans marques d'édition), pour écrire le délai comme
+ * la fiche l'affiche.
+ */
+export function productSchema(p: Product, delai?: LeadTimeTemplates) {
   const url = absolute(`/boutique/${p.handle}`);
+  const material = p.materials.map((m) => `${m.name} ${m.percent} %`).join(", ");
+  // visuels provisoires (images générées en attendant les prises de vue) : jamais transmis aux
+  // moteurs, qui ne montrent pas la mention « visuel provisoire » (même règle que lib/feeds.ts)
+  const photos = [...p.images, ...(p.detailImage ? [p.detailImage] : [])].filter((i) => !i.provisoire).map((i) => img(i.src));
   return {
     "@context": "https://schema.org",
     "@type": "Product",
     "@id": `${url}#piece`,
     name: p.title,
     description: [p.tagline, ...p.description].join(" "),
-    image: [...p.images.map((i) => img(i.src)), img(p.detailImage.src)],
+    ...(photos.length ? { image: photos } : {}),
     sku: p.variants[0]?.sku,
     brand: { "@type": "Brand", name: identity.name },
     manufacturer: { "@id": orgId },
     category: p.category,
-    material: p.materials.map((m) => `${m.name} ${m.percent} %`).join(", "),
+    ...(material ? { material } : {}),
     countryOfOrigin: "FR",
     additionalProperty: [
-      { "@type": "PropertyValue", name: "Fabrication", value: "Fait main à Paris" },
-      { "@type": "PropertyValue", name: "Édition", value: ed.unique ? "Pièce unique" : `Série numérotée de ${ed.total} pièces` },
+      { "@type": "PropertyValue", name: "Fabrication", value: "Créée sur demande par des artisans français" },
+      { "@type": "PropertyValue", name: "Délai de fabrication", value: leadTimeText(p.leadTime, delai) },
     ],
     offers: {
       "@type": "Offer",
@@ -93,8 +103,7 @@ export function productSchema(p: Product) {
       priceCurrency: identity.currency,
       price: (p.price / 100).toFixed(2),
       itemCondition: "https://schema.org/NewCondition",
-      availability:
-        availability === "available" ? "https://schema.org/InStock" : availability === "preorder" ? "https://schema.org/PreOrder" : "https://schema.org/SoldOut",
+      availability: "https://schema.org/MadeToOrder",
       seller: { "@id": orgId },
       shippingDetails: {
         "@type": "OfferShippingDetails",
@@ -102,7 +111,8 @@ export function productSchema(p: Product) {
         shippingRate: { "@type": "MonetaryAmount", value: "9.00", currency: "EUR" },
         deliveryTime: {
           "@type": "ShippingDeliveryTime",
-          handlingTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: 5, unitCode: "DAY" },
+          // fabrication sur demande, puis expédition : jours ouvrés
+          handlingTime: { "@type": "QuantitativeValue", minValue: p.leadTime.min * 5, maxValue: p.leadTime.max * 5, unitCode: "DAY" },
           transitTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 3, unitCode: "DAY" },
         },
       },

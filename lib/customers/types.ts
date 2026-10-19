@@ -58,14 +58,6 @@ export interface Address {
   isDefault: boolean;
 }
 
-export interface WaitlistItem {
-  id: string;
-  handle: string;
-  size: string | null;
-  createdAt: string;
-  notifiedAt: string | null;
-}
-
 export type BrowsingKind = "view" | "collection" | "search";
 export interface BrowsingEvent {
   kind: BrowsingKind;

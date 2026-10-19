@@ -1,0 +1,84 @@
+{
+  "seo": {
+    "title": "La commande sur demande | Awrea Paris",
+    "description": "Chez Awrea Paris, chaque pièce est créée pour vous après la commande, dans votre taille, par des artisans français. Les étapes, les délais de fabrication et le suivi."
+  },
+  "titre": "La commande sur demande",
+  "chapeau": "Quand vous choisissez une pièce Awrea, elle n’existe pas encore. Elle est créée pour vous, dans votre taille, par des artisans français.",
+  "etapes": {
+    "surtitre": "Les étapes",
+    "titre": "De votre choix à votre porte",
+    "choix": {
+      "titre": "Votre pièce, votre taille",
+      "texte": "Vous choisissez la pièce et sa taille, avec l’aide du guide des tailles. Le paiement se fait en ligne, en une seule fois, au moment de la commande."
+    },
+    "statuts": {
+      "paid": {
+        "titre": "Commande reçue",
+        "texte": "Un e-mail vous confirme la commande et vous donne son numéro. L’atelier la reçoit en même temps que vous."
+      },
+      "in_production": {
+        "titre": "En confection",
+        "texte": "Des artisans français coupent et assemblent votre pièce, dans la taille que vous avez choisie."
+      },
+      "ready": {
+        "titre": "Prête",
+        "texte": "La pièce est terminée. Elle est préparée pour l’envoi."
+      },
+      "shipped": {
+        "titre": "Expédiée",
+        "texte": "Elle est confiée au transporteur, et son suivi apparaît avec votre commande."
+      },
+      "delivered": {
+        "titre": "Livrée",
+        "texte": "Elle arrive chez vous avec son certificat d’authenticité, qui porte son numéro de création."
+      }
+    }
+  },
+  "delais": {
+    "surtitre": "Les délais",
+    "titre": "Le temps de la confection",
+    "texte": "Le délai de fabrication court à partir de votre commande, avant l’expédition. Chaque fiche de pièce affiche le sien.",
+    "groupes": {
+      "hauts": "Bodys et tops",
+      "robes": "Robes"
+    },
+    "valeur": "{delai} de fabrication",
+    "note": "L’annulation, la livraison et les retours suivent nos conditions générales de vente.",
+    "cta": {
+      "label": "Lire les conditions de livraison",
+      "href": "/livraison-retours"
+    }
+  },
+  "suivi": {
+    "surtitre": "Le suivi",
+    "titre": "Suivre votre pièce",
+    "texte": "Chaque étape s’affiche avec sa date dans votre compte. Sans compte, le numéro de la commande et votre adresse e-mail suffisent pour la suivre.",
+    "cta": {
+      "label": "Suivre ma commande",
+      "href": "/suivi"
+    }
+  },
+  "rendezVous": {
+    "surtitre": "Avant de commander",
+    "titre": "Parler de votre pièce",
+    "texte": "Une question de taille, de matière ou de silhouette : la créatrice vous répond de vive voix, sur rendez-vous.",
+    "cta": {
+      "label": "Prendre rendez-vous",
+      "href": "/rendez-vous"
+    }
+  },
+  "ethique": {
+    "surtitre": "L’éthique",
+    "titre": "Produire ce qui est désiré",
+    "citation": {
+      "officiel": true,
+      "texte": "Ce choix est au cœur de notre vision : produire uniquement ce qui est désiré, avec conscience et respect de l’environnement."
+    },
+    "texte": "Fabriquer après la commande, c’est laisser aux artisans le temps de bien faire, et ne rien produire qui finirait oublié.",
+    "cta": {
+      "label": "Entrer dans l’atelier",
+      "href": "/atelier"
+    }
+  }
+}

@@ -1,9 +1,12 @@
 "use client";
 /**
  * SIGNATURE 4 — La lettre de la créatrice.
- * Le texte de la créatrice apparaît au fil du scroll, en Instrument Serif : chaque ligne est
- * révélée de gauche à droite, puis la signature « La Créatrice » et son paraphe se dessinent d'un
- * trait noir fin. Sur petit écran, les lignes sont recoupées pour rester lisibles.
+ * Le texte de la créatrice apparaît au fil du scroll, en Fraunces italique (la police officielle
+ * des titres, aucune police calligraphique) : chaque ligne est révélée de gauche à droite, puis la
+ * signature et son paraphe se dessinent d'un trait fin, de la couleur du texte (blanc cassé en
+ * mode Nuit). Sur petit écran, les lignes sont recoupées pour rester lisibles. Les largeurs sont
+ * mesurées une fois la police chargée ; l'estimation de départ (0,4 em par caractère) suit la
+ * chasse moyenne de Fraunces.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { dur, loadGsap, prefersReducedMotion } from "@/lib/motion";
