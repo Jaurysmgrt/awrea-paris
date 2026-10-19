@@ -10,10 +10,11 @@ import { Price } from "@/components/ui/Price";
 import { ProductGallery } from "@/components/commerce/ProductGallery";
 import { ProductForm } from "@/components/commerce/ProductForm";
 import { QuickAdd } from "@/components/commerce/QuickAdd";
-import { EditionNumber } from "@/components/signature/EditionNumber";
 import { ViewTracker } from "@/components/commerce/ViewTracker";
 import { shop } from "@/content/settings";
 import { formatPrice } from "@/lib/format";
+import { getDoc } from "@/lib/edition/read";
+import { delaiText, fill, type CatalogueTexts } from "@/lib/commerce/texts";
 import { AtelierNote } from "@/components/ui/AtelierNote";
 import { momentFor } from "@/content/fr/coulisses";
 import { DropGate, type DropInfo } from "@/components/drops/DropGate";
@@ -42,10 +43,12 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   const [collection, look, drop] = await Promise.all([getCollection(product.collection), getProductsByHandles(product.completeTheLook), dropOfProduct(product.handle)]);
   const dropInfo: DropInfo | null = drop ? { slug: drop.slug, title: drop.title, earlyAccessAt: drop.earlyAccessAt, publicAt: drop.publicAt, privateSale: drop.privateSale } : null;
   const categoryLabel = { robe: "Robe", body: "Body", top: "Top", jupe: "Jupe", accessoire: "Accessoire" }[product.category];
+  // textes du document « catalogue » : affichés (marques du mode Édition) et sans marques (données structurées)
+  const [t, tPlain] = await Promise.all([getDoc<CatalogueTexts>("catalogue"), getDoc<CatalogueTexts>("catalogue", undefined, { plain: true })]);
 
   return (
     <>
-      <JsonLd data={productSchema(product)} />
+      <JsonLd data={productSchema(product, tPlain.delai)} />
       <ViewTracker handle={product.handle} title={product.title} price={product.price} collection={product.collection} />
       <Section theme="ivory" className="product">
         <div className="container product__grid">
@@ -69,15 +72,13 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                 <Price amount={product.price} className="product__price" />
               </header>
 
-              <EditionNumber product={product} />
-
               <DropGate drop={dropInfo}>
                 <ProductForm product={product} stickyBar />
               </DropGate>
 
-              <p className="handmade t-label">
+              <p className="handmade t-note t-left">
                 <span aria-hidden="true" className="handmade__mark" />
-                Fait main à Paris, dans l’atelier de la créatrice
+                {t.surDemande.ethique}
               </p>
 
               <div className="product__details">
@@ -99,13 +100,17 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                 <details className="disclosure">
                   <summary>Matières et entretien</summary>
                   <div className="disclosure__body prose">
-                    <ul>
-                      {product.materials.map((m) => (
-                        <li key={m.name}>
-                          {m.percent} % {m.name.toLowerCase()}
-                        </li>
-                      ))}
-                    </ul>
+                    {product.materials.length ? (
+                      <ul>
+                        {product.materials.map((m) => (
+                          <li key={m.name}>
+                            {m.percent} % {m.name.toLowerCase()}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>{t.matieresACompleter}</p>
+                    )}
                     {product.lining ? <p>{product.lining}</p> : null}
                     <h3>Entretien</h3>
                     <ul>
@@ -122,7 +127,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                     <p>{product.fit}</p>
                     {product.model ? <p>{product.model}</p> : null}
                     <p>
-                      Un doute ? <Link href="/contact#rendez-vous">Prenez rendez-vous pour un essayage</Link> à l’atelier, ou posez la question à notre assistante en bas de l’écran.
+                      Un doute ? <Link href="/rendez-vous">Prenez rendez-vous pour un essayage</Link> à l’atelier, ou posez la question à notre assistante en bas de l’écran.
                     </p>
                   </div>
                 </details>
@@ -130,7 +135,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                   <summary>Livraison et retours</summary>
                   <div className="disclosure__body prose">
                     <p>
-                      Expédition sous {shop.dispatchDays} pour les pièces disponibles{product.leadTimeWeeks ? `, ${product.leadTimeWeeks} semaines de fabrication pour les pièces sur commande` : ""}. Livraison offerte en France et en Europe dès{" "}
+                      {fill(t.surDemande.livraison, { delai: delaiText(t, product.leadTime) })} Livraison offerte en France et en Europe dès{" "}
                       {formatPrice(shop.freeShippingThreshold)}.
                     </p>
                     <p>
@@ -162,9 +167,9 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
         <Section theme="pearl" className="section" labelledBy="look-title">
           <div className="container">
             <header className="section-head">
-              <p className="eyebrow">Compléter le look</p>
+              <p className="eyebrow">{t.completer.surtitre}</p>
               <h2 id="look-title" className="t-h2">
-                Avec {product.title}
+                {t.completer.titre}
               </h2>
             </header>
             <ul className="complete-look">

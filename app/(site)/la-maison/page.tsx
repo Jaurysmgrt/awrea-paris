@@ -1,97 +1,73 @@
+import { Fragment } from "react";
+import type { Metadata } from "next";
 import Link from "@/components/ui/Link";
-import { maison } from "@/content/fr/pages";
-import { identity } from "@/content/brand/identity";
+import { getDoc } from "@/lib/edition/read";
 import { pageMetadata } from "@/lib/seo/metadata";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Section } from "@/components/ui/Section";
-import { Media } from "@/components/ui/Media";
-import { HandwrittenLetter } from "@/components/signature/HandwrittenLetter";
 import { LightHalo } from "@/components/signature/LightHalo";
-import { roman } from "@/lib/format";
+import { Visuel } from "@/components/home/Visuel";
+import ed from "@/components/home/editorial.module.css";
+import styles from "./la-maison.module.css";
 
-export const metadata = pageMetadata({ ...maison.seo, path: "/la-maison", image: "/media/img/creatrice" });
+/**
+ * La Maison : le texte officiel « À propos » de la créatrice, en entier et dans l'ordre, marqué
+ * data-officiel. Sa devise ouvre la page en très grand titre (une phrase par ligne) ; l'histoire
+ * suit, à côté de son portrait. Textes : content/site/fr/la-maison.json.
+ */
+type LaMaison = typeof import("@/content/site/fr/la-maison.json");
 
-export default function MaisonPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getDoc<LaMaison>("la-maison", "fr", { plain: true });
+  return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/la-maison", image: t.portrait.src });
+}
+
+export default async function MaisonPage() {
+  const t = await getDoc<LaMaison>("la-maison");
   return (
     <>
-      <PageHeader giant title={maison.h1} lead={maison.lead} crumbs={[{ name: "La Maison", path: "/la-maison" }]} eyebrow={identity.name} />
-
-      {/* Faits clés : informations factuelles, identiques partout (Google, moteurs IA) */}
-      <Section theme="ivory" className="section section--flush-top" aria-label="La maison en bref">
-        <div className="container grid-12 maison-intro">
-          <div className="maison-intro__media" data-reveal>
-            <Media
-              image={{ src: "/media/img/creatrice", alt: "Portrait en noir et blanc, long gant de satin brodé de dentelle et collier de perles, la main posée sur l’épaule", width: 1200, height: 1500 }}
-              ratio="look"
-              priority
-              sizes="(min-width: 64rem) 40vw, 100vw"
-            />
-          </div>
-          <dl className="facts maison-intro__facts" data-reveal>
-            {maison.facts.map((f) => (
-              <div key={f.label} className="facts__row">
-                <dt className="t-label t-soft">{f.label}</dt>
-                <dd className="t-h4">{f.value}</dd>
-              </div>
+      {/* en-tête de page (mêmes classes que components/ui/PageHeader) : le titre est la devise officielle */}
+      <Section theme="ivory" as="header" className="page-header">
+        <div className="container page-head page-head--center">
+          <Breadcrumbs items={[{ name: t.titre, path: "/la-maison" }]} />
+          <p className="eyebrow">{t.titre}</p>
+          <h1 className={`page-head__title t-display ${styles.devise}`} data-officiel>
+            {t.apropos.titre.map((ligne, i) => (
+              <Fragment key={ligne}>
+                {i ? " " : null}
+                <span className={styles.ligne}>{ligne}</span>
+              </Fragment>
             ))}
-          </dl>
+          </h1>
         </div>
       </Section>
 
-      {maison.story.map((s, i) => (
-        <Section key={s.title} theme={i === 1 ? "ink" : "ivory"} className="section--tall story" labelledBy={`story-${i}`}>
-          {i === 1 ? <LightHalo /> : null}
-          <div className="container grid-12">
-            <p className="story__num step__num" aria-hidden="true">
-              {roman(i + 1)}
-            </p>
-            <div className="story__text stack-m" data-reveal>
-              <h2 id={`story-${i}`} className="t-h2">
-                {s.title}
-              </h2>
-              <div className="prose">
-                {s.text.map((t) => (
-                  <p key={t}>{t}</p>
-                ))}
-              </div>
-            </div>
+      <Section theme="ivory" className="section section--flush-top" aria-label={t.titre}>
+        <div className={`container ${styles.apropos}`}>
+          <Visuel image={t.portrait} legende={t.legende} priority className={styles.portrait} sizes="(min-width: 48rem) 40vw, 100vw" />
+          <div className={ed.texte} data-officiel>
+            {t.apropos.paragraphes.map((p) => (
+              <p key={p} className="t-body">
+                {p}
+              </p>
+            ))}
           </div>
-        </Section>
-      ))}
-
-      <Section theme="paper" className="section--tall letter" labelledBy="letter-title">
-        <div className="container-prose stack-l">
-          <header className="t-center stack">
-            <p className="eyebrow">{maison.letter.eyebrow}</p>
-            <h2 id="letter-title" className="sr-only">
-              Lettre de la créatrice
-            </h2>
-          </header>
-          <HandwrittenLetter lines={maison.letter.lines} signature={maison.letter.signature} label="Lettre de la créatrice" />
         </div>
       </Section>
 
-      <Section theme="ink" className="section--tall" labelledBy="manifeste-title">
-        <LightHalo />
-        <div className="container">
-          <header className="section-head t-center manifesto-head">
-            <p className="eyebrow">Manifeste</p>
-            <h2 id="manifeste-title" className="t-display manifesto__script">
-              {maison.manifesto.title}
+      <Section theme="ink" className="section--tall" labelledBy="maison-suite">
+        <LightHalo intensity={0.7} />
+        <div className={`container-text ${ed.centre}`}>
+          <div className={ed.tete}>
+            <p className="eyebrow">{t.suite.surtitre}</p>
+            <h2 id="maison-suite" className="t-h2">
+              {t.suite.titre}
             </h2>
-          </header>
-          <ol className="principles">
-            {maison.manifesto.points.map((p, i) => (
-              <li key={p.title} className="principles__item stack" data-reveal>
-                <span className="t-label t-accent">{roman(i + 1)}</span>
-                <h3 className="t-h3">{p.title}</h3>
-                <p className="t-body">{p.text}</p>
-              </li>
-            ))}
-          </ol>
-          <div className="t-center manifesto-cta">
-            <Link href="/atelier" className="btn btn--solid">
-              Entrer dans l’atelier
+            <p className="t-body t-center">{t.suite.texte}</p>
+          </div>
+          <div className={ed.action}>
+            <Link href={t.suite.cta.href} className="btn">
+              {t.suite.cta.label}
             </Link>
           </div>
         </div>

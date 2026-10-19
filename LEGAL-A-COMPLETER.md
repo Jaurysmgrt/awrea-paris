@@ -37,10 +37,50 @@ Ces valeurs viennent des réglages de démonstration du site (`content/settings.
 
 - [ ] Seuil de livraison offerte, tarifs et délais de livraison (content/settings.ts → shop.shippingRates, freeShippingThreshold).
 - [ ] Délai de rétractation et de retour (14 jours minimum légal ; content/settings.ts → returnDays) et prise en charge des frais de retour (offerts en France, à la charge de la cliente hors de France : à confirmer).
-- [ ] Délais de fabrication des précommandes indiqués sur chaque fiche, et moment du débit pour une précommande (au moment de la commande par défaut avec Shopify).
+- [ ] Délais de fabrication des pièces créées sur demande, indiqués sur chaque fiche, dans le panier et au paiement (provisoires : bodys et tops 2 à 3 semaines, robes 3 à 4 semaines, liste dans `ACTIVATION.md`, étape 4.2 bis), et moment du débit (à la commande par défaut avec Shopify).
 - [ ] Durée de validité des cartes cadeaux (un an par défaut dans les CGV) et règles de cumul des codes de réduction.
 - [ ] Prix de l’emballage cadeau (content/settings.ts → giftWrapPrice).
 - [ ] Mode de gestion des droits et taxes à l’importation hors Union européenne (perçus à la commande avec Shopify Markets, ou dus à la réception).
+
+## Pièces de la collection Hypnotic Lace
+
+> Section tenue à la main : `npm run legal:todo` réécrit ce fichier sans elle tant que le script ne
+> la reprend pas (`scripts/legal-todo.ts`). La recopier avant de relancer le script.
+
+Aucune matière, composition, doublure, consigne d’entretien ni mesure n’a été inventée : les fiches
+ne décrivent que ce que montrent les photos. Tant qu’elles manquent, les fiches affichent
+« [À COMPLÉTER : …] » (entretien, composition) ou masquent le champ (doublure, taille portée par le
+mannequin). À renseigner dans Shopify (métachamps `awrea.*`, `ACTIVATION.md`, étape 4.2) ou, en
+démonstration, dans `data/demo/products.ts`.
+
+| Pièce | Composition exacte des matières | Doublure | Conseils d’entretien | Taille portée par le mannequin |
+|---|---|---|---|---|
+| Le body Aura (`body-aura`) | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] |
+| La robe Odessa (`robe-odessa`) | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] |
+| La robe Aria (`robe-aria`) | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] |
+| La robe Sienna (`robe-sienna`) | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] |
+| Le body Gaïa (`body-gaia`) | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] |
+| Le top Evina (`top-evina`) | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] |
+| Le top Kira (`top-kira`) | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] |
+
+- [ ] Composition en pourcentage de chaque matière : mention obligatoire pour un textile vendu
+  (règlement (UE) n° 1007/2011), à reporter aussi sur l’étiquette cousue.
+- [ ] Origine des matières et lieu de confection de chaque pièce (« artisans français ») pour la
+  rubrique Fabrication de la fiche (métachamp `awrea.traceability`).
+- [ ] Mention « visuel provisoire » sous chaque photo générée en attendant les prises de vue : à
+  faire valider (transparence sur les images générées).
+- [ ] Images générées hors du site : elles ne sont envoyées ni à Google ni à Meta (flux produits,
+  données structurées), faute de pouvoir y porter la mention « visuel provisoire », et parce que
+  ces plateformes encadrent les images produites par IA (Google Merchant Center demande de garder
+  les métadonnées IPTC qui les signalent, « trainedAlgorithmicMedia »). À faire vérifier avant de
+  les utiliser ailleurs, par exemple en publicité ou sur Instagram : règles de chaque plateforme,
+  conditions d’utilisation de l’outil qui les a produites (`RESSOURCES.md`), et mention
+  « image générée » conservée dans le fichier.
+- [ ] Fabrication sur demande en tailles standard : vérifier avec la juriste que le droit de
+  rétractation s’applique (l’exception vise les biens nettement personnalisés) et que les CGV
+  officielles l’indiquent.
+- [ ] Délai de livraison : le délai annoncé avant la commande (fabrication puis livraison) engage
+  la Maison ; vérifier sa cohérence avec l’article des CGV officielles consacré à la livraison.
 
 ## Autres informations à confirmer
 

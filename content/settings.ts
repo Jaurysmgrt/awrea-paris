@@ -56,7 +56,14 @@ export const shop = {
     { code: "ATELIER", type: "fixed" as const, value: 3000, label: "Atelier, 30 €" },
   ],
   demoGiftCards: [{ code: "CADEAU-AWREA-100", balance: 10000 }],
+  /**
+   * Guide des tailles (page /guide-des-tailles, fiche de chaque pièce, « Trouver ma taille »,
+   * assistante). Mesures du corps en centimètres : des repères courants, PAS encore fournis par la
+   * Maison. Tant que `confirme` vaut false, la page affiche « à confirmer par la Maison » ; passer
+   * à true une fois le tableau validé par la créatrice (ACTIVATION.md).
+   */
   sizeGuide: {
+    confirme: false,
     headers: ["Taille", "FR", "Tour de poitrine", "Tour de taille", "Tour de hanches"],
     rows: [
       ["XS", "34", "80 cm", "62 cm", "88 cm"],
@@ -65,7 +72,7 @@ export const shop = {
       ["L", "40", "92 cm", "74 cm", "100 cm"],
       ["XL", "42", "96 cm", "78 cm", "104 cm"],
     ],
-    note: "Mesures du corps, en centimètres. Entre deux tailles, nous vous conseillons la plus petite pour les pièces lacées et la plus grande pour les pièces en satin. L’atelier peut ajuster chaque pièce : prenez rendez-vous pour un essayage.",
+    note: "Mesures du corps, en centimètres. Votre pièce est confectionnée dans la taille choisie ; entre deux tailles, « Trouver ma taille » vous conseille selon la coupe de la pièce, et la créatrice vous répond sur rendez-vous.",
   },
 } as const;
 

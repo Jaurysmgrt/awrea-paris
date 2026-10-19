@@ -1,1 +1,124 @@
-{}
+{
+  "panier": {
+    "titre": "Panier",
+    "titreNombre": "Panier ({n})",
+    "fermer": "Fermer le panier",
+    "vide": "Votre panier attend sa première pièce.",
+    "videAction": "Entrer dans la boutique",
+    "livraisonSeuil": "La livraison est offerte en France et en Europe dès {seuil}.",
+    "livraisonOfferte": "La livraison vous est offerte en France et en Europe.",
+    "taille": "Taille {taille}",
+    "delaiLigne": "Créée pour vous en {delai}.",
+    "quantite": "Quantité, {piece}",
+    "moins": "Retirer une pièce",
+    "plus": "Ajouter une pièce",
+    "retirer": "Retirer",
+    "retiree": "{piece} n’est plus dans votre panier.",
+    "cadeau": "Emballage cadeau avec un mot écrit à la main, {prix}",
+    "message": "Votre message",
+    "messageAide": "Nous le recopierons à la main sur une carte ivoire.",
+    "caracteres": "{n} caractères restants",
+    "masquerPrix": "Masquer les prix sur le bon de livraison",
+    "date": "Date de livraison souhaitée (facultatif)",
+    "dateAide": "L’atelier expédie pour une remise ce jour-là, ni avant, ni après.",
+    "suggestions": "Pour compléter",
+    "codes": "Code avantage ou carte cadeau",
+    "codeAvantage": "Code avantage",
+    "carteCadeau": "Carte cadeau",
+    "codeApplique": "{type} : {code}",
+    "appliquer": "Appliquer",
+    "sousTotal": "Sous-total",
+    "emballage": "Emballage cadeau",
+    "livraison": "Livraison",
+    "offerte": "Offerte",
+    "calculee": "Calculée à l’étape suivante",
+    "total": "Total",
+    "surDemande": "Chaque pièce est créée sur demande. Votre commande part de l’atelier dès que la dernière pièce est prête, sous {delai} environ.",
+    "commander": "Commander",
+    "moyens": "Sans compte · Carte · Shop Pay · Apple Pay · Google Pay · PayPal · 3 ou 4 fois"
+  },
+  "commande": {
+    "chargement": "Chargement…",
+    "vide": "Votre panier est vide.",
+    "videAction": "Revenir à la boutique",
+    "recapitulatif": "Récapitulatif de la commande",
+    "recapAfficher": "Afficher le récapitulatif",
+    "recapMasquer": "Masquer le récapitulatif",
+    "ligne": "Taille {taille} · Qté {n}",
+    "delaiLigne": "Créée pour vous en {delai}.",
+    "horsTva": "Pièces et livraison hors TVA française",
+    "droits": "Droits de douane ({taux} %)",
+    "tvaImport": "{libelle} ({taux} %)",
+    "totalTaxes": "Total, droits et taxes compris",
+    "totalTtc": "Total TTC",
+    "dontTva": "dont TVA ({taux} %)",
+    "taxesPayees": "Droits et taxes payés dès maintenant : rien à régler à la livraison. Estimation indicative en mode test.",
+    "messageCadeau": "Message cadeau : « {message} »",
+    "modeTest": "Mode test : rien n’est débité. La carte 4242 4242 4242 4242 est acceptée. La carte 4000 0000 0000 0002 est refusée.",
+    "express": "Paiement express",
+    "expressNote": "En production, l’adresse est reprise de votre portefeuille ; en mode test, complétez-la ci-dessous.",
+    "etapes": {
+      "coordonnees": "Coordonnées",
+      "livraison": "Livraison",
+      "paiement": "Paiement"
+    },
+    "champs": {
+      "email": "E-mail",
+      "emailAide": "Pour la confirmation et le suivi. Aucun compte n’est nécessaire.",
+      "lettres": "Recevoir les lettres de l’atelier (une par saison).",
+      "prenom": "Prénom",
+      "nom": "Nom",
+      "adresse": "Adresse",
+      "complement": "Complément (facultatif)",
+      "codePostal": "Code postal",
+      "ville": "Ville",
+      "pays": "Pays",
+      "telephone": "Téléphone (pour le transporteur, facultatif)",
+      "modeLivraison": "Mode de livraison",
+      "pointRelais": "Point relais",
+      "pointRelaisAide": "Indiquez votre code postal : les points relais les plus proches apparaîtront ici.",
+      "carte": "Numéro de carte",
+      "expiration": "Expiration",
+      "expirationExemple": "MM / AA",
+      "cryptogramme": "Cryptogramme"
+    },
+    "surDemande": "Chaque pièce est créée sur demande par des artisans français. Votre commande est expédiée dès que la dernière pièce est prête, sous {delai} environ, puis livrée selon le mode choisi.",
+    "retrait": "Retrait à l’atelier : dès que votre pièce est prête, nous vous écrivons pour convenir d’un rendez-vous. Vous pouvez aussi {lien} dès maintenant.",
+    "retraitLien": "choisir un créneau",
+    "relaisManquant": "Merci de choisir un point relais.",
+    "erreur": "Le paiement n’a pas abouti. Merci de réessayer.",
+    "paiementEnCours": "Paiement en cours…",
+    "payer": "Payer {total}",
+    "payerAvec": "Payer {total} avec {moyen}",
+    "payerPaypal": "Régler {total} sur PayPal",
+    "payerPlusieurs": "Payer {total} en plusieurs fois",
+    "securite": "Paiement sécurisé. Vos données bancaires ne transitent jamais par nos serveurs.",
+    "moyens": {
+      "card": {
+        "label": "Carte bancaire",
+        "note": "Visa, Mastercard, American Express, Carte Bancaire"
+      },
+      "shop-pay": {
+        "label": "Shop Pay",
+        "note": "Paiement accéléré, coordonnées enregistrées chez Shopify"
+      },
+      "apple-pay": {
+        "label": "Apple Pay",
+        "note": "Validation sur votre appareil Apple"
+      },
+      "google-pay": {
+        "label": "Google Pay",
+        "note": "Validation avec votre compte Google"
+      },
+      "paypal": {
+        "label": "PayPal",
+        "note": "Vous serez redirigée vers PayPal"
+      },
+      "installments": {
+        "label": "Paiement en 3 ou 4 fois",
+        "note": "Sans frais à partir de 100 €, sous réserve d’acceptation"
+      }
+    },
+    "plusProposee": "Cette pièce n’est plus proposée : {piece}. Retirez-la du panier pour continuer."
+  }
+}
