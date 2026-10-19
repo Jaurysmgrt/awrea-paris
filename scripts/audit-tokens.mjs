@@ -8,6 +8,14 @@
  * unités du viewBox SVG, tuile de texture…).
  * Vérifie aussi que styles/tokens.ts (miroir pour e-mails, WebGL, métadonnées) correspond au CSS,
  * et qu'il n'existe qu'une durée (--dur) et une courbe (--ease) pour toutes les animations.
+ *
+ * Ressources officielles (RESSOURCES.md, DESIGN.md) : deux polices seulement, Fraunces 72pt Italic
+ * (titres) et Cormorant Garamond (textes) ; l'italique est réservé aux règles qui posent la police
+ * des titres, et toute règle qui pose la police des textes remet le style droit (les titres h1 à h4
+ * sont en italique par défaut) ; Fraunces jamais sous 25 px ; aucune police retirée (Instrument
+ * Serif, Inter Tight, General Sans) ni la police du logo (licence personnelle), ni dans le code, ni
+ * dans les contenus, ni dans les gabarits d'e-mails de Supabase ; arrondis par les tokens
+ * --radius-* ; aucun texte sous 16 px ; interlignages sur la grille de 8 px.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -15,6 +23,10 @@ import path from "node:path";
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const problems = [];
 const report = (file, line, msg, text) => problems.push(`${path.relative(root, file)}:${line}  ${msg}  →  ${text.trim().slice(0, 110)}`);
+
+// polices retirées par les ressources officielles, et police du logo (Croisan, licence personnelle :
+// jamais chargée par le site, le logo s'affiche à partir des fichiers officiels)
+const RETIRED_FONT = /instrument[ -]?serif|inter[ -]?tight|general[ -]?sans|croisan/i;
 
 // ------------------------------------------------------------------ CSS
 const cssDir = path.join(root, "styles");
@@ -46,12 +58,33 @@ for (const f of fs.readdirSync(cssDir).filter((f) => f.endsWith(".css") && f !==
     if (/:\s*[^;]*\b\d*\.?\d+rem\b/.test(line)) report(file, i + 1, "rem en dur", raw);
     if (/^\s*letter-spacing:\s*-?\d/.test(line) && !/:\s*0;/.test(line)) report(file, i + 1, "interlettrage en dur", raw);
     if (/^\s*font-size:\s*\d/.test(line)) report(file, i + 1, "taille de police en dur", raw);
-    // direction artistique : ni doré, ni italique, ni calligraphie (MARQUE.md)
-    if (/gold/i.test(line)) report(file, i + 1, "doré interdit", raw);
-    if (/font-style:\s*italic/.test(line)) report(file, i + 1, "italique interdit", raw);
+    // direction artistique : ni doré dans l'interface, ni calligraphie (MARQUE.md)
+    if (/gold/i.test(line)) report(file, i + 1, "doré interdit dans l'interface", raw);
+    // l'italique passe par le token des titres (vérifié bloc par bloc plus bas)
+    if (/font-style:\s*(italic|oblique)/.test(line)) report(file, i + 1, "italique en dur (utiliser var(--font-style-display) avec la police des titres)", raw);
     if (/--font-(script|serif)\b/.test(line)) report(file, i + 1, "famille hors des deux polices", raw);
+    if (RETIRED_FONT.test(line)) report(file, i + 1, "police retirée ou police du logo (deux polices officielles seulement)", raw);
+    if (/border-radius:/.test(line) && !/border-radius:\s*(0|inherit|var\(--radius-[a-z]+\))\s*;/.test(line)) report(file, i + 1, "arrondi hors des tokens --radius-*", raw);
     if (/backdrop-filter|filter:\s*blur/.test(line)) report(file, i + 1, "verre dépoli ou flou interdit", raw);
   });
+  // règle par règle : les deux polices et leur style, le plancher de Fraunces, la grille des
+  // interlignages
+  const source = fs.readFileSync(file, "utf8");
+  for (const m of source.matchAll(/\{([^{}]*)\}/g)) {
+    const body = m[1].replace(/\/\*[\s\S]*?\*\//g, "");
+    const line = source.slice(0, m.index).split("\n").length;
+    const selector = source.slice(Math.max(0, source.lastIndexOf("\n", m.index) + 1), m.index + 1);
+    const display = /font-family:\s*var\(--font-display\)/.test(body);
+    // italique : seulement dans une règle qui pose aussi la police des titres (Fraunces n'existe
+    // qu'en italique ; Cormorant n'a pas de face italique, le navigateur l'imiterait)
+    if (/font-style:\s*var\(--font-style-display\)/.test(body) && !display) report(file, line, "italique hors de la police des titres", selector);
+    // police des textes : style droit explicite, sinon un titre (h2.t-label…) garde l'italique de base
+    if (/font-family:\s*var\(--font-(body|sans)\)/.test(body) && !/font-style:\s*normal/.test(body)) report(file, line, "police des textes sans « font-style: normal » (italique hérité des titres)", selector);
+    // Fraunces 72pt est dessinée pour le grand format : jamais sous 25 px (--text-step-1)
+    if (display && /font-size:\s*var\(--text-step-(0|-1|-2)\)/.test(body)) report(file, line, "police des titres sous 25 px (utiliser la police des textes)", selector);
+    // 18 px × 1,6 = 28,8 px : hors de la grille de 8 px (les notes prennent --leading-note)
+    if (/font-size:\s*var\(--text-step--1\)/.test(body) && /line-height:\s*var\(--leading-text\)/.test(body)) report(file, line, "interlignage hors de la grille (18 px × 1,6) : utiliser --leading-note", selector);
+  }
 }
 
 // ------------------------------------------------ une durée, une courbe
@@ -64,8 +97,18 @@ for (const f of fs.readdirSync(cssDir).filter((f) => f.endsWith(".css") && f !==
 }
 
 // ------------------------------------------------ grille de 8 px (tokens)
-for (const m of tokensCss.matchAll(/--(spacing-[a-z0-9-]+|lh-step-\d|leading-label):\s*([\d.]+)rem/g)) {
+for (const m of tokensCss.matchAll(/--(spacing-[a-z0-9-]+|lh-step--?\d|leading-(?:label|note)):\s*([\d.]+)rem/g)) {
   if ((parseFloat(m[2]) * 16) % 8 !== 0) problems.push(`styles/tokens.css  --${m[1]} = ${m[2]}rem : hors de la grille de 8 px`);
+}
+
+// ---------------------------------------- jamais de texte sous 16 px (Cormorant a un petit œil)
+for (const m of tokensCss.matchAll(/--(text-step--?\d):\s*([\d.]+)rem/g)) {
+  if (parseFloat(m[2]) < 1) problems.push(`styles/tokens.css  --${m[1]} = ${m[2]}rem : texte sous 16 px`);
+}
+
+// ------------------------------------- deux polices officielles, rien d'autre (fichiers et code)
+for (const f of fs.readdirSync(path.join(root, "styles", "fonts"))) {
+  if (!/^(fraunces-|cormorant-garamond-|OFL-(fraunces|cormorant-garamond)\.txt$)/.test(f)) problems.push(`styles/fonts/${f}  fichier hors des deux polices officielles`);
 }
 
 // ------------------------------------------------- composants et pages
@@ -78,6 +121,36 @@ function walk(dir, out = []) {
   }
   return out;
 }
+// polices retirées : jamais dans une chaîne du code (familles, fichiers chargés)
+for (const file of [...walk(path.join(root, "app")), ...walk(path.join(root, "components")), ...walk(path.join(root, "lib")), path.join(root, "styles/tokens.ts")]) {
+  fs.readFileSync(file, "utf8").split("\n").forEach((raw, i) => {
+    for (const str of raw.matchAll(/(["'`])((?:(?!\1).)*)\1/g)) if (RETIRED_FONT.test(str[2])) report(file, i + 1, "police retirée ou police du logo dans le code", raw);
+  });
+}
+// ni dans les contenus ni dans les gabarits d'e-mails envoyés par Supabase (code de connexion)
+// EN_ATTENTE : gabarits dont la mise aux polices officielles est confiée à une autre équipe
+// (signalés à chaque passage ; l'entrée doit disparaître dès que le fichier est corrigé)
+const EN_ATTENTE = new Set(["supabase/templates/code-de-connexion.html"]);
+function walkAll(dir, ext, out = []) {
+  if (!fs.existsSync(dir)) return out;
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) walkAll(p, ext, out);
+    else if (ext.test(e.name)) out.push(p);
+  }
+  return out;
+}
+for (const file of [...walkAll(path.join(root, "content"), /\.(json|ts|md)$/), ...walkAll(path.join(root, "supabase", "templates"), /\.html$/)]) {
+  const rel = path.relative(root, file);
+  const hits = fs.readFileSync(file, "utf8").split("\n").flatMap((raw, i) => (RETIRED_FONT.test(raw) ? [[i + 1, raw]] : []));
+  if (EN_ATTENTE.has(rel)) {
+    if (hits.length) console.log(`  en attente : ${rel} (${hits.length} ligne(s) avec une police retirée, confiée à une autre équipe)`);
+    else problems.push(`${rel}  corrigé : retirer son entrée de EN_ATTENTE (scripts/audit-tokens.mjs)`);
+    continue;
+  }
+  for (const [line, raw] of hits) report(file, line, "police retirée ou police du logo", raw);
+}
+
 const allowColorFiles = new Set(["styles/tokens.ts"]);
 for (const file of [...walk(path.join(root, "app")), ...walk(path.join(root, "components"))]) {
   const rel = path.relative(root, file);
