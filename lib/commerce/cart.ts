@@ -8,12 +8,14 @@ import { shop } from "@/content/settings";
 import { legalVersions } from "@/content/legal-versions";
 import { GIFT_WRAP_VARIANT, shopifyCartCreate, shopifyCartGet, shopifyCartMutate, shopifyEnabled } from "@/lib/shopify/storefront";
 import { getAllProducts } from "./index";
-import { editionInfo } from "./availability";
+import { longestLeadTime, MAX_PER_LINE, overLineLimit } from "./availability";
 import { earliestGiftDate, latestGiftDate } from "./international";
 import type { Cart, Product } from "./types";
 
 export const CART_COOKIE = "awrea_cart";
 const MAX_AGE = 60 * 60 * 24 * 30;
+export { MAX_PER_LINE };
+const tooMany = () => new CartError(`Pour plus de ${MAX_PER_LINE} pièces identiques, écrivez à la Maison : nous en parlerons ensemble.`);
 
 interface DemoState {
   l: { v: string; q: number }[];
@@ -59,7 +61,6 @@ export function computeDemoCart(state: DemoState, products: Product[]): Cart {
       const found = findVariant(products, l.v);
       if (!found) return null;
       const { p, v } = found;
-      const ed = editionInfo(p);
       return {
         id: v.id,
         variantId: v.id,
@@ -69,9 +70,7 @@ export function computeDemoCart(state: DemoState, products: Product[]): Cart {
         quantity: l.q,
         unitPrice: p.price,
         image: p.images[0],
-        preorder: v.quantity < l.q,
-        leadTimeWeeks: p.leadTimeWeeks,
-        editionLabel: ed.unique ? "Pièce unique" : ed.complete ? "Sur commande" : ed.label,
+        leadTime: p.leadTime,
       };
     })
     .filter((x): x is NonNullable<typeof x> => Boolean(x));
@@ -117,16 +116,13 @@ const serialize = (s: DemoState) => Buffer.from(JSON.stringify(s), "utf8").toStr
 async function demoApply(state: DemoState, action: CartAction): Promise<DemoState> {
   const products = await getAllProducts();
   const s: DemoState = { ...state, l: [...state.l] };
+  // chaque pièce est créée sur demande : toutes les tailles se commandent, sans stock à vérifier
   const addOne = (variantId: string, qty: number) => {
     const found = findVariant(products, variantId);
     if (!found) throw new CartError("Cette pièce n’existe plus.");
-    const { p, v } = found;
-    if (v.quantity <= 0 && !v.preorder) throw new CartError(`${p.title} est épuisée dans cette taille.`);
     const existing = s.l.find((l) => l.v === variantId);
     const nextQty = (existing?.q ?? 0) + qty;
-    const ed = editionInfo(p);
-    const cap = v.preorder ? Math.max(v.quantity, Math.max(1, ed.remaining), 2) : v.quantity;
-    if (nextQty > cap) throw new CartError(`Il ne reste que ${cap} pièce${cap > 1 ? "s" : ""} de ${p.title} dans cette taille.`);
+    if (overLineLimit(() => existing?.q ?? 0, [{ variantId, quantity: qty }]).length) throw tooMany();
     if (existing) existing.q = nextQty;
     else s.l.push({ v: variantId, q: qty });
   };
@@ -190,7 +186,8 @@ async function demoApply(state: DemoState, action: CartAction): Promise<DemoStat
 function checkGiftDate(date: string | null, products: Product[], lines: { v: string }[]): string | null {
   if (!date) return null;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new CartError("Cette date n’est pas valable.");
-  const weeks = Math.max(0, ...lines.map((l) => findVariant(products, l.v)).map((f) => (f && f.v.quantity <= 0 ? (f.p.leadTimeWeeks ?? 4) : 0)));
+  // la commande part quand sa dernière pièce est prête : délai maximal de la plus longue fabrication
+  const weeks = longestLeadTime(lines.map((l) => findVariant(products, l.v)?.p.leadTime).filter((t) => t !== undefined))?.max ?? 0;
   if (date < earliestGiftDate(weeks)) throw new CartError(`Livraison possible à partir du ${new Date(earliestGiftDate(weeks)).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}.`);
   if (date > latestGiftDate()) throw new CartError("Choisissez une date dans les six prochains mois.");
   return date;
@@ -201,6 +198,10 @@ function checkGiftDate(date: string | null, products: Product[], lines: { v: str
 async function shopifyApply(cartId: string | null, action: CartAction): Promise<Cart> {
   if (action.type === "add" || action.type === "addMany") {
     const lines = action.type === "add" ? [{ merchandiseId: action.variantId, quantity: action.quantity ?? 1 }] : action.variantIds.map((id) => ({ merchandiseId: id, quantity: 1 }));
+    // même règle que le mode démonstration : dix pièces identiques au plus par ligne
+    const current = cartId ? await shopifyCartGet(cartId) : null;
+    const inCart = (id: string) => current?.lines.find((x) => x.variantId === id)?.quantity ?? 0;
+    if (overLineLimit(inCart, lines.map((l) => ({ variantId: l.merchandiseId, quantity: l.quantity }))).length) throw tooMany();
     if (!cartId) return shopifyCartCreate(lines);
     return shopifyCartMutate("add", cartId, lines);
   }
@@ -217,7 +218,8 @@ async function shopifyApply(cartId: string | null, action: CartAction): Promise<
     case "gift": {
       const current = await shopifyCartGet(cartId);
       const date = action.deliveryDate === undefined ? (current?.gift.deliveryDate ?? null) : action.deliveryDate;
-      if (date && (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date < earliestGiftDate() || date > latestGiftDate())) throw new CartError("Cette date de livraison n’est pas possible.");
+      const weeks = longestLeadTime((current?.lines ?? []).map((l) => l.leadTime))?.max ?? 0;
+      if (date && (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date < earliestGiftDate(weeks) || date > latestGiftDate())) throw new CartError("Cette date de livraison n’est pas possible.");
       const cart = await shopifyCartMutate("attributes", cartId, giftAttributes({
         wrap: action.wrap,
         message: action.message.slice(0, 300),

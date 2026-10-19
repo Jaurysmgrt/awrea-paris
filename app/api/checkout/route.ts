@@ -2,6 +2,8 @@
  * Validation de commande — MODE TEST (pilote démo uniquement).
  * En production, le paiement, les taxes, la livraison et la création de commande sont faits
  * par le checkout Shopify ; cette route n'est alors jamais appelée.
+ * Chaque pièce est créée sur demande : aucune vérification de stock, la commande est « reçue »
+ * puis passe en confection ; le délai annoncé est celui de la pièce la plus longue à faire.
  */
 import { NextResponse, after } from "next/server";
 import { runCommandesStockAgent } from "@/lib/agents/team/commandes-stock";
@@ -10,10 +12,9 @@ import { z } from "zod";
 import { CART_COOKIE, readCart } from "@/lib/commerce/cart";
 import { assertCanBuy } from "@/lib/drops";
 import { getAllProducts } from "@/lib/commerce";
-import { DEMO_KEYS } from "@/lib/commerce/catalog-demo";
+import { leadTimeText, longestLeadTime } from "@/lib/commerce/availability";
 import { getOrders, saveOrder } from "@/lib/commerce/orders";
 import { kv } from "@/lib/store";
-import { shop } from "@/content/settings";
 import { sign } from "@/lib/auth/session";
 import { sendEmail } from "@/lib/email/send";
 import { brandEmail } from "@/lib/email/templates";
@@ -84,36 +85,17 @@ export async function POST(req: Request) {
     if (d.testOutcome !== "accepted") return NextResponse.json({ error: "Numéro de carte incomplet." }, { status: 400 });
   }
 
-  // stocks et numéros d'édition
+  // pièces créées sur demande : aucune vérification de stock, seulement que la pièce existe encore
   const products = await getAllProducts();
-  const stock = (await kv.get<Record<string, number>>(DEMO_KEYS.stock)) ?? {};
-  const produced = (await kv.get<Record<string, number>>(DEMO_KEYS.produced)) ?? {};
   const lines: Order["lines"] = [];
-  let anyPreorder = false;
   for (const l of cart.lines) {
     const p = products.find((x) => x.handle === l.productHandle);
     const v = p?.variants.find((x) => x.id === l.variantId);
-    if (!p || !v) return NextResponse.json({ error: `${l.title} n’est plus disponible.` }, { status: 409 });
-    const fromStock = Math.min(v.quantity, l.quantity);
-    const toMake = l.quantity - fromStock;
-    if (toMake > 0 && !v.preorder) return NextResponse.json({ error: `${p.title} en taille ${v.size} vient d’être épuisée.` }, { status: 409 });
-    if (toMake > 0) anyPreorder = true;
-    stock[v.id] = v.quantity - fromStock;
-    for (let i = 0; i < l.quantity; i++) {
-      const already = produced[p.handle] ?? p.edition.produced;
-      const within = already < p.edition.total;
-      if (within) produced[p.handle] = already + 1;
-      lines.push({
-        title: p.title,
-        size: v.size,
-        quantity: 1,
-        unitPrice: p.price,
-        handle: p.handle,
-        editionLabel: p.edition.total === 1 ? "Pièce unique" : within ? `N° ${already + 1} / ${p.edition.total}` : "Sur commande",
-      });
-    }
+    if (!p || !v) return NextResponse.json({ error: `${l.title} n’est plus proposée.` }, { status: 409 });
+    lines.push({ title: p.title, size: v.size, quantity: l.quantity, unitPrice: p.price, handle: p.handle });
   }
-  await Promise.all([kv.set(DEMO_KEYS.stock, stock), kv.set(DEMO_KEYS.produced, produced)]);
+  const longest = longestLeadTime(cart.lines.map((l) => l.leadTime));
+  const delai = longest ? leadTimeText(longest) : null;
 
   const total = Math.max(0, gross - (cart.giftCard?.amount ?? 0));
   const count = (await getOrders()).length;
@@ -123,7 +105,8 @@ export async function POST(req: Request) {
     createdAt: new Date().toISOString(),
     email: d.email,
     name: `${d.firstName} ${d.lastName.charAt(0)}.`,
-    status: anyPreorder ? "in_production" : "paid",
+    // première étape : commande reçue (la Maison la passe ensuite en confection, prête, expédiée)
+    status: "paid",
     lines,
     total,
     shipping: {
@@ -178,9 +161,7 @@ export async function POST(req: Request) {
       title: "Merci pour votre commande",
       paragraphs: [
         `Bonjour ${d.firstName},`,
-        anyPreorder
-          ? "Votre commande est confirmée. Une partie de vos pièces est désormais en fabrication à l’atelier : nous vous écrirons dès leur expédition."
-          : `Votre commande est confirmée. Votre pièce sera pliée dans du papier de soie et expédiée sous ${shop.dispatchDays}, avec son certificat numéroté.`,
+        `Votre commande est bien reçue. Chaque pièce est créée pour vous, sur demande, par des artisans français${delai ? ` : comptez ${delai} de fabrication` : ""}. Nous vous écrirons quand elle sera prête, puis à son expédition.`,
         ...(certificates.length
           ? [
               `Le certificat d’authenticité de chaque pièce est déjà en ligne : ${certificates.map((c) => `${c.certificate.productTitle}, ${certificateUrl(c.certificate.serial)}`).join(" ; ")}. Il est rattaché à votre compte.`,
@@ -188,7 +169,10 @@ export async function POST(req: Request) {
             ]
           : []),
       ],
-      items: lines.map((l) => ({ title: l.title, meta: `Taille ${l.size} · ${l.editionLabel}`, price: l.unitPrice, image: imageAt(products.find((p) => p.handle === l.handle)?.images[0].src ?? "", 480) })),
+      items: lines.map((l) => {
+        const p = products.find((x) => x.handle === l.handle);
+        return { title: l.title, meta: [`Taille ${l.size}`, l.quantity > 1 ? `${l.quantity} pièces` : null, p ? `${leadTimeText(p.leadTime)} de fabrication` : null].filter(Boolean).join(" · "), price: l.unitPrice * l.quantity, image: imageAt(p?.images[0]?.src ?? "", 480) };
+      }),
       totals: [
         { label: relay ? `Livraison en point relais, ${relay.name}` : rate.pickup ? "Retrait à l’atelier" : "Livraison", value: shippingPrice ? formatPrice(shippingPrice) : "Offerte" },
         ...(cart.gift.wrap ? [{ label: "Emballage cadeau", value: formatPrice(cart.giftWrapPrice) }] : []),

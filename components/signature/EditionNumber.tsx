@@ -1,44 +1,31 @@
 /**
- * SIGNATURE 5 — Pièces numérotées.
- * Chaque pièce affiche son numéro d'édition comme sur un certificat d'authenticité
- * (« N° 3 / 5 ») et le nombre de pièces restantes.
+ * SIGNATURE 5 — Certificat d'authenticité.
+ * Chaque pièce est créée sur demande : plus de série ni de numéro d'édition (« N° 3 / 5 »). Elle
+ * reçoit à la commande un numéro de création unique, inscrit sur son certificat d'authenticité
+ * (lib/certificates.ts). Textes : document de contenu « catalogue », clé `certificat`.
  */
-import { editionInfo } from "@/lib/commerce/availability";
+import { getDoc } from "@/lib/edition/read";
+import type { CatalogueTexts } from "@/lib/commerce/texts";
 import type { Product } from "@/lib/commerce/types";
 
-export function EditionNumber({ product, variant = "certificate" }: { product: Pick<Product, "edition" | "title" | "leadTimeWeeks">; variant?: "certificate" | "inline" }) {
-  const ed = editionInfo(product);
+export async function EditionNumber({ product, variant = "certificate" }: { product: Pick<Product, "title">; variant?: "certificate" | "inline" }) {
+  const t = (await getDoc<CatalogueTexts>("catalogue")).certificat;
   if (variant === "inline") {
     return (
-      <span className="edition-inline t-label" title={ed.remainingLabel}>
-        {ed.unique ? "Pièce unique" : ed.complete ? "Sur commande" : `N° ${ed.nextNumber} / ${ed.total}`}
+      <span className="edition-inline t-label" title={t.texte}>
+        {t.numero}
       </span>
     );
   }
   return (
-    <div className="certificate" role="group" aria-label="Certificat d’édition">
+    <div className="certificate" role="group" aria-label={`${t.titre}, ${product.title}`}>
       <span className="certificate__corner" aria-hidden="true" />
-      <p className="t-label certificate__head t-center">Certificat d’édition</p>
-      <p className="certificate__number" aria-label={ed.unique ? "Pièce unique" : `Numéro ${ed.nextNumber} sur ${ed.total}`}>
-        {ed.unique ? (
-          <span className="certificate__unique">Pièce unique</span>
-        ) : (
-          <>
-            <span className="certificate__no">N°</span>
-            <span className="certificate__n">{ed.complete ? "·" : ed.nextNumber}</span>
-            <span className="certificate__slash">/</span>
-            <span className="certificate__total">{ed.total}</span>
-          </>
-        )}
+      <p className="t-label certificate__head t-center">{t.titre}</p>
+      <p className="certificate__number">
+        <span className="certificate__unique">{t.numero}</span>
       </p>
-      <p className="t-note t-center certificate__remaining">
-        {ed.complete
-          ? product.leadTimeWeeks
-            ? "La série est complète. Une nouvelle pièce peut être façonnée sur commande."
-            : "La série est complète."
-          : ed.remainingLabel}
-      </p>
-      <p className="t-label t-center certificate__foot">Fait main à Paris · Signé par la créatrice</p>
+      <p className="t-note t-center certificate__remaining">{t.texte}</p>
+      <p className="t-label t-center certificate__foot">{t.pied}</p>
     </div>
   );
 }
