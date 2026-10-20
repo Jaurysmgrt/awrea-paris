@@ -7,17 +7,16 @@
 import { useEffect, useState } from "react";
 import { recommendSize, type FitAdvice, type Measures } from "@/lib/fit";
 import type { Product, Size } from "@/lib/commerce/types";
+import { useTexts } from "@/components/content/Texts";
+import { fill, type CatalogueTexts } from "@/lib/commerce/texts";
 
-const FIELDS: { key: keyof Measures; label: string }[] = [
-  { key: "poitrine", label: "Tour de poitrine" },
-  { key: "taille", label: "Tour de taille" },
-  { key: "hanches", label: "Tour de hanches" },
-];
+const FIELDS: (keyof Measures)[] = ["poitrine", "taille", "hanches"];
 
 const signedIn = () => typeof document !== "undefined" && /(?:^|; )awrea_signed_in=1/.test(document.cookie);
 const sizeSlot = (p: Product): "robe" | "haut" | "bas" | null => (p.category === "robe" ? "robe" : p.category === "jupe" ? "bas" : p.category === "accessoire" ? null : "haut");
 
 export function SizeFinder({ product, onPick }: { product: Product; onPick: (size: Size) => void }) {
+  const t = useTexts<CatalogueTexts>("catalogue").mesures;
   const [measures, setMeasures] = useState<Measures>({});
   const [advice, setAdvice] = useState<FitAdvice | null>(null);
   const [save, setSave] = useState(false);
@@ -56,27 +55,27 @@ export function SizeFinder({ product, onPick }: { product: Product; onPick: (siz
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ sizes: { mesures: measures, ...(slot && a.offered ? { [slot]: a.size } : {}) } }),
           }).catch(() => null);
-          setSaved(res?.ok ? "Vos mesures sont gardées dans votre compte." : "");
+          setSaved(res?.ok ? t.gardees : "");
         }
       }}
     >
-      <h3 className="t-label">Trouver ma taille</h3>
-      <p className="t-note">Vos mesures, prises à même la peau, en centimètres. Une seule suffit ; trois sont plus justes.</p>
+      <h3 className="t-label">{t.titre}</h3>
+      <p className="t-note">{t.aide}</p>
       <div className="form__row form__row--3">
-        {FIELDS.map((f) => (
-          <div key={f.key} className="field">
-            <label className="field__label" htmlFor={`finder-${f.key}`}>
-              {f.label}
+        {FIELDS.map((key) => (
+          <div key={key} className="field">
+            <label className="field__label" htmlFor={`finder-${key}`}>
+              {t[key]}
             </label>
             <input
-              id={`finder-${f.key}`}
+              id={`finder-${key}`}
               className="field__input"
               type="number"
               inputMode="numeric"
               min={50}
               max={160}
-              value={measures[f.key] ?? ""}
-              onChange={(e) => setMeasures((m) => ({ ...m, [f.key]: e.target.value ? Number(e.target.value) : undefined }))}
+              value={measures[key] ?? ""}
+              onChange={(e) => setMeasures((m) => ({ ...m, [key]: e.target.value ? Number(e.target.value) : undefined }))}
             />
           </div>
         ))}
@@ -84,11 +83,11 @@ export function SizeFinder({ product, onPick }: { product: Product; onPick: (siz
       {account ? (
         <label className="check t-note">
           <input type="checkbox" checked={save} onChange={(e) => setSave(e.target.checked)} />
-          <span>Garder mes mesures dans mon compte</span>
+          <span>{t.garder}</span>
         </label>
       ) : null}
       <button type="submit" className="btn">
-        Voir ma taille
+        {t.voir}
       </button>
       <div aria-live="polite" className="stack-s">
         {advice ? (
@@ -96,7 +95,7 @@ export function SizeFinder({ product, onPick }: { product: Product; onPick: (siz
             <p className="t-body size-finder__advice">{advice.message}</p>
             {advice.offered ? (
               <button type="button" className="btn btn--solid" onClick={() => onPick(advice.size)}>
-                Choisir le {advice.size}
+                {fill(t.choisir, { taille: advice.size })}
               </button>
             ) : null}
           </>

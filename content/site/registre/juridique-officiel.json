@@ -1,0 +1,17 @@
+{
+  "cgv": {
+    "label": "Conditions générales de vente (texte officiel de la créatrice)",
+    "kind": "legal",
+    "chemin": "/cgv"
+  },
+  "mentions-legales": {
+    "label": "Mentions légales (texte officiel de la créatrice et compléments)",
+    "kind": "legal",
+    "chemin": "/mentions-legales"
+  },
+  "juridique": {
+    "label": "Textes communs des pages légales (sommaire, formulaire de rétractation, tableau des cookies)",
+    "kind": "textes",
+    "chemin": "/cgv"
+  }
+}

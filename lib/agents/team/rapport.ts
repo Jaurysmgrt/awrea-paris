@@ -34,7 +34,8 @@ export async function runRapportAgent(trigger: AgentRun["trigger"] = "cron"): Pr
     const weekLog = log.filter((a) => new Date(a.date).getTime() >= since);
     const msgs = inbox.filter((m) => new Date(m.date).getTime() >= since);
     const pending = proposals.filter((p) => p.status === "pending");
-    const lowStock = products.flatMap((p) => p.variants.filter((v) => v.quantity === 0 && !v.preorder).map((v) => `${p.title} ${v.size}`));
+    // pièces créées sur demande : aucune rupture possible
+    const lowStock: string[] = [];
 
     const metrics: Record<string, string | number> = {
       "Chiffre d’affaires": formatPrice(revenue),

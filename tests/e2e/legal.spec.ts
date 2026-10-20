@@ -2,6 +2,10 @@ import { expect, test } from "@playwright/test";
 import { acceptCookies } from "./helpers";
 
 const PAGES = ["/mentions-legales", "/propriete-intellectuelle", "/cgv", "/cgu", "/confidentialite", "/cookies", "/assistant-ia", "/retractation", "/livraison-retours"];
+/** pages légales reliées au pied de page (maquette BAS DE PAGE : colonnes LÉGAL et SERVICE CLIENT) */
+const FOOTER = ["/mentions-legales", "/cgv", "/confidentialite", "/livraison-retours"];
+/** articles des CGV officielles, dans l'ordre, avec leurs ancres (liens « /cgv#… » des autres pages) */
+const ARTICLES = ["champ-application", "prix", "commande", "paiement", "livraison", "transfert-propriete", "retractation", "garanties", "donnees", "propriete-intellectuelle", "droit"];
 
 test.describe("Pages légales", () => {
   for (const path of PAGES) {
@@ -17,25 +21,66 @@ test.describe("Pages légales", () => {
         await first.click();
         await expect(page.locator(href!)).toBeInViewport();
       }
+      const text = await page.locator("main").innerText();
       // aucune accolade de gabarit ne doit apparaître à l'écran
-      expect(await page.locator("main").innerText()).not.toMatch(/\{\{|\}\}/);
-      if (path !== "/livraison-retours") await expect(page.locator(`footer a[href="${path}"]`)).toHaveCount(1);
+      expect(text).not.toMatch(/\{\{|\}\}/);
+      // création sur demande : aucune notion de rareté, de précommande ni de série numérotée
+      expect(text).not.toMatch(/précommande|épuisé|série numérotée|édition limitée|liste d’attente|pièces restantes|retour en stock/i);
+      if (FOOTER.includes(path)) await expect(page.locator(`footer a[href="${path}"]`)).toHaveCount(1);
     });
   }
 
-  test("informations de l’entreprise non inventées : repères « À COMPLÉTER » visibles", async ({ page }) => {
-    await acceptCookies(page);
-    await page.goto("/mentions-legales");
-    await expect(page.locator("mark.todo").first()).toBeVisible();
-    await expect(page.locator("mark.todo").first()).toContainText("À COMPLÉTER");
-  });
-
-  test("CGV : garanties légales, exclusion du sur-mesure, formulaire type de rétractation", async ({ page }) => {
+  test("CGV : les onze articles officiels, dans l’ordre, avec leurs ancres", async ({ page }) => {
     await acceptCookies(page);
     await page.goto("/cgv");
-    await expect(page.getByText("Garantie légale de conformité et garantie des vices cachés")).toBeVisible();
-    await expect(page.getByText(/L221-28, 3°/)).toBeVisible();
+    const titres = page.locator("main .legal__body > section[data-officiel] > h2");
+    await expect(titres).toHaveCount(ARTICLES.length);
+    const textes = await titres.allInnerTexts();
+    textes.forEach((t, i) => expect(t.trim()).toMatch(new RegExp(`^ARTICLE ${i + 1} `)));
+    await expect(titres.first()).toHaveText("ARTICLE 1 – Champ d’application");
+    for (const id of ARTICLES) await expect(page.locator(`section#${id}[data-officiel]`)).toHaveCount(1);
+    // listes de l'original en vraies listes (article 8 : deux garanties ; article 9 : destinataires et droits)
+    await expect(page.locator("#garanties ul > li")).toHaveCount(2);
+    await expect(page.locator("#donnees ul > li")).toHaveCount(9);
+    // coordonnées de la Maison (article 1)
+    await expect(page.locator("#champ-application")).toContainText("awrea.contact@gmail.com");
+    // annexe de la Maison, hors texte officiel : formulaire type adressé à l'entreprise
+    expect(await page.locator("#annexe").getAttribute("data-officiel")).toBeNull();
     await expect(page.getByText("Formulaire de rétractation", { exact: true })).toBeVisible();
+    await expect(page.locator(".legal__model")).toContainText("Léane Soubrier");
+  });
+
+  test("CGV : l’ancre de l’article 7 citée par les pages Livraison et Rétractation", async ({ page }) => {
+    await acceptCookies(page);
+    await page.goto("/retractation");
+    await page.locator('main a[href="/cgv#retractation"]').first().click();
+    await expect(page).toHaveURL(/\/cgv#retractation$/);
+    await expect(page.locator("#retractation h2")).toBeInViewport();
+    await expect(page.locator("#retractation")).toContainText("Les frais de retour restant à la charge du Client.");
+  });
+
+  test("mentions légales : texte officiel, informations de l’entreprise, repères « À COMPLÉTER » des compléments", async ({ page }) => {
+    await acceptCookies(page);
+    await page.goto("/mentions-legales");
+    const entreprise = page.locator("section#entreprise[data-officiel]");
+    await expect(entreprise).toContainText("Léane Soubrier");
+    await expect(entreprise).toContainText("100 222 926");
+    await expect(entreprise).toContainText("46 rue Paul Déroulède, 78290 Croissy-sur-Seine");
+    await expect(page.locator("main .legal__body > [data-officiel]").first()).toContainText("loi n° 2004-575", { ignoreCase: true });
+    // compléments demandés par la loi, absents du texte officiel : jamais inventés
+    for (const id of ["publication", "mediation"]) {
+      await expect(page.locator(`#${id} mark.todo`)).toBeVisible();
+      await expect(page.locator(`#${id} mark.todo`)).toContainText("À COMPLÉTER");
+    }
+  });
+
+  test("livraison et retours : création sur demande, livraison en France métropolitaine, frais de retour", async ({ page }) => {
+    await acceptCookies(page);
+    await page.goto("/livraison-retours");
+    await expect(page.locator("#fabrication")).toContainText("Aucune pièce n’attend en stock");
+    await expect(page.locator("#fabrication")).toContainText("délai de fabrication");
+    await expect(page.locator("#delais")).toContainText("France métropolitaine");
+    await expect(page.locator("#retours")).toContainText("Les frais de retour restent à votre charge.");
   });
 
   test("politique cookies : liste par catégorie et gestionnaire de consentement", async ({ page }) => {

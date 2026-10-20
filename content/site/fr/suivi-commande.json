@@ -1,0 +1,72 @@
+{
+  "seo": {
+    "title": "Suivre une commande | Awrea Paris",
+    "description": "Suivez votre commande Awrea Paris sans compte, avec le numéro de commande et l’adresse e-mail. Les étapes de la confection, la facture, le retour ou l’échange de taille au même endroit."
+  },
+  "recherche": {
+    "titre": "Suivre une commande",
+    "chapeau": "Le numéro de la commande et l’adresse e-mail utilisée suffisent, sans compte. Vous y suivez la confection de votre pièce étape par étape, et vous y trouvez la facture, le retour ou l’échange de taille.",
+    "aide": "Le numéro figure dans l’e-mail de confirmation, il commence par « AW- ». Vous avez un compte ? Vos commandes vous attendent dans {lien}.",
+    "lienCompte": "votre espace"
+  },
+  "frise": {
+    "titre": "Étapes de la commande",
+    "etapes": {
+      "paid": "Commande reçue",
+      "in_production": "En confection",
+      "ready": "Prête",
+      "shipped": "Expédiée",
+      "delivered": "Livrée"
+    },
+    "franchie": "étape franchie",
+    "enCours": "étape en cours",
+    "aVenir": "étape à venir",
+    "delai": "Votre pièce est créée pour vous, sur demande, par des artisans français. Comptez {delai} de confection.",
+    "estimation": "Fin de confection prévue entre le {debut} et le {fin}.",
+    "estimationJour": "Fin de confection prévue le {fin}.",
+    "retard": "La confection demande quelques jours de plus que prévu. L’atelier vous écrit dès que votre pièce est prête.",
+    "situations": {
+      "pending": "Le paiement n’est pas encore confirmé. La confection commence dès qu’il l’est.",
+      "blocked": "La Maison vérifie votre commande avant d’en commencer la confection. Elle vous écrit très vite.",
+      "returned": "Un retour est en cours pour cette commande.",
+      "refunded": "Cette commande a été remboursée."
+    }
+  },
+  "commande": {
+    "seo": {
+      "title": "Votre commande | Awrea Paris",
+      "description": "Suivi de votre commande Awrea Paris."
+    },
+    "titre": "Commande {numero}",
+    "chapeau": "{etape} · passée le {date}",
+    "confection": "La confection",
+    "livraison": "Livraison",
+    "retrait": "Nous vous écrivons pour choisir le jour avec vous.",
+    "remise": "Remise souhaitée le {date}.",
+    "colis": "Suivre le colis ({transporteur})",
+    "colisAVenir": "Le lien de suivi du transporteur apparaîtra ici dès l’expédition.",
+    "pieces": "Pièces",
+    "taille": "Taille {taille}",
+    "total": "Total {total}",
+    "documents": "Documents",
+    "facture": "Facture (PDF)",
+    "certificat": "Certificat d’authenticité · {piece}",
+    "retours": "Vos retours",
+    "echange": "échange en {taille}",
+    "remboursement": "remboursement",
+    "etiquetteAVenir": "L’atelier vous envoie l’étiquette par e-mail dans la journée.",
+    "etiquette": "Étiquette de retour (PDF)",
+    "retourner": "Retourner ou échanger une pièce",
+    "retourTexte": "Jusqu’au {date}, une pièce non portée peut revenir à l’atelier, pour un remboursement ou une autre taille. Le retour est offert depuis la France."
+  },
+  "confirmation": {
+    "suite": "Nous vous écrivons à chaque étape, quand votre pièce entre en confection, quand elle est prête, puis le jour de son départ avec le lien de suivi."
+  },
+  "detail": {
+    "taille": "Taille {taille}",
+    "quantite": "{n} pièces",
+    "livraison": "Livraison",
+    "offerte": "Offerte",
+    "total": "Total"
+  }
+}

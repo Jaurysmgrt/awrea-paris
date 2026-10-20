@@ -1,0 +1,65 @@
+/*
+ * La commande sur demande : les étapes (un filet noir très fin au-dessus de chacune, numérotées
+ * dans la marge par un compteur) et les délais de fabrication. Tokens seulement.
+ */
+.etapes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-block) var(--spacing-gutter);
+  padding: 0;
+  list-style: none;
+  counter-reset: etape;
+}
+@media (min-width: 48rem) {
+  .etapes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 64rem) {
+  .etapes {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.etape {
+  counter-increment: etape;
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-xs);
+  padding-top: var(--spacing-m);
+  border-top: var(--border-width-hair) solid var(--fg);
+}
+/* numéro de l’étape, en capitales du texte courant (jamais lu deux fois : la liste est ordonnée) */
+.etape::before {
+  content: counter(etape, decimal-leading-zero);
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: var(--text-step--2);
+  letter-spacing: var(--tracking-label);
+  line-height: var(--leading-label);
+  color: var(--fg-soft);
+}
+
+/* délais : deux familles côte à côte dès la tablette */
+.delais {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-block) var(--spacing-gutter);
+  margin-inline: 0;
+}
+@media (min-width: 48rem) {
+  .delais {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.delai {
+  display: grid;
+  gap: var(--spacing-xs);
+  justify-items: center;
+  padding-top: var(--spacing-m);
+  border-top: var(--border-width-hair) solid var(--fg);
+}
+.delai dd {
+  margin: 0;
+  text-align: center;
+}

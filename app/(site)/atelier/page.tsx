@@ -1,92 +1,68 @@
+import type { Metadata } from "next";
 import Link from "@/components/ui/Link";
-import { atelier } from "@/content/fr/pages";
+import { getDoc } from "@/lib/edition/read";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
-import { Media } from "@/components/ui/Media";
-import { VideoLazy } from "@/components/ui/VideoLazy";
 import { LightHalo } from "@/components/signature/LightHalo";
-import { Sketchbook } from "@/components/atelier/Sketchbook";
+import { Visuel } from "@/components/home/Visuel";
+import ed from "@/components/home/editorial.module.css";
+import styles from "./atelier.module.css";
 
-export const metadata = pageMetadata({ ...atelier.seo, path: "/atelier", image: "/media/img/atelier-2" });
+/**
+ * L'Atelier : le texte officiel TEASING MARQUE décliné en quatre chapitres (création sur demande,
+ * artisans français, conditions de travail, environnement). Chaque chapitre cite la phrase
+ * officielle de la créatrice (data-officiel), puis la prolonge dans sa voix, sans aucun fait
+ * inventé : ni lieu, ni nombre d'artisans, ni chiffre. Textes : content/site/fr/atelier.json.
+ */
+type Atelier = typeof import("@/content/site/fr/atelier.json");
 
-const stepImages = [
-  { src: "/media/img/atelier-6", alt: "Mains cousant à l’aiguille un vêtement ivoire", width: 1200, height: 1500 },
-  { src: "/media/img/atelier-1", alt: "Prise de mesures au mètre ruban sur une robe noire", width: 1200, height: 800 },
-  { src: "/media/img/atelier-5", alt: "Motifs de dentelle ivoire découpés à la main, ciseaux à broder", width: 1200, height: 1500 },
-  { src: "/media/img/atelier-3", alt: "Point invisible cousu à la main sur une toile ivoire", width: 1200, height: 800 },
-  { src: "/media/img/gaia-detail", alt: "Liseré doré posé à la main sur un bustier noir", width: 1200, height: 1800 },
-  { src: "/media/img/atelier-4", alt: "Finitions d’une pièce sur la table de l’atelier", width: 1200, height: 800 },
-];
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getDoc<Atelier>("atelier", "fr", { plain: true });
+  return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/atelier", image: t.chapitres[0]?.image.src });
+}
 
-export default function AtelierPage() {
+export default async function AtelierPage() {
+  const t = await getDoc<Atelier>("atelier");
   return (
     <>
-      <PageHeader giant title={atelier.h1} lead={atelier.lead} crumbs={[{ name: "L’Atelier", path: "/atelier" }]} eyebrow="Savoir-faire" />
+      <PageHeader giant title={t.titre} lead={t.chapeau} crumbs={[{ name: t.titre, path: "/atelier" }]} />
 
-      <Section theme="ivory" className="section section--flush-top" aria-label="Les étapes de fabrication">
-        <ol className="container steps">
-          {atelier.steps.map((s, i) => (
-            <li key={s.number} className={`step ${i % 2 ? "step--flip" : ""}`}>
-              <div className="step__media" data-reveal>
-                <Media image={stepImages[i]} ratio={stepImages[i].width > stepImages[i].height ? "landscape" : "look"} sizes="(min-width: 64rem) 45vw, 100vw" className="reveal-img" />
-              </div>
-              <div className="step__text stack-m" data-reveal>
-                <span className="step__num" aria-hidden="true">
-                  {s.number}
-                </span>
-                <h2 className="t-h2">{s.title}</h2>
-                <p className="t-body">{s.text}</p>
+      <Section theme="ivory" className="section section--flush-top" aria-label={t.titre}>
+        <ol className={`container ${styles.chapitres}`}>
+          {t.chapitres.map((c, i) => (
+            <li key={c.titre} className={`${ed.split} ${i % 2 ? ed.flip : ""}`}>
+              <Visuel image={c.image} ratio="look" sizes="(min-width: 48rem) 45vw, 100vw" />
+              <div className={ed.texte}>
+                <div className={ed.tete}>
+                  <p className="eyebrow">{c.surtitre}</p>
+                  <h2 id={`atelier-chapitre-${i}`} className="t-h2">
+                    {c.titre}
+                  </h2>
+                </div>
+                <blockquote className={ed.citation} data-officiel>
+                  <p className="t-lead">{c.citation.texte}</p>
+                </blockquote>
+                <p className="t-body">{c.texte}</p>
               </div>
             </li>
           ))}
         </ol>
       </Section>
 
-      <Section theme="paper" className="section--tall" labelledBy="sketch-title">
-        <div className="container">
-          <header className="section-head">
-            <p className="eyebrow">{atelier.sketches.eyebrow}</p>
-            <h2 id="sketch-title" className="t-h2">
-              {atelier.sketches.title}
-            </h2>
-          </header>
-          <Sketchbook />
-        </div>
-      </Section>
-
-      <Section theme="ink" className="section--tall" labelledBy="films-title">
+      <Section theme="ink" className="section--tall" labelledBy="atelier-fin">
         <LightHalo intensity={0.7} />
-        <div className="container">
-          <header className="section-head">
-            <p className="eyebrow">Films d’atelier</p>
-            <h2 id="films-title" className="t-h2">
-              Le geste, en mouvement
+        <div className={`container-text ${ed.centre}`}>
+          <div className={ed.tete}>
+            <p className="eyebrow">{t.fin.surtitre}</p>
+            <h2 id="atelier-fin" className="t-h2">
+              {t.fin.titre}
             </h2>
-          </header>
-          <ul className="films">
-            {atelier.videos.map((v) => (
-              <li key={v.src} data-reveal>
-                <figure>
-                  <VideoLazy src={v.src} poster={v.poster} label={v.caption} className="media media--landscape" />
-                  <figcaption className="t-label media__caption">{v.caption}</figcaption>
-                </figure>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </Section>
-
-      <Section theme="ivory" className="section--tall" labelledBy="rdv-title">
-        <div className="container-text t-center stack-m">
-          <p className="eyebrow">Sur rendez-vous</p>
-          <h2 id="rdv-title" className="t-h2">
-            {atelier.appointment.title}
-          </h2>
-          <p className="t-body t-center">{atelier.appointment.text}</p>
-          <div>
-            <Link href={atelier.appointment.cta.href} className="btn">
-              {atelier.appointment.cta.label}
+            <p className="t-body t-center">{t.fin.texte}</p>
+          </div>
+          <div className={ed.action}>
+            <Link href={t.fin.cta.href} className="btn">
+              {t.fin.cta.label}
             </Link>
           </div>
         </div>

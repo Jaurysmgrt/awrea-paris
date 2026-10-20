@@ -1,0 +1,16 @@
+/* Pages légales : intertitres des textes officiels (articles de loi cités, rubriques de l'article 9).
+   Tokens seulement ; le reste du gabarit vit dans styles/pages.css (.legal…). */
+
+/* petit titre : un peu d'air au-dessus, son texte le suit de près */
+.sousTitre {
+  margin-top: var(--space-paragraph);
+}
+.sousTitre + * {
+  margin-top: var(--spacing-xs);
+}
+
+
+/* intertitre cité par une ancre (« /mentions-legales#hebergement ») : visible sous l'en-tête fixe */
+.intertitre {
+  scroll-margin-top: calc(var(--header-h) + var(--spacing-s));
+}

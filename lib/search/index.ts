@@ -6,19 +6,23 @@
 import "server-only";
 import { getPublicProducts, getCollections } from "@/lib/commerce";
 import { getArticles } from "@/lib/content/journal";
-import { editionInfo, productAvailability, availabilityLabel } from "@/lib/commerce/availability";
+import { leadTimeText } from "@/lib/commerce/availability";
 import { atelier, boutique, contact, maison, outfits, pressePage } from "@/content/fr/pages";
 import { faq } from "@/content/fr/faq";
+import { getDoc } from "@/lib/edition/read";
 import { normalize, type SearchEntry } from "./match";
+import type { Image } from "@/lib/commerce/types";
 
 const clip = (s: string, n = 120) => (s.length > n ? `${s.slice(0, s.lastIndexOf(" ", n)).replace(/[,;:.]$/, "")}…` : s);
 
-const pages: { href: string; title: string; note: string; extra: string }[] = [
+type PageEntry = { href: string; title: string; note: string; extra: string };
+
+const pages: PageEntry[] = [
   { href: "/la-maison", title: "La Maison", note: maison.seo.description, extra: "creatrice manifeste consommer plus juste histoire paris" },
-  { href: "/atelier", title: "L’Atelier", note: atelier.seo.description, extra: "savoir faire croquis dorure coupe couture fait main coulisses essayage" },
+  { href: "/atelier", title: "L’Atelier", note: atelier.seo.description, extra: "savoir faire croquis dorure coupe couture artisans francais fabrication sur demande coulisses essayage" },
   { href: "/outfits", title: "Outfits", note: outfits.seo.description, extra: "look tenue complete silhouette outfit" },
-  { href: "/contact#rendez-vous", title: "Rendez-vous à l’atelier", note: contact.seo.description, extra: "contact essayage sur mesure rendez vous prive conseil" },
-  { href: "/faq", title: "Questions fréquentes", note: "Fabrication, tailles, précommandes, livraison, retours et sur-mesure.", extra: "aide question reponse" },
+  { href: "/contact", title: "Contact", note: contact.seo.description, extra: "contact ecrire message question conseil" },
+  { href: "/faq", title: "Questions fréquentes", note: "Fabrication sur demande, tailles, livraison, retours et sur-mesure.", extra: "aide question reponse delai fabrication" },
   { href: "/livraison-retours", title: "Livraison & retours", note: "Délais, frais, emballage, retours et échanges.", extra: "expedition colis retour echange remboursement delai" },
   { href: "/presse", title: "Presse", note: pressePage.seo.description, extra: "dossier de presse journaliste contact presse" },
   { href: "/compte", title: "Mon compte", note: "Commandes, adresses, tailles et liste d’envies.", extra: "connexion commande suivi profil" },
@@ -29,20 +33,26 @@ const pages: { href: string; title: string; note: string; extra: string }[] = [
 
 const categoryLabel = (value: string) => boutique.categories.find((c) => c.value === value)?.label ?? value;
 
+/** Image d'un résultat : la mention « visuel provisoire » suit l'image générée jusque dans la recherche. */
+const resultImage = (i: Image) => ({ src: i.src, alt: i.alt, width: i.width, height: i.height, ...(i.provisoire ? { provisoire: true } : {}) });
+
 export async function buildSearchIndex(): Promise<SearchEntry[]> {
-  const [products, collections, articles] = await Promise.all([getPublicProducts(), getCollections(), getArticles()]);
+  const [products, collections, articles, rendezVous] = await Promise.all([
+    getPublicProducts(),
+    getCollections(),
+    getArticles(),
+    getDoc<{ seo: { description: string } }>("rendez-vous", undefined, { plain: true }).catch(() => null),
+  ]);
   const collectionTitle = new Map(collections.map((c) => [c.handle, c.title]));
   const entries: SearchEntry[] = [];
 
   for (const p of products) {
-    const edition = editionInfo(p);
-    const availability = productAvailability(p);
     entries.push({
       kind: "piece",
       href: `/boutique/${p.handle}`,
       title: p.title,
       note: p.tagline,
-      image: p.images[0] ? { src: p.images[0].src, alt: p.images[0].alt, width: p.images[0].width, height: p.images[0].height } : undefined,
+      image: p.images[0] ? resultImage(p.images[0]) : undefined,
       price: p.price,
       key: normalize(p.title),
       terms: normalize(
@@ -52,8 +62,10 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
           collectionTitle.get(p.collection) ?? "",
           p.materials.map((m) => m.name).join(" "),
           p.tags.join(" "),
-          edition.unique ? "pièce unique" : "série numérotée",
-          availabilityLabel(availability),
+          // pièces créées sur demande : on les trouve aussi par « sur demande », « délai »…
+          "créée sur demande artisans français délai de fabrication",
+          leadTimeText(p.leadTime),
+          p.details.join(" "),
           p.description.slice(0, 2).join(" "),
         ].join(" "),
       ),
@@ -65,8 +77,9 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
       kind: "collection",
       href: `/collections/${c.handle}`,
       title: c.title,
-      note: c.season,
-      image: { src: c.cover.src, alt: c.cover.alt, width: c.cover.width, height: c.cover.height },
+      // saison inconnue (Hypnotic Lace) : l'accroche de la collection sert de légende
+      note: c.season || clip(c.lead),
+      image: resultImage(c.cover),
       key: normalize(c.title),
       terms: normalize([c.season, c.lead, c.intention.join(" ")].join(" ")),
     });
@@ -83,7 +96,9 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
     });
   }
 
-  for (const page of pages) {
+  // prise de rendez-vous : sa propre page (/rendez-vous), légende reprise de son document de contenu
+  const rdv: PageEntry = { href: "/rendez-vous", title: "Prendre rendez-vous", note: rendezVous?.seo.description ?? "", extra: "rendez vous essayage atelier sur mesure visio appel video prive conseil" };
+  for (const page of [...pages, rdv]) {
     entries.push({ kind: "maison", href: page.href, title: page.title, note: clip(page.note), key: normalize(page.title), terms: normalize(`${page.note} ${page.extra}`) });
   }
 
