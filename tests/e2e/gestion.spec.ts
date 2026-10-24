@@ -27,11 +27,72 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
     await page.getByLabel("Nom (facultatif)").fill(name);
     await page.getByLabel("Catégorie").selectOption("top");
     await page.getByLabel("Prix (€)").fill("240");
-    await page.getByLabel("Vos notes").fill("Jersey noir coupé en biais, épaule drapée, se porte avec la jupe Iris.");
+    await page.getByLabel("Vos notes").fill("Jersey noir, col en V, manches amples, se porte avec la robe Odessa.");
     await page.getByRole("button", { name: "Rédiger et publier la fiche" }).click();
     await expect(page.getByRole("status").filter({ hasText: "publiée" })).toBeVisible({ timeout: 60_000 });
     await page.goto("/boutique");
     await expect(page.getByRole("heading", { name })).toBeVisible();
+  });
+
+  test("catalogue : la créatrice règle le prix, le délai de fabrication et l’indicateur provisoire", async ({ page }) => {
+    await login(page);
+    await page.goto(`${ATELIER}/catalogue`);
+    await expect(page.getByText(/Prix à confirmer/)).toContainText("Le top Kira");
+    const min = page.getByLabel("Le top Kira, délai le plus court en semaines");
+    const max = page.getByLabel("Le top Kira, délai le plus long en semaines");
+    const provisional = page.getByLabel("Le top Kira, délai provisoire");
+    const row = page.locator("tr", { has: min });
+    const before = { min: await min.inputValue(), max: await max.inputValue(), provisional: await provisional.isChecked() };
+    try {
+      await min.fill("3");
+      await max.fill("5");
+      await provisional.uncheck();
+      await row.getByRole("button", { name: "Enregistrer" }).click();
+      await expect(row.getByRole("status")).toContainText("C’est enregistré");
+      await page.goto("/boutique/top-kira");
+      await expect(page.locator(".product-form__made")).toContainText("3 à 5 semaines");
+      // un délai incohérent est refusé
+      await page.goto(`${ATELIER}/catalogue`);
+      await min.fill("6");
+      await max.fill("4");
+      await row.getByRole("button", { name: "Enregistrer" }).click();
+      await expect(row.getByRole("alert")).toContainText("Le délai le plus court vient d’abord");
+    } finally {
+      await page.goto(`${ATELIER}/catalogue`);
+      await min.fill(before.min);
+      await max.fill(before.max);
+      await provisional.setChecked(before.provisional);
+      if (await row.getByRole("button", { name: "Enregistrer" }).isEnabled()) {
+        await row.getByRole("button", { name: "Enregistrer" }).click();
+        await expect(row.getByRole("status")).toContainText("C’est enregistré");
+      }
+    }
+  });
+
+  test("commandes : étapes, fin de confection prévue, retards, et aucune liste d’attente", async ({ page }) => {
+    await login(page);
+    await page.goto(`${ATELIER}/commandes`);
+    await expect(page.getByRole("heading", { level: 1, name: "Commandes" })).toBeVisible();
+    await expect(page.getByText(/Liste d’attente|liste d’attente/)).toHaveCount(0);
+    // AW-1036 est en confection depuis plus longtemps que le délai annoncé (démonstration)
+    await expect(page.getByRole("heading", { name: /En retard sur le délai annoncé \(\d+\)/ })).toBeVisible();
+    await expect(page.locator("section").filter({ has: page.getByRole("heading", { name: /En retard/ }) }).getByRole("link", { name: "AW-1036" })).toBeVisible();
+    const late = page.getByRole("row", { name: /AW-1036/ });
+    await expect(late).toContainText("En retard");
+    await expect(late.getByRole("button", { name: "Marquer comme prête" })).toBeVisible();
+    // une commande reçue montre sa fin de confection prévue et le geste suivant
+    const received = page.getByRole("row", { name: /AW-1040/ });
+    await expect(received).toContainText("Commande reçue");
+    await expect(received.getByRole("cell").nth(5)).toContainText(/\d{4}/);
+    await expect(received.getByRole("button", { name: "Passer en confection" })).toBeVisible();
+    // la fiche : la frise telle que la cliente la voit
+    await page.goto(`${ATELIER}/commandes/AW-1036`);
+    const stages = page.locator("#etapes");
+    await expect(stages.locator('[aria-current="step"]')).toContainText("En confection");
+    await expect(stages.getByText("En retard", { exact: true })).toBeVisible();
+    // une étape ne se saute pas, et le paiement ne se confirme jamais à la main
+    expect((await page.request.post(`${ATELIER}/api/commandes/AW-1040`, { data: { etape: "shipped" } })).status()).toBe(409);
+    expect((await page.request.post(`${ATELIER}/api/commandes/AW-1040`, { data: { etape: "paid" } })).status()).toBe(400);
   });
 
   test("message sensible escaladé, réponse de la créatrice, proposition validée", async ({ page, request }) => {

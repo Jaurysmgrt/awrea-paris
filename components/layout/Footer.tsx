@@ -1,101 +1,87 @@
+/**
+ * Pied de page (maquette BAS DE PAGE) : la lettre de la Maison en version compacte, un filet fin
+ * centré, quatre colonnes aux intitulés en capitales (La marque, Service client, Légal, Nous
+ * suivre ; Instagram dans une pastille noire), « © Awrea Paris 2026 » centré dessous, puis les
+ * réglages d'affichage (Jour, Nuit, animations apaisées) et l'empreinte de la visite.
+ * Liens : document « navigation » (partie « pied ») ; libellés : document « site » (partie « pied »).
+ */
 import Link from "@/components/ui/Link";
-import { identity } from "@/content/brand/identity";
-import { nav } from "@/content/fr/pages";
-import { Logo } from "@/components/brand/Logo";
-import { NewsletterForm } from "@/components/ui/NewsletterForm";
-import { LightHalo } from "@/components/signature/LightHalo";
-import { CookieSettingsButton } from "@/components/consent/ConsentProvider";
+import { getDoc } from "@/lib/edition/read";
+import { fill } from "@/lib/edition/fill";
+import { NewsletterBlock } from "@/components/ui/NewsletterForm";
 import { DisplayPrefs } from "@/components/ui/DisplayPrefs";
 import { EcoFootprint } from "./EcoFootprint";
+import { CookiesButton, type NavigationDoc, type NavLink } from "./Menu";
 
-export function Footer() {
-  const year = new Date().getFullYear();
+type SiteTexts = typeof import("@/content/site/fr/site.json");
+
+/** Glyphe d'Instagram, d'un trait, à la couleur du texte de la pastille. */
+function InstagramGlyph() {
   return (
-    <footer className="site-footer scene" data-theme="ink">
-      <LightHalo intensity={0.7} />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="site-footer__social-icon" aria-hidden="true" focusable="false">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.25" cy="6.75" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export async function Footer() {
+  const [nav, site] = await Promise.all([getDoc<NavigationDoc>("navigation"), getDoc<SiteTexts>("site")]);
+  const t = site.pied;
+
+  const lien = (l: NavLink) => {
+    if (l.type === "cookies") return <CookiesButton label={l.label} className="link site-footer__link" />;
+    if (!l.href) return null;
+    if (l.type === "instagram") {
+      return (
+        <a href={l.href} className="site-footer__social" target="_blank" rel="noopener noreferrer me" aria-label={fill(t.lienExterne, { libelle: l.label })}>
+          <InstagramGlyph />
+        </a>
+      );
+    }
+    if (/^https?:/.test(l.href)) {
+      return (
+        <a href={l.href} className="link site-footer__link" target="_blank" rel="noopener noreferrer" aria-label={fill(t.lienExterne, { libelle: l.label })}>
+          {l.label}
+        </a>
+      );
+    }
+    return (
+      <Link href={l.href} className="link site-footer__link">
+        {l.label}
+      </Link>
+    );
+  };
+
+  return (
+    <footer className="site-footer scene" data-theme="ivory">
       <div className="container site-footer__inner">
-        <div className="site-footer__brand">
-          <Link href="/" className="site-footer__logo">
-            <Logo decorative />
-            <span className="sr-only">Awrea Paris, page d’accueil</span>
-          </Link>
-          <p className="t-h2 site-footer__script">Consommer plus juste</p>
-          <p className="t-note site-footer__desc">{identity.shortDescription}</p>
-        </div>
+        <section className="site-footer__news" aria-labelledby="pied-lettre-titre">
+          <NewsletterBlock source="footer" compact titleId="pied-lettre-titre" />
+        </section>
 
-        <div className="site-footer__news">
-          <h2 className="t-label">Lettres de l’atelier</h2>
-          <NewsletterForm source="footer" compact />
-        </div>
+        <hr className="rule rule--center site-footer__rule" />
 
-        <nav className="site-footer__cols" aria-label="Pied de page">
-          <div>
-            <h2 className="t-label t-accent">La maison</h2>
-            <ul>
-              {nav.primary.map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="link link--quiet">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h2 className="t-label t-accent">Service</h2>
-            <ul>
-              {nav.secondary.map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="link link--quiet">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-              <li>
-                <Link href="/compte" className="link link--quiet">
-                  Mon compte
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h2 className="t-label t-accent">Informations</h2>
-            <ul>
-              {nav.legal.map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="link link--quiet">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-              <li>
-                <CookieSettingsButton />
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h2 className="t-label t-accent">Suivre</h2>
-            <ul>
-              <li>
-                <a href={identity.social.instagram} className="link link--quiet" target="_blank" rel="noopener noreferrer me">
-                  Instagram
-                </a>
-              </li>
-              <li>
-                <a href={`mailto:${identity.email}`} className="link link--quiet">
-                  {identity.email}
-                </a>
-              </li>
-            </ul>
-          </div>
+        <nav className="site-footer__cols" aria-label={t.navigation}>
+          {nav.pied.map((col, i) => (
+            <div key={i} className="site-footer__col">
+              <h2 className="t-label site-footer__title">{col.titre}</h2>
+              <ul className="site-footer__links">
+                {col.liens.map((l, j) => (
+                  <li key={j}>{lien(l)}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </nav>
 
-        <div className="site-footer__bottom">
-          <p className="t-label">© {year} {identity.name}</p>
+        <p className="t-center site-footer__copy">{t.copyright}</p>
+
+        <div className="site-footer__tools">
           <DisplayPrefs id="pied" withMotion />
-          <p className="t-label">Fait main à Paris</p>
+          <EcoFootprint />
         </div>
-        <EcoFootprint />
       </div>
     </footer>
   );

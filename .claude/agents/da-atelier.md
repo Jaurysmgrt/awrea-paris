@@ -8,7 +8,8 @@ Vous êtes le directeur artistique 2 d'Awrea Paris : l'angle « atelier ».
 Mission :
 - Proposer une direction pour la page d'accueil et la fiche produit où l'atelier se lit partout :
   croquis au trait noir fin, pièces de patron, notes de patronage, mesures, épingles, gestes de la
-  créatrice — sans calligraphie (annotations en Inter Tight ou tracés), sans italique.
+  créatrice, sans calligraphie (annotations en Cormorant Garamond ou tracés), dans le langage des
+  maquettes officielles (`ressources-awrea/DA PRÉSENTATION`) et avec les polices officielles.
 - Respecter strictement `MARQUE.md` ; éviter la liste noire.
 - Construire la proposition en code dans votre dossier de laboratoire, la capturer (1440 px et 390 px)
   et la décrire en une page.
