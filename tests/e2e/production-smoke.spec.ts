@@ -29,10 +29,12 @@ test.describe("Contrôle du site en ligne @prod", () => {
     await first.click();
     await expect(page.locator("h1")).toBeVisible();
     await expect(page.locator(".product__price")).toBeVisible();
-    const size = page.locator('.product-form .chip:not([data-unavailable="true"])').first();
+    // pièce créée sur demande : délai de fabrication annoncé, toutes les tailles commandables
+    await expect(page.locator(".product-form__made")).toContainText(/semaine/);
+    const size = page.locator(".product-form .chip").first();
     if (await size.count()) {
       await size.click();
-      await page.getByRole("button", { name: /^(Ajouter au panier|Précommander)$/ }).click();
+      await page.locator(".product-form__actions").getByRole("button", { name: "Ajouter au panier" }).click();
       const drawer = page.locator("dialog.drawer");
       await expect(drawer).toBeVisible();
       await expect(drawer.getByRole("link", { name: "Commander" }).or(drawer.getByRole("button", { name: "Commander" }))).toBeVisible();

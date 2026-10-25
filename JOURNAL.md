@@ -250,3 +250,39 @@
 - **Trouvé en route et corrigé** : des articles de presse d'exemple inventés (à retirer à la
   migration des textes), un lien de désinscription annoncé qui n'existait pas, une pièce de test
   restée dans la boutique de développement.
+
+## Intégration des ressources officielles (17 au 25/10)
+
+- **Réunion de synthèse** (chef de projet, Gardien de la marque, Critique design, Développement,
+  Écriture, Juridique, Assistant IA) : les ressources de `ressources-awrea/` priment sur toutes les
+  consignes précédentes ; travail mené en treize lots, deux équipes à la fois pour tenir les limites
+  d'utilisation, puis un lot d'intégration qui a appliqué les suites de chacun.
+- **Design** : polices officielles (Fraunces 72pt Italic pour les titres, Cormorant Garamond pour
+  les textes), logo officiel en image, la police du logo jamais chargée ni publiée ; en-tête, pied de
+  page, fiche pièce, contact et lettre de la Maison selon les maquettes ; langage des maquettes
+  étendu à tout le site (filets fins, champs soulignés, boutons en pilule, pastille « Nouveau »).
+- **Textes officiels** repris mot pour mot et marqués `officiel` (La Maison, collection Hypnotic
+  Lace, teasing, CGV, mentions légales) ; le contrôle d'écriture n'y applique que la typographie.
+- **Modèle sur demande** : pièces créées sur demande par des artisans français, sans stock ; délai
+  de fabrication sur chaque fiche ; étapes commande reçue, en confection, prête, expédiée, avec un
+  e-mail à chaque étape ; numéro de création sur le certificat ; listes d'attente, stock, séries
+  numérotées et compte à rebours retirés partout (site, Atelier, agents, assistante, base).
+- **Catalogue** : sept pièces (body Aura, robes Odessa, Aria et Sienna, body Gaïa, tops Evina et
+  Kira), prix provisoires modifiables, photos générées marquées « visuel provisoire » et repérées
+  dans l'éditeur (« Photos provisoires à remplacer »).
+- **Juridique** : CGV et mentions légales officielles transcrites, livraison et paiement alignés sur
+  les CGV (France métropolitaine ; carte, Apple Pay, Google Pay, PayPal), écarts listés dans
+  `LEGAL-A-COMPLETER.md`.
+- **Sécurité** : Next.js passé en 16.4.2 (avis critique sur les versions 16.0.0 à 16.4.0 : exécution
+  de code à distance par l'optimisation d'images et `use cache`, déni de service par les actions
+  serveur) ; `npm audit` sans vulnérabilité.
+- **Vérifications** : types, lint, audit des tokens, contrôle d'écriture (517 fichiers), tests
+  unitaires (78), base de données, recherche de secrets et compilation au vert ; parcours Playwright
+  relancés sur le serveur de production.
+- **Restent à la Maison** : vraies photos des shootings, logo vectoriel, adresse de l'atelier,
+  étiquette de retour prépayée face à l'article 7 des CGV, version des CGV, e-mail de confirmation
+  (Shopify ou « Commande reçue »), origine des vidéos des coulisses, graphie « Hypnotic Lace » ou
+  « Hypnotic lace », licence de la police du logo.
+- **Restent au développement** : quelques textes en dur hors commerce (avis, rétractation,
+  préférences d'affichage, empreinte écologique, vidéo différée), e-mails de `flows.ts` en documents,
+  lieu dans l'e-mail de rendez-vous, photos des avant-premières dans la liste des provisoires.

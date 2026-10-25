@@ -1,5 +1,12 @@
 # Proposition du directeur artistique 3, angle « édition »
 
+> **Archive.** La typographie et les règles décrites ici sont remplacées par les ressources
+> officielles de la Maison (`RESSOURCES.md` : polices Fraunces 72pt Italic et Cormorant Garamond,
+> logo officiel, langage des maquettes), puis par `MARQUE.md` et `DESIGN.md`. Les séries numérotées,
+> le stock et les anciennes collections cités plus bas n'existent plus (pièces créées sur demande).
+> Le laboratoire cité (`app/(lab)`) est retiré du site ; il reste sur la branche
+> `archive/avant-ressources-officielles`. Document gardé pour l'historique, sans mise à jour.
+
 > Équipe Design, 15 octobre 2026. Proposition séparée, à juger par `critique-design` et `gardien-marque`. Aucune livraison sans le feu vert du chef de projet. Laboratoire `app/(lab)/lab/da-edition/` ; accueil sur `/lab/da-edition`, fiche de la Robe Odessa sur `/lab/da-edition/piece`.
 
 ## Le concept en cinq lignes

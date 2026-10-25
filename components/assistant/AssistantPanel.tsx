@@ -1,28 +1,25 @@
 "use client";
 /**
- * Fenêtre de l'assistante clientes (chargée à la première ouverture, voir Assistant.tsx).
- * Conseils de taille et de style, matières, disponibilité, livraison, retours, suivi,
- * histoire de la marque — et transmission à l'atelier quand un humain est préférable.
+ * Fenêtre de l'assistante clientes (chargée à la première ouverture, voir AssistantLauncher.tsx).
+ * Une pièce, sa taille, son délai de fabrication, la livraison, les retours, l'étape d'une commande,
+ * et la transmission à la créatrice quand une personne est préférable.
+ * Textes : documents de contenu « assistante » et « catalogue » (carte d'une pièce, délai).
  */
 import Link from "@/components/ui/Link";
 import { usePathname } from "next/navigation";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { useTexts } from "@/components/content/Texts";
 import { imageAt } from "@/lib/media";
+import { delaiText, fill, type CatalogueTexts } from "@/lib/commerce/texts";
+import type { LeadTime } from "@/lib/commerce/types";
+import type { AssistantTexts } from "./AssistantLauncher";
 
-type Piece = { handle: string; title: string; price: string; image: string; edition: string; availability: string };
+/** Carte d'une pièce envoyée par le serveur (lib/ai/assistant-tools.ts, PieceCard). */
+type Piece = { handle: string; title: string; price: string; image: string; leadTime?: LeadTime; provisoire?: boolean };
 type Msg = { role: "user" | "assistant"; content: string; pieces?: Piece[]; handoff?: string; error?: boolean };
 
 const STORAGE = "awrea_assistant";
-const SUGGESTIONS = ["Quelle taille choisir ?", "Quels sont les délais de livraison ?", "Suivre ma commande", "Parler à la créatrice"];
-const TOOL_LABELS: Record<string, string> = {
-  search_pieces: "Je parcours les pièces…",
-  get_piece: "J’ouvre la fiche de la pièce…",
-  size_guide: "Je consulte le guide des tailles…",
-  shipping_options: "Je vérifie les modes de livraison…",
-  track_order: "Je recherche votre commande…",
-  handoff_to_atelier: "Je transmets votre message à l’atelier…",
-};
 
 /** Texte avec liens Markdown [libellé](url) uniquement. */
 function RichText({ text }: { text: string }) {
@@ -44,7 +41,7 @@ function RichText({ text }: { text: string }) {
           );
         }
         const [, label, href] = m;
-        if (href.startsWith("/")) {
+        if (href.startsWith("/") && !href.startsWith("//")) {
           return (
             <Link key={i} href={href} className="text-link">
               {label}
@@ -75,6 +72,8 @@ function restoreMessages(): Msg[] {
 }
 
 export default function AssistantPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const t = useTexts<AssistantTexts>("assistante");
+  const catalogue = useTexts<CatalogueTexts>("catalogue");
   const pathname = usePathname();
   const [messages, setMessages] = useState<Msg[]>(restoreMessages);
   const [input, setInput] = useState("");
@@ -82,6 +81,7 @@ export default function AssistantPanel({ open, onClose }: { open: boolean; onClo
   const [status, setStatus] = useState("");
   const listRef = useRef<HTMLOListElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const tools = t.outils as Record<string, string>;
 
   useEffect(() => {
     try {
@@ -120,7 +120,7 @@ export default function AssistantPanel({ open, onClose }: { open: boolean; onClo
         });
         if (!res.ok || !res.body) {
           const j = await res.json().catch(() => ({}));
-          update((m) => ({ ...m, content: j.error ?? "Je n’arrive pas à vous répondre pour l’instant. Vous pouvez écrire directement à l’atelier.", error: true }));
+          update((m) => ({ ...m, content: j.error ?? t.erreurs.indisponible, error: true }));
           return;
         }
         const reader = res.body.getReader();
@@ -138,7 +138,7 @@ export default function AssistantPanel({ open, onClose }: { open: boolean; onClo
             if (e.type === "text") {
               setStatus("");
               update((m) => ({ ...m, content: m.content + e.text }));
-            } else if (e.type === "tool") setStatus(TOOL_LABELS[e.name] ?? "Un instant…");
+            } else if (e.type === "tool") setStatus(tools[e.name] ?? t.outils.attente);
             else if (e.type === "reset") update((m) => ({ ...m, content: "" }));
             else if (e.type === "pieces") update((m) => ({ ...m, pieces: e.items }));
             else if (e.type === "handoff") update((m) => ({ ...m, handoff: e.email }));
@@ -146,13 +146,13 @@ export default function AssistantPanel({ open, onClose }: { open: boolean; onClo
           }
         }
       } catch {
-        update((m) => ({ ...m, content: m.content || "La connexion a été interrompue. Merci de réessayer.", error: !m.content }));
+        update((m) => ({ ...m, content: m.content || t.erreurs.connexion, error: !m.content }));
       } finally {
         setBusy(false);
         setStatus("");
       }
     },
-    [busy, messages, pathname],
+    [busy, messages, pathname, t, tools],
   );
 
   return (
@@ -161,28 +161,28 @@ export default function AssistantPanel({ open, onClose }: { open: boolean; onClo
         <header className="assistant__head">
           <div>
             <h2 id="assistant-title" className="t-h4">
-              L’assistante Awrea
+              {t.titre}
             </h2>
-            <p className="t-label t-soft">Tailles · matières · livraison · suivi</p>
+            <p className="t-label t-soft">{t.sousTitre}</p>
           </div>
-          <button type="button" className="icon-btn" onClick={onClose} aria-label="Fermer l’assistante">
+          <button type="button" className="icon-btn" onClick={onClose} aria-label={t.fermer}>
             <Icon name="close" />
           </button>
         </header>
 
         <ol ref={listRef} className="assistant__log" role="log" aria-live="polite" aria-relevant="additions text">
           <li className="assistant__msg assistant__msg--assistant">
-            <p className="assistant__bubble">Bonjour, et bienvenue chez Awrea Paris. Je peux vous conseiller sur une taille, une matière, la disponibilité d’une pièce, la livraison ou le suivi de votre commande.</p>
+            <p className="assistant__bubble">{t.accueil}</p>
           </li>
           {messages.map((m, i) => (
             <li key={i} className={`assistant__msg assistant__msg--${m.role}`} data-error={m.error}>
-              <span className="sr-only">{m.role === "user" ? "Vous : " : "Assistante : "}</span>
+              <span className="sr-only">{m.role === "user" ? t.vous : t.assistante} </span>
               {m.content ? (
                 <p className="assistant__bubble">
                   <RichText text={m.content} />
                 </p>
               ) : busy && i === messages.length - 1 ? (
-                <p className="assistant__bubble assistant__typing" aria-label="L’assistante écrit">
+                <p className="assistant__bubble assistant__typing" aria-label={t.ecrit}>
                   <span />
                   <span />
                   <span />
@@ -197,17 +197,16 @@ export default function AssistantPanel({ open, onClose }: { open: boolean; onClo
                         <img src={imageAt(p.image, 480)} alt="" width={48} height={72} loading="lazy" />
                         <span>
                           <span className="t-h4">{p.title}</span>
-                          <span className="t-label t-soft">
-                            {p.price} · {p.edition}
-                          </span>
-                          <span className="t-note">{p.availability}</span>
+                          <span className="t-label t-soft">{p.price}</span>
+                          {p.leadTime ? <span className="t-note">{fill(catalogue.surDemande.carte, { delai: delaiText(catalogue, p.leadTime) })}</span> : null}
+                          {p.provisoire ? <span className="t-note t-soft">{catalogue.visuelProvisoire}</span> : null}
                         </span>
                       </Link>
                     </li>
                   ))}
                 </ul>
               ) : null}
-              {m.handoff ? <p className="t-note assistant__handoff">Votre message est à l’atelier. Nous vous écrirons à {m.handoff}.</p> : null}
+              {m.handoff ? <p className="t-note assistant__handoff">{fill(t.transmis, { email: m.handoff })}</p> : null}
             </li>
           ))}
           {status ? (
@@ -218,8 +217,8 @@ export default function AssistantPanel({ open, onClose }: { open: boolean; onClo
         </ol>
 
         {messages.length === 0 ? (
-          <ul className="assistant__suggestions" aria-label="Suggestions">
-            {SUGGESTIONS.map((s) => (
+          <ul className="assistant__suggestions" aria-label={t.suggestionsLabel}>
+            {t.suggestions.map((s) => (
               <li key={s}>
                 <button type="button" className="chip" onClick={() => send(s)}>
                   {s}
@@ -237,7 +236,7 @@ export default function AssistantPanel({ open, onClose }: { open: boolean; onClo
           }}
         >
           <label htmlFor="assistant-input" className="sr-only">
-            Votre question
+            {t.champ}
           </label>
           <textarea
             id="assistant-input"
@@ -246,7 +245,7 @@ export default function AssistantPanel({ open, onClose }: { open: boolean; onClo
             rows={1}
             maxLength={2000}
             value={input}
-            placeholder="Écrivez votre question…"
+            placeholder={t.placeholder}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
@@ -256,13 +255,13 @@ export default function AssistantPanel({ open, onClose }: { open: boolean; onClo
             }}
           />
           <button type="submit" className="btn btn--solid assistant__send" disabled={busy || !input.trim()}>
-            Envoyer
+            {t.envoyer}
           </button>
         </form>
         <p className="assistant__foot t-note">
-          Assistante d’intelligence artificielle : ses réponses peuvent comporter des erreurs.{" "}
+          {t.pied}{" "}
           <Link href="/contact" className="text-link">
-            Écrire à l’atelier
+            {t.ecrire}
           </Link>
         </p>
       </section>

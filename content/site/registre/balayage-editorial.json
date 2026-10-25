@@ -1,0 +1,17 @@
+{
+  "recherche": {
+    "label": "Recherche (page des résultats)",
+    "kind": "page",
+    "chemin": "/recherche"
+  },
+  "avis": {
+    "label": "Votre avis (page ouverte depuis la demande d’avis)",
+    "kind": "textes",
+    "chemin": "/avis/exemple"
+  },
+  "introuvable": {
+    "label": "Page introuvable (erreur 404)",
+    "kind": "textes",
+    "chemin": "/page-introuvable"
+  }
+}

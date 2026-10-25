@@ -159,10 +159,10 @@ export function LoginPanel({ onSignedIn, demo, notice }: { onSignedIn: () => voi
         {t.login.or}
       </p>
       <div className="account-login__oauth">
-        <button type="button" className="btn" onClick={() => oauth("google")}>
+        <button type="button" className="btn btn--outline" onClick={() => oauth("google")}>
           {t.login.google}
         </button>
-        <button type="button" className="btn" onClick={() => oauth("apple")}>
+        <button type="button" className="btn btn--outline" onClick={() => oauth("apple")}>
           {t.login.apple}
         </button>
       </div>

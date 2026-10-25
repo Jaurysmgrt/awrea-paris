@@ -5,7 +5,7 @@
  *
  *   node --experimental-strip-types scripts/inventaire-textes.ts [--strict] [--detail]
  *
- * Hors du périmètre : l'Atelier et l'éditeur (outils de la créatrice), les laboratoires de design,
+ * Hors du périmètre : l'Atelier et l'éditeur (outils de la créatrice),
  * les tests. Exception sur une ligne : commentaire « texte-ok : raison ».
  */
 import ts from "typescript";
@@ -16,7 +16,7 @@ import { looksLikeProse } from "../lib/writing/rules.ts";
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const args = process.argv.slice(2);
 const SCOPE = ["app", "components"];
-const OUT = [/^app\/gestion\//, /^app\/\(lab\)\//, /^app\/api\//, /^components\/admin\//, /^components\/edition\//, /\.test\.tsx?$/, /\.d\.ts$/];
+const OUT = [/^app\/gestion\//, /^app\/api\//, /^components\/admin\//, /^components\/edition\//, /\.test\.tsx?$/, /\.d\.ts$/];
 const ATTRS = new Set(["alt", "title", "aria-label", "placeholder", "label", "aria-description", "aria-roledescription"]);
 
 function walk(dir: string, out: string[] = []): string[] {

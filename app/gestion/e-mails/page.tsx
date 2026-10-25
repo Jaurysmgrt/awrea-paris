@@ -7,8 +7,8 @@ import Link from "@/components/ui/Link";
 
 const FAMILLES = [
   { id: "commande", title: "Commandes", intro: "Envoyés par Shopify. Une fois modifiés ici, exportez-les vers les notifications Shopify." },
-  { id: "service", title: "Service", intro: "Envoyés par le site : retours, rendez-vous, compte, certificats." },
-  { id: "lettre", title: "Lettres", intro: "Les lettres de l’atelier et les messages qui suivent une inscription." },
+  { id: "service", title: "Service", intro: "Envoyés par le site : chaque étape de la confection d’une commande, de « Commande reçue » à « Expédiée », puis les retours, les rendez-vous, le compte et les certificats." },
+  { id: "lettre", title: "Lettres", intro: "La lettre de la Maison et les messages qui suivent une inscription." },
 ] as const;
 
 /** Galerie des e-mails : chacun tel qu'il arrive, avec ses exemples, et son état. */
@@ -50,7 +50,7 @@ export default async function EmailsPage() {
                   <p className="t-label t-soft">
                     {m.draft ? "Modifié, pas encore publié" : m.publishedAt ? <>Publié le <When iso={m.publishedAt} /></> : "Version d’origine"}
                   </p>
-                  <Link className="btn" href={atelierHref(`/e-mails/${m.id}`)}>
+                  <Link className="btn btn--outline" href={atelierHref(`/e-mails/${m.id}`)}>
                     Modifier l’e-mail
                   </Link>
                 </li>

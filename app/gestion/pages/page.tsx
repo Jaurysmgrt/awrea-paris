@@ -4,6 +4,8 @@ import { atelierApi, atelierHref } from "@/lib/admin/path";
 import { When } from "@/components/admin/Status";
 import { NewPageForm } from "@/components/admin/NewPageForm";
 import { ActionButton } from "@/components/admin/ActionButton";
+import { provisionalPhotos } from "@/lib/edition/photos";
+import { TEXTES_PROVISOIRES as P } from "@/lib/edition/provisoires";
 
 const GROUPS: { kind: DocInfo["kind"]; title: string; intro: string }[] = [
   { kind: "page", title: "Pages du site", intro: "L’accueil, la Maison, les services : chaque texte et chaque photo se change sur la page elle-même." },
@@ -17,6 +19,7 @@ const GROUPS: { kind: DocInfo["kind"]; title: string; intro: string }[] = [
 export default async function PagesPage() {
   const docs = await listDocuments();
   const programme = await scheduled();
+  const provisoires = await provisionalPhotos().catch(() => []);
   const state = Object.fromEntries(
     await Promise.all(
       docs.map(async (d) => {
@@ -37,6 +40,23 @@ export default async function PagesPage() {
       <section className="panel stack" aria-labelledby="nouvelle-page">
         <h2 id="nouvelle-page" className="t-h3">Nouvelle page</h2>
         <NewPageForm modeles={Object.entries(MODELES).map(([id, m]) => ({ id, label: m.label, description: m.description, prefixe: m.prefixe }))} />
+      </section>
+
+      <section className="panel stack" aria-labelledby="photos-provisoires">
+        <h2 id="photos-provisoires" className="t-h3">{P.boutonBarre}</h2>
+        <p className="t-note t-left">
+          {provisoires.length === 0 ? P.resumeAucune : `${provisoires.length} ${provisoires.length === 1 ? P.resumeUne : P.resumePlusieurs}`}
+        </p>
+        <span className="proposal__actions">
+          {provisoires.length ? (
+            <a className="link" href={atelierHref("/pages/photos?filtre=provisoires")}>
+              {P.voir}
+            </a>
+          ) : null}
+          <a className="link" href={atelierHref("/pages/photos")}>
+            {P.voirToutes}
+          </a>
+        </span>
       </section>
 
       {programme.length ? (

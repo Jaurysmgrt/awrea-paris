@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { acceptCookies } from "./helpers";
 
-const PAGES = ["/", "/boutique", "/boutique/robe-odessa", "/collections/lace-is-more", "/outfits", "/la-maison", "/atelier", "/journal/moodboard-lace-is-more", "/contact", "/faq", "/commande", "/compte"];
+const PAGES = ["/", "/boutique", "/boutique/robe-odessa", "/boutique/top-evina", "/collections/hypnotic-lace", "/outfits", "/la-maison", "/atelier", "/sur-commande", "/guide-des-tailles", "/journal/dentelle-drapes-et-dorure", "/contact", "/faq", "/commande", "/compte"];
 
 test.describe("Accessibilité WCAG 2.1 AA (axe-core)", () => {
   for (const path of PAGES) {
@@ -40,7 +40,7 @@ test.describe("Accessibilité WCAG 2.1 AA (axe-core)", () => {
     expect(consent!.expires * 1000 - Date.now()).toBeLessThanOrEqual(396 * 24 * 3600 * 1000);
   });
 
-  test("cookies : choix par catégorie et « Gérer mes cookies »", async ({ page }) => {
+  test("cookies : choix par catégorie et « Gérer les cookies »", async ({ page }) => {
     await page.goto("/la-maison");
     const banner = page.getByRole("region", { name: "Cookies" });
     await banner.getByRole("button", { name: "Choisir" }).click();
@@ -51,8 +51,8 @@ test.describe("Accessibilité WCAG 2.1 AA (axe-core)", () => {
     await expect(banner).toBeHidden();
     let consent = (await page.context().cookies()).find((c) => c.name === "awrea_consent");
     expect(consent!.value).toMatch(/\.100\./);
-    // rouvrir depuis le pied de page
-    await page.getByRole("button", { name: "Gérer mes cookies" }).click();
+    // rouvrir depuis le pied de page (colonne LÉGAL, « Gérer les cookies »)
+    await page.locator("footer").getByRole("button", { name: "Gérer les cookies" }).click();
     await expect(banner).toBeVisible();
     await expect(banner.getByRole("switch", { name: "Mesure d’audience" })).toBeChecked();
     await banner.getByRole("switch", { name: "Personnalisation" }).check();
@@ -67,6 +67,13 @@ test.describe("Accessibilité WCAG 2.1 AA (axe-core)", () => {
     await page.keyboard.press("Tab");
     await expect(page.getByRole("link", { name: "Aller au contenu" })).toBeFocused();
     await page.keyboard.press("Tab");
+    // ordinateur et tablette : la navigation est visible dès 768 px, sans bouton « Menu » ; le second
+    // arrêt est le logo, lien vers l'accueil
+    const phone = page.viewportSize()!.width < 768;
+    if (!phone) {
+      await expect(page.getByRole("link", { name: "Awrea Paris, page d’accueil" })).toBeFocused();
+      return;
+    }
     await expect(page.getByRole("button", { name: "Menu" })).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(page.locator("#site-menu")).toHaveAttribute("data-open", "true");

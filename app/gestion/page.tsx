@@ -1,9 +1,13 @@
 import Link from "@/components/ui/Link";
 import { getProposals } from "@/lib/agents/perform";
-import { getLog } from "@/lib/agents/log";
+import { currentAgentId, getLog } from "@/lib/agents/log";
 import { getRuns } from "@/lib/agents/run";
 import { AGENTS } from "@/lib/agents/registry";
+import { ROLES } from "@/lib/agents/roles";
+import { confectionAlerts } from "@/lib/agents/confection";
+import { getAllProducts } from "@/lib/commerce";
 import { getOrders } from "@/lib/commerce/orders";
+import { withStages } from "@/lib/store/order-stages";
 import { listInbox } from "@/lib/inbox";
 import { kv } from "@/lib/store";
 import { formatPrice } from "@/lib/format";
@@ -12,18 +16,20 @@ import { ProposalCard } from "@/components/admin/ProposalCard";
 import { LogList } from "@/components/admin/LogList";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { When } from "@/components/admin/Status";
+import { withRegistryNames } from "@/components/admin/agent-names";
 import { maintenanceLabels, maintenanceReports } from "@/lib/maintenance";
 import { atelierHref, atelierApi } from "@/lib/admin/path";
 
 export default async function GestionHome() {
-  const [proposals, log, runs, orders, inbox, audits, [maintenance]] = await Promise.all([
+  const [proposals, log, runs, orders, inbox, audits, [maintenance], products] = await Promise.all([
     getProposals(),
     getLog(12),
     getRuns(60),
-    getOrders(),
+    getOrders().then(withStages),
     listInbox(500),
     kv.list<AuditReport>("seo:audits", 1),
     maintenanceReports(1),
+    getAllProducts().catch(() => []),
   ]);
   // composant serveur dynamique : rendu une seule fois par requête, l'heure courante est voulue
   // eslint-disable-next-line react-hooks/purity
@@ -32,6 +38,10 @@ export default async function GestionHome() {
   const revenue = week.reduce((s, o) => s + o.total, 0);
   const pending = proposals.filter((p) => p.status === "pending");
   const toAnswer = inbox.filter((m) => ["new", "drafted", "escalated"].includes(m.status));
+  // chaque pièce est créée sur demande : on suit les confections, jamais un stock
+  const making = orders.filter((o) => o.status === "paid" || o.status === "in_production");
+  const late = confectionAlerts(making, products).filter((a) => a.kind === "en-retard").length;
+  const names = withRegistryNames([...AGENTS, ...ROLES]);
   const greeting = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Paris" }).format(new Date());
 
   return (
@@ -54,6 +64,15 @@ export default async function GestionHome() {
           <dd className="t-note">
             <Link href={atelierHref("/validations")} className="text-link">
               Voir les propositions
+            </Link>
+          </dd>
+        </div>
+        <div>
+          <dt className="t-label">En confection</dt>
+          <dd className="kpis__value">{making.length}</dd>
+          <dd className="t-note">
+            <Link href={atelierHref("/commandes")} className="text-link">
+              {late ? `Dont ${late} en retard` : "Toutes dans les délais"}
             </Link>
           </dd>
         </div>
@@ -125,7 +144,8 @@ export default async function GestionHome() {
         </h2>
         <ul className="team">
           {AGENTS.map((a) => {
-            const last = runs.find((r) => r.agent === a.id);
+            // un passage enregistré sous un ancien identifiant (« commandes-stock ») compte pour l'agent actuel
+            const last = runs.find((r) => currentAgentId(r.agent) === a.id);
             return (
               <li key={a.id} className="team__agent">
                 <h3 className="t-h4">{a.name}</h3>
@@ -141,12 +161,15 @@ export default async function GestionHome() {
                     "Pas encore de passage."
                   )}
                 </p>
-                {a.cron ? (
-                  <ActionButton endpoint={atelierApi(`/agents/${a.id}`)} label="Lancer maintenant" busyLabel="L’agent travaille…" />
+                {a.id === "catalogue" ? (
+                  <>
+                    <ActionButton endpoint={atelierApi(`/agents/${a.id}`)} label="Faire le bilan" busyLabel="Bilan en cours…" />
+                    <Link href={atelierHref("/catalogue")} className="btn btn--outline">
+                      Nouvelle fiche
+                    </Link>
+                  </>
                 ) : (
-                  <Link href={atelierHref("/catalogue")} className="btn">
-                    Nouvelle fiche
-                  </Link>
+                  <ActionButton endpoint={atelierApi(`/agents/${a.id}`)} label="Lancer maintenant" busyLabel="L’agent travaille…" />
                 )}
               </li>
             );
@@ -163,7 +186,7 @@ export default async function GestionHome() {
             Tout le journal
           </Link>
         </div>
-        <LogList items={log} />
+        <LogList items={log} names={names} />
       </section>
     </div>
   );

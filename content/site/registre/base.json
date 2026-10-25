@@ -1,11 +1,11 @@
 {
   "site": {
-    "label": "Textes de l’interface (en-tête, menu, pied de page, recherche, cookies)",
+    "label": "Textes de l’interface (en-tête, menu, pied de page, lettre de la Maison, recherche, cookies)",
     "kind": "textes",
     "chemin": "/"
   },
   "commerce": {
-    "label": "Textes du panier",
+    "label": "Textes du panier, de la commande et de sa confirmation",
     "kind": "textes",
     "chemin": "/boutique"
   },
@@ -15,7 +15,7 @@
     "chemin": "/boutique"
   },
   "navigation": {
-    "label": "Menu et liens du pied de page",
+    "label": "Entrées du menu et liens du pied de page",
     "kind": "textes",
     "chemin": "/"
   },
@@ -35,7 +35,7 @@
     "chemin": "/atelier"
   },
   "contact": {
-    "label": "Contact et rendez-vous",
+    "label": "Contact",
     "kind": "page",
     "chemin": "/contact"
   },
@@ -59,11 +59,6 @@
     "kind": "page",
     "chemin": "/journal"
   },
-  "articles": {
-    "label": "Articles du Journal",
-    "kind": "textes",
-    "chemin": "/journal"
-  },
   "presse": {
     "label": "Presse",
     "kind": "page",
@@ -79,19 +74,14 @@
     "kind": "page",
     "chemin": "/compte"
   },
-  "cookies": {
-    "label": "Liste des cookies",
-    "kind": "textes",
-    "chemin": "/cookies"
-  },
-  "coulisses": {
-    "label": "Coulisses de l’atelier (vidéos et légendes)",
-    "kind": "textes",
-    "chemin": "/atelier"
-  },
   "faq": {
     "label": "Questions fréquentes",
     "kind": "page",
     "chemin": "/faq"
+  },
+  "coulisses": {
+    "label": "Coulisses de l’atelier (vidéos et légendes)",
+    "kind": "textes",
+    "chemin": "/commande/confirmation"
   }
 }

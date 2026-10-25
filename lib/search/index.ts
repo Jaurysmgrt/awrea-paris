@@ -6,43 +6,64 @@
 import "server-only";
 import { getPublicProducts, getCollections } from "@/lib/commerce";
 import { getArticles } from "@/lib/content/journal";
-import { editionInfo, productAvailability, availabilityLabel } from "@/lib/commerce/availability";
-import { atelier, boutique, contact, maison, outfits, pressePage } from "@/content/fr/pages";
+import { leadTimeText } from "@/lib/commerce/availability";
 import { faq } from "@/content/fr/faq";
+import { getDoc } from "@/lib/edition/read";
 import { normalize, type SearchEntry } from "./match";
+import type { Image } from "@/lib/commerce/types";
 
 const clip = (s: string, n = 120) => (s.length > n ? `${s.slice(0, s.lastIndexOf(" ", n)).replace(/[,;:.]$/, "")}…` : s);
 
-const pages: { href: string; title: string; note: string; extra: string }[] = [
-  { href: "/la-maison", title: "La Maison", note: maison.seo.description, extra: "creatrice manifeste consommer plus juste histoire paris" },
-  { href: "/atelier", title: "L’Atelier", note: atelier.seo.description, extra: "savoir faire croquis dorure coupe couture fait main coulisses essayage" },
-  { href: "/outfits", title: "Outfits", note: outfits.seo.description, extra: "look tenue complete silhouette outfit" },
-  { href: "/contact#rendez-vous", title: "Rendez-vous à l’atelier", note: contact.seo.description, extra: "contact essayage sur mesure rendez vous prive conseil" },
-  { href: "/faq", title: "Questions fréquentes", note: "Fabrication, tailles, précommandes, livraison, retours et sur-mesure.", extra: "aide question reponse" },
+type PageEntry = { href: string; title: string; note: string; extra: string };
+
+/**
+ * Pages de la Maison : leur légende est la description (seo) de leur document de contenu, la même
+ * que celle des moteurs de recherche ; `extra` ajoute des mots que la visiteuse pourrait taper.
+ */
+const PAGE_DOCS: { doc: string; href: string; title: string; extra: string }[] = [
+  { doc: "la-maison", href: "/la-maison", title: "La Maison", extra: "creatrice histoire contrastes dentelle drapes dorure a propos" },
+  { doc: "atelier", href: "/atelier", title: "L’Atelier", extra: "savoir faire dorure coupe couture artisans francais fabrication sur demande coulisses essayage" },
+  { doc: "sur-commande", href: "/sur-commande", title: "La commande sur demande", extra: "sur commande sur demande delai fabrication etapes confection suivi sans stock" },
+  { doc: "guide-des-tailles", href: "/guide-des-tailles", title: "Guide des tailles", extra: "taille mesures tour de poitrine taille hanches xs s m l xl" },
+  { doc: "rendez-vous", href: "/rendez-vous", title: "Prendre rendez-vous", extra: "rendez vous essayage atelier sur mesure visio appel video prive conseil" },
+  { doc: "outfits", href: "/outfits", title: "Outfits", extra: "look tenue complete silhouette outfit" },
+  { doc: "contact", href: "/contact", title: "Contact", extra: "contact ecrire message question conseil" },
+  { doc: "presse", href: "/presse", title: "Presse", extra: "dossier de presse journaliste contact presse" },
+];
+
+/** Pages de service, sans document de contenu propre. */
+const pages: PageEntry[] = [
+  { href: "/faq", title: "Questions fréquentes", note: "Fabrication sur demande, tailles, livraison, retours et sur-mesure.", extra: "aide question reponse delai fabrication" },
   { href: "/livraison-retours", title: "Livraison & retours", note: "Délais, frais, emballage, retours et échanges.", extra: "expedition colis retour echange remboursement delai" },
-  { href: "/presse", title: "Presse", note: pressePage.seo.description, extra: "dossier de presse journaliste contact presse" },
+  { href: "/suivi", title: "Suivre ma commande", note: "Les étapes de votre commande, de la confection à la livraison.", extra: "suivi commande etape confection expedition livraison" },
   { href: "/compte", title: "Mon compte", note: "Commandes, adresses, tailles et liste d’envies.", extra: "connexion commande suivi profil" },
   { href: "/liste-envies", title: "Liste d’envies", note: "Les pièces que vous avez gardées.", extra: "favoris envies garder" },
   { href: "/retractation", title: "Rétractation en ligne", note: "Exercer votre droit de rétractation de quatorze jours.", extra: "retractation annulation retour" },
   { href: "/cgv", title: "Conditions générales de vente", note: "Commande, prix, paiement, livraison, garanties.", extra: "cgv conditions vente garantie" },
 ];
 
-const categoryLabel = (value: string) => boutique.categories.find((c) => c.value === value)?.label ?? value;
+/** Image d'un résultat : la mention « visuel provisoire » suit l'image générée jusque dans la recherche. */
+const resultImage = (i: Image) => ({ src: i.src, alt: i.alt, width: i.width, height: i.height, ...(i.provisoire ? { provisoire: true } : {}) });
 
 export async function buildSearchIndex(): Promise<SearchEntry[]> {
-  const [products, collections, articles] = await Promise.all([getPublicProducts(), getCollections(), getArticles()]);
+  const [products, collections, articles, boutique, docs] = await Promise.all([
+    getPublicProducts(),
+    getCollections(),
+    getArticles(),
+    getDoc<{ categories: Record<string, string> }>("boutique", undefined, { plain: true }).catch(() => null),
+    Promise.all(PAGE_DOCS.map((d) => getDoc<{ seo?: { description?: string } }>(d.doc, undefined, { plain: true }).catch(() => null))),
+  ]);
+  const categoryLabel = (value: string) => boutique?.categories[value] ?? value;
   const collectionTitle = new Map(collections.map((c) => [c.handle, c.title]));
   const entries: SearchEntry[] = [];
 
   for (const p of products) {
-    const edition = editionInfo(p);
-    const availability = productAvailability(p);
     entries.push({
       kind: "piece",
       href: `/boutique/${p.handle}`,
       title: p.title,
       note: p.tagline,
-      image: p.images[0] ? { src: p.images[0].src, alt: p.images[0].alt, width: p.images[0].width, height: p.images[0].height } : undefined,
+      image: p.images[0] ? resultImage(p.images[0]) : undefined,
       price: p.price,
       key: normalize(p.title),
       terms: normalize(
@@ -52,8 +73,10 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
           collectionTitle.get(p.collection) ?? "",
           p.materials.map((m) => m.name).join(" "),
           p.tags.join(" "),
-          edition.unique ? "pièce unique" : "série numérotée",
-          availabilityLabel(availability),
+          // pièces créées sur demande : on les trouve aussi par « sur demande », « délai »…
+          "créée sur demande artisans français délai de fabrication",
+          leadTimeText(p.leadTime),
+          p.details.join(" "),
           p.description.slice(0, 2).join(" "),
         ].join(" "),
       ),
@@ -65,8 +88,9 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
       kind: "collection",
       href: `/collections/${c.handle}`,
       title: c.title,
-      note: c.season,
-      image: { src: c.cover.src, alt: c.cover.alt, width: c.cover.width, height: c.cover.height },
+      // saison inconnue (Hypnotic Lace) : l'accroche de la collection sert de légende
+      note: c.season || clip(c.lead),
+      image: resultImage(c.cover),
       key: normalize(c.title),
       terms: normalize([c.season, c.lead, c.intention.join(" ")].join(" ")),
     });
@@ -83,7 +107,8 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
     });
   }
 
-  for (const page of pages) {
+  const maison: PageEntry[] = PAGE_DOCS.map((d, i) => ({ href: d.href, title: d.title, note: docs[i]?.seo?.description ?? "", extra: d.extra }));
+  for (const page of [...maison, ...pages]) {
     entries.push({ kind: "maison", href: page.href, title: page.title, note: clip(page.note), key: normalize(page.title), terms: normalize(`${page.note} ${page.extra}`) });
   }
 

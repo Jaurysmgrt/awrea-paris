@@ -1,0 +1,134 @@
+{
+  "seo": {
+    "title": "Mentions légales | Awrea Paris",
+    "description": "Qui édite le site Awrea Paris, où il est hébergé, ce qui protège ses créations et comment vos données sont traitées."
+  },
+  "titre": "Mentions légales",
+  "chapeau": "",
+  "misAJour": "2026-10-19",
+  "preambule": {
+    "officiel": true,
+    "blocs": [
+      {
+        "texte": "Conformément aux dispositions des articles 6-III et 19 de la Loi n° 2004-575 du 21 juin 2004 pour la Confiance dans l’économie numérique, dite L.C.E.N., nous portons à la connaissance des utilisateurs et visiteurs de ce site les informations suivantes."
+      },
+      {
+        "texte": "Le site internet www.awreaparis.com est géré par Léane Soubrier, exerçant sous le nom commercial Awrea Paris, entreprise individuelle enregistrée en France."
+      },
+      {
+        "texte": "Awrea Paris étant une marque déposée toute reproduction, même partielle, est strictement interdite."
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "entreprise",
+      "titre": "Informations légales sur l’entreprise",
+      "officiel": true,
+      "blocs": [
+        {
+          "intertitre": "Identité",
+          "id": "identite"
+        },
+        {
+          "lignes": [
+            "Société : Awrea Paris",
+            "Nom de la propriétaire & créatrice : Léane Soubrier",
+            "Adresse email : awrea.contact@gmail.com",
+            "Adresse postale : 46 rue Paul Déroulède, 78290 Croissy-sur-Seine",
+            "Téléphone : 06 99 55 74 43",
+            "Forme juridique : Entrepreneur individuel",
+            "Numéro de SIREN : 100 222 926",
+            "Numéro de SIRET : 10022292600014",
+            "Raison sociale : Auto-entrepreneur (Micro-entreprise)",
+            "Catégorisation de l’activité : Industrie & artisanat de fabrication, Industrie du textile, du cuir & de l’habillement",
+            "Date de début d’activité : 01/04/2026",
+            "Commune : Yvelines",
+            "Pays : France"
+          ]
+        },
+        {
+          "intertitre": "Hébergement",
+          "id": "hebergement"
+        },
+        {
+          "texte": "Le Site est hébergé par la société Wix Online Platform Limited, située 1 Grant’s Row, Dublin 2 D02HX96, Ireland, (contact téléphonique ou email : (+1) 415 358 0857)."
+        },
+        {
+          "intertitre": "Propriété intellectuelle",
+          "id": "propriete-intellectuelle"
+        },
+        {
+          "texte": "Tout le contenu du présent sur le site, de façon non limitative, les graphismes, images, textes, vidéos, animations, sons, logos, gifs et icônes ainsi que leur mise en forme sont la propriété exclusive de la société à l’exception des marques, logos ou contenus appartenant à d’autres sociétés partenaires ou auteurs. Toute reproduction, distribution, modification, adaptation, retransmission ou publication, même partielle, de ces différents éléments est strictement interdite sans l’accord exprès par écrit de Awrea Paris. Cette représentation ou reproduction, par quelque procédé que ce soit, constitue une contrefaçon sanctionnée par les articles L.335-2 et suivants du Code de la propriété intellectuelle. Le non-respect de cette interdiction constitue une contrefaçon pouvant engager la responsabilité civile et pénale du contrefacteur. En outre, les propriétaires des Contenus copiés pourraient intenter une action en justice à votre encontre."
+        },
+        {
+          "texte": "La société Awrea Paris est enregistrée au registre national des entreprises (RNE) depuis le 05/02/2026."
+        },
+        {
+          "texte": "Toute utilisation quelle qu’elle soit du logo de ce site est interdite sans l’autorisation de la part de la société Awrea Paris."
+        },
+        {
+          "intertitre": "Données personnelles",
+          "id": "donnees-personnelles"
+        },
+        {
+          "texte": "Lors de la visite du site, des données de connexion sont collectées et sont utilisées à des fins uniquement statistiques et de sécurité. Les données transmises via le formulaire ou par voie électronique sont collectées à des fins statistiques et de correspondance. Conformément à la loi n° 78-17 du 6 janvier 1978 relative à l’informatique, aux fichiers et aux libertés vous disposez d’un droit d’accès, de modification, de rectification et d’opposition au traitement des données vous concernant, en nous contactant par courriel à awrea.contact@gmail.com. Le traitement de vos données à caractère personnel est régi par notre Charte du respect de la vie privée, disponible depuis la section « Charte de Protection des Données Personnelles », conformément au Règlement Général sur la Protection des Données 2016/679 du 27 avril 2016 (« RGPD »)."
+        }
+      ]
+    },
+    {
+      "id": "publication",
+      "titre": "Directrice de la publication",
+      "blocs": [
+        {
+          "texte": "La directrice de la publication du site est {{directricePublication}}."
+        }
+      ]
+    },
+    {
+      "id": "tva",
+      "titre": "TVA",
+      "blocs": [
+        {
+          "texte": "Situation de l’entreprise au regard de la TVA : {{tva}}."
+        }
+      ]
+    },
+    {
+      "id": "mediation",
+      "titre": "Médiation de la consommation",
+      "blocs": [
+        {
+          "texte": "En cas de litige, après une réclamation écrite adressée à la Maison, vous pouvez saisir gratuitement le médiateur de la consommation dont elle relève, {{mediateur}}."
+        }
+      ]
+    },
+    {
+      "id": "credits",
+      "titre": "Crédits",
+      "blocs": [
+        {
+          "texte": "Les photographies des pièces sont, pour l’instant, des visuels provisoires générés en attendant les prises de vue de la collection. Chacune porte la mention « visuel provisoire ». Le portrait de la créatrice et les photographies de la Maison sont l’œuvre de {{creditsPhotos}}."
+        }
+      ]
+    },
+    {
+      "id": "signalement",
+      "titre": "Signaler un contenu",
+      "blocs": [
+        {
+          "texte": "Pour signaler un contenu illicite ou une atteinte à vos droits, écrivez à {{email}} en indiquant l’adresse de la page et la nature du contenu."
+        }
+      ]
+    },
+    {
+      "id": "autres-textes",
+      "titre": "Les autres textes du site",
+      "blocs": [
+        {
+          "texte": "Les achats sont régis par les [conditions générales de vente](/cgv). L’usage du site et du compte suit les [conditions générales d’utilisation](/cgu). Vos données sont traitées selon la [politique de confidentialité](/confidentialite) et la [politique cookies](/cookies). Les créations et les images sont protégées dans les conditions de la page [Propriété intellectuelle](/propriete-intellectuelle)."
+        }
+      ]
+    }
+  ]
+}

@@ -4,11 +4,13 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import type { Product } from "@/lib/commerce/types";
 import { useWishlist } from "./WishlistProvider";
 import { QuickAdd } from "./QuickAdd";
-import { wishlist as copy } from "@/content/fr/pages";
 
 const noop = () => () => {};
 
-export function WishlistView() {
+/** Textes de la liste, lus par la page dans le document « liste-envies ». */
+export type WishlistViewTexts = { chargement: string; vide: string; videLien: { label: string; href: string } };
+
+export function WishlistView({ texts }: { texts: WishlistViewTexts }) {
   const { handles } = useWishlist();
   // la liste n'existe que dans le navigateur : « Chargement… » tant que la page s'hydrate
   const hydrated = useSyncExternalStore(noop, () => true, () => false);
@@ -34,14 +36,14 @@ export function WishlistView() {
   // une pièce retirée disparaît aussitôt ; une pièce ajoutée apparaît dès que sa fiche arrive
   const products = !hydrated ? null : !key ? [] : fetched ? fetched.products.filter((p) => handles.includes(p.handle)) : null;
 
-  if (products === null) return <p className="t-note">Chargement…</p>;
+  if (products === null) return <p className="t-note">{texts.chargement}</p>;
   if (!products.length)
     return (
       <div className="stack-m">
-        <p className="t-lead">{copy.empty}</p>
+        <p className="t-lead">{texts.vide}</p>
         <div>
-          <Link href="/boutique" className="btn">
-            Aller à la boutique
+          <Link href={texts.videLien.href} className="btn">
+            {texts.videLien.label}
           </Link>
         </div>
       </div>

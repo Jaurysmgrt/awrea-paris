@@ -79,7 +79,7 @@ export function AvailabilityForm({ value }: { value: AvailabilityValue }) {
       </div>
       {status ? <p className="t-note" role="status">{status}</p> : null}
       <div>
-        <button type="submit" className="btn btn--solid">Enregistrer les disponibilités</button>
+        <button type="submit" className="btn">Enregistrer les disponibilités</button>
       </div>
     </form>
   );

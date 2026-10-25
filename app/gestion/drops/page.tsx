@@ -1,71 +1,109 @@
 import Link from "@/components/ui/Link";
 import { DropEditor } from "@/components/admin/DropEditor";
+import type { AvantPremieresTexts } from "@/components/drops/regles";
 import { getAllProducts } from "@/lib/commerce";
-import { dropPhase, dropSignups, listDrops } from "@/lib/drops";
+import { dropDateText, dropImages, dropLettersSent, dropPhase, dropSignups, listDrops } from "@/lib/drops";
+import { getDoc } from "@/lib/edition/read";
+import { fill } from "@/lib/edition/fill";
 import { atelierHref } from "@/lib/admin/path";
 
-const PHASE = { bientot: "Annoncé", anticipe: "Accès anticipé en cours", ouvert: "Ouvert à toutes" } as const;
-const paris = (iso: string) => new Date(iso).toLocaleString("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
-
-/** Drops et lancements : page « Bientôt », accès anticipé des inscrites, ventes privées. */
-export default async function DropsPage({ searchParams }: { searchParams: Promise<{ modifier?: string }> }) {
+/**
+ * Avant-premières : la créatrice annonce la prochaine collection sur la page « Bientôt » (nom, texte,
+ * images, pièces, dates), choisit d'écrire aux inscrites à la lettre, ou en fait une présentation
+ * privée protégée par un mot de passe. Textes : content/site/fr/avant-premieres.json (atelier).
+ */
+export default async function AvantPremieresPage({ searchParams }: { searchParams: Promise<{ modifier?: string }> }) {
   const { modifier } = await searchParams;
-  const [drops, products] = await Promise.all([listDrops(), getAllProducts()]);
-  const signups = await Promise.all(drops.map((d) => dropSignups(d.slug)));
+  const [t, drops, products] = await Promise.all([getDoc<AvantPremieresTexts>("avant-premieres", "fr", { plain: true }), listDrops(), getAllProducts()]);
+  const [signups, letters] = await Promise.all([Promise.all(drops.map((d) => dropSignups(d.slug))), Promise.all(drops.map((d) => dropLettersSent(d.slug)))]);
+  const a = t.atelier;
   const editing = drops.find((d) => d.slug === modifier);
   const pieces = products.map((p) => ({ handle: p.handle, title: p.title }));
+  const lettre = (n: number, prevue: boolean) => (n > 1 ? fill(a.liste.lettres, { n }) : n === 1 ? a.liste.lettreUne : prevue ? a.liste.lettrePrevue : null);
   return (
     <div className="admin-page stack-l">
       <header className="admin-page__head">
-        <h1 className="t-h1">Drops</h1>
-        <p className="t-lead">
-          Annoncez une nouvelle série sur la page « Bientôt », ouvrez-la d’abord aux inscrites, puis à toutes. Une vente privée reste réservée aux personnes qui ont le mot de passe jusqu’à son ouverture.
-        </p>
+        <h1 className="t-h1">{a.titre}</h1>
+        <p className="t-lead">{a.chapeau}</p>
       </header>
-      <section className="panel" aria-labelledby="drops-list">
-        <h2 id="drops-list" className="t-h3">Séries annoncées</h2>
+      <section className="panel" aria-labelledby="avant-premieres-liste">
+        <h2 id="avant-premieres-liste" className="t-h3">
+          {a.liste.titre}
+        </h2>
         {drops.length ? (
           <div className="table-scroll">
             <table className="table">
               <thead>
                 <tr>
-                  <th scope="col">Série</th>
-                  <th scope="col">État</th>
-                  <th scope="col">Accès anticipé</th>
-                  <th scope="col">Ouverture</th>
-                  <th scope="col">Inscrites</th>
-                  <th scope="col">Actions</th>
+                  <th scope="col">{a.liste.colonnes.collection}</th>
+                  <th scope="col">{a.liste.colonnes.etat}</th>
+                  <th scope="col">{a.liste.colonnes.avantPremiere}</th>
+                  <th scope="col">{a.liste.colonnes.devoilement}</th>
+                  <th scope="col">{a.liste.colonnes.inscrites}</th>
+                  <th scope="col">{a.liste.colonnes.actions}</th>
                 </tr>
               </thead>
               <tbody>
-                {drops.map((d, i) => (
-                  <tr key={d.slug}>
-                    <th scope="row">
-                      {d.title}
-                      {d.privateSale ? <><br /><span className="t-note">Vente privée</span></> : null}
-                    </th>
-                    <td>{PHASE[dropPhase(d)]}</td>
-                    <td>{paris(d.earlyAccessAt)}</td>
-                    <td>{paris(d.publicAt)}</td>
-                    <td>{d.privateSale ? "·" : signups[i].length}</td>
-                    <td>
-                      <Link href={`/bientot/${d.slug}`} className="text-link">Voir</Link> · <Link href={atelierHref(`/drops?modifier=${d.slug}`)} className="text-link">Modifier</Link>
-                    </td>
-                  </tr>
-                ))}
+                {drops.map((d, i) => {
+                  const note = d.privateSale ? a.liste.privee : lettre(letters[i], Boolean(d.notifyLetters));
+                  return (
+                    <tr key={d.slug}>
+                      <th scope="row">
+                        {d.title}
+                        {note ? (
+                          <>
+                            <br />
+                            <span className="t-note">{note}</span>
+                          </>
+                        ) : null}
+                      </th>
+                      <td>{a.liste.etats[dropPhase(d)]}</td>
+                      <td>{dropDateText(t, d.earlyAccessAt)}</td>
+                      <td>{dropDateText(t, d.publicAt)}</td>
+                      <td>{d.privateSale ? a.liste.aucune : signups[i].length}</td>
+                      <td>
+                        <Link href={`/bientot/${d.slug}`} className="text-link">
+                          {a.liste.voir}
+                        </Link>
+                        {" · "}
+                        <Link href={atelierHref(`/drops?modifier=${d.slug}`)} className="text-link">
+                          {a.liste.modifier}
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         ) : (
-          <p className="t-note">Aucune série annoncée.</p>
+          <p className="t-note">{a.liste.vide}</p>
         )}
       </section>
-      <section className="panel" aria-labelledby="drop-form">
-        <h2 id="drop-form" className="t-h3">{editing ? `Modifier « ${editing.title} »` : "Annoncer une série"}</h2>
+      <section className="panel" aria-labelledby="avant-premiere-formulaire">
+        <h2 id="avant-premiere-formulaire" className="t-h3">
+          {editing ? fill(a.formulaire.modifier, { collection: editing.title }) : a.formulaire.nouveau}
+        </h2>
         <DropEditor
           key={editing?.slug ?? "nouveau"}
           pieces={pieces}
-          drop={editing ? { slug: editing.slug, title: editing.title, teaser: editing.teaser, image: editing.image, products: editing.products, earlyAccessAt: editing.earlyAccessAt, publicAt: editing.publicAt, privateSale: editing.privateSale, hasPassword: Boolean(editing.passwordHash) } : undefined}
+          t={{ ...a.formulaire, erreurs: a.erreurs }}
+          drop={
+            editing
+              ? {
+                  slug: editing.slug,
+                  title: editing.title,
+                  teaser: editing.teaser,
+                  images: dropImages(editing),
+                  products: editing.products,
+                  earlyAccessAt: editing.earlyAccessAt,
+                  publicAt: editing.publicAt,
+                  privateSale: editing.privateSale,
+                  notifyLetters: Boolean(editing.notifyLetters),
+                  hasPassword: Boolean(editing.passwordHash),
+                }
+              : undefined
+          }
         />
       </section>
     </div>

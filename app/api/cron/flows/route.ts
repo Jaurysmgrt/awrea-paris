@@ -1,6 +1,6 @@
 /**
  * Tâches quotidiennes de la base clientes (Vercel Cron, GET /api/cron/flows) :
- *  - scénarios d'e-mails planifiés (panier oublié, avis, anniversaire, réactivation…) ;
+ *  - scénarios d'e-mails planifiés (avant-premières, panier en attente, après la livraison, avis) ;
  *  - purge des données arrivées à échéance (RGPD : durées annoncées dans la politique de confidentialité) ;
  *  - renouvellement hebdomadaire du jeton Instagram (60 jours de validité).
  */

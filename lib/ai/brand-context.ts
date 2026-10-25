@@ -1,15 +1,22 @@
 /**
- * Contexte de marque partagé, construit une fois et mis en cache côté API (prompt caching) :
- * la référence de ton (content/brand/voice.md), l'identité, les faits boutique et la FAQ.
- * Ce bloc est STABLE : aucune date, aucun identifiant de requête — le contenu variable
- * (date du jour, page consultée, panier) est placé dans les messages, après le cache.
+ * Contexte de marque partagé par l'assistante et les agents, mis en cache côté API (prompt
+ * caching) : la référence de ton (content/brand/voice.md), les faits de la Maison qui font foi
+ * (lib/ai/maison.ts : création sur demande, pièces, délais, étapes, conditions générales de vente)
+ * et la FAQ (document de contenu « faq », tel que publié).
+ *
+ * Ce bloc est STABLE : aucune date, aucun identifiant de requête. Il ne change qu'avec le catalogue,
+ * la collection, la FAQ ou les réglages ; il est reconstruit au plus toutes les cinq minutes. Le
+ * contenu variable (date du jour, page consultée, cliente connectée) va dans les messages, après le cache.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { identity } from "@/content/brand/identity";
-import { shop } from "@/content/settings";
-import { faq } from "@/content/fr/faq";
-import { formatPrice } from "@/lib/format";
+import faqStatic from "@/content/site/fr/faq.json";
+import { faqGroups, faqVars, type FaqDoc } from "@/content/fr/faq";
+import { getAllProducts, getCurrentCollection } from "@/lib/commerce";
+import type { Product } from "@/lib/commerce/types";
+import { readDoc } from "@/lib/edition/store";
+import { maisonFacts } from "./maison";
 
 let voiceCache: string | null = null;
 
@@ -23,37 +30,43 @@ export function brandVoice(): string {
   return voiceCache;
 }
 
-export function shopFacts(): string {
-  const rates = shop.shippingRates
-    .map((r) => `${r.label} : ${r.price ? formatPrice(r.price) : "offert"}${r.freeAboveThreshold ? ` (offert dès ${formatPrice(shop.freeShippingThreshold)})` : ""}, ${r.delay}.`)
-    .join("\n");
-  const sizes = [shop.sizeGuide.headers.join(" | "), ...shop.sizeGuide.rows.map((r) => r.join(" | "))].join("\n");
-  return `# Identité
-Nom : ${identity.name} (aussi : ${identity.alternateNames.join(", ")})
-Description : ${identity.description}
-Manifeste : ${identity.manifesto}
-Phrase de la créatrice : « ${identity.founderQuote} »
-Instagram : ${identity.social.instagram} (${identity.social.instagramHandle}) · E-mail : ${identity.email}
-Atelier : ${[identity.address.streetAddress, `${identity.address.postalCode} ${identity.address.addressLocality}`.trim()].filter(Boolean).join(", ")}, sur rendez-vous
-
-# Boutique
-Expédition des pièces disponibles : ${shop.dispatchDays}. Précommandes : expédiées à la fin du délai de fabrication indiqué sur la pièce.
-Livraison :
-${rates}
-Retours : ${shop.returnDays} jours après réception, pièce non portée avec son certificat ; pièces sur mesure ni reprises ni échangées.
-Emballage cadeau : ${formatPrice(shop.giftWrapPrice)}, avec un message recopié à la main.
-Paiement : ${shop.paymentMethods.join(", ")}. Commande possible sans compte.
-
-# Guide des tailles (mesures du corps)
-${sizes}
-${shop.sizeGuide.note}`;
+/** FAQ publiée (éditeur Édition), à défaut celle du dépôt. */
+async function faqDoc(): Promise<Pick<FaqDoc, "groupes">> {
+  try {
+    const d = (await readDoc("faq", "fr")) as Partial<FaqDoc> | null;
+    if (d && Array.isArray(d.groupes)) return d as Pick<FaqDoc, "groupes">;
+  } catch {
+    /* stockage indisponible : la FAQ du dépôt */
+  }
+  return faqStatic;
 }
 
-export function faqText(): string {
-  return faq.map((g) => `## ${g.title}\n${g.items.map((i) => `Q : ${i.q}\nR : ${i.a}`).join("\n")}`).join("\n\n");
+/** Questions et réponses, repères remplis, sans lien ni repère « à compléter ». */
+export async function faqText(products: Product[] = []): Promise<string> {
+  const groups = faqGroups(await faqDoc(), faqVars(products), { withoutToComplete: true });
+  return groups.map((g) => `## ${g.title}\n${g.items.map((i) => `Q : ${i.q}\nR : ${i.a}`).join("\n")}`).join("\n\n");
 }
+
+const TTL = 5 * 60 * 1000;
+let blockCache: { at: number; text: string } | null = null;
 
 /** Bloc système complet (stable) : à marquer `cache_control` dans les requêtes. */
-export function brandSystemBlock(): string {
-  return `<reference_de_ton>\n${brandVoice()}\n</reference_de_ton>\n\n<faits_boutique>\n${shopFacts()}\n</faits_boutique>\n\n<faq>\n${faqText()}\n</faq>`;
+export async function brandSystemBlock(): Promise<string> {
+  if (blockCache && Date.now() - blockCache.at < TTL) return blockCache.text;
+  const [products, collection] = await Promise.all([getAllProducts().catch(() => [] as Product[]), getCurrentCollection().catch(() => null)]);
+  const text = `<reference_de_ton>
+${brandVoice()}
+</reference_de_ton>
+
+<faits_qui_font_foi>
+Ces faits sont à jour et font foi. Si la référence de ton dit autre chose sur la fabrication, les séries, les numéros, le stock ou les délais, suivez ces faits.
+
+${maisonFacts(products, collection)}
+</faits_qui_font_foi>
+
+<faq>
+${await faqText(products)}
+</faq>`;
+  blockCache = { at: Date.now(), text };
+  return text;
 }

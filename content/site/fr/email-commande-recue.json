@@ -1,0 +1,95 @@
+{
+  "nom": "Commande reçue",
+  "quand": "Dès que le paiement d’une commande est confirmé, avec le détail des pièces commandées.",
+  "famille": "service",
+  "sujet": "Votre commande {commande} est reçue",
+  "preheader": "Votre pièce va être créée pour vous, sur demande, par des artisans français.",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la cliente",
+      "exemple": "Camille"
+    },
+    "commande": {
+      "description": "Le numéro de la commande",
+      "exemple": "AW-1042"
+    },
+    "suivi": {
+      "description": "Le lien du suivi de la commande (sans compte)",
+      "exemple": "https://www.awreaparis.com/suivi/AW-1042"
+    },
+    "delai": {
+      "description": "Le délai de confection annoncé",
+      "exemple": "2 à 3 semaines"
+    },
+    "debut": {
+      "description": "Le premier jour prévu pour la fin de la confection",
+      "exemple": "2 novembre 2026"
+    },
+    "fin": {
+      "description": "Le dernier jour prévu pour la fin de la confection",
+      "exemple": "9 novembre 2026"
+    },
+    "certificats": {
+      "description": "Le lien du certificat d’authenticité de chaque pièce, quand il est déjà en ligne",
+      "exemple": "Le body Aura, https://www.awreaparis.com/certificat/AW-AUR-0001-K7QX"
+    },
+    "codes": {
+      "description": "Le code de rattachement de chaque pièce, à transmettre si elle est offerte",
+      "exemple": "Le body Aura : K7QX-M2PA"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-cmdrecu01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-cmdrecu02",
+      "type": "titre",
+      "titre": "Votre commande est reçue"
+    },
+    {
+      "id": "b-cmdrecu03",
+      "type": "texte",
+      "texte": "Bonjour {prenom},\n\nVotre commande {commande} vient d’arriver à l’atelier. Rien n’est fabriqué d’avance : votre pièce est créée pour vous, sur demande, par des artisans français."
+    },
+    {
+      "id": "b-cmdrecu04",
+      "type": "texte",
+      "texte": "Comptez {delai} de confection. Nous prévoyons de la terminer entre le {debut} et le {fin}.",
+      "si": "debut"
+    },
+    {
+      "id": "b-cmdrecu05",
+      "type": "commande"
+    },
+    {
+      "id": "b-cmdrecu09",
+      "type": "texte",
+      "texte": "Le certificat d’authenticité de chaque pièce est déjà en ligne, rattaché à votre compte si vous en avez un : {certificats}",
+      "si": "certificats"
+    },
+    {
+      "id": "b-cmdrecu10",
+      "type": "texte",
+      "texte": "Si vous offrez une pièce, transmettez avec elle son code de rattachement : {codes}",
+      "si": "codes"
+    },
+    {
+      "id": "b-cmdrecu06",
+      "type": "texte",
+      "texte": "Nous vous écrivons à chaque étape, quand la pièce entre en confection, quand elle est prête, puis le jour de son départ. Votre commande se suit ici : {suivi}"
+    },
+    {
+      "id": "b-cmdrecu07",
+      "type": "signature",
+      "texte": "À très vite,\nL’atelier Awrea Paris"
+    },
+    {
+      "id": "b-cmdrecu08",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

@@ -11,7 +11,8 @@ export interface SearchEntry {
   title: string;
   /** légende discrète sous le titre */
   note: string;
-  image?: { src: string; alt: string; width: number; height: number };
+  /** `provisoire` : image générée, à accompagner de la mention « visuel provisoire » */
+  image?: { src: string; alt: string; width: number; height: number; provisoire?: boolean };
   price?: number;
   /** titre normalisé */
   key: string;
@@ -23,7 +24,7 @@ export const kindLabels: Record<SearchKind, string> = {
   piece: "Pièces",
   collection: "Collections",
   journal: "Journal",
-  maison: "La maison",
+  maison: "La Maison",
 };
 
 const STOP = new Set(["de", "du", "des", "la", "le", "les", "un", "une", "en", "et", "au", "aux", "a", "l", "d", "pour", "avec", "sur"]);
@@ -80,6 +81,3 @@ export function groupByKind(results: SearchEntry[]): { kind: SearchKind; label: 
     .map((kind) => ({ kind, label: kindLabels[kind], items: results.filter((r) => r.kind === kind) }))
     .filter((g) => g.items.length > 0);
 }
-
-/** Quelques pistes proposées quand le champ est encore vide */
-export const searchSuggestions = ["Dentelle", "Robe", "Body", "Satin", "Pièce unique", "Sur commande"];
