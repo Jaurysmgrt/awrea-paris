@@ -219,6 +219,7 @@ puis créer les pièces : leurs cases sont alors prêtes à remplir sur chaque f
 5. **Prix, délai, « provisoire » et « Nouveau »** se règlent aussi sans ouvrir Shopify : Atelier ›
    **Catalogue**, une ligne par pièce, bouton **Enregistrer**. Le site écrit alors lui-même le prix
    de toutes les tailles et les métachamps ci-dessus.
+5 bis. **Version anglaise des fiches** (site sous /en) : en attendant, les textes anglais des pièces se saisissent dans `content/site/en/catalogue-pieces.json` (repli sur le français) ; avec Shopify, installer l'application **Translate & Adapt** (gratuite, publiée par Shopify) pour traduire titres et descriptions dans la boutique ; le site les demandera alors à Shopify en anglais (requêtes Storefront « @inContext(language: EN) », à brancher dans `lib/shopify/storefront.ts`).
 6. Emballage cadeau : créer un produit « Emballage cadeau » (inventaire non suivi, lui aussi), le
    rendre disponible sur le canal Headless (voir 4.3) mais pas sur la boutique en ligne Shopify.
    Ouvrir sa variante : l'adresse de la page se termine par `/variants/123456789`. Variable :
