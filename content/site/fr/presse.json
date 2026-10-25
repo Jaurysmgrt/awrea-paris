@@ -1,0 +1,18 @@
+{
+  "seo": {
+    "title": "Presse, contact et dossier de presse | Awrea Paris",
+    "description": "Awrea Paris pour la presse : le contact de la Maison pour les journalistes, les stylistes et les demandes d’entretien avec la créatrice."
+  },
+  "titre": "Presse",
+  "chapeau": "Journalistes, stylistes, demandes d’entretien avec la créatrice : la Maison répond à chaque demande par e-mail.",
+  "parutions": "Parutions",
+  "articles": [],
+  "contact": {
+    "titre": "Contact presse",
+    "texte": "Pour un entretien avec la créatrice ou une question sur la collection Hypnotic Lace, écrivez à la Maison en précisant le support et la date de parution."
+  },
+  "kit": {
+    "titre": "Dossier de presse",
+    "texte": "Le logo de la Maison et le texte de présentation d’Awrea Paris vous sont envoyés sur demande, à la même adresse."
+  }
+}

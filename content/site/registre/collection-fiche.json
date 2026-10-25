@@ -1,0 +1,7 @@
+{
+  "fiche-piece": {
+    "label": "Fiche d’une pièce (rubriques, liens, livraison)",
+    "kind": "textes",
+    "chemin": "/boutique/body-aura"
+  }
+}

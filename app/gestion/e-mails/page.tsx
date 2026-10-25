@@ -7,7 +7,7 @@ import Link from "@/components/ui/Link";
 
 const FAMILLES = [
   { id: "commande", title: "Commandes", intro: "Envoyés par Shopify. Une fois modifiés ici, exportez-les vers les notifications Shopify." },
-  { id: "service", title: "Service", intro: "Envoyés par le site : retours, rendez-vous, compte, certificats." },
+  { id: "service", title: "Service", intro: "Envoyés par le site : chaque étape de la confection d’une commande, de « Commande reçue » à « Expédiée », puis les retours, les rendez-vous, le compte et les certificats." },
   { id: "lettre", title: "Lettres", intro: "Les lettres de l’atelier et les messages qui suivent une inscription." },
 ] as const;
 

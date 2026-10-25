@@ -1,8 +1,10 @@
 /**
  * Audit d'homogénéité d'une page, exécuté dans le navigateur (testeur « homogénéité ») :
- * familles de polices, italiques, couleurs saturées (aucun doré), espacements sur la grille de
- * 8 px, interlignage 1,6 du texte courant, mesure (caractères par ligne) et régularité des
- * espaces entre les mots des paragraphes justifiés.
+ * familles de polices (les deux polices officielles, Fraunces et Cormorant Garamond), italiques
+ * (seulement les titres en Fraunces), textes sous 16 px, couleurs saturées (aucune dorure dans
+ * l'interface), espacements sur la grille de 8 px, interlignage 1,6 du texte courant (et notes sur
+ * la grille), mesure
+ * (caractères par ligne) et régularité des espaces entre les mots des paragraphes justifiés.
  *
  * La césure : Chromium sans interface n'embarque pas les dictionnaires de césure que les
  * navigateurs des visiteuses utilisent. Avant de mesurer, `hyphenateJustified` pose donc des
@@ -14,7 +16,10 @@ import { hyphenateSync } from "hyphen/fr";
 
 export interface DesignAudit {
   families: string[];
+  /** italiques hors de la police des titres (Cormorant n'a pas de face italique) */
   italics: string[];
+  /** textes sous 16 px (le minimum du design system) */
+  small: string[];
   saturated: string[];
   spacing: string[];
   leading: string[];
@@ -81,6 +86,7 @@ export function auditInPage(): DesignAudit {
 
   const families = new Set<string>();
   const italics = new Set<string>();
+  const small = new Set<string>();
   const saturated = new Set<string>();
   const spacing = new Set<string>();
   const leading = new Set<string>();
@@ -90,10 +96,17 @@ export function auditInPage(): DesignAudit {
     const cs = getComputedStyle(el);
     if (ownText(el)) {
       families.add(cs.fontFamily.split(",")[0].replace(/["']/g, "").trim());
-      if (cs.fontStyle === "italic" || cs.fontStyle.startsWith("oblique")) italics.add(describe(el));
-      if (el.tagName === "P" && /inter tight/i.test(cs.fontFamily) && cs.textTransform !== "uppercase") {
-        const ratio = parseFloat(cs.lineHeight) / parseFloat(cs.fontSize);
-        if (Math.abs(ratio - 1.6) > 0.02) leading.add(`${describe(el)} ${cs.fontSize}/${cs.lineHeight}`);
+      // l'italique appartient aux titres : Fraunces 72pt Italic est la seule face des titres
+      if ((cs.fontStyle === "italic" || cs.fontStyle.startsWith("oblique")) && !/fraunces/i.test(cs.fontFamily)) italics.add(describe(el));
+      const size = parseFloat(cs.fontSize);
+      if (size > 0 && size < 15.9) small.add(`${describe(el)} ${cs.fontSize}`);
+      // interlignage des paragraphes en Cormorant : toujours sur la grille de 8 px ; 1,6 pour le texte
+      // courant et les chapeaux (20 → 32, 25 → 40) ; les notes de 18 px prennent la ligne du texte
+      // courant (32 px), car 18 × 1,6 sortirait de la grille
+      if (el.tagName === "P" && /cormorant/i.test(cs.fontFamily) && cs.textTransform !== "uppercase") {
+        const lh = parseFloat(cs.lineHeight);
+        const ratio = lh / size;
+        if (off8(lh) || (size >= 19.5 && Math.abs(ratio - 1.6) > 0.02)) leading.add(`${describe(el)} ${cs.fontSize}/${cs.lineHeight}`);
       }
     }
     for (const prop of ["color", "backgroundColor", "borderTopColor", "borderBottomColor", "borderLeftColor", "outlineColor"] as const) {
@@ -142,7 +155,7 @@ export function auditInPage(): DesignAudit {
         return { top: Math.round(b.top), width: b.width };
       });
     const justifiedW = measure();
-    ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    ctx.font = `${cs.fontStyle === "normal" ? "" : `${cs.fontStyle} `}${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
     const nat = ctx.measureText(" ").width;
     const natural = justifiedW.map((s) => ({ ...s, width: nat }));
     const lineTops = Array.from(new Set(justifiedW.filter((s) => s.width > 0).map((s) => s.top))).sort((a, b) => a - b);
@@ -173,6 +186,7 @@ export function auditInPage(): DesignAudit {
   return {
     families: Array.from(families),
     italics: Array.from(italics),
+    small: Array.from(small),
     saturated: Array.from(saturated),
     spacing: Array.from(spacing),
     leading: Array.from(leading),

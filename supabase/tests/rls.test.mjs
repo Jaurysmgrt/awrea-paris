@@ -68,4 +68,31 @@ assert(await refused(`select public.purge_expired()`), "la purge est refusée au
 await db.exec(`reset role;`);
 const purge = (await db.query(`select public.purge_expired() as r`)).rows[0].r;
 assert(typeof purge === "object", "purge quotidienne disponible");
+
+// création sur demande (migration 20261018000000) : ni liste d'attente, ni numéro d'édition, ni « restock »
+assert((await db.query(`select to_regclass('public.waitlist_entries') as t`)).rows[0].t === null, "listes d'attente supprimées (aucune donnée personnelle collectée pour cela)");
+const certCols = (await db.query(`select column_name from information_schema.columns where table_schema = 'public' and table_name = 'certificates'`)).rows.map((r) => r.column_name);
+assert(certCols.includes("creation_number") && !certCols.includes("edition_number") && !certCols.includes("edition_total"), "certificats : numéro de création à la place du numéro d'édition et du total");
+const rlsOff = (await db.query(`select relname from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relkind = 'r' and not c.relrowsecurity`)).rows;
+assert(rlsOff.length === 0, `sécurité par ligne active sur toutes les tables${rlsOff.length ? ` (manque : ${rlsOff.map((r) => r.relname).join(", ")})` : ""}`);
+await db.exec(`insert into public.certificates (serial, product_handle, product_title) values ('AW-AUR-0001-AAAA', 'body-aura', 'Le body Aura'), ('AW-ODS-0002-BBBB', 'robe-odessa', 'La robe Odessa');`);
+const numbers = (await db.query(`select creation_number from public.certificates order by creation_number`)).rows.map((r) => Number(r.creation_number));
+assert(numbers.length === 2 && numbers[0] === 1 && numbers[1] === 2, "numéros de création attribués dans l'ordre : 1, 2");
+const drawn = await Promise.all([1, 2, 3].map(() => db.query(`select public.next_creation_number() as n`).then((r) => Number(r.rows[0].n))));
+assert(new Set(drawn).size === 3 && Math.min(...drawn) === 3, "numéros tirés par le serveur : jamais deux fois le même, à la suite");
+assert(await refused(`insert into public.certificates (serial, product_handle, product_title, creation_number) values ('AW-KIR-0001-CCCC', 'top-kira', 'Le top Kira', 1)`), "un numéro de création déjà attribué est refusé");
+await db.exec(`set role authenticated; select set_config('request.jwt.claim.sub', '11111111-1111-1111-1111-111111111111', false);`);
+assert(await refused(`select public.next_creation_number()`), "une cliente ne tire jamais de numéro de création");
+assert(await refused(`select nextval('public.certificate_creation_seq')`), "une cliente n'avance jamais la séquence des numéros");
+await db.exec(`reset role;`);
+const placed = (await db.query(`select stage_dates, placed_at from public.orders where number = 'AW-1'`)).rows[0];
+assert(placed.stage_dates.paid && new Date(placed.stage_dates.paid).getTime() === new Date(placed.placed_at).getTime(), "commande reçue datée du jour de la commande");
+await db.exec(`update public.orders set status = 'in_production' where number = 'AW-1'; update public.orders set status = 'in_production' where number = 'AW-1'; update public.orders set status = 'ready' where number = 'AW-1';`);
+await db.exec(`update public.orders set status = 'shipped' where number = 'AW-1'; update public.orders set status = 'delivered' where number = 'AW-1';`);
+const staged = (await db.query(`select stage_dates, delivered_at from public.orders where number = 'AW-1'`)).rows[0];
+assert(["paid", "in_production", "ready", "shipped", "delivered"].every((k) => staged.stage_dates[k]) && staged.delivered_at, "chaque étape franchie est datée, la livraison pose la date de livraison");
+await db.exec(`insert into public.push_subscriptions (endpoint, p256dh, auth) values ('https://push.exemple/1', 'k', 'a')`);
+const topics = (await db.query(`select topics from public.push_subscriptions`)).rows[0].topics;
+assert(JSON.stringify(topics) === JSON.stringify(["collections", "drops"]), "notifications : nouvelles collections et avant-premières par défaut");
+assert(await refused(`insert into public.push_subscriptions (endpoint, p256dh, auth, topics) values ('https://push.exemple/2', 'k', 'a', array['restock'])`), "le sujet « restock » n'existe plus");
 console.log("Base clientes : schéma et sécurité par ligne vérifiés.");

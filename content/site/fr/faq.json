@@ -1,0 +1,170 @@
+{
+  "seo": {
+    "title": "Questions fréquentes, de la confection à la livraison | Awrea Paris",
+    "description": "Délais de fabrication, tailles, étapes de votre commande, livraison, retours et rétractation : les réponses de la Maison sur ses pièces créées sur demande par des artisans français."
+  },
+  "titre": "Questions fréquentes",
+  "chapeau": "Les questions que l’on nous pose le plus souvent, de la confection de votre pièce à sa livraison. Pour toute autre question, l’assistante vous répond à toute heure, et la créatrice sous 48 heures ouvrées.",
+  "themes": "Thèmes",
+  "groupes": [
+    {
+      "id": "maison",
+      "titre": "La Maison",
+      "questions": [
+        {
+          "id": "qui",
+          "q": "Qui est derrière Awrea Paris ?",
+          "r": "Une jeune créatrice, qui a fondé sa maison de prêt-à-porter féminin autour d’une fascination pour les contrastes. La dentelle et les drapés dessinent ses silhouettes, et la dorure éclaire certaines pièces. La collection en cours s’appelle Hypnotic Lace. Son histoire est racontée sur la page [La Maison](/la-maison)."
+        },
+        {
+          "id": "fabrication",
+          "q": "Où et par qui sont faites les pièces ?",
+          "r": "Chaque pièce est confectionnée après votre commande, dans votre taille, par des artisans français. La Maison accorde une attention particulière à leurs conditions de travail et à la valeur de leur métier."
+        },
+        {
+          "id": "sans-stock",
+          "q": "Pourquoi n’y a-t-il pas de stock ?",
+          "r": "Parce que la Maison ne produit que ce qui est désiré. Rien n’attend sur une étagère, rien ne finit oublié. Ce choix respecte l’environnement, et il laisse aux artisans le temps de bien faire. Le détail est sur la page [La commande sur demande](/sur-commande)."
+        },
+        {
+          "id": "manifeste",
+          "q": "Que signifie «Consommer plus juste » ?",
+          "r": "C’est le manifeste de la Maison. Une création exclusive n’a pas besoin d’être réservée à l’ultra luxe : une pièce faite pour vous, au moment où vous la choisissez, au prix juste."
+        },
+        {
+          "id": "certificat",
+          "q": "Ma pièce a-t-elle un certificat ?",
+          "r": "Oui. Chaque pièce confectionnée reçoit un numéro de création unique, par exemple «Création n° 0001 », inscrit sur son certificat d’authenticité. Un code permet de vérifier ce certificat en ligne."
+        }
+      ]
+    },
+    {
+      "id": "commande",
+      "titre": "Votre commande",
+      "questions": [
+        {
+          "id": "delais",
+          "q": "Combien de temps faut-il pour recevoir ma pièce ?",
+          "r": "Votre pièce est créée après la commande. Comptez {hauts} de fabrication pour un body ou un top, {robes} pour une robe : le délai exact figure sur la fiche de chaque pièce, dans le panier et au paiement. Une fois prête, elle vous est livrée en France métropolitaine ; nos conditions générales de vente prévoient 5 à 10 jours ouvrés pour la livraison."
+        },
+        {
+          "id": "tailles-disponibles",
+          "q": "Toutes les tailles sont-elles disponibles ?",
+          "r": "Oui. Chaque taille proposée se commande, toujours : votre pièce est confectionnée dans celle que vous choisissez. Aucune pièce n’est jamais épuisée."
+        },
+        {
+          "id": "etapes",
+          "q": "Comment suivre la confection de ma commande ?",
+          "r": "Votre commande passe par cinq étapes : Commande reçue, En confection, Prête, Expédiée, Livrée. Vous les suivez dans votre compte, ou sur la page [Suivre ma commande](/suivi) avec votre numéro de commande et votre adresse e-mail. Un e-mail vous prévient quand votre pièce entre en confection, quand elle est prête et quand elle part."
+        },
+        {
+          "id": "paiement",
+          "q": "Quand suis-je débitée, et comment payer ?",
+          "r": "Le jour de la commande, en totalité, comme le prévoient nos conditions générales de vente ; la confection commence une fois le paiement confirmé. Vous pouvez régler par carte bancaire, PayPal, Google Pay ou Apple Pay. La Maison ne voit jamais vos données bancaires."
+        },
+        {
+          "id": "annulation",
+          "q": "Puis-je annuler ma commande ?",
+          "r": "Oui, dans les deux jours qui suivent l’acceptation de votre commande par la Maison, et tant qu’elle ne vous a pas été livrée. Écrivez-nous à {email} en indiquant votre numéro de commande. Votre droit de rétractation reste entier par ailleurs."
+        },
+        {
+          "id": "compte",
+          "q": "Faut-il un compte pour commander ?",
+          "r": "Non. Une adresse e-mail suffit. Le compte vous permet de suivre vos commandes et de garder vos envies."
+        },
+        {
+          "id": "cadeau",
+          "q": "Puis-je offrir une pièce ?",
+          "r": "Oui. Depuis le panier, ajoutez l’emballage cadeau et un message de votre main, ou réglez avec une carte cadeau."
+        }
+      ]
+    },
+    {
+      "id": "tailles",
+      "titre": "Tailles et conseils",
+      "questions": [
+        {
+          "id": "choisir",
+          "q": "Comment choisir ma taille ?",
+          "r": "Le [guide des tailles](/guide-des-tailles) part des mesures du corps : tour de poitrine, de taille et de hanches. Chaque fiche y renvoie, avec un conseil sur la coupe de la pièce. Entre deux tailles, l’assistante ou la créatrice vous conseillent avant la commande."
+        },
+        {
+          "id": "rendez-vous",
+          "q": "Puis-je parler de ma pièce avec la créatrice ?",
+          "r": "Oui. Prenez [rendez-vous](/rendez-vous), à l’atelier ou en appel vidéo. La créatrice vous parle de la pièce, de sa coupe et de la taille qui vous ira."
+        },
+        {
+          "id": "matieres",
+          "q": "De quelles matières sont faites les pièces ?",
+          "r": "La dentelle, le jersey et le satin, avec une touche de dorure sur certaines pièces. La composition exacte de chaque pièce sera indiquée sur sa fiche. [À COMPLÉTER : compositions des pièces] En attendant, écrivez-nous : la Maison vous répond."
+        },
+        {
+          "id": "entretien",
+          "q": "Comment entretenir ma pièce ?",
+          "r": "Chaque fiche donnera les conseils propres à sa pièce. [À COMPLÉTER : conseils d’entretien de la dentelle, du jersey et du satin] D’ici là, écrivez-nous avant le premier lavage : la Maison vous répond."
+        }
+      ]
+    },
+    {
+      "id": "livraison",
+      "titre": "Livraison",
+      "questions": [
+        {
+          "id": "ou",
+          "q": "Où livrez-vous ?",
+          "r": "En France métropolitaine, comme le prévoient nos conditions générales de vente, par un transporteur indépendant, à l’adresse que vous indiquez à la commande."
+        },
+        {
+          "id": "frais",
+          "q": "Combien coûte la livraison ?",
+          "r": "Les frais de livraison s’ajoutent au prix de la pièce et s’affichent avant le paiement. La livraison suivie est offerte dès {seuil} d’achat."
+        },
+        {
+          "id": "colis",
+          "q": "Comment suivre mon colis ?",
+          "r": "Le numéro de suivi vous est envoyé par e-mail le jour de l’expédition. Vous le retrouvez aussi dans votre compte et sur la page [Suivre ma commande](/suivi)."
+        },
+        {
+          "id": "retard",
+          "q": "Et si ma pièce prend du retard ?",
+          "r": "La Maison vous écrit dès qu’un retard se dessine. Si votre commande n’est pas livrée dans les sept jours qui suivent la date indiquée, sauf force majeure, vous pouvez demander par écrit l’annulation de la vente : les sommes versées vous sont rendues dans les quatorze jours."
+        },
+        {
+          "id": "abime",
+          "q": "Mon colis est arrivé abîmé : que faire ?",
+          "r": "Écrivez-nous à {email} dans les 48 heures qui suivent la livraison pour un colis abîmé, dans les 14 jours pour un problème sur la pièce. Indiquez votre numéro de commande et joignez des photos : la Maison traite votre demande au plus vite. La garantie légale de conformité et la garantie des vices cachés s’appliquent aussi."
+        }
+      ]
+    },
+    {
+      "id": "retours",
+      "titre": "Retours et rétractation",
+      "questions": [
+        {
+          "id": "retractation",
+          "q": "Puis-je changer d’avis ?",
+          "r": "Oui. Vous disposez de quatorze jours après la réception de votre pièce pour vous rétracter, en ligne sur la page [Se rétracter](/retractation), ou par toute déclaration claire envoyée par e-mail ou par courrier."
+        },
+        {
+          "id": "renvoyer",
+          "q": "Comment renvoyer une pièce ?",
+          "r": "La pièce revient dans son état d’origine et complète, avec son emballage et sa facture. Une pièce abîmée, salie ou incomplète ne peut pas être reprise. Les frais de retour restent à votre charge. Tout est expliqué sur la page [Livraison et retours](/livraison-retours)."
+        },
+        {
+          "id": "remboursement",
+          "q": "Quand suis-je remboursée ?",
+          "r": "Dans les quatorze jours qui suivent la réception de votre pièce par la Maison."
+        },
+        {
+          "id": "echange",
+          "q": "Puis-je échanger ma pièce contre une autre taille ?",
+          "r": "Oui. Comme chaque pièce est créée sur demande, la nouvelle taille est confectionnée pour vous, avec son délai de fabrication."
+        }
+      ]
+    }
+  ],
+  "fin": {
+    "texte": "Vous ne trouvez pas votre réponse ?",
+    "lien": "Écrivez-nous"
+  }
+}

@@ -8,6 +8,8 @@ import { stegaClean } from "@/lib/edition/stega";
 import { blockDef, type Img } from "@/lib/edition/blocks";
 import { getAt } from "@/lib/edition/paths";
 import { readDoc } from "@/lib/edition/store";
+import { withProvisional } from "@/lib/edition/provisoires";
+import { setMediaProvisional } from "@/lib/edition/medias";
 
 const Image = z.object({
   src: z.string().max(400).regex(/^(\/media\/|\/api\/media\/|https:\/\/cdn\.shopify\.com\/|$)/),
@@ -15,6 +17,8 @@ const Image = z.object({
   width: z.number().int().positive().max(10000),
   height: z.number().int().positive().max(10000),
   focal: z.object({ x: z.number().min(0).max(100), y: z.number().min(0).max(100) }).optional(),
+  /** case « Photo provisoire » du panneau de la photo (lib/edition/provisoires.ts) */
+  provisoire: z.boolean().optional(),
 });
 
 const Body = z.union([
@@ -55,10 +59,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, issues: writingFor(body.path, value, target.locale) });
   }
   if ("image" in body) {
-    const img: Img = { ...body.image, alt: stegaClean(body.image.alt) };
+    // une photo n'est provisoire que si la case est cochée : une photo remplacée par un envoi ne l'est plus
+    const img: Img = withProvisional({ ...body.image, alt: stegaClean(body.image.alt) }, Boolean(body.image.src) && body.image.provisoire === true);
     const blocked = guardValue(`${body.path}.alt`, undefined, img.alt);
     if (blocked && img.src) return bad(blocked);
     await saveDraftValue(target.doc, target.locale, at, img, who.email);
+    await setMediaProvisional(img.src, img.provisoire === true).catch((e) => console.error("[édition] médiathèque", e));
     return NextResponse.json({ ok: true, issues: img.alt ? writingFor(`${body.path}.alt`, img.alt, target.locale) : [] });
   }
   if ("choice" in body) {

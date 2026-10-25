@@ -1,5 +1,8 @@
 import { POLICY } from "@/lib/agents/policy";
 import type { Proposal } from "@/lib/agents/perform";
+import { AGENTS } from "@/lib/agents/registry";
+import { ROLES } from "@/lib/agents/roles";
+import { withRegistryNames } from "./agent-names";
 import { formatPrice } from "@/lib/format";
 import { ActionButton } from "./ActionButton";
 import { AgentName, Status, When } from "./Status";
@@ -24,13 +27,16 @@ function describe(p: Proposal): string[] {
   }
 }
 
+/** Noms des agents et des rôles quotidiens qui peuvent proposer une action. */
+const NAMES = withRegistryNames([...AGENTS, ...ROLES]);
+
 export function ProposalCard({ p }: { p: Proposal }) {
   return (
     <article className="proposal" data-status={p.status}>
       <header className="proposal__head">
         <Status value={p.status === "pending" ? "pending" : p.status === "approved" ? "approved" : p.status === "rejected" ? "rejected" : "failed"} />
         <span className="t-label t-soft">
-          <AgentName id={p.agent} /> · <When iso={p.date} /> · {POLICY[p.action].why}
+          <AgentName id={p.agent} names={NAMES} /> · <When iso={p.date} /> · {POLICY[p.action]?.why}
         </span>
       </header>
       <h3 className="t-h4">{p.summary}</h3>
@@ -44,8 +50,8 @@ export function ProposalCard({ p }: { p: Proposal }) {
       </ul>
       {p.status === "pending" ? (
         <div className="proposal__actions">
-          <ActionButton endpoint={atelierApi(`/proposals/${p.id}`)} body={{ decision: "approve" }} label="Valider" busyLabel="Exécution…" variant="solid" confirm={p.action === "delete_product" || p.action === "send_newsletter_all" ? "Cette action est irréversible. Confirmer ?" : undefined} />
-          <ActionButton endpoint={atelierApi(`/proposals/${p.id}`)} body={{ decision: "reject" }} label="Refuser" />
+          <ActionButton endpoint={atelierApi(`/proposals/${p.id}`)} body={{ decision: "approve" }} label="Valider" busyLabel="Exécution…" confirm={p.action === "delete_product" || p.action === "send_newsletter_all" ? "Cette action est irréversible. Confirmer ?" : undefined} />
+          <ActionButton endpoint={atelierApi(`/proposals/${p.id}`)} body={{ decision: "reject" }} label="Refuser" variant="outline" />
         </div>
       ) : p.result ? (
         <p className="t-note">{p.result}</p>

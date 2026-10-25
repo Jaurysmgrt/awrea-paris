@@ -1,8 +1,14 @@
 "use client";
+import { useTexts } from "@/components/content/Texts";
+import { fill, type CatalogueTexts } from "@/lib/commerce/texts";
 import { useWishlist } from "./WishlistProvider";
 
-/** Bouton « Garder » : un losange au fil, qui se remplit d'or. */
+/**
+ * Bouton « Garder » : un losange au fil, qui se remplit d'or. Textes du document « catalogue »,
+ * tournés pour suivre un titre à article (« Le body Aura », « La robe Odessa ») sans accord.
+ */
 export function WishlistButton({ handle, title, variant = "text" }: { handle: string; title: string; variant?: "text" | "icon" }) {
+  const t = useTexts<CatalogueTexts>("catalogue").envies;
   const { has, toggle } = useWishlist();
   const on = has(handle);
   return (
@@ -10,7 +16,7 @@ export function WishlistButton({ handle, title, variant = "text" }: { handle: st
       type="button"
       className={`wish ${variant === "icon" ? "wish--icon" : "link link--quiet"}`}
       aria-pressed={on}
-      aria-label={variant === "icon" ? `Garder ${title} dans ma liste d’envies` : undefined}
+      aria-label={variant === "icon" ? fill(t.carte, { piece: title }) : undefined}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -22,8 +28,8 @@ export function WishlistButton({ handle, title, variant = "text" }: { handle: st
       </svg>
       {variant === "text" ? (
         <>
-          <span>{on ? "Gardée" : "Garder"}</span>
-          <span className="sr-only"> : {title}, liste d’envies</span>
+          <span>{on ? t.gardee : t.garder}</span>
+          <span className="sr-only"> {fill(t.fiche, { piece: title })}</span>
         </>
       ) : null}
     </button>
