@@ -75,5 +75,10 @@
       "href": "/boutique"
     },
     "voirTout": "See all {n} results"
+  },
+  "evitement": "Skip to content",
+  "filAriane": {
+    "nom": "Breadcrumb",
+    "accueil": "Home"
   }
 }

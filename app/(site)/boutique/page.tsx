@@ -3,6 +3,7 @@ import { getCollections, getPublicProducts } from "@/lib/commerce";
 import { getDoc } from "@/lib/edition/read";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { collectionSchema } from "@/lib/seo/schema";
+import { getLocale } from "@/lib/i18n/server";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
@@ -31,7 +32,7 @@ export default async function BoutiquePage({ searchParams }: { searchParams: Pro
 
   return (
     <>
-      <JsonLd data={collectionSchema({ title: tPlain.titre, description: tPlain.seo.description, path: "/boutique", items: products.map((p) => ({ name: p.title, path: `/boutique/${p.handle}` })) })} />
+      <JsonLd data={collectionSchema({ title: tPlain.titre, description: tPlain.seo.description, path: "/boutique", items: products.map((p) => ({ name: p.title, path: `/boutique/${p.handle}` })) }, await getLocale())} />
       <PageHeader title={t.titre} lead={t.chapeau} crumbs={[{ name: t.titre, path: "/boutique" }]} />
       <Section theme="ivory" className="section section--flush-top" aria-label={t.piecesTitre}>
         <div className="container">

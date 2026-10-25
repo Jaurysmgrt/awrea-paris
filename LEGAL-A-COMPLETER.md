@@ -177,6 +177,10 @@ typographie française.
   confidentialité » (`/confidentialite`) ; harmoniser le nom, et compléter la liste des droits (le
   paragraphe cite la loi de 1978 et seulement quatre droits).
 
+## Version anglaise
+
+- [ ] Traduction anglaise des CGV, des mentions légales et du formulaire type de rétractation (`content/site/en/cgv.json`, `mentions-legales.json`, `juridique.json`), avec en tête la mention « seule la version française fait foi » (champ `chapeau`, non officiel) : traduction et mention à faire valider par une ou un professionnel du droit.
+
 ## Autres informations à confirmer
 
 - [ ] Nom de domaine du site : variable `NEXT_PUBLIC_SITE_URL` (par défaut « https://www.awreaparis.com », adresse citée par les mentions légales officielles ; les CGV officielles citent encore l’adresse du site Wix).

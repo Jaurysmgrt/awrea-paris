@@ -85,7 +85,7 @@ export default async function CollectionPage({ params, searchParams }: { params:
           description: c.seo.description,
           path: `/collections/${c.handle}`,
           items: pieces.map((p) => ({ name: p.title, path: `/boutique/${p.handle}` })),
-        })}
+        }, await getLocale())}
       />
       <PageHeader
         title={fill(t.collection.titre, { collection: c.title })}

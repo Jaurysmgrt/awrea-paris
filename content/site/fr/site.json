@@ -75,5 +75,10 @@
       "href": "/boutique"
     },
     "voirTout": "Voir les {n} résultats"
+  },
+  "evitement": "Aller au contenu",
+  "filAriane": {
+    "nom": "Fil d’Ariane",
+    "accueil": "Accueil"
   }
 }
