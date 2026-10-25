@@ -255,21 +255,14 @@ test.describe("Pied de page de la maquette et lettre de la Maison", () => {
     expect((await sansConsentement.json()).champs).toContain("consentement");
   });
 
-  test("mode Nuit : automatique selon le réglage de l’appareil, puis au choix, sans flash au rechargement", async ({ page }) => {
+  test("mode Nuit automatique : le site suit le réglage de l’appareil, sans flash, et suit ses changements", async ({ page }) => {
     await acceptCookies(page);
     await page.emulateMedia({ colorScheme: "dark" });
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("data-mode", "dark");
-    const footer = page.locator("footer");
-    // réglages d'affichage repliés derrière le lien « Affichage » du pied de page
-    const ouvrirAffichage = () => footer.locator(".site-footer__tools > summary").click();
-    await ouvrirAffichage();
-    await footer.getByText("Jour", { exact: true }).click();
-    await expect(page.locator("html")).toHaveAttribute("data-mode", "light");
-    await footer.getByText("Nuit", { exact: true }).click();
-    await expect(page.locator("html")).toHaveAttribute("data-mode", "dark");
-    // le choix est appliqué par le script de <head>, avant le premier affichage
-    await page.emulateMedia({ colorScheme: "light" });
+    // aucun réglage manuel : le mode suit toujours l'appareil
+    await expect(page.locator("footer").getByText("Jour", { exact: true })).toHaveCount(0);
+    // appliqué par le script de <head>, avant le premier affichage
     await page.goto("/boutique", { waitUntil: "commit" });
     await page.waitForSelector("body");
     await expect(page.locator("html")).toHaveAttribute("data-mode", "dark");
@@ -277,19 +270,18 @@ test.describe("Pied de page de la maquette et lettre de la Maison", () => {
     expect(bg).not.toBe("rgb(247, 246, 243)"); // jamais de blanc cassé en mode Nuit
     // la pastille Instagram s'inverse : blanc cassé sur fond noir
     await expect.poll(() => page.locator(".site-footer__social").evaluate((el) => getComputedStyle(el).backgroundColor)).toBe("rgb(247, 246, 243)");
-    await ouvrirAffichage();
-    await footer.getByText(/^Auto/).click();
+    // l'appareil repasse en clair pendant la visite : le site suit aussitôt
+    await page.emulateMedia({ colorScheme: "light" });
     await expect(page.locator("html")).toHaveAttribute("data-mode", "light");
   });
 
-  test("animations apaisées sur demande, même si le système ne le demande pas", async ({ page }) => {
+  test("animations apaisées quand l’appareil le demande", async ({ page }) => {
     await acceptCookies(page);
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
-    await page.locator("footer .site-footer__tools > summary").click();
-    await page.locator("footer").getByRole("switch", { name: "Animations apaisées" }).check();
     await expect(page.locator("html")).toHaveAttribute("data-motion", "reduce");
-    await page.reload();
-    await expect(page.locator("html")).toHaveAttribute("data-motion", "reduce");
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await expect(page.locator("html")).not.toHaveAttribute("data-motion", "reduce");
   });
 
   test("prix sobres : jamais de prix barré", async ({ page }) => {

@@ -22,7 +22,6 @@ import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, ty
 import { Logo } from "@/components/brand/Logo";
 import { Chevron } from "@/components/ui/Chevron";
 import { Icon } from "@/components/ui/Icon";
-import { DisplayPrefs } from "@/components/ui/DisplayPrefs";
 import { useCart } from "@/components/commerce/CartProvider";
 import { useWishlist } from "@/components/commerce/WishlistProvider";
 import { useTexts } from "@/components/content/Texts";
@@ -413,7 +412,6 @@ export function Menu({ open, onClose, nav, actions }: { open: boolean; onClose: 
             ))}
           </ul>
         </nav>
-        <DisplayPrefs id="menu" className="site-menu__prefs" />
       </div>
     </dialog>
   );

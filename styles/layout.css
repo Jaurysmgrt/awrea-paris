@@ -623,19 +623,6 @@
     width: var(--spacing-m);
     height: var(--spacing-m);
   }
-  /* réglages d'affichage repliés derrière un lien discret, sous le copyright */
-  .site-footer__tools {
-    display: grid;
-    justify-items: center;
-    gap: var(--spacing-s);
-  }
-  .site-footer__tools > summary {
-    list-style: none;
-    cursor: pointer;
-  }
-  .site-footer__tools > summary::-webkit-details-marker {
-    display: none;
-  }
 
   /* ============================================ RÉGLAGES D'AFFICHAGE */
   .display-prefs {

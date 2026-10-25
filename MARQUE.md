@@ -235,7 +235,7 @@ pastille « Nouveau », photos des cartes aux angles arrondis. Primitives et cla
 - Arrondis, seulement ceux des maquettes : boutons et pastilles noirs en pilule
   (`--radius-pill`), photos des cartes de pièces aux angles arrondis (`--radius-card`, 16 px),
   vignettes (`--radius-soft`, 8 px). Sections, grandes photos et champs restent droits.
-- Mode Nuit : version noire complète, automatique selon le téléphone, avec interrupteur. Boutons
+- Mode Nuit : version noire complète, toujours automatique selon le réglage de l'appareil (aucun interrupteur). Boutons
   et pastilles s'y inversent (blanc cassé, texte noir).
 
 ### Typographie — les deux polices officielles, pas une de plus
@@ -316,8 +316,8 @@ pastille « Nouveau », photos des cartes aux angles arrondis. Primitives et cla
 - **Une seule durée** (`--dur`, 0,8 s) et **une seule courbe** (`--ease` : rapide au départ, qui se
   pose lentement) pour toutes les animations : survols, apparitions, panneaux, défilement doux,
   séquences signature (qui enchaînent cette même durée). Contrôlé par `npm run audit:tokens`.
-- Toutes les animations sont coupées par « animations apaisées » (`prefers-reduced-motion` ou
-  réglage du site) et ne ralentissent jamais l'affichage.
+- Toutes les animations sont coupées par « animations apaisées » quand l'appareil le demande
+  (`prefers-reduced-motion`) et ne ralentissent jamais l'affichage.
 
 ### Interactions signature (adaptées)
 
