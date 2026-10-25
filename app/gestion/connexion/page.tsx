@@ -17,7 +17,7 @@ export default async function ConnexionPage({ searchParams }: { searchParams: Pr
       <LoginForm next={next} />
       {demo ? (
         <p className="t-note t-center">
-          Démonstration. Adresse « {allowedEmails()[0]}  », mot de passe d’installation « atelier-demo ». En production, réglez ATELIER_ACCOUNTS et ATELIER_PASSWORD.
+          Démonstration. Adresse « {allowedEmails()[0]} », mot de passe d’installation « atelier-demo ». En production, réglez ATELIER_ACCOUNTS et ATELIER_PASSWORD.
         </p>
       ) : null}
     </div>

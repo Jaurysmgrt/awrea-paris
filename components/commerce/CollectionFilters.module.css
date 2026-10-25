@@ -1,0 +1,155 @@
+/*
+ * Liste de pièces filtrable, d'après la maquette PAGE PRODUIT : la colonne « Filtrer par » à
+ * gauche (filets fins entre les groupes, « + » fermé, « − » ouvert), les cartes à droite. Sous
+ * 1024 px, une seule colonne : le bouton « Filtrer » et le nombre de pièces en tête de liste, le
+ * panneau des filtres s'ouvre dessous. Tokens seulement ; mode Nuit par les rôles de couleur.
+ */
+.listing {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "barre"
+    "filtres"
+    "pieces";
+  row-gap: var(--spacing-m);
+  align-items: start;
+}
+@media (min-width: 64rem) {
+  .listing {
+    grid-template-columns: var(--container-sidebar) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "filtres barre"
+      "filtres pieces";
+    column-gap: var(--spacing-2xl);
+  }
+}
+
+/* en tête de liste : le bouton du panneau (téléphone et tablette), le nombre de pièces, l'effacement */
+.bar {
+  grid-area: barre;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs) var(--spacing-m);
+}
+.count {
+  margin: 0;
+}
+.clear {
+  margin-left: auto;
+}
+@media (min-width: 64rem) {
+  .toggle {
+    display: none;
+  }
+}
+
+/* la colonne des filtres ; fermée par défaut sous 1024 px */
+.panel {
+  grid-area: filtres;
+  min-width: 0;
+}
+@media (max-width: 63.99rem) {
+  .panel[data-open="false"] {
+    display: none;
+  }
+}
+.title {
+  margin: 0;
+  padding-bottom: var(--spacing-m);
+  border-bottom: var(--border-width-hair) solid var(--line);
+  font-family: var(--font-body);
+  font-style: normal;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-step-2);
+  line-height: var(--lh-step-2);
+  letter-spacing: var(--tracking-text);
+  text-align: left;
+}
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--spacing-xs);
+}
+/* choix en cours, rappelé quand le groupe est fermé */
+.picked {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: var(--text-step--1);
+  line-height: var(--leading-label);
+  color: var(--fg-soft);
+}
+.fieldset {
+  display: grid;
+  justify-items: start;
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 var(--spacing-m);
+  border: 0;
+}
+
+/* une option : le texte seul, comme sur la maquette ; le choix passe au noir et se souligne
+   d'un filet (jamais la couleur seule) */
+.option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding-block: var(--spacing-3xs);
+  cursor: pointer;
+}
+.optionLabel {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-step-0);
+  line-height: var(--leading-label);
+  letter-spacing: var(--tracking-snug);
+  color: var(--fg-soft);
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% var(--border-width-hair);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition:
+    color var(--dur) var(--ease),
+    background-size var(--dur) var(--ease);
+}
+@media (hover: hover) {
+  .option:hover .optionLabel {
+    color: var(--fg);
+  }
+}
+.option:has(input:checked) .optionLabel {
+  color: var(--fg);
+  background-size: 100% var(--border-width-hair);
+}
+.option:has(input:focus-visible) {
+  outline: var(--border-width-focus) solid var(--fg);
+  outline-offset: var(--border-width-focus);
+}
+@media (forced-colors: active) {
+  .option:has(input:checked) .optionLabel {
+    text-decoration: underline;
+  }
+}
+
+.submit,
+.close {
+  margin-top: var(--spacing-m);
+}
+@media (min-width: 64rem) {
+  .close {
+    display: none;
+  }
+}
+
+/* les cartes ; pendant le chargement de la sélection, elles s'effacent à peine */
+.results {
+  grid-area: pieces;
+  min-width: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.results[aria-busy="true"] {
+  opacity: 0.5;
+}

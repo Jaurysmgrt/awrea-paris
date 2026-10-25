@@ -10,7 +10,7 @@ import { aiEnabled } from "@/lib/ai/client";
 import { generateStructured } from "@/lib/ai/structured";
 import { getAllProducts, getCurrentCollection } from "@/lib/commerce";
 import { getArticles } from "@/lib/content/journal";
-import { editionInfo, productAvailability } from "@/lib/commerce/availability";
+import { madeToOrderLabel } from "@/lib/commerce/availability";
 import { formatPrice } from "@/lib/format";
 import { kv } from "@/lib/store";
 import { runSiteAudit, type AuditReport } from "../seo-audit";
@@ -87,7 +87,7 @@ export async function runSeoAgent(origin: string, trigger: AgentRun["trigger"] =
           sections: [
             { heading: null, paragraphs: [`${p.title} est née d’une image notée dans le carnet de la créatrice. ${p.tagline}`, "Comme chaque pièce de la maison, elle a été coupée, assemblée et finie à la main, à Paris, puis numérotée."] },
             { heading: "La matière d’abord", paragraphs: [`${p.materials.map((m) => `${m.percent} % ${m.name.toLowerCase()}`).join(", ")} : la matière décide du tombé avant que le patron ne prenne forme. ${p.description[0] ?? ""}`] },
-            { heading: "Une série courte", paragraphs: [`${editionInfo(p).unique ? "C’est une pièce unique" : `La série compte ${editionInfo(p).total} pièces`} : lorsqu’elle est complète, elle ne revient pas à l’identique. Consommer plus juste commence là.`] },
+            { heading: "Créée sur demande", paragraphs: [`${p.title} n’est jamais produite d’avance : elle est créée sur demande par des artisans français, en ${p.leadTime.min} à ${p.leadTime.max} semaines. Consommer plus juste commence là.`] },
           ],
           seo: { title: `${p.title} dans l’atelier | Awrea Paris`.slice(0, 60), description: `${p.title}, une pièce coupée, assemblée et finie à la main dans l’atelier, à Paris, puis numérotée. La matière décide du tombé.`.slice(0, 158) },
           next_ideas: [
@@ -119,7 +119,7 @@ export async function runSeoAgent(origin: string, trigger: AgentRun["trigger"] =
     const current = await getCurrentCollection();
     const notes = [
       current ? `Collection en cours : ${current.title} (${current.season}). ${current.lead}` : "",
-      ...products.slice(0, 8).map((p) => `${p.title} : ${formatPrice(p.price)}, ${editionInfo(p).unique ? "pièce unique" : `série de ${editionInfo(p).total}`}, ${productAvailability(p) === "available" ? "disponible" : productAvailability(p) === "preorder" ? "sur commande" : "épuisée"}.`),
+      ...products.slice(0, 8).map((p) => `${p.title} : ${formatPrice(p.price)}, ${madeToOrderLabel(p)}.`),
     ].filter(Boolean);
     await rec.act("update_ai_visibility", { notes: notes.slice(0, 12) }, { summary: "Mise à jour de llms.txt", rationale: "Informations à jour pour les moteurs de réponse IA" });
 

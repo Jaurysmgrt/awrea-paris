@@ -1,0 +1,36 @@
+{
+  "seo": {
+    "title": "La Maison, l’histoire d’Awrea Paris | Awrea Paris",
+    "description": "L’histoire d’Awrea Paris : une fascination pour les contrastes, la dentelle et les drapés, puis la force de la dorure. La délicatesse rencontre la force."
+  },
+  "titre": "La Maison",
+  "portrait": {
+    "src": "/media/img/creatrice-portrait",
+    "alt": "Portrait en noir et blanc de la créatrice d’Awrea Paris, assise, en haut de dentelle noire à manches longues, le regard tourné de côté",
+    "width": 657,
+    "height": 986
+  },
+  "legende": "La créatrice d’Awrea Paris. Photographie : [À COMPLÉTER : nom du photographe]",
+  "apropos": {
+    "officiel": true,
+    "titre": [
+      "La délicatesse rencontre la force.",
+      "L’élégance devient une signature."
+    ],
+    "paragraphes": [
+      "Awrea Paris est née d’une fascination pour les contrastes, pour cette dualité qui fait toute la singularité de la féminité : la douceur et la puissance, la délicatesse et l’audace, la subtilité et l’éclat. Au cœur de nos collections, la dentelle et les drapés dessinent une féminité délicate et sculpturale. Les matières se révèlent avec finesse, les lignes épousent le corps, les volumes se dessinent avec fluidité. Chaque détail évoque une élégance presque instinctive, un équilibre entre sensualité et sophistication.",
+      "Puis vient la dorure. Précieuse, lumineuse et affirmée, elle apporte une force nouvelle aux silhouettes. Elle capte la lumière, souligne les détails et impose sa présence. Plus qu’un ornement, elle devient une signature : l’expression d’une féminité qui n’a pas peur de se faire remarquer, d’occuper l’espace et d’affirmer son caractère.",
+      "C’est dans cette rencontre entre la finesse des matières et la puissance de l’or que naît l’identité d’Awrea Paris. Une esthétique où la douceur n’exclut jamais la force, où la délicatesse devient audacieuse et où chaque création joue sur l’équilibre entre sensualité, caractère et raffinement. Nous imaginons des pièces pour les femmes qui embrassent leurs contrastes, qui savent être douces sans renoncer à leur puissance, délicates sans perdre leur audace. Des femmes qui ne cherchent pas simplement à être remarquées, mais à laisser une impression, une présence, un souvenir.",
+      "Awrea Paris ne suit pas une vision conventionnelle de l’élégance. Elle en propose une interprétation singulière, sculpturale et lumineuse, où chaque matière, chaque drapé et chaque éclat doré participe à une même vision."
+    ]
+  },
+  "suite": {
+    "surtitre": "L’atelier",
+    "titre": "Là où naissent les pièces",
+    "texte": "Chaque pièce Awrea est créée sur demande, après votre commande, entre les mains d’artisans français.",
+    "cta": {
+      "label": "Entrer dans l’atelier",
+      "href": "/atelier"
+    }
+  }
+}

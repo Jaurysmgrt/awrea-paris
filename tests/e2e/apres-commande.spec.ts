@@ -3,13 +3,15 @@ import { acceptCookies, outbox } from "./helpers";
 import { adminLogin, ATELIER } from "./admin-auth";
 
 /**
- * Après la commande, sans compte : facture PDF, suivi par numéro et e-mail, expédition et
- * livraison déclarées dans l'Atelier (e-mails), retour en libre-service avec étiquette, puis
- * réception, remboursement et avoir dans l'Atelier.
+ * Après la commande, sans compte : facture PDF, suivi par numéro et e-mail (frise de la
+ * confection), étapes « En confection », « Prête », « Expédiée », « Livrée » avancées dans l'Atelier
+ * (un e-mail à chaque étape), retour en libre-service avec étiquette, puis réception, remboursement
+ * et avoir dans l'Atelier.
  */
 async function orderOne(page: Page, email: string) {
-  const products = (await (await page.request.get("/api/products?handles=top-kira")).json()).products as { variants: { id: string; size: string; quantity: number; preorder: boolean }[] }[];
-  const v = products[0].variants.find((x) => x.quantity > 0) ?? products[0].variants.find((x) => x.preorder)!;
+  // pièce créée sur demande : toutes ses tailles se commandent
+  const products = (await (await page.request.get("/api/products?handles=top-kira")).json()).products as { variants: { id: string; size: string }[] }[];
+  const v = products[0].variants[0];
   expect((await page.request.post("/api/cart", { data: { type: "clear" } })).ok()).toBeTruthy();
   expect((await page.request.post("/api/cart", { data: { type: "add", variantId: v.id } })).ok()).toBeTruthy();
   const res = await page.request.post("/api/checkout", {
@@ -21,7 +23,7 @@ async function orderOne(page: Page, email: string) {
 
 test.describe.configure({ mode: "serial" });
 
-test("facture, suivi sans compte, expédition, livraison, retour, remboursement et avoir", async ({ page }) => {
+test("facture, suivi sans compte, étapes de la confection, expédition, livraison, retour, remboursement et avoir", async ({ page }) => {
   test.setTimeout(180_000);
   await acceptCookies(page);
   const email = `apres.${Date.now().toString(36)}@exemple.fr`;
@@ -42,21 +44,42 @@ test("facture, suivi sans compte, expédition, livraison, retour, remboursement 
   await page.getByLabel("E-mail de la commande").fill(email);
   await page.getByRole("button", { name: "Suivre ma commande" }).click();
   await expect(page.getByRole("heading", { level: 1, name: `Commande ${number}` })).toBeVisible();
+  // frise de la confection : la commande est reçue, la fin de confection est annoncée
+  const stages = page.getByRole("list", { name: "Étapes de la commande" });
+  await expect(stages.locator('[aria-current="step"]')).toContainText("Commande reçue");
+  await expect(page.getByText(/Fin de confection prévue (entre )?le/)).toBeVisible();
   await expect(page.getByText("Le retour s’ouvre dès l’expédition de la commande.")).toBeVisible();
   const follow = page.url();
 
-  // Atelier : expédition (suivi) puis livraison, avec leurs e-mails
+  // Atelier : une étape à la fois, en un geste ; l'expédition se confirme, avec son numéro de suivi
   await adminLogin(page);
   await page.goto(`${ATELIER}/commandes/${number}`);
-  await page.getByLabel("Numéro de suivi").fill("6A99999999999");
-  await page.getByRole("button", { name: "Marquer comme expédiée" }).click();
-  await page.getByRole("button", { name: "Marquer comme livrée" }).click();
+  const atelierStages = page.locator("#etapes");
+  await atelierStages.getByRole("button", { name: "Passer en confection" }).click();
+  await expect(atelierStages.locator('[aria-current="step"]')).toContainText("En confection");
+  await atelierStages.getByRole("button", { name: "Marquer comme prête" }).click();
+  await expect(atelierStages.locator('[aria-current="step"]')).toContainText("Prête");
+  await atelierStages.getByLabel("Numéro de suivi").fill("6A99999999999");
+  page.once("dialog", (d) => d.accept());
+  await atelierStages.getByRole("button", { name: "Marquer comme expédiée" }).click();
+  await expect(atelierStages.locator('[aria-current="step"]')).toContainText("Expédiée");
+  await atelierStages.getByRole("button", { name: "Marquer comme livrée" }).click();
+  await expect(atelierStages.locator('[aria-current="step"]')).toContainText("Livrée");
   await expect(page.getByRole("button", { name: "Marquer comme livrée" })).toHaveCount(0);
-  await expect.poll(() => outbox().filter((m) => m.to === email).map((m) => m.subject)).toEqual(expect.arrayContaining(["Votre pièce est en route", "Votre pièce est arrivée"]));
+  await expect
+    .poll(() => outbox().filter((m) => m.to === email).map((m) => m.subject))
+    .toEqual(expect.arrayContaining(["Votre pièce est en confection", "Votre pièce est prête", "Votre pièce est en route", "Votre pièce est arrivée"]));
+  // l'e-mail d'expédition porte le numéro de suivi ; aucun e-mail d'étape ne part deux fois
+  const shipped = outbox().filter((m) => m.to === email && m.subject === "Votre pièce est en route");
+  expect(shipped).toHaveLength(1);
+  expect(shipped[0].text).toContain("6A99999999999");
+  // une étape ne se saute pas
+  expect((await page.request.post(`${ATELIER}/api/commandes/${number}`, { data: { etape: "ready" } })).status()).toBe(409);
 
   // retour en libre-service : remboursement, étiquette aussitôt
   await page.goto(follow);
-  await page.getByRole("checkbox", { name: /Top Kira/ }).check();
+  await expect(page.getByRole("list", { name: "Étapes de la commande" }).locator('[aria-current="step"]')).toContainText("Livrée");
+  await page.getByRole("checkbox", { name: /Le top Kira/ }).check();
   await page.getByLabel("Raison", { exact: true }).selectOption("tombe");
   await page.getByLabel(/Je renvoie la pièce non portée/).check();
   await page.getByRole("button", { name: "Demander le retour" }).click();

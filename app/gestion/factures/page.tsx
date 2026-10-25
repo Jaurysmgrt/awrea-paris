@@ -1,6 +1,8 @@
 /**
  * Factures et avoirs : émis automatiquement au paiement et au remboursement, numérotés sans trou,
- * conservés dix ans ; export comptable par mois (envoyé aussi chaque 1er du mois).
+ * conservés dix ans ; export comptable par mois (envoyé aussi chaque 1er du mois). Chaque pièce
+ * facturée est créée sur demande par des artisans français : la facture le dit, sans numéro
+ * d'édition (le numéro de création figure sur le certificat d'authenticité).
  */
 import { listInvoices, type Invoice } from "@/lib/invoices";
 import { formatDate, formatMonth, formatPrice } from "@/lib/format";
@@ -8,6 +10,12 @@ import { vatFranchise } from "@/lib/commerce/international";
 import { atelierApi } from "@/lib/admin/path";
 
 export const dynamic = "force-dynamic";
+
+/** « 3 factures », « 1 avoir » */
+const count = (list: Invoice[], kind: Invoice["kind"]) => {
+  const n = list.filter((i) => i.kind === kind).length;
+  return `${n} ${kind}${n > 1 ? "s" : ""}`;
+};
 
 export default async function FacturesPage() {
   const all = (await listInvoices()).sort((a, b) => b.number.localeCompare(a.number) || b.issuedAt.localeCompare(a.issuedAt));
@@ -17,7 +25,7 @@ export default async function FacturesPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Factures</h1>
-        <p className="t-lead">Chaque paiement donne sa facture, chaque remboursement son avoir, numérotés dans l’ordre et conservés dix ans. L’export du mois part seul à la comptabilité le 1er.</p>
+        <p className="t-lead">Chaque paiement donne sa facture, chaque remboursement son avoir, numérotés dans l’ordre et conservés dix ans. Les pièces y figurent avec leur taille, créées sur demande par des artisans français. L’export du mois part seul à la comptabilité le 1er.</p>
         {vatFranchise() ? <p className="t-note">Franchise en base de TVA : les factures portent la mention de l’article 293 B du CGI.</p> : null}
       </header>
       {months.length ? (
@@ -34,7 +42,8 @@ export default async function FacturesPage() {
                 </a>
               </div>
               <p className="t-note">
-                {list.length} pièce(s) · {formatPrice(sum(list, "ht"))} hors taxes · TVA {formatPrice(sum(list, "vat"))} · {formatPrice(sum(list, "ttc"))} encaissés
+                {count(list, "facture")}
+                {list.some((i) => i.kind === "avoir") ? `, ${count(list, "avoir")}` : ""} · {formatPrice(sum(list, "ht"))} hors taxes · TVA {formatPrice(sum(list, "vat"))} · {formatPrice(sum(list, "ttc"))} encaissés
               </p>
               <div className="table-scroll">
                 <table className="table">

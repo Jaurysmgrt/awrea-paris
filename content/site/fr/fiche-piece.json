@@ -1,0 +1,35 @@
+{
+  "filAriane": "Toutes les pièces",
+  "sections": {
+    "piece": "La pièce",
+    "matieres": "Matières et entretien",
+    "entretien": "Entretien",
+    "coupe": "Coupe et taille",
+    "livraison": "Livraison et retours"
+  },
+  "surDemande": {
+    "lien": "Voir comment naît votre pièce",
+    "guide": "Guide des tailles"
+  },
+  "conseil": {
+    "avant": "Pour un conseil de taille, ",
+    "lien": "prenez rendez-vous pour un essayage",
+    "apres": " à l’atelier, ou posez la question à l’assistante, en bas de l’écran."
+  },
+  "mesures": {
+    "avant": "Les mesures de chaque taille sont réunies dans le ",
+    "lien": "guide des tailles",
+    "apres": "."
+  },
+  "livraison": "Livraison en France métropolitaine ; les frais d’expédition sont indiqués avant la validation de votre commande.",
+  "retours": "Retours sous {jours} jours, pièce non portée et dans son état d’origine.",
+  "conditions": "Toutes les conditions",
+  "categories": {
+    "robe": "Robe",
+    "body": "Body",
+    "top": "Top",
+    "jupe": "Jupe",
+    "accessoire": "Accessoire"
+  },
+  "reference": "Réf. {ref}"
+}

@@ -8,7 +8,7 @@ import * as z from "zod/v4";
 import { aiEnabled } from "@/lib/ai/client";
 import { generateStructured } from "@/lib/ai/structured";
 import { getAllProducts, getCurrentCollection } from "@/lib/commerce";
-import { editionInfo } from "@/lib/commerce/availability";
+import { madeToOrderLabel } from "@/lib/commerce/availability";
 import { formatPrice } from "@/lib/format";
 import { kv } from "@/lib/store";
 import { RunRecorder, type AgentRun } from "../run";
@@ -47,7 +47,7 @@ export async function runContenuAgent(trigger: AgentRun["trigger"] = "cron"): Pr
           "Mission : agent Contenu. Vous préparez trois légendes Instagram et une lettre, prêtes à publier. La Maison photographie en noir et blanc. La dentelle laisse passer la lumière, le tissu tombe, rien n’est démonstratif. Une légende parle comme la créatrice sous ses photos, en peu de mots. La lettre vouvoie. Aucun emoji, aucune urgence. Changez d’angle d’un contenu à l’autre et ne reprenez pas les contenus récents.",
         content: `Collection en cours : ${collection ? `${collection.title} (${collection.season}). ${collection.lead}` : "aucune"}
 Pièces récentes :
-${recent.map((p) => `${p.handle} : ${p.title}. ${p.tagline} ${formatPrice(p.price)}. ${editionInfo(p).unique ? "Pièce unique" : `${editionInfo(p).remainingLabel}`}.`).join("\n")}
+${recent.map((p) => `${p.handle} : ${p.title}. ${p.tagline} ${formatPrice(p.price)}, ${madeToOrderLabel(p)}.`).join("\n")}
 Contenus déjà préparés récemment : ${recentDrafts.join(" ; ") || "aucun"}`,
         schema: Out,
         effort: "medium",
@@ -56,7 +56,7 @@ Contenus déjà préparés récemment : ${recentDrafts.join(" ; ") || "aucun"}`
       const [a, b, c] = recent;
       out = {
         instagram: [
-          { title: `${a.title}, la pièce`, caption: `${a.tagline}\n\n${a.title}, ${editionInfo(a).unique ? "pièce unique" : `série numérotée de ${editionInfo(a).total}`}. Faite main à Paris.\n\nÀ voir sur awreaparis.com.`, hashtags: ["awreaparis", "faitmainaparis", "dentellenoire", "creatricefrancaise", "piecenumerotee", "consommerplusjuste"], image_handle: a.handle },
+          { title: `${a.title}, la pièce`, caption: `${a.tagline}\n\n${a.title}, ${madeToOrderLabel(a)} par des artisans français.\n\nÀ voir sur awreaparis.com.`, hashtags: ["awreaparis", "dentellenoire", "creatricefrancaise", "surdemande", "consommerplusjuste"], image_handle: a.handle },
           { title: "Le geste de l’atelier", caption: `Une dentelle se coupe motif par motif, pour que les fleurs ne soient jamais tranchées au mauvais endroit.\n\nC’est lent. C’est voulu.\n\nL’atelier, à Paris.`, hashtags: ["awreaparis", "savoirfaire", "atelierparis", "faitmain", "dentelle"], image_handle: (b ?? a).handle },
           { title: "Manifeste", caption: `La couleur n’est pas au rendez-vous mais la lumière de la dorure suffit à révéler l’essentiel.\n\nConsommer plus juste : peu de pièces, numérotées, au prix juste.`, hashtags: ["awreaparis", "consommerplusjuste", "modeethique", "creatriceparisienne", "slowfashion"], image_handle: (c ?? a).handle },
         ],
