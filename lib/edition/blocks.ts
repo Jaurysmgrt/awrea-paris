@@ -11,6 +11,13 @@ export interface Img {
   height: number;
   /** point focal, en pourcentage de la largeur et de la hauteur */
   focal?: { x: number; y: number };
+  /**
+   * Photo provisoire (visuel généré en attendant les prises de vue de la Maison) : même marqueur
+   * que les images du catalogue (lib/commerce/types.ts). Le site écrit « visuel provisoire » sous
+   * la photo ; l'éditeur la signale par une pastille et la liste parmi les photos à remplacer
+   * (lib/edition/provisoires.ts). Écrit seulement quand il vaut vrai.
+   */
+  provisoire?: boolean;
 }
 
 export interface Lien {
@@ -171,7 +178,7 @@ export const BLOCKS: BlockDef[] = [
   {
     type: "inscription",
     label: "Lettres de l’atelier",
-    description: "L’invitation à recevoir les lettres de l’atelier, avec le formulaire d’inscription.",
+    description: "L’invitation à recevoir la lettre de la Maison, avec le formulaire d’inscription.",
     fields: [
       { key: "titre", label: "Titre", kind: "texte" },
       { key: "texte", label: "Texte", kind: "texte-long", optional: true },
