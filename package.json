@@ -2,7 +2,7 @@
   "name": "awrea-paris",
   "version": "1.0.0",
   "private": true,
-  "description": "AWREA PARIS — maison de prêt-à-porter féminin fait main à Paris. Site e-commerce headless et agents IA de gestion.",
+  "description": "Awrea Paris, maison de prêt-à-porter féminin : pièces créées sur demande par des artisans français. Site e-commerce headless et agents IA de gestion.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

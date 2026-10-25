@@ -1,224 +1,166 @@
+import type { Metadata } from "next";
 import Link from "@/components/ui/Link";
-import { home } from "@/content/fr/pages";
-import { identity } from "@/content/brand/identity";
-import { atelier } from "@/content/fr/pages";
-import { getCurrentCollection, getLooks, getProducts, getProductsByHandles } from "@/lib/commerce";
+import { getDoc } from "@/lib/edition/read";
+import { fill } from "@/lib/edition/fill";
+import { getCurrentCollection, getProducts, getProductsByHandles } from "@/lib/commerce";
+import { delaiText, type CatalogueTexts } from "@/lib/commerce/texts";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { Section } from "@/components/ui/Section";
-import { Media } from "@/components/ui/Media";
-import { VideoLazy } from "@/components/ui/VideoLazy";
+import { SplitTitle } from "@/components/ui/SplitTitle";
 import { NewsletterForm } from "@/components/ui/NewsletterForm";
-import { LaceReveal } from "@/components/signature/LaceReveal";
 import { LightHalo } from "@/components/signature/LightHalo";
-import { ShopTheLook } from "@/components/signature/ShopTheLook";
 import { ProductCard } from "@/components/commerce/ProductCard";
-import { InstagramGrid } from "@/components/home/InstagramGrid";
-import { getInstagramPosts } from "@/lib/instagram/feed";
-import { formatPrice, roman } from "@/lib/format";
-import { editionInfo } from "@/lib/commerce/availability";
+import { Visuel } from "@/components/home/Visuel";
+import { delaiDeFamille } from "@/components/home/delais";
+import ed from "@/components/home/editorial.module.css";
+import styles from "./accueil.module.css";
 
-export const metadata = pageMetadata({ ...home.seo, path: "/" });
+/**
+ * Accueil : la présentation de la Maison (texte officiel TEASING MARQUE), la collection Hypnotic
+ * Lace (texte officiel TEXTE DE COLLECTION), une sélection de pièces, la création sur demande et
+ * la lettre de la Maison. Un message et un appel à l'action par section ; les textes officiels de
+ * la créatrice sont marqués data-officiel (seule la typographie y est contrôlée).
+ * Textes : content/site/fr/accueil.json (éditeur visuel « Édition »).
+ */
+type Accueil = typeof import("@/content/site/fr/accueil.json");
+
 export const revalidate = 300;
 
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getDoc<Accueil>("accueil", "fr", { plain: true });
+  // visuel provisoire jamais envoyé aux réseaux (mention « visuel provisoire » absente des aperçus)
+  return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/", image: t.maison.image.provisoire ? undefined : t.maison.image.src });
+}
+
 export default async function HomePage() {
-  const collection = await getCurrentCollection();
-  const [collectionProducts, featured, looks, posts] = await Promise.all([
-    getProductsByHandles(collection?.products ?? []),
-    getProducts(),
-    getLooks(),
-    getInstagramPosts(),
-  ]);
-  const look = looks[0];
-  const lookProducts = look ? await getProductsByHandles(look.hotspots.map((h) => h.product)) : [];
-  const highlights = featured.filter((p) => p.collection === collection?.handle).slice(0, 4);
+  const [t, catalogue, collection, pieces] = await Promise.all([getDoc<Accueil>("accueil"), getDoc<CatalogueTexts>("catalogue"), getCurrentCollection(), getProducts()]);
+  // la sélection choisie dans l'éditeur ; à défaut, les premières pièces de la collection en cours
+  const choisies = (await getProductsByHandles(t.selection.pieces)).filter((p) => p.variants.length > 0);
+  const selection = choisies.length ? choisies : pieces.filter((p) => !collection || p.collection === collection.handle).slice(0, 3);
+  const delais = { hauts: delaiText(catalogue, delaiDeFamille(pieces, "hauts")), robes: delaiText(catalogue, delaiDeFamille(pieces, "robes")) };
+  const { maison, collection: col, surDemande, lettre } = t;
 
   return (
     <>
-      {/* ------------------------------------------------ OUVERTURE */}
-      <Section theme="ink" className="hero" labelledBy="hero-title">
-        <LaceReveal
-          label="Film de la collection Lace is more : dentelle noire et satin en mouvement"
-          video={{
-            src: "/media/video/hero-desktop.mp4",
-            mobileSrc: "/media/video/hero-mobile.mp4",
-            poster: "/media/video/hero-desktop.webp",
-            mobilePoster: "/media/video/hero-mobile.webp",
-          }}
-        >
-          <div className="hero__content container">
-            <h1 id="hero-title" className="t-label t-label--wide hero__h1">
-              {home.hero.h1}
-            </h1>
-            <p className="t-giant hero__title" aria-hidden="true">
-              {home.hero.title}
-            </p>
-            <p className="t-lead hero__lead t-center">{home.hero.lead}</p>
-            <div className="hero__cta">
-              <Link href={home.hero.cta.href} className="btn btn--solid">
-                {home.hero.cta.label}
-              </Link>
-            </div>
-          </div>
-          <p className="hero__scroll t-label" aria-hidden="true">
-            Défiler
-          </p>
-        </LaceReveal>
-      </Section>
-
-      {/* ------------------------------------------------ COLLECTION EN COURS */}
-      {collection ? (
-        <Section theme="ivory" className="section--tall" labelledBy="collection-title">
-          <div className="container grid-12 home-collection">
-            <div className="home-collection__media" data-reveal>
-              <Link href={`/collections/${collection.handle}`} aria-label={`Collection ${collection.title}`}>
-                <Media image={collection.cover} ratio="tall" sizes="(min-width: 64rem) 50vw, 100vw" className="reveal-img" />
-              </Link>
-            </div>
-            <div className="home-collection__text stack-m" data-reveal>
-              <p className="eyebrow">{home.collection.eyebrow}</p>
-              <h2 id="collection-title" className="t-h2">
-                {home.collection.title}
-              </h2>
-              <p className="t-body">{home.collection.text}</p>
-              <ol className="home-collection__list">
-                {collectionProducts.map((p, i) => (
-                  <li key={p.handle}>
-                    <Link href={`/boutique/${p.handle}`} className="home-collection__item">
-                      <span className="t-label t-accent">{roman(i + 1)}</span>
-                      <span className="t-h4">{p.title}</span>
-                      <span className="home-collection__dots" aria-hidden="true" />
-                      <span className="price">{formatPrice(p.price)}</span>
-                      <span className="t-label t-soft">{editionInfo(p).unique ? "Unique" : `${editionInfo(p).total} pièces`}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-              <Link href={home.collection.cta.href} className="link">
-                {home.collection.cta.label}
-              </Link>
-            </div>
-          </div>
-        </Section>
-      ) : null}
-
-      {/* ------------------------------------------------ PIÈCES PHARES */}
-      <Section theme="pearl" className="section--tall" labelledBy="featured-title">
+      {/* ------------------------------------------------ LA MAISON (TEASING MARQUE, officiel) */}
+      <Section theme="ivory" className={`section ${styles.ouverture}`} labelledBy="accueil-titre">
         <div className="container">
-          <header className="section-head" data-reveal>
-            <p className="eyebrow">{home.featured.eyebrow}</p>
-            <h2 id="featured-title" className="t-h2">
-              {home.featured.title}
-            </h2>
-            <Link href={home.featured.cta.href} className="link section-head__link">
-              {home.featured.cta.label}
-            </Link>
+          <header className={`${ed.tete} ${ed.centre}`} data-officiel>
+            <SplitTitle id="accueil-titre" text={maison.texte.titre} className={`t-display ${styles.titre}`} />
+            <p className="t-lead t-center">{maison.texte.accroche}</p>
           </header>
-          <ul className="editorial-grid">
-            {highlights.map((p, i) => (
-              <li key={p.handle} className={`editorial-grid__item editorial-grid__item--${i % 4}`} data-reveal>
-                <ProductCard product={p} sizes="(min-width: 64rem) 33vw, (min-width: 48rem) 50vw, 100vw" />
-              </li>
-            ))}
-          </ul>
-        </div>
-      </Section>
-
-      {/* ------------------------------------------------ MANIFESTE */}
-      <Section theme="ink" className="manifesto section--tall" labelledBy="manifesto-title">
-        <LightHalo />
-        <div className="container-prose manifesto__inner t-center">
-          <p className="eyebrow manifesto__eyebrow">{home.manifesto.eyebrow}</p>
-          <h2 id="manifesto-title" className="t-display manifesto__script" data-reveal>
-            {home.manifesto.script}
-          </h2>
-          <div className="stack-m manifesto__lines" data-reveal>
-            {home.manifesto.lines.map((l) => (
-              <p key={l} className="t-lead t-center">
-                {l}
+          <div className={`${ed.split} ${ed.apresTete}`}>
+            <Visuel image={maison.image} priority sizes="(min-width: 48rem) 45vw, 100vw" />
+            <div className={ed.texte} data-officiel>
+              <p className="t-body">{maison.texte.paragraphe}</p>
+            </div>
+          </div>
+          <div className={`${ed.chute} ${ed.centre}`} data-officiel>
+            {maison.texte.chute.map((ligne) => (
+              <p key={ligne} className="t-lead t-center">
+                {ligne}
               </p>
             ))}
           </div>
-          <span className="ornament" aria-hidden="true" />
-          <blockquote className="manifesto__quote">
-            <p className="t-body t-center">« {identity.founderQuote} »</p>
-            <footer className="t-label">{identity.founderTitle}</footer>
-          </blockquote>
-          <Link href={home.manifesto.cta.href} className="btn btn--solid">
-            {home.manifesto.cta.label}
-          </Link>
+          <div className={`${ed.action} ${ed.centre}`}>
+            <Link href={maison.cta.href} className="btn">
+              {maison.cta.label}
+            </Link>
+          </div>
         </div>
       </Section>
 
-      {/* ------------------------------------------------ SHOP THE LOOK */}
-      {look ? (
-        <Section theme="ivory" className="section--tall" labelledBy="look-title">
-          <div className="container grid-12 home-look">
-            <div className="home-look__text stack-m" data-reveal>
-              <p className="eyebrow">{home.look.eyebrow}</p>
-              <h2 id="look-title" className="t-h2">
-                {home.look.title}
-              </h2>
-              <p className="t-body">{home.look.text}</p>
-              <Link href={home.look.cta.href} className="link">
-                {home.look.cta.label}
+      {/* ------------------------------------------------ LA COLLECTION (TEXTE DE COLLECTION, officiel) */}
+      <Section theme="ink" className="section--tall" labelledBy="accueil-collection">
+        <LightHalo intensity={0.8} />
+        <div className={`container ${ed.split} ${ed.flip}`}>
+          <Visuel image={col.image} sizes="(min-width: 48rem) 45vw, 100vw" />
+          <div className={ed.texte}>
+            <div className={ed.tete}>
+              <p className="eyebrow">{col.surtitre}</p>
+              <div className={ed.tete} data-officiel>
+                <h2 id="accueil-collection" className="t-display">
+                  {col.texte.titre}
+                </h2>
+                <p className="t-lead t-left">{col.texte.accroche}</p>
+              </div>
+            </div>
+            <div className={ed.texte} data-officiel>
+              {col.texte.paragraphes.map((p) => (
+                <p key={p} className="t-body">
+                  {p}
+                </p>
+              ))}
+            </div>
+            <div className={ed.action}>
+              <Link href={col.cta.href} className="btn">
+                {col.cta.label}
               </Link>
             </div>
-            <div className="home-look__stage" data-reveal>
-              <ShopTheLook look={look} products={lookProducts} />
+          </div>
+        </div>
+      </Section>
+
+      {/* ------------------------------------------------ SÉLECTION DE PIÈCES */}
+      {selection.length ? (
+        <Section theme="ivory" className="section--tall" labelledBy="accueil-pieces">
+          <div className="container">
+            <header className={`${ed.tete} ${ed.centre}`}>
+              <p className="eyebrow">{t.selection.surtitre}</p>
+              <h2 id="accueil-pieces" className="t-h2">
+                {t.selection.titre}
+              </h2>
+            </header>
+            <ul className={`${styles.pieces} ${ed.apresTete}`}>
+              {selection.map((p) => (
+                <li key={p.handle}>
+                  <ProductCard product={p} sizes="(min-width: 64rem) 30vw, (min-width: 30rem) 45vw, 100vw" />
+                </li>
+              ))}
+            </ul>
+            <div className={`${ed.action} ${ed.centre}`}>
+              <Link href={t.selection.cta.href} className="btn">
+                {t.selection.cta.label}
+              </Link>
             </div>
           </div>
         </Section>
       ) : null}
 
-      {/* ------------------------------------------------ ATELIER */}
-      <Section theme="ink" className="section--tall home-atelier" labelledBy="atelier-title">
-        <LightHalo intensity={0.8} />
-        <div className="container grid-12">
-          <div className="home-atelier__text stack-m" data-reveal>
-            <p className="eyebrow">{home.atelier.eyebrow}</p>
-            <h2 id="atelier-title" className="t-h2">
-              {home.atelier.title}
-            </h2>
-            <p className="t-body">{home.atelier.text}</p>
-            <Link href={home.atelier.cta.href} className="btn btn--solid">
-              {home.atelier.cta.label}
-            </Link>
-          </div>
-          <div className="home-atelier__videos">
-            {atelier.videos.slice(0, 2).map((v, i) => (
-              <figure key={v.src} className={`home-atelier__video home-atelier__video--${i}`} data-reveal>
-                <VideoLazy src={v.src} poster={v.poster} label={v.caption} className="media media--landscape" />
-                <figcaption className="t-label media__caption">{v.caption}</figcaption>
-              </figure>
-            ))}
+      {/* ------------------------------------------------ CRÉATION SUR DEMANDE */}
+      <Section theme="pearl" className="section--tall" labelledBy="accueil-sur-demande">
+        <div className={`container ${ed.split}`}>
+          <Visuel image={surDemande.image} ratio="look" sizes="(min-width: 48rem) 45vw, 100vw" />
+          <div className={ed.texte}>
+            <div className={ed.tete}>
+              <p className="eyebrow">{surDemande.surtitre}</p>
+              <h2 id="accueil-sur-demande" className="t-h2">
+                {surDemande.titre}
+              </h2>
+            </div>
+            <p className="t-body">{fill(surDemande.texte, delais)}</p>
+            <div className={ed.action}>
+              <Link href={surDemande.cta.href} className="btn">
+                {surDemande.cta.label}
+              </Link>
+            </div>
           </div>
         </div>
       </Section>
 
-      {/* ------------------------------------------------ NEWSLETTER (LETTRE) */}
-      <Section theme="paper" className="section--tall" labelledBy="news-title">
-        <div className="container-text letter-card stack-m t-center" data-reveal>
-          <p className="eyebrow">{home.newsletter.eyebrow}</p>
-          <h2 id="news-title" className="t-h2">
-            {home.newsletter.title}
-          </h2>
-          <p className="t-body">{home.newsletter.text}</p>
-          <NewsletterForm source="home" />
-        </div>
-      </Section>
-
-      {/* ------------------------------------------------ INSTAGRAM */}
-      <Section theme="ivory" className="section" labelledBy="insta-title">
-        <div className="container">
-          <header className="section-head section-head--row" data-reveal>
-            <p className="eyebrow">{home.instagram.eyebrow}</p>
-            <h2 id="insta-title" className="t-h3">
-              <a href={identity.social.instagram} target="_blank" rel="noopener noreferrer" className="link-plain">
-                {home.instagram.title}
-              </a>
+      {/* ------------------------------------------------ LA LETTRE DE LA MAISON */}
+      <Section theme="paper" className="section--tall" labelledBy="accueil-lettre">
+        <div className={`container-text ${ed.centre}`}>
+          <div className={ed.tete}>
+            <p className="eyebrow">{lettre.surtitre}</p>
+            <h2 id="accueil-lettre" className="t-h2">
+              {lettre.titre}
             </h2>
-          </header>
-          <InstagramGrid posts={posts} />
+            <p className="t-body t-center">{lettre.texte}</p>
+          </div>
+          <div className={ed.formulaire}>
+            <NewsletterForm source="home" />
+          </div>
         </div>
       </Section>
     </>

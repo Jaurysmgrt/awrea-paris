@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "@/components/ui/Link";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { Section } from "@/components/ui/Section";
@@ -5,19 +6,19 @@ import { Envelope } from "@/components/signature/Envelope";
 import { verify } from "@/lib/auth/session";
 import { getOrder, statusLabel } from "@/lib/commerce/orders";
 import { formatPrice } from "@/lib/format";
-import { shop } from "@/content/settings";
+import { getDoc } from "@/lib/edition/read";
+import { delaiText, fill, type CatalogueTexts, type CommerceTexts } from "@/lib/commerce/texts";
+import { timelineOf } from "@/lib/store/order-stages";
+import { OrderStages, type SuiviTexts } from "@/components/commerce/OrderStages";
 import { PurchaseTracker } from "@/components/analytics/PurchaseTracker";
-import { AtelierNote } from "@/components/ui/AtelierNote";
-import { atelierMoments } from "@/content/fr/coulisses";
+import { AtelierNote, type CoulissesTexts } from "@/components/ui/AtelierNote";
 import { certificatesOfOrder } from "@/lib/certificates";
 import { orderAccessToken, orderLink } from "@/lib/commerce/order-access";
 
-export const metadata = pageMetadata({
-  title: "Merci | Awrea Paris",
-  description: "Votre commande Awrea Paris est confirmée.",
-  path: "/commande/confirmation",
-  noindex: true,
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const t = (await getDoc<CommerceTexts>("commerce", "fr", { plain: true })).confirmation;
+  return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/commande/confirmation", noindex: true });
+}
 export const dynamic = "force-dynamic";
 
 export default async function ConfirmationPage({
@@ -30,6 +31,16 @@ export default async function ConfirmationPage({
   const order = token && token.n === sp.n ? await getOrder(token.n) : null;
   const first = order?.name.split(" ")[0];
   const certificates = order ? await certificatesOfOrder(order).catch(() => []) : [];
+  // la suite de la commande : frise de la confection, délai et fin prévue, e-mails à chaque étape
+  const [suite, suivi, catalogue, tc, commerce, coulisses] = await Promise.all([
+    order ? timelineOf(order) : null,
+    getDoc<SuiviTexts>("suivi-commande"),
+    getDoc<CatalogueTexts>("catalogue"),
+    getDoc<{ creation: string }>("certificat"),
+    getDoc<CommerceTexts>("commerce"),
+    getDoc<CoulissesTexts>("coulisses"),
+  ]);
+  const t = commerce.confirmation;
 
   return (
     <>
@@ -43,18 +54,16 @@ export default async function ConfirmationPage({
         ) : null}
         <div className="container-prose confirmation__inner">
           <Envelope
-            greeting={first ? `Merci, ${first}.` : "Merci."}
-            note="Votre pièce est désormais entre les mains de l’atelier. Nous la plierons dans du papier de soie, avec son certificat, et vous écrirons à son départ."
-            reference={order ? `Commande ${order.number}` : undefined}
+            greeting={first ? fill(t.salutationPrenom, { prenom: first }) : t.salutation}
+            note={t.mot}
+            reference={order ? fill(t.reference, { commande: order.number }) : undefined}
           />
           <div className="confirmation__details stack-m">
             <h1 className="t-h2 t-center">
-              {first ? `Merci, ${first}` : "Merci pour votre commande"}
+              {first ? fill(t.titrePrenom, { prenom: first }) : t.titre}
             </h1>
             <p className="t-body t-center">
-              {order
-                ? `Votre commande ${order.number} est confirmée. Un e-mail récapitulatif vient de vous être envoyé à ${order.email}.`
-                : "Votre commande est confirmée. Un e-mail récapitulatif vient de vous être envoyé."}
+              {order ? fill(t.texteCommande, { commande: order.number, email: order.email }) : t.texte}
             </p>
             {order ? (
               <div className="notice stack">
@@ -62,44 +71,39 @@ export default async function ConfirmationPage({
                 <ul className="stack">
                   {order.lines.map((l, i) => (
                     <li key={i} className="confirmation__line">
-                      <span className="t-h4">{l.title}</span>
-                      <span className="t-label t-soft">
-                        Taille {l.size} · {l.editionLabel}
-                      </span>
+                      <span className="t-body">{l.title}</span>
+                      <span className="t-label t-soft">{fill(t.taille, { taille: l.size })}</span>
                       <span className="price">{formatPrice(l.unitPrice)}</span>
                     </li>
                   ))}
                 </ul>
                 <dl className="totals">
                   <div>
-                    <dt>Livraison · {order.shipping.method}</dt>
-                    <dd>
-                      {order.shipping.price
-                        ? formatPrice(order.shipping.price)
-                        : "Offerte"}
-                    </dd>
+                    <dt>{fill(t.livraison, { mode: order.shipping.method })}</dt>
+                    <dd>{order.shipping.price ? formatPrice(order.shipping.price) : t.offerte}</dd>
                   </div>
                   <div className="totals__total">
-                    <dt>Total</dt>
+                    <dt>{t.total}</dt>
                     <dd>{formatPrice(order.total)}</dd>
                   </div>
                 </dl>
-                <p className="t-note">
-                  {order.status === "in_production"
-                    ? "Une partie de votre commande est en fabrication : nous vous écrirons à l’expédition, avec le lien de suivi."
-                    : `Expédition sous ${shop.dispatchDays}. Vous recevrez le lien de suivi par e-mail.`}
-                </p>
+                {suite ? (
+                  <div className="stack-s">
+                    <OrderStages timeline={suite.timeline} t={suivi.frise} delai={suite.timeline.leadTime ? delaiText(catalogue, suite.timeline.leadTime) : null} />
+                    <p className="t-note">{suivi.confirmation.suite}</p>
+                  </div>
+                ) : null}
                 {certificates.length ? (
                   <div className="stack-s confirmation__certificates">
                     <p className="t-label">
-                      {certificates.length > 1 ? "Vos certificats d’authenticité" : "Votre certificat d’authenticité"}
+                      {certificates.length > 1 ? t.certificats : t.certificat}
                     </p>
                     <ul className="stack-s">
                       {certificates.map((c) => (
                         <li key={c.serial}>
                           <Link href={`/certificat/${c.serial}`} className="link">
                             {c.productTitle}
-                            {c.editionTotal > 1 && c.editionNumber ? `, N° ${c.editionNumber} / ${c.editionTotal}` : ""}
+                            {c.creation ? `, ${fill(tc.creation, { numero: c.creation }).toLowerCase()}` : ""}
                           </Link>
                         </li>
                       ))}
@@ -110,25 +114,21 @@ export default async function ConfirmationPage({
             ) : null}
             <div className="confirmation__actions">
               <Link href={order ? orderLink(order) : "/suivi"} className="btn">
-                Suivre ma commande
+                {t.suivre}
               </Link>
               {order ? (
                 <a href={`/api/factures/${encodeURIComponent(order.number)}?t=${encodeURIComponent(orderAccessToken(order))}`} className="link link--quiet">
-                  Télécharger la facture
+                  {t.facture}
                 </a>
               ) : null}
               <Link href="/boutique" className="link link--quiet">
-                Continuer la visite
+                {t.continuer}
               </Link>
             </div>
           </div>
         </div>
       </Section>
-      <AtelierNote
-        moment={atelierMoments.finitions}
-        theme="ivory"
-        link={false}
-      />
+      <AtelierNote t={coulisses} moment="finitions" theme="ivory" link={false} />
     </>
   );
 }

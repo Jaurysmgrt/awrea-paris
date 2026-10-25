@@ -1,69 +1,79 @@
-import { contact } from "@/content/fr/pages";
-import { identity } from "@/content/brand/identity";
+import type { Metadata } from "next";
+import Link from "@/components/ui/Link";
+import { getDoc } from "@/lib/edition/read";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
 import { ContactForm } from "@/components/ui/ContactForm";
-import { LightHalo } from "@/components/signature/LightHalo";
+import { Visuel } from "@/components/home/Visuel";
+import styles from "./contact.module.css";
 
-export const metadata = pageMetadata({ ...contact.seo, path: "/contact" });
+/**
+ * Contact (maquette FORMULAIRE CONTACT) : grand titre « Contact », la photo des sacs de la Maison à
+ * gauche, le formulaire à droite ; les coordonnées réelles de la Maison sous la photo. Sur
+ * téléphone : la photo, le formulaire, puis les coordonnées. Textes : content/site/fr/contact.json.
+ */
+type Contact = typeof import("@/content/site/fr/contact.json");
 
-export default function ContactPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getDoc<Contact>("contact", "fr", { plain: true });
+  // visuel provisoire jamais envoyé aux réseaux (mention « visuel provisoire » absente des aperçus)
+  return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/contact", image: t.image.provisoire ? undefined : t.image.src });
+}
+
+export default async function ContactPage() {
+  const t = await getDoc<Contact>("contact");
+  const c = t.coordonnees;
   return (
     <>
-      <PageHeader title={contact.h1} lead={contact.lead} crumbs={[{ name: "Contact", path: "/contact" }]} />
-      <Section theme="ivory" className="section section--flush-top" labelledBy="write-title">
-        <div className="container grid-12 contact">
-          <div className="contact__form stack-m">
-            <h2 id="write-title" className="t-h2">
-              Écrire à l’atelier
+      <PageHeader title={t.titre} align="left" crumbs={[{ name: t.titre, path: "/contact" }]} />
+      <Section theme="ivory" className="section section--flush-top" labelledBy="contact-formulaire">
+        <div className={`container ${styles.contact}`}>
+          <Visuel image={t.image} ratio="landscape" priority className={styles.photo} sizes="(min-width: 64rem) 50vw, 100vw" />
+
+          <div className={styles.formulaire}>
+            <h2 id="contact-formulaire" className="sr-only">
+              {t.formulaire.titre}
             </h2>
-            <ContactForm kind="contact" />
+            <ContactForm t={t.formulaire} email={c.email} />
           </div>
-          <aside className="contact__aside stack-m" aria-label="Coordonnées">
-            <div className="stack">
-              <h2 className="t-label">E-mail</h2>
-              <p>
-                <a href={`mailto:${identity.email}`} className="link">
-                  {identity.email}
-                </a>
-              </p>
-            </div>
-            <div className="stack">
-              <h2 className="t-label">Instagram</h2>
-              <p>
-                <a href={identity.social.instagram} className="link" target="_blank" rel="noopener noreferrer">
-                  {identity.social.instagramHandle}
-                </a>
-              </p>
-            </div>
-            <div className="stack">
-              <h2 className="t-label">L’atelier</h2>
-              <address className="t-body contact__address">
-                {identity.address.streetAddress ? (
-                  <>
-                    {identity.address.streetAddress}
-                    <br />
-                  </>
-                ) : null}
-                {identity.address.postalCode} {identity.address.addressLocality}, sur rendez-vous
-              </address>
-            </div>
+
+          {/* ancre « #rendez-vous » des anciens liens (/contact#rendez-vous) : le lien vers la prise de rendez-vous est ici */}
+          <aside id="rendez-vous" className={styles.coordonnees} aria-labelledby="contact-coordonnees">
+            <h2 id="contact-coordonnees" className="t-h4">
+              {c.titre}
+            </h2>
+            <dl className={styles.liste}>
+              <div>
+                <dt className="t-label">{c.emailLabel}</dt>
+                <dd>
+                  <a href={`mailto:${c.email}`} className="link">
+                    {c.email}
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt className="t-label">{c.telephoneLabel}</dt>
+                <dd>
+                  <a href={`tel:${c.telephoneLien}`} className="link">
+                    {c.telephone}
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt className="t-label">{c.instagramLabel}</dt>
+                <dd>
+                  <a href={c.instagramLien} className="link" target="_blank" rel="noopener noreferrer">
+                    {c.instagram}
+                  </a>
+                </dd>
+              </div>
+            </dl>
+            <p className="t-body">{c.rendezVous}</p>
+            <Link href={c.rendezVousLien.href} className="btn btn--link">
+              {c.rendezVousLien.label}
+            </Link>
           </aside>
-        </div>
-      </Section>
-      <Section theme="ink" className="section--tall" id="rendez-vous" labelledBy="rdv-title">
-        <LightHalo intensity={0.6} />
-        <div className="container-prose stack-m">
-          <p className="eyebrow">Sur rendez-vous</p>
-          <h2 id="rdv-title" className="t-h2">
-            Essayage, sur mesure, retouche
-          </h2>
-          <p className="t-body">
-            L’atelier vous reçoit à Paris pour essayer les pièces disponibles, ajuster une taille ou imaginer une pièce à vos mesures. Indiquez-nous vos préférences : la
-            créatrice vous propose un créneau par e-mail.
-          </p>
-          <ContactForm kind="rendez-vous" />
         </div>
       </Section>
     </>

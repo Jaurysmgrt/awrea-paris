@@ -1,0 +1,20 @@
+{
+  "seo": {
+    "title": "Recherche | Awrea Paris",
+    "description": "Rechercher une pièce, une matière, la collection Hypnotic Lace ou une réponse sur le site Awrea Paris."
+  },
+  "titre": "Recherche",
+  "champ": "Une pièce, une matière, une question",
+  "resultats": {
+    "un": "1 résultat pour « {q} »",
+    "plusieurs": "{n} résultats pour « {q} »"
+  },
+  "aucun": "Rien ne répond encore à « {q} ».",
+  "zone": "Résultats",
+  "essayez": "Essayez une matière, une forme ou le nom de la collection :",
+  "suggestions": ["dentelle", "drapé", "dorure", "robe", "body", "Hypnotic Lace"],
+  "toutes": {
+    "label": "Voir toutes les pièces",
+    "href": "/boutique"
+  }
+}

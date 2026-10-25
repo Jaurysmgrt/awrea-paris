@@ -1,0 +1,93 @@
+/*
+ * Frise des étapes d'une commande : un filet fin par étape, plein quand l'étape est franchie, un
+ * point pour l'étape en cours. Verticale sur téléphone (les libellés gardent leur largeur), en
+ * ligne dès 768 px. Couleurs du thème (--fg, --fg-soft, --line) : le mode Nuit suit seul. Aucune
+ * animation. Tokens seulement.
+ */
+.stages {
+  display: grid;
+  gap: var(--spacing-s);
+  /* toute la largeur, même dans une grille alignée au début (carte de commande du compte) */
+  width: 100%;
+}
+.list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.step {
+  display: grid;
+  grid-template-columns: var(--spacing-s) minmax(0, 1fr);
+  column-gap: var(--spacing-s);
+  align-items: baseline;
+  padding-block: var(--spacing-2xs);
+  color: var(--fg-soft);
+}
+.mark {
+  grid-row: span 2;
+  align-self: center;
+  justify-self: center;
+  width: var(--spacing-2xs);
+  height: var(--spacing-2xs);
+  border: var(--border-width-hair) solid currentColor;
+  border-radius: var(--radius-full);
+}
+.label {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-step-0);
+  line-height: var(--leading-label);
+  letter-spacing: var(--tracking-snug);
+}
+.date {
+  grid-column: 2;
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: var(--text-step--1);
+  line-height: var(--leading-label);
+  color: var(--fg-soft);
+}
+.step[data-state="done"],
+.step[data-state="current"] {
+  color: var(--fg);
+}
+.step[data-state="done"] .mark,
+.step[data-state="current"] .mark {
+  background: currentColor;
+}
+/* l'étape en cours : soulignée d'un filet, comme l'entrée active de la navigation */
+.step[data-state="current"] .label {
+  text-decoration: underline;
+  text-decoration-thickness: var(--border-width-hair);
+  text-underline-offset: var(--spacing-3xs);
+}
+.notes {
+  display: grid;
+  gap: var(--spacing-2xs);
+}
+
+@media (min-width: 48rem) {
+  .list {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    column-gap: var(--spacing-2xs);
+  }
+  .step {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    padding-block: var(--spacing-xs) 0;
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .step[data-state="done"],
+  .step[data-state="current"] {
+    border-top-color: var(--fg);
+  }
+  .mark {
+    display: none;
+  }
+  .date {
+    grid-column: 1;
+  }
+}

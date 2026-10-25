@@ -32,3 +32,6 @@ export async function shrink(file: File): Promise<Blob> {
   }
   return file;
 }
+
+/** Vignette d'une photo : la déclinaison de 480 px (photos de la Maison et photos déposées), l'image elle-même pour un fichier nommé (Shopify). */
+export const thumb = (src: string) => (!src ? "" : src.startsWith("/api/") || /\.(webp|jpe?g|png|avif)(\?|$)/i.test(src) ? src : `${src}-480.webp`);

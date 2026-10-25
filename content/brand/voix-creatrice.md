@@ -23,5 +23,5 @@ Le site ne peut pas les lire seul : Instagram ne les rend pas accessibles sans c
 
 ## Ce qu’on en retient
 
-Des phrases courtes, concrètes, un peu poétiques. La matière, le geste, le temps, le nombre de
-pièces, la peau. Jamais de grands mots.
+Des phrases courtes, concrètes, un peu poétiques. La matière, le geste, le temps, la dentelle, le
+drapé, la dorure, la ligne, la peau. Jamais de grands mots.

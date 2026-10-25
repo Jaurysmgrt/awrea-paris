@@ -5,7 +5,7 @@
   ],
   "crons": [
     {
-      "path": "/api/cron/commandes-stock",
+      "path": "/api/cron/commandes-confection",
       "schedule": "0 6 * * *"
     },
     {

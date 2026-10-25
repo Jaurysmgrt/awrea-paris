@@ -5,10 +5,7 @@
  * (l'argent n'est jamais rendu sans elle) ; chaque geste est inscrit au journal des actions.
  */
 import "server-only";
-import { kv } from "@/lib/store";
 import { getOrder, setOrderStatus } from "@/lib/commerce/orders";
-import { DEMO_KEYS } from "@/lib/commerce/catalog-demo";
-import { getAllProducts } from "@/lib/commerce";
 import { adminEnabled, shopifyRefundLines } from "@/lib/shopify/admin";
 import { issueCreditNote } from "@/lib/invoices";
 import { invoicePdf } from "@/lib/invoices/pdf";
@@ -101,7 +98,7 @@ export async function receiveReturn(id: string): Promise<ReturnRequest> {
       signature: "Avec toute notre attention,\nl’atelier Awrea Paris",
     }),
   }).catch(() => {});
-  await logAction({ agent: "systeme", kind: "update_stock", status: "done", summary: `Retour ${r.id} réceptionné à l’atelier` });
+  await logAction({ agent: "systeme", kind: "retour-recu", status: "done", summary: `Retour ${r.id} réceptionné à l’atelier` });
   return r;
 }
 
@@ -122,15 +119,8 @@ export async function refundReturn(id: string): Promise<{ r: ReturnRequest; amou
   await saveReturn(r);
   if (!adminEnabled) {
     const all = (await returnsOf(order.number)).filter((x) => x.status === "rembourse").flatMap((x) => x.items).length;
-    await setOrderStatus(order.id, all >= order.lines.length ? "refunded" : "returned");
-    // pièces remises en stock de démonstration
-    const products = await getAllProducts();
-    const stock = (await kv.get<Record<string, number>>(DEMO_KEYS.stock)) ?? {};
-    for (const i of items) {
-      const v = products.find((p) => p.handle === i.handle)?.variants.find((x) => x.size === i.size);
-      if (v) stock[v.id] = (stock[v.id] ?? v.quantity) + 1;
-    }
-    await kv.set(DEMO_KEYS.stock, stock);
+    await setOrderStatus(order.id, all >= order.lines.reduce((s, l) => s + l.quantity, 0) ? "refunded" : "returned");
+    // pièces créées sur demande : aucune remise en stock
   }
   const pdf = await invoicePdf(note).catch(() => null);
   await sendEmail({
@@ -154,18 +144,7 @@ export async function exchangeReturn(id: string): Promise<ReturnRequest> {
   const { r, order } = await load(id);
   const items = r.items.filter((i) => i.wish === "echange" && i.exchangeSize);
   if (!items.length) throw new Error("Aucun échange dans ce retour.");
-  if (!adminEnabled) {
-    const products = await getAllProducts();
-    const stock = (await kv.get<Record<string, number>>(DEMO_KEYS.stock)) ?? {};
-    for (const i of items) {
-      const p = products.find((x) => x.handle === i.handle);
-      const out = p?.variants.find((v) => v.size === i.exchangeSize);
-      const back = p?.variants.find((v) => v.size === i.size);
-      if (out) stock[out.id] = Math.max(0, (stock[out.id] ?? out.quantity) - 1);
-      if (back) stock[back.id] = (stock[back.id] ?? back.quantity) + 1;
-    }
-    await kv.set(DEMO_KEYS.stock, stock);
-  }
+  // pièces créées sur demande : la nouvelle taille est confectionnée, aucun stock à déplacer
   r.status = "echange-expedie";
   await saveReturn(r);
   await sendEmail({
@@ -180,7 +159,7 @@ export async function exchangeReturn(id: string): Promise<ReturnRequest> {
       signature: "Avec toute notre attention,\nl’atelier Awrea Paris",
     }),
   }).catch(() => {});
-  await logAction({ agent: "systeme", kind: "update_stock", status: "done", summary: `Échange de taille expédié pour le retour ${r.id}` });
+  await logAction({ agent: "systeme", kind: "echange-expedie", status: "done", summary: `Échange de taille expédié pour le retour ${r.id}` });
   return r;
 }
 

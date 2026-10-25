@@ -19,7 +19,7 @@ import { providerOf } from "@/lib/config/providers";
 export type AppointmentType = "essayage" | "visio" | "sur-mesure";
 
 export const APPOINTMENT_TYPES: Record<AppointmentType, { label: string; minutes: number; note: string; video: boolean }> = {
-  essayage: { label: "Essayage à l’atelier", minutes: 60, note: "Les pièces de votre choix vous attendent, à votre taille ; la créatrice ajuste ce qui doit l’être.", video: false },
+  essayage: { label: "Essayage à l’atelier", minutes: 60, note: "Essayer, toucher la dentelle, trouver votre taille avec la créatrice. Votre pièce est ensuite créée sur demande, dans cette taille.", video: false },
   visio: { label: "Appel vidéo avec la créatrice", minutes: 30, note: "Pour parler d’une pièce, d’une taille ou d’un projet, où que vous soyez.", video: true },
   "sur-mesure": { label: "Premier rendez-vous sur mesure", minutes: 90, note: "Mesures, matières et premiers croquis de votre pièce.", video: false },
 };
