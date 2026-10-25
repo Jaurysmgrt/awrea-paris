@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import * as z from "zod/v4";
 import { editor, bad } from "@/lib/edition/api";
 import { altFromName, ingestImage, mediaLibrary, MAX_UPLOAD } from "@/lib/edition/medias";
+import { provisionalPhotos } from "@/lib/edition/photos";
 import { aiEnabled } from "@/lib/ai/client";
 import { generateStructured } from "@/lib/ai/structured";
 import { cleanGenerated } from "@/lib/writing/rules";
@@ -32,28 +33,44 @@ async function suggestAlt(data: Buffer, mediaType: string, name: string): Promis
   return altFromName(name);
 }
 
-/** Dépôt d'une photo (déjà allégée dans le navigateur) : déclinaisons, point focal, texte alternatif proposé. */
+/** Case « Photo provisoire » cochée avant l'envoi : seule valeur admise, « 1 » (sinon la photo n'est pas provisoire). */
+const Provisoire = z.enum(["1"]).optional();
+
+/**
+ * Dépôt d'une photo (déjà allégée dans le navigateur) : déclinaisons, point focal, texte alternatif
+ * proposé. Une photo déposée n'est pas provisoire, sauf si la créatrice a coché la case avant l'envoi.
+ */
 export async function POST(req: Request) {
   const who = await editor();
   if ("response" in who) return who.response;
   const form = await req.formData().catch(() => null);
   const file = form?.get("fichier");
+  const provisoire = Provisoire.safeParse(form?.get("provisoire") ?? undefined);
+  if (!provisoire.success) return bad("Réglage de la photo illisible.");
   if (!(file instanceof File)) return bad("Aucune photo reçue.");
   if (!TYPES.includes(file.type)) return bad("Déposez une photo au format JPEG, PNG, WebP ou AVIF.");
   if (file.size > MAX_UPLOAD) return bad("Cette photo est trop lourde (12 Mo au plus).");
   const data = Buffer.from(await file.arrayBuffer());
   try {
     const alt = await suggestAlt(data, file.type, file.name);
-    const entry = await ingestImage(data, file.name, who.email, alt);
+    const entry = await ingestImage(data, file.name, who.email, alt, { provisoire: provisoire.data === "1" });
     return NextResponse.json({ ok: true, image: entry });
   } catch (e) {
     return bad(e instanceof Error ? e.message : "La photo n’a pas pu être traitée.");
   }
 }
 
-/** Photos déjà déposées (médiathèque). */
-export async function GET() {
+const Query = z.object({ filtre: z.enum(["provisoires"]).optional() });
+
+/**
+ * Photos déjà déposées (médiathèque) ; avec `?filtre=provisoires`, les photos provisoires à
+ * remplacer de tout le site, chacune avec la page où elle paraît.
+ */
+export async function GET(req: Request) {
   const who = await editor();
   if ("response" in who) return who.response;
+  const query = Query.safeParse(Object.fromEntries(new URL(req.url).searchParams));
+  if (!query.success) return bad("Filtre inconnu.");
+  if (query.data.filtre === "provisoires") return NextResponse.json({ photos: await provisionalPhotos() });
   return NextResponse.json({ medias: (await mediaLibrary()).slice(0, 120) });
 }

@@ -123,9 +123,7 @@ def build_photos():
         if im.width < 1200:
             im = im.resize((1200, round(1200 / ratio)), Image.LANCZOS)
         save_responsive(im, name)
-    # Open Graph 1200x630
-    og = crop_ratio(cache["gown-lace-back"], 1200 / 630, 0.5, 0.32, 1.0).resize((1200, 630), Image.LANCZOS)
-    og.save(OUT / "img" / "og-default.jpg", "JPEG", quality=82)
+    # l'image de partage par défaut est app/opengraph-image.png (scripts/ressources.py, étape « partage »)
 
 
 # ---------------------------------------------------------------- dentelle

@@ -8,7 +8,8 @@
 import "server-only";
 import { admin, adminEnabled } from "@/lib/shopify/admin";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/db/supabase";
-import type { Order } from "@/lib/commerce/types";
+import { orderLeadTime } from "@/lib/store/order-stages";
+import type { LeadTime, Order } from "@/lib/commerce/types";
 import type { CustomerProfile } from "./types";
 
 export async function syncCustomerToShopify(p: CustomerProfile): Promise<void> {
@@ -42,11 +43,20 @@ export async function syncCustomerToShopify(p: CustomerProfile): Promise<void> {
   if (id && isSupabaseConfigured) await supabaseAdmin().from("customers").update({ shopify_customer_id: id }).eq("id", p.id);
 }
 
-/** Recopie une commande Shopify dans la base clientes (appelé par le webhook). */
+/**
+ * Recopie une commande Shopify dans la base clientes (appelé par le webhook). La date de chaque
+ * étape (stage_dates) est tenue par un déclencheur de la base à chaque changement de statut ; le
+ * délai de fabrication annoncé est gardé tel qu'il était à la commande.
+ */
 export async function upsertOrder(o: Order & { shopifyId: string; source?: string | null; utm?: Record<string, string> | null }) {
   if (!isSupabaseConfigured) return;
   const db = supabaseAdmin();
-  const { data: c } = await db.from("customers").select("id").ilike("email", o.email).maybeSingle<{ id: string }>();
+  const [{ data: c }, { data: known }] = await Promise.all([
+    db.from("customers").select("id").ilike("email", o.email).maybeSingle<{ id: string }>(),
+    db.from("orders").select("lead_time").eq("shopify_order_id", o.shopifyId).maybeSingle<{ lead_time: LeadTime | null }>(),
+  ]);
+  // le délai annoncé à la commande ne change plus ensuite, même si la Maison modifie celui d'une pièce
+  const leadTime = o.leadTime ?? known?.lead_time ?? (await orderLeadTime(o.lines));
   const { error } = await db.from("orders").upsert(
     {
       shopify_order_id: o.shopifyId,
@@ -65,7 +75,9 @@ export async function upsertOrder(o: Order & { shopifyId: string; source?: strin
       source: o.source ?? null,
       utm: o.utm ?? null,
       placed_at: o.createdAt,
-      delivered_at: o.status === "delivered" ? new Date().toISOString() : null,
+      // date de livraison : celle de Shopify si elle est connue, sinon posée par le déclencheur au passage à « livrée »
+      ...(o.deliveredAt ? { delivered_at: o.deliveredAt } : {}),
+      lead_time: leadTime,
     },
     { onConflict: "shopify_order_id" },
   );

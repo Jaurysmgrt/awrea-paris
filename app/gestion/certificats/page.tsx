@@ -1,11 +1,12 @@
 import Link from "@/components/ui/Link";
-import { listCertificates } from "@/lib/certificates";
+import { creationText, listCertificates } from "@/lib/certificates";
 import { formatDate } from "@/lib/format";
 import { atelierHref } from "@/lib/admin/path";
 
 /**
- * Certificats émis : un par pièce vendue. L'atelier y imprime le certificat papier (avec le code
- * de rattachement) et l'étiquette à QR code, corrige la date de fabrication et écrit son mot.
+ * Certificats émis : un par pièce commandée, avec son numéro de création unique (numéro d'ordre de
+ * la Maison, « Création n° 0001 »). L'atelier y imprime le certificat papier (avec le code de
+ * rattachement) et l'étiquette à QR code, corrige la date de confection et écrit son mot.
  */
 export default async function CertificatsPage({ searchParams }: { searchParams: Promise<{ commande?: string }> }) {
   const { commande } = await searchParams;
@@ -32,11 +33,11 @@ export default async function CertificatsPage({ searchParams }: { searchParams: 
             <table className="table">
               <thead>
                 <tr>
-                  <th scope="col">Numéro</th>
+                  <th scope="col">Code</th>
                   <th scope="col">Pièce</th>
-                  <th scope="col">Édition</th>
+                  <th scope="col">Création</th>
                   <th scope="col">Commande</th>
-                  <th scope="col">Façonnée le</th>
+                  <th scope="col">Confectionnée le</th>
                   <th scope="col">Compte</th>
                   <th scope="col">Impression</th>
                 </tr>
@@ -49,7 +50,7 @@ export default async function CertificatsPage({ searchParams }: { searchParams: 
                       {c.productTitle}
                       {c.size ? ` (${c.size})` : ""}
                     </td>
-                    <td>{c.editionTotal === 1 ? "Pièce unique" : c.editionNumber ? `N° ${c.editionNumber} / ${c.editionTotal}` : "Sur commande"}</td>
+                    <td>{c.creationNumber ? `n° ${creationText(c.creationNumber)}` : "Aucun numéro"}</td>
                     <td>{c.orderNumber ?? "Aucune"}</td>
                     <td>{formatDate(c.madeOn)}</td>
                     <td>{c.customerId || c.claimedAt ? "Rattaché" : c.ownerEmailHash ? "Acheteuse" : "Aucun"}</td>

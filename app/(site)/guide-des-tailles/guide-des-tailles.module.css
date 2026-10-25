@@ -1,0 +1,40 @@
+/*
+ * Guide des tailles : le tableau, la mention « à confirmer », la façon de prendre ses mesures
+ * (l’intitulé à gauche, le geste à droite dès la tablette). Tokens seulement.
+ */
+.tableau {
+  margin-top: var(--space-title);
+}
+.tableau:focus-visible {
+  outline: var(--border-width-focus) solid var(--fg);
+  outline-offset: var(--spacing-3xs);
+}
+.legende {
+  caption-side: top;
+  padding-bottom: var(--spacing-2xs);
+  text-align: left;
+}
+.aConfirmer {
+  margin-top: var(--space-paragraph);
+}
+
+.mesures {
+  display: grid;
+  gap: var(--spacing-m);
+  margin: 0;
+}
+.mesure {
+  display: grid;
+  gap: var(--spacing-2xs) var(--spacing-l);
+  padding-top: var(--spacing-m);
+  border-top: var(--border-width-hair) solid var(--fg);
+}
+@media (min-width: 48rem) {
+  .mesure {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    align-items: baseline;
+  }
+}
+.mesure dd {
+  margin: 0;
+}

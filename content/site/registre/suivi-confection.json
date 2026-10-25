@@ -1,0 +1,27 @@
+{
+  "suivi-commande": {
+    "label": "Suivi des commandes (étapes de la confection, page de suivi)",
+    "kind": "textes",
+    "chemin": "/suivi"
+  },
+  "certificat": {
+    "label": "Certificat d’authenticité",
+    "kind": "textes"
+  },
+  "email-commande-recue": {
+    "label": "Commande reçue",
+    "kind": "email"
+  },
+  "email-commande-en-confection": {
+    "label": "Commande en confection",
+    "kind": "email"
+  },
+  "email-commande-prete": {
+    "label": "Commande prête",
+    "kind": "email"
+  },
+  "email-commande-expediee": {
+    "label": "Commande expédiée",
+    "kind": "email"
+  }
+}

@@ -1,0 +1,26 @@
+/*
+ * La Maison : mise en page éditoriale du texte « À propos ». Le portrait de la créatrice reste à
+ * côté du texte pendant la lecture (ordinateur) ; sur téléphone il ouvre la page. Tokens seulement.
+ */
+.apropos {
+  display: grid;
+  gap: var(--space-block) var(--spacing-gutter);
+  align-items: start;
+}
+@media (min-width: 48rem) {
+  .apropos {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  }
+  .portrait {
+    position: sticky;
+    top: calc(var(--header-h) + var(--spacing-l));
+  }
+}
+
+/* la devise de la Maison, très grande, une phrase par ligne */
+.devise {
+  text-wrap: balance;
+}
+.ligne {
+  display: block;
+}

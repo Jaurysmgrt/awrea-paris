@@ -9,10 +9,13 @@ import { useEffect, useRef, useState } from "react";
 import type { Image } from "@/lib/commerce/types";
 import { Media, srcSet } from "@/components/ui/Media";
 import { Icon } from "@/components/ui/Icon";
+import { useTexts } from "@/components/content/Texts";
+import type { CatalogueTexts } from "@/lib/commerce/texts";
 
 const ZOOM = 2.6;
 
-export function LaceLoupe({ image, hint = true }: { image: Image; hint?: boolean }) {
+export function LaceLoupe({ image, hint = true, eager }: { image: Image; hint?: boolean; eager?: boolean }) {
+  const t = useTexts<CatalogueTexts>("catalogue").galerie;
   const ref = useRef<HTMLDivElement>(null);
   const lens = useRef<HTMLDivElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -85,22 +88,22 @@ export function LaceLoupe({ image, hint = true }: { image: Image; hint?: boolean
   return (
     <figure className="loupe">
       <div ref={ref} className="loupe__stage" data-on={on}>
-        <Media image={image} ratio="portrait" sizes="(min-width: 64rem) 50vw, 100vw" />
+        <Media image={image} ratio="portrait" sizes="(min-width: 64rem) 50vw, 100vw" eager={eager} />
         <div ref={lens} className="loupe__lens" aria-hidden="true" style={{ backgroundImage: `url(${full})` }} />
       </div>
       <figcaption className="loupe__caption">
         {hint ? (
           <span className="t-note">
-            <span className="loupe__hint-pointer">Survolez l’image pour voir la dentelle de près.</span>
-            <span className="loupe__hint-touch">Appuyez longuement sur l’image pour faire apparaître la loupe.</span>
+            <span className="loupe__hint-pointer">{t.survol}</span>
+            <span className="loupe__hint-touch">{t.appui}</span>
           </span>
         ) : null}
         <button type="button" className="link link--quiet" onClick={() => dialog.current?.showModal()}>
-          Voir le détail en grand
+          {t.agrandir}
         </button>
       </figcaption>
       <dialog ref={dialog} className="zoom-dialog" aria-label={image.alt} onClick={(e) => e.target === dialog.current && dialog.current?.close()}>
-        <button type="button" className="icon-btn zoom-dialog__close" onClick={() => dialog.current?.close()} aria-label="Fermer">
+        <button type="button" className="icon-btn zoom-dialog__close" onClick={() => dialog.current?.close()} aria-label={t.fermer}>
           <Icon name="close" />
         </button>
         {/* eslint-disable-next-line @next/next/no-img-element */}

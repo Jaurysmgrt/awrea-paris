@@ -4,6 +4,8 @@ import type { Cart } from "@/lib/commerce/types";
 import type { CartAction } from "@/lib/commerce/cart";
 import { track } from "@/lib/analytics/track";
 import { prefersReducedMotion } from "@/lib/motion";
+import { useTexts } from "@/components/content/Texts";
+import type { CommerceTexts } from "@/lib/commerce/texts";
 
 /** Retour haptique discret sur mobile (ajout au panier), absent si l'appareil ne le permet pas. */
 function haptic() {
@@ -39,6 +41,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [announce, setAnnounce] = useState("");
+  const erreur = useTexts<CommerceTexts>("commerce").panier.erreur;
 
   useEffect(() => {
     fetch("/api/cart", { cache: "no-store" })
@@ -53,7 +56,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetch("/api/cart", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(action) });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? "Un contretemps est survenu. Merci de réessayer dans un instant.");
+      if (!res.ok) throw new Error(json.error ?? erreur);
       setCart(json.cart);
       if (action.type === "add" || action.type === "addMany") {
         haptic();
@@ -66,13 +69,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (opts?.openAfter) setOpen(true);
       return true;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Un contretemps est survenu. Merci de réessayer dans un instant.");
+      setError(e instanceof Error ? e.message : erreur);
       if (opts?.openAfter) setOpen(true);
       return false;
     } finally {
       setBusy(false);
     }
-  }, []);
+  }, [erreur]);
 
   const value = useMemo(
     () => ({ cart, isOpen, busy, error, announce, open: () => setOpen(true), close: () => setOpen(false), dispatch }),

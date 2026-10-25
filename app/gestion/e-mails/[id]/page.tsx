@@ -17,7 +17,7 @@ export default async function EmailPage({ params }: { params: Promise<{ id: stri
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <p className="t-label">
-          <Link href={atelierHref("/e-mails")} className="link link--quiet">E-mails</Link>
+          <Link href={atelierHref("/e-mails")} className="btn btn--link">E-mails</Link>
         </p>
         <h1 className="t-h1">{doc.nom}</h1>
         <p className="t-lead">{doc.quand}</p>

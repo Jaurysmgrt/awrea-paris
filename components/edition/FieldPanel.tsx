@@ -8,6 +8,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { fixTypography, type WritingIssue } from "@/lib/writing/rules";
 import { guardValue, ruleFor, writingFor } from "@/lib/edition/guard";
 import { stegaClean } from "@/lib/edition/stega";
+import { formatPath, parsePath } from "@/lib/edition/paths";
+import { isProvisional, TEXTES_PROVISOIRES as P } from "@/lib/edition/provisoires";
 import { postJson } from "./client";
 import { valueOf, type Docs, type FieldTarget } from "./EditionMode";
 import { setPageText } from "./scan";
@@ -44,6 +46,10 @@ export function FieldPanel({ target, docs, api, onClose, onSaved }: { target: Fi
   const otherRaw = valueOf(docs, { ...src, locale: other });
   const [translation, setTranslation] = useState(typeof otherRaw === "string" ? stegaClean(otherRaw) : "");
   const textarea = useRef<HTMLTextAreaElement>(null);
+  // texte d'une photo provisoire (sa description, sa légende) : la pastille la rappelle
+  const segments = parsePath(src.path);
+  const parentValue = valueOf(docs, { ...src, path: formatPath(segments.slice(0, -1)) });
+  const ofProvisional = isProvisional(parentValue) || (/^(legende|caption)$/i.test(String(segments[segments.length - 1] ?? "")) && isProvisional((parentValue as { image?: unknown } | undefined)?.image));
 
   // le texte modifié sur place est lu au fil de la frappe
   useEffect(() => {
@@ -121,6 +127,11 @@ export function FieldPanel({ target, docs, api, onClose, onSaved }: { target: Fi
           {count} / {rule.max}
         </span>
       </div>
+      {ofProvisional ? (
+        <p className={s.hint}>
+          <span className={s.pastille}>{P.pastille}</span> {P.photoDuTexte}
+        </p>
+      ) : null}
       {inline ? (
         <p className={s.hint}>Écrivez directement dans la page. {rule.multiline ? "Ctrl et Entrée pour enregistrer." : "Entrée pour enregistrer."}</p>
       ) : (

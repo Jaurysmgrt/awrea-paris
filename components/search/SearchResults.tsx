@@ -22,7 +22,7 @@ export function SearchResults({ groups, onNavigate, maxPieces = 8, maxRows = 6 }
               {g.items.slice(0, maxPieces).map((r) => (
                 <li key={r.href}>
                   <Link href={r.href} className="search__piece" onClick={onNavigate}>
-                    {r.image ? <Media image={r.image} ratio="portrait" sizes="(min-width: 64rem) 22vw, 45vw" decorative /> : null}
+                    {r.image ? <Media image={r.image} ratio="portrait" sizes="(min-width: 64rem) 22vw, 45vw" decorative provisoire={r.image.provisoire} /> : null}
                     <span className="search__piece-title">{r.title}</span>
                     <span className="t-note">{r.note}</span>
                     {typeof r.price === "number" ? <span className="price search__price">{formatPrice(r.price)}</span> : null}
