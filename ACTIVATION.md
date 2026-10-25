@@ -47,11 +47,11 @@ fonctionnement.
 | 1 | Vercel | Héberger le site, nom de domaine | Pro : environ 20 $ / mois (le forfait gratuit est réservé aux sites non commerciaux) |
 | 2 | Secrets du site | Sessions, Atelier, tâches planifiées | Gratuit (aucun compte) |
 | 3 | Upstash Redis | Mémoire technique (paniers, files d'envoi, sécurité) | Gratuit pour commencer |
-| 4 | Shopify | Catalogue, stocks, paiement, commandes | À partir d'environ 30 € / mois + frais de paiement |
+| 4 | Shopify | Catalogue, paiement, commandes | À partir d'environ 30 € / mois + frais de paiement |
 | 5 | Supabase | Comptes et base clientes | Gratuit pour commencer ; Pro (environ 25 $ / mois) conseillé pour les sauvegardes |
 | 6 | Resend | E-mails du site (codes de connexion, confirmations) | Gratuit jusqu'à environ 3 000 e-mails / mois |
 | 7 | Brevo (ou Klaviyo) | Lettre d'information et e-mails automatiques | Gratuit pour commencer (Brevo) |
-| 8 | Anthropic (Claude) | Assistante, styliste, agents de gestion | À l'usage (quelques euros à quelques dizaines d'euros / mois) |
+| 8 | Anthropic (Claude) | Assistante, agents de gestion | À l'usage (quelques euros à quelques dizaines d'euros / mois) |
 | 9 | Cloudflare Turnstile | Anti-robots des formulaires | Gratuit |
 | 10 | Instagram | Publications sur la page d'accueil | Gratuit |
 | 10 bis | Colissimo, adresses, comptabilité | Étiquettes de retour prépayées, suggestions d'adresses, export comptable | Contrat Colissimo ; le reste gratuit |
@@ -153,21 +153,58 @@ Indispensable en ligne : sans lui, Vercel efface régulièrement la mémoire du 
 4. **Paramètres** › **Marchés** : France, Union européenne, Royaume-Uni, Suisse, États-Unis, avec
    leurs devises (euro, livre, franc suisse, dollar).
 
-### 4.2 Les pièces
+### 4.2 Les pièces (créées sur demande, sans stock)
 
-1. Chaque pièce est un produit avec l'option de variante **« Taille »**. Une pièce en précommande :
-   cocher « Continuer à vendre en cas de rupture de stock ».
-2. **Paramètres** › **Données personnalisées** › **Produits** › **Ajouter une définition**, pour
+Chaque pièce de la Maison est **créée sur demande**, après la commande, par des artisans français.
+Il n'y a donc **aucun stock** : le site ne lit ni n'affiche jamais de quantité, ne dit jamais
+« épuisée » ni « dernière pièce », et chaque fiche annonce son **délai de fabrication**. Shopify
+doit, de son côté, accepter chaque taille en permanence.
+
+Commencer par les définitions de métachamps (point 4 ci-dessous, et 4.2 ter pour la collection),
+puis créer les pièces : leurs cases sont alors prêtes à remplir sur chaque fiche.
+
+1. **Créer chaque pièce** : **Produits** › **Ajouter un produit**, une fiche par ligne du tableau
+   de l'étape 4.2 bis.
+   - **Titre** : exactement celui du tableau, avec son article (« Le body Aura »).
+   - **Adresse de la page** (le « handle ») : en bas de la fiche, rubrique du référencement sur
+     les moteurs de recherche › **Modifier**. Shopify propose `le-body-aura`, tiré du titre :
+     la remplacer par l'adresse du tableau, sans article (`body-aura`). Le site, ses
+     redirections, ses liens, les commandes de démonstration et les essais automatiques reposent
+     sur ces sept adresses ; une autre adresse donne une fiche que le site ne relie à rien.
+   - **Description** : les paragraphes de la fiche de démonstration (`data/demo/products.ts`),
+     séparés par une ligne vide ; la phrase d'accroche va dans le métachamp `awrea.tagline`.
+   - **Type de produit** (point 3), **prix** de chaque taille, **délai** (`awrea.delai_min`,
+     `awrea.delai_max`, point 4) : ceux du tableau 4.2 bis ; « provisoire » se traduit par
+     `awrea.prix_provisoire` ou `awrea.delai_provisoire` à vrai.
+   - **Photos** : les visuels provisoires du site, en pleine taille (`public/media/img/`, par
+     exemple `aura-1.webp` pour la fiche et `aura-detail.webp` dans `awrea.detail_image`), avec
+     le métachamp `awrea.visuels_provisoires` à vrai ; `awrea.nouveau` à vrai.
+   - **Canal de vente** : cocher **Headless** (étape 4.3), sinon la pièce reste invisible du site.
+2. Chaque pièce est un produit avec l'option de variante **« Taille »**. Pour **chaque taille**,
+   rubrique **Inventaire** : décocher **« Suivre la quantité »** (conseillé). Si le suivi reste
+   coché, cocher alors **« Continuer à vendre en cas de rupture de stock »**. Une taille que
+   Shopify refuse de vendre n'apparaît pas sur le site (le journal du serveur le signale). Les
+   pièces publiées par l'agent Catalogue sont déjà réglées ainsi. Renseigner aussi la
+   **référence (SKU)** de chaque taille, sur le modèle de la démonstration (`AW-AUR-S` pour le
+   body Aura en S ; `ODS`, `ARI`, `SIE`, `GAI`, `EVI`, `KIR` pour les autres pièces) : elle sert
+   d'identifiant à chaque taille dans les flux Google et Meta.
+3. **Type de produit** : `robe`, `body` ou `top` (`jupe` et `accessoire` existent aussi). Il range
+   la pièce dans les filtres de la boutique et lui donne un délai provisoire tant que ses
+   métachamps de délai ne sont pas remplis (bodys et tops 2 à 3 semaines, robes 3 à 4 semaines).
+4. **Paramètres** › **Données personnalisées** › **Produits** › **Ajouter une définition**, pour
    chacune des lignes ci-dessous, avec l'espace de noms et la clé indiqués, et la case
    **« Accès à l'API Storefront »** cochée :
 
 | Espace de noms et clé | Type | Contenu |
 | --- | --- | --- |
-| `awrea.edition_total` | Nombre entier | nombre d'exemplaires de l'édition |
-| `awrea.edition_produced` | Nombre entier | exemplaires déjà façonnés |
-| `awrea.lead_time_weeks` | Nombre entier | délai de confection (semaines) |
+| `awrea.delai_min` | Nombre entier | délai de fabrication le plus court, en semaines (par exemple `2`) |
+| `awrea.delai_max` | Nombre entier | délai de fabrication le plus long, en semaines (par exemple `3`) ; le site affiche « 2 à 3 semaines » |
+| `awrea.prix_provisoire` | Vrai ou faux | prix encore à confirmer (signalé dans l'Atelier › Catalogue) |
+| `awrea.delai_provisoire` | Vrai ou faux | délai encore à confirmer ; une pièce sans délai renseigné est signalée de la même façon |
+| `awrea.nouveau` | Vrai ou faux | pastille noire « Nouveau » sur la carte de la pièce (l'étiquette de produit `nouveau` fait de même) |
+| `awrea.visuels_provisoires` | Vrai ou faux | photos de présentation en attendant les prises de vue : chaque photo porte la mention « visuel provisoire » |
 | `awrea.tagline` | Texte sur une ligne | phrase d'accroche |
-| `awrea.materials` | JSON | matières, par exemple `[{"name":"Dentelle de Calais","percent":100}]` |
+| `awrea.materials` | JSON | matières, par exemple `[{"name":"Dentelle","percent":100}]` ; laisser vide tant que la composition n'est pas connue |
 | `awrea.care` | Liste de textes sur une ligne | conseils d'entretien |
 | `awrea.fit` | Texte sur plusieurs lignes | tombé et conseils de taille |
 | `awrea.model` | Texte sur une ligne | taille portée par le mannequin |
@@ -175,18 +212,104 @@ Indispensable en ligne : sans lui, Vercel efface régulièrement la mémoire du 
 | `awrea.lining` | Texte sur une ligne | doublure |
 | `awrea.complete_the_look` | Liste de références de produits | pièces à associer |
 | `awrea.detail_image` | Fichier | photographie de détail (loupe) |
+| `awrea.traceability` | JSON | étapes de fabrication et origine des matières, par exemple `{"steps":[{"label":"Coupe","place":"France"}],"origins":[{"material":"Dentelle","origin":null}]}` |
 
-3. Emballage cadeau : créer un produit « Emballage cadeau », le rendre disponible sur le canal
-   Headless (voir 4.3) mais pas sur la boutique en ligne Shopify. Ouvrir sa variante : l'adresse
-   de la page se termine par `/variants/123456789`. Variable :
+   Les anciens métachamps `awrea.edition_total`, `awrea.edition_produced` et
+   `awrea.lead_time_weeks` ne servent plus : les supprimer s'ils existent.
+5. **Prix, délai, « provisoire » et « Nouveau »** se règlent aussi sans ouvrir Shopify : Atelier ›
+   **Catalogue**, une ligne par pièce, bouton **Enregistrer**. Le site écrit alors lui-même le prix
+   de toutes les tailles et les métachamps ci-dessus.
+6. Emballage cadeau : créer un produit « Emballage cadeau » (inventaire non suivi, lui aussi), le
+   rendre disponible sur le canal Headless (voir 4.3) mais pas sur la boutique en ligne Shopify.
+   Ouvrir sa variante : l'adresse de la page se termine par `/variants/123456789`. Variable :
    `SHOPIFY_GIFT_WRAP_VARIANT_ID` = `gid://shopify/ProductVariant/123456789`.
+7. **Étapes de la commande.** La cliente suit sa commande en cinq étapes : commande reçue, en
+   confection, prête, expédiée, livrée. Shopify ne connaît que le paiement, l'expédition et la
+   livraison : les deux étapes de la confection se marquent par une **étiquette de la commande**
+   (**Commandes** › la commande › **Étiquettes**) :
+   - `en-confection` quand la confection commence ;
+   - `prete` quand la pièce est terminée (retirer alors `en-confection`).
+
+   Ces deux étiquettes se posent aussi depuis l'Atelier, sans ouvrir Shopify : **Commandes** › la
+   commande › **Étapes**, boutons « En confection » puis « Prête » ; la cliente reçoit l'e-mail de
+   chaque étape.
+
+   Sans étiquette, une commande payée est « Commande reçue ». Le traitement de la commande avec son
+   numéro de suivi la fait passer à « Expédiée », l'évènement de livraison à « Livrée ». Rien n'est
+   remis en stock lors d'un remboursement ou d'une annulation depuis l'Atelier.
+
+### 4.2 bis Prix et délais à confirmer par la Maison
+
+Ce tableau donne les sept pièces de la collection **Hypnotic Lace** telles qu'elles sont en ligne
+dans la boutique de démonstration ; elles se saisissent à l'identique dans Shopify (étape 4.2,
+point 1). Les valeurs marquées **provisoire** sont signalées dans l'Atelier › Catalogue ; une fois
+la valeur confirmée, décocher « provisoire » sur la ligne de la pièce (ou passer le métachamp à
+faux dans Shopify).
+
+| Pièce (titre exact) | Adresse (handle) | Type de produit | Prix | Délai de fabrication |
+| --- | --- | --- | --- | --- |
+| Le body Aura | `body-aura` | `body` | 70,00 € | 2 à 3 semaines, **provisoire** |
+| La robe Odessa | `robe-odessa` | `robe` | 100,00 € | 3 à 4 semaines, **provisoire** |
+| La robe Aria | `robe-aria` | `robe` | 204,00 € | 3 à 4 semaines, **provisoire** |
+| La robe Sienna | `robe-sienna` | `robe` | 180,00 €, **provisoire** | 3 à 4 semaines, **provisoire** |
+| Le body Gaïa | `body-gaia` | `body` | 75,00 €, **provisoire** | 2 à 3 semaines, **provisoire** |
+| Le top Evina | `top-evina` | `top` | 65,00 €, **provisoire** | 2 à 3 semaines, **provisoire** |
+| Le top Kira | `top-kira` | `top` | 70,00 €, **provisoire** | 2 à 3 semaines, **provisoire** |
+
+La fiche de chaque pièce s'ouvre ensuite à l'adresse `https://www.awreaparis.com/boutique/` suivie
+de son handle (par exemple `/boutique/body-aura`).
+
+Également à confirmer : les **tailles proposées** (XS, S, M et L pour chaque pièce, en attendant),
+et toutes les **photos**, provisoires jusqu'aux prises de vue (`RESSOURCES.md`). Compositions,
+doublures, entretien et taille du mannequin restent à fournir : `LEGAL-A-COMPLETER.md`.
+
+### 4.2 ter La collection Hypnotic Lace
+
+1. **Paramètres** › **Données personnalisées** › **Collections** › **Ajouter une définition**,
+   pour chacune des lignes ci-dessous, avec la case **« Accès à l'API Storefront »** cochée :
+
+| Espace de noms et clé | Type | Contenu |
+| --- | --- | --- |
+| `awrea.current` | Vrai ou faux | collection en cours, celle que le site met en avant (une seule à la fois) |
+| `awrea.season` | Texte sur une ligne | saison écrite à côté du titre ; laisser vide tant que la Maison ne l'a pas choisie |
+| `awrea.texte_officiel` | Vrai ou faux | la description est le texte de la créatrice, repris mot pour mot : ne jamais la faire réécrire |
+| `awrea.visuels_provisoires` | Vrai ou faux | l'image de la collection est un visuel provisoire : elle porte la mention « visuel provisoire » |
+
+2. **Produits** › **Collections** › **Créer une collection** : titre **« Hypnotic Lace »**,
+   collection **manuelle**. Adresse de la page imposée à `hypnotic-lace` (rubrique du
+   référencement › **Modifier**), comme pour les pièces : l'ancienne adresse du site,
+   `/collections/lace-is-more`, mène à celle-ci. Ajouter les sept pièces dans l'ordre du tableau
+   4.2 bis, puis cocher le canal **Headless**.
+3. **Description** : le texte officiel de la collection
+   (`ressources-awrea/TEXTES/TEXTE DE COLLECTION.pdf`), sans son titre, tel qu'il figure
+   ci-dessous : les mots de la créatrice, seuls les guillemets français et la majuscule de
+   « Lace » étant harmonisés comme sur le site. Trois paragraphes séparés par une ligne vide ; le
+   site lit le premier comme l'accroche, les suivants comme l'intention.
+
+   > La délicatesse, le pouvoir de l’or.
+   >
+   > La délicatesse rencontre la force. L’élégance devient une signature. Une rencontre entre la
+   > finesse de la dentelle, la sensualité des drapés et l’éclat audacieux de la dorure.
+   >
+   > À travers des silhouettes sculpturales et des détails précieux, la collection
+   > « Hypnotic Lace » célèbre une féminité contrastée : délicate, sensuelle et affirmée.
+
+4. Métachamps de la collection : `awrea.current` à vrai, `awrea.texte_officiel` à vrai,
+   `awrea.season` vide. Image de la collection : facultative. Sans image, le site prend la
+   première photo de la première pièce, avec sa mention « visuel provisoire » ; avec un visuel
+   provisoire déposé ici, passer `awrea.visuels_provisoires` à vrai.
+5. Référencement de la collection (même rubrique) : titre « Hypnotic Lace, dentelle noire et
+   dorure | Awrea Paris » et description « Hypnotic Lace, la collection d’Awrea Paris : la
+   dentelle, les drapés et l’éclat de la dorure. Sept pièces créées sur demande par des artisans
+   français. » (ceux de la boutique de démonstration).
 
 ### 4.3 Relier le site à la boutique (canal Headless)
 
 1. Dans l'App Store de Shopify, installer le canal de vente **« Headless »** (gratuit, publié par
    Shopify).
-2. **Créer un storefront**. Dans **Storefront API**, cocher les autorisations : produits, stocks,
-   collections, paniers et paiement (« checkouts »), contenus et métaobjets, étiquettes.
+2. **Créer un storefront**. Dans **Storefront API**, cocher les autorisations : produits,
+   collections, paniers et paiement (« checkouts »), contenus et métaobjets, étiquettes. L'accès
+   aux stocks n'est pas nécessaire : le site ne les lit pas.
 3. Copier le **jeton d'accès privé** et l'adresse de la boutique (`….myshopify.com`).
 
 | Variable | Valeur |
@@ -196,15 +319,17 @@ Indispensable en ligne : sans lui, Vercel efface régulièrement la mémoire du 
 
 ### 4.4 L'accès des agents de gestion (application du Dev Dashboard)
 
-Les agents (stocks, commandes, remboursements proposés à votre validation) ont besoin d'un accès à
-l'administration de la boutique.
+Le tableau de bord et les agents (fiches des pièces, prix et délais, étapes des commandes,
+remboursements proposés à votre validation) ont besoin d'un accès à l'administration de la
+boutique.
 
 1. Ouvrir le [Dev Dashboard de Shopify](https://dev.shopify.com/dashboard) **avec le même compte
    que la boutique** (la boutique et l'application doivent appartenir à la même organisation).
 2. **Créer une application** › nom « Awrea — agents ».
-3. **Configuration** › **Accès** : cocher uniquement `read_products`, `write_products`,
-   `read_inventory`, `write_inventory`, `read_locations`, `read_orders`, `write_orders`,
-   `read_customers`, `write_customers`. Dans **Données clientes protégées**, demander l'accès
+3. **Configuration** › **Accès** : cocher uniquement `read_products`, `write_products` (fiches,
+   prix, métachamps), `read_inventory`, `write_inventory` (création des tailles sans suivi de
+   stock), `read_orders`, `write_orders` (étiquettes d'étape, remboursements), `read_customers`,
+   `write_customers`. Dans **Données clientes protégées**, demander l'accès
    aux noms, e-mails, adresses et téléphones (nécessaire aux bons de livraison et aux factures).
    Publier la version.
 4. **Installer** l'application sur la boutique.
@@ -228,11 +353,12 @@ dans la même organisation : recréer l'application depuis le compte propriétai
 `https://www.awreaparis.com/api/webhooks/shopify`, dernière version de l'API, pour chacun de ces
 évènements :
 
-- Création de commande, Mise à jour de commande (commandes, certificats, e-mails)
+- Création de commande, Mise à jour de commande (commandes, étapes de confection, certificats,
+  e-mails)
 - Création de traitement de commande (expédition : e-mail avec le lien de suivi)
 - Création d'évènement de traitement (livraison : e-mail d'arrivée, puis entretien et demande d'avis)
-- Création, Mise à jour et Suppression de produit ; Mise à jour de collection ; Mise à jour du
-  niveau de stock (les pages de la boutique se régénèrent seules)
+- Création, Mise à jour et Suppression de produit ; Mise à jour de collection (les pages de la
+  boutique se régénèrent seules). Aucun webhook de stock : il n'y a pas de stock à suivre.
 
 En bas de la page, Shopify affiche « Vos webhooks seront signés avec … » : copier cette clé dans
 `SHOPIFY_WEBHOOK_SECRET`.
@@ -240,7 +366,8 @@ En bas de la page, Shopify affiche « Vos webhooks seront signés avec … » : 
 ### 4.6 Vérifier
 
 1. Réglages › « Boutique et paiement » indique « Shopify », et « Shopify Admin (agents) » aussi.
-2. La boutique du site affiche les pièces de Shopify.
+2. La boutique du site affiche les pièces de Shopify, chacune avec « Sur demande » et son délai de
+   fabrication, dans toutes ses tailles.
 3. Passer une commande d'essai : **Paramètres** › **Paiements** › activer le **mode test** de
    Shopify Payments, payer avec la carte d'essai `4242 4242 4242 4242`, puis désactiver le mode
    test. La commande apparaît dans l'Atelier, avec son certificat.
@@ -257,7 +384,10 @@ démonstration de l'Atelier est refusé, même en simulation.
    passe de la base (le garder dans le gestionnaire), région **West EU (Paris)**.
 2. **SQL Editor** › **New query** : copier tout le contenu du fichier
    `supabase/migrations/20261013000000_base_clientes.sql` (dans le dépôt GitHub), coller, **Run**.
-   S'il y a plusieurs fichiers dans `supabase/migrations`, les passer **dans l'ordre** des noms.
+   S'il y a plusieurs fichiers dans `supabase/migrations`, les passer **dans l'ordre** des noms,
+   en particulier `20261018000000_creation_sur_demande.sql` **avant le déploiement** du site : il
+   ajoute le délai de fabrication des commandes (`lead_time`) et le numéro de création des
+   certificats (`next_creation_number`), et retire les listes d'attente.
 3. **Authentication** › **URL Configuration** : *Site URL* = `https://www.awreaparis.com` ;
    *Redirect URLs* : ajouter `https://www.awreaparis.com/api/account/callback`.
 4. **Authentication** › **Emails** › **SMTP Settings** : activer un SMTP personnalisé avec Resend
@@ -265,7 +395,7 @@ démonstration de l'Atelier est refusé, même en simulation.
    Resend, expéditeur `atelier@awreaparis.com`. Les codes de connexion partent alors au nom de la
    maison.
 5. **Authentication** › **Emails** › **Templates** › **Magic Link** : sujet « Votre code de
-   connexion — Awrea Paris », et coller le contenu de `supabase/templates/code-de-connexion.html`
+   connexion à Awrea Paris », et coller le contenu de `supabase/templates/code-de-connexion.html`
    (il affiche le code à six chiffres que le site demande).
 6. Connexion avec Google ou Apple (facultatif) : **Authentication** › **Sign In / Providers** ›
    Google (identifiants créés dans la console Google Cloud, « Identifiants OAuth ») et Apple
@@ -324,7 +454,7 @@ la place (variables `KLAVIYO_PRIVATE_KEY`, `KLAVIYO_LIST_ID`).
 lettre depuis le site apparaît dans la liste (après confirmation par e-mail).
 **Interrupteur** : `MARKETING_PROVIDER` (`brevo`, `klaviyo` ou `mock`).
 
-## Étape 8 — Anthropic (assistante, styliste, agents)
+## Étape 8 — Anthropic (assistante, agents)
 
 1. [console.anthropic.com](https://console.anthropic.com) › créer le compte de l'entreprise ›
    **Billing** : ajouter un moyen de paiement et une **limite de dépense mensuelle** (par exemple
@@ -445,9 +575,21 @@ Sans Sentry, les erreurs du site restent visibles dans l'Atelier › Équipe ›
    l'atelier, ses horaires de rendez-vous, photographies, lien vers le site.
 4. **Google Merchant Center** ([merchants.google.com](https://merchants.google.com)) : Produits ›
    Sources › ajouter un flux programmé avec l'adresse `https://www.awreaparis.com/feeds/google.xml`
-   (chaque jour).
+   (chaque jour). Les pièces y sont « en stock » puisqu'elles se commandent toujours, avec leur
+   délai de fabrication en délai de préparation (`min_handling_time`, `max_handling_time`) : ne
+   pas fixer de délai de préparation plus court dans les réglages de livraison de Merchant Center.
 5. **Boutique Instagram et Facebook** (Meta Commerce Manager) : Catalogue › Sources de données ›
-   flux programmé `https://www.awreaparis.com/feeds/meta.xml`.
+   flux programmé `https://www.awreaparis.com/feeds/meta.xml` (pièces « disponibles à la
+   commande »).
+
+   **Visuels provisoires.** Une photo marquée provisoire (image générée en attendant les prises
+   de vue, `awrea.visuels_provisoires`) n'est jamais envoyée à Google ni à Meta : ni dans ces
+   deux flux, ni dans les données structurées des fiches. Ces plateformes ne montreraient pas la
+   mention « visuel provisoire » du site, et elles ont leurs propres règles sur les images
+   générées (`LEGAL-A-COMPLETER.md`). Tant que toutes les photos des pièces sont provisoires, les
+   flux restent donc vides et Merchant Center n'a rien à montrer : c'est voulu. Chaque pièce y
+   entre seule dès que ses vraies photographies remplacent les visuels provisoires et que le
+   métachamp repasse à faux.
 6. **Instagram** : dans la bio de @awrea.paris, le lien `https://www.awreaparis.com` ; dans
    « Boutons d'action », « Réserver » vers `https://www.awreaparis.com/contact`.
 

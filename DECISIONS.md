@@ -1,9 +1,14 @@
 # DÉCISIONS
 
 > Chaque choix incertain est tranché, noté ici avec sa justification, puis appliqué. Le plus récent en
-> bas de chaque rubrique. Référence : cahier des charges complet (13/10/2026), `MARQUE.md`.
+> bas de chaque rubrique. Référence : cahier des charges complet (13/10/2026), `MARQUE.md`, et les
+> ressources officielles de la Maison (`RESSOURCES.md`), qui priment sur tout le reste depuis le 15/10.
 
 ## Direction artistique
+
+> Les choix de polices (Instrument Serif, Inter Tight), de mesure, de taille de texte et de logo
+> provisoire pris le 13/10 sont remplacés par ceux des ressources officielles de la Maison
+> (rubrique « Ressources officielles de la Maison » plus bas). Ils restent ici pour l'historique.
 
 | Date | Décision | Justification |
 | --- | --- | --- |
@@ -46,6 +51,7 @@
 | 15/10 | Rendez-vous réservés en ligne sur l'agenda de l'atelier (heure de Paris, verrou contre les doubles réservations), lien d'annulation signé, abonnement iCal pour la créatrice | Plus d'aller-retour par e-mail pour fixer un essayage ; l'agenda personnel de la créatrice ferme les créneaux déjà pris. |
 | 15/10 | Suivi des erreurs : Sentry par son API d'envoi, sans bibliothèque, et repli local | Aucun poids ajouté au site ; rien de personnel n'est transmis (ni jeton, ni e-mail, ni cookie). |
 
+## Méthode de travail
 
 | Date | Décision | Justification |
 | --- | --- | --- |
@@ -92,3 +98,33 @@ critères sans bloquer le développement. Comparaison faite le 14/10 :
 Les contenus restent des fichiers JSON lisibles dans Git : un passage futur à un CMS fondé sur Git
 (TinaCMS compris) resterait possible sans réécrire les textes.
 
+## Ressources officielles de la Maison (à partir du 15/10)
+
+Les ressources de la Maison (`ressources-awrea/`, inventaire et droits dans `RESSOURCES.md`) priment
+sur toute consigne antérieure de typographie, de textes, de produits et de mise en page. Décisions
+arrêtées par le chef de projet pendant leur intégration.
+
+| Date | Décision | Justification |
+| --- | --- | --- |
+| 15/10 | Les originaux de `ressources-awrea/` ne sont jamais modifiés ; `npm run ressources` en tire les versions du site (polices WOFF2, logo, photos déclinées) | On peut toujours revenir au fichier remis par la créatrice, et refaire les versions après un remplacement. |
+| 15/10 | Polices officielles : **Fraunces 72pt Italic** (400) pour tous les titres, en italique ; **Cormorant Garamond** (400) pour les textes, la navigation, les boutons, les formulaires et les prix. Fichiers WOFF2 réduits aux alphabets latins, servis par le site, licences OFL jointes | Polices remises par la Maison ; la licence OFL permet l'usage web, l'incorporation et la réduction ; aucun appel extérieur (RGPD, vitesse). |
+| 15/10 | Fraunces jamais sous 25 px : les noms de pièces des cartes, du panier et des commandes se composent en Cormorant | Fraunces 72pt est dessinée pour le grand format et paraît trop noire en petit ; la maquette PAGE PRODUIT compose « Le body Aura » en Cormorant. |
+| 15/10 | Aucun faux italique ni faux gras (`font-synthesis: none`) ; l'emphase passe par l'échelle, la police des titres ou le soulignement | Une seule face est fournie par police : un italique ou un gras inventé par le navigateur déformerait les lettres. |
+| 15/10 | Texte courant à 20 px sur 32 px, rien sous 16 px ; mesure de 24,5 em (65 caractères de Cormorant) | Cormorant a un petit œil ; la grille de 8 px et l'interlignage 1,6 sont gardés. |
+| 15/10 | **Croisan** (police du logo) jamais chargée ni publiée : fichier ignoré par Git, version web préparée hors du site pour le jour où la licence commerciale sera achetée | Édition « Personal Use » de Hishand Studio : tout usage commercial demande une licence. Le logo s'affiche à partir des fichiers officiels, sans la police. |
+| 15/10 | **Logo officiel en PNG** à fond transparent (logo entier et monogramme), affiché en masque par `components/brand/Logo.tsx` : noir sur fond clair, blanc cassé en mode Nuit. Le SVG est demandé à la Maison | Aucun SVG n'a été fourni ; un tracé automatique déformait les déliés. Le masque donne la couleur du texte avec un seul fichier. |
+| 15/10 | **Langage des maquettes étendu à tout le site** (`ressources-awrea/DA PRÉSENTATION`) : titres très grands en italique, filets fins, champs soulignés sans cadre, boutons noirs en pilule, pastille « Nouveau », photos de cartes arrondies ; primitives communes (`.btn`, `.field`, `.badge`, `.rule--center`, `.media--card`, `PageHeader`) décrites dans `DESIGN.md` | Les cinq maquettes ne couvrent pas toutes les pages : leur langage, appliqué partout par les mêmes primitives, garde le site homogène. |
+| 15/10 | En-tête et pied de page des maquettes : logo centré, cinq entrées (Accueil, Sur commande, Collections, Contact, Mon Panier) ; quatre colonnes au pied de page et « © Awrea Paris 2026 » | Maquettes EN-TÊTE DU SITE et BAS DE PAGE ; cinq entrées au plus (règle « épuré et luxueux »). |
+| 15/10 | **Textes officiels repris mot pour mot** (À propos, texte de collection, teasing, CGV, mentions légales) et **exemptés du contrôle d'écriture** : seule la typographie y est contrôlée. Marquage `"officiel": true` (JSON), `officiel: true` (TypeScript), `data-officiel` (page rendue) | Ce sont les mots de la créatrice : les règles d'écriture servent aux nouveaux textes, pas à réécrire les siens. Le marquage garde le contrôle sur tout le reste. |
+| 15/10 | Corrections permises sur les textes officiels : typographie française et fautes évidentes. Dans les citations de `MARQUE.md` et `content/brand/voice.md` : guillemets anglais « “ Hypnotic lace ” » remplacés par des guillemets français, capitale à « Lace » comme dans le nom de la collection partout sur le site, espaces insécables avant les deux-points et dans les guillemets ; aucun autre mot touché | Typographie française du projet ; le nom de la collection s'écrit d'une seule façon. |
+| 15/10 | **Photos provisoires générées admises jusqu'aux shootings** (`PHOTOS IA EN ATTENDANT`) : recadrées en 2:3 (ce qui écarte le filigrane de deux fichiers), marquées `provisoire: true`, mention discrète « visuel provisoire », jamais envoyées aux flux Google et Meta | La Maison n'a pas encore de photographies de ses pièces ; la transparence sur les images générées est gardée (à faire valider : `LEGAL-A-COMPLETER.md`). Exception à la règle « aucune image générée ». |
+| 18/10 | **Modèle sur demande** : chaque pièce est créée après la commande par des artisans français, sans stock. Le site ne lit ni n'affiche aucune quantité ; Shopify accepte chaque taille en permanence ; plus de rupture, de pièces restantes, de liste d'attente ni d'alerte de retour en stock | Modèle de la Maison (TEASING MARQUE : « Il n'y a pas de stock »). |
+| 18/10 | **Délai de fabrication** sur chaque fiche (métachamps `awrea.delai_min` et `awrea.delai_max`, réglables dans l'Atelier › Catalogue) ; repli provisoire par catégorie : bodys et tops 2 à 3 semaines, robes 3 à 4 semaines | La seule information de disponibilité d'une pièce créée sur demande est le temps de sa confection. |
+| 18/10 | **Cinq étapes de commande**, libellés exacts : « Commande reçue », « En confection », « Prête », « Expédiée », « Livrée » ; un e-mail modifiable à chaque étape ; avec Shopify, la confection se marque par les étiquettes `en-confection` et `prete` | La cliente suit la confection de sa pièce ; Shopify ne connaît que le paiement, l'expédition et la livraison. |
+| 18/10 | **Numéro de création** : numéro d'ordre unique de la Maison, tiré de façon atomique à chaque pièce commandée, jamais réattribué ni remis à zéro, affiché « Création n° 0001 » sur le certificat et l'étiquette ; le code de vérification (serial, QR) reste | Remplace le numéro d'édition « N° 3 / 6 », qui supposait une série. |
+| 18/10 | **Avant-premières sans rareté** (anciens « drops ») : une collection annoncée a des dates écrites en toutes lettres, sans compte à rebours ni quantité ; avant-première des inscrites par lien personnel, présentation privée par mot de passe | Aucune urgence artificielle ; une pièce créée sur demande ne manque jamais. |
+| 18/10 | **Prix et délais provisoires** : prix donnés sans réserve pour le body Aura (70,00 €), la robe Odessa (100,00 €) et la robe Aria (204,00 €) ; prix provisoires pour la robe Sienna, le body Gaïa, le top Evina et le top Kira ; tous les délais provisoires. Case « provisoire » dans l'Atelier › Catalogue et métachamps `awrea.prix_provisoire`, `awrea.delai_provisoire` | Les valeurs viennent de la Maison mais ne sont pas toutes confirmées : elles sont signalées jusqu'à leur confirmation. |
+| 18/10 | Matières, compositions, entretien et mesures : « [À COMPLÉTER : …] » tant que la Maison ne les a pas donnés, jamais déduits des photos | Aucune information inventée. |
+| 18/10 | Collection « **Hypnotic Lace** » (`hypnotic-lace`) et ses sept pièces ; « Lace is more » redirigée (308) ; collections et pièces inventées supprimées | Catalogue réel de la Maison. |
+| 24/10 | Dans les textes, la Maison parle de « la créatrice ». Son nom, connu par les mentions légales officielles, figure sur les pages légales ; il n'est pas mis en avant ailleurs sans son accord | Discrétion par défaut ; à confirmer avec elle. |
+| 24/10 | `GUIDE-CREATRICE.md` : premier jet complet de l'utilisation du site et de l'Atelier ; les écrans encore en construction sont décrits tels que prévus et marqués « à vérifier » ; les captures d'écran sont ajoutées après le contrôle final | Les captures doivent montrer le site final ; la relecture finale confirme chaque geste sur le serveur local. |

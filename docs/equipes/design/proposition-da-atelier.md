@@ -1,5 +1,12 @@
 # Proposition « atelier » du directeur artistique 2
 
+> **Archive.** La typographie et les règles décrites ici sont remplacées par les ressources
+> officielles de la Maison (`RESSOURCES.md` : polices Fraunces 72pt Italic et Cormorant Garamond,
+> logo officiel, langage des maquettes), puis par `MARQUE.md` et `DESIGN.md`. Les séries numérotées,
+> le stock et les anciennes collections cités plus bas n'existent plus (pièces créées sur demande).
+> Le laboratoire cité (`app/(lab)`) est retiré du site ; il reste sur la branche
+> `archive/avant-ressources-officielles`. Document gardé pour l'historique, sans mise à jour.
+
 14 octobre 2026. Proposition à juger par le critique design et le gardien de la marque, sans livraison avant le feu vert du chef de projet. Pages du laboratoire `/lab/da-atelier` (accueil) et `/lab/da-atelier/piece` (robe Odessa). Code dans `app/(lab)/lab/da-atelier/`.
 
 ## Le concept en cinq lignes

@@ -2,54 +2,74 @@
  * llms.txt et llms-full.txt — résumé factuel de la maison pour les moteurs de réponse IA
  * (ChatGPT, Perplexity, Gemini, Google AI…). Construit depuis les mêmes sources que le site :
  * informations identiques partout. L'agent SEO y ajoute des notes d'actualité.
+ *
+ * Modèle de la Maison : création sur demande, sans stock, par des artisans français (document
+ * « catalogue ») ; collection en cours et son texte officiel (catalogue Shopify ou démonstration).
+ * La description vient de content/brand/identity.ts, alignée sur le modèle de la Maison.
  */
 import { identity } from "@/content/brand/identity";
-import { maison, atelier } from "@/content/fr/pages";
 import { faq } from "@/content/fr/faq";
 import { shop } from "@/content/settings";
 import { legalPages, type LegalBlock } from "@/content/fr/legal";
 import { legalPlain } from "@/lib/legal/plain";
 import { getPublicProducts, getCollections } from "@/lib/commerce";
 import { getArticles } from "@/lib/content/journal";
-import { editionInfo, productAvailability } from "@/lib/commerce/availability";
+import { leadTimeText, madeToOrderLabel } from "@/lib/commerce/availability";
+import { getDoc } from "@/lib/edition/read";
+import type { CatalogueTexts } from "@/lib/commerce/texts";
 import { formatPrice } from "@/lib/format";
 import { kv } from "@/lib/store";
 import { absolute } from "./metadata";
+import type { Product } from "@/lib/commerce/types";
 
-const avail = { available: "disponible", preorder: "sur commande", soldout: "épuisée" } as const;
+/** Matières connues, ou rien : une composition encore inconnue n'est jamais inventée. */
+const materialsOf = (p: Product) => p.materials.map((m) => `${m.percent} % ${m.name.toLowerCase()}`).join(", ");
 
 export async function buildLlms(full: boolean): Promise<string> {
-  const [products, collections, articles, notes] = await Promise.all([getPublicProducts(), getCollections(), getArticles(), kv.get<{ notes: string[]; updatedAt: string }>("ai:llms-notes")]);
+  const [products, collections, articles, notes, t] = await Promise.all([
+    getPublicProducts(),
+    getCollections(),
+    getArticles(),
+    kv.get<{ notes: string[]; updatedAt: string }>("ai:llms-notes"),
+    getDoc<CatalogueTexts>("catalogue", undefined, { plain: true }),
+  ]);
+  const current = collections.find((c) => c.current);
   const L: string[] = [];
   L.push(`# ${identity.name}`);
   L.push("");
+  // résumé : la description de la Maison (content/brand/identity.ts), au modèle sur demande
   L.push(`> ${identity.description}`);
   L.push("");
-  L.push(`${identity.name} (aussi écrit ${identity.alternateNames.filter((n) => n !== identity.name).join(", ")}) est une marque française de prêt-à-porter féminin fondée à Paris par une jeune créatrice. Manifeste : « ${identity.tagline} » ${identity.manifesto.replace(identity.tagline, "").trim()} Phrase fondatrice de la créatrice : « ${identity.founderQuote} »`);
+  L.push(`${identity.name} (aussi écrit ${identity.alternateNames.filter((n) => n !== identity.name).join(", ")}) a été fondée par une jeune créatrice. Manifeste\u00a0: «\u00a0${identity.tagline}\u00a0» ${identity.manifesto.replace(identity.tagline, "").trim()} Phrase fondatrice de la créatrice\u00a0: «\u00a0${identity.founderQuote}\u00a0»`);
   L.push("");
   L.push("## Faits clés");
-  for (const f of maison.facts) L.push(`- ${f.label} : ${f.value}`);
+  L.push(`- Création : ${t.modele}`);
+  L.push(`- Éthique de production : ${t.surDemande.ethique}`);
+  if (current) L.push(`- Collection en cours : ${current.title}${current.lead ? `, «\u00a0${current.lead.replace(/[.\s]+$/, "")}\u00a0»` : ""}`);
+  L.push(`- Certificat : ${t.certificat.texte}`);
   L.push(`- Site officiel : ${identity.url}`);
   L.push(`- Instagram officiel : ${identity.social.instagram} (${identity.social.instagramHandle})`);
   L.push(`- Contact : ${identity.email}`);
-  L.push(`- Livraison : France (offerte dès ${formatPrice(shop.freeShippingThreshold)}), Union européenne et international. Retours sous ${shop.returnDays} jours.`);
+  L.push(`- Livraison : France métropolitaine, offerte dès ${formatPrice(shop.freeShippingThreshold)}, après le délai de fabrication de la pièce. Retours sous ${shop.returnDays} jours.`);
   L.push("");
   L.push("## Collections");
-  for (const c of collections) L.push(`- [${c.title}](${absolute(`/collections/${c.handle}`)}) — ${c.season}${c.current ? " (collection en cours)" : ""} : ${c.lead}`);
+  for (const c of collections) L.push(`- [${c.title}](${absolute(`/collections/${c.handle}`)})${c.season ? ` · ${c.season}` : ""}${c.current ? " (collection en cours)" : ""} : ${c.lead}`);
   L.push("");
   L.push("## Pièces");
+  L.push(t.modele);
   for (const p of products) {
-    const ed = editionInfo(p);
-    L.push(`- [${p.title}](${absolute(`/boutique/${p.handle}`)}) — ${formatPrice(p.price)} — ${ed.unique ? "pièce unique" : `série numérotée de ${ed.total} pièces`} — ${avail[productAvailability(p)]} — ${p.materials.map((m) => `${m.percent} % ${m.name.toLowerCase()}`).join(", ")}. ${p.tagline}`);
+    const mat = materialsOf(p);
+    L.push(`- [${p.title}](${absolute(`/boutique/${p.handle}`)}) · ${formatPrice(p.price)} · ${madeToOrderLabel(p, t.delai)}${mat ? ` · ${mat}` : ""}. ${p.tagline}`);
   }
   L.push("");
   L.push("## Pages essentielles");
-  L.push(`- [La Maison — histoire et manifeste](${absolute("/la-maison")})`);
-  L.push(`- [L’Atelier — savoir-faire et fabrication à la main](${absolute("/atelier")})`);
+  L.push(`- [La Maison, histoire et manifeste](${absolute("/la-maison")})`);
+  L.push(`- [L’Atelier](${absolute("/atelier")})`);
   L.push(`- [Boutique](${absolute("/boutique")})`);
   L.push(`- [Questions fréquentes](${absolute("/faq")})`);
   L.push(`- [Livraison et retours](${absolute("/livraison-retours")})`);
-  L.push(`- [Contact et rendez-vous à l’atelier](${absolute("/contact")})`);
+  L.push(`- [Contact](${absolute("/contact")})`);
+  L.push(`- [Prendre rendez-vous](${absolute("/rendez-vous")})`);
   L.push(`- [Journal](${absolute("/journal")})`);
   if (notes?.notes.length) {
     L.push("");
@@ -64,32 +84,31 @@ export async function buildLlms(full: boolean): Promise<string> {
   }
 
   L.push("");
-  L.push("## Histoire de la maison");
-  L.push(maison.lead);
-  for (const s of maison.story) {
+  L.push("## Fabrication sur demande");
+  L.push(t.modele);
+  L.push(t.surDemande.ethique);
+  L.push(t.certificat.texte);
+  for (const c of collections.filter((x) => x.current)) {
     L.push("");
-    L.push(`### ${s.title}`);
-    for (const t of s.text) L.push(t);
+    L.push(`## La collection ${c.title}${c.officiel ? " (texte de la créatrice)" : ""}`);
+    if (c.lead) L.push(c.lead);
+    for (const para of c.intention) L.push(para);
   }
-  L.push("");
-  L.push("### Manifeste — Consommer plus juste");
-  for (const m of maison.manifesto.points) L.push(`- ${m.title} : ${m.text}`);
-  L.push("");
-  L.push("## Savoir-faire");
-  L.push(atelier.lead);
-  for (const s of atelier.steps) L.push(`- ${s.number}. ${s.title} : ${s.text}`);
   L.push("");
   L.push("## Fiches détaillées");
   for (const p of products) {
-    const ed = editionInfo(p);
+    const mat = materialsOf(p);
     L.push("");
     L.push(`### ${p.title}`);
-    L.push(`URL : ${absolute(`/boutique/${p.handle}`)} · Prix : ${formatPrice(p.price)} · ${ed.unique ? "Pièce unique" : `Série numérotée de ${ed.total} pièces (${ed.remainingLabel.toLowerCase()})`} · ${avail[productAvailability(p)]}${p.leadTimeWeeks ? ` · Précommande : ${p.leadTimeWeeks} semaines de fabrication` : ""}`);
+    L.push(`URL : ${absolute(`/boutique/${p.handle}`)} · Prix : ${formatPrice(p.price)} · Créée sur demande · ${t.surDemande.delaiLabel} : ${leadTimeText(p.leadTime, t.delai)}`);
     for (const d of p.description) L.push(d);
-    L.push(`Matières : ${p.materials.map((m) => `${m.percent} % ${m.name.toLowerCase()}`).join(", ")}${p.lining ? `. ${p.lining}` : ""}`);
+    if (p.details.length) L.push(`Détails : ${p.details.join(", ")}.`);
+    if (mat || p.lining) L.push(`Matières : ${[mat, p.lining].filter(Boolean).join(". ")}`);
     L.push(`Coupe : ${p.fit}`);
-    L.push(`Entretien : ${p.care.join(" ")}`);
-    L.push("Fabrication : fait main à Paris, dans l’atelier de la créatrice.");
+    // entretien encore à fournir par la Maison : jamais publié tant qu'il n'est pas connu
+    const care = p.care.filter((c) => !c.includes("[À COMPLÉTER"));
+    if (care.length) L.push(`Entretien : ${care.join(" ")}`);
+    L.push(`${t.fabrication.titre} : ${t.certificat.pied}.`);
   }
   L.push("");
   L.push("## Questions fréquentes");

@@ -6,7 +6,7 @@ export function CopyButton({ text, label = "Copier" }: { text: string; label?: s
   return (
     <button
       type="button"
-      className="btn"
+      className="btn btn--outline"
       onClick={async () => {
         await navigator.clipboard.writeText(text).catch(() => {});
         setDone(true);

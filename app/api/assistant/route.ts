@@ -6,6 +6,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { streamCleaner } from "@/lib/writing/agents";
 import { checkText, errorsOf } from "@/lib/writing/rules";
 import { reportWriting } from "@/lib/writing/report";
+import { getCustomerSession } from "@/lib/auth/customer";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,6 +28,9 @@ export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "Message invalide." }, { status: 400 });
   const { messages, page } = parsed.data;
+  // cliente connectée : session vérifiée par le serveur, jamais une adresse écrite dans le message.
+  // Elle seule donne accès à ses commandes sans leur numéro ni leur e-mail.
+  const customer = await getCustomerSession().catch(() => null);
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
@@ -48,7 +52,7 @@ export async function POST(req: Request) {
         emit(e);
       };
       try {
-        const ctx = aiEnabled ? await runClaudeAssistant(messages, page, send) : await runDemoAssistant(messages, send);
+        const ctx = aiEnabled ? await runClaudeAssistant(messages, page, send, customer) : await runDemoAssistant(messages, send, customer);
         if (ctx.pieces.size) send({ type: "pieces", items: [...ctx.pieces.values()].slice(0, 3) });
         if (ctx.handoff) send({ type: "handoff", email: ctx.handoff.email });
         send({ type: "done" });

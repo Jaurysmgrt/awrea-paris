@@ -1,0 +1,28 @@
+{
+  "seo": {
+    "title": "Liste d’envies | Awrea Paris",
+    "description": "Les pièces Awrea Paris que vous avez gardées pour plus tard."
+  },
+  "titre": "Liste d’envies",
+  "chargement": "Chargement…",
+  "vide": "Votre liste d’envies est vide. Touchez le losange « Garder » sur une pièce pour la retrouver ici.",
+  "videLien": {
+    "label": "Voir les pièces",
+    "href": "/boutique"
+  },
+  "partagee": {
+    "seo": {
+      "title": "Une liste d’envies | Awrea Paris",
+      "description": "Une sélection de pièces Awrea Paris, partagée avec vous."
+    },
+    "titre": "Une liste d’envies",
+    "titreAvecPrenom": "Les envies de {prenom}",
+    "fil": "Liste d’envies partagée",
+    "chapeau": "Une sélection de pièces Awrea Paris, partagée avec vous. Chacune est créée sur demande par des artisans français. Pour l’offrir, le panier propose un emballage cadeau avec un mot écrit à la main, et les prix peuvent rester hors du bon de livraison.",
+    "vide": "Cette liste est vide pour le moment.",
+    "lien": {
+      "label": "Voir toute la collection",
+      "href": "/collections/hypnotic-lace"
+    }
+  }
+}

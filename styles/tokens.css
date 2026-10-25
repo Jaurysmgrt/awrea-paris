@@ -2,12 +2,17 @@
  * AWREA PARIS — DESIGN SYSTEM
  * Source unique de toutes les valeurs visuelles du site.
  * Aucune couleur, taille, durée ou courbe ne doit être écrite en dur ailleurs
- * (vérifié par `npm run audit:tokens`). Référence de la marque : MARQUE.md.
+ * (vérifié par `npm run audit:tokens`). Référence de la marque : MARQUE.md ; ressources
+ * officielles et langage des maquettes : RESSOURCES.md, DESIGN.md.
  *
- * Direction artistique (octobre 2026) : noir, blanc cassé, gris pierre, gris taupe ; aucun doré.
- * Deux familles : Instrument Serif (titres, très grands) et Inter Tight (textes, navigation,
- * boutons, graisses légères). Grille de 8 px : chaque espacement est un multiple de 8.
- * Texte courant : 15 px sur 24 px (interlignage 1,6), justifié, 60 à 70 caractères par ligne.
+ * Couleurs : noir, blanc cassé, gris pierre, gris taupe. La dorure vit dans les mots, les photos et
+ * les bijoux, jamais dans l'interface.
+ * Polices officielles : Fraunces 72pt Italic (titres, très grands, en italique) et Cormorant
+ * Garamond 400 (textes, navigation, boutons, formulaires). Grille de 8 px : chaque espacement est
+ * un multiple de 8. Texte courant : 20 px sur 32 px (interlignage 1,6), justifié, 60 à 70
+ * caractères par ligne ; jamais de texte sous 16 px (Cormorant a un petit œil).
+ * Langage des maquettes : filets noirs très fins, champs soulignés, boutons et pastilles noirs en
+ * pilule, photos des cartes aux angles arrondis.
  */
 
 @theme {
@@ -33,41 +38,52 @@
   --color-night-soft: color-mix(in oklab, var(--color-ink) 88%, var(--color-pearl));
 
   /* ------------------------------------------------------------ TYPOGRAPHIE
-     Les familles pointent vers les variables posées par next/font (app/fonts.ts). */
+     Les deux polices officielles (app/fonts.ts, next/font/local). Aucune autre famille : ni la
+     police du logo (jamais chargée), ni police système hors des replis. */
   --font-*: initial;
-  --font-display: var(--font-instrument), "Instrument Serif", "Times New Roman", serif;
-  --font-sans: var(--font-inter-tight), "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-fraunces), "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: var(--font-cormorant), "Cormorant Garamond", Garamond, Georgia, serif;
+  /* ancien nom, gardé pour les feuilles existantes : c'est la police des textes */
+  --font-sans: var(--font-body);
 
   /* Échelle : valeurs mobiles ici, paliers tablette et ordinateur plus bas (:root).
-     Les interlignages sont des multiples de 8 px pour tenir le rythme vertical. */
+     Cormorant Garamond a un petit œil : rien sous 16 px, texte courant à 20 px. Les tailles de
+     texte multiples de 5 px gardent l'interlignage 1,6 sur la grille de 8 px (20 → 32, 25 → 40).
+     Les titres (Fraunces) ont leurs interlignages serrés, multiples de 8 px (--lh-step-*). */
   --text-*: initial;
-  --text-step--2: 0.6875rem; /* 11 px : petites capitales (navigation, étiquettes, boutons) */
-  --text-step--1: 0.8125rem; /* 13 px : notes */
-  --text-step-0: 0.875rem; /* texte courant : 14 px sur les petits téléphones, 15 px ensuite */
-  --text-step-1: 1.25rem; /* 20 px : chapeaux, petits titres */
-  --text-step-2: 1.5rem; /* titres de bloc */
+  --text-step--2: 1rem; /* 16 px, le minimum : étiquettes en capitales, fil d'Ariane, pastilles */
+  --text-step--1: 1.125rem; /* 18 px : notes, aides des champs, tableaux (interlignage 32 px) */
+  --text-step-0: 1.25rem; /* 20 px : texte courant, navigation, boutons, champs, prix */
+  --text-step-1: 1.5625rem; /* 25 px : chapeaux (40 px), petits titres (32 px) ; Fraunces jamais en dessous */
+  --text-step-2: 1.75rem; /* titres de bloc : 28 px sur téléphone, toujours au-dessus des petits titres */
   --text-step-3: 2rem; /* titres de section */
-  --text-step-4: 3rem; /* titres de page */
-  --text-step-5: 3.5rem; /* titres d'ouverture */
-  --text-step-6: 4rem; /* titres géants */
+  --text-step-4: 2.5rem; /* titres de page */
+  --text-step-5: 3rem; /* titres d'ouverture et en-têtes de page */
+  --text-step-6: 3.5rem; /* titres géants */
 
+  /* Interlignages, toujours sur la grille de 8 px. Texte courant et chapeaux : 1,6 (20 → 32,
+     25 → 40). Notes de 18 px : la ligne du texte courant (32 px), car 18 × 1,6 sortirait de la
+     grille. Titres en Fraunces : --lh-step-* (plus bas, par palier). tight et snug servent aux
+     titres de taille libre : le rapport est arrondi au multiple de 8 px supérieur. */
   --leading-*: initial;
-  --leading-text: 1.6; /* tous les textes courants : 15 px → 24 px, 20 px → 32 px */
-  --leading-label: 1rem; /* petites capitales : 16 px */
-  --leading-tight: 1; /* titres très grands */
-  --leading-snug: 1.2;
+  --leading-text: 1.6;
+  --leading-note: 2rem; /* notes, aides, erreurs, tableaux (18 px) : 32 px */
+  --leading-label: 1.5rem; /* étiquettes, boutons, pastilles, options sur une ligne : 24 px */
+  --leading-tight: round(up, 1.1em, var(--spacing-3xs)); /* titres serrés de taille libre */
+  --leading-snug: round(up, 1.2em, var(--spacing-3xs)); /* titres de base (h1 à h4 sans classe) */
 
   --tracking-*: initial;
-  --tracking-display: -0.015em;
+  --tracking-display: -0.01em; /* Fraunces 72pt est déjà dessiné serré pour le grand format */
   --tracking-text: 0;
-  --tracking-snug: 0.08em;
-  --tracking-label: 0.14em;
-  --tracking-wide: 0.24em;
+  --tracking-snug: 0.02em; /* navigation, boutons et liens en bas de casse */
+  --tracking-label: 0.08em; /* capitales en Cormorant : espacement mesuré */
+  --tracking-wide: 0.16em; /* capitales très espacées, rares (« PARIS ») */
 
+  /* une seule graisse fournie par police (400) : jamais de faux gras ni de faux italique */
   --font-weight-*: initial;
-  --font-weight-light: 300;
+  --font-weight-light: 400;
   --font-weight-regular: 400;
-  --font-weight-medium: 500;
+  --font-weight-medium: 400;
 
   /* ------------------------------------------------------------ ESPACEMENTS
      Grille de 8 px : toutes les valeurs sont des multiples de 8 (0,5 rem).
@@ -87,10 +103,11 @@
   --spacing-gutter: 1rem; /* marges latérales : 16 → 24 → 40 → 64 */
   --spacing-header: 4rem; /* 64 → 80 */
   --spacing-touch: 3rem; /* cible tactile : 48 px */
+  --spacing-line: 2rem; /* une ligne de texte courant : 32 px */
 
   /* largeurs de colonnes */
   --container-*: initial;
-  --container-text: 30rem; /* 480 px : la mesure du texte courant, 60 à 70 caractères */
+  --container-text: 31rem; /* 496 px : 65 caractères de Cormorant Garamond à 20 px (60 à 70) */
   --container-prose: 46rem;
   --container-wide: 76rem;
   --container-max: 120rem;
@@ -107,12 +124,18 @@
   --container-sheet-desktop: 40rem;
 
   /* ------------------------------------------------------------------ BORDS
-     Pas d'arrondi, pas d'ombre. Un seul trait : le fil, noir et très fin. */
+     Langage des maquettes : boutons et pastilles en pilule, photos des cartes aux angles
+     arrondis ; les sections, les grandes photos et les champs restent droits. Aucune ombre.
+     Un seul trait : le filet, noir et très fin. */
   --radius-*: initial;
   --radius-none: 0;
-  --radius-full: 9999px; /* réservé aux points (shop the look, loupe) */
+  --radius-soft: 0.5rem; /* 8 px : vignettes (panier, liste d'envies, recherche) */
+  --radius-card: 1rem; /* 16 px : photos des cartes de pièces */
+  --radius-pill: 9999px; /* boutons, pastilles, options */
+  --radius-full: 9999px; /* points (shop the look, loupe) */
   --shadow-*: initial;
   --border-width-hair: 1px;
+  --border-width-focus: 2px; /* anneau de focus des boutons, cases et options ; trait du message d’erreur */
 
   /* -------------------------------------------------------------- MOUVEMENT
      Une seule durée et une seule courbe (--dur, --ease, plus bas dans :root). */
@@ -137,14 +160,14 @@
   --ease: cubic-bezier(0.22, 0.61, 0.24, 1);
   --dur-breath: calc(var(--dur) * 3); /* respirations ambiantes (points du shop the look, défilement) */
   --dur-stagger: calc(var(--dur) / 12); /* décalage entre éléments d’une même apparition */
-  /* anciens noms, gardés le temps du laboratoire de design (app/(lab)), supprimés à la fusion */
-  --dur-fast: var(--dur);
-  --dur-base: var(--dur);
-  --dur-slow: var(--dur);
-  --ease-silk: var(--ease);
-  --ease-drape: var(--ease);
 
-  /* interlignages des titres (multiples de 8 px), suivent les paliers de l'échelle */
+  /* titres : la police officielle n'existe qu'en italique, les titres s'affichent en italique.
+     Seules les règles qui posent aussi --font-display s'en servent (npm run audit:tokens). */
+  --font-style-display: italic;
+
+  /* interlignages des titres en Fraunces (multiples de 8 px, serrés : taille + 8 px environ),
+     suivent les paliers de l'échelle ; --lh-step-1 : petits titres de 25 px (.t-h4, questions) */
+  --lh-step-1: 2rem;
   --lh-step-2: 2rem;
   --lh-step-3: 2.5rem;
   --lh-step-4: 3rem;
@@ -153,12 +176,13 @@
 
   /* rythme vertical : les mêmes distances sur toutes les pages */
   --space-title: var(--spacing-l); /* entre un titre et son texte : 32 → 48 */
-  --space-paragraph: var(--spacing-m); /* entre deux paragraphes : une ligne, 24 */
+  --space-paragraph: var(--spacing-line); /* entre deux paragraphes : une ligne, 32 */
   --space-block: var(--spacing-xl); /* entre deux blocs d'une section */
   --space-section: var(--spacing-2xl); /* entre deux sections */
-  /* mesure du texte courant : 60 à 70 caractères d'Inter Tight, relative à la taille du texte
-     (420 px pour le texte courant, 560 px pour un chapeau) */
-  --measure: 28em;
+  /* mesure du texte courant : 60 à 70 caractères de Cormorant Garamond (chasse moyenne d'un
+     texte français : 0,378 em), relative à la taille du texte (490 px à 20 px, 612 px pour un
+     chapeau à 25 px) */
+  --measure: 24.5em;
 
   /* rôles de couleur de la scène courante (bascule noir / blanc cassé) */
   --bg: var(--color-ivory);
@@ -171,6 +195,11 @@
   --halo: var(--color-ivory);
 
   --header-h: var(--spacing-header);
+
+  /* logo entier (708:293) : sa hauteur est fixée, la largeur suit ; en dessous de 48 px, « PARIS »
+     deviendrait illisible */
+  --size-logo: 3rem; /* 48 px de haut, 116 px de large : Atelier, bon de livraison, pied de page */
+  --size-logo-l: 5rem; /* 80 px de haut : page de connexion de l'Atelier */
 
   /* tailles propres aux interactions signature */
   --size-halo: clamp(9rem, 6rem + 14vw, 22rem);
@@ -187,29 +216,32 @@
   --z-transition: 90;
   --z-cookie: 95;
   --z-edition: 99; /* outils de l'éditeur visuel, au-dessus de tout (mode Édition seulement) */
+  --z-edition-panel: 100; /* panneau et fenêtres ouverts de l'éditeur, au-dessus de sa barre */
 }
 
 /* ------------------------------------------------------------ PALIERS
    Grand téléphone (480 px), tablette (768 px), portable (1024 px), ordinateur (1440 px) : tailles
-   et grands espacements par paliers, toujours sur la grille de 8 px. Sur les petits téléphones,
-   la colonne s'élargit et le texte courant passe à 14 px pour une justification sans trous. */
+   et grands espacements par paliers, toujours sur la grille de 8 px. Le texte courant garde ses
+   20 px partout (le petit œil de Cormorant ne supporte pas moins) : sur les petits téléphones, la
+   césure française tient la justification, et un paragraphe rebelle passe en fer à gauche
+   (components/typography/Justification.tsx). */
 @media (min-width: 30rem) {
   :root {
-    --text-step-0: 0.9375rem;
     --spacing-gutter: 1.5rem;
   }
 }
 @media (min-width: 48rem) {
   :root {
-    --text-step-2: 1.75rem;
+    --text-step-2: 2rem;
     --text-step-3: 2.5rem;
-    --text-step-4: 4rem;
-    --text-step-5: 5rem;
-    --text-step-6: 6.5rem;
+    --text-step-4: 3.5rem;
+    --text-step-5: 4rem;
+    --text-step-6: 5rem;
+    --lh-step-2: 2.5rem;
     --lh-step-3: 3rem;
     --lh-step-4: 4rem;
-    --lh-step-5: 5rem;
-    --lh-step-6: 6.5rem;
+    --lh-step-5: 4.5rem;
+    --lh-step-6: 5.5rem;
     --spacing-l: 3rem;
     --spacing-xl: 4rem;
     --spacing-2xl: 6rem;
@@ -220,16 +252,14 @@
 }
 @media (min-width: 64rem) {
   :root {
-    --text-step-2: 2rem;
     --text-step-3: 3rem;
-    --text-step-4: 5.5rem;
-    --text-step-5: 7rem;
-    --text-step-6: 9rem;
-    --lh-step-2: 2.5rem;
+    --text-step-4: 4.5rem;
+    --text-step-5: 5rem;
+    --text-step-6: 7rem;
     --lh-step-3: 3.5rem;
-    --lh-step-4: 5.5rem;
-    --lh-step-5: 7rem;
-    --lh-step-6: 9rem;
+    --lh-step-4: 5rem;
+    --lh-step-5: 5.5rem;
+    --lh-step-6: 7.5rem;
     --spacing-xl: 5rem;
     --spacing-2xl: 8rem;
     --spacing-3xl: 12rem;
@@ -239,13 +269,13 @@
 @media (min-width: 90rem) {
   :root {
     --text-step-3: 3.5rem;
-    --text-step-4: 7rem;
-    --text-step-5: 9rem;
-    --text-step-6: 12.5rem;
+    --text-step-4: 5.5rem;
+    --text-step-5: 6rem;
+    --text-step-6: 9rem;
     --lh-step-3: 4rem;
-    --lh-step-4: 7rem;
-    --lh-step-5: 9rem;
-    --lh-step-6: 12.5rem;
+    --lh-step-4: 6rem;
+    --lh-step-5: 6.5rem;
+    --lh-step-6: 9.5rem;
   }
 }
 

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { fontVariables } from "./fonts";
 import { identity } from "@/content/brand/identity";
-import { siteUrl } from "@/lib/seo/metadata";
+import { siteDefaults, siteUrl } from "@/lib/seo/metadata";
 import { palette } from "@/styles/tokens";
 import { consentHeadScript } from "@/lib/consent";
 import { prefsHeadScript } from "@/lib/prefs";
@@ -15,8 +15,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: `${identity.name}, prêt-à-porter féminin fait main à Paris`, template: `%s | ${identity.name}` },
-  description: identity.shortDescription,
+  title: { default: siteDefaults.title, template: `%s | ${identity.name}` },
+  description: siteDefaults.description,
   applicationName: identity.name,
   authors: [{ name: identity.name, url: siteUrl }],
   creator: identity.name,
@@ -26,6 +26,10 @@ export const metadata: Metadata = {
   other: { "theme-color": palette.ink },
   verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
   alternates: { types: { "text/plain": "/llms.txt" } },
+  // partage des pages sans métadonnées propres : titre et description de la page, image par défaut
+  // app/opengraph-image.png (logo officiel, polices officielles) ; X reprend l'image Open Graph
+  openGraph: { type: "website", siteName: identity.name, locale: "fr_FR" },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

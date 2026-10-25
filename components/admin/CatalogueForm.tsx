@@ -1,11 +1,15 @@
 "use client";
 /**
  * Nouvelle fiche par l'agent Catalogue : photos (redimensionnées dans le navigateur) + notes.
+ * La pièce sera créée sur demande, sans stock : on choisit les tailles proposées, le prix et le
+ * délai de fabrication (avec leurs indicateurs « provisoire »).
  */
 import Link from "@/components/ui/Link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAtelier } from "./AtelierContext";
+import { DEFAULT_LEAD_TIME } from "@/lib/commerce/availability";
+import type { LeadTime } from "@/lib/commerce/types";
 
 type Uploaded = { id: string; url: string; name: string };
 const SIZES = ["XS", "S", "M", "L", "XL", "TU"] as const;
@@ -23,14 +27,16 @@ async function resize(file: File): Promise<{ data: string; width: number; height
   return { data: dataUrl.split(",")[1], width, height };
 }
 
+/** Délai proposé selon la catégorie : délais provisoires de la Maison (lib/commerce/availability.ts). */
+const LEAD = DEFAULT_LEAD_TIME as Record<string, LeadTime>;
+
 export function CatalogueForm({ collections }: { collections: { handle: string; title: string }[] }) {
   const { api } = useAtelier();
   const router = useRouter();
   const [photos, setPhotos] = useState<Uploaded[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [sizes, setSizes] = useState<Record<string, { on: boolean; quantity: number; preorder: boolean }>>(
-    Object.fromEntries(SIZES.map((s) => [s, { on: s !== "XL" && s !== "TU", quantity: 1, preorder: true }])),
-  );
+  const [sizes, setSizes] = useState<Record<string, boolean>>(Object.fromEntries(SIZES.map((s) => [s, s !== "XL" && s !== "TU"])));
+  const [lead, setLead] = useState(LEAD.robe);
   const [state, setState] = useState<"idle" | "busy" | "done" | "error">("idle");
   const [result, setResult] = useState("");
 
@@ -55,10 +61,11 @@ export function CatalogueForm({ collections }: { collections: { handle: string; 
       name: String(f.get("name") ?? "") || undefined,
       category: String(f.get("category") ?? "") || undefined,
       collection: String(f.get("collection") ?? "") || undefined,
-      priceEuros: Number(f.get("price")),
-      editionTotal: Number(f.get("edition")),
-      leadTimeWeeks: Number(f.get("lead")) || undefined,
-      sizes: SIZES.filter((s) => sizes[s].on).map((s) => ({ size: s, quantity: sizes[s].quantity, preorder: sizes[s].preorder })),
+      priceEuros: Number(String(f.get("price") ?? "").replace(",", ".")),
+      priceProvisional: f.get("priceProvisional") === "on",
+      leadTime: { min: Math.min(lead.min, lead.max), max: Math.max(lead.min, lead.max) },
+      leadTimeProvisional: f.get("leadProvisional") === "on",
+      sizes: SIZES.filter((s) => sizes[s]),
       mediaIds: photos.map((p) => p.id),
     };
     const res = await fetch(api("/catalogue"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -98,11 +105,11 @@ export function CatalogueForm({ collections }: { collections: { handle: string; 
       <div className="form__row form__row--3">
         <div className="field">
           <label className="field__label" htmlFor="c-name">Nom (facultatif)</label>
-          <input id="c-name" name="name" className="field__input" placeholder="Robe Selene" />
+          <input id="c-name" name="name" className="field__input" placeholder="La robe Odessa" />
         </div>
         <div className="field">
           <label className="field__label" htmlFor="c-cat">Catégorie</label>
-          <select id="c-cat" name="category" className="field__input" defaultValue="">
+          <select id="c-cat" name="category" className="field__input" defaultValue="" onChange={(e) => setLead(LEAD[e.target.value] ?? LEAD.robe)}>
             <option value="">À déduire des photos</option>
             <option value="robe">Robe</option>
             <option value="body">Body</option>
@@ -125,55 +132,44 @@ export function CatalogueForm({ collections }: { collections: { handle: string; 
       <div className="form__row form__row--3">
         <div className="field">
           <label className="field__label" htmlFor="c-price">Prix (€)</label>
-          <input id="c-price" name="price" type="number" min={1} step={1} required className="field__input" />
+          <input id="c-price" name="price" type="number" min={1} step={0.01} required className="field__input" />
+          <label className="check t-note">
+            <input type="checkbox" name="priceProvisional" />
+            <span>Prix provisoire, à confirmer</span>
+          </label>
         </div>
         <div className="field">
-          <label className="field__label" htmlFor="c-ed">Taille de la série</label>
-          <input id="c-ed" name="edition" type="number" min={1} max={50} defaultValue={5} required className="field__input" />
+          <label className="field__label" htmlFor="c-lead-min">Délai de fabrication, au plus tôt (semaines)</label>
+          <input id="c-lead-min" type="number" min={1} max={26} required className="field__input" value={lead.min} onChange={(e) => setLead((l) => ({ ...l, min: Number(e.target.value) }))} />
         </div>
         <div className="field">
-          <label className="field__label" htmlFor="c-lead">Délai de fabrication (semaines)</label>
-          <input id="c-lead" name="lead" type="number" min={1} max={16} defaultValue={4} className="field__input" />
+          <label className="field__label" htmlFor="c-lead-max">Délai de fabrication, au plus tard (semaines)</label>
+          <input id="c-lead-max" type="number" min={1} max={26} required className="field__input" value={lead.max} onChange={(e) => setLead((l) => ({ ...l, max: Number(e.target.value) }))} />
+          <label className="check t-note">
+            <input type="checkbox" name="leadProvisional" defaultChecked />
+            <span>Délai provisoire, à confirmer</span>
+          </label>
         </div>
       </div>
       <fieldset className="field">
-        <legend className="field__label">Tailles et stock</legend>
-        <div className="table-scroll">
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">Taille</th>
-                <th scope="col">Proposée</th>
-                <th scope="col">En stock</th>
-                <th scope="col">Précommande</th>
-              </tr>
-            </thead>
-            <tbody>
-              {SIZES.map((s) => (
-                <tr key={s}>
-                  <th scope="row">{s}</th>
-                  <td>
-                    <input type="checkbox" aria-label={`Proposer la taille ${s}`} checked={sizes[s].on} onChange={(e) => setSizes((x) => ({ ...x, [s]: { ...x[s], on: e.target.checked } }))} />
-                  </td>
-                  <td>
-                    <input type="number" min={0} max={50} className="field__input stock-input" aria-label={`Stock ${s}`} value={sizes[s].quantity} onChange={(e) => setSizes((x) => ({ ...x, [s]: { ...x[s], quantity: Number(e.target.value) } }))} />
-                  </td>
-                  <td>
-                    <input type="checkbox" aria-label={`Précommande ${s}`} checked={sizes[s].preorder} onChange={(e) => setSizes((x) => ({ ...x, [s]: { ...x[s], preorder: e.target.checked } }))} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <legend className="field__label">Tailles proposées</legend>
+        <p className="field__hint">La pièce est créée sur demande : chaque taille cochée se commande toujours, sans stock.</p>
+        <div className="size-picker__options">
+          {SIZES.map((s) => (
+            <label key={s} className="check">
+              <input type="checkbox" checked={sizes[s]} onChange={(e) => setSizes((x) => ({ ...x, [s]: e.target.checked }))} />
+              <span>{s === "TU" ? "Taille unique" : s}</span>
+            </label>
+          ))}
         </div>
       </fieldset>
       <div className="field">
         <label className="field__label" htmlFor="c-notes">Vos notes</label>
-        <textarea id="c-notes" name="notes" className="field__input" placeholder="Dentelle de Calais noire, doublure soie, dos nu, se porte avec la jupe Iris…" />
-        <span className="field__hint">L’agent rédige la fiche complète (accroche, description, matières, entretien, coupe, textes alternatifs, SEO) et la met en ligne.</span>
+        <textarea id="c-notes" name="notes" className="field__input" placeholder="Dentelle noire, drapé noué sur le buste, manches longues…" />
+        <span className="field__hint">L’agent rédige la fiche complète (accroche, description, coupe, textes alternatifs, SEO) et la met en ligne. Les matières et l’entretien restent à compléter s’ils ne sont pas dans vos notes.</span>
       </div>
       <div>
-        <button type="submit" className="btn btn--solid" disabled={state === "busy" || uploading || !photos.length}>
+        <button type="submit" className="btn btn--solid" disabled={state === "busy" || uploading || !photos.length || !SIZES.some((s) => sizes[s])}>
           {state === "busy" ? "L’agent rédige la fiche…" : "Rédiger et publier la fiche"}
         </button>
       </div>

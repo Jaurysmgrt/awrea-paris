@@ -1,5 +1,12 @@
 # Proposition « dentelle » — DA 1 : « le réseau et le jour »
 
+> **Archive.** La typographie et les règles décrites ici sont remplacées par les ressources
+> officielles de la Maison (`RESSOURCES.md` : polices Fraunces 72pt Italic et Cormorant Garamond,
+> logo officiel, langage des maquettes), puis par `MARQUE.md` et `DESIGN.md`. Les séries numérotées,
+> le stock et les anciennes collections cités plus bas n'existent plus (pièces créées sur demande).
+> Le laboratoire cité (`app/(lab)`) est retiré du site ; il reste sur la branche
+> `archive/avant-ressources-officielles`. Document gardé pour l'historique, sans mise à jour.
+
 > Directeur artistique 1, équipe Design, 13 et 14 octobre 2026. Laboratoire :
 > `/lab/da-dentelle` (accueil) et `/lab/da-dentelle/piece` (robe Odessa), code dans
 > `app/(lab)/lab/da-dentelle/`. Référence : `MARQUE.md`, `liste-noire.md`, `arbitrages.md`.

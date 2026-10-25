@@ -7,6 +7,34 @@ import Link from "@/components/ui/Link";
 import { legalFields, type LegalFieldKey } from "@/content/legal/fields";
 
 const TOKEN = /(\{\{[a-zA-Z]+\}\}|\[[^\]]+\]\([^)\s]+\)|\*\*[^*]+\*\*)/g;
+/** adresses web et e-mails écrits en clair dans les textes officiels */
+const ADDRESS = /(https?:\/\/[^\s,;)]+[^\s,;.)]|[\w.+-]+@[\w-]+(?:\.[\w-]+)+)/g;
+
+/**
+ * Une adresse web ou e-mail ne se coupe pas d'elle-même : sur téléphone, elle repoussait toute la
+ * ligne et creusait des trous dans le paragraphe justifié. On la laisse se couper après une barre
+ * oblique ou un arobase, et avant un point, sans trait d'union ajouté.
+ */
+function Breakable({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(ADDRESS).map((part, i) => {
+        if (i % 2 === 0) return <Fragment key={i}>{part}</Fragment>;
+        const pieces = part.split(/(?<=[/@])|(?=\.)/);
+        return (
+          <span key={i} className="adresse-web">
+            {pieces.map((p, k) => (
+              <Fragment key={k}>
+                {k > 0 ? <wbr /> : null}
+                {p}
+              </Fragment>
+            ))}
+          </span>
+        );
+      })}
+    </>
+  );
+}
 
 export function Todo({ field }: { field: LegalFieldKey }) {
   return (
@@ -36,7 +64,7 @@ export function LegalText({ text }: { text: string }) {
         }
         const strong = part.match(/^\*\*([^*]+)\*\*$/);
         if (strong) return <strong key={i}>{strong[1]}</strong>;
-        return <Fragment key={i}>{part}</Fragment>;
+        return <Breakable key={i} text={part} />;
       })}
     </>
   );

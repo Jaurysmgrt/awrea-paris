@@ -36,7 +36,7 @@ export const SERVICES = {
   commerce: {
     label: "Boutique et paiement",
     env: "COMMERCE_PROVIDER",
-    mock: "Boutique de démonstration (catalogue, stocks et commandes simulés)",
+    mock: "Boutique de démonstration (catalogue et commandes simulés)",
     providers: { shopify: { label: "Shopify", keys: ["SHOPIFY_STORE_DOMAIN", ["SHOPIFY_STOREFRONT_PRIVATE_TOKEN", "SHOPIFY_STOREFRONT_ACCESS_TOKEN"]] } },
   },
   customers: {

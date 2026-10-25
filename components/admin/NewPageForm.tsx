@@ -49,7 +49,7 @@ export function NewPageForm({ modeles }: { modeles: ModeleInfo[] }) {
             <input type="radio" name="modele" value={m.id} checked={modele === m.id} onChange={() => setModele(m.id)} /> <span className="t-body t-left">{m.label}</span>
           </label>
         ))}
-        {current ? <p className="t-note">{current.description}</p> : null}
+        {current ? <p className="field__hint">{current.description}</p> : null}
       </fieldset>
       <div className="field">
         <label className="field__label" htmlFor="page-titre">Titre</label>
@@ -58,11 +58,11 @@ export function NewPageForm({ modeles }: { modeles: ModeleInfo[] }) {
       <div className="field">
         <label className="field__label" htmlFor="page-slug">Adresse</label>
         <input id="page-slug" className="field__input" maxLength={60} pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder={slugOf(titre) || "pop-up-du-marais"} value={slug} onChange={(e) => setSlug(e.target.value)} />
-        <p className="t-note">La page sera à l’adresse {current?.prefixe ?? "/"}{slug || slugOf(titre) || "…"}. Lettres sans accent et chiffres, séparés par un trait d’union.</p>
+        <p className="field__hint">La page sera à l’adresse {current?.prefixe ?? "/"}{slug || slugOf(titre) || "…"}. Lettres sans accent et chiffres, séparés par un trait d’union.</p>
       </div>
-      {error ? <p className="t-note" role="alert">{error}</p> : null}
+      {error ? <p className="field__error" role="alert">{error}</p> : null}
       <div>
-        <button type="submit" className="btn btn--solid" disabled={busy || titre.trim().length < 2}>
+        <button type="submit" className="btn" disabled={busy || titre.trim().length < 2}>
           {busy ? "Création…" : "Créer la page en brouillon"}
         </button>
       </div>

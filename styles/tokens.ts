@@ -11,10 +11,14 @@ export const palette = {
   taupeDeep: "#66635e", // taupe des petits textes sur fond clair (contraste AA)
 } as const;
 
-/** Deux familles, pas une de plus (e-mails : repli sur des polices système proches). */
+/**
+ * Les deux polices officielles, pas une de plus (e-mails : repli sur Georgia, puis serif).
+ * `display` : titres en Fraunces 72pt Italic (toujours en italique) ; `text` : textes, boutons et
+ * étiquettes en Cormorant Garamond.
+ */
 export const fontStacks = {
-  display: "'Instrument Serif', 'Times New Roman', Georgia, serif",
-  sans: "'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+  display: "'Fraunces', Georgia, serif",
+  text: "'Cormorant Garamond', Georgia, serif",
 } as const;
 
 /** RGB normalisé 0–1, pour les uniformes de shaders */
