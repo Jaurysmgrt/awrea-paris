@@ -468,8 +468,8 @@ Les mots entre accolades ({prenom}, {numero}…) sont remplacés à l’envoi :
 la Maison, le lien de désinscription, repris en bas de chaque e-mail.
 
 Pour un service d’envoi (Brevo ou Klaviyo) : dans l’e-mail, **Pour Brevo** ou **Pour Klaviyo**
-télécharge le gabarit à importer (`ACTIVATION.md`, étape 14). Le bouton **Pour Shopify**, prévu pour
-les notifications de Shopify, n’apparaît pour l’instant sur aucun e-mail.
+télécharge le gabarit à importer (`ACTIVATION.md`, étape 14). Sur les e-mails des étapes de commande,
+**Pour Shopify** télécharge aussi le gabarit des notifications de Shopify.
 
 Les e-mails des étapes de commande sont dans la famille **Service** : **Commande reçue**, **Commande
 en confection**, **Commande prête** et **Commande expédiée**. Sous chaque aperçu, une phrase dit

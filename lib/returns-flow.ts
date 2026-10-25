@@ -154,7 +154,7 @@ export async function exchangeReturn(id: string): Promise<ReturnRequest> {
     ...brandEmail({
       preheader: "Échange de taille expédié.",
       title: "Votre échange",
-      paragraphs: [`Bonjour ${first(r)},`, `Nous vous envoyons ${items.map((i) => `${i.title} en taille ${i.exchangeSize}`).join(" et ")}. Vous recevrez le lien de suivi dès la remise au transporteur.`],
+      paragraphs: [`Bonjour ${first(r)},`, `Nous vous envoyons ${items.map((i) => `${i.title} en taille ${i.exchangeSize}`).join(" et ")}. Nous vous écrivons avec son numéro de suivi dès qu’elle est confiée au transporteur.`],
       cta: { label: "Suivre ma commande", href: orderLink(order) },
       signature: "Avec toute notre attention,\nl’atelier Awrea Paris",
     }),
