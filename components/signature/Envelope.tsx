@@ -8,7 +8,7 @@ import { useEffect, useRef } from "react";
 import { loadGsap, prefersReducedMotion, dur, EASE } from "@/lib/motion";
 import { Logo } from "@/components/brand/Logo";
 
-export function Envelope({ greeting, note, reference }: { greeting: string; note: string; reference?: string }) {
+export function Envelope({ greeting, note, signature, reference }: { greeting: string; note: string; signature: string; reference?: string }) {
   const root = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export function Envelope({ greeting, note, reference }: { greeting: string; note
           <p className="envelope__greeting">{greeting}</p>
           <p className="envelope__note">{note}</p>
           {reference ? <p className="envelope__ref">{reference}</p> : null}
-          <p className="envelope__sign">La Créatrice</p>
+          <p className="envelope__sign">{signature}</p>
         </div>
         <div className="envelope__front">
           <svg viewBox="0 0 300 200" preserveAspectRatio="none" className="envelope__lines">

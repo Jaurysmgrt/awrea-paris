@@ -27,10 +27,10 @@ export function ReviewModeration({ id, reply = "" }: { id: string; reply?: strin
         <textarea id={`reply-${id}`} className="field__input" maxLength={600} value={text} onChange={(e) => setText(e.target.value)} />
       </div>
       <div className="admin-actions">
-        <button type="button" className="btn btn--solid" disabled={busy} onClick={() => act("approved")}>
+        <button type="button" className="btn" disabled={busy} onClick={() => act("approved")}>
           Publier
         </button>
-        <button type="button" className="btn" disabled={busy} onClick={() => act("rejected")}>
+        <button type="button" className="btn btn--outline" disabled={busy} onClick={() => act("rejected")}>
           Refuser
         </button>
       </div>

@@ -11,7 +11,7 @@ function targetHref(href: string, atelier: (p: string) => string): string {
   return href;
 }
 
-export function LogList({ items }: { items: AgentAction[] }) {
+export function LogList({ items, names }: { items: AgentAction[]; names?: Record<string, string> }) {
   const atelier = useAtelier();
   if (!items.length) return <p className="t-note">Aucune action pour le moment.</p>;
   return (
@@ -32,7 +32,7 @@ export function LogList({ items }: { items: AgentAction[] }) {
             {a.detail ? <p className="t-note log__detail">{a.detail}</p> : null}
           </div>
           <span className="t-label t-soft log__meta">
-            <AgentName id={a.agent} /> · <When iso={a.date} />
+            <AgentName id={a.agent} names={names} /> · <When iso={a.date} />
           </span>
         </li>
       ))}

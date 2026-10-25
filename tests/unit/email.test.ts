@@ -7,7 +7,7 @@ import { EmailDocSchema } from "@/lib/email/schema";
 
 const ctx: EmailContext = {
   site: "https://www.exemple.fr",
-  commun: { devise: "Consommer plus juste", lignePied: "Fait main à Paris", desinscription: "Ne plus recevoir les lettres", mentions: "", voirPiece: "Voir la pièce", total: "Total" },
+  commun: { devise: "Consommer plus juste", lignePied: "Pièces créées sur demande par des artisans français", desinscription: "Ne plus recevoir les lettres", mentions: "", voirPiece: "Voir la pièce", total: "Total" },
   vars: { prenom: "Camille", precommande: "" },
   unsubscribe: "https://www.exemple.fr/lettres/desinscription?jeton=x",
 };

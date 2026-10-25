@@ -1,0 +1,22 @@
+{
+  "seo": {
+    "title": "Les collections, Hypnotic Lace | Awrea Paris",
+    "description": "Les collections Awrea Paris : Hypnotic Lace, la dentelle, les drapés et l’éclat de la dorure. Des pièces créées sur demande par des artisans français."
+  },
+  "titre": "Collections",
+  "chapeau": "Chaque collection part d’une intention de la créatrice. Ses pièces sont créées sur demande, par des artisans français.",
+  "enCours": "Collection en cours",
+  "nombre": {
+    "une": "1 pièce",
+    "plusieurs": "{n} pièces"
+  },
+  "voir": "Voir la collection {collection}",
+  "collection": {
+    "titre": "Collection « {collection} »",
+    "piecesTitre": "Les pièces de la collection",
+    "moodboard": {
+      "surtitre": "Moodboard",
+      "titre": "Ce que l’on voyait au mur de l’atelier"
+    }
+  }
+}

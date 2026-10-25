@@ -23,10 +23,12 @@ export function LabelUpload({ id }: { id: string }) {
         if (res?.ok) router.refresh();
       }}
     >
-      <label className="field__label" htmlFor={input}>
-        Étiquette prépayée (PDF)
-      </label>
-      <input id={input} name="etiquette" type="file" accept="application/pdf" required className="field__input" />
+      <div className="field">
+        <label className="field__label" htmlFor={input}>
+          Étiquette prépayée (PDF)
+        </label>
+        <input id={input} name="etiquette" type="file" accept="application/pdf" required className="field__input" />
+      </div>
       <div>
         <button type="submit" className="btn" disabled={state === "loading"}>
           {state === "loading" ? "Envoi…" : "Envoyer à la cliente"}

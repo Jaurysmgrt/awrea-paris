@@ -1,0 +1,56 @@
+/*
+ * Contact, d’après la maquette FORMULAIRE CONTACT : la photo à gauche, le formulaire à droite sur
+ * toute sa hauteur, les coordonnées sous la photo. Une seule colonne sous 1024 px (photo,
+ * formulaire, coordonnées), où les champs gardent assez de largeur. Tokens seulement.
+ */
+.contact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "photo"
+    "formulaire"
+    "coordonnees";
+  gap: var(--space-block) var(--spacing-gutter);
+  align-items: start;
+}
+@media (min-width: 64rem) {
+  .contact {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "photo formulaire"
+      "coordonnees formulaire";
+  }
+}
+.photo {
+  grid-area: photo;
+}
+.formulaire {
+  grid-area: formulaire;
+}
+.coordonnees {
+  grid-area: coordonnees;
+  display: grid;
+  gap: var(--spacing-m);
+  justify-items: start;
+}
+
+/* coordonnées : l’intitulé en capitales, la valeur dessous, un filet très fin entre chacune */
+.liste {
+  display: grid;
+  gap: var(--spacing-xs);
+  margin: 0;
+  width: 100%;
+}
+.liste > div {
+  display: grid;
+  gap: var(--spacing-2xs);
+  padding-top: var(--spacing-xs);
+  border-top: var(--border-width-hair) solid var(--line);
+}
+.liste dd {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: var(--text-step-0);
+  line-height: var(--leading-label);
+}

@@ -2,10 +2,22 @@
  * « Trouver ma taille » : à partir des mesures du corps (tour de poitrine, de taille, de hanches),
  * la taille conseillée pour une pièce donnée, selon le guide des tailles de la maison et la coupe
  * de la pièce (entre deux tailles : la plus petite pour une pièce lacée, qui s'ajuste ; la plus
- * grande pour le satin, qui ne cède pas).
+ * grande pour le satin, qui ne cède pas). Les phrases du conseil viennent du document « catalogue »
+ * (mesures.conseils), passées par l'appelant.
  */
 import { shop } from "@/content/settings";
+import { fill } from "@/lib/edition/fill";
 import type { Product, Size } from "@/lib/commerce/types";
+
+/** Modèles des phrases du conseil (document « catalogue », clé mesures.conseils). */
+export interface FitTexts {
+  taille: string;
+  entreLacee: string;
+  entreSatin: string;
+  entreSouple: string;
+  nonProposee: string;
+  auDela: string;
+}
 
 export interface Measures {
   poitrine?: number;
@@ -48,7 +60,7 @@ function rank(value: number, key: keyof Measures): number {
   return col.length - 1 + 0.5; // au-delà du guide
 }
 
-export function recommendSize(p: Product, m: Measures): FitAdvice | null {
+export function recommendSize(p: Product, m: Measures, t: FitTexts): FitAdvice | null {
   const keys = (["poitrine", "taille", "hanches"] as const).filter((k) => typeof m[k] === "number" && (m[k] as number) > 30 && (m[k] as number) < 200);
   if (!keys.length) return null;
   const r = Math.max(...keys.map((k) => rank(m[k] as number, k)));
@@ -61,16 +73,8 @@ export function recommendSize(p: Product, m: Measures): FitAdvice | null {
   const beyond = r > chart.length - 1;
   const offered = p.variants.some((v) => v.size === size);
   const why = between
-    ? kind === "lacee"
-      ? `Vos mesures sont entre le ${between[0]} et le ${between[1]} : la pièce est lacée et s’ajuste, nous conseillons le ${size}.`
-      : kind === "satin"
-        ? `Vos mesures sont entre le ${between[0]} et le ${between[1]} : le satin ne cède pas, nous conseillons le ${size}.`
-        : `Vos mesures sont entre le ${between[0]} et le ${between[1]} : pour un tombé aisé, nous conseillons le ${size}.`
-    : `Nous vous conseillons le ${size}.`;
-  const message = beyond
-    ? "Vos mesures dépassent notre guide : l’atelier peut réaliser cette pièce à vos mesures. Prenez rendez-vous, la créatrice vous répondra personnellement."
-    : offered
-      ? why
-      : `${why} Cette taille n’est pas proposée pour cette pièce : l’atelier peut l’ajuster pour vous sur rendez-vous.`;
+    ? fill(kind === "lacee" ? t.entreLacee : kind === "satin" ? t.entreSatin : t.entreSouple, { petite: between[0], grande: between[1], taille: size })
+    : fill(t.taille, { taille: size });
+  const message = beyond ? t.auDela : offered ? why : `${why} ${t.nonProposee}`;
   return { size, between, offered: offered && !beyond, message };
 }

@@ -1,0 +1,111 @@
+/*
+ * Avant-premières : page « Bientôt » (dates écrites sous le titre, la collection, l'accès) et fiche
+ * d'une pièce pas encore dévoilée. Langage des maquettes : filets noirs très fins, titres centrés,
+ * champs soulignés, bouton noir en pilule sur toute la largeur. Tokens seulement.
+ */
+
+/* ------------------------------------------------ dates, sous le titre de page */
+.dates {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-m) var(--spacing-xl);
+  width: min(100%, var(--container-prose));
+  margin: 0 auto;
+  padding-top: var(--spacing-m);
+  border-top: var(--border-width-hair) solid var(--fg);
+}
+.date {
+  display: grid;
+  gap: var(--spacing-2xs);
+  justify-items: center;
+  text-align: center;
+}
+.date dd {
+  margin: 0;
+}
+.fuseau {
+  margin-top: var(--spacing-xs);
+}
+.avis {
+  width: min(100%, var(--container-text));
+  margin-inline: auto;
+}
+
+/* ------------------------------------------------ la collection : images et texte */
+.collection {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-block) var(--spacing-gutter);
+  align-items: start;
+}
+.images {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-gutter);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* la première image ouvre la collection en grand ; les suivantes vont par deux */
+.image:first-child {
+  grid-column: 1 / -1;
+}
+.image {
+  display: grid;
+  gap: var(--spacing-2xs);
+}
+.texte {
+  width: 100%;
+  max-width: var(--container-text);
+  margin-inline: auto;
+}
+.texte > * + * {
+  margin-top: var(--space-paragraph);
+}
+.texte > h2 + * {
+  margin-top: var(--space-title);
+}
+@media (min-width: 64rem) {
+  .collection {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+  .images {
+    grid-column: 1 / span 6;
+  }
+  .collection .texte {
+    grid-column: 8 / span 5;
+    margin-inline: 0;
+  }
+  /* sans image : le texte seul, au centre */
+  .seul .texte {
+    grid-column: 4 / span 6;
+    margin-inline: auto;
+  }
+}
+
+/* ------------------------------------------------ l'accès (inscription, mot de passe) */
+.acces {
+  display: grid;
+  gap: var(--space-title);
+}
+.formulaire {
+  display: grid;
+  gap: var(--spacing-m);
+}
+
+/* ------------------------------------------------ les pièces */
+.pieces > * + * {
+  margin-top: var(--space-title);
+}
+
+/* ------------------------------------------------ fiche d'une pièce pas encore dévoilée */
+.porte {
+  display: grid;
+  gap: var(--spacing-xs);
+  padding-block: var(--spacing-m);
+  border-block: var(--border-width-hair) solid var(--line);
+}
+.porteAttente {
+  min-height: var(--spacing-3xl);
+}
