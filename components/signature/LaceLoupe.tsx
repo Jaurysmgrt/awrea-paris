@@ -20,6 +20,9 @@ export function LaceLoupe({ image, hint = true, eager }: { image: Image; hint?: 
   const lens = useRef<HTMLDivElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const [on, setOn] = useState(false);
+  // la grande photo de la lentille ne se charge qu'à la première apparition de la loupe : chargée
+  // d'avance, elle empêchait Chromium de peindre la photo de la galerie (même adresse)
+  const [armed, setArmed] = useState(false);
   const full = srcSet(image.src).src;
 
   useEffect(() => {
@@ -41,6 +44,7 @@ export function LaceLoupe({ image, hint = true, eager }: { image: Image; hint?: 
 
     const onMove = (e: PointerEvent) => {
       if (e.pointerType === "mouse") {
+        setArmed(true);
         setOn(true);
         place(e.clientX, e.clientY);
       } else if (touchActive) {
@@ -54,6 +58,7 @@ export function LaceLoupe({ image, hint = true, eager }: { image: Image; hint?: 
       pressTimer = window.setTimeout(() => {
         touchActive = true;
         el.dataset.touch = "true";
+        setArmed(true);
         setOn(true);
         place(e.clientX, e.clientY);
       }, 260);
@@ -89,7 +94,7 @@ export function LaceLoupe({ image, hint = true, eager }: { image: Image; hint?: 
     <figure className="loupe">
       <div ref={ref} className="loupe__stage" data-on={on}>
         <Media image={image} ratio="portrait" sizes="(min-width: 64rem) 50vw, 100vw" eager={eager} />
-        <div ref={lens} className="loupe__lens" aria-hidden="true" style={{ backgroundImage: `url(${full})` }} />
+        <div ref={lens} className="loupe__lens" aria-hidden="true" style={armed ? { backgroundImage: `url(${full})` } : undefined} />
       </div>
       <figcaption className="loupe__caption">
         {hint ? (
