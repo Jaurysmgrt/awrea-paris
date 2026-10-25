@@ -15,7 +15,7 @@ un fichier.
 | --- | --- | --- | --- |
 | `POLICE TITRES.ttf` | Fraunces 72pt Italic, graisse 400 (Undercase Type), 683 glyphes | Tous les titres (`--font-display`). WOFF2 réduit aux alphabets latins : `styles/fonts/fraunces-72pt-italic-latin.woff2` (26 Ko) | SIL Open Font License 1.1 : usage web, incorporation et réduction autorisés, sans vente de la police seule ; licence jointe (`styles/fonts/OFL-fraunces.txt`). Aucun nom réservé. |
 | `POLICE TEXTES.ttf` | Cormorant Garamond Regular, graisse 400 (Christian Thalmann, Catharsis Fonts), 2 818 glyphes | Textes courants, navigation, boutons, formulaires (`--font-body`). WOFF2 latin : `styles/fonts/cormorant-garamond-latin-400.woff2` (40 Ko), crénage, ligatures, chiffres elzéviriens et petites capitales conservés | SIL Open Font License 1.1, mêmes libertés ; licence jointe (`styles/fonts/OFL-cormorant-garamond.txt`). |
-| `POLICE LOGO.otf` | Croisan, édition « Personal Use » (Hishand Studio, Putu Dody Permana, 2024) | Réservée au logo et au monogramme. **Non chargée par le site** : le logo s'affiche à partir des fichiers officiels du dossier LOGO | **Licence personnelle seulement** : tout usage commercial (site marchand, étiquettes, sacs, réseaux de la marque) demande la licence commerciale de Hishand Studio (https://hishandstudio.com/license). Le fichier n'est pas publié dans ce dépôt public (`.gitignore`) ; une version WOFF2 est préparée hors du site (`ressources-awrea/TYPO/web/`, ignorée par Git) pour le jour où la licence sera achetée. Le logo lui-même semble dessiné avec cette police : à vérifier avec l'éditeur. |
+| `POLICE LOGO.otf` | Croisan, édition « Personal Use » (Hishand Studio, Putu Dody Permana, 2024) | Réservée au logo et au monogramme. **Non chargée par le site** : le logo s'affiche à partir des fichiers officiels du dossier LOGO | Le fichier fourni est l'édition « Personal Use » ; la créatrice indique le 25/10/2026 avoir acheté la licence commerciale de Hishand Studio (https://hishandstudio.com/license) : garder la facture. Une licence de bureau ne couvre pas toujours l'usage en police web : le site continue de ne pas la charger. Le fichier n'est pas publié dans ce dépôt public (`.gitignore`) ; une version WOFF2 est préparée hors du site (`ressources-awrea/TYPO/web/`, ignorée par Git) pour le jour où la licence sera achetée. Le logo lui-même semble dessiné avec cette police : à vérifier avec l'éditeur. |
 
 Les polices provisoires Instrument Serif, General Sans et Inter Tight sont retirées du site.
 
@@ -83,9 +83,11 @@ remplace la règle « aucune image générée » jusqu'à leur remplacement.
 ## Ce qui reste à fournir
 
 - Les vraies photographies des pièces (shootings) pour remplacer les visuels provisoires.
-- Le logo en SVG.
-- La licence commerciale de la police Croisan (logo), ou la confirmation que le logo est utilisable
-  commercialement.
+- Le logo en SVG : la créatrice en a un, pas encore à disposition (25/10/2026) ; à déposer dans
+  `ressources-awrea/LOGO/`. En attendant, le site affiche les PNG officiels.
+- Les vidéos des coulisses : la créatrice indique les avoir tournées (25/10/2026). Les fichiers en
+  place (`public/media/video/atelier-1` à `atelier-4`) sont des montages faits au début du projet à
+  partir de photos : à remplacer par ses propres vidéos si ce ne sont pas les siennes.
 - Le crédit du portrait de la créatrice.
 - Les prix définitifs des pièces dont le prix est provisoire (ACTIVATION.md) et les délais de
   fabrication de chaque pièce.

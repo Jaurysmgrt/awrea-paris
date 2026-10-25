@@ -5,14 +5,14 @@
 import { expect, test } from "@playwright/test";
 import { acceptCookies, outbox, waitForHydration } from "./helpers";
 
-test("réserver puis annuler un essayage", async ({ page, request }) => {
+test("réserver puis annuler un appel vidéo", async ({ page, request }) => {
   test.setTimeout(120_000);
   const email = `rdv.${Date.now().toString(36)}@exemple.fr`;
   await page.goto("/rendez-vous");
   await acceptCookies(page);
   await waitForHydration(page);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Prendre rendez-vous");
-  await page.getByLabel(/Essayage à l’atelier/).check();
+  await page.getByLabel(/Appel vidéo avec la créatrice/).check();
   const firstDay = page.locator(".booking__chips").first().getByRole("button").first();
   await expect(firstDay).toBeVisible();
   await firstDay.click();
@@ -29,6 +29,8 @@ test("réserver puis annuler un essayage", async ({ page, request }) => {
   // la confirmation est partie, avec son lien d'annulation signé
   await expect.poll(() => outbox().some((m) => m.to === email), { timeout: 15_000 }).toBeTruthy();
   const mail = outbox().find((m) => m.to === email)!;
+  // tous les rendez-vous se font en appel vidéo : le lien est dans la confirmation
+  expect(mail.text).toMatch(/https:\/\/meet\.jit\.si\/AwreaParis-/);
   const link = mail.text.match(/https?:\/\/\S+\/rendez-vous\/annuler\?id=(RDV-[A-F0-9]{8})&jeton=([\w-]+)/);
   expect(link, mail.text).toBeTruthy();
   const [, id, jeton] = link!;

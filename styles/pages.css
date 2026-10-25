@@ -45,7 +45,7 @@
     max-width: var(--measure);
   }
   /* titre de page des maquettes : très grand, centré ; le fil d'Ariane, le surtitre et la colonne
-     du chapeau se centrent avec lui (le chapeau reste justifié) */
+     du chapeau se centrent avec lui (le chapeau reste aligné à gauche) */
   .page-head--center {
     justify-items: center;
   }
@@ -624,8 +624,8 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
-  /* deux colonnes au plus : chaque principe garde une colonne de lecture assez large pour une
-     justification sans trous (jamais de colonne étroite) */
+  /* deux colonnes au plus : chaque principe garde une colonne de lecture assez large (jamais de
+     colonne étroite) */
   .principles__item {
     padding-top: var(--spacing-s);
     border-top: var(--border-width-hair) solid var(--line);

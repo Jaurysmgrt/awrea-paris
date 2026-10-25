@@ -103,20 +103,20 @@ function prefersReducedMotionNow(): boolean {
 }
 
 /**
- * Script inline de <head> : lit les préférences, pose data-mode (« light » | « dark ») et
- * data-motion sur <html>, puis suit le réglage du téléphone et les autres onglets.
+ * Script inline de <head> : pose data-mode (« light » | « dark ») et data-motion sur <html>
+ * d'après le réglage de l'appareil, avant le premier affichage, puis suit ses changements.
  */
 export function prefsHeadScript(): string {
+  // le site suit toujours le réglage de l'appareil : sombre si le téléphone est en sombre, clair
+  // sinon, animations apaisées si le système le demande ; il suit aussi un changement en direct
   return [
     "try{",
-    "var d=document.documentElement,q=matchMedia('(prefers-color-scheme: dark)'),",
-    "f=function(){var p={};",
-    `try{p=JSON.parse(localStorage.getItem('${PREFS_KEY}')||'{}')||{}}catch(e){}`,
-    "d.dataset.mode=p.mode==='dark'||p.mode==='light'?p.mode:(q.matches?'dark':'light');",
-    "if(p.motion==='reduce')d.dataset.motion='reduce';else delete d.dataset.motion};",
+    "var d=document.documentElement,q=matchMedia('(prefers-color-scheme: dark)'),m=matchMedia('(prefers-reduced-motion: reduce)'),",
+    "f=function(){d.dataset.mode=q.matches?'dark':'light';",
+    "if(m.matches)d.dataset.motion='reduce';else delete d.dataset.motion};",
     "f();",
     "q.addEventListener&&q.addEventListener('change',f);",
-    `addEventListener('storage',function(e){if(e.key==='${PREFS_KEY}')f()})`,
+    "m.addEventListener&&m.addEventListener('change',f)",
     "}catch(e){}",
   ].join("");
 }

@@ -1,0 +1,36 @@
+{
+  "seo": {
+    "title": "The Maison, the story of Awrea Paris | Awrea Paris",
+    "description": "The story of Awrea Paris: a fascination with contrasts, lace and draping, then the strength of gilding. Delicacy meets strength."
+  },
+  "titre": "The Maison",
+  "portrait": {
+    "src": "/media/img/creatrice-portrait",
+    "alt": "Black and white portrait of the Awrea Paris designer, seated, in a long-sleeved black lace top, her gaze turned to the side",
+    "width": 657,
+    "height": 986
+  },
+  "legende": "The designer of Awrea Paris. Photograph: [À COMPLÉTER : nom du photographe]",
+  "apropos": {
+    "officiel": true,
+    "titre": [
+      "Delicacy meets strength.",
+      "Elegance becomes a signature."
+    ],
+    "paragraphes": [
+      "Awrea Paris was born of a fascination with contrasts, with the duality that gives femininity all its singularity: softness and power, delicacy and daring, subtlety and brilliance. At the heart of our collections, lace and draping shape a delicate and sculptural femininity. Materials reveal themselves with finesse, lines follow the body, volumes take shape with fluidity. Every detail evokes an almost instinctive elegance, a balance between sensuality and sophistication.",
+      "Then comes the gilding. Precious, luminous and bold, it brings a new strength to the silhouettes. It catches the light, underlines the details and makes its presence felt. More than an ornament, it becomes a signature: the expression of a femininity that is not afraid to be noticed, to take up space and to assert its character.",
+      "It is in this meeting between the finesse of materials and the power of gold that the identity of Awrea Paris is born. An aesthetic where softness never excludes strength, where delicacy becomes daring and where each creation plays on the balance between sensuality, character and refinement. We imagine pieces for women who embrace their contrasts, who know how to be soft without giving up their power, delicate without losing their daring. Women who do not simply seek to be noticed, but to leave an impression, a presence, a memory.",
+      "Awrea Paris does not follow a conventional vision of elegance. It offers a singular interpretation of it, sculptural and luminous, where every material, every drape and every gleam of gold contributes to one and the same vision."
+    ]
+  },
+  "suite": {
+    "surtitre": "The atelier",
+    "titre": "Where the pieces come to life",
+    "texte": "Each Awrea piece is made to order, once your order is placed, in the hands of French artisans.",
+    "cta": {
+      "label": "Step into the atelier",
+      "href": "/atelier"
+    }
+  }
+}

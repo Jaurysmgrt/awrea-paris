@@ -7,6 +7,7 @@ import { SizeFinder } from "./SizeFinder";
 import { WishlistButton } from "./WishlistButton";
 import { Icon } from "@/components/ui/Icon";
 import { useTexts } from "@/components/content/Texts";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { shop } from "@/content/settings";
 import { formatPrice } from "@/lib/format";
 import { delaiText, fill, type CatalogueTexts } from "@/lib/commerce/texts";
@@ -20,6 +21,7 @@ import { prefersReducedMotion } from "@/lib/motion";
  */
 export function ProductForm({ product, stickyBar = false }: { product: Product; stickyBar?: boolean }) {
   const t = useTexts<CatalogueTexts>("catalogue");
+  const locale = useLocale();
   const { dispatch, busy } = useCart();
   const [variant, setVariant] = useState<Variant | null>(product.variants.length === 1 ? product.variants[0] : null);
   const [showError, setShowError] = useState(false);
@@ -102,7 +104,7 @@ export function ProductForm({ product, stickyBar = false }: { product: Product; 
           <div className="buy-bar__info">
             <span className="t-label buy-bar__title">{product.title}</span>
             <span className="price buy-bar__price">
-              {formatPrice(product.price)}
+              {formatPrice(product.price, locale)}
               {variant && variant.size !== "TU" ? ` · ${variant.size}` : ""}
             </span>
           </div>

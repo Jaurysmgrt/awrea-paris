@@ -8,6 +8,7 @@ import { getCertificate, certificateQr, creatorWord, emailHash, toPublic } from 
 import { CertificateSheet, type CertificatTexts } from "@/components/certificate/CertificateSheet";
 import { getCustomerSession } from "@/lib/auth/customer";
 import { getDoc } from "@/lib/edition/read";
+import { getLocale } from "@/lib/i18n/server";
 import { fill } from "@/lib/edition/fill";
 import { getProduct } from "@/lib/commerce";
 
@@ -15,7 +16,7 @@ type Params = { params: Promise<{ serial: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { serial } = await params;
-  const t = await getDoc<CertificatTexts>("certificat", "fr", { plain: true });
+  const t = await getDoc<CertificatTexts>("certificat", { plain: true });
   return { title: { absolute: fill(t.page.titre, { serial: serial.toUpperCase() }) }, robots: { index: false, follow: false } };
 }
 
@@ -42,7 +43,7 @@ export default async function CertificatPage({ params }: Params) {
           </div>
         ) : null}
         <div className="stack-l">
-          <CertificateSheet c={toPublic(c)} qr={qr} word={creatorWord(c)} t={t} />
+          <CertificateSheet c={toPublic(c)} qr={qr} word={creatorWord(c)} t={t} locale={await getLocale()} />
           <div className="no-print stack-s">
             <CertificateActions serial={c.serial} mine={mine} signedIn={Boolean(session)} t={t.actions} />
             <p className="t-note">

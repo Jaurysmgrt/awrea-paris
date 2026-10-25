@@ -1,0 +1,79 @@
+{
+  "entete": {
+    "accueil": "Awrea Paris, home page",
+    "navigation": "Main navigation",
+    "menu": "Menu",
+    "panierCourt": "Bag",
+    "compteur": "{libelle}: {nombre}",
+    "pieces": {
+      "une": "{n} piece",
+      "plusieurs": "{n} pieces"
+    }
+  },
+  "menu": {
+    "titre": "Menu",
+    "fermer": "Close"
+  },
+  "pied": {
+    "navigation": "Footer",
+    "copyright": "© Awrea Paris 2026",
+    "lienExterne": "{libelle}, in a new tab"
+  },
+  "lettre": {
+    "surtitre": "Follow us",
+    "titre": "Be the first to know",
+    "champs": {
+      "nom": "Surname",
+      "prenom": "First name",
+      "email": "Email",
+      "telephone": "Phone"
+    },
+    "obligatoire": "*",
+    "aideTelephone": "Optional.",
+    "consentement": "Yes, I would like to sign up for the newsletter",
+    "mention": "Your details are used only to write to you. Each letter contains a link to unsubscribe in one click.",
+    "confidentialite": {
+      "label": "Read the privacy policy",
+      "href": "/confidentialite"
+    },
+    "bouton": "Sign up",
+    "envoi": "One moment…",
+    "merci": "Thank you. A first email from the Maison is on its way to your inbox.",
+    "erreurs": {
+      "nom": "Please enter your surname.",
+      "prenom": "Please enter your first name.",
+      "email": "Please enter a complete email address, for example firstname@example.com.",
+      "telephone": "This number seems incomplete. Correct it or leave the field empty.",
+      "consentement": "Tick the box to receive the Maison’s letter.",
+      "verification": "The anti-robot check did not go through. Please try again.",
+      "limite": "Several attempts in a short time: please try again in a few minutes.",
+      "generale": "Your subscription could not be saved. Please try again."
+    }
+  },
+  "recherche": {
+    "nom": "Search",
+    "label": "Search",
+    "champ": "A piece, a material…",
+    "fermer": "Close",
+    "pistes": "Ideas",
+    "suggestions": [
+      "Lace",
+      "Drape",
+      "Gilding",
+      "Dress",
+      "Bodysuit",
+      "Hypnotic Lace"
+    ],
+    "unResultat": "1 result",
+    "resultats": "{n} results",
+    "aucunResultat": "No results",
+    "indisponible": "Search is not responding just now. All the pieces can still be seen in the shop.",
+    "aucun": "Nothing matches “{q}” yet.",
+    "essayez": "Try a material, a shape or the name of the collection.",
+    "toutes": {
+      "label": "See all the pieces",
+      "href": "/boutique"
+    },
+    "voirTout": "See all {n} results"
+  }
+}

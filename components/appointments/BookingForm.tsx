@@ -7,7 +7,7 @@ import { useEffect, useId, useState } from "react";
 import { fill } from "@/lib/edition/fill";
 import { Turnstile } from "@/components/security/Turnstile";
 
-type TypeId = "essayage" | "visio" | "sur-mesure";
+type TypeId = "visio" | "sur-mesure";
 
 export interface BookingTexts {
   types: Record<TypeId, { titre: string; texte: string; duree: string }>;

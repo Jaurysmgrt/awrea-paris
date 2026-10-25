@@ -5,6 +5,7 @@ import { useCart } from "./CartProvider";
 import { SizePicker } from "./SizePicker";
 import { Price } from "@/components/ui/Price";
 import { useTexts } from "@/components/content/Texts";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { formatPrice } from "@/lib/format";
 import { fill, type CatalogueTexts } from "@/lib/commerce/texts";
 
@@ -14,6 +15,7 @@ import { fill, type CatalogueTexts } from "@/lib/commerce/texts";
  */
 export function OutfitAdd({ title, products }: { title: string; products: Product[] }) {
   const t = useTexts<CatalogueTexts>("catalogue");
+  const locale = useLocale();
   const { dispatch, busy } = useCart();
   const [sizes, setSizes] = useState<Record<string, Variant | undefined>>(() =>
     Object.fromEntries(products.map((p) => [p.handle, p.variants.length === 1 ? p.variants[0] : undefined])),
@@ -46,7 +48,7 @@ export function OutfitAdd({ title, products }: { title: string; products: Produc
           )
         }
       >
-        {ready ? fill(t.silhouette.ajouter, { total: formatPrice(total) }) : t.silhouette.choisir}
+        {ready ? fill(t.silhouette.ajouter, { total: formatPrice(total, locale) }) : t.silhouette.choisir}
       </button>
     </div>
   );

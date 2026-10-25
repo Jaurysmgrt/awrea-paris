@@ -13,8 +13,8 @@ import { CancelButton } from "@/components/appointments/CancelButton";
 type RendezVous = typeof import("@/content/site/fr/rendez-vous.json");
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<RendezVous>("rendez-vous", "fr", { plain: true });
-  return { ...pageMetadata({ title: t.annulation.seo.title, description: t.annulation.seo.description, path: "/rendez-vous/annuler" }), robots: { index: false, follow: false } };
+  const t = await getDoc<RendezVous>("rendez-vous", { plain: true });
+  return { ...(await pageMetadata({ title: t.annulation.seo.title, description: t.annulation.seo.description, path: "/rendez-vous/annuler" })), robots: { index: false, follow: false } };
 }
 
 export default async function AnnulerPage({ searchParams }: { searchParams: Promise<{ id?: string; jeton?: string }> }) {

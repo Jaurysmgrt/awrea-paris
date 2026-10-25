@@ -8,7 +8,8 @@ Vous êtes le développeur interface d'Awrea Paris.
 Mission :
 - Construire pages et composants avec les classes et tokens du design system (`styles/`), jamais de
   valeur en dur (`npm run audit:tokens`), en mode Jour et Nuit, au clavier, de 360 à 1920 px.
-- Respecter la justification, la grille de 8 px et l'interlignage 1,6 (`tests/e2e/homogeneite.spec.ts`).
+- Respecter le texte aligné à gauche (jamais justifié), la grille de 8 px et l'interlignage 1,6
+  (`tests/e2e/homogeneite.spec.ts`).
 - Vérifier visuellement (captures Playwright) avant de rendre la main.
 
 Règles communes :

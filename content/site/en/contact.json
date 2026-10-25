@@ -1,0 +1,73 @@
+{
+  "seo": {
+    "title": "Contact | Awrea Paris",
+    "description": "Write to Awrea Paris: a question about a piece, a size or an order. The Maison replies by email."
+  },
+  "titre": "Contact",
+  "image": {
+    "src": "/media/img/contact-sacs",
+    "alt": "The Maison’s white paper bags, with white ribbon handles and the Awrea Paris logo in black",
+    "width": 1404,
+    "height": 952,
+    "provisoire": true
+  },
+  "coordonnees": {
+    "titre": "Write to or call the Maison",
+    "emailLabel": "Email",
+    "email": "awrea.contact@gmail.com",
+    "telephoneLabel": "Phone",
+    "telephone": "+33 6 99 55 74 43",
+    "telephoneLien": "+33699557443",
+    "instagramLabel": "Instagram",
+    "instagram": "@awrea.paris",
+    "instagramLien": "https://www.instagram.com/awrea.paris",
+    "rendezVous": "To talk about a piece in person, the designer will see you by appointment.",
+    "rendezVousLien": {
+      "label": "Book an appointment",
+      "href": "/rendez-vous"
+    }
+  },
+  "formulaire": {
+    "titre": "Your message",
+    "champs": {
+      "prenom": "First name",
+      "nom": "Surname",
+      "courriel": "Email",
+      "adresse": "Address",
+      "telephone": "Phone",
+      "message": "Additional information"
+    },
+    "obligatoires": "Fields marked with an asterisk are required.",
+    "manquants": {
+      "prenom": "Please enter your first name.",
+      "courriel": "Please enter a complete email address, for example firstname@example.com."
+    },
+    "confidentialite": "Your details are used only to reply to you.",
+    "confidentialiteLien": {
+      "label": "Read our privacy policy",
+      "href": "/confidentialite"
+    },
+    "robot": "Do not fill in this field",
+    "bouton": "Send my message",
+    "envoi": "Sending…",
+    "erreur": "The message was not sent. Try again in a moment, or write directly to {email}."
+  },
+  "reponses": {
+    "invalide": "Please check the form: your first name and a complete email address are needed.",
+    "robot": "The anti-robot check did not go through. Try again in a moment.",
+    "merci": "Thank you, {prenom}. Your message has arrived, and the Maison will reply by email.",
+    "tropDeDemandes": "Many messages in a short time. Try again in a few minutes."
+  },
+  "boite": {
+    "objet": "Message from the website",
+    "sansMessage": "No message written, only contact details."
+  },
+  "accuse": {
+    "objet": "Your message to Awrea Paris",
+    "apercu": "Your message has reached the Maison.",
+    "titre": "Thank you for your message",
+    "bonjour": "Dear {prenom},",
+    "texte": "Your message has reached the Maison. We will reply by email, to this address.",
+    "signature": "With our full attention,\nAwrea Paris"
+  }
+}

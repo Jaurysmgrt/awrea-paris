@@ -63,9 +63,9 @@
     "echange": "échange en {taille}",
     "remboursement": "remboursement",
     "etiquetteAVenir": "L’atelier vous envoie l’étiquette par e-mail dans la journée.",
-    "etiquette": "Étiquette de retour (PDF)",
+    "etiquette": "Bordereau de retour (PDF)",
     "retourner": "Retourner ou échanger une pièce",
-    "retourTexte": "Jusqu’au {date}, une pièce non portée peut revenir à l’atelier, pour un remboursement ou une autre taille. Le retour est offert depuis la France."
+    "retourTexte": "Jusqu’au {date}, une pièce non portée peut revenir à l’atelier, pour un remboursement ou une autre taille. Le bordereau vous donne l’adresse de l’atelier ; l’envoi du colis reste à votre charge."
   },
   "retour": {
     "raisons": {

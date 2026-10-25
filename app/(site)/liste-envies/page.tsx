@@ -8,7 +8,7 @@ import { WishlistView } from "@/components/commerce/WishlistView";
 type ListeEnvies = typeof import("@/content/site/fr/liste-envies.json");
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<ListeEnvies>("liste-envies", "fr", { plain: true });
+  const t = await getDoc<ListeEnvies>("liste-envies", { plain: true });
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/liste-envies", noindex: true });
 }
 

@@ -63,13 +63,13 @@ export async function POST(req: Request) {
     channel: d.kind,
     name,
     email: d.email,
-    subject: d.kind === "rendez-vous" ? `Rendez-vous, ${d.appointmentType ?? "essayage"}` : (d.subject || t.boite.objet),
+    subject: d.kind === "rendez-vous" ? `Rendez-vous, ${d.appointmentType ?? "visio"}` : (d.subject || t.boite.objet),
     message: d.message || t.boite.sansMessage,
     orderNumber: d.orderNumber,
     // coordonnées facultatives : rangées à part, lues par la créatrice dans l'Atelier › Messages
     ...(d.phone ? { phone: d.phone } : {}),
     ...(d.address ? { address: d.address } : {}),
-    appointment: d.kind === "rendez-vous" ? { type: d.appointmentType ?? "essayage", preferredDate: d.preferredDate, slot: d.slot } : undefined,
+    appointment: d.kind === "rendez-vous" ? { type: d.appointmentType ?? "visio", preferredDate: d.preferredDate, slot: d.slot } : undefined,
     status: "new",
   };
   await addInbox(msg);

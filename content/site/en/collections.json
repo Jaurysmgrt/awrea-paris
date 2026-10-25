@@ -1,0 +1,22 @@
+{
+  "seo": {
+    "title": "Collections, Hypnotic Lace | Awrea Paris",
+    "description": "Awrea Paris collections: Hypnotic Lace, with lace, draping and the gleam of gilding. Pieces made to order by French artisans."
+  },
+  "titre": "Collections",
+  "chapeau": "Each collection begins with an intention of the designer’s. Its pieces are made to order, by French artisans.",
+  "enCours": "Current collection",
+  "nombre": {
+    "une": "1 piece",
+    "plusieurs": "{n} pieces"
+  },
+  "voir": "See the {collection} collection",
+  "collection": {
+    "titre": "The “{collection}” collection",
+    "piecesTitre": "Pieces in the collection",
+    "moodboard": {
+      "surtitre": "Moodboard",
+      "titre": "What hung on the atelier wall"
+    }
+  }
+}

@@ -15,7 +15,7 @@ type Outfits = typeof import("@/content/site/fr/outfits.json");
 export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<Outfits>("outfits", "fr", { plain: true });
+  const t = await getDoc<Outfits>("outfits", { plain: true });
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/outfits" });
 }
 

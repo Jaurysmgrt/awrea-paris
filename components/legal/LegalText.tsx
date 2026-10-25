@@ -11,9 +11,9 @@ const TOKEN = /(\{\{[a-zA-Z]+\}\}|\[[^\]]+\]\([^)\s]+\)|\*\*[^*]+\*\*)/g;
 const ADDRESS = /(https?:\/\/[^\s,;)]+[^\s,;.)]|[\w.+-]+@[\w-]+(?:\.[\w-]+)+)/g;
 
 /**
- * Une adresse web ou e-mail ne se coupe pas d'elle-même : sur téléphone, elle repoussait toute la
- * ligne et creusait des trous dans le paragraphe justifié. On la laisse se couper après une barre
- * oblique ou un arobase, et avant un point, sans trait d'union ajouté.
+ * Une adresse web ou e-mail ne se coupe pas d'elle-même : sur téléphone, elle dépassait de la
+ * colonne. On la laisse se couper après une barre oblique ou un arobase, et avant un point, sans
+ * trait d'union ajouté.
  */
 function Breakable({ text }: { text: string }) {
   return (

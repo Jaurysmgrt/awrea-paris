@@ -7,6 +7,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getDoc } from "@/lib/edition/read";
+import { getLocale } from "@/lib/i18n/server";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
@@ -27,12 +28,13 @@ import { ReturnForm, type ReturnableLine } from "@/components/orders/ReturnForm"
 type CertificatTexts = typeof import("@/content/site/fr/certificat.json");
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = (await getDoc<SuiviTexts>("suivi-commande", "fr", { plain: true })).commande.seo;
+  const t = (await getDoc<SuiviTexts>("suivi-commande", { plain: true })).commande.seo;
   return pageMetadata({ title: t.title, description: t.description, path: "/suivi", noindex: true });
 }
 export const dynamic = "force-dynamic";
 
 export default async function CommandeSuivie({ params, searchParams }: { params: Promise<{ number: string }>; searchParams: Promise<{ t?: string }> }) {
+  const locale = await getLocale();
   const [{ number }, { t: token }] = await Promise.all([params, searchParams]);
   const found = await orderFromAccess(decodeURIComponent(number), token);
   if (!found || !token) notFound();
@@ -54,28 +56,28 @@ export default async function CommandeSuivie({ params, searchParams }: { params:
       const p = await getProduct(l.handle);
       // pièces créées sur demande : toutes les autres tailles se commandent
       const sizes = (p?.variants ?? []).filter((v) => v.size !== l.size).map((v) => v.size);
-      return { index, title: l.title, size: l.size, price: formatPrice(l.unitPrice), sizes };
+      return { index, title: l.title, size: l.size, price: formatPrice(l.unitPrice, locale), sizes };
     }),
   );
   // mode de livraison (et point relais), puis le retrait à l'atelier et la date de remise souhaitée
   const delivery = [
     `${order.shipping.method}${order.shipping.relay ? ` · ${order.shipping.relay.name}, ${order.shipping.relay.address}` : ""}.`,
     order.shipping.pickup ? t.retrait : null,
-    order.gift?.deliveryDate ? fill(t.remise, { date: formatDate(order.gift.deliveryDate) }) : null,
+    order.gift?.deliveryDate ? fill(t.remise, { date: formatDate(order.gift.deliveryDate, locale) }) : null,
   ]
     .filter(Boolean)
     .join(" ");
 
   return (
     <>
-      <PageHeader title={fill(t.titre, { numero: order.number })} lead={fill(t.chapeau, { etape, date: formatDate(order.createdAt) })} crumbs={[{ name: suivi.recherche.titre, path: "/suivi" }]} />
+      <PageHeader title={fill(t.titre, { numero: order.number })} lead={fill(t.chapeau, { etape, date: formatDate(order.createdAt, locale) })} crumbs={[{ name: suivi.recherche.titre, path: "/suivi" }]} />
       <Section theme="ivory" className="section">
         <div className="container-prose stack-l">
           <section className="stack-s" aria-labelledby="confection">
             <h2 id="confection" className="t-h3">
               {t.confection}
             </h2>
-            <OrderStages timeline={timeline} t={suivi.frise} delai={timeline.leadTime ? delaiText(catalogue, timeline.leadTime) : null} />
+            <OrderStages timeline={timeline} t={suivi.frise} delai={timeline.leadTime ? delaiText(catalogue, timeline.leadTime) : null} locale={locale} />
           </section>
 
           <section className="stack-s" aria-labelledby="livraison">
@@ -103,11 +105,11 @@ export default async function CommandeSuivie({ params, searchParams }: { params:
                 <li key={`${l.handle}-${i}`} className="confirmation__line">
                   <span className="t-body">{l.title}</span>
                   <span className="t-label t-soft">{fill(t.taille, { taille: l.size })}</span>
-                  <span className="price">{formatPrice(l.unitPrice)}</span>
+                  <span className="price">{formatPrice(l.unitPrice, locale)}</span>
                 </li>
               ))}
             </ul>
-            <p className="t-label">{fill(t.total, { total: formatPrice(order.total) })}</p>
+            <p className="t-label">{fill(t.total, { total: formatPrice(order.total, locale) })}</p>
           </section>
 
           <section className="stack-s" aria-labelledby="documents">
@@ -166,7 +168,7 @@ export default async function CommandeSuivie({ params, searchParams }: { params:
             </h2>
             {eligibility.eligible ? (
               <>
-                <p className="t-body">{fill(t.retourTexte, { date: formatDate(returnDeadline(order).toISOString()) })}</p>
+                <p className="t-body">{fill(t.retourTexte, { date: formatDate(returnDeadline(order).toISOString(), locale) })}</p>
                 <ReturnForm number={order.number} token={token} lines={lines} returnDays={shop.returnDays} t={suivi.retour} />
               </>
             ) : (

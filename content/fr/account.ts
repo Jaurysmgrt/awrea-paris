@@ -52,7 +52,7 @@ export const accountCopy = {
     total: "Total",
     follow: "Suivi, retour, échange et facture",
     returns: "Retours et échanges",
-    returnsNote: "Vous disposez de 14 jours après réception pour nous retourner une pièce non portée, avec son certificat : ouvrez le suivi de la commande, choisissez remboursement ou autre taille, et l’étiquette arrive aussitôt. Les pièces réalisées sur mesure ne sont ni reprises ni échangées.",
+    returnsNote: "Vous disposez de 14 jours après réception pour nous retourner une pièce non portée, avec son certificat : ouvrez le suivi de la commande, choisissez remboursement ou autre taille, et le bordereau de retour arrive aussitôt (l’envoi du colis reste à votre charge). Les pièces réalisées sur mesure ne sont ni reprises ni échangées.",
   },
   certificates: {
     intro: "Le certificat d’authenticité de chaque pièce, signé par la créatrice. Le QR code imprimé sur le certificat papier mène à sa version numérique.",

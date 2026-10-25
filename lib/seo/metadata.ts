@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { identity } from "@/content/brand/identity";
 import { imageAt } from "@/lib/media";
+import { DEFAULT_LOCALE, HREFLANG, LOCALES, OG_LOCALE, switchLocale, type Locale } from "@/lib/i18n/routing";
 
 export const siteUrl = identity.url.replace(/\/$/, "");
 export const absolute = (path: string) => (path.startsWith("http") ? path : `${siteUrl}${path.startsWith("/") ? "" : "/"}${path}`);
@@ -29,21 +30,39 @@ function ogImage(src?: string) {
   return absolute(imageAt(src, 960));
 }
 
-/** Métadonnées uniques par page : title, description, canonique, Open Graph, Twitter. */
-export function pageMetadata(opts: { title: string; description: string; path: string; image?: string; type?: "website" | "article"; noindex?: boolean }): Metadata {
-  const url = absolute(opts.path);
+/**
+ * Versions d'une page dans chaque langue (hreflang) : « /boutique » → fr-FR « …/boutique », en
+ * « …/en/boutique », et x-default sur le français (langue par défaut). Plan du site et métadonnées.
+ */
+export function languageAlternates(path: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const l of LOCALES) out[HREFLANG[l]] = absolute(switchLocale(path, l));
+  out["x-default"] = absolute(switchLocale(path, DEFAULT_LOCALE));
+  return out;
+}
+
+/**
+ * Métadonnées uniques par page : title, description, canonique, versions dans chaque langue, Open
+ * Graph, Twitter. `path` : le chemin sans préfixe de langue ; la langue est celle de la page
+ * (anglais sous /en), lue par le serveur si elle n'est pas donnée.
+ */
+export async function pageMetadata(opts: { title: string; description: string; path: string; image?: string; type?: "website" | "article"; noindex?: boolean; locale?: Locale }): Promise<Metadata> {
+  // lecture de la requête chargée à la demande : ce module reste pur (données structurées, tests unitaires)
+  const locale = opts.locale ?? (await (await import("@/lib/i18n/server")).getLocale());
+  const url = absolute(switchLocale(opts.path, locale));
   const image = ogImage(opts.image);
   return {
     title: { absolute: opts.title },
     description: opts.description,
-    alternates: { canonical: url, languages: { "fr-FR": url } },
+    alternates: { canonical: url, languages: languageAlternates(opts.path) },
     openGraph: {
       type: opts.type ?? "website",
       url,
       title: opts.title,
       description: opts.description,
       siteName: identity.name,
-      locale: "fr_FR",
+      locale: OG_LOCALE[locale],
+      alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => OG_LOCALE[l]),
       images: [{ url: image, alt: opts.title }],
     },
     twitter: { card: "summary_large_image", title: opts.title, description: opts.description, images: [image] },

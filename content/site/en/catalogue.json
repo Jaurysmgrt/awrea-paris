@@ -1,0 +1,105 @@
+{
+  "nouveau": "New",
+  "visuelProvisoire": "Provisional image",
+  "delai": {
+    "plage": "{min} to {max} weeks",
+    "fixe": "{n} weeks",
+    "une": "1 week"
+  },
+  "surDemande": {
+    "carte": "Made to order, {delai}",
+    "fiche": "A piece made to order for you, without stock, by French artisans.",
+    "delaiLabel": "Making time",
+    "delaiValeur": "{delai}, then dispatch",
+    "livraison": "The piece is made to order: allow {delai} for the making before it is dispatched.",
+    "ethique": "The Maison produces only what is desired, with care for the artisans who shape each piece and for the environment."
+  },
+  "certificat": {
+    "titre": "Certificate of authenticity",
+    "numero": "A creation number",
+    "texte": "When you order, each piece receives a unique creation number, written on its certificate of authenticity.",
+    "pied": "Made to order by French artisans"
+  },
+  "taille": {
+    "legende": "Size",
+    "unique": "One size",
+    "choisir": "Choose your size.",
+    "manquante": "Please choose a size.",
+    "choisie": "Size {taille}: the piece is made for you in this size, in {delai}.",
+    "trouver": "Find my size",
+    "guideTitre": "Your size",
+    "fermerGuide": "Close the size guide",
+    "legendePiece": "Size, {piece}"
+  },
+  "mesures": {
+    "titre": "Find my size",
+    "aide": "Your measurements, taken against the skin, in centimetres. One is enough; three are more precise.",
+    "poitrine": "Bust",
+    "taille": "Waist",
+    "hanches": "Hips",
+    "garder": "Keep my measurements in my account",
+    "voir": "See my size",
+    "choisir": "Choose size {taille}",
+    "gardees": "Your measurements are kept in your account.",
+    "conseils": {
+      "taille": "We recommend size {taille}.",
+      "entreLacee": "Your measurements fall between {petite} and {grande}: the piece is laced and adjusts, so we recommend {taille}.",
+      "entreSatin": "Your measurements fall between {petite} and {grande}: satin does not give, so we recommend {taille}.",
+      "entreSouple": "Your measurements fall between {petite} and {grande}: for an easy fall, we recommend {taille}.",
+      "nonProposee": "This size is not offered for this piece: the designer will advise you by appointment.",
+      "auDela": "Your measurements go beyond our guide: book an appointment, and the designer will answer you personally."
+    }
+  },
+  "achat": {
+    "ajouter": "Add to bag",
+    "choisirTaille": "Choose my size",
+    "choisirUneTaille": "Choose a size",
+    "annonceTaille": "{piece} in size {taille} is in your bag.",
+    "annonce": "{piece} is in your bag."
+  },
+  "envies": {
+    "garder": "Keep",
+    "gardee": "Kept",
+    "carte": "{piece}: keep in my wish list",
+    "fiche": "{piece}, wish list"
+  },
+  "silhouette": {
+    "ajouter": "Add the silhouette, {total}",
+    "choisir": "Choose a size for each piece",
+    "annonce": "Silhouette {titre} added to your bag",
+    "voir": "See {piece}",
+    "fermer": "Close"
+  },
+  "fabrication": {
+    "titre": "How it is made",
+    "creation": "Creation",
+    "creationTexte": "on request, once the order is placed",
+    "confection": "Making",
+    "confectionTexte": "by French artisans",
+    "delai": "Time",
+    "delaiTexte": "{delai} of making",
+    "production": "Production",
+    "productionTexte": "to order, nothing is made in advance",
+    "etapes": "The steps",
+    "matieres": "The materials",
+    "origineInconnue": "[À COMPLÉTER : origine de la matière, communiquée par la Maison]"
+  },
+  "matieresACompleter": "[À COMPLÉTER : composition exacte des matières, communiquée par la Maison]",
+  "galerie": {
+    "photos": "{piece}, photographs",
+    "survol": "Hover over the image to see the lace up close.",
+    "appui": "Press and hold the image to bring up the magnifier.",
+    "agrandir": "See the detail enlarged",
+    "fermer": "Close the enlarged image"
+  },
+  "partage": {
+    "bouton": "Share",
+    "copie": "Link copied.",
+    "lien": "Link: {url}"
+  },
+  "completer": {
+    "surtitre": "Complete the look",
+    "titre": "To wear with it"
+  },
+  "modele": "Each piece is made to order, without stock, by French artisans. It can be ordered in all its sizes and leaves the atelier once its making time has passed."
+}

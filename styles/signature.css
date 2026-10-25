@@ -682,44 +682,26 @@
     gap: var(--spacing-xs);
     min-height: var(--spacing-touch);
     padding: var(--spacing-2xs) var(--spacing-s);
-    background: var(--color-ink);
-    color: var(--color-ivory);
-    border: var(--border-width-hair) solid color-mix(in oklab, var(--color-ivory) 30%, transparent);
+    background: var(--bg);
+    color: var(--fg);
+    border: var(--border-width-hair) solid var(--fg);
+    border-radius: var(--radius-pill);
     font-family: var(--font-body);
     font-style: normal;
     font-weight: var(--font-weight-regular);
-    font-size: var(--text-step--2);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
+    font-size: var(--text-step--1);
+    letter-spacing: var(--tracking-text);
     transition:
       background-color var(--dur) var(--ease),
       color var(--dur) var(--ease);
   }
-  /* survol : inversion noir / blanc cassé, comme tous les boutons (le losange suit le texte) */
+  /* bouton discret, au filet comme les boutons secondaires ; survol : plein, comme tous les boutons */
   .assistant-launcher:hover {
-    background: var(--color-ivory);
-    color: var(--color-ink);
-    border-color: var(--color-ink);
+    background: var(--fg);
+    color: var(--bg);
   }
   .assistant-launcher__mark {
-    width: var(--spacing-2xs);
-    height: var(--spacing-2xs);
-    background: currentColor;
-    transform: rotate(45deg);
-  }
-  @media (max-width: 29.99rem) {
-    .assistant-launcher[data-open="false"] .assistant-launcher__label {
-      position: absolute;
-      width: 1px; /* token-ok : motif sr-only */
-      height: 1px; /* token-ok */
-      overflow: hidden;
-      clip: rect(0 0 0 0);
-    }
-    .assistant-launcher[data-open="false"] {
-      width: var(--spacing-touch);
-      justify-content: center;
-      padding: 0;
-    }
+    display: none;
   }
   .assistant {
     position: fixed;

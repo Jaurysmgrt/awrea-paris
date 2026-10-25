@@ -159,7 +159,9 @@ Pièces déjà au catalogue, dont le nom ne doit pas être repris : ${existing.
     return rec.finish(
       outcome.status === "done"
         ? `Fiche « ${copy.title} » ${hasPrice ? "publiée" : "créée en brouillon (prix manquant)"}${copy.missing_information.length ? `, ${copy.missing_information.length} point(s) à confirmer` : ""}`
-        : `Échec de la publication : ${outcome.message}`,
+        : outcome.status === "proposed"
+          ? `Fiche « ${copy.title} » prête : elle attend votre accord dans Validations avant d’être publiée`
+          : `Échec de la publication : ${outcome.message}`,
     );
   } catch (e) {
     rec.error(e);

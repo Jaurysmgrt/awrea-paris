@@ -1,0 +1,83 @@
+{
+  "seo": {
+    "title": "The Atelier, pieces made to order | Awrea Paris",
+    "description": "Awrea Paris pieces are made to order, in the hands of French artisans, with care for their working conditions and for the environment. There is no stock."
+  },
+  "titre": "The Atelier",
+  "chapeau": "An Awrea piece begins on the day you order it. It takes shape in your size, in the hands of French artisans.",
+  "chapitres": [
+    {
+      "surtitre": "Made to order",
+      "titre": "Nothing is made in advance",
+      "citation": {
+        "officiel": true,
+        "texte": "Each piece is made to order, far from the logic of mass production."
+      },
+      "texte": "Your order sets the atelier to work. The piece is cut and assembled in your size, then sent to you. No shelves stacked full, no boxes of unsold pieces.",
+      "image": {
+        "src": "/media/img/aura-detail",
+        "alt": "The Aura bodysuit up close, black lace sequinned with gold and black draping knotted at the bust",
+        "width": 990,
+        "height": 1486,
+        "provisoire": true
+      }
+    },
+    {
+      "surtitre": "The artisans",
+      "titre": "French hands",
+      "citation": {
+        "officiel": true,
+        "texte": "Our designs come to life in the hands of French artisans, guardians of a precious savoir-faire."
+      },
+      "texte": "Lace, draping and the gleam of gilding call for steady hands. Theirs, on every piece.",
+      "image": {
+        "src": "/media/img/sienna-detail",
+        "alt": "The Sienna dress up close, black and gold lace at the high neck, the waist gathered to a point",
+        "width": 990,
+        "height": 1487,
+        "provisoire": true
+      }
+    },
+    {
+      "surtitre": "The work",
+      "titre": "Time to do it well",
+      "citation": {
+        "officiel": true,
+        "texte": "We give essential attention to working conditions and to the recognition of these crafts, convinced that the beauty of a piece is also born of the ethics that accompany it."
+      },
+      "texte": "The weeks between your order and its dispatch are the weeks of making. They give the artisans time to do things well.",
+      "image": {
+        "src": "/media/img/odessa-detail",
+        "alt": "The Odessa dress up close, black bustier with straps and a black lace waist",
+        "width": 990,
+        "height": 1486,
+        "provisoire": true
+      }
+    },
+    {
+      "surtitre": "The environment",
+      "titre": "Only what is desired",
+      "citation": {
+        "officiel": true,
+        "texte": "This choice lies at the heart of our vision: to produce only what is desired, with awareness and respect for the environment. There is no stock, only creations designed for the person who wears them."
+      },
+      "texte": "A piece that is ordered is a piece awaited, then worn. Nothing is produced to sleep in a storeroom.",
+      "image": {
+        "src": "/media/img/gaia-detail",
+        "alt": "The Gaïa bodysuit up close, black jersey with bands of black lace set on the bias",
+        "width": 1030,
+        "height": 1544,
+        "provisoire": true
+      }
+    }
+  ],
+  "fin": {
+    "surtitre": "Made to order",
+    "titre": "Your piece, step by step",
+    "texte": "From order to delivery, every step of the making can be followed in your account.",
+    "cta": {
+      "label": "See how an order unfolds",
+      "href": "/sur-commande"
+    }
+  }
+}

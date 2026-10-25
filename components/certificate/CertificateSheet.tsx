@@ -7,10 +7,11 @@
 import { fill } from "@/lib/edition/fill";
 import { formatDate } from "@/lib/format";
 import type { PublicCertificate } from "@/lib/certificates";
+import type { Locale } from "@/lib/i18n/routing";
 
 export type CertificatTexts = typeof import("@/content/site/fr/certificat.json");
 
-export function CertificateSheet({ c, qr, word, claimCode, t }: { c: PublicCertificate; qr: string; word: string; claimCode?: string | null; t: CertificatTexts }) {
+export function CertificateSheet({ c, qr, word, claimCode, t, locale = "fr" }: { c: PublicCertificate; qr: string; word: string; claimCode?: string | null; t: CertificatTexts; locale?: Locale }) {
   const [no, numero] = c.creation ? fill(t.creation, { numero: "\u0000" }).split("\u0000") : [];
   return (
     <article className="certificate certificate--sheet" aria-labelledby={`certificat-${c.serial}`}>
@@ -48,7 +49,7 @@ export function CertificateSheet({ c, qr, word, claimCode, t }: { c: PublicCerti
         ) : null}
         <div>
           <dt className="t-label">{t.faits.confection}</dt>
-          <dd className="t-body">{formatDate(c.madeOn)}</dd>
+          <dd className="t-body">{formatDate(c.madeOn, locale)}</dd>
         </div>
       </dl>
       <figure className="certificate__word">

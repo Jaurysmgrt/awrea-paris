@@ -236,7 +236,7 @@ export async function runDemoAssistant(turns: ChatTurn[], send: (e: StreamEvent)
     await say(
       row
         ? `Un ${fr} correspond à notre taille ${row[0]} (${row[2]} de poitrine, ${row[3]} de taille, ${row[4]} de hanches).${fit}${p && !offered.includes(row[0] as (typeof offered)[number]) ? ` Cette pièce se commande en ${offered.join(", ")} : la créatrice vous conseillera.` : ""}${caution} Un rendez-vous avec la créatrice est aussi possible.`
-        : `${fit ? `${fit.trim()} ` : ""}Nos tailles vont du XS (34) au L (40) : un S correspond par exemple à 84 cm de tour de poitrine, 66 cm de taille et 92 cm de hanches.${caution} Indiquez-moi vos mesures ou votre taille habituelle, et je vous conseillerai plus précisément.`,
+        : `${fit ? `${fit.trim()} ` : ""}Nos tailles vont du XS (34) au XL (42) : un S correspond par exemple à 84 cm de tour de poitrine, 66 cm de taille et 92 cm de hanches.${caution} Indiquez-moi vos mesures ou votre taille habituelle, et je vous conseillerai plus précisément.`,
     );
   } else if (/livr|expedi|colis|transport|etranger|belgique|suisse|international|europe|outre.mer|frais de port/.test(q)) {
     send({ type: "tool", name: "shipping_options" });

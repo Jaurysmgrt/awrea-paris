@@ -1,0 +1,32 @@
+{
+  "entete": "Certificate of authenticity",
+  "creation": "Creation no. {numero}",
+  "faits": {
+    "collection": "Collection",
+    "taille": "Size",
+    "matieres": "Materials",
+    "confection": "Made on"
+  },
+  "mot": "A word from the designer",
+  "signature": "The designer",
+  "qr": "Certificate QR code {serial}",
+  "rattachement": "Account link code: {code}",
+  "pied": "Made to order by French artisans · Awrea Paris",
+  "page": {
+    "titre": "Certificate {serial} | Awrea Paris",
+    "voirPiece": "See the piece"
+  },
+  "actions": {
+    "imprimer": "Print the certificate",
+    "votre": "This piece is part of your collection. It is waiting for you in {lien}.",
+    "lienCompte": "your account",
+    "offerte": "Was this piece a gift to you? Link it to your account with the code printed on your certificate.",
+    "code": "Certificate code",
+    "exemple": "XXXX-XXXX",
+    "erreur": "The piece could not be linked. Please try again.",
+    "verification": "Checking…",
+    "rattacher": "Link to my account",
+    "connexion": "Is this piece yours? {lien} to link it to your account.",
+    "lienConnexion": "Sign in"
+  }
+}

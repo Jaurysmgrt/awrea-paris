@@ -6,6 +6,7 @@
 import { fitLabel, publishedReviews } from "@/lib/reviews";
 import { formatDate } from "@/lib/format";
 import { getDoc } from "@/lib/edition/read";
+import { getLocale } from "@/lib/i18n/server";
 import { fill } from "@/lib/edition/fill";
 
 type AvisTexts = { avis: { titre: string; taille: string; verifie: string; photo: string; reponse: string } };
@@ -14,6 +15,7 @@ export async function Reviews({ handle }: { handle: string }) {
   const reviews = await publishedReviews(handle).catch(() => []);
   if (!reviews.length) return null;
   const t = (await getDoc<AvisTexts>("fiche-piece")).avis;
+  const locale = await getLocale();
   return (
     <section className="reviews" aria-labelledby="reviews-title">
       <h2 id="reviews-title" className="t-h3">
@@ -28,7 +30,7 @@ export async function Reviews({ handle }: { handle: string }) {
             <p className="t-label review__meta">
               {r.authorName}
               {r.size ? ` · ${fill(t.taille, { taille: r.size })}` : ""}
-              {r.fit ? ` · ${fitLabel[r.fit].toLowerCase()}` : ""} · {t.verifie} · {formatDate(r.createdAt)}
+              {r.fit ? ` · ${fitLabel[r.fit].toLowerCase()}` : ""} · {t.verifie} · {formatDate(r.createdAt, locale)}
             </p>
             {r.photos.length ? (
               <ul className="review__photos">

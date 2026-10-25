@@ -29,7 +29,7 @@ export const STATIC_ROUTES: { path: string; priority: number; changeFrequency: "
 ];
 
 export async function allPublicPaths(): Promise<{ path: string; lastModified?: string; priority: number; changeFrequency: "daily" | "weekly" | "monthly" | "yearly" }[]> {
-  const [products, collections, articles, pages] = await Promise.all([getPublicProducts(), getCollections(), getArticles(), publishedModelePages().catch(() => [])]);
+  const [products, collections, articles, pages] = await Promise.all([getPublicProducts("fr"), getCollections("fr"), getArticles(), publishedModelePages().catch(() => [])]);
   return [
     ...STATIC_ROUTES,
     ...collections.map((c) => ({ path: `/collections/${c.handle}`, priority: c.current ? 0.9 : 0.6, changeFrequency: "weekly" as const })),

@@ -6,10 +6,10 @@ import { Section } from "@/components/ui/Section";
 import { BookingForm } from "@/components/appointments/BookingForm";
 
 type RendezVous = typeof import("@/content/site/fr/rendez-vous.json");
-const TYPES = ["essayage", "visio", "sur-mesure"] as const;
+const TYPES = ["visio", "sur-mesure"] as const;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<RendezVous>("rendez-vous", "fr", { plain: true });
+  const t = await getDoc<RendezVous>("rendez-vous", { plain: true });
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/rendez-vous" });
 }
 

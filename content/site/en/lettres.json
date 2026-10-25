@@ -1,0 +1,19 @@
+{
+  "seo": {
+    "title": "Stop receiving the letter | Awrea Paris",
+    "description": "Unsubscribe from the Awrea Paris letter in one click."
+  },
+  "titre": "Stop receiving the letter",
+  "texte": "One click, and the Maison’s letter stops arriving in your inbox. The emails that follow an order, from its making to its delivery, will still reach you.",
+  "bouton": "Unsubscribe",
+  "attente": "One moment…",
+  "fait": {
+    "titre": "Done",
+    "texte": "You will no longer receive the Maison’s letter. If you change your mind, you can sign up again at the bottom of every page of the site."
+  },
+  "invalide": {
+    "titre": "This link is no longer valid",
+    "texte": "Write to us at {email} and we will take you off the list ourselves."
+  },
+  "erreur": "The unsubscribe did not go through. Try again in a moment, or write to us."
+}

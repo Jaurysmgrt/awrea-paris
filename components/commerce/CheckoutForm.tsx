@@ -8,10 +8,12 @@
  */
 import Link from "@/components/ui/Link";
 import { useRouter } from "next/navigation";
+import { useLocalize } from "@/components/providers/LocaleProvider";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "./CartProvider";
 import { Media } from "@/components/ui/Media";
 import { useTexts } from "@/components/content/Texts";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { shop } from "@/content/settings";
 import { formatPrice } from "@/lib/format";
 import { longestLeadTime } from "@/lib/commerce/availability";
@@ -47,6 +49,7 @@ function testOutcome(cardNumber: string): "accepted" | "declined" | "incomplete"
 
 export function CheckoutForm() {
   const texts = useTexts<CommerceTexts>("commerce");
+  const locale = useLocale();
   const t = texts.commande;
   const p = texts.panier;
   const f = t.champs;
@@ -54,6 +57,7 @@ export function CheckoutForm() {
   const retrait = t.retrait.split("{lien}");
   const { cart } = useCart();
   const router = useRouter();
+  const localize = useLocalize();
   const [country, setCountry] = useState("FR");
   const [rateId, setRateId] = useState("fr-colissimo");
   const [zip, setZip] = useState("");
@@ -136,7 +140,7 @@ export function CheckoutForm() {
                 <div className="cart-line__info">
                   <div className="cart-line__top">
                     <span className="t-body">{l.title}</span>
-                    <span className="price">{formatPrice(l.unitPrice * l.quantity)}</span>
+                    <span className="price">{formatPrice(l.unitPrice * l.quantity, locale)}</span>
                   </div>
                   <p className="t-label t-soft">{fill(t.ligne, { taille: l.size, n: l.quantity })}</p>
                   <p className="t-note t-left">{fill(t.delaiLigne, { delai: delaiText(tc, l.leadTime) })}</p>
@@ -148,58 +152,58 @@ export function CheckoutForm() {
           <dl className="totals">
             <div>
               <dt>{p.sousTotal}</dt>
-              <dd>{formatPrice(cart.subtotal)}</dd>
+              <dd>{formatPrice(cart.subtotal, locale)}</dd>
             </div>
             {cart.discount ? (
               <div>
                 <dt>{cart.discount.label}</dt>
-                <dd>− {formatPrice(cart.discount.amount)}</dd>
+                <dd>− {formatPrice(cart.discount.amount, locale)}</dd>
               </div>
             ) : null}
             {cart.gift.wrap ? (
               <div>
                 <dt>{p.emballage}</dt>
-                <dd>{formatPrice(cart.giftWrapPrice)}</dd>
+                <dd>{formatPrice(cart.giftWrapPrice, locale)}</dd>
               </div>
             ) : null}
             {cart.giftCard ? (
               <div>
                 <dt>{p.carteCadeau}</dt>
-                <dd>− {formatPrice(cart.giftCard.amount)}</dd>
+                <dd>− {formatPrice(cart.giftCard.amount, locale)}</dd>
               </div>
             ) : null}
             <div>
               <dt>{p.livraison}</dt>
-              <dd>{shippingPrice ? formatPrice(shippingPrice) : p.offerte}</dd>
+              <dd>{shippingPrice ? formatPrice(shippingPrice, locale) : p.offerte}</dd>
             </div>
             {exp ? (
               <>
                 <div>
                   <dt>{t.horsTva}</dt>
-                  <dd>{formatPrice(exp.exVat)}</dd>
+                  <dd>{formatPrice(exp.exVat, locale)}</dd>
                 </div>
                 {exp.duty ? (
                   <div>
                     <dt>{fill(t.droits, { taux: Math.round(exp.dutyRate * 100) })}</dt>
-                    <dd>{formatPrice(exp.duty)}</dd>
+                    <dd>{formatPrice(exp.duty, locale)}</dd>
                   </div>
                 ) : null}
                 {exp.importVat ? (
                   <div>
                     <dt>{fill(t.tvaImport, { libelle: importLabel.charAt(0).toUpperCase() + importLabel.slice(1), taux: Math.round(exp.importVatRate * 1000) / 10 })}</dt>
-                    <dd>{formatPrice(exp.importVat)}</dd>
+                    <dd>{formatPrice(exp.importVat, locale)}</dd>
                   </div>
                 ) : null}
               </>
             ) : null}
             <div className="totals__total">
               <dt>{exp ? t.totalTaxes : t.totalTtc}</dt>
-              <dd>{formatPrice(total)}</dd>
+              <dd>{formatPrice(total, locale)}</dd>
             </div>
             {!exp ? (
               <div className="t-soft">
                 <dt>{fill(t.dontTva, { taux: Math.round(taxes.vatRate * 100) })}</dt>
-                <dd>{formatPrice(taxes.vat)}</dd>
+                <dd>{formatPrice(taxes.vat, locale)}</dd>
               </div>
             ) : null}
           </dl>
@@ -258,7 +262,7 @@ export function CheckoutForm() {
       setError(j.error ?? t.erreur);
       return;
     }
-    router.push(`/commande/confirmation?n=${encodeURIComponent(j.number)}&t=${encodeURIComponent(j.token)}`);
+    router.push(localize(`/commande/confirmation?n=${encodeURIComponent(j.number)}&t=${encodeURIComponent(j.token)}`));
   }
 
   return (
@@ -266,7 +270,7 @@ export function CheckoutForm() {
       <aside className="checkout-summary scene" data-theme="pearl" aria-label={t.recapitulatif}>
         <button type="button" className="checkout-summary__toggle" aria-expanded={summaryOpen} onClick={() => setSummaryOpen((v) => !v)}>
           <span className="t-label">{summaryOpen ? t.recapMasquer : t.recapAfficher}</span>
-          <span className="price">{formatPrice(total)}</span>
+          <span className="price">{formatPrice(total, locale)}</span>
         </button>
         <div className="checkout-summary__body" data-open={summaryOpen}>
           {summary}
@@ -433,7 +437,7 @@ export function CheckoutForm() {
                         <span className="option__title">{r.label}</span>
                         <span className="t-note">{r.delay}</span>
                       </span>
-                      <span className="price">{r.price === 0 || free ? p.offerte : formatPrice(r.price)}</span>
+                      <span className="price">{r.price === 0 || free ? p.offerte : formatPrice(r.price, locale)}</span>
                     </label>
                   );
                 })}
@@ -521,10 +525,10 @@ export function CheckoutForm() {
               {state === "loading"
                 ? t.paiementEnCours
                 : pay === "paypal"
-                  ? fill(t.payerPaypal, { total: formatPrice(total) })
+                  ? fill(t.payerPaypal, { total: formatPrice(total, locale) })
                   : pay === "card"
-                    ? fill(t.payer, { total: formatPrice(total) })
-                    : fill(t.payerAvec, { total: formatPrice(total), moyen: t.moyens[pay].label })}
+                    ? fill(t.payer, { total: formatPrice(total, locale) })
+                    : fill(t.payerAvec, { total: formatPrice(total, locale), moyen: t.moyens[pay].label })}
             </button>
             <p className="t-note t-center">{t.securite}</p>
           </div>

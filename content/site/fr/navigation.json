@@ -57,5 +57,10 @@
       "titre": "Nous suivre",
       "liens": [{ "label": "Instagram", "href": "https://www.instagram.com/awrea.paris", "type": "instagram" }]
     }
-  ]
+  ],
+  "langues": {
+    "titre": "Langue du site",
+    "fr": { "court": "FR", "nom": "Français" },
+    "en": { "court": "EN", "nom": "English" }
+  }
 }

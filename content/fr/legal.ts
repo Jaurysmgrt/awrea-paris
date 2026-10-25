@@ -491,7 +491,7 @@ export const legalPages = {
       description: `Exercez votre droit de rétractation de ${shop.returnDays} jours en ligne, en deux étapes, et recevez aussitôt un accusé de réception.`,
     },
     updated: UPDATED,
-    intro: "Vous disposez de quatorze jours après la réception de votre pièce pour changer d’avis, sans avoir à vous justifier. Indiquez votre commande ci-dessous : vous recevrez aussitôt un accusé de réception par e-mail, puis l’étiquette de retour.",
+    intro: "Vous disposez de quatorze jours après la réception de votre pièce pour changer d’avis, sans avoir à vous justifier. Indiquez votre commande ci-dessous : vous recevrez aussitôt un accusé de réception par e-mail, puis le bordereau de retour.",
     sections: [
       { id: "en-ligne", title: "Se rétracter du contrat ici", blocks: [{ widget: "withdrawal-form" }] },
       {

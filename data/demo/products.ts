@@ -10,7 +10,7 @@
  * PROVISOIRE, à confirmer par la Maison (ACTIVATION.md, « Prix et délais à confirmer ») :
  *  - les prix de la robe Sienna, du body Gaïa, du top Evina et du top Kira ;
  *  - tous les délais de fabrication (bodys et tops 2 à 3 semaines, robes 3 à 4 semaines) ;
- *  - les tailles proposées (XS à L) ;
+ *  - les tailles proposées (XS à XL) ;
  *  - toutes les photos : images générées en attendant les shootings (`provisoire: true`).
  * Inconnus, jamais inventés : compositions, doublures, entretien, taille du mannequin
  * (« [À COMPLÉTER : …] » ou champ vide masqué, liste dans LEGAL-A-COMPLETER.md).
@@ -21,7 +21,7 @@ import type { Image, Product, Size, Variant } from "@/lib/commerce/types";
 /** Visuel provisoire (image générée), au format 2:3 : chemin sans extension, dimensions réelles. */
 const visuel = (name: string, alt: string, width: number, height: number): Image => ({ src: `/media/img/${name}`, alt, width, height, provisoire: true });
 
-const SIZES: Size[] = ["XS", "S", "M", "L"];
+const SIZES: Size[] = ["XS", "S", "M", "L", "XL"];
 const sizes = (handle: string, code: string): Variant[] => SIZES.map((size) => ({ id: `${handle}-${size.toLowerCase()}`, sku: `AW-${code}-${size}`, size }));
 
 /** Repères visibles tant que la Maison n'a pas donné l'information (jamais inventée). */

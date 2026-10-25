@@ -14,7 +14,7 @@ type ListeEnvies = typeof import("@/content/site/fr/liste-envies.json");
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<ListeEnvies>("liste-envies", "fr", { plain: true });
+  const t = await getDoc<ListeEnvies>("liste-envies", { plain: true });
   return { title: { absolute: t.partagee.seo.title }, description: t.partagee.seo.description, robots: { index: false, follow: false } };
 }
 

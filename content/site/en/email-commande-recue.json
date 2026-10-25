@@ -1,0 +1,95 @@
+{
+  "nom": "Order received",
+  "quand": "As soon as the payment for an order is confirmed, with the details of the pieces ordered.",
+  "famille": "service",
+  "sujet": "Your order {commande} has been received",
+  "preheader": "Your piece will be made for you, to order, by French artisans.",
+  "variables": {
+    "prenom": {
+      "description": "The client’s first name",
+      "exemple": "Camille"
+    },
+    "commande": {
+      "description": "The order number",
+      "exemple": "AW-1042"
+    },
+    "suivi": {
+      "description": "The order tracking link (no account needed)",
+      "exemple": "https://www.awreaparis.com/suivi/AW-1042"
+    },
+    "delai": {
+      "description": "The making time announced",
+      "exemple": "2 to 3 weeks"
+    },
+    "debut": {
+      "description": "The earliest expected day for the making to be finished",
+      "exemple": "2 November 2026"
+    },
+    "fin": {
+      "description": "The latest expected day for the making to be finished",
+      "exemple": "9 November 2026"
+    },
+    "certificats": {
+      "description": "The link to the certificate of authenticity of each piece, when it is already online",
+      "exemple": "The Aura bodysuit, https://www.awreaparis.com/certificat/AW-AUR-0001-K7QX"
+    },
+    "codes": {
+      "description": "The account link code of each piece, to pass on if it is a gift",
+      "exemple": "The Aura bodysuit: K7QX-M2PA"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-cmdrecu01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-cmdrecu02",
+      "type": "titre",
+      "titre": "Your order has been received"
+    },
+    {
+      "id": "b-cmdrecu03",
+      "type": "texte",
+      "texte": "Dear {prenom},\n\nYour order {commande} has just reached the atelier. Nothing is made in advance: your piece is made for you, to order, by French artisans."
+    },
+    {
+      "id": "b-cmdrecu04",
+      "type": "texte",
+      "texte": "Allow {delai} for the making. We expect to finish it between {debut} and {fin}.",
+      "si": "debut"
+    },
+    {
+      "id": "b-cmdrecu05",
+      "type": "commande"
+    },
+    {
+      "id": "b-cmdrecu09",
+      "type": "texte",
+      "texte": "The certificate of authenticity of each piece is already online, linked to your account if you have one: {certificats}",
+      "si": "certificats"
+    },
+    {
+      "id": "b-cmdrecu10",
+      "type": "texte",
+      "texte": "If you are giving a piece as a gift, pass on its account link code with it: {codes}",
+      "si": "codes"
+    },
+    {
+      "id": "b-cmdrecu06",
+      "type": "texte",
+      "texte": "We will write to you at each step: when the piece goes into the making, when it is ready, then on the day it leaves. You can follow your order here: {suivi}"
+    },
+    {
+      "id": "b-cmdrecu07",
+      "type": "signature",
+      "texte": "Until very soon,\nThe Awrea Paris atelier"
+    },
+    {
+      "id": "b-cmdrecu08",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

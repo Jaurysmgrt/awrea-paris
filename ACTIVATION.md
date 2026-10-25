@@ -503,9 +503,12 @@ les dernières publications.
 
 ## Étape 10 bis — Retours, adresses et comptabilité
 
-**Étiquettes de retour prépayées (Colissimo).** Sans elles, la cliente reçoit une étiquette de
-démonstration ; vous pouvez aussi, à tout moment, déposer une vraie étiquette dans l'Atelier ›
-Retours (elle lui est envoyée aussitôt).
+**Étiquettes de retour prépayées (Colissimo), facultatives.** La créatrice a choisi le 25/10/2026 de
+laisser les frais de retour à la cliente, comme l'article 7 des CGV : la cliente reçoit un bordereau
+avec l'adresse de l'atelier, et cette étape ne sert pas. Pour offrir un jour le retour depuis la
+France : modifier l'article 7, passer `returnLabelPrepaid` à `true` dans `content/settings.ts`, puis
+suivre les points ci-dessous. Vous pouvez aussi, à tout moment, déposer une vraie étiquette dans
+l'Atelier › Retours (elle lui est envoyée aussitôt).
 
 1. Avoir un contrat **Colissimo Entreprise** ([colissimo.entreprise.laposte.fr](https://www.colissimo.entreprise.laposte.fr)) avec
    l'option « Colissimo Retour France ». Demander à votre conseiller l'accès au **service web
@@ -641,7 +644,9 @@ l'historique et les versions publiées, et Supabase (étape 5) pour les photos d
      **Modèles** › **Nouveau modèle** › **Importer un modèle** › **Importer un fichier HTML**.
    - **Klaviyo** : **Pour Klaviyo** ; Klaviyo › **Content** › **Templates** › **Create Template** ›
      **Import** › **HTML**.
-   - **Notifications Shopify** (confirmation de commande, expédition) : **Pour Shopify** ;
+   - **Notifications Shopify** (confirmation de commande, expédition) : **Pour Shopify** ; la
+     créatrice a choisi le 25/10/2026 que la cliente reçoive l'e-mail du site : coller **Commande
+     reçue** dans **Confirmation de commande** (Shopify ne permet pas de couper cette notification) ;
      Shopify › **Paramètres** › **Notifications** › l'e-mail › **Modifier le code** : remplacer le
      contenu par celui du fichier, **Aperçu**, puis **Enregistrer**.
 5. **Interrupteur** : `EDITION_STORAGE` (`stockage` en ligne, `fichiers` en local ; vide conseillé).

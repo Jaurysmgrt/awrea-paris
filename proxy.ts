@@ -8,6 +8,10 @@
  *    l'Atelier : aucune indexation, aucun cache partagé, aucun référent transmis.
  *  - Rafraîchit la session Supabase des clientes sur l'espace compte (/compte, /api/account),
  *    comme le recommande @supabase/ssr.
+ *  - Langues (lib/i18n/routing.ts) : /en/… est réécrit vers la même page, et la langue est
+ *    transmise aux pages dans l'en-tête interne LOCALE_HEADER (posé sur chaque requête : une
+ *    valeur envoyée par le navigateur est écrasée). L'Atelier et l'API n'existent qu'en français :
+ *    sous /en, ils répondent 404 comme toute adresse inconnue.
  */
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
@@ -16,6 +20,7 @@ import { contentSecurityPolicy, cspEnabled, cspMode, newNonce } from "@/lib/secu
 import { countRefusal } from "@/lib/security/rate-limit";
 import { providerOf } from "@/lib/config/providers";
 import { atelierBase, isInternalAtelierPath, toInternal } from "@/lib/admin/path";
+import { DEFAULT_LOCALE, LOCALE_HEADER, splitLocale, type Locale } from "@/lib/i18n/routing";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY;
@@ -29,24 +34,35 @@ function isDocument(request: NextRequest): boolean {
   return h.get("sec-fetch-dest") === "document" || (h.get("accept") ?? "").includes("text/html");
 }
 
-/** Laisse passer la requête, en transmettant le nonce à Next.js (qui l'applique à ses scripts). */
-function forward(request: NextRequest, nonce: string | null) {
-  if (!nonce) return NextResponse.next({ request });
+/** En-têtes transmis à la page : le nonce (que Next.js applique à ses scripts) et la langue. */
+function upstreamHeaders(request: NextRequest, nonce: string | null, locale: Locale): Headers {
   const headers = new Headers(request.headers);
-  headers.set("x-nonce", nonce);
-  headers.set("Content-Security-Policy", contentSecurityPolicy(nonce));
-  return NextResponse.next({ request: { headers } });
+  headers.set(LOCALE_HEADER, locale);
+  if (nonce) {
+    headers.set("x-nonce", nonce);
+    headers.set("Content-Security-Policy", contentSecurityPolicy(nonce));
+  }
+  return headers;
 }
 
-async function refreshCustomerSession(request: NextRequest, nonce: string | null) {
-  let response = forward(request, nonce);
+/**
+ * Laisse passer la requête, en transmettant le nonce et la langue à Next.js ; `target` : la page
+ * servie à la place (version anglaise, réécrite vers le même chemin sans /en).
+ */
+function forward(request: NextRequest, nonce: string | null, locale: Locale = DEFAULT_LOCALE, target?: URL) {
+  const headers = upstreamHeaders(request, nonce, locale);
+  return target ? NextResponse.rewrite(target, { request: { headers } }) : NextResponse.next({ request: { headers } });
+}
+
+async function refreshCustomerSession(request: NextRequest, nonce: string | null, locale: Locale, target?: URL) {
+  let response = forward(request, nonce, locale, target);
   if (providerOf("customers") !== "supabase" || !supabaseUrl || !supabaseAnonKey) return response;
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll: () => request.cookies.getAll(),
       setAll: (list) => {
         for (const { name, value } of list) request.cookies.set(name, value);
-        response = forward(request, nonce);
+        response = forward(request, nonce, locale, target);
         for (const { name, value, options } of list) response.cookies.set(name, value, options);
       },
     },
@@ -58,20 +74,16 @@ async function refreshCustomerSession(request: NextRequest, nonce: string | null
 }
 
 /** Réponse identique à une adresse inconnue : rien ne révèle que l'Atelier existe. */
-function notFound(request: NextRequest, nonce: string | null) {
-  if (request.nextUrl.pathname.startsWith("/api/")) return NextResponse.json({ error: "Introuvable" }, { status: 404 });
+function notFound(request: NextRequest, nonce: string | null, locale: Locale = DEFAULT_LOCALE) {
+  if (splitLocale(request.nextUrl.pathname).path.startsWith("/api/")) return NextResponse.json({ error: "Introuvable" }, { status: 404 });
   const url = request.nextUrl.clone();
   url.pathname = "/__introuvable";
   url.search = "";
-  return rewrite(request, url, nonce);
+  return rewrite(request, url, nonce, locale);
 }
 
-function rewrite(request: NextRequest, url: URL, nonce: string | null) {
-  if (!nonce) return NextResponse.rewrite(url, { request });
-  const headers = new Headers(request.headers);
-  headers.set("x-nonce", nonce);
-  headers.set("Content-Security-Policy", contentSecurityPolicy(nonce));
-  return NextResponse.rewrite(url, { request: { headers } });
+function rewrite(request: NextRequest, url: URL, nonce: string | null, locale: Locale = DEFAULT_LOCALE) {
+  return NextResponse.rewrite(url, { request: { headers: upstreamHeaders(request, nonce, locale) } });
 }
 
 /** Pages de l'Atelier ouvertes sans session : connexion et lien « ce n'était pas moi ». */
@@ -137,11 +149,20 @@ export async function proxy(request: NextRequest) {
   const nonce = cspEnabled && cspMode === "strict" && isDocument(request) ? newNonce() : null;
 
   const base = atelierBase();
+  // version anglaise : la même page, servie sous /en (l'Atelier et l'API n'en ont pas)
+  const { locale, path } = splitLocale(pathname);
+  const translated = locale !== DEFAULT_LOCALE;
+  let target: URL | undefined;
+  if (translated) {
+    target = request.nextUrl.clone();
+    target.pathname = path;
+  }
   let response: NextResponse;
-  if (base && toInternal(pathname, base)) response = await protectAtelier(request, base, nonce);
+  if (translated && (path === "/api" || path.startsWith("/api/") || isInternalAtelierPath(path) || (base && toInternal(path, base)))) response = notFound(request, nonce, locale);
+  else if (base && toInternal(pathname, base)) response = await protectAtelier(request, base, nonce);
   else if (isInternalAtelierPath(pathname)) response = notFound(request, nonce);
-  else if (pathname.startsWith("/compte") || pathname.startsWith("/api/account")) response = await refreshCustomerSession(request, nonce);
-  else response = forward(request, nonce);
+  else if (path.startsWith("/compte") || pathname.startsWith("/api/account")) response = await refreshCustomerSession(request, nonce, locale, target);
+  else response = forward(request, nonce, locale, target);
 
   if (isDocument(request) && (await isEditorSession(request))) {
     response.headers.set("X-Frame-Options", "SAMEORIGIN");

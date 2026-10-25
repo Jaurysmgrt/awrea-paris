@@ -1,0 +1,67 @@
+{
+  "nom": "Appointment reminder",
+  "quand": "The day before each appointment, to the client.",
+  "famille": "service",
+  "sujet": "See you tomorrow, {prenom}",
+  "preheader": "Your appointment: {quand}.",
+  "variables": {
+    "prenom": {
+      "description": "The client’s first name",
+      "exemple": "Camille"
+    },
+    "quand": {
+      "description": "The day and time of the appointment",
+      "exemple": "Thursday 16 October at 2.30 pm"
+    },
+    "rendezvous": {
+      "description": "The appointment",
+      "exemple": "Video call with the designer"
+    },
+    "visio": {
+      "description": "The video call link, for a remote appointment",
+      "exemple": ""
+    },
+    "annulation": {
+      "description": "The link to cancel",
+      "exemple": "https://www.awreaparis.com/rendez-vous/annuler"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-rdv0entete",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-rdv0titre",
+      "type": "titre",
+      "titre": "See you tomorrow"
+    },
+    {
+      "id": "b-rdv0texte",
+      "type": "texte",
+      "texte": "Dear {prenom},\n\n{rendezvous}, {quand}. The designer is expecting you, and there will be no rush."
+    },
+    {
+      "id": "b-rdv0visio",
+      "type": "texte",
+      "texte": "The appointment takes place by video call. Here is the link, to open a little before the time: {visio}",
+      "si": "visio"
+    },
+    {
+      "id": "b-rdv0annul",
+      "type": "texte",
+      "texte": "Unable to come? You can cancel here, and the time will go to another client: {annulation}"
+    },
+    {
+      "id": "b-rdv0signe",
+      "type": "signature",
+      "texte": "Until tomorrow,\nThe Awrea Paris atelier"
+    },
+    {
+      "id": "b-rdv0pied",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

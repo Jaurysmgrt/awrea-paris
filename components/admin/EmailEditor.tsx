@@ -463,7 +463,8 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
             <a className="btn btn--outline" href={`${atelier.api("/edition/email/export")}?id=${id}&pour=klaviyo`}>
               Pour Klaviyo
             </a>
-            {doc.famille === "commande" ? (
+            {/* e-mails de commande (famille « service », documents email-commande-…) : gabarit Liquid pour Shopify */}
+            {doc.famille === "commande" || id.startsWith("email-commande-") ? (
               <a className="btn btn--outline" href={`${atelier.api("/edition/email/export")}?id=${id}&pour=shopify`}>
                 Pour Shopify
               </a>

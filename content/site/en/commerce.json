@@ -1,0 +1,151 @@
+{
+  "panier": {
+    "titre": "Bag",
+    "titreNombre": "Bag ({n})",
+    "fermer": "Close the bag",
+    "vide": "Your bag is waiting for its first piece.",
+    "videAction": "Visit the shop",
+    "livraisonSeuil": "Delivery in France is complimentary from {seuil}.",
+    "livraisonOfferte": "Delivery in France is complimentary.",
+    "taille": "Size {taille}",
+    "delaiLigne": "Made for you in {delai}.",
+    "quantite": "Quantity, {piece}",
+    "moins": "Remove one piece",
+    "plus": "Add one piece",
+    "retirer": "Remove",
+    "retiree": "{piece} is no longer in your bag.",
+    "cadeau": "Gift wrapping with a handwritten note, {prix}",
+    "message": "Your message",
+    "messageAide": "We will copy it out by hand onto an ivory card.",
+    "caracteres": "{n} characters left",
+    "masquerPrix": "Hide the prices on the delivery note",
+    "date": "Preferred delivery date (optional)",
+    "dateAide": "The atelier dispatches for delivery on that day, neither before nor after.",
+    "suggestions": "To go with it",
+    "codes": "Offer code or gift card",
+    "codeAvantage": "Offer code",
+    "carteCadeau": "Gift card",
+    "codeApplique": "{type}: {code}",
+    "appliquer": "Apply",
+    "sousTotal": "Subtotal",
+    "emballage": "Gift wrapping",
+    "livraison": "Delivery",
+    "offerte": "Complimentary",
+    "calculee": "Calculated at the next step",
+    "total": "Total",
+    "surDemande": "Each piece is made to order. Your order leaves the atelier as soon as the last piece is ready, in about {delai}.",
+    "commander": "Place my order",
+    "moyens": "No account needed · Card · Apple Pay · Google Pay · PayPal",
+    "erreur": "Something went wrong. Please try again in a moment."
+  },
+  "commande": {
+    "chargement": "Loading…",
+    "vide": "Your bag is empty.",
+    "videAction": "Back to the shop",
+    "recapitulatif": "Order summary",
+    "recapAfficher": "Show the summary",
+    "recapMasquer": "Hide the summary",
+    "ligne": "Size {taille} · Qty {n}",
+    "delaiLigne": "Made for you in {delai}.",
+    "horsTva": "Pieces and delivery excluding French VAT",
+    "droits": "Customs duties ({taux}%)",
+    "tvaImport": "{libelle} ({taux}%)",
+    "totalTaxes": "Total, duties and taxes included",
+    "totalTtc": "Total including VAT",
+    "dontTva": "of which VAT ({taux}%)",
+    "taxesPayees": "Duties and taxes paid now: nothing to pay on delivery. Indicative estimate in test mode.",
+    "messageCadeau": "Gift message: “{message}”",
+    "modeTest": "Test mode: nothing is charged. The card 4242 4242 4242 4242 is accepted. The card 4000 0000 0000 0002 is declined.",
+    "express": "Express payment",
+    "expressNote": "In production, the address is taken from your wallet; in test mode, fill it in below.",
+    "etapes": {
+      "coordonnees": "Details",
+      "livraison": "Delivery",
+      "paiement": "Payment"
+    },
+    "champs": {
+      "email": "Email",
+      "emailAide": "For the confirmation and tracking. No account is needed.",
+      "lettres": "Receive the Maison’s letter.",
+      "prenom": "First name",
+      "nom": "Surname",
+      "adresse": "Address",
+      "complement": "Address line 2 (optional)",
+      "codePostal": "Postcode",
+      "ville": "Town or city",
+      "pays": "Country",
+      "telephone": "Phone (for the carrier, optional)",
+      "modeLivraison": "Delivery method",
+      "pointRelais": "Pick-up point",
+      "pointRelaisAide": "Enter your postcode: the nearest pick-up points will appear here.",
+      "carte": "Card number",
+      "expiration": "Expiry date",
+      "expirationExemple": "MM / YY",
+      "cryptogramme": "Security code",
+      "adressesSuggerees": "Suggested addresses"
+    },
+    "surDemande": "Each piece is made to order by French artisans. Your order is dispatched as soon as the last piece is ready, in about {delai}, then delivered by the method you have chosen.",
+    "retrait": "Collection from the atelier: as soon as your piece is ready, we will write to you to arrange an appointment. You can also {lien} now.",
+    "retraitLien": "choose a time",
+    "relaisManquant": "Please choose a pick-up point.",
+    "erreur": "The payment did not go through. Please try again.",
+    "paiementEnCours": "Payment in progress…",
+    "payer": "Pay {total}",
+    "payerAvec": "Pay {total} with {moyen}",
+    "payerPaypal": "Pay {total} with PayPal",
+    "securite": "Secure payment. Your card details never pass through our servers.",
+    "moyens": {
+      "card": {
+        "label": "Debit or credit card",
+        "note": "Visa, Mastercard, American Express, Carte Bancaire"
+      },
+      "apple-pay": {
+        "label": "Apple Pay",
+        "note": "Confirm on your Apple device"
+      },
+      "google-pay": {
+        "label": "Google Pay",
+        "note": "Confirm with your Google account"
+      },
+      "paypal": {
+        "label": "PayPal",
+        "note": "You will be redirected to PayPal"
+      }
+    },
+    "plusProposee": "This piece is no longer offered: {piece}. Remove it from your bag to continue.",
+    "page": {
+      "seo": {
+        "title": "Checkout | Awrea Paris",
+        "description": "Complete your Awrea Paris order."
+      },
+      "titre": "Checkout",
+      "chapeau": "Three steps, with no account to create."
+    },
+    "pieces": "{n} pieces",
+    "droitsEtTaxes": "Import duties and taxes"
+  },
+  "confirmation": {
+    "seo": {
+      "title": "Thank you | Awrea Paris",
+      "description": "Your Awrea Paris order is confirmed."
+    },
+    "salutation": "Thank you.",
+    "salutationPrenom": "Thank you, {prenom}.",
+    "mot": "Your piece is now in the hands of the atelier. It is being made for you, to order, and we will write to you at each step, until it leaves.",
+    "signature": "The Designer",
+    "reference": "Order {commande}",
+    "titre": "Thank you for your order",
+    "titrePrenom": "Thank you, {prenom}",
+    "texte": "Your order is confirmed. A summary email has just been sent to you.",
+    "texteCommande": "Your order {commande} is confirmed. A summary email has just been sent to {email}.",
+    "taille": "Size {taille}",
+    "livraison": "Delivery · {mode}",
+    "offerte": "Complimentary",
+    "total": "Total",
+    "certificat": "Your certificate of authenticity",
+    "certificats": "Your certificates of authenticity",
+    "suivre": "Track my order",
+    "facture": "Download the invoice",
+    "continuer": "Continue browsing"
+  }
+}

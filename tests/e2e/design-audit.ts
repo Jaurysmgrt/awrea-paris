@@ -3,17 +3,9 @@
  * familles de polices (les deux polices officielles, Fraunces et Cormorant Garamond), italiques
  * (seulement les titres en Fraunces), textes sous 16 px, couleurs saturées (aucune dorure dans
  * l'interface), espacements sur la grille de 8 px, interlignage 1,6 du texte courant (et notes sur
- * la grille), mesure
- * (caractères par ligne) et régularité des espaces entre les mots des paragraphes justifiés.
- *
- * La césure : Chromium sans interface n'embarque pas les dictionnaires de césure que les
- * navigateurs des visiteuses utilisent. Avant de mesurer, `hyphenateJustified` pose donc des
- * césures conditionnelles françaises dans les paragraphes justifiés, pour mesurer ce que voient
- * réellement les visiteuses.
+ * la grille), paragraphes alignés à gauche (aucun paragraphe justifié, donc aucun trou entre les
+ * mots) et mesure des paragraphes (75 caractères par ligne au plus).
  */
-import type { Page } from "@playwright/test";
-import { hyphenateSync } from "hyphen/fr";
-
 export interface DesignAudit {
   families: string[];
   /** italiques hors de la police des titres (Cormorant n'a pas de face italique) */
@@ -23,27 +15,10 @@ export interface DesignAudit {
   saturated: string[];
   spacing: string[];
   leading: string[];
-  justified: { selector: string; lines: number; chars: number; maxGap: number; looseLines: number; width: number; firstScreen: boolean }[];
-}
-
-declare global {
-  interface Window {
-    __hyphNodes?: Text[];
-  }
-}
-
-export async function hyphenateJustified(page: Page) {
-  const texts = await page.evaluate(() => {
-    window.__hyphNodes = [];
-    for (const p of Array.from(document.querySelectorAll("p"))) {
-      if (getComputedStyle(p).textAlign !== "justify") continue;
-      const w = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
-      while (w.nextNode()) window.__hyphNodes.push(w.currentNode as Text);
-    }
-    return window.__hyphNodes.map((n) => n.data);
-  });
-  const hy = texts.map((t) => hyphenateSync(t, { hyphenChar: "­", minWordLength: 5 }));
-  await page.evaluate((hy) => window.__hyphNodes?.forEach((n, i) => (n.data = hy[i])), hy);
+  /** paragraphes justifiés (le texte est aligné à gauche partout) */
+  justified: string[];
+  /** paragraphes de plusieurs lignes plus larges que 75 caractères */
+  wide: string[];
 }
 
 /** Exécutée dans la page. */
@@ -133,54 +108,20 @@ export function auditInPage(): DesignAudit {
     for (const [k, v] of checks) if (off8(v)) spacing.add(`${describe(el)} ${k} ${Math.round(v * 10) / 10}px`);
   }
 
-  // ---------------------------------------------------------------- justification
-  const justified: DesignAudit["justified"] = [];
+  // ------------------------------------------------- alignement à gauche et mesure
+  const justified: string[] = [];
+  const wide: string[] = [];
   for (const p of Array.from(document.querySelectorAll("p"))) {
-    if (skip(p) || !shown(p)) continue;
+    if (skip(p) || !shown(p) || !ownText(p)) continue;
     const cs = getComputedStyle(p);
-    if (cs.textAlign !== "justify") continue;
-    const text = (p.textContent ?? "").replace(/­/g, "");
-    const spaces: { node: Text; i: number }[] = [];
-    const w = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
-    while (w.nextNode()) {
-      const n = w.currentNode as Text;
-      for (let i = 0; i < n.data.length; i++) if (n.data[i] === " ") spaces.push({ node: n, i });
-    }
-    const measure = () =>
-      spaces.map(({ node, i }) => {
-        const r = document.createRange();
-        r.setStart(node, i);
-        r.setEnd(node, i + 1);
-        const b = r.getBoundingClientRect();
-        return { top: Math.round(b.top), width: b.width };
-      });
-    const justifiedW = measure();
-    ctx.font = `${cs.fontStyle === "normal" ? "" : `${cs.fontStyle} `}${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-    const nat = ctx.measureText(" ").width;
-    const natural = justifiedW.map((s) => ({ ...s, width: nat }));
-    const lineTops = Array.from(new Set(justifiedW.filter((s) => s.width > 0).map((s) => s.top))).sort((a, b) => a - b);
-    const range = document.createRange();
-    range.selectNodeContents(p);
-    const allTops = Array.from(new Set(Array.from(range.getClientRects()).map((r) => Math.round(r.top))));
-    const lines = Math.max(1, new Set(allTops.map((t) => Math.round(t / 4))).size);
-    let maxGap = 1;
-    let loose = 0;
-    const lastTop = Math.max(...lineTops);
-    for (const top of lineTops) {
-      if (top === lastTop) continue; // dernière ligne : jamais étirée
-      const onLine = justifiedW.map((s, k) => ({ s, n: natural[k] })).filter(({ s }) => s.top === top && s.width > 0);
-      if (onLine.length < 2) continue;
-      const ratios = onLine.slice(0, -1).map(({ s, n }) => (n.width > 0 ? s.width / n.width : 1));
-      const r = ratios.sort((a, b) => a - b)[Math.floor(ratios.length / 2)] ?? 1;
-      if (r > maxGap) maxGap = r;
-      if (r > 1.5) loose++;
-    }
+    if (cs.textAlign === "justify") justified.push(describe(p));
     // capacité de la colonne en caractères : largeur / chasse moyenne du texte du paragraphe
-    const width = p.getBoundingClientRect().width;
+    const text = p.textContent ?? "";
+    ctx.font = `${cs.fontStyle === "normal" ? "" : `${cs.fontStyle} `}${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
     const advance = ctx.measureText(text).width / Math.max(1, text.length);
-    // à l'écran dès l'ouverture : l'équilibreur doit lui garder son nombre de lignes (aucun décalage)
-    const firstScreen = p.getBoundingClientRect().top + window.scrollY < window.innerHeight;
-    justified.push({ selector: describe(p), lines, chars: Math.round(width / advance), maxGap: Math.round(maxGap * 100) / 100, looseLines: loose, width: Math.round(width), firstScreen });
+    const lines = Math.round(p.getBoundingClientRect().height / parseFloat(cs.lineHeight));
+    const chars = Math.round(p.getBoundingClientRect().width / advance);
+    if (lines > 1 && chars > 75) wide.push(`${describe(p)} ${chars} caractères`);
   }
 
   return {
@@ -191,5 +132,6 @@ export function auditInPage(): DesignAudit {
     spacing: Array.from(spacing),
     leading: Array.from(leading),
     justified,
+    wide,
   };
 }

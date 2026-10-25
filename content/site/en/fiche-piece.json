@@ -1,0 +1,42 @@
+{
+  "filAriane": "All pieces",
+  "sections": {
+    "piece": "The piece",
+    "matieres": "Materials and care",
+    "entretien": "Care",
+    "coupe": "Fit and size",
+    "livraison": "Delivery and returns"
+  },
+  "surDemande": {
+    "lien": "See how your piece comes to life",
+    "guide": "Size guide"
+  },
+  "conseil": {
+    "avant": "For advice on your size, ",
+    "lien": "book an appointment with the designer",
+    "apres": " by video call, or ask the assistant at the bottom of the screen."
+  },
+  "mesures": {
+    "avant": "The measurements for each size are gathered in the ",
+    "lien": "size guide",
+    "apres": "."
+  },
+  "livraison": "Delivery within metropolitan France; shipping costs are shown before you confirm your order.",
+  "retours": "Returns within {jours} days, for a piece unworn and in its original condition.",
+  "conditions": "All the terms",
+  "categories": {
+    "robe": "Dress",
+    "body": "Bodysuit",
+    "top": "Top",
+    "jupe": "Skirt",
+    "accessoire": "Accessory"
+  },
+  "reference": "Ref. {ref}",
+  "avis": {
+    "titre": "They wear it",
+    "taille": "size {taille}",
+    "verifie": "verified purchase",
+    "photo": "Photo of {nom} wearing the piece ({n})",
+    "reponse": "The designer"
+  }
+}

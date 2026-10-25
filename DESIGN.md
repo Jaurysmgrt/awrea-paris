@@ -66,9 +66,9 @@ tailles multiples de 5 px gardent l'interlignage 1,6 sur la grille de 8 px.
   du design system utilisent les `--lh-step-*` de leur palier.
 
 - Mesure : `--measure: 24.5em`, soit 65 caractères de Cormorant (chasse moyenne d'un texte
-  français : 0,378 em) ; `--container-text: 31rem` (496 px). Paragraphes justifiés, césure
-  française ; la justification régulière (`components/typography/Justification.tsx`) mesure l'espace
-  naturel dans la police réelle du paragraphe.
+  français : 0,378 em) ; `--container-text: 31rem` (496 px). Paragraphes alignés à gauche, jamais
+  justifiés (choix de la créatrice du 25/10/2026 : la justification creusait des trous entre les
+  mots sur téléphone), sans césure automatique.
 - Interlettrage : titres `-0,01 em` ; navigation, liens et boutons en bas de casse `0,02 em`
   (`--tracking-snug`) ; capitales `0,08 em` (`--tracking-label`).
 - Chiffres : Cormorant a des chiffres elzéviriens, gardés dans le texte ; les prix et les tableaux
@@ -117,7 +117,8 @@ et les animations apaisées par la durée unique (`--dur`).
 - `tests/e2e/homogeneite.spec.ts` (avec `tests/e2e/design-audit.ts`) : sur téléphone, tablette et
   ordinateur, seulement les familles `fraunces` et `cormorant`, l'italique réservé aux titres en
   Fraunces, aucun texte sous 16 px, interlignage 1,6 des paragraphes en Cormorant (notes de 18 px
-  sur 32 px), grille de 8 px, justification sans trous et 45 à 75 caractères par ligne.
+  sur 32 px), grille de 8 px, paragraphes alignés à gauche (aucun justifié) et 75 caractères par
+  ligne au plus.
 
 ## Propositions de design antérieures
 

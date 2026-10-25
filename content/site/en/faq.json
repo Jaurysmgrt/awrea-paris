@@ -1,0 +1,170 @@
+{
+  "seo": {
+    "title": "Frequently asked questions, from making to delivery | Awrea Paris",
+    "description": "Making times, sizes, the steps of your order, delivery, returns and withdrawal: the Maison’s answers about its pieces, made to order by French artisans."
+  },
+  "titre": "Frequently asked questions",
+  "chapeau": "The questions we are asked most often, from the making of your piece to its delivery. For any other question, the assistant answers at any hour, and the designer within 48 working hours.",
+  "themes": "Topics",
+  "groupes": [
+    {
+      "id": "maison",
+      "titre": "The Maison",
+      "questions": [
+        {
+          "id": "qui",
+          "q": "Who is behind Awrea Paris?",
+          "r": "A young designer, who founded her house of women’s ready-to-wear around a fascination with contrasts. Lace and draping shape her silhouettes, and gilding lights up some of the pieces. The current collection is called Hypnotic Lace. The story of the house is told on the page [The Maison](/la-maison)."
+        },
+        {
+          "id": "fabrication",
+          "q": "Where, and by whom, are the pieces made?",
+          "r": "Each piece is made after you order, in your size, by French artisans. The Maison pays particular attention to their working conditions and to the value of their craft."
+        },
+        {
+          "id": "sans-stock",
+          "q": "Why is there no stock?",
+          "r": "Because the Maison produces only what is desired. Nothing waits on a shelf, nothing ends up forgotten. This choice respects the environment, and it gives the artisans time to do things well. The details are on the page [Made to order](/sur-commande)."
+        },
+        {
+          "id": "manifeste",
+          "q": "What does “Consume more fairly” mean?",
+          "r": "It is the Maison’s manifesto. An exclusive creation need not be kept for ultra luxury: a piece made for you, at the moment you choose it, at a fair price."
+        },
+        {
+          "id": "certificat",
+          "q": "Does my piece come with a certificate?",
+          "r": "Yes. Each piece made receives a unique creation number, for example “Creation no. 0001”, written on its certificate of authenticity. A code allows this certificate to be verified online."
+        }
+      ]
+    },
+    {
+      "id": "commande",
+      "titre": "Your order",
+      "questions": [
+        {
+          "id": "delais",
+          "q": "How long does it take to receive my piece?",
+          "r": "Your piece is made after you order. Allow {hauts} of making for a bodysuit or a top, {robes} for a dress: the exact time appears on the page of each piece, in the bag and at checkout. Once ready, it is delivered to you in metropolitan France; our terms and conditions of sale allow 5 to 10 working days for delivery."
+        },
+        {
+          "id": "tailles-disponibles",
+          "q": "Are all sizes available?",
+          "r": "Yes. Every size offered can always be ordered: your piece is made in the one you choose. No piece is ever sold out."
+        },
+        {
+          "id": "etapes",
+          "q": "How can I follow the making of my order?",
+          "r": "Your order goes through five steps: Order received, In the making, Ready, Dispatched, Delivered. You can follow them in your account, or on the page [Track my order](/suivi) with your order number and your email address. An email lets you know when your piece goes into the making, when it is ready and when it leaves."
+        },
+        {
+          "id": "paiement",
+          "q": "When am I charged, and how can I pay?",
+          "r": "On the day of the order, in full, as our terms and conditions of sale provide; the making begins once payment is confirmed. You can pay by card, PayPal, Google Pay or Apple Pay. The Maison never sees your card details."
+        },
+        {
+          "id": "annulation",
+          "q": "Can I cancel my order?",
+          "r": "Yes, within two days of the Maison accepting your order, and as long as it has not been delivered to you. Write to us at {email} with your order number. Your right of withdrawal is otherwise unaffected."
+        },
+        {
+          "id": "compte",
+          "q": "Do I need an account to order?",
+          "r": "No. An email address is enough. An account lets you follow your orders and keep your wish list."
+        },
+        {
+          "id": "cadeau",
+          "q": "Can I give a piece as a gift?",
+          "r": "Yes. From the bag, add gift wrapping and a message of your own, or pay with a gift card."
+        }
+      ]
+    },
+    {
+      "id": "tailles",
+      "titre": "Sizes and advice",
+      "questions": [
+        {
+          "id": "choisir",
+          "q": "How do I choose my size?",
+          "r": "The [size guide](/guide-des-tailles) starts from body measurements: bust, waist and hips. The page of each piece links to it, with advice on the cut of the piece. Between two sizes, the assistant or the designer will advise you before you order."
+        },
+        {
+          "id": "rendez-vous",
+          "q": "Can I talk about my piece with the designer?",
+          "r": "Yes. Book an [appointment](/rendez-vous), at the atelier or by video call. The designer will tell you about the piece, its cut and the size that will suit you."
+        },
+        {
+          "id": "matieres",
+          "q": "What materials are the pieces made of?",
+          "r": "Lace, jersey and satin, with a touch of gilding on some pieces. The exact composition of each piece will be given on its page. [À COMPLÉTER : compositions des pièces] Until then, write to us: the Maison will answer you."
+        },
+        {
+          "id": "entretien",
+          "q": "How should I care for my piece?",
+          "r": "The page of each piece will give the care advice specific to it. [À COMPLÉTER : conseils d’entretien de la dentelle, du jersey et du satin] Until then, write to us before the first wash: the Maison will answer you."
+        }
+      ]
+    },
+    {
+      "id": "livraison",
+      "titre": "Delivery",
+      "questions": [
+        {
+          "id": "ou",
+          "q": "Where do you deliver?",
+          "r": "To metropolitan France, as our terms and conditions of sale provide, by an independent carrier, to the address you give when you order."
+        },
+        {
+          "id": "frais",
+          "q": "How much does delivery cost?",
+          "r": "Delivery costs are added to the price of the piece and shown before payment. Tracked delivery is complimentary for orders of {seuil} or more."
+        },
+        {
+          "id": "colis",
+          "q": "How can I track my parcel?",
+          "r": "The tracking number is sent to you by email on the day of dispatch. You will also find it in your account and on the page [Track my order](/suivi)."
+        },
+        {
+          "id": "retard",
+          "q": "What if my piece is delayed?",
+          "r": "The Maison writes to you as soon as a delay seems likely. If your order is not delivered within seven days of the date given, except in cases of force majeure, you may ask in writing for the sale to be cancelled: the sums paid will be returned to you within fourteen days."
+        },
+        {
+          "id": "abime",
+          "q": "My parcel arrived damaged. What should I do?",
+          "r": "Write to us at {email} within 48 hours of delivery for a damaged parcel, or within 14 days for a problem with the piece. Give your order number and attach photographs: the Maison will deal with your request as quickly as possible. The legal guarantee of conformity and the guarantee against hidden defects also apply."
+        }
+      ]
+    },
+    {
+      "id": "retours",
+      "titre": "Returns and withdrawal",
+      "questions": [
+        {
+          "id": "retractation",
+          "q": "Can I change my mind?",
+          "r": "Yes. You have fourteen days after receiving your piece to withdraw, online on the page [Withdrawal](/retractation), or by any clear statement sent by email or by post."
+        },
+        {
+          "id": "renvoyer",
+          "q": "How do I send a piece back?",
+          "r": "The piece comes back in its original, complete condition, with its packaging and its invoice. A piece that is damaged, soiled or incomplete cannot be taken back. Return costs are at your expense. Everything is explained on the page [Delivery and returns](/livraison-retours)."
+        },
+        {
+          "id": "remboursement",
+          "q": "When will I be refunded?",
+          "r": "Within fourteen days of the Maison receiving your piece."
+        },
+        {
+          "id": "echange",
+          "q": "Can I exchange my piece for another size?",
+          "r": "Yes. As each piece is made to order, the new size is made for you, with its own making time."
+        }
+      ]
+    }
+  ],
+  "fin": {
+    "texte": "Can’t find your answer?",
+    "lien": "Write to us"
+  }
+}

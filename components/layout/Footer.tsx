@@ -1,16 +1,14 @@
 /**
  * Pied de page (maquette BAS DE PAGE) : la lettre de la Maison en version compacte, un filet fin
  * centré, quatre colonnes aux intitulés en capitales (La marque, Service client, Légal, Nous
- * suivre ; Instagram dans une pastille noire), « © Awrea Paris 2026 » centré dessous, puis les
- * réglages d'affichage (Jour, Nuit, animations apaisées) et l'empreinte de la visite.
+ * suivre ; Instagram dans une pastille noire), « © Awrea Paris 2026 » centré dessous. Le mode
+ * sombre et les animations apaisées suivent le réglage de l'appareil (lib/prefs.ts).
  * Liens : document « navigation » (partie « pied ») ; libellés : document « site » (partie « pied »).
  */
 import Link from "@/components/ui/Link";
 import { getDoc } from "@/lib/edition/read";
 import { fill } from "@/lib/edition/fill";
 import { NewsletterBlock } from "@/components/ui/NewsletterForm";
-import { DisplayPrefs } from "@/components/ui/DisplayPrefs";
-import { EcoFootprint } from "./EcoFootprint";
 import { CookiesButton, type NavigationDoc, type NavLink } from "./Menu";
 
 type SiteTexts = typeof import("@/content/site/fr/site.json");
@@ -78,10 +76,6 @@ export async function Footer() {
 
         <p className="t-center site-footer__copy">{t.copyright}</p>
 
-        <div className="site-footer__tools">
-          <DisplayPrefs id="pied" withMotion />
-          <EcoFootprint />
-        </div>
       </div>
     </footer>
   );

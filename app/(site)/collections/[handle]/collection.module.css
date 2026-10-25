@@ -1,6 +1,6 @@
 /*
  * Page d'une collection (maquette PAGE PRODUIT) : sous le grand titre centré, le texte officiel de
- * la collection, son accroche centrée puis ses paragraphes justifiés sur la mesure commune,
+ * la collection, son accroche centrée puis ses paragraphes alignés à gauche sur la mesure commune,
  * colonne centrée. Tokens seulement.
  */
 .texte {

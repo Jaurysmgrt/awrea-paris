@@ -1,0 +1,61 @@
+{
+  "seo": {
+    "title": "Book an appointment with the designer | Awrea Paris",
+    "description": "A video call with the designer, for a question about size or a first made-to-measure appointment: choose your day and your time."
+  },
+  "titre": "Book an appointment",
+  "chapeau": "Before ordering a piece, talk it over with the designer by video call, from home: a question about size, a first made-to-measure project. Choose the day and the time, and they are kept for you.",
+  "types": {
+    "visio": {
+      "titre": "Video call with the designer",
+      "texte": "To talk about a piece, a size or a project, from your phone or your computer.",
+      "duree": "Thirty minutes"
+    },
+    "sur-mesure": {
+      "titre": "First made-to-measure appointment",
+      "texte": "Your wishes, the materials and the first ideas for your piece. The designer guides you in taking your measurements.",
+      "duree": "An hour and a half"
+    }
+  },
+  "etapes": {
+    "type": "The appointment",
+    "jour": "The day",
+    "heure": "The time",
+    "vous": "You"
+  },
+  "aucunJour": "No free days in the coming weeks. Write to us and we will find a time.",
+  "chargement": "One moment…",
+  "champs": {
+    "nom": "Name",
+    "email": "Email",
+    "telephone": "Phone (optional)",
+    "message": "What you would like to talk about (optional)",
+    "accord": "I agree that my details are used for this appointment, and for nothing else."
+  },
+  "bouton": "Book this time",
+  "envoi": "Booking…",
+  "confirme": {
+    "titre": "Noted",
+    "texte": "{rendezvous}, {quand}. A confirmation email is on its way to {email}, with the invitation for your calendar."
+  },
+  "erreur": "The booking did not go through. Choose another time, or write to us.",
+  "annulation": {
+    "seo": {
+      "title": "Cancel an appointment | Awrea Paris",
+      "description": "Cancel an appointment with the Awrea Paris designer."
+    },
+    "titre": "Cancel the appointment",
+    "texte": "{rendezvous}, {quand}. If you cancel, the time goes to another client.",
+    "bouton": "Cancel the appointment",
+    "attente": "One moment…",
+    "fait": {
+      "titre": "Cancelled",
+      "texte": "The appointment has been released. You can book another whenever you wish."
+    },
+    "invalide": {
+      "titre": "This link is no longer valid",
+      "texte": "The appointment may already have been cancelled. Write to us at {email} if needed."
+    },
+    "erreur": "The cancellation did not go through. Try again in a moment, or write to us."
+  }
+}

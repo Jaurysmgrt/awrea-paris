@@ -3,7 +3,8 @@
  * - `colissimo` : étiquette prépayée « Colissimo Retour France » (service web d'affranchissement
  *   de La Poste, contrat Colissimo de la Maison) pour les retours depuis la France ;
  * - `mock` : étiquette de démonstration, produite à la volée.
- * Hors de France, le retour reste à la charge de la cliente (CGV) : elle reçoit un bordereau à
+ * Tant que la Maison n'offre pas le retour (`shop.returnLabelPrepaid`, article 7 des CGV), et
+ * toujours hors de France, l'envoi reste à la charge de la cliente : elle reçoit un bordereau à
  * coller sur son colis, avec l'adresse de l'atelier et le numéro de retour.
  * Si le prestataire échoue, la demande est enregistrée quand même, l'atelier est prévenu et dépose
  * l'étiquette dans l'Atelier (envoyée à la cliente par e-mail) : jamais de cliente bloquée.
@@ -20,6 +21,7 @@ import { providerOf } from "@/lib/config/providers";
 import { identity } from "@/content/brand/identity";
 import { brandAssets } from "@/content/brand/assets";
 import { palette } from "@/styles/tokens";
+import { shop } from "@/content/settings";
 import type { Order } from "@/lib/commerce/types";
 import type { ReturnLabel, ReturnRequest } from "./returns";
 
@@ -51,7 +53,7 @@ export async function storeLabel(id: string, pdf: Uint8Array) {
 export async function createReturnLabel(r: ReturnRequest, order: Order): Promise<{ label?: ReturnLabel; pending?: boolean }> {
   const now = new Date().toISOString();
   const fromFrance = (order.address?.country ?? order.shipping.country) === "FR";
-  if (!fromFrance) return { label: { provider: "mock", carrier: "Bordereau de retour (envoi à votre charge)", tracking: r.id, createdAt: now } };
+  if (!fromFrance || !shop.returnLabelPrepaid) return { label: { provider: "mock", carrier: "Bordereau de retour (envoi à votre charge)", tracking: r.id, createdAt: now } };
   if (providerOf("labels") !== "colissimo") {
     return { label: { provider: "mock", carrier: "Colissimo (démonstration)", tracking: `DEMO${randomInt(10 ** 9, 10 ** 10 - 1)}`, createdAt: now } };
   }

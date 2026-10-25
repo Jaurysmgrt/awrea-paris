@@ -128,3 +128,16 @@ arrêtées par le chef de projet pendant leur intégration.
 | 18/10 | Collection « **Hypnotic Lace** » (`hypnotic-lace`) et ses sept pièces ; « Lace is more » redirigée (308) ; collections et pièces inventées supprimées | Catalogue réel de la Maison. |
 | 24/10 | Dans les textes, la Maison parle de « la créatrice ». Son nom, connu par les mentions légales officielles, figure sur les pages légales ; il n'est pas mis en avant ailleurs sans son accord | Discrétion par défaut ; à confirmer avec elle. |
 | 24/10 | `GUIDE-CREATRICE.md` : premier jet complet de l'utilisation du site et de l'Atelier ; les écrans encore en construction sont décrits tels que prévus et marqués « à vérifier » ; les captures d'écran sont ajoutées après le contrôle final | Les captures doivent montrer le site final ; la relecture finale confirme chaque geste sur le serveur local. |
+
+## Réponses de la créatrice (25/10)
+
+| Date | Décision | Justification |
+| --- | --- | --- |
+| 25/10 | Texte aligné à gauche partout ; l'équilibreur de justification et la césure de mesure sont retirés | « Le texte a des trous dedans » : la justification creusait des espaces sur téléphone. Remplace les décisions du 13/10 sur la justification. |
+| 25/10 | Mode Nuit et animations apaisées toujours automatiques, selon le réglage de l'appareil ; plus d'interrupteur dans le site | « Mon tel est en sombre, faut que les applications soient sombres, et si je suis pas en sombre, blanches. » |
+| 25/10 | Taille XL (42) proposée pour toutes les pièces | Demande de la créatrice ; le guide des tailles avait déjà ses mesures, toujours « à confirmer ». |
+| 25/10 | Retours à la charge de la cliente, comme l'article 7 des CGV : bordereau avec l'adresse de l'atelier (`shop.returnLabelPrepaid` pour offrir un jour l'étiquette prépayée) | Choix de la créatrice ; supprime l'écart entre les CGV et le site. |
+| 25/10 | La cliente reçoit l'e-mail de confirmation du site : avec Shopify, « Commande reçue » se colle dans la confirmation de commande de Shopify (bouton « Pour Shopify ») | Shopify ne permet pas de couper sa propre confirmation ; un seul e-mail, dans la voix de la Maison. |
+| 25/10 | Rendez-vous en appel vidéo seulement : l'essayage à l'atelier n'est plus proposé, le premier rendez-vous sur mesure se fait aussi en vidéo | Aucune adresse d'atelier à publier. |
+| 25/10 | La Maison facture la TVA : prix TTC, TVA à 20 % sur les factures (déjà le fonctionnement par défaut) ; numéro de TVA à compléter | Réponse de la créatrice. |
+| 25/10 | Version anglaise en anglais britannique ; photos provisoires gardées pour la mise en ligne ; logo en PNG officiels en attendant le fichier vectoriel | Réponses de la créatrice. |

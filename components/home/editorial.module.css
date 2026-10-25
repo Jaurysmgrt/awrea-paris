@@ -87,7 +87,7 @@
 }
 
 /* citation d’un texte officiel : le chapeau de la colonne ; tant que la colonne est étroite
-   (tablette), il prend la taille du texte courant pour rester justifié sans trous */
+   (tablette), il prend la taille du texte courant pour garder assez de mots par ligne */
 .citation {
   margin: 0;
 }

@@ -286,3 +286,23 @@
 - **Restent au développement** : quelques textes en dur hors commerce (avis, rétractation,
   préférences d'affichage, empreinte écologique, vidéo différée), e-mails de `flows.ts` en documents,
   lieu dans l'e-mail de rendez-vous, photos des avant-premières dans la liste des provisoires.
+
+## Retours de la créatrice et réponses aux questions (25/10)
+
+- **Style** : la créatrice trouve le site « trop IA ». Tics décoratifs retirés (surtitres, traits
+  devant les surtitres, apparition des titres mot à mot), bouton de l'assistante en pilule sobre.
+  Refonte à venir dans l'esprit d'un site de référence qu'elle a choisi (natalierolt.com), sans le
+  copier ; le site n'est pas encore joignable depuis l'environnement de travail.
+- **Mode Nuit** toujours automatique selon le réglage de l'appareil (et animations apaisées de même) ;
+  l'interrupteur du pied de page et du menu est retiré.
+- **Texte aligné à gauche partout** : « le texte a des trous dedans ». L'équilibreur de justification
+  est supprimé ; le testeur homogénéité vérifie qu'aucun paragraphe n'est justifié et qu'aucun ne
+  dépasse 75 caractères par ligne.
+- **Réponses aux questions** (détail dans `DECISIONS.md`) : « Hypnotic Lace » avec deux majuscules ;
+  taille XL ajoutée ; retours à la charge de la cliente comme l'article 7 des CGV (bordereau avec
+  l'adresse de l'atelier) ; e-mail de confirmation du site, collé dans Shopify ; rendez-vous en appel
+  vidéo seulement ; la Maison facture la TVA ; aucun médiateur pour l'instant ; anglais britannique ;
+  photos provisoires gardées pour la mise en ligne ; licence commerciale de la police du logo
+  achetée ; logo vectoriel à venir ; vidéos des coulisses tournées par elle (à confirmer sur les
+  fichiers en place).
+- **Version anglaise** en cours : adresses `/en`, sélecteur FR · EN, textes et fiches traduits.

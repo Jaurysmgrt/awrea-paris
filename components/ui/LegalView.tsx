@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { legalPages, type LegalSlug } from "@/content/fr/legal";
 import { cookieCategories, cookieInventory } from "@/content/fr/cookies";
 import { getDoc } from "@/lib/edition/read";
+import { getLocale } from "@/lib/i18n/server";
 import { fill } from "@/lib/edition/fill";
 import { fromPage, type LegalBlock, type LegalDocContent, type LegalPageView } from "@/lib/legal/doc";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -24,7 +25,7 @@ export function legalMetadata(slug: LegalSlug) {
 
 /** Métadonnées d'une page légale tenue dans un document de l'éditeur (CGV, mentions légales). */
 export async function legalDocMetadata(doc: string, path: string) {
-  const d = await getDoc<LegalDocContent>(doc, "fr", { plain: true });
+  const d = await getDoc<LegalDocContent>(doc, { plain: true });
   return pageMetadata({ title: d.seo.title, description: d.seo.description, path });
 }
 
@@ -199,13 +200,14 @@ function Block({ block, t }: { block: LegalBlock; t: JuridiqueTexts }) {
 
 /**
  * Pages légales et pratiques : même gabarit partout. Date de mise à jour et version en tête,
- * sommaire cliquable, texte justifié avec césure, repères « À COMPLÉTER » bien visibles.
+ * sommaire cliquable, texte aligné à gauche, repères « À COMPLÉTER » bien visibles.
  * Les textes officiels de la créatrice (CGV, mentions légales) sont rendus avec data-officiel :
  * repris mot pour mot, seule leur typographie est contrôlée (scripts/controle-ecriture.ts).
  */
 export async function LegalView(props: { page: LegalPageView } | { slug: LegalSlug }) {
   const page = "page" in props ? props.page : legalPageView(props.slug);
   const t = await getDoc<JuridiqueTexts>("juridique");
+  const locale = await getLocale();
   const official = (yes: boolean) => (yes ? { "data-officiel": "" } : {});
   return (
     <>
@@ -213,7 +215,7 @@ export async function LegalView(props: { page: LegalPageView } | { slug: LegalSl
       <Section theme="ivory" className="section section--flush-top">
         <div className="container legal">
           <p className="legal__updated t-label">
-            {fill(t.misAJour, { date: formatDate(page.updated) })}
+            {fill(t.misAJour, { date: formatDate(page.updated, locale) })}
             {page.version ? ` · ${fill(t.version, { version: page.version })}` : ""}
           </p>
           {page.sections.length > 2 ? (

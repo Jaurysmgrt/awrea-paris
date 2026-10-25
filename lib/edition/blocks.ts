@@ -146,7 +146,7 @@ export const BLOCKS: BlockDef[] = [
   {
     type: "texte",
     label: "Texte",
-    description: "Un titre et quelques paragraphes, justifiés comme dans un livre.",
+    description: "Un titre et quelques paragraphes, comme dans un livre.",
     fields: [
       { key: "surtitre", label: "Petite ligne au-dessus du titre", kind: "texte", optional: true },
       { key: "titre", label: "Titre", kind: "texte", optional: true },

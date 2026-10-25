@@ -9,7 +9,7 @@ import { TextsRoot } from "@/components/content/TextsRoot";
 type Compte = typeof import("@/content/site/fr/compte.json");
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<Compte>("compte", "fr", { plain: true });
+  const t = await getDoc<Compte>("compte", { plain: true });
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/compte", noindex: true });
 }
 

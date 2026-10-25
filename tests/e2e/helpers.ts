@@ -56,7 +56,7 @@ export function outbox(): { to: string; subject: string; text: string }[] {
   return (readStore()["email:outbox"] as { to: string; subject: string; text: string }[] | undefined) ?? [];
 }
 
-/** Page hydratée : les composants client ont monté leurs effets (raccourcis clavier, équilibreur). */
+/** Page hydratée : les composants client ont monté leurs effets (components/layout/HydrationMark.tsx). */
 export async function waitForHydration(page: import("@playwright/test").Page) {
-  await page.waitForFunction(() => document.documentElement.dataset.justification !== undefined, null, { timeout: 30_000 });
+  await page.waitForFunction(() => document.documentElement.dataset.hydrated === "1", null, { timeout: 30_000 });
 }

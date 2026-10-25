@@ -1,0 +1,103 @@
+{
+  "seo": {
+    "title": "Track an order | Awrea Paris",
+    "description": "Track your Awrea Paris order without an account, with the order number and email address. The making, the invoice, a return or a size exchange, in one place."
+  },
+  "recherche": {
+    "titre": "Track an order",
+    "chapeau": "The order number and the email address you used are enough, with no account needed. You can follow the making of your piece step by step, and find the invoice, a return or a size exchange.",
+    "aide": "The number appears in the confirmation email and begins with “AW-”. Do you have an account? Your orders are waiting for you in {lien}.",
+    "lienCompte": "your account"
+  },
+  "formulaire": {
+    "numero": "Order number",
+    "exempleNumero": "AW-1031",
+    "email": "Order email",
+    "envoyer": "Track my order",
+    "envoi": "Searching…",
+    "erreur": "The search did not go through. Please try again."
+  },
+  "frise": {
+    "titre": "Order steps",
+    "etapes": {
+      "paid": "Order received",
+      "in_production": "In the making",
+      "ready": "Ready",
+      "shipped": "Dispatched",
+      "delivered": "Delivered"
+    },
+    "franchie": "step completed",
+    "enCours": "step in progress",
+    "aVenir": "step to come",
+    "delai": "Your piece is made for you, to order, by French artisans. Allow {delai} for the making.",
+    "estimation": "The making should be finished between {debut} and {fin}.",
+    "estimationJour": "The making should be finished on {fin}.",
+    "retard": "The making is taking a few days longer than planned. The atelier will write to you as soon as your piece is ready.",
+    "situations": {
+      "pending": "Payment is not yet confirmed. The making begins as soon as it is.",
+      "blocked": "The Maison is checking your order before the making begins, and will write to you very soon.",
+      "returned": "A return is in progress for this order.",
+      "refunded": "This order has been refunded."
+    }
+  },
+  "commande": {
+    "seo": {
+      "title": "Your order | Awrea Paris",
+      "description": "Tracking your Awrea Paris order."
+    },
+    "titre": "Order {numero}",
+    "chapeau": "{etape} · placed on {date}",
+    "confection": "The making",
+    "livraison": "Delivery",
+    "retrait": "We will write to you to choose the day together.",
+    "remise": "Delivery requested for {date}.",
+    "colis": "Track the parcel ({transporteur})",
+    "colisAVenir": "The carrier’s tracking link will appear here once the parcel is dispatched.",
+    "pieces": "Pieces",
+    "taille": "Size {taille}",
+    "total": "Total {total}",
+    "documents": "Documents",
+    "facture": "Invoice (PDF)",
+    "certificat": "Certificate of authenticity · {piece}",
+    "retours": "Your returns",
+    "echange": "exchange for size {taille}",
+    "remboursement": "refund",
+    "etiquetteAVenir": "The atelier will email you the label within the day.",
+    "etiquette": "Return slip (PDF)",
+    "retourner": "Return or exchange a piece",
+    "retourTexte": "Until {date}, an unworn piece can come back to the atelier, for a refund or another size. The return slip gives you the atelier’s address; the cost of sending the parcel is yours."
+  },
+  "retour": {
+    "raisons": {
+      "trop-petite": "Size too small",
+      "trop-grande": "Size too large",
+      "tombe": "The fall does not suit me",
+      "matiere": "The material is not what I expected",
+      "autre": "Another reason"
+    },
+    "taille": "size {taille}",
+    "raison": "Reason",
+    "souhait": "I would like",
+    "remboursement": "A refund",
+    "remboursementNote": "To the original payment method, as soon as the piece reaches the atelier",
+    "echange": "Another size",
+    "echangeNote": "Your piece is made in the new size as soon as the one you send back arrives",
+    "nouvelleTaille": "New size",
+    "mot": "A note for the atelier (optional)",
+    "engagement": "I will send the piece back unworn, with its labels, within {jours} days of delivery.",
+    "aucune": "Choose at least one piece.",
+    "erreur": "The request could not be saved.",
+    "envoi": "Saving…",
+    "envoyer": "Request a return"
+  },
+  "confirmation": {
+    "suite": "We will write to you at each step: when your piece goes into the making, when it is ready, then on the day it leaves, with the tracking link."
+  },
+  "detail": {
+    "taille": "Size {taille}",
+    "quantite": "{n} pieces",
+    "livraison": "Delivery",
+    "offerte": "Complimentary",
+    "total": "Total"
+  }
+}

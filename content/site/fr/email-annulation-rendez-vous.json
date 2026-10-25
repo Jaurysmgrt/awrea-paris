@@ -7,7 +7,7 @@
   "variables": {
     "prenom": { "description": "Le prénom de la cliente", "exemple": "Camille" },
     "quand": { "description": "Le jour et l’heure du rendez-vous", "exemple": "jeudi 16 octobre à 14 h 30" },
-    "rendezvous": { "description": "Le rendez-vous", "exemple": "Essayage à l’atelier" }
+    "rendezvous": { "description": "Le rendez-vous", "exemple": "Appel vidéo avec la créatrice" }
   },
   "blocs": [
     { "id": "b-ardv0entete", "type": "entete", "fond": "noir" },

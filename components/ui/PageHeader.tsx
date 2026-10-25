@@ -5,8 +5,8 @@ import { SplitTitle } from "./SplitTitle";
 /**
  * En-tête de page commun : fil d'Ariane, surtitre, H1 unique écrit au chargement, chapeau.
  * Langage des maquettes (« Contact », « Mentions légales », « Collection Hypnotic Lace ») : un
- * très grand titre en Fraunces italique, centré par défaut ; le chapeau garde sa justification et
- * sa mesure, sa colonne est centrée sous le titre.
+ * très grand titre en Fraunces italique, centré par défaut ; le chapeau garde son alignement à gauche
+ * et sa mesure, sa colonne est centrée sous le titre.
  * « giant » : pages éditoriales, où le titre devient une affiche (encore plus grand).
  * « align="left" » : titre au fer à gauche, quand une photo ou un formulaire l'accompagne.
  */

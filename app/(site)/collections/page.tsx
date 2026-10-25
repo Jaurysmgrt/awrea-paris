@@ -19,7 +19,7 @@ type CollectionsTexts = typeof import("@/content/site/fr/collections.json");
 export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<CollectionsTexts>("collections", "fr", { plain: true });
+  const t = await getDoc<CollectionsTexts>("collections", { plain: true });
   return pageMetadata({ ...t.seo, path: "/collections" });
 }
 

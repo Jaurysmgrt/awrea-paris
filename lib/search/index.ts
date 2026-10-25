@@ -9,6 +9,7 @@ import { getArticles } from "@/lib/content/journal";
 import { leadTimeText } from "@/lib/commerce/availability";
 import { faq } from "@/content/fr/faq";
 import { getDoc } from "@/lib/edition/read";
+import type { Locale } from "@/lib/i18n/routing";
 import { normalize, type SearchEntry } from "./match";
 import type { Image } from "@/lib/commerce/types";
 
@@ -25,7 +26,7 @@ const PAGE_DOCS: { doc: string; href: string; title: string; extra: string }[] =
   { doc: "atelier", href: "/atelier", title: "L’Atelier", extra: "savoir faire dorure coupe couture artisans francais fabrication sur demande coulisses essayage" },
   { doc: "sur-commande", href: "/sur-commande", title: "La commande sur demande", extra: "sur commande sur demande delai fabrication etapes confection suivi sans stock" },
   { doc: "guide-des-tailles", href: "/guide-des-tailles", title: "Guide des tailles", extra: "taille mesures tour de poitrine taille hanches xs s m l xl" },
-  { doc: "rendez-vous", href: "/rendez-vous", title: "Prendre rendez-vous", extra: "rendez vous essayage atelier sur mesure visio appel video prive conseil" },
+  { doc: "rendez-vous", href: "/rendez-vous", title: "Prendre rendez-vous", extra: "rendez vous essayage taille sur mesure visio appel video prive conseil creatrice" },
   { doc: "outfits", href: "/outfits", title: "Outfits", extra: "look tenue complete silhouette outfit" },
   { doc: "contact", href: "/contact", title: "Contact", extra: "contact ecrire message question conseil" },
   { doc: "presse", href: "/presse", title: "Presse", extra: "dossier de presse journaliste contact presse" },
@@ -45,13 +46,18 @@ const pages: PageEntry[] = [
 /** Image d'un résultat : la mention « visuel provisoire » suit l'image générée jusque dans la recherche. */
 const resultImage = (i: Image) => ({ src: i.src, alt: i.alt, width: i.width, height: i.height, ...(i.provisoire ? { provisoire: true } : {}) });
 
-export async function buildSearchIndex(): Promise<SearchEntry[]> {
+/**
+ * Index dans une langue : le français par défaut (index servi par /api/search, mis en cache) ; la
+ * page de recherche demande celui de sa langue. Les liens restent sans préfixe de langue : le lien
+ * du site les place dans la langue de la page (components/ui/Link.tsx).
+ */
+export async function buildSearchIndex(locale: Locale = "fr"): Promise<SearchEntry[]> {
   const [products, collections, articles, boutique, docs] = await Promise.all([
-    getPublicProducts(),
-    getCollections(),
+    getPublicProducts(locale),
+    getCollections(locale),
     getArticles(),
-    getDoc<{ categories: Record<string, string> }>("boutique", undefined, { plain: true }).catch(() => null),
-    Promise.all(PAGE_DOCS.map((d) => getDoc<{ seo?: { description?: string } }>(d.doc, undefined, { plain: true }).catch(() => null))),
+    getDoc<{ categories: Record<string, string> }>("boutique", locale, { plain: true }).catch(() => null),
+    Promise.all(PAGE_DOCS.map((d) => getDoc<{ seo?: { description?: string } }>(d.doc, locale, { plain: true }).catch(() => null))),
   ]);
   const categoryLabel = (value: string) => boutique?.categories[value] ?? value;
   const collectionTitle = new Map(collections.map((c) => [c.handle, c.title]));

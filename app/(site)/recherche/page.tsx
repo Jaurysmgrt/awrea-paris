@@ -9,11 +9,13 @@ import Link from "@/components/ui/Link";
 import { SearchResults } from "@/components/search/SearchResults";
 import { buildSearchIndex } from "@/lib/search";
 import { groupByKind, search } from "@/lib/search/match";
+import { getLocale } from "@/lib/i18n/server";
+import { localizePath } from "@/lib/i18n/routing";
 
 type Recherche = typeof import("@/content/site/fr/recherche.json");
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<Recherche>("recherche", "fr", { plain: true });
+  const t = await getDoc<Recherche>("recherche", { plain: true });
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/recherche", noindex: true });
 }
 
@@ -21,14 +23,15 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RecherchePage({ searchParams }: { searchParams: Promise<{ q?: string | string[] }> }) {
   const raw = (await searchParams).q;
   const q = (Array.isArray(raw) ? raw[0] : raw)?.slice(0, 80).trim() ?? "";
-  const [t, results] = await Promise.all([getDoc<Recherche>("recherche"), q ? buildSearchIndex().then((index) => search(index, q, 60)) : []]);
+  const locale = await getLocale();
+  const [t, results] = await Promise.all([getDoc<Recherche>("recherche"), q ? buildSearchIndex(locale).then((index) => search(index, q, 60)) : []]);
   const groups = groupByKind(results);
   const count = results.length === 1 ? t.resultats.un : t.resultats.plusieurs;
 
   return (
     <>
       <PageHeader title={t.titre} crumbs={[{ name: t.titre, path: "/recherche" }]}>
-        <form role="search" action="/recherche" className="search-page__form">
+        <form role="search" action={localizePath("/recherche", locale)} className="search-page__form">
           <label htmlFor="recherche-q" className="t-label search__label">
             {t.champ}
           </label>

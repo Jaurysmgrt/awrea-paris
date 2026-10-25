@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getDoc } from "@/lib/edition/read";
+import { getLocale } from "@/lib/i18n/server";
 import { identity } from "@/content/brand/identity";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -17,7 +18,7 @@ interface Parution {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<Presse>("presse", "fr", { plain: true });
+  const t = await getDoc<Presse>("presse", { plain: true });
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/presse" });
 }
 
@@ -26,6 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
  * Maison. Tant que la liste est vide, la page ne montre que le contact.
  */
 export default async function PressePage() {
+  const locale = await getLocale();
   const t = await getDoc<Presse>("presse");
   const parutions = t.articles as Parution[];
   return (
@@ -41,7 +43,7 @@ export default async function PressePage() {
               {parutions.map((a) => (
                 <li key={a.title} className="press-item" data-reveal>
                   <p className="t-label t-soft">
-                    {a.outlet} · {formatMonth(a.date)}
+                    {a.outlet} · {formatMonth(a.date, locale)}
                   </p>
                   <h3 className="t-h3">{a.title}</h3>
                   <blockquote cite={a.url || undefined}>

@@ -10,6 +10,8 @@
  *   devient compact : le monogramme et la même navigation (styles/layout.css).
  * - Menu : le menu plein écran du téléphone, un dialogue modal (<dialog>) qui reprend les cinq
  *   entrées et leurs sous-entrées.
+ * - Sélecteur de langue « FR · EN » (LanguageSwitch) : à droite de la navigation sur tablette et
+ *   ordinateur, en bas du menu sur téléphone. Sous /en, la page en cours se repère sans le préfixe.
  * - CookiesButton : « Gérer les cookies » du pied de page (rouvre les préférences).
  *
  * Aucun texte ici : entrées et liens dans content/site/fr/navigation.json, libellés de l'interface
@@ -22,13 +24,14 @@ import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, ty
 import { Logo } from "@/components/brand/Logo";
 import { Chevron } from "@/components/ui/Chevron";
 import { Icon } from "@/components/ui/Icon";
-import { DisplayPrefs } from "@/components/ui/DisplayPrefs";
 import { useCart } from "@/components/commerce/CartProvider";
 import { useWishlist } from "@/components/commerce/WishlistProvider";
 import { useTexts } from "@/components/content/Texts";
 import { loadSearchIndex } from "@/components/search/load";
 import { fill } from "@/lib/edition/fill";
 import { CONSENT_OPEN_EVENT } from "@/lib/consent";
+import { stripLocale } from "@/lib/i18n/routing";
+import { LanguageSwitch, type LanguesTexts } from "./LanguageSwitch";
 
 const loadSearch = () => import("@/components/search/SearchOverlay");
 const SearchOverlay = dynamic(loadSearch, { ssr: false });
@@ -52,6 +55,8 @@ export interface NavEntry extends NavLink {
 export interface NavigationDoc {
   principal: NavEntry[];
   pied: { titre: string; liens: NavLink[] }[];
+  /** sélecteur de langue « FR · EN » */
+  langues?: LanguesTexts;
 }
 
 type SiteTexts = typeof import("@/content/site/fr/site.json");
@@ -151,7 +156,8 @@ type Ouverture = { i: number; par: "clic" | "survol" } | null;
 export function HeaderBar({ nav }: { nav: NavigationDoc }) {
   const t = useTexts<SiteTexts>("site").entete;
   const pieces = usePieces();
-  const pathname = usePathname();
+  // chemin sans préfixe de langue : « /en/boutique » se repère comme « /boutique »
+  const pathname = stripLocale(usePathname());
   const uid = useId();
   const { cart, open: openCart } = useCart();
   const { handles } = useWishlist();
@@ -318,6 +324,8 @@ export function HeaderBar({ nav }: { nav: NavigationDoc }) {
               {t.panierCourt}
               <Compteur n={count} />
             </button>
+
+            {nav.langues ? <LanguageSwitch t={nav.langues} className="site-header__lang" /> : null}
           </div>
         </div>
       </header>
@@ -413,7 +421,7 @@ export function Menu({ open, onClose, nav, actions }: { open: boolean; onClose: 
             ))}
           </ul>
         </nav>
-        <DisplayPrefs id="menu" className="site-menu__prefs" />
+        {nav.langues ? <LanguageSwitch t={nav.langues} className="site-menu__lang" /> : null}
       </div>
     </dialog>
   );

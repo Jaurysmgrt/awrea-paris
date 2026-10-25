@@ -16,7 +16,7 @@ import { Section } from "@/components/ui/Section";
  * offerte des réglages ({seuil}) ; les réponses suivent les conditions générales de vente officielles.
  */
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<FaqDoc>("faq", "fr", { plain: true });
+  const t = await getDoc<FaqDoc>("faq", { plain: true });
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/faq" });
 }
 
@@ -50,7 +50,7 @@ function Answer({ text }: { text: string }) {
 }
 
 export default async function FaqPage() {
-  const [t, plain, products] = await Promise.all([getDoc<FaqDoc>("faq"), getDoc<FaqDoc>("faq", "fr", { plain: true }), getAllProducts().catch(() => [])]);
+  const [t, plain, products] = await Promise.all([getDoc<FaqDoc>("faq"), getDoc<FaqDoc>("faq", { plain: true }), getAllProducts().catch(() => [])]);
   const vars = faqVars(products);
   const groups = faqGroups(t, vars, { links: true });
   // données structurées : texte brut, sans lien ni repère « à compléter »

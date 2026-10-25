@@ -27,7 +27,7 @@ const FAMILLES: FamilleDelai[] = ["hauts", "robes"];
 const ETAPES: readonly OrderStage[] = ["paid", "in_production", "ready", "shipped", "delivered"];
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<SurCommande>("sur-commande", "fr", { plain: true });
+  const t = await getDoc<SurCommande>("sur-commande", { plain: true });
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/sur-commande" });
 }
 
