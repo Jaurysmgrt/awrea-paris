@@ -1,6 +1,8 @@
 /**
  * Rendu d'un e-mail composé de blocs (lib/email/blocks.ts) en HTML compatible avec les messageries :
- * tableaux, styles en ligne, repli des polices, bouton « à toute épreuve » pour Outlook, mode sombre
+ * tableaux, styles en ligne, logo officiel en image (public/brand), polices officielles (Fraunces
+ * italique pour les titres, jamais sous 24 px ; Cormorant Garamond pour le texte ; servies par
+ * /fonts) avec repli sur Georgia, bouton en pilule « à toute épreuve » pour Outlook, mode sombre
  * (Apple Mail, Outlook.com, iOS), version texte. Le même rendu sert à l'envoi, à l'aperçu de
  * l'éditeur (simulation de Gmail, Apple Mail, Outlook, téléphone, clair et sombre) et à l'export
  * vers Brevo, Klaviyo ou les notifications Shopify (repères convertis dans leur syntaxe).
@@ -115,18 +117,22 @@ const imageUrl = (src: string, ctx: EmailContext, width = 1200) => {
 // ------------------------------------------------------------------ styles
 
 function fonts(ctx: EmailContext) {
-  // Gmail et Outlook ignorent les polices du site : les replis sont choisis pour garder la même allure
-  if (ctx.client === "outlook") return { display: "Georgia, 'Times New Roman', serif", sans: "Arial, Helvetica, sans-serif" };
+  // Gmail et Outlook ignorent les polices du site : Georgia, serif garde l'allure d'un texte composé
+  if (ctx.client === "outlook") return { display: "Georgia, serif", text: "Georgia, serif" };
   return fontStacks;
 }
+
+/** Titres : l'italique de la police officielle (Fraunces 72pt Italic), repris par Georgia en repli. */
+// ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
+const italic = "font-style:italic;";
 
 function head(ctx: EmailContext, title: string) {
   const fontFace =
     ctx.client === "gmail" || ctx.client === "outlook"
       ? ""
-      : `@font-face{font-family:'Instrument Serif';font-weight:400;font-style:normal;src:url('${ctx.site}/fonts/instrument-serif-latin-400-normal.woff2') format('woff2');}
-@font-face{font-family:'Inter Tight';font-weight:100 900;font-style:normal;src:url('${ctx.site}/fonts/inter-tight-latin-wght-normal.woff2') format('woff2');}`;
-  const darkRules = `.e-page{background:${dark.page}!important}.e-card{background:${dark.card}!important}.e-ink{color:${dark.ink}!important}.e-soft{color:${dark.soft}!important}.e-line{border-color:${dark.line}!important}.e-btn{background:${dark.btn}!important;border-color:${dark.btn}!important}.e-btn a{color:${dark.onBtn}!important}.e-ink a{color:${dark.ink}!important}`;
+      : `@font-face{font-family:'Fraunces';font-weight:400;font-style:italic;src:url('${ctx.site}/fonts/fraunces-72pt-italic-latin.woff2') format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-weight:400;font-style:normal;src:url('${ctx.site}/fonts/cormorant-garamond-latin-400.woff2') format('woff2');}`;
+  const darkRules = `.e-page{background:${dark.page}!important}.e-card{background:${dark.card}!important}.e-ink{color:${dark.ink}!important}.e-soft{color:${dark.soft}!important}.e-line{border-color:${dark.line}!important}.e-btn{background:${dark.btn}!important;border-color:${dark.btn}!important}.e-btn a{color:${dark.onBtn}!important}.e-ink a{color:${dark.ink}!important}.e-logo-day{display:none!important}.e-logo-night{display:block!important;max-height:none!important;overflow:visible!important}`;
   const prefix = (sel: string) => darkRules.replace(/\.e-/g, `${sel} .e-`);
   // le thème sombre forcé de l'aperçu reprend exactement les règles du mode sombre
   const forced = ctx.dark && ctx.client !== "gmail" ? `<style>${darkRules}</style>` : "";
@@ -138,7 +144,7 @@ function head(ctx: EmailContext, title: string) {
 body{margin:0;padding:0;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 table{border-collapse:collapse}img{border:0;display:block;height:auto;line-height:100%;outline:none;text-decoration:none}
 a{text-decoration:underline;text-underline-offset:3px}
-@media (max-width:620px){.e-pad{padding-left:24px!important;padding-right:24px!important}.e-title{font-size:28px!important;line-height:32px!important}}
+@media (max-width:620px){.e-pad{padding-left:24px!important;padding-right:24px!important}.e-title{font-size:32px!important;line-height:40px!important}}
 ${media}
 ${prefix("[data-ogsc]")}
 </style>${forced}</head>`;
@@ -149,21 +155,31 @@ ${prefix("[data-ogsc]")}
 function blockHtml(b: EmailBlock, ctx: EmailContext, unsubscribe: string): string {
   const f = fonts(ctx);
   const c = light;
-  const caps = `font-family :${f.sans} ;font-weight:400;font-size:11px;line-height:16px;letter-spacing:1.5px;text-transform:uppercase ;`;
-  const body = `font-family :${f.sans} ;font-weight:300;font-size:15px;line-height:24px;color :${c.ink} ;`;
+  // Cormorant Garamond a un petit œil : texte à 20 px sur 32 px, capitales et notes jamais sous 16 px
+  // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
+  const caps = `font-family:${f.text};font-weight:400;font-size:16px;line-height:24px;letter-spacing:1px;text-transform:uppercase;`;
+  // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
+  const body = `font-family:${f.text};font-weight:400;font-size:20px;line-height:32px;color:${c.ink};`;
   const row = (inner: string, pad = "0 48px 32px") => `<tr><td class="e-pad" style="padding:${pad};">${inner}</td></tr>`;
   switch (b.type) {
     case "entete": {
+      // logo officiel en image (jamais imité par une police) : blanc cassé sur la bande noire, noir
+      // sur fond clair, et sa version blanc cassé quand la messagerie passe en mode sombre ; le
+      // texte alternatif « Awrea Paris » s'affiche si les images sont bloquées
       const ink = b.fond !== "clair";
       const bg = ink ? c.band : c.card;
       const fg = ink ? c.onBand : c.ink;
+      const logo = (file: string, cls: string, alt: string) =>
+        `<img class="${cls}" src="${ctx.site}/brand/${file}" width="160" alt="Awrea Paris" style="display:block;margin:0 auto;width:160px;height:auto;border:0;font-family:${f.text};font-size:20px;line-height:32px;color:${alt};">`;
+      const art = ink
+        ? logo("awrea-logo-blanc.png", "", fg)
+        : `${logo("awrea-logo.png", "e-logo-day", fg)}<!--[if !mso]><!--><div class="e-logo-night" style="display:none;max-height:0;overflow:hidden;">${logo("awrea-logo-blanc.png", "", c.onBand)}</div><!--<![endif]-->`;
       return `<tr><td align="center" class="${ink ? "" : "e-card"}" style="background:${bg};padding:40px 24px 32px;" bgcolor="${bg}">
-<div class="${ink ? "" : "e-ink"}" style="font-family:${f.display};font-size:40px;line-height:40px;color:${fg};letter-spacing:-1px;">AW</div>
-<div class="${ink ? "" : "e-ink"}" style="${caps}letter-spacing:6px;color:${fg};padding-top:8px;padding-left:6px;">PARIS</div>
+${art}
 </td></tr>${row("", "48px 48px 0")}`;
     }
     case "titre":
-      return row(`<h1 class="e-ink e-title" style="margin:0;font-family:${f.display};font-weight:400;font-size:32px;line-height:40px;color:${c.ink};text-align:center;">${fill(String(b.titre ?? ""), ctx)}</h1>`);
+      return row(`<h1 class="e-ink e-title" style="margin:0;font-family:${f.display};${italic}font-weight:400;font-size:40px;line-height:48px;color:${c.ink};text-align:center;">${fill(String(b.titre ?? ""), ctx)}</h1>`);
     case "texte": {
       // les repères sont remplis avant le découpage : une réponse de plusieurs paragraphes les garde
       const raw = ctx.syntax ? String(b.texte ?? "") : fill(String(b.texte ?? ""), ctx, false);
@@ -188,7 +204,7 @@ function blockHtml(b: EmailBlock, ctx: EmailContext, unsubscribe: string): strin
       if (!p) return "";
       return row(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
 ${p.image ? `<td width="168" style="padding-right:24px;vertical-align:top;"><a href="${esc(href(p.href, ctx))}"><img src="${esc(imageUrl(p.image, ctx, 480))}" width="168" alt="${esc(p.alt ?? p.title)}" style="width:168px;"></a></td>` : ""}
-<td style="vertical-align:middle;"><div class="e-ink" style="font-family:${f.display};font-size:24px;line-height:32px;color:${c.ink};">${esc(p.title)}</div>
+<td style="vertical-align:middle;"><div class="e-ink" style="font-family:${f.display};${italic}font-size:24px;line-height:32px;color:${c.ink};">${esc(p.title)}</div>
 ${p.price ? `<div class="e-soft" style="${body}color:${c.soft};padding-top:8px;">${esc(p.price)}</div>` : ""}
 <div style="padding-top:16px;"><a class="e-ink" href="${esc(href(p.href, ctx))}" style="${caps}color:${c.ink};">${esc(ctx.commun.voirPiece)}</a></div></td></tr></table>`);
     }
@@ -196,7 +212,10 @@ ${p.price ? `<div class="e-soft" style="${body}color:${c.soft};padding-top:8px;"
       const l = b.lien as Lien | null;
       if (!l?.label) return "";
       return row(
-        `<table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr><td class="e-btn" bgcolor="${c.btn}" style="background:${c.btn};border:1px solid ${c.btn};padding:16px 32px;"><a href="${esc(href(l.href, ctx))}" style="${caps}color:${c.onBtn};text-decoration:none;display:inline-block;">${fill(l.label, ctx)}</a></td></tr></table>`,
+        // bouton des maquettes : noir plein en pilule, texte en bas de casse comme sur le site ; pas de
+        // bordure (une cellule de tableau fusionné la garderait carrée) ; Outlook pour Windows ignore
+        // l'arrondi : le bouton y reste un rectangle noir lisible
+        `<table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr><td class="e-btn" bgcolor="${c.btn}" style="background:${c.btn};border-radius:999px;padding:8px 32px;"><a href="${esc(href(l.href, ctx))}" style="${body}color:${c.onBtn};letter-spacing:0.4px;text-decoration:none;display:inline-block;border-radius:999px;">${fill(l.label, ctx)}</a></td></tr></table>`,
         "8px 48px 40px",
       );
     }
@@ -205,13 +224,14 @@ ${p.price ? `<div class="e-soft" style="${body}color:${c.soft};padding-top:8px;"
       const items = (ctx.items ?? [])
         .map(
           (it) => `<tr>${it.image ? `<td width="88" style="padding:16px 16px 16px 0;vertical-align:top;"><img src="${esc(imageUrl(it.image, ctx, 480))}" width="72" alt="" style="width:72px;"></td>` : ""}
-<td class="e-line" style="padding:16px 0;vertical-align:top;border-bottom:1px solid ${c.line};"><div class="e-ink" style="font-family:${f.display};font-size:20px;line-height:24px;color:${c.ink};">${esc(it.title)}</div>${it.meta ? `<div class="e-soft" style="${caps}color:${c.soft};padding-top:8px;">${esc(it.meta)}</div>` : ""}</td>
-<td align="right" class="e-line e-ink" style="padding:16px 0;vertical-align:top;border-bottom:1px solid ${c.line};${body}white-space:nowrap;">${esc(it.price ?? "")}</td></tr>`,
+<td class="e-line" style="padding:16px 0;vertical-align:top;border-bottom:1px solid ${c.line};"><div class="e-ink" style="${body}">${esc(it.title)}</div>${it.meta ? `<div class="e-soft" style="${caps}color:${c.soft};padding-top:8px;">${esc(it.meta)}</div>` : ""}</td>
+<td align="right" class="e-line e-ink" style="padding:16px 0;vertical-align:top;border-bottom:1px solid ${c.line};${body}white-space:nowrap;font-variant-numeric:lining-nums;">${esc(it.price ?? "")}</td></tr>`,
         )
         .join("");
       const totals = (ctx.totals ?? [])
         .map((t, i, all) => {
-          const last = i === all.length - 1 ? `border-top:1px solid ${c.ink} ;padding-top:16px ;` : "";
+          // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
+          const last = i === all.length - 1 ? `border-top:1px solid ${c.ink};padding-top:16px;` : "";
           return `<tr><td class="e-ink" style="padding:8px 0;${caps}color:${c.ink};${last}">${esc(t.label)}</td><td align="right" class="e-ink" style="padding:8px 0;${body}${last}">${esc(t.value)}</td></tr>`;
         })
         .join("");
@@ -221,17 +241,17 @@ ${p.price ? `<div class="e-soft" style="${body}color:${c.soft};padding-top:8px;"
     case "separateur":
       return row(`<div class="e-line" style="border-top:1px solid ${c.line};font-size:0;line-height:0;">&nbsp;</div>`);
     case "signature":
-      return row(`<p class="e-ink" style="margin:0;font-family:${f.display};font-size:20px;line-height:32px;color:${c.ink};">${fill(String(b.texte ?? ""), ctx).replace(/\n/g, "<br>")}</p>`, "8px 48px 40px");
+      return row(`<p class="e-ink" style="margin:0;font-family:${f.display};${italic}font-size:24px;line-height:32px;color:${c.ink};">${fill(String(b.texte ?? ""), ctx).replace(/\n/g, "<br>")}</p>`, "8px 48px 40px");
     case "pied": {
       const k = ctx.commun;
       const site = ctx.site.replace(/^https?:\/\//, "");
       const note = String(b.note ?? "").trim();
       return `<tr><td align="center" style="background:${c.band};padding:32px 24px;" bgcolor="${c.band}">
-<div style="font-family:${f.display};font-size:24px;line-height:32px;color:${c.onBand};">${esc(k.devise)}</div>
+<div style="font-family:${f.display};${italic}font-size:24px;line-height:32px;color:${c.onBand};">${esc(k.devise)}</div>
 <div style="${caps}color:${c.onBand};padding-top:8px;">${esc(k.lignePied)}${ctx.instagram ? ` · <a href="${esc(ctx.instagram)}" style="color:${c.onBand};">Instagram</a>` : ""} · <a href="${esc(ctx.site)}" style="color:${c.onBand};">${esc(site)}</a></div>
-${note ? `<div style="font-family:${f.sans};font-weight:300;font-size:12px;line-height:16px;color:${palette.taupe};padding-top:16px;">${fill(note, ctx).replace(/\n/g, "<br>")}</div>` : ""}
-${k.mentions ? `<div style="font-family:${f.sans};font-weight:300;font-size:12px;line-height:16px;color:${palette.taupe};padding-top:16px;">${esc(k.mentions)}</div>` : ""}
-${unsubscribe ? `<div style="padding-top:16px;"><a href="${unsubscribe}" style="font-family:${f.sans};font-weight:300;font-size:12px;line-height:16px;color:${palette.taupe};">${esc(k.desinscription)}</a></div>` : ""}
+${note ? `<div style="font-family:${f.text};font-weight:400;font-size:16px;line-height:24px;color:${palette.taupe};padding-top:16px;">${fill(note, ctx).replace(/\n/g, "<br>")}</div>` : ""}
+${k.mentions ? `<div style="font-family:${f.text};font-weight:400;font-size:16px;line-height:24px;color:${palette.taupe};padding-top:16px;">${esc(k.mentions)}</div>` : ""}
+${unsubscribe ? `<div style="padding-top:16px;"><a href="${unsubscribe}" style="font-family:${f.text};font-weight:400;font-size:16px;line-height:24px;color:${palette.taupe};">${esc(k.desinscription)}</a></div>` : ""}
 </td></tr>`;
     }
     default:
@@ -243,7 +263,7 @@ ${unsubscribe ? `<div style="padding-top:16px;"><a href="${unsubscribe}" style="
 function orderLoop(ctx: EmailContext, caps: string, body: string): string {
   const c = light;
   const line = (title: string, meta: string, price: string) =>
-    `<tr><td class="e-line" style="padding:16px 0;border-bottom:1px solid ${c.line};"><div class="e-ink" style="font-family:${fonts(ctx).display};font-size:20px;line-height:24px;color:${c.ink};">${title}</div><div class="e-soft" style="${caps}color:${c.soft};padding-top:8px;">${meta}</div></td><td align="right" class="e-line e-ink" style="padding:16px 0;border-bottom:1px solid ${c.line};${body}">${price}</td></tr>`;
+    `<tr><td class="e-line" style="padding:16px 0;border-bottom:1px solid ${c.line};"><div class="e-ink" style="${body}">${title}</div><div class="e-soft" style="${caps}color:${c.soft};padding-top:8px;">${meta}</div></td><td align="right" class="e-line e-ink" style="padding:16px 0;border-bottom:1px solid ${c.line};${body}">${price}</td></tr>`;
   if (ctx.syntax === "shopify")
     return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">{% for line in line_items %}${line("{{ line.title }}", "{{ line.variant.title }}", "{{ line.final_line_price | money }}")}{% endfor %}
 <tr><td style="padding:16px 0 0;${caps}">${esc(ctx.commun.total)}</td><td align="right" style="padding:16px 0 0;${body}">{{ total_price | money }}</td></tr></table>`;
@@ -261,7 +281,8 @@ export function renderEmail(doc: EmailDoc, ctx: EmailContext): RenderedEmail {
   const blocks = doc.blocs.filter((b) => !Object.values(b).some((v) => typeof v === "string" && isTodoText(v)) && (ctx.syntax ? true : blockShown(b, ctx.vars)));
   const rows = blocks.map((b) => blockHtml(b, ctx, unsubscribe)).join("\n");
   const c = light;
-  const spacer = "&#847;&zwnj;&nbsp ;".repeat(40);
+  // ecriture-ok : entités HTML du remplissage de l'aperçu (jamais d'espace avant « ; »)
+  const spacer = "&#847;&zwnj;&nbsp;".repeat(40);
   const gmailDark = ctx.client === "gmail" && ctx.dark ? ` style="filter:invert(1) hue-rotate(180deg);"` : "";
   const html = `<!doctype html>
 <html lang="fr" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"${gmailDark}>

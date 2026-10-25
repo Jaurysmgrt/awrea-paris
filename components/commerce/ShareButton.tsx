@@ -1,11 +1,14 @@
 "use client";
 import { useState } from "react";
+import { useTexts } from "@/components/content/Texts";
+import { fill, type CatalogueTexts } from "@/lib/commerce/texts";
 
 /**
  * Partager une pièce : la feuille de partage du téléphone quand elle existe, sinon le lien copié.
  * Aucun bouton de réseau social (ni script tiers) : la cliente choisit où l'envoyer.
  */
 export function ShareButton({ title, text, path }: { title: string; text: string; path: string }) {
+  const t = useTexts<CatalogueTexts>("catalogue").partage;
   const [status, setStatus] = useState("");
   const share = async () => {
     const url = new URL(path, window.location.origin).toString();
@@ -19,15 +22,15 @@ export function ShareButton({ title, text, path }: { title: string; text: string
     }
     try {
       await navigator.clipboard.writeText(url);
-      setStatus("Lien copié.");
+      setStatus(t.copie);
     } catch {
-      setStatus(`Lien : ${url}`);
+      setStatus(fill(t.lien, { url }));
     }
   };
   return (
     <span className="share">
       <button type="button" className="link link--quiet t-label" onClick={share}>
-        Partager
+        {t.bouton}
       </button>
       <span className="t-note share__status" role="status" aria-live="polite">
         {status}

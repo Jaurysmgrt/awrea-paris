@@ -76,7 +76,7 @@ export function ReturnForm({ number, token, lines, returnDays }: { number: strin
               <label className="check">
                 <input type="checkbox" checked={c.on} onChange={(e) => set(l.index, { on: e.target.checked })} />
                 <span>
-                  <span className="t-h4">{l.title}</span> <span className="t-label t-soft">taille {l.size}</span> <span className="price">{l.price}</span>
+                  <span className="t-body">{l.title}</span> <span className="t-label t-soft">taille {l.size}</span> <span className="price">{l.price}</span>
                 </span>
               </label>
               {c.on ? (

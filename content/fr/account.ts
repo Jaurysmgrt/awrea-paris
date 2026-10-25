@@ -1,13 +1,17 @@
-/** Textes de l'espace « Mon compte » (connexion, création, préférences, données personnelles). */
+/**
+ * Textes de l'espace « Mon compte » (connexion, création, préférences, données personnelles). Les
+ * étapes de la confection et le certificat lisent leurs textes dans les documents « suivi-commande »
+ * et « certificat » (Édition).
+ */
 export const accountCopy = {
   login: {
     tabs: { login: "Se connecter", signup: "Créer un compte" },
     intro: {
       login: "Indiquez votre adresse e-mail : nous vous envoyons un code de connexion, sans mot de passe.",
-      signup: "Un compte vous permet de retrouver vos commandes et vos certificats, vos tailles, vos envies et vos alertes de retour en stock.",
+      signup: "Un compte vous permet de suivre la confection de vos pièces, de retrouver vos commandes et vos certificats, vos tailles et vos envies.",
     },
     email: "Adresse e-mail",
-    marketing: "Je souhaite recevoir les lettres de l’atelier, quelques fois par saison. Désinscription en un clic.",
+    marketing: "Je souhaite recevoir la lettre de la Maison. Désinscription en un clic.",
     send: "Recevoir mon code",
     sending: "Envoi…",
     or: "ou",
@@ -34,12 +38,16 @@ export const accountCopy = {
     certificats: "Certificats",
     tailles: "Mes tailles",
     adresses: "Adresses",
-    envies: "Envies et alertes",
+    envies: "Mes envies",
     profil: "Profil et préférences",
     donnees: "Mes données",
   },
   orders: {
     empty: "Aucune commande pour le moment.",
+    shop: "Les pièces vous attendent dans la boutique",
+    title: (n: string) => `Commande ${n}`,
+    stages: (n: string) => `Étapes de la commande ${n}`,
+    size: (s: string) => `taille ${s}`,
     track: "Suivre le colis",
     total: "Total",
     follow: "Suivi, retour, échange et facture",
@@ -49,8 +57,6 @@ export const accountCopy = {
   certificates: {
     intro: "Le certificat d’authenticité de chaque pièce, signé par la créatrice. Le QR code imprimé sur le certificat papier mène à sa version numérique.",
     empty: "Les certificats de vos pièces apparaîtront ici après votre première commande.",
-    unique: "Pièce unique",
-    madeToOrder: "Réalisée sur commande",
     open: "Voir le certificat",
     gift: "Une pièce vous a été offerte ? Ouvrez la page de son certificat (QR code du certificat papier) et saisissez le code de rattachement qui l’accompagne.",
   },
@@ -85,10 +91,6 @@ export const accountCopy = {
     copy: "Copier le lien",
     copied: "Lien copié.",
     unshare: "Désactiver le lien",
-    waitlist: "Alertes de retour en stock",
-    waitlistEmpty: "Aucune alerte en cours.",
-    remove: "Retirer",
-    notified: "Prévenue le",
   },
   profile: {
     identity: "Coordonnées",
@@ -112,11 +114,11 @@ export const accountCopy = {
   data: {
     intro: "Vos données vous appartiennent. Nous ne gardons que ce qui sert votre compte et vos commandes.",
     export: "Télécharger mes données",
-    exportHint: "Un fichier lisible (JSON) avec votre profil, vos adresses, commandes, envies, alertes et données de navigation.",
+    exportHint: "Un fichier lisible (JSON) avec votre profil, vos adresses, commandes, envies et données de navigation.",
     cookies: "Gérer mes cookies",
     privacy: "Politique de confidentialité",
     delete: "Supprimer mon compte",
-    deleteHint: "Votre compte, vos adresses, envies, alertes et données de navigation seront effacés. Les factures de vos commandes sont conservées dix ans, comme la loi l’impose, sans lien avec un compte.",
+    deleteHint: "Votre compte, vos adresses, envies et données de navigation seront effacés. Les factures de vos commandes sont conservées dix ans, comme la loi l’impose, sans lien avec un compte.",
     deleteConfirm: "Pour confirmer, saisissez SUPPRIMER",
     deleteButton: "Supprimer définitivement",
     deleted: "Votre compte a été supprimé. Merci pour le temps passé avec nous.",

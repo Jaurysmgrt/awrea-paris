@@ -11,7 +11,7 @@ export default async function RapportsPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Rapports</h1>
-        <p className="t-lead">Le lundi à 8 h, l’agent Rapport vous envoie la semaine en chiffres : ventes, pièces les plus vues, paniers abandonnés. Il termine par trois recommandations pour les jours qui viennent. Les rapports restent ici.</p>
+        <p className="t-lead">Le lundi à 8 h, l’agent Rapport vous envoie la semaine en chiffres : ventes, pièces les plus vues, paniers abandonnés, confections en cours et en retard, prix et délais encore provisoires. Il termine par trois recommandations pour les jours qui viennent. Les rapports restent ici.</p>
         <ActionButton endpoint={atelierApi("/agents/rapport")} label="Générer le rapport maintenant" busyLabel="Rédaction…" />
       </header>
       {reports.length ? (

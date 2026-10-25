@@ -9,9 +9,11 @@
     display: grid;
     gap: var(--spacing-2xs);
   }
+  /* photo de la carte aux angles arrondis (maquette PAGE PRODUIT) */
   .product-card__media {
     position: relative;
     overflow: hidden;
+    border-radius: var(--radius-card);
   }
   .product-card__img--alt {
     position: absolute;
@@ -46,32 +48,32 @@
     height: 100%;
     object-fit: cover;
   }
-  .product-card__badge {
-    position: absolute;
-    left: var(--spacing-2xs);
-    top: var(--spacing-2xs);
-    background: var(--bg);
-    color: var(--fg);
-    border-color: var(--fg);
-  }
+  /* sous la photo, au fer à gauche (maquette PAGE PRODUIT) : la pastille noire « Nouveau »
+     (.badge), le nom en Cormorant 20 px (.t-body, jamais Fraunces sous 25 px), puis le prix à la
+     ligne */
   .product-card__body {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: var(--spacing-s);
+    display: grid;
+    justify-items: start;
+    gap: var(--spacing-3xs);
     padding-top: var(--spacing-2xs);
+  }
+  .product-card__badge {
+    margin-bottom: var(--spacing-3xs);
   }
   .product-card__title {
     text-align: left;
+    letter-spacing: var(--tracking-text);
+    text-wrap: pretty;
+  }
+  /* délai de fabrication de la pièce créée sur demande, sous le prix */
+  .product-card__lead {
+    margin: 0;
   }
   .product-card__wish {
     position: absolute;
     top: var(--spacing-3xs);
     right: var(--spacing-3xs);
     z-index: 2;
-  }
-  .product-card[data-availability="soldout"] .product-card__img img {
-    filter: grayscale(1) opacity(0.7);
   }
 
   /* bouton liste d'envies */
@@ -245,6 +247,14 @@
     align-items: baseline;
     gap: var(--spacing-xs);
   }
+  /* nom de la pièce en Cormorant 20 px (.t-body), comme sur les cartes */
+  .cart-line__title {
+    text-align: left;
+  }
+  /* délai de fabrication de la ligne, sous la taille */
+  .cart-line__lead {
+    margin: 0;
+  }
   .cart-line__actions {
     display: flex;
     justify-content: space-between;
@@ -255,9 +265,11 @@
     display: inline-flex;
     align-items: center;
     border: var(--border-width-hair) solid var(--line);
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
+    font-style: normal;
     font-size: var(--text-step--1);
-    font-variant-numeric: tabular-nums;
+    line-height: var(--leading-label);
+    font-variant-numeric: lining-nums tabular-nums;
   }
   .qty span {
     min-width: var(--spacing-m);
@@ -282,9 +294,11 @@
   .totals {
     display: grid;
     gap: var(--spacing-3xs);
-    font-family: var(--font-sans);
-    font-weight: var(--font-weight-light);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step--1);
+    line-height: var(--leading-note);
     letter-spacing: var(--tracking-snug);
   }
   .totals > div {
@@ -400,10 +414,13 @@
   .trace__item--plain > :last-child {
     grid-column: 1;
   }
+  /* numéros des étapes (« 01 ») : Cormorant en chiffres alignés, à la taille du texte */
   .trace__index {
-    font-family: var(--font-display);
+    font-family: var(--font-body);
+    font-style: normal;
     font-size: var(--text-step-0);
     line-height: var(--leading-text);
+    font-variant-numeric: lining-nums tabular-nums;
   }
   .product__foot {
     display: flex;
@@ -455,6 +472,7 @@
   }
   .buy-bar__price {
     font-size: var(--text-step--1);
+    line-height: var(--leading-label);
   }
   .buy-bar__btn {
     flex: none;

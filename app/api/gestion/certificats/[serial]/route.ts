@@ -8,7 +8,10 @@ const Body = z.object({
   note: z.string().trim().max(240).nullable().optional(),
 });
 
-/** Atelier : corriger la date de fabrication ou écrire le mot de la créatrice d'un certificat. */
+/**
+ * Atelier : corriger la date de confection ou écrire le mot de la créatrice d'un certificat. Le
+ * numéro de création et le code de vérification ne se modifient pas (champs inconnus ignorés).
+ */
 export async function PATCH(req: Request, { params }: { params: Promise<{ serial: string }> }) {
   if (!(await isAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const parsed = Body.safeParse(await req.json().catch(() => null));

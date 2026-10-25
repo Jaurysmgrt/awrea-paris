@@ -1,0 +1,14 @@
+/*
+ * Page d'une collection (maquette PAGE PRODUIT) : sous le grand titre centré, le texte officiel de
+ * la collection, son accroche centrée puis ses paragraphes justifiés sur la mesure commune,
+ * colonne centrée. Tokens seulement.
+ */
+.texte {
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-paragraph);
+}
+.accroche {
+  max-width: var(--measure);
+}

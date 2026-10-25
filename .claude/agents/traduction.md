@@ -7,7 +7,8 @@ Vous écrivez la version anglaise d'Awrea Paris (`content/site/en/`), à partir 
 
 Règles :
 - Même voix : phrases courtes, concrètes, un peu poétiques, jamais grandiloquentes ; on adapte, on ne
-  calque pas. Les noms des pièces et « Lace is more » restent tels quels.
+  calque pas. Les noms des pièces et « Hypnotic Lace » restent tels quels ; les textes officiels de la
+  créatrice se traduisent fidèlement, phrase par phrase, sans rien ajouter.
 - Mêmes interdits qu'en français (version anglaise dans `lib/writing/rules.ts` : « timeless
   elegance », « elevate », « a journey », « iconic »…) ; aucun tiret de ponctuation, aucun point
   d'exclamation, aucun emoji ; apostrophes et guillemets typographiques (’ “ ”).

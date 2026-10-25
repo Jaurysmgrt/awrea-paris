@@ -1,5 +1,11 @@
 # Arbitrages du chef de projet — liste noire (13 octobre 2026)
 
+> **Archive.** La typographie et les règles décrites ici sont remplacées par les ressources
+> officielles de la Maison (`RESSOURCES.md` : polices Fraunces 72pt Italic et Cormorant Garamond,
+> logo officiel, langage des maquettes), puis par `MARQUE.md` et `DESIGN.md`. Les séries numérotées,
+> le stock et les anciennes collections cités plus bas n'existent plus (pièces créées sur demande).
+> Document gardé pour l'historique, sans mise à jour.
+
 Réponse aux points de friction de `liste-noire.md` § 6. Règle : ce que la maison a demandé
 explicitement reste ; ce qui n'était qu'un choix d'exécution et figure dans la liste noire est
 transformé ou retiré. Chaque élément conservé doit recevoir une exécution que seule Awrea peut avoir.

@@ -1,0 +1,87 @@
+{
+  "nom": "Commande expédiée",
+  "quand": "Quand la créatrice passe la commande à l’étape « Expédiée », avec le numéro de suivi du transporteur s’il est connu.",
+  "famille": "service",
+  "sujet": "Votre pièce est en route",
+  "preheader": "Elle a quitté l’atelier, pliée dans son papier de soie.",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la cliente",
+      "exemple": "Camille"
+    },
+    "commande": {
+      "description": "Le numéro de la commande",
+      "exemple": "AW-1042"
+    },
+    "suivi": {
+      "description": "Le lien du suivi de la commande (sans compte)",
+      "exemple": "https://www.awreaparis.com/suivi/AW-1042"
+    },
+    "transporteur": {
+      "description": "Le transporteur",
+      "exemple": "Colissimo"
+    },
+    "numeroSuivi": {
+      "description": "Le numéro de suivi du transporteur, quand il est connu",
+      "exemple": "6A12345678901"
+    },
+    "lienColis": {
+      "description": "Le lien de suivi du colis chez le transporteur",
+      "exemple": "https://www.laposte.fr/outils/suivre-vos-envois?code=6A12345678901"
+    },
+    "relais": {
+      "description": "Le point relais choisi, s’il y en a un",
+      "exemple": ""
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-cmdexpe01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-cmdexpe02",
+      "type": "titre",
+      "titre": "Votre pièce est en route"
+    },
+    {
+      "id": "b-cmdexpe03",
+      "type": "texte",
+      "texte": "Bonjour {prenom},\n\nVotre pièce a quitté l’atelier, pliée dans son papier de soie, avec son certificat d’authenticité."
+    },
+    {
+      "id": "b-cmdexpe04",
+      "type": "texte",
+      "texte": "Elle voyage avec {transporteur}, numéro de suivi {numeroSuivi} : {lienColis}",
+      "si": "numeroSuivi"
+    },
+    {
+      "id": "b-cmdexpe05",
+      "type": "texte",
+      "texte": "Le numéro de suivi du transporteur vous arrive dès sa prise en charge.",
+      "sauf": "numeroSuivi"
+    },
+    {
+      "id": "b-cmdexpe06",
+      "type": "texte",
+      "texte": "Elle vous attendra au point relais {relais}.",
+      "si": "relais"
+    },
+    {
+      "id": "b-cmdexpe07",
+      "type": "texte",
+      "texte": "Votre commande {commande}, sa facture et son certificat : {suivi}"
+    },
+    {
+      "id": "b-cmdexpe08",
+      "type": "signature",
+      "texte": "À très vite,\nL’atelier Awrea Paris"
+    },
+    {
+      "id": "b-cmdexpe09",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

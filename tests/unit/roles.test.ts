@@ -1,10 +1,20 @@
-/** Rôles de gestion quotidienne : cadence à l'heure de Paris, critique indépendant. */
+/**
+ * Rôles de gestion quotidienne : cadence à l'heure de Paris, critique indépendant. Agents au modèle
+ * « sur demande » : veille de la confection, message de retard préparé, bilan du catalogue,
+ * politique d'autonomie sans aucune action de stock.
+ */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { isDue } from "@/lib/agents/roles/cadence";
 import { controle } from "@/lib/agents/roles/controle";
 import type { Proposal } from "@/lib/agents/perform";
 import type { AgentAction } from "@/lib/agents/log";
+import { currentAgentId } from "@/lib/agents/ids";
+import { POLICY, isActionType, requiresApproval } from "@/lib/agents/policy";
+import { catalogueReview, confectionAlerts, delayLooms, delayMessage } from "@/lib/agents/confection";
+import { products } from "@/data/demo/products";
+import { checkText, errorsOf } from "@/lib/writing/rules";
+import type { Order } from "@/lib/commerce/types";
 
 test("cadence : jour de Paris, pas celui du serveur", () => {
   // dimanche 23 h 30 à Paris = dimanche 21 h 30 UTC (heure d'été) ; lundi 0 h 30 à Paris = dimanche 22 h 30 UTC
@@ -37,4 +47,80 @@ test("Anti-fraude : première commande élevée, rafale, hors de l’Union ; une
   assert.match(suspicion(rafale[2], rafale).join(), /3 commandes/);
   const loin = o("AW-9", "d@exemple.fr", 120_000, "2026-10-15T08:00:00Z", "US");
   assert.match(suspicion(loin, [loin]).join(), /hors de l’Union/);
+});
+
+// ------------------------------------------------------------------ modèle « sur demande »
+
+const NOW = new Date("2026-10-20T10:00:00Z");
+const daysAgo = (n: number) => new Date(NOW.getTime() - n * 86_400_000).toISOString();
+const order = (number: string, status: Order["status"], received: number, extra: Partial<Order> = {}): Order =>
+  ({
+    id: `o-${number}`,
+    number,
+    createdAt: daysAgo(received),
+    email: "cliente@exemple.fr",
+    name: "Nora K.",
+    status,
+    stages: { paid: daysAgo(received), ...(status === "in_production" ? { in_production: daysAgo(received - 1) } : {}) },
+    lines: [{ title: "Le top Evina", size: "S", quantity: 1, unitPrice: 6500, handle: "top-evina" }],
+    total: 6500,
+    shipping: { method: "Colissimo suivi", price: 0, country: "FR" },
+    paymentMethod: "Carte bancaire",
+    ...extra,
+  }) as Order;
+
+test("confection : retard, date proche, confection qui tarde ; ni stock ni commande expédiée", () => {
+  const catalogue = [
+    { handle: "top-evina", leadTime: { min: 2, max: 3 } },
+    { handle: "robe-aria", leadTime: { min: 3, max: 4 } },
+  ];
+  const aria = [{ title: "La robe Aria", size: "M" as const, quantity: 1, unitPrice: 20400, handle: "robe-aria" }];
+  const orders = [
+    order("AW-1", "in_production", 26, { leadTime: { min: 2, max: 3 } }), // fin annoncée il y a 5 jours
+    order("AW-2", "in_production", 22, { leadTime: { min: 3, max: 4 }, lines: aria }), // fin dans 6 jours, confection commencée
+    order("AW-3", "paid", 15, { leadTime: { min: 2, max: 3 } }), // fin dans 6 jours, pas commencée
+    order("AW-4", "paid", 6, { leadTime: { min: 3, max: 4 }, lines: aria }), // reçue il y a 6 jours, pas commencée
+    order("AW-5", "paid", 2, { leadTime: { min: 2, max: 3 } }), // tout va bien
+    order("AW-6", "shipped", 40, { leadTime: { min: 2, max: 3 } }), // déjà partie
+    order("AW-7", "in_production", 26), // commande ancienne : délai repris du catalogue
+  ];
+  const alerts = confectionAlerts(orders, catalogue, NOW);
+  const kind = Object.fromEntries(alerts.map((a) => [a.number, a.kind]));
+  assert.deepEqual(kind, { "AW-1": "en-retard", "AW-7": "en-retard", "AW-2": "proche", "AW-3": "proche", "AW-4": "a-lancer" });
+  assert.equal(alerts[0].daysLeft, -5);
+  // un retard se dessine : date passée, ou date proche sans confection commencée
+  const looms = alerts.filter(delayLooms).map((a) => a.number).sort();
+  assert.deepEqual(looms, ["AW-1", "AW-3", "AW-7"]);
+});
+
+test("message de retard : préparé dans la voix de la Maison, sans stock ni urgence", () => {
+  const m = delayMessage({ number: "AW-1036", name: "Nora K.", pieces: ["Le top Evina (S)"] });
+  assert.equal(m.subject, "Votre commande AW-1036");
+  assert.match(m.body, /^Bonjour Nora,/);
+  assert.match(m.body, /artisans/);
+  assert.doesNotMatch(m.body, /stock|rupture|série|liste d’attente|!/i);
+  assert.deepEqual(errorsOf(checkText(m.body, { prose: true })), []);
+});
+
+test("bilan du catalogue : sept pièces, photos, prix et délais provisoires, rien d’inventé", () => {
+  const r = catalogueReview(products);
+  assert.equal(r.pieces.length, 7);
+  assert.equal(r.photos, 7);
+  assert.deepEqual(r.pieces.filter((p) => p.priceProvisional).map((p) => p.handle).sort(), ["body-gaia", "robe-sienna", "top-evina", "top-kira"]);
+  assert.equal(r.leadTimes, 7);
+  for (const p of r.pieces) {
+    assert.ok(p.toComplete.includes("composition des matières"), p.handle);
+    assert.ok(p.toComplete.includes("conseils d’entretien"), p.handle);
+  }
+});
+
+test("politique : plus aucune action de stock ; message à une cliente et confirmation d’un prix validés par la créatrice", () => {
+  for (const gone of ["update_stock", "notify_waitlist"]) assert.equal(isActionType(gone), false, gone);
+  assert.equal(requiresApproval("send_client_message"), true);
+  assert.equal(requiresApproval("confirm_piece_terms"), true);
+  for (const t of ["refund_order", "change_price", "delete_product", "cancel_order", "send_newsletter_all"] as const) assert.equal(requiresApproval(t), true, t);
+  assert.doesNotMatch(Object.values(POLICY).map((p) => p.label).join(" "), /stock|rupture|liste d’attente/i);
+  // l'ancien agent « Commandes et stock » se retrouve sous son nouveau nom
+  assert.equal(currentAgentId("commandes-stock"), "commandes-confection");
+  assert.equal(currentAgentId("seo"), "seo");
 });

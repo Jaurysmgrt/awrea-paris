@@ -1,0 +1,12 @@
+{
+  "sur-commande": {
+    "label": "La commande sur demande",
+    "kind": "page",
+    "chemin": "/sur-commande"
+  },
+  "guide-des-tailles": {
+    "label": "Guide des tailles",
+    "kind": "page",
+    "chemin": "/guide-des-tailles"
+  }
+}
