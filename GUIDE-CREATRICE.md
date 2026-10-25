@@ -16,11 +16,8 @@ Tant que les services de la Maison ne sont pas tous branchés (boutique Shopify,
 le site fonctionne en démonstration : tout marche, mais les commandes et les e-mails sont simulés.
 L’Atelier › **Réglages** dit ce qui est branché et ce qui manque.
 
-> Les captures d’écran seront ajoutées une fois le site terminé, pour qu’elles le montrent tel qu’il
-> sera. Leur place est marquée « Capture à ajouter ».
->
-> Les passages marqués « À vérifier » décrivent des écrans encore en construction : ils seront
-> relus sur le site terminé avant la remise de ce guide.
+> Les captures d’écran montrent le site de démonstration tel qu’il est aujourd’hui, avec des photos
+> de pièces encore provisoires.
 
 ## Sommaire
 
@@ -62,8 +59,7 @@ de passe, avec votre mot de passe.
    ouvre l’Atelier une seule fois si votre téléphone n’est pas à portée de main. Ils ne seront plus
    affichés. Puis **J’ai noté mes codes, entrer**.
 
-> Capture à ajouter : l’écran de la double authentification avec son code carré
-> (`docs/guide/01-double-authentification.png`).
+![L’écran de la double authentification avec son code carré](docs/guide/01-double-authentification.png)
 
 ### Les fois suivantes
 
@@ -71,7 +67,7 @@ de passe, avec votre mot de passe.
 2. **Adresse e-mail**, **Mot de passe**, puis **Continuer**.
 3. Le code à six chiffres de votre application (ou un code de secours), puis **Entrer**.
 
-> Capture à ajouter : l’écran de connexion (`docs/guide/02-connexion.png`).
+![L’écran de connexion](docs/guide/02-connexion.png)
 
 ### Ce qui vous protège
 
@@ -113,7 +109,7 @@ Le menu de gauche réunit tout. Voici à quoi sert chaque entrée.
 | **Journal des actions** | Tout ce que les agents ont fait, avec la date |
 | **Réglages** | Les services branchés, ceux qui manquent, les connexions à l’Atelier |
 
-> Capture à ajouter : la Vue d’ensemble et son menu (`docs/guide/03-vue-d-ensemble.png`).
+![La Vue d’ensemble et son menu](docs/guide/03-vue-d-ensemble.png)
 
 ## 3. Modifier un texte du site
 
@@ -139,8 +135,7 @@ Les textes officiels que vous avez écrits (À propos, texte de la collection, p
 Maison, conditions générales de vente, mentions légales) sont repris mot pour mot. Le panneau n’y
 signale que la typographie.
 
-> Capture à ajouter : un paragraphe en cours de modification, avec son panneau
-> (`docs/guide/04-modifier-un-texte.png`).
+![Un paragraphe en cours de modification, avec son panneau](docs/guide/04-modifier-un-texte.png)
 
 ## 4. Vérifier, publier, programmer, revenir en arrière
 
@@ -166,8 +161,7 @@ elle revient sur le site, et celle d’aujourd’hui reste dans l’historique. 
 Dans Atelier › **Pages**, la colonne **État** dit pour chaque page : **En ligne**, **Modifiée, pas
 encore en ligne** (un brouillon attend) ou **Brouillon** (page jamais publiée).
 
-> Capture à ajouter : la barre Édition et la fenêtre Historique
-> (`docs/guide/05-publier-historique.png`).
+![La barre Édition et la fenêtre Historique](docs/guide/05-publier-historique.png)
 
 ## 5. Composer une page, créer une page
 
@@ -233,11 +227,12 @@ Les photos de la fiche d’une pièce viennent de la boutique. Une fois la bouti
 Le site se met à jour tout seul quelques instants après. Le détail est dans `ACTIVATION.md`,
 étape 4.2.
 
-> À vérifier : le remplacement des photos d’une pièce depuis l’Atelier, sans passer par Shopify,
-> n’est pas prévu à ce jour.
+L’Atelier ne permet pas de remplacer les photos d’une pièce déjà en ligne : cela se fait dans
+Shopify, comme ci-dessus. Dans Atelier › **Photos**, chaque photo provisoire d’une pièce le
+rappelle. Tant que la boutique n’est pas branchée, confiez vos photos à la personne qui s’occupe du
+site. Seule une nouvelle pièce reçoit ses photos depuis l’Atelier (partie 7).
 
-> Capture à ajouter : une photo provisoire avec sa pastille, et la liste des photos à remplacer
-> (`docs/guide/06-photos-provisoires.png`).
+![Une photo provisoire avec sa pastille, et la liste des photos à remplacer](docs/guide/06-photos-provisoires.png)
 
 ## 7. Les pièces, prix, délai, provisoire, Nouveau
 
@@ -268,10 +263,21 @@ et publier la fiche** : l’agent Catalogue rédige la fiche et la met en ligne
 le site. Les matières, la composition et l’entretien que vous n’avez pas donnés restent « À
 COMPLÉTER » (partie 15).
 
-> À vérifier : la façon dont l’agent Catalogue laisse « À COMPLÉTER » les matières et l’entretien
-> qu’il ne connaît pas.
+L’agent Catalogue n’invente jamais une matière ni un conseil d’entretien. S’ils ne sont pas dans
+**Vos notes**, la fiche affiche à leur place deux repères, dans la rubrique **Matières et
+entretien** : « [À COMPLÉTER : composition exacte des matières, communiquée par la Maison] » et
+« [À COMPLÉTER : conseils d’entretien] ». Sous le bouton, un message dit combien de points restent à
+confirmer, et Atelier › **Journal des actions** les nomme.
 
-> Capture à ajouter : la page Catalogue (`docs/guide/07-catalogue.png`).
+Pour faire le point plus tard : Atelier › **Vue d’ensemble**, rubrique **L’équipe**, agent
+Catalogue, **Faire le bilan**. Le Journal des actions liste alors, pièce par pièce, ce qui manque
+encore : composition, entretien, taille portée par le mannequin.
+
+Tant que l’assistante n’est pas branchée (`ACTIVATION.md`, étape 8), la fiche suit un modèle : les
+matières et l’entretien restent à compléter, même s’ils sont dans vos notes. Si une tournure du
+texte est à revoir, la fiche vous attend d’abord dans Atelier › **Validations**.
+
+![La page Catalogue](docs/guide/07-catalogue.png)
 
 ## 8. Suivre les commandes et faire avancer les étapes
 
@@ -312,16 +318,28 @@ Shopify, en ouvrant la commande et en indiquant le numéro de suivi : le site s
 commande en **Expédiée**, puis en **Livrée** quand Shopify reçoit la livraison. L’Atelier vous le
 rappelle par la mention **Dans Shopify**.
 
-> À vérifier : les écrans des étapes, les e-mails de chaque étape et le passage automatique à
-> « Livrée » avec Shopify sont en cours de construction.
+### Les e-mails de chaque étape
 
-> Capture à ajouter : la liste des commandes et la fiche d’une commande avec sa frise
-> (`docs/guide/08-commandes.png`).
+Chaque étape envoie aussitôt son e-mail à la cliente, une seule fois. **Commande reçue** part au
+paiement, avec le détail des pièces, le lien de chaque certificat et la facture. Viennent ensuite
+**En confection**, **Prête** et **Expédiée** ; l’e-mail d’expédition donne le lien de suivi du colis
+quand le numéro est connu. À l’étape **Livrée**, la cliente reçoit « Votre pièce est arrivée ». Deux
+jours plus tard, elle reçoit un mot sur l’entretien de sa pièce, puis, deux semaines après la
+livraison, une invitation à donner son avis.
+
+Les étapes se suivent dans l’ordre : aucune ne peut être sautée. Si un e-mail ne part pas, l’étape
+reste enregistrée et l’Atelier vous le dit.
+
+Avec la boutique Shopify, la confirmation de commande que reçoit la cliente est celle de Shopify.
+Une commande expédiée reste **Expédiée** tant que Shopify n’a pas enregistré la livraison du colis :
+l’Atelier n’a pas de bouton pour la passer à la main en **Livrée**.
+
+![La liste des commandes et la fiche d’une commande avec sa frise](docs/guide/08-commandes.png)
 
 ## 9. Certificats et numéros de création
 
 Chaque pièce commandée reçoit un certificat d’authenticité numérique et un **numéro de création**.
-C’est le numéro d’ordre de la Maison : la première pièce confectionnée porte « Création n° 0001 »,
+C’est le numéro d’ordre de la Maison : la première pièce commandée porte « Création n° 0001 »,
 la suivante « Création n° 0002 », et ainsi de suite. Il n’est jamais donné deux fois et ne revient
 jamais à zéro. Il s’attribue tout seul : vous n’avez rien à choisir.
 
@@ -331,17 +349,21 @@ scanner (QR code), qui mène à la page publique du certificat.
 1. Atelier › **Certificats**, ou depuis une commande, **Certificats**.
 2. La liste montre pour chaque pièce son code, la pièce, sa **Création** (son numéro), la commande,
    la date de confection et si la cliente l’a rattaché à son compte.
-3. **Préparer** ouvre le certificat. Vérifiez la date **Façonnée le** (posée le jour où la pièce est
-   prête), écrivez si vous le souhaitez un **Mot de la créatrice** (laissé vide, le certificat porte
-   votre phrase habituelle), puis **Enregistrer**.
+3. **Préparer** ouvre le certificat. Vérifiez la date **Confectionnée le** (posée le jour où la
+   pièce est prête), écrivez si vous le souhaitez un **Mot de la créatrice** (laissé vide, le
+   certificat porte votre phrase habituelle), puis **Enregistrer**.
 4. **Imprimer** : une même feuille donne le certificat à glisser dans le paquet et l’étiquette à
    coudre dans la pièce (code carré, numéro de création, code).
 
 Votre cliente reçoit le lien de son certificat et un code personnel pour le rattacher à son compte.
 
-> À vérifier : l’affichage « Création n° 0001 » sur le certificat imprimé et sur l’étiquette.
+Le numéro de création s’imprime en grand sur le certificat, sous le nom de la pièce (« Création
+n° 0001 »), et sur l’étiquette à coudre, entre le nom de la pièce et le code. Il se lit aussi dans
+le code : dans AW-AUR-0001-94VL, 0001 est le numéro de création. Il est donné à la commande et ne se
+modifie jamais, même depuis l’Atelier : seuls la date et votre mot se corrigent. Le numéro d’une
+commande annulée n’est pas redonné.
 
-> Capture à ajouter : la feuille d’un certificat prête à imprimer (`docs/guide/09-certificat.png`).
+![La feuille d’un certificat prête à imprimer](docs/guide/09-certificat.png)
 
 ## 10. Retours, échanges et factures
 
@@ -360,8 +382,15 @@ Vos clientes demandent leur retour ou leur échange de taille en ligne, et reço
 
 Les conditions de retour sont celles de vos conditions générales de vente.
 
-> À vérifier : l’échange de taille dans le modèle sur demande (la nouvelle taille est d’abord
-> confectionnée).
+Chaque pièce étant créée sur demande, la nouvelle taille d’un échange n’attend pas en stock : elle
+est confectionnée pour la cliente, avec son délai de fabrication. La page **Questions fréquentes**
+du site le lui annonce. Lancez sa confection quand vous le souhaitez, dès la demande ou à l’arrivée
+du colis. L’Atelier ne suit pas cette confection étape par étape, comme pour une commande.
+
+Appuyez sur **Expédier la nouvelle taille** seulement quand la pièce part : la cliente reçoit
+aussitôt l’e-mail « Votre nouvelle taille est en route ». Cet e-mail lui promet le lien de suivi,
+mais l’Atelier ne demande pas de numéro de suivi pour un échange : envoyez-lui ce numéro depuis
+votre boîte e-mail habituelle. Un échange ne déplace aucun argent.
 
 ### Les factures
 
@@ -394,10 +423,26 @@ La liste **Collections annoncées** montre l’état de chacune (**Annoncée**, 
 cours**, **Dévoilée**), ses dates, le nombre d’inscrites, et les liens **Voir la page** et
 **Modifier**.
 
-> À vérifier : l’écran des avant-premières est en cours de construction ; vérifier les libellés et
-> l’envoi de la lettre aux inscrites.
+La lettre aux inscrites part dès que vous appuyez sur **Annoncer la collection**, ou sur
+**Enregistrer les modifications** si vous cochez la case plus tard. Chaque inscrite reçoit cette
+lettre une seule fois pour cette collection, avec son lien personnel. Une personne qui s’inscrit à
+la lettre après l’annonce reçoit la sienne le matin suivant, jusqu’au dévoilement. Aucune lettre ne
+part pour une présentation privée, ni après le dévoilement. Dans la liste, sous le nom de la
+collection, l’Atelier écrit « Lettre aux inscrites prévue », puis le nombre de lettres envoyées.
 
-> Capture à ajouter : le formulaire d’une avant-première (`docs/guide/11-avant-premieres.png`).
+La colonne **Inscrites sur la page** compte les personnes qui ont laissé leur adresse sur la page de
+la collection : chacune reçoit aussitôt son lien personnel.
+
+Quelques repères sur le formulaire. Le champ **Images** attend l’adresse de chaque image, une par
+ligne (par exemple /media/img/odessa-1). Le plus simple est de le laisser vide : les photos des
+pièces cochées s’affichent alors. L’avant-première doit précéder le dévoilement, sinon l’Atelier
+vous le signale. Quand **Présentation privée** est cochée, la case de la lettre disparaît, la
+première date devient **Présentation privée** et le mot de passe compte au moins six caractères.
+L’adresse de la page ne se change plus une fois la collection annoncée. Pour revenir sur une
+collection : **Modifier**, puis **Enregistrer les modifications**. Laissé vide, le mot de passe
+reste le même.
+
+![Le formulaire d’une avant-première](docs/guide/11-avant-premieres.png)
 
 ## 12. Les e-mails et leur aperçu
 
@@ -405,7 +450,7 @@ Tous les e-mails envoyés à vos clientes se modifient comme une page : confirm
 étapes de la commande, rendez-vous, lettres.
 
 1. Atelier › **E-mails**. Chaque e-mail s’y montre tel qu’il arrive dans la boîte de vos clientes.
-   Ils sont rangés en trois familles : **Commandes**, **Service**, **Lettres**.
+   Ils sont rangés en deux familles : **Service** (les commandes, les rendez-vous) et **Lettres**.
 2. **Modifier l’e-mail** : l’**Objet**, la **Ligne d’aperçu** (la phrase qui s’affiche sous l’objet
    dans la boîte de réception), puis les blocs : en-tête, photographie, texte, pièce, bouton,
    signature, pied de page. Glissez un bloc pour le déplacer, ou utilisez **Monter le bloc** et
@@ -422,13 +467,18 @@ Les mots entre accolades ({prenom}, {numero}…) sont remplacés à l’envoi :
 **Textes communs**, en bas de la page E-mails : la devise, la ligne sous la devise, les mentions de
 la Maison, le lien de désinscription, repris en bas de chaque e-mail.
 
-Pour un service d’envoi (Brevo, Klaviyo ou les notifications de Shopify) : **Pour Brevo**, **Pour
-Klaviyo** ou **Pour Shopify** télécharge le gabarit à importer (`ACTIVATION.md`, étape 14).
+Pour un service d’envoi (Brevo ou Klaviyo) : dans l’e-mail, **Pour Brevo** ou **Pour Klaviyo**
+télécharge le gabarit à importer (`ACTIVATION.md`, étape 14). Le bouton **Pour Shopify**, prévu pour
+les notifications de Shopify, n’apparaît pour l’instant sur aucun e-mail.
 
-> À vérifier : la place des e-mails des étapes de commande (« Commande reçue », « En confection »,
-> « Prête », « Expédiée ») dans la liste des e-mails.
+Les e-mails des étapes de commande sont dans la famille **Service** : **Commande reçue**, **Commande
+en confection**, **Commande prête** et **Commande expédiée**. Sous chaque aperçu, une phrase dit
+quand il part. Avec la boutique Shopify, la confirmation de commande est celle de Shopify :
+**Commande reçue** ne part plus. Les e-mails qui suivent la livraison (« Votre pièce est arrivée »,
+l’entretien, la demande d’avis) ne sont pas dans la liste : pour l’instant, leur texte ne se modifie
+pas depuis l’Atelier.
 
-> Capture à ajouter : l’éditeur d’un e-mail avec son aperçu (`docs/guide/12-e-mails.png`).
+![L’éditeur d’un e-mail avec son aperçu](docs/guide/12-e-mails.png)
 
 ## 13. Les rendez-vous
 
@@ -465,7 +515,7 @@ fait, avec la date.
 
 Les agents n’ont jamais accès aux données bancaires ni aux mots de passe.
 
-> Capture à ajouter : une proposition en attente avec ses boutons (`docs/guide/14-validations.png`).
+![Une proposition en attente avec ses boutons](docs/guide/14-validations.png)
 
 ## 15. Les informations à compléter
 
@@ -495,7 +545,11 @@ les matières et l’entretien de chaque pièce.
 3. Les repères entre crochets d’une page que vous avez créée : remplacez-les en mode Édition
    (partie 3).
 
-> À vérifier : le remplissage des matières et de l’entretien depuis l’Atelier, s’il est ajouté.
+Pour l’instant, l’Atelier ne permet de remplir ni les matières ni l’entretien d’une pièce déjà en
+ligne : la page **Catalogue** ne règle que le prix, le délai et les cases « provisoire » et
+« Nouveau ». Passez par Shopify ou par la personne qui s’occupe du site (point 2). Pour une nouvelle
+pièce, écrivez-les dès le départ dans **Vos notes** : une fois l’assistante branchée, l’agent
+Catalogue les reprend sur la fiche (partie 7).
 
 ## 16. En cas de doute
 
