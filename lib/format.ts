@@ -1,11 +1,13 @@
 import { identity } from "@/content/brand/identity";
 
-const euro = new Intl.NumberFormat(identity.locale, { style: "currency", currency: identity.currency, minimumFractionDigits: 0, maximumFractionDigits: 0 });
 const euroCents = new Intl.NumberFormat(identity.locale, { style: "currency", currency: identity.currency, minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-/** Montant en centimes → « 690 € », ou « 612,50 € » quand il y a des centimes */
+/**
+ * Montant en centimes → « 70,00 € », toujours avec ses centimes (format des maquettes de la Maison).
+ * Les espaces fines insécables d'Intl (absentes de nos polices) deviennent des espaces insécables.
+ */
 export function formatPrice(cents: number): string {
-  return (cents % 100 === 0 ? euro : euroCents).format(cents / 100).replace(/ /g, " ");
+  return euroCents.format(cents / 100).replace(/[\u202f ]/g, "\u00a0");
 }
 
 const dateLong = new Intl.DateTimeFormat(identity.locale, { day: "numeric", month: "long", year: "numeric" });

@@ -11,7 +11,8 @@ export interface SearchEntry {
   title: string;
   /** légende discrète sous le titre */
   note: string;
-  image?: { src: string; alt: string; width: number; height: number };
+  /** `provisoire` : image générée, à accompagner de la mention « visuel provisoire » */
+  image?: { src: string; alt: string; width: number; height: number; provisoire?: boolean };
   price?: number;
   /** titre normalisé */
   key: string;

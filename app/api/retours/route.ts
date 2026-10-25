@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     if (it.wish === "echange") {
       const p = await getProduct(line.handle);
       const v = p?.variants.find((x) => x.size === it.exchangeSize);
-      if (!v || it.exchangeSize === line.size || (v.quantity <= 0 && !v.preorder)) return NextResponse.json({ error: `La taille demandée pour ${line.title} n’est pas disponible : choisissez le remboursement ou une autre taille.` }, { status: 409 });
+      if (!v || it.exchangeSize === line.size) return NextResponse.json({ error: `La taille demandée pour ${line.title} n’est pas disponible : choisissez le remboursement ou une autre taille.` }, { status: 409 });
     }
     items.push({ handle: line.handle, title: line.title, size: line.size as Size, unitPrice: line.unitPrice, reason: it.reason, wish: it.wish, exchangeSize: it.wish === "echange" ? it.exchangeSize : undefined });
   }

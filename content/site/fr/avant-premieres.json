@@ -1,0 +1,183 @@
+{
+  "seo": {
+    "title": "Bientôt | Awrea Paris",
+    "description": "La prochaine collection d’Awrea Paris : son nom, sa date de dévoilement, ses premières images. Les inscrites à la lettre de la Maison commandent ses pièces en avant-première.",
+    "privee": "Une présentation privée de la Maison Awrea Paris, ouverte avec le mot de passe transmis par la Maison."
+  },
+  "fil": "Bientôt",
+  "attente": {
+    "titre": "Bientôt",
+    "chapeau": "La prochaine collection se prépare à l’atelier, entre dentelle et drapés. Les inscrites à la lettre de la Maison la voient avant tout le monde et commandent ses pièces en avant-première.",
+    "boutique": {
+      "titre": "En attendant",
+      "texte": "La collection Hypnotic Lace se commande dès aujourd’hui. Chaque pièce est créée sur demande par des artisans français, une fois votre commande passée.",
+      "label": "Voir les pièces",
+      "href": "/boutique"
+    }
+  },
+  "etat": {
+    "annonce": "Prochaine collection",
+    "avantPremiere": "En avant-première",
+    "privee": "Présentation privée",
+    "devoilee": "Nouvelle collection"
+  },
+  "dates": {
+    "avantPremiere": "Avant-première",
+    "privee": "Présentation privée",
+    "devoilement": "Dévoilement",
+    "valeur": "{jour} à {heure}",
+    "fuseau": "Heure de Paris."
+  },
+  "collection": {
+    "titre": "La collection",
+    "image": "Image de la collection {collection}"
+  },
+  "acces": {
+    "inscription": {
+      "titre": "Recevoir l’avant-première",
+      "texte": "Les inscrites à la lettre de la Maison reçoivent un lien personnel par e-mail. À partir du {avantPremiere}, il leur ouvre la collection avant tout le monde : elles commandent ses pièces avant le dévoilement, et chacune est créée pour elles, sur demande, par des artisans français. Laissez votre adresse pour recevoir ce lien.",
+      "texteEnCours": "L’avant-première est ouverte jusqu’au {devoilement}. Laissez votre adresse : un lien personnel vous parvient aussitôt par e-mail, et vous commandez ses pièces avant le dévoilement à toutes. Chacune est créée pour vous, sur demande, par des artisans français.",
+      "champ": "Adresse e-mail",
+      "bouton": "Recevoir mon lien",
+      "envoi": "Un instant…",
+      "merci": "C’est noté. Votre lien personnel vient de partir par e-mail. Ouvrez-le depuis le téléphone ou l’ordinateur avec lequel vous passerez commande.",
+      "mention": "Votre adresse sert seulement à vous envoyer ce lien et à vous écrire au sujet de cette avant-première."
+    },
+    "privee": {
+      "titre": "Entrer dans la présentation privée",
+      "texte": "Cette collection se montre d’abord à quelques personnes. Le mot de passe vous a été transmis par la Maison : il ouvre la présentation dans ce navigateur, avec ses images et ses pièces.",
+      "champ": "Mot de passe de la présentation privée",
+      "bouton": "Entrer",
+      "envoi": "Vérification…",
+      "ouverte": {
+        "titre": "La présentation privée vous est ouverte",
+        "texte": "Depuis ce navigateur, ses pièces se commandent dès maintenant, avant le dévoilement à toutes, le {devoilement}. Chacune est créée pour vous, sur demande, par des artisans français."
+      }
+    },
+    "pret": {
+      "titre": "Votre accès est prêt",
+      "texte": "Il est enregistré dans ce navigateur. Les pièces ci-dessous s’y commandent à partir du {avantPremiere}, avant le dévoilement à toutes, le {devoilement}."
+    },
+    "ouvert": {
+      "titre": "Votre avant-première est ouverte",
+      "texte": "Depuis ce navigateur, les pièces ci-dessous se commandent dès maintenant, avant le dévoilement à toutes, le {devoilement}. Chacune est créée pour vous, sur demande, par des artisans français."
+    },
+    "devoilee": {
+      "titre": "La collection est dévoilée",
+      "texte": "Ses pièces se commandent dans la boutique. Chacune est créée sur demande par des artisans français, une fois votre commande passée.",
+      "label": "Commander une pièce",
+      "href": "/boutique"
+    }
+  },
+  "pieces": {
+    "titre": "Les pièces de la collection"
+  },
+  "lienInvalide": "Ce lien n’est plus valable. Laissez de nouveau votre adresse : un nouveau lien vous parviendra aussitôt.",
+  "erreurs": {
+    "email": "Indiquez une adresse e-mail complète, par exemple prenom@exemple.fr.",
+    "verification": "La vérification anti-robot n’a pas abouti. Merci de réessayer.",
+    "limite": "Plusieurs essais en peu de temps : merci de réessayer dans quelques minutes.",
+    "close": "Cette avant-première n’accepte plus d’inscription. Les pièces de la collection se commandent dans la boutique.",
+    "motDePasse": "Indiquez le mot de passe transmis par la Maison.",
+    "refuse": "Ce mot de passe n’ouvre pas cette présentation privée.",
+    "generale": "La demande n’a pas abouti. Merci de réessayer."
+  },
+  "porte": {
+    "annonce": "Cette pièce appartient à la prochaine collection, {collection}. Les inscrites à la lettre de la Maison la commandent en avant-première à partir du {avantPremiere}, puis toutes à partir du {devoilement}.",
+    "avantPremiere": "Cette pièce se commande en ce moment en avant-première, avec le lien personnel envoyé aux inscrites à la lettre de la Maison. Elle s’ouvre à toutes le {devoilement}.",
+    "privee": "Cette pièce appartient à la présentation privée de la collection {collection}. Elle se commande avec le mot de passe transmis par la Maison, puis s’ouvre à toutes le {devoilement}.",
+    "lienAvantPremiere": "Recevoir l’avant-première",
+    "lienPrivee": "Entrer dans la présentation privée"
+  },
+  "refus": {
+    "annonce": "La collection {collection} n’est pas encore ouverte. Les inscrites à la lettre de la Maison la commandent en avant-première à partir du {avantPremiere}.",
+    "avantPremiere": "La collection {collection} se commande en avant-première jusqu’au {devoilement}, avec le lien personnel envoyé par e-mail aux inscrites à la lettre.",
+    "privee": "La collection {collection} se commande avec le mot de passe de la présentation privée jusqu’au {devoilement}."
+  },
+  "emails": {
+    "inscription": {
+      "objet": "La collection {collection}, votre lien pour l’avant-première",
+      "preheader": "Votre lien personnel pour commander la collection {collection} avant tout le monde.",
+      "titre": "Votre avant-première",
+      "paragraphes": [
+        "Bonjour,",
+        "Vous êtes inscrite à l’avant-première de la collection {collection}. Elle vous est ouverte à partir du {avantPremiere}, avant le dévoilement à toutes, le {devoilement}.",
+        "Ce lien est personnel. Ouvrez-le depuis le téléphone ou l’ordinateur avec lequel vous passerez commande : il y garde votre accès.",
+        "Chaque pièce est créée sur demande par des artisans français, une fois votre commande passée."
+      ],
+      "bouton": "Ouvrir mon avant-première",
+      "signature": "Avec toute notre attention,\nla Maison Awrea Paris"
+    },
+    "lettre": {
+      "objet": "La collection {collection}, en avant-première",
+      "preheader": "Votre lien personnel pour commander la collection {collection} avant tout le monde.",
+      "titre": "{collection}",
+      "paragraphes": [
+        "Bonjour,",
+        "Une nouvelle collection se prépare à l’atelier : {collection}. Elle se dévoile à toutes le {devoilement}.",
+        "Inscrite à la lettre de la Maison, vous la voyez avant tout le monde. À partir du {avantPremiere}, ce lien personnel vous permet de commander ses pièces en avant-première. Ouvrez-le depuis le téléphone ou l’ordinateur avec lequel vous passerez commande.",
+        "Chaque pièce est créée sur demande par des artisans français, une fois votre commande passée."
+      ],
+      "bouton": "Voir la collection en avant-première",
+      "signature": "Avec toute notre attention,\nla Maison Awrea Paris",
+      "note": "Vous recevez cet e-mail parce que vous êtes inscrite à la lettre de la Maison. Pour ne plus la recevoir, un clic suffit : {desinscription}"
+    }
+  },
+  "atelier": {
+    "titre": "Avant-premières",
+    "chapeau": "Annoncez la prochaine collection sur la page « Bientôt » : son nom, sa date de dévoilement, un texte et des images. Les inscrites à la lettre la commandent en avant-première, avant l’ouverture à toutes. Une présentation privée reste réservée, jusqu’au dévoilement, aux personnes qui ont le mot de passe.",
+    "liste": {
+      "titre": "Collections annoncées",
+      "vide": "Aucune collection annoncée. La page « Bientôt » invite à s’inscrire à la lettre de la Maison.",
+      "colonnes": {
+        "collection": "Collection",
+        "etat": "État",
+        "avantPremiere": "Avant-première",
+        "devoilement": "Dévoilement",
+        "inscrites": "Inscrites sur la page",
+        "actions": "Actions"
+      },
+      "etats": {
+        "bientot": "Annoncée",
+        "anticipe": "Avant-première en cours",
+        "ouvert": "Dévoilée"
+      },
+      "privee": "Présentation privée",
+      "lettrePrevue": "Lettre aux inscrites prévue",
+      "lettreUne": "Une lettre envoyée aux inscrites",
+      "lettres": "{n} lettres envoyées aux inscrites",
+      "aucune": "Aucune",
+      "voir": "Voir la page",
+      "modifier": "Modifier"
+    },
+    "formulaire": {
+      "nouveau": "Annoncer une collection",
+      "modifier": "Modifier « {collection} »",
+      "nom": "Nom de la collection",
+      "adresse": "Adresse de la page (lettres minuscules, chiffres et traits d’union)",
+      "texte": "Texte de présentation",
+      "texteAide": "Une ligne vide sépare deux paragraphes.",
+      "images": "Images (une adresse par ligne, par exemple /media/img/odessa-1)",
+      "imagesAide": "Sans image, les photos des pièces choisies s’affichent.",
+      "avantPremiere": "Avant-première des inscrites (heure de Paris)",
+      "presentation": "Présentation privée (heure de Paris)",
+      "devoilement": "Dévoilement à toutes (heure de Paris)",
+      "pieces": "Pièces de la collection",
+      "piecesAide": "Elles quittent la boutique jusqu’au dévoilement et se commandent en avant-première.",
+      "lettre": "Écrire aux inscrites à la lettre de la Maison : chacune reçoit son lien personnel vers l’avant-première, une seule fois pour cette collection",
+      "privee": "Présentation privée : jusqu’au dévoilement, la collection est réservée aux personnes qui ont le mot de passe",
+      "motDePasse": "Mot de passe de la présentation privée",
+      "nouveauMotDePasse": "Nouveau mot de passe (laisser vide pour garder l’actuel)",
+      "creer": "Annoncer la collection",
+      "enregistrer": "Enregistrer les modifications",
+      "envoi": "Enregistrement…",
+      "fait": "L’avant-première est enregistrée."
+    },
+    "erreurs": {
+      "dates": "L’avant-première doit précéder le dévoilement.",
+      "motDePasse": "Choisissez le mot de passe de la présentation privée.",
+      "donnees": "Vérifiez les champs : une information manque ou n’est pas valable.",
+      "generale": "L’enregistrement n’a pas abouti. Merci de réessayer."
+    }
+  }
+}

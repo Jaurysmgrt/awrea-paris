@@ -1,32 +1,60 @@
+import type { Metadata } from "next";
+import { Fragment } from "react";
 import Link from "@/components/ui/Link";
-import { faq } from "@/content/fr/faq";
+import { getDoc } from "@/lib/edition/read";
+import { getAllProducts } from "@/lib/commerce";
+import { faqGroups, faqVars, type FaqDoc } from "@/content/fr/faq";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { faqSchema } from "@/lib/seo/schema";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
 
-export const metadata = pageMetadata({
-  title: "Questions fréquentes, des tailles à la livraison | Awrea Paris",
-  description: "Choisir votre taille, attendre une précommande, renvoyer une pièce. L’atelier répond ici à vos questions sur ses pièces numérotées, faites main à Paris.",
-  path: "/faq",
-});
+/**
+ * Questions fréquentes : document de contenu « faq » (content/site/fr/faq.json), modifiable dans
+ * l'éditeur Édition. Les délais de fabrication viennent du catalogue ({hauts}, {robes}), la livraison
+ * offerte des réglages ({seuil}) ; les réponses suivent les conditions générales de vente officielles.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getDoc<FaqDoc>("faq", "fr", { plain: true });
+  return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/faq" });
+}
 
-export default function FaqPage() {
+/** Réponse avec ses liens [libellé](/adresse) vers les pages du site. */
+function Answer({ text }: { text: string }) {
+  const parts = text.split(/(\[[^\]]+\]\(\/[^)\s]*\))/g);
   return (
     <>
-      <JsonLd data={faqSchema(faq.flatMap((g) => g.items))} />
-      <PageHeader
-        title="Questions fréquentes"
-        lead="Les réponses aux questions que l’on nous pose le plus souvent. Une autre question ? Notre assistante vous répond à toute heure, et l’atelier sous 48 heures."
-        crumbs={[{ name: "Questions fréquentes", path: "/faq" }]}
-      />
-      <Section theme="ivory" className="section section--flush-top" aria-label="Questions">
+      {parts.map((part, i) => {
+        const m = part.match(/^\[([^\]]+)\]\((\/[^)\s]*)\)$/);
+        return m ? (
+          <Link key={i} href={m[2]} className="text-link">
+            {m[1]}
+          </Link>
+        ) : (
+          <Fragment key={i}>{part}</Fragment>
+        );
+      })}
+    </>
+  );
+}
+
+export default async function FaqPage() {
+  const [t, plain, products] = await Promise.all([getDoc<FaqDoc>("faq"), getDoc<FaqDoc>("faq", "fr", { plain: true }), getAllProducts().catch(() => [])]);
+  const vars = faqVars(products);
+  const groups = faqGroups(t, vars, { links: true });
+  // données structurées : texte brut, sans lien ni repère « à compléter »
+  const schemaItems = faqGroups(plain, vars, { withoutToComplete: true }).flatMap((g) => g.items);
+  return (
+    <>
+      <JsonLd data={faqSchema(schemaItems)} />
+      <PageHeader title={t.titre} lead={t.chapeau} crumbs={[{ name: plain.titre, path: "/faq" }]} />
+      <Section theme="ivory" className="section section--flush-top" aria-label={t.titre}>
         <div className="container grid-12 faq">
-          <nav className="faq__nav" aria-label="Thèmes">
+          <nav className="faq__nav" aria-label={t.themes}>
             <ul className="stack">
-              {faq.map((g, i) => (
-                <li key={g.title}>
+              {groups.map((g, i) => (
+                <li key={g.id}>
                   <a href={`#theme-${i}`} className="link link--quiet">
                     {g.title}
                   </a>
@@ -35,23 +63,28 @@ export default function FaqPage() {
             </ul>
           </nav>
           <div className="faq__groups stack-l">
-            {faq.map((g, i) => (
-              <section key={g.title} id={`theme-${i}`} aria-labelledby={`theme-${i}-t`}>
+            {groups.map((g, i) => (
+              <section key={g.id} id={`theme-${i}`} aria-labelledby={`theme-${i}-t`}>
                 <h2 id={`theme-${i}-t`} className="t-label t-accent faq__title">
                   {g.title}
                 </h2>
                 {g.items.map((it) => (
-                  <details key={it.q} className="disclosure disclosure--question">
+                  <details key={it.id} id={`${g.id}-${it.id}`} className="disclosure disclosure--question">
                     <summary>{it.q}</summary>
                     <div className="disclosure__body">
-                      <p className="t-body">{it.a}</p>
+                      <p className="t-body">
+                        <Answer text={it.a} />
+                      </p>
                     </div>
                   </details>
                 ))}
               </section>
             ))}
             <p className="t-body">
-              Vous ne trouvez pas votre réponse ? <Link href="/contact" className="text-link">Écrivez-nous</Link>.
+              {t.fin.texte}{" "}
+              <Link href="/contact" className="text-link">
+                {t.fin.lien}
+              </Link>
             </p>
           </div>
         </div>

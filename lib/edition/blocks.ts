@@ -11,6 +11,13 @@ export interface Img {
   height: number;
   /** point focal, en pourcentage de la largeur et de la hauteur */
   focal?: { x: number; y: number };
+  /**
+   * Photo provisoire (visuel généré en attendant les prises de vue de la Maison) : même marqueur
+   * que les images du catalogue (lib/commerce/types.ts). Le site écrit « visuel provisoire » sous
+   * la photo ; l'éditeur la signale par une pastille et la liste parmi les photos à remplacer
+   * (lib/edition/provisoires.ts). Écrit seulement quand il vaut vrai.
+   */
+  provisoire?: boolean;
 }
 
 export interface Lien {

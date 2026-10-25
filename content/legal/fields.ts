@@ -1,9 +1,11 @@
 /**
  * Informations légales de l'entreprise — REGISTRE UNIQUE.
  *
- * Aucune de ces informations n'est inventée : tant qu'un champ est vide, il s'affiche sur le
- * site sous la forme d'un repère « [À COMPLÉTER : …] » bien visible, et il est listé dans
- * LEGAL-A-COMPLETER.md (régénéré par `npm run legal:todo`).
+ * Les valeurs renseignées viennent des mentions légales officielles de la Maison
+ * (ressources-awrea/MENTIONS LÉGALES) et de ses conditions générales de vente officielles.
+ * Aucune autre information n'est inventée : tant qu'un champ est vide, il s'affiche sur le site sous
+ * la forme d'un repère « [À COMPLÉTER : …] » bien visible, et il est listé dans LEGAL-A-COMPLETER.md
+ * (régénéré par `npm run legal:todo`).
  * Pour compléter : renseigner `value`, puis relancer `npm run legal:todo`.
  *
  * Ce fichier ne dépend d'aucun autre module (il est lu tel quel par le script de génération).
@@ -18,110 +20,123 @@ export interface LegalField {
   source: string;
   /** pages où elle apparaît */
   pages: string[];
+  /** information sans objet pour la Maison : rien à publier, rien à compléter */
+  sansObjet?: boolean;
 }
+
+/** Source des informations déjà renseignées. */
+const ML = "Mentions légales officielles de la Maison (ressources-awrea/MENTIONS LÉGALES)";
 
 export const legalFields = {
   raisonSociale: {
-    short: "dénomination sociale",
-    label: "dénomination sociale ou nom de l’entrepreneuse",
-    value: "",
-    source: "Extrait Kbis, avis de situation INSEE ou attestation d’immatriculation au registre national des entreprises (RNE)",
+    short: "nom de l’entrepreneuse",
+    label: "nom de l’entrepreneuse (entreprise individuelle)",
+    value: "Léane Soubrier",
+    source: ML,
     pages: ["mentions-legales", "cgv", "cgu", "confidentialite", "propriete-intellectuelle", "retractation"],
+  },
+  nomCommercial: {
+    short: "nom commercial",
+    label: "nom commercial sous lequel l’entreprise exerce",
+    value: "Awrea Paris",
+    source: ML,
+    pages: ["mentions-legales", "cgv", "cgu", "confidentialite", "retractation"],
   },
   formeJuridique: {
     short: "forme juridique",
-    label: "forme juridique (SAS, SASU, SARL, EURL, entreprise individuelle…)",
-    value: "",
-    source: "Statuts ou Kbis",
-    pages: ["mentions-legales", "cgv"],
+    label: "forme juridique",
+    value: "entrepreneur individuel (micro-entreprise)",
+    source: ML,
+    pages: ["mentions-legales", "cgu", "confidentialite"],
   },
   capital: {
     short: "capital social",
-    label: "montant du capital social (sociétés uniquement ; supprimer la mention pour une entreprise individuelle)",
+    label: "capital social (sans objet pour une entreprise individuelle : aucune mention à publier)",
     value: "",
-    source: "Statuts ou Kbis",
-    pages: ["mentions-legales", "cgv"],
+    source: "Sans objet",
+    pages: [],
+    sansObjet: true,
   },
   siege: {
-    short: "adresse du siège",
-    label: "adresse du siège social (ou du domicile professionnel)",
-    value: "",
-    source: "Kbis ou attestation RNE",
-    pages: ["mentions-legales", "cgv", "confidentialite", "retractation"],
+    short: "adresse de l’entreprise",
+    label: "adresse postale de l’entreprise",
+    value: "46 rue Paul Déroulède, 78290 Croissy-sur-Seine, France",
+    source: ML,
+    pages: ["mentions-legales", "cgv", "cgu", "confidentialite", "retractation"],
   },
   immatriculation: {
-    short: "n° d’immatriculation",
-    label: "numéro et ville d’immatriculation (RCS, ou RNE pour une entreprise artisanale ou individuelle)",
-    value: "",
-    source: "Kbis ou attestation d’immatriculation",
-    pages: ["mentions-legales", "cgv"],
+    short: "registre d’immatriculation",
+    label: "registre d’immatriculation (inscription au RNE le 05/02/2026, début d’activité le 01/04/2026)",
+    value: "registre national des entreprises (RNE)",
+    source: ML,
+    pages: ["mentions-legales", "cgu", "confidentialite"],
+  },
+  siren: {
+    short: "n° SIREN",
+    label: "numéro SIREN",
+    value: "100 222 926",
+    source: ML,
+    pages: ["mentions-legales", "cgu", "confidentialite"],
   },
   siret: {
     short: "n° SIRET",
     label: "numéro SIRET",
-    value: "",
-    source: "Avis de situation INSEE (sirene.fr)",
-    pages: ["mentions-legales", "cgv"],
+    value: "100 222 926 00014",
+    source: ML,
+    pages: ["mentions-legales", "cgv", "cgu", "confidentialite"],
   },
   tva: {
     short: "n° de TVA",
-    label: "numéro de TVA intracommunautaire, ou la mention « TVA non applicable, art. 293 B du CGI » en franchise de TVA",
+    label: "numéro de TVA intracommunautaire, ou la mention « TVA non applicable, art. 293 B du CGI » si la micro-entreprise est en franchise de TVA (les CGV officielles annoncent des prix « HT et TTC »)",
     value: "",
     source: "Espace professionnel impots.gouv.fr",
-    pages: ["mentions-legales", "cgv"],
+    pages: ["mentions-legales"],
   },
   directricePublication: {
     short: "directrice de la publication",
-    label: "nom et prénom de la directrice de la publication",
+    label: "nom et prénom de la directrice de la publication (les mentions officielles ne la nomment pas ; pour une entreprise individuelle, c’est en principe l’entrepreneuse elle-même, Léane Soubrier : à confirmer)",
     value: "",
     source: "Représentante légale de l’entreprise",
     pages: ["mentions-legales"],
   },
   email: {
     short: "e-mail de contact",
-    label: "adresse e-mail de contact (à confirmer : contact@awreaparis.com est utilisée par défaut sur le site)",
-    value: "",
-    source: "Boîte de réception de la maison",
-    pages: ["mentions-legales", "cgv", "confidentialite", "retractation"],
+    label: "adresse e-mail de contact",
+    value: "awrea.contact@gmail.com",
+    source: ML,
+    pages: ["mentions-legales", "cgv", "confidentialite", "retractation", "propriete-intellectuelle"],
   },
   telephone: {
     short: "téléphone",
-    label: "numéro de téléphone du service client (obligatoire dans les mentions légales et les CGV)",
-    value: "",
-    source: "Ligne professionnelle",
+    label: "numéro de téléphone",
+    value: "06 99 55 74 43",
+    source: ML,
     pages: ["mentions-legales", "cgv"],
-  },
-  horaires: {
-    short: "horaires du service client",
-    label: "jours et horaires de disponibilité du service client",
-    value: "",
-    source: "Organisation de l’atelier",
-    pages: ["cgv"],
   },
   mediateur: {
     short: "médiateur de la consommation",
-    label: "médiateur de la consommation : nom, adresse postale et site internet (adhésion obligatoire, articles L612-1 et suivants du Code de la consommation)",
+    label: "médiateur de la consommation : nom, adresse postale et site internet (adhésion obligatoire, articles L612-1 et suivants du Code de la consommation ; ni les CGV ni les mentions officielles n’en nomment)",
     value: "",
     source: "Convention signée avec un médiateur référencé par la CECMC (liste sur economie.gouv.fr)",
-    pages: ["cgv", "mentions-legales"],
+    pages: ["mentions-legales"],
   },
-  hebergeurTelephone: {
-    short: "téléphone de l’hébergeur",
-    label: "numéro de téléphone de l’hébergeur Vercel Inc. (exigé par l’article 6 de la LCEN)",
+  hebergeur: {
+    short: "hébergeur du site",
+    label: "hébergeur du nouveau site : dénomination, adresse et téléphone (les mentions officielles nomment Wix Online Platform Limited, hébergeur du site Wix ; le nouveau site est prévu sur Vercel Inc., 440 N Barranca Avenue #4133, Covina, CA 91723, États-Unis)",
     value: "",
-    source: "Page légale de Vercel (vercel.com/legal) ou contrat d’hébergement",
+    source: "Contrat d’hébergement (vercel.com/legal), puis mise à jour des mentions légales officielles",
     pages: ["mentions-legales"],
   },
   marque: {
     short: "n° d’enregistrement de la marque",
-    label: "numéro et date d’enregistrement de la marque « Awrea Paris » (INPI ou EUIPO), si elle est déposée ; sinon supprimer la mention",
+    label: "numéro et date d’enregistrement de la marque « Awrea Paris » (les mentions officielles la disent déposée : INPI ou EUIPO)",
     value: "",
     source: "Certificat d’enregistrement INPI (data.inpi.fr) ou EUIPO",
     pages: ["propriete-intellectuelle"],
   },
   creditsPhotos: {
-    short: "crédits photos et mannequins",
-    label: "crédits des photographes, vidéastes et mannequins (noms ou agences) et étendue des droits cédés",
+    short: "crédits photos",
+    label: "crédits des photographes, vidéastes et mannequins (portrait de la créatrice, futures prises de vue) et étendue des droits cédés",
     value: "",
     source: "Contrats de cession de droits et autorisations de droit à l’image signés",
     pages: ["propriete-intellectuelle", "mentions-legales"],
@@ -149,10 +164,10 @@ export const legalFields = {
   },
   paiementFractionne: {
     short: "prestataire du paiement fractionné",
-    label: "prestataire du paiement en plusieurs fois (par exemple Shop Pay Installments, Klarna ou Alma) tel qu’activé dans Shopify",
+    label: "prestataire du paiement en plusieurs fois (par exemple Shop Pay Installments, Klarna ou Alma) s’il est activé dans Shopify ; les CGV officielles ne le prévoient pas",
     value: "",
     source: "Shopify → Paramètres → Paiements",
-    pages: ["cgv", "confidentialite"],
+    pages: ["confidentialite"],
   },
   delaiConservationDevis: {
     short: "durée de conservation",
@@ -168,12 +183,13 @@ export type LegalFieldKey = keyof typeof legalFields;
 /**
  * Conditions commerciales reprises des réglages du site (content/settings.ts) : ce sont des
  * paramètres de démonstration à confirmer, non des informations inventées sur l'entreprise.
+ * Leurs écarts avec les CGV officielles sont détaillés dans LEGAL-A-COMPLETER.md.
  */
 export const commercialChecks = [
-  "Seuil de livraison offerte, tarifs et délais de livraison (content/settings.ts → shop.shippingRates, freeShippingThreshold).",
-  "Délai de rétractation et de retour (14 jours minimum légal ; content/settings.ts → returnDays) et prise en charge des frais de retour (offerts en France, à la charge de la cliente hors de France : à confirmer).",
-  "Délais de fabrication des précommandes indiqués sur chaque fiche, et moment du débit pour une précommande (au moment de la commande par défaut avec Shopify).",
-  "Durée de validité des cartes cadeaux (un an par défaut dans les CGV) et règles de cumul des codes de réduction.",
+  "Zones, tarifs et délais de livraison (content/settings.ts → shop.shippingRates, freeShippingThreshold) : les CGV officielles (article 5) prévoient une livraison en France métropolitaine seulement, en 5 à 10 jours ouvrés.",
+  "Délai de rétractation et de retour (14 jours minimum légal ; content/settings.ts → returnDays) ; frais de retour à la charge de la cliente (article 7 des CGV officielles).",
+  "Délais de fabrication des pièces créées sur demande, indiqués sur chaque fiche, dans le panier et au paiement (provisoires : bodys et tops 2 à 3 semaines, robes 3 à 4 semaines, liste dans `ACTIVATION.md`, étape 4.2 bis), et moment du débit (à la commande, comme le prévoit l’article 4 des CGV officielles).",
+  "Durée de validité des cartes cadeaux et règles de cumul des codes de réduction (les CGV officielles n’en parlent pas).",
   "Prix de l’emballage cadeau (content/settings.ts → giftWrapPrice).",
-  "Mode de gestion des droits et taxes à l’importation hors Union européenne (perçus à la commande avec Shopify Markets, ou dus à la réception).",
+  "Mode de gestion des droits et taxes à l’importation hors Union européenne, si la livraison hors de France est maintenue (perçus à la commande avec Shopify Markets, ou dus à la réception).",
 ];

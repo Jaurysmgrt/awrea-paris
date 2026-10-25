@@ -1,13 +1,14 @@
 "use client";
 /**
  * Espace « Mon compte » : connexion sans mot de passe (e-mail, Google, Apple), puis
- * commandes, certificats, tailles, adresses, envies et alertes, profil et préférences, données personnelles.
+ * commandes et leur confection, certificats, tailles, adresses, envies, profil et préférences, données
+ * personnelles. Aucune liste d’attente ni alerte de retour en stock : chaque pièce se commande toujours.
  */
 import { useCallback, useEffect, useState } from "react";
 import { Tabs } from "@/components/ui/Tabs";
 import { useWishlist } from "@/components/commerce/WishlistProvider";
 import { accountCopy as t } from "@/content/fr/account";
-import type { Address, CustomerProfile, WaitlistItem } from "@/lib/customers/types";
+import type { Address, CustomerProfile } from "@/lib/customers/types";
 import { LoginPanel } from "./LoginPanel";
 import { TermsCheckbox } from "./TermsCheckbox";
 import { AddressesPanel, CertificatesPanel, DataPanel, OrdersPanel, ProfilePanel, SizesPanel, WishPanel, type AccountOrder } from "./panels";
@@ -20,7 +21,6 @@ type AccountData = {
   needsTerms?: boolean;
   orders?: AccountOrder[];
   addresses?: Address[];
-  waitlist?: WaitlistItem[];
   wishlist?: string[];
   certificates?: PublicCertificate[];
 };
@@ -104,7 +104,7 @@ export function AccountApp() {
   const tabs = (Object.keys(t.tabs) as TabId[]).map((id) => ({
     id,
     label: t.tabs[id],
-    count: id === "commandes" ? data.orders?.length : id === "certificats" ? data.certificates?.length : id === "envies" ? handles.length + (data.waitlist?.length ?? 0) : undefined,
+    count: id === "commandes" ? data.orders?.length : id === "certificats" ? data.certificates?.length : id === "envies" ? handles.length : undefined,
   }));
 
   return (
@@ -136,7 +136,7 @@ export function AccountApp() {
         {tab === "certificats" ? <CertificatesPanel certificates={data.certificates ?? []} /> : null}
         {tab === "tailles" ? <SizesPanel profile={profile} onSaved={updateProfile} /> : null}
         {tab === "adresses" ? <AddressesPanel addresses={data.addresses ?? []} /> : null}
-        {tab === "envies" ? <WishPanel waitlist={data.waitlist ?? []} /> : null}
+        {tab === "envies" ? <WishPanel /> : null}
         {tab === "profil" ? <ProfilePanel profile={profile} onSaved={updateProfile} /> : null}
         {tab === "donnees" ? <DataPanel onDeleted={() => setDeleted(true)} /> : null}
       </Tabs>

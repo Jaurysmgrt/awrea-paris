@@ -6,18 +6,21 @@
  * d'écriture avec ses suggestions, version anglaise à côté. Les photos se remplacent par
  * glisser-déposer. Les sections d'une page faite de blocs se déplacent, se dupliquent, se
  * suppriment, s'ajoutent depuis la bibliothèque. Rien n'est en ligne avant « Publier ».
+ * Les photos provisoires portent une pastille « Provisoire » ; « Photos provisoires » les liste
+ * toutes, avec leur page (lib/edition/provisoires.ts).
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { getAt, parsePath } from "@/lib/edition/paths";
 import { stegaClean, type Source } from "@/lib/edition/stega";
+import { isProvisional, TEXTES_PROVISOIRES as P, type SitePhoto } from "@/lib/edition/provisoires";
 import { call, postJson } from "./client";
-import { editableInPlace, parseKey, scan, setEditable } from "./scan";
+import { editableInPlace, key as sourceKey, parseKey, scan, setEditable } from "./scan";
 import { FieldPanel } from "./FieldPanel";
 import { ImagePanel } from "./ImagePanel";
 import { BlockTools } from "./BlockTools";
-import { Guide, HistoryDialog, PreviewDialog, ScheduleDialog } from "./Dialogs";
+import { Guide, HistoryDialog, PreviewDialog, ProvisionalDialog, ScheduleDialog } from "./Dialogs";
 import s from "./edition.module.css";
 
 export interface LocaleData {
@@ -53,13 +56,26 @@ export interface ImageTarget {
   file?: File;
 }
 
-type Dialog = "historique" | "programmer" | "apercu" | "aide" | null;
+type Dialog = "historique" | "programmer" | "apercu" | "aide" | "provisoires" | null;
 
 /** Valeur d'un champ dans les données chargées (brouillon s'il existe). */
 export function valueOf(docs: Docs, src: Source): unknown {
   const d = docs[src.doc]?.locales[src.locale as "fr" | "en"];
   if (!d) return undefined;
   return getAt(d.draft ?? d.published, parsePath(src.path));
+}
+
+/** Pastille « Provisoire » sur les photos provisoires de la page (cadre .media marqué par scan.ts). */
+function markProvisional(docs: Docs) {
+  for (const el of Array.from(document.querySelectorAll<HTMLElement>("[data-ed-img]"))) {
+    if (isProvisional(valueOf(docs, parseKey(el.dataset.edImg!)))) {
+      el.dataset.edProvisoire = P.pastille;
+      el.classList.add(s.marque);
+    } else if (el.dataset.edProvisoire) {
+      delete el.dataset.edProvisoire;
+      el.classList.remove(s.marque);
+    }
+  }
 }
 
 export function EditionMode({ base, email, guideDone }: { base: string; email: string; guideDone: boolean }) {
@@ -71,8 +87,25 @@ export function EditionMode({ base, email, guideDone }: { base: string; email: s
   const [dialog, setDialog] = useState<Dialog>(guideDone ? null : "aide");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [provisoires, setProvisoires] = useState<SitePhoto[] | null>(null);
   const ids = useRef<string[]>([]);
+  const docsRef = useRef<Docs>({});
   const api = useCallback((p: string) => `${base}/api/edition${p}`, [base]);
+
+  // photos provisoires de tout le site (filtre « Photos provisoires à remplacer »)
+  const loadProvisional = useCallback(async () => {
+    const r = await call<{ photos: SitePhoto[] }>(`${api("/medias")}?filtre=provisoires`);
+    setProvisoires(r.ok ? r.data.photos : []);
+  }, [api]);
+  useEffect(() => {
+    const t = window.setTimeout(() => void loadProvisional(), 0);
+    return () => window.clearTimeout(t);
+  }, [loadProvisional]);
+
+  useEffect(() => {
+    docsRef.current = docs;
+    markProvisional(docs);
+  }, [docs]);
 
   const load = useCallback(async () => {
     if (!ids.current.length) return;
@@ -85,6 +118,7 @@ export function EditionMode({ base, email, guideDone }: { base: string; email: s
     let timer = 0;
     const run = () => {
       const found = scan();
+      markProvisional(docsRef.current);
       const next = [...found.docs].sort();
       if (next.join() !== ids.current.join()) {
         ids.current = next;
@@ -117,6 +151,25 @@ export function EditionMode({ base, email, guideDone }: { base: string; email: s
     await load();
     router.refresh();
   }, [load, router]);
+
+  /** Photo provisoire de la page ouverte : présente dans la page, avec son document chargé. */
+  const onPage = useCallback(
+    (p: SitePhoto) => {
+      if (p.origine !== "contenu") return p.chemin === window.location.pathname;
+      if (!p.doc || !p.locale || p.path === undefined || !docs[p.doc]) return false;
+      return Boolean(document.querySelector(`[data-ed-img="${CSS.escape(sourceKey({ doc: p.doc, locale: p.locale, path: p.path }))}"]`));
+    },
+    [docs],
+  );
+
+  const replace = (p: SitePhoto) => {
+    const src = { doc: p.doc!, locale: p.locale!, path: p.path! };
+    const el = document.querySelector<HTMLElement>(`[data-ed-img="${CSS.escape(sourceKey(src))}"]`);
+    setDialog(null);
+    setField(null);
+    el?.scrollIntoView({ block: "center", behavior: document.documentElement.dataset.motion === "reduce" ? "auto" : "smooth" });
+    setImage({ el: el ?? document.body, src });
+  };
 
   // un clic sur un texte ou une photo l'ouvre ; en mode « modifier », les liens ne partent pas
   useEffect(() => {
@@ -279,6 +332,8 @@ export function EditionMode({ base, email, guideDone }: { base: string; email: s
             setImage(null);
             if (m) flash(m);
             await refresh();
+            // la liste des photos provisoires suit la case cochée ou décochée
+            void loadProvisional();
           }}
         />
       ) : null}
@@ -305,6 +360,11 @@ export function EditionMode({ base, email, guideDone }: { base: string; email: s
           <button type="button" className={s.btn} onClick={() => setDialog("historique")} disabled={!pageDocs.length}>
             Historique
           </button>
+          {provisoires?.length ? (
+            <button type="button" className={s.btn} onClick={() => (setDialog("provisoires"), void loadProvisional())} aria-haspopup="dialog">
+              {P.boutonBarre} · {provisoires.length}
+            </button>
+          ) : null}
           <button type="button" className={s.btn} onClick={() => setDialog("programmer")} disabled={!pending.length}>
             Programmer
           </button>
@@ -335,6 +395,7 @@ export function EditionMode({ base, email, guideDone }: { base: string; email: s
       </div>
 
       {dialog === "apercu" ? <PreviewDialog onClose={() => setDialog(null)} /> : null}
+      {dialog === "provisoires" ? <ProvisionalDialog photos={provisoires} onPage={onPage} onReplace={replace} onClose={() => setDialog(null)} /> : null}
       {dialog === "historique" ? <HistoryDialog docs={docs} api={api} onClose={() => setDialog(null)} onRestored={async () => (setDialog(null), flash("La version choisie est de nouveau en ligne."), await refresh())} /> : null}
       {dialog === "programmer" ? (
         <ScheduleDialog
