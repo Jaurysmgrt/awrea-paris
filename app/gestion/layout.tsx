@@ -48,9 +48,11 @@ export default async function GestionLayout({ children }: { children: React.Reac
           <span className="badge">{aiEnabled ? "Claude actif" : "IA : démo"}</span>
           {usingDemoPassword() ? <span className="badge">Mot de passe démo</span> : null}
         </div>
-        <Link href="/" className="link link--quiet">
-          Voir le site
-        </Link>
+        <div>
+          <Link href="/" className="btn btn--link">
+            Voir le site
+          </Link>
+        </div>
       </aside>
       <main className="admin__main scene" data-theme="ivory" id="contenu">
         {children}

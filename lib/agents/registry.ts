@@ -1,8 +1,9 @@
 /** L'équipe d'agents : identité, mission, cadence, lancement. */
-import type { AgentId } from "./log";
+import { currentAgentId, type AgentId } from "./log";
 import type { AgentRun } from "./run";
 import { runServiceClientAgent } from "./team/service-client";
-import { runCommandesStockAgent } from "./team/commandes-stock";
+import { runCommandesConfectionAgent } from "./team/commandes-confection";
+import { runCatalogueReview } from "./team/catalogue";
 import { runSeoAgent } from "./team/seo";
 import { runContenuAgent } from "./team/contenu";
 import { runRapportAgent } from "./team/rapport";
@@ -21,9 +22,9 @@ export const AGENTS: AgentInfo[] = [
   {
     id: "catalogue",
     name: "Catalogue",
-    mission: "À partir de photos et de quelques notes, rédige la fiche produit complète (nom, description, matières, entretien, textes alternatifs, SEO) et la met en ligne.",
-    autonomy: "Publie seul. Un prix modifié ensuite ou une suppression passent par vous.",
-    schedule: "À la demande, depuis l’onglet Catalogue",
+    mission: "Connaît chaque pièce du catalogue, aujourd’hui la collection Hypnotic Lace. Fait le bilan des photos provisoires, des prix et des délais encore provisoires, et de ce qui manque aux fiches. Rédige une nouvelle fiche à partir de photos et de quelques notes.",
+    autonomy: "Publie seul une nouvelle fiche. Un prix modifié ensuite ou une suppression passent par vous. N’invente ni matière ni entretien.",
+    schedule: "À la demande : le bilan ici, une nouvelle fiche depuis l’onglet Catalogue",
     cron: null,
   },
   {
@@ -35,10 +36,10 @@ export const AGENTS: AgentInfo[] = [
     cron: "0 7 * * *",
   },
   {
-    id: "commandes-stock",
-    name: "Commandes et stock",
-    mission: "Surveille ventes et stocks, alerte en cas de rupture, prévient la liste d’attente, remet en stock les retours, signale les commandes bloquées.",
-    autonomy: "Agit seul. Annulations et remboursements vous sont proposés.",
+    id: "commandes-confection",
+    name: "Commandes et confection",
+    mission: "Suit chaque commande en confection face au délai annoncé. Vous prévient quand une date approche ou passe, prépare le message à la cliente quand un retard se dessine, et vous présente les prix et délais encore provisoires à confirmer.",
+    autonomy: "Vous alerte seul. Le message à une cliente, la confirmation d’un prix ou d’un délai, les annulations et les remboursements vous sont proposés.",
     schedule: "À chaque commande, et chaque jour à 8 h",
     cron: "0 6 * * *",
   },
@@ -68,12 +69,21 @@ export const AGENTS: AgentInfo[] = [
   },
 ];
 
+/** Agent de l'équipe, y compris sous un identifiant retiré (« commandes-stock ») encore présent dans un journal. */
+export const agentInfo = (id: string) => AGENTS.find((a) => a.id === currentAgentId(id));
+
+/**
+ * Lance un agent. L'ancien identifiant « commandes-stock » (tâche planifiée de vercel.json, bouton
+ * de l'onglet Commandes) lance l'agent « Commandes et confection ».
+ */
 export async function runAgent(id: string, opts: { origin: string; trigger: AgentRun["trigger"] }): Promise<AgentRun> {
-  switch (id) {
+  switch (currentAgentId(id)) {
+    case "catalogue":
+      return runCatalogueReview(opts.trigger);
     case "service-client":
       return runServiceClientAgent(opts.trigger);
-    case "commandes-stock":
-      return runCommandesStockAgent(opts.trigger);
+    case "commandes-confection":
+      return runCommandesConfectionAgent(opts.trigger);
     case "seo":
       return runSeoAgent(opts.origin, opts.trigger);
     case "contenu":

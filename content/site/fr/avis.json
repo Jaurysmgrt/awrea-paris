@@ -1,0 +1,14 @@
+{
+  "seo": {
+    "title": "Votre avis | Awrea Paris",
+    "description": "Donner votre avis sur une pièce Awrea Paris reçue."
+  },
+  "titre": "Votre avis",
+  "chapeau": "Comment tombe votre pièce, ce que vous ressentez en la portant, si la taille vous a semblé juste : votre regard aide d’autres clientes à choisir, et il guide la créatrice pour les pièces à venir.",
+  "invalide": "Ce lien n’est plus valable. Écrivez-nous, nous vous en enverrons un nouveau.",
+  "ecrire": {
+    "label": "Écrire à la Maison",
+    "href": "/contact"
+  },
+  "dejaDonne": "Vous avez déjà donné votre avis sur chaque pièce de cette commande. Merci de tout cœur."
+}

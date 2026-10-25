@@ -1,0 +1,40 @@
+{
+  "seo": {
+    "title": "Guide des tailles | Awrea Paris",
+    "description": "Le guide des tailles d’Awrea Paris : tour de poitrine, de taille et de hanches en centimètres, la façon de prendre vos mesures et l’aide pour trouver votre taille."
+  },
+  "titre": "Guide des tailles",
+  "chapeau": "Chaque pièce est confectionnée dans la taille que vous choisissez. Vos mesures, prises à même la peau, vous mènent à la bonne.",
+  "tableau": {
+    "titre": "Les tailles de la Maison",
+    "legende": "Mesures du corps, en centimètres",
+    "aConfirmer": "Tableau à confirmer par la Maison : ces mesures peuvent encore changer avant les premières livraisons."
+  },
+  "mesures": {
+    "titre": "Prendre vos mesures",
+    "conseil": "Debout, en sous-vêtements, le mètre ruban posé à plat sur la peau, sans serrer.",
+    "liste": [
+      {
+        "titre": "Tour de poitrine",
+        "texte": "Faites passer le mètre ruban sur la partie la plus forte de la poitrine, bien à l’horizontale."
+      },
+      {
+        "titre": "Tour de taille",
+        "texte": "Mesurez au creux de la taille, là où le buste est le plus fin."
+      },
+      {
+        "titre": "Tour de hanches",
+        "texte": "Mesurez à l’endroit le plus large des hanches, les pieds joints."
+      }
+    ]
+  },
+  "trouver": {
+    "surtitre": "Entre deux tailles",
+    "titre": "Trouver ma taille",
+    "texte": "Sur chaque fiche de pièce, « Trouver ma taille » compare vos trois mesures à ce tableau et à la coupe de la pièce, puis vous conseille une taille. Pour un avis de vive voix, la créatrice vous reçoit sur rendez-vous.",
+    "cta": {
+      "label": "Trouver ma taille sur une pièce",
+      "href": "/boutique"
+    }
+  }
+}

@@ -2,7 +2,10 @@
 import { demoOrders } from "@/data/demo/orders";
 import { kv } from "@/lib/store";
 import { adminEnabled, admin } from "@/lib/shopify/admin";
+import { SHOPIFY_STAGE_TAGS, shopifyStatus } from "./order-status";
 import type { Order, OrderStatus } from "./types";
+
+export { SHOPIFY_STAGE_TAGS, shopifyStatus };
 
 export const ORDERS_KEY = "orders";
 export const ORDER_STATUS_KEY = "orders:status"; // surcharges de statut (démo)
@@ -44,7 +47,15 @@ export async function setOrderTracking(id: string, carrier: string, tracking: st
   await kv.set(ORDER_TRACKING_KEY, { ...map, [id]: { carrier, tracking } });
 }
 
+/**
+ * Étape d'une commande. Pilote Shopify : les étapes de confection (reçue, en confection, prête)
+ * sont des étiquettes de la commande (SHOPIFY_STAGE_TAGS), relues par le site et par le webhook
+ * « Mise à jour de commande » ; l'expédition et la livraison viennent du traitement Shopify.
+ */
 export async function setOrderStatus(id: string, status: OrderStatus) {
+  if (adminEnabled && id.startsWith("gid://shopify/Order/") && (status === "paid" || status === "in_production" || status === "ready")) {
+    await shopifySetStage(id, status);
+  }
   const map = (await kv.get<Record<string, OrderStatus>>(ORDER_STATUS_KEY)) ?? {};
   map[id] = status;
   await kv.set(ORDER_STATUS_KEY, map);
@@ -57,6 +68,7 @@ export async function setOrderStatus(id: string, status: OrderStatus) {
 async function shopifyOrders(): Promise<Order[]> {
   type N = {
     id: string; name: string; createdAt: string; email: string | null; displayFinancialStatus: string; displayFulfillmentStatus: string;
+    cancelledAt: string | null; tags: string[];
     customer: { displayName: string } | null; totalPriceSet: { shopMoney: { amount: string } };
     shippingLine: { title: string; originalPriceSet: { shopMoney: { amount: string } } } | null;
     shippingAddress: { countryCodeV2: string; firstName: string | null; lastName: string | null; address1: string | null; address2: string | null; zip: string | null; city: string | null; phone: string | null } | null;
@@ -69,7 +81,7 @@ async function shopifyOrders(): Promise<Order[]> {
     paymentGatewayNames: string[];
   };
   const data = await admin<{ orders: { nodes: N[] } }>(`query { orders(first: 100, sortKey: CREATED_AT, reverse: true) { nodes {
-    id name createdAt email displayFinancialStatus displayFulfillmentStatus paymentGatewayNames
+    id name createdAt email displayFinancialStatus displayFulfillmentStatus paymentGatewayNames cancelledAt tags
     customer { displayName } totalPriceSet { shopMoney { amount } }
     shippingLine { title originalPriceSet { shopMoney { amount } } }
     shippingAddress { countryCodeV2 firstName lastName address1 address2 zip city phone }
@@ -80,8 +92,13 @@ async function shopifyOrders(): Promise<Order[]> {
   const c = (a: string) => Math.round(parseFloat(a) * 100);
   return data.orders.nodes.map((o) => {
     const track = o.fulfillments[0]?.trackingInfo[0];
-    const status: OrderStatus =
-      o.displayFinancialStatus === "REFUNDED" ? "refunded" : o.displayFulfillmentStatus === "FULFILLED" ? (track ? "shipped" : "delivered") : o.displayFinancialStatus === "PAID" ? "paid" : "pending";
+    const status = shopifyStatus({
+      cancelled: Boolean(o.cancelledAt),
+      financial: o.displayFinancialStatus.toLowerCase(),
+      fulfillment: o.displayFulfillmentStatus.toLowerCase(),
+      tracked: Boolean(track),
+      tags: o.tags,
+    });
     return {
       id: o.id,
       number: o.name.replace("#", "AW-"),
@@ -115,15 +132,28 @@ async function shopifyOrders(): Promise<Order[]> {
 
 const attr = (o: { customAttributes: { key: string; value: string | null }[] }, key: string) => o.customAttributes.find((a) => a.key === key)?.value ?? "";
 
+/** Pilote Shopify : remplace l'étiquette d'étape de la commande (aucune pour « reçue »). */
+async function shopifySetStage(id: string, status: "paid" | "in_production" | "ready") {
+  const keep = status === "in_production" ? SHOPIFY_STAGE_TAGS.inProduction : status === "ready" ? SHOPIFY_STAGE_TAGS.ready : null;
+  const remove = Object.values(SHOPIFY_STAGE_TAGS).filter((t) => t !== keep);
+  type R = { userErrors: { message: string }[] };
+  const removed = await admin<{ tagsRemove: R }>(`mutation R($id: ID!, $tags: [String!]!) { tagsRemove(id: $id, tags: $tags) { userErrors { message } } }`, { id, tags: remove });
+  const added = keep ? await admin<{ tagsAdd: R }>(`mutation A($id: ID!, $tags: [String!]!) { tagsAdd(id: $id, tags: $tags) { userErrors { message } } }`, { id, tags: [keep] }) : null;
+  const errors = [...removed.tagsRemove.userErrors, ...(added?.tagsAdd.userErrors ?? [])];
+  if (errors.length) throw new Error(`Étape de la commande : ${errors.map((e) => e.message).join(" ; ")}`);
+}
+
+/** Étapes de la commande : reçue, en confection, prête, expédiée, livrée. */
 export const statusLabel: Record<OrderStatus, string> = {
   pending: "En attente de paiement",
-  paid: "Confirmée, en préparation",
-  in_production: "En fabrication à l’atelier",
+  paid: "Commande reçue",
+  in_production: "En confection",
+  ready: "Prête",
   shipped: "Expédiée",
   delivered: "Livrée",
   returned: "Retour en cours",
   refunded: "Remboursée",
-  blocked: "En attente, l’atelier vous contacte",
+  blocked: "En attente, la Maison vous contacte",
 };
 
 export function trackingUrl(carrier?: string, number?: string): string | null {

@@ -1,10 +1,13 @@
 "use client";
 /**
  * Fenêtres de l'éditeur : aperçu sur téléphone, tablette et ordinateur ; historique des versions
- * avec retour en arrière en un clic ; publication programmée ; guide de prise en main.
+ * avec retour en arrière en un clic ; publication programmée ; photos provisoires à remplacer ;
+ * guide de prise en main.
  */
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { call, postJson } from "./client";
+import { stegaClean } from "@/lib/edition/stega";
+import { TEXTES_PROVISOIRES as P, type SitePhoto } from "@/lib/edition/provisoires";
+import { call, postJson, thumb } from "./client";
 import type { Docs } from "./EditionMode";
 import s from "./edition.module.css";
 
@@ -264,6 +267,81 @@ export function ScheduleDialog({ docs, api, onClose, onDone }: { docs: Docs; api
   );
 }
 
+// ------------------------------------------------------------------ photos provisoires
+
+/**
+ * Filtre « Photos provisoires à remplacer » : toutes les photos provisoires du site, avec la page
+ * où chacune paraît. Celles de la page ouverte se remplacent d'un clic ; les autres ouvrent leur
+ * page, toujours en mode Édition. Les photos des pièces et des collections viennent du catalogue.
+ */
+export function ProvisionalDialog({ photos, onPage, onReplace, onClose }: { photos: SitePhoto[] | null; onPage: (p: SitePhoto) => boolean; onReplace: (p: SitePhoto) => void; onClose: () => void }) {
+  const here = (photos ?? []).filter(onPage);
+  const elsewhere = (photos ?? []).filter((p) => !onPage(p));
+  const item = (p: SitePhoto, local: boolean) => {
+    const name = stegaClean(p.image.alt) || p.label;
+    return (
+      <li key={p.id} className={s.photoItem}>
+        <span className={s.photoThumb}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={thumb(p.image.src)} alt="" loading="lazy" />
+          <span className={`${s.pastille} ${s.pastilleSurPhoto}`}>{P.pastille}</span>
+        </span>
+        <div className={s.stack}>
+          <p className={s.photoTitle}>{p.label}</p>
+          <p className={s.hint}>{p.chemin ?? P.sansPage}</p>
+          {p.image.alt ? <p className={s.hint}>{stegaClean(p.image.alt)}</p> : null}
+          {p.etat === "a-publier" ? <p className={s.hint}>{P.aPublier}</p> : null}
+          {p.origine === "piece" ? <p className={s.hint}>{P.piece}</p> : p.origine === "collection" ? <p className={s.hint}>{P.collection}</p> : null}
+        </div>
+        {local && p.origine === "contenu" && p.etat === "a-remplacer" ? (
+          <button type="button" className={s.btn} onClick={() => onReplace(p)} aria-label={`${P.remplacer}, ${name}`}>
+            {P.remplacer}
+          </button>
+        ) : !local && p.chemin ? (
+          <a className={s.btn} href={p.chemin} aria-label={`${P.ouvrir}, ${p.label}`}>
+            {P.ouvrir}
+          </a>
+        ) : null}
+      </li>
+    );
+  };
+  return (
+    <Sheet label={P.filtre} onClose={onClose}>
+      <h2 className={s.sheetTitle}>{P.filtre}</h2>
+      <p className={s.hint}>{P.intro}</p>
+      {photos === null ? (
+        <p className={s.hint}>{P.chargement}</p>
+      ) : photos.length ? (
+        <>
+          {here.length ? (
+            <section className={s.stack} aria-labelledby="ed-prov-ici">
+              <h3 id="ed-prov-ici" className={s.label}>
+                {P.surCettePage} · {here.length}
+              </h3>
+              <ul className={s.photos}>{here.map((p) => item(p, true))}</ul>
+            </section>
+          ) : null}
+          {elsewhere.length ? (
+            <section className={s.stack} aria-labelledby="ed-prov-ailleurs">
+              <h3 id="ed-prov-ailleurs" className={s.label}>
+                {P.ailleurs} · {elsewhere.length}
+              </h3>
+              <ul className={s.photos}>{elsewhere.map((p) => item(p, false))}</ul>
+            </section>
+          ) : null}
+        </>
+      ) : (
+        <p className={s.text}>{P.aucune}</p>
+      )}
+      <div className={s.row}>
+        <button type="button" className={s.btnQuiet} onClick={onClose}>
+          {P.fermer}
+        </button>
+      </div>
+    </Sheet>
+  );
+}
+
 // ------------------------------------------------------------------ guide
 
 const STEPS: { title: string; text: string }[] = [
@@ -278,6 +356,10 @@ const STEPS: { title: string; text: string }[] = [
   {
     title: "Changer une photo",
     text: "Glissez une photo depuis votre ordinateur sur l’image à remplacer, ou cliquez dessus. Un clic sur la photo choisit la partie à garder quand l’écran la recadre. Écrivez ensuite ce qu’elle montre, pour les personnes qui ne la voient pas.",
+  },
+  {
+    title: "Remplacer les photos provisoires",
+    text: "Une pastille « Provisoire » signale les visuels d’attente. « Photos provisoires » les liste tous, avec leur page. Votre photo déposée à la place n’est plus provisoire ; la case « Photo provisoire » se coche ou se décoche à la main.",
   },
   {
     title: "Composer une page",

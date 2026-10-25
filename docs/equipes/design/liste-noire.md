@@ -1,5 +1,11 @@
 # Liste noire — les codes que tout le monde utilise
 
+> **Archive.** La typographie et les règles décrites ici sont remplacées par les ressources
+> officielles de la Maison (`RESSOURCES.md` : polices Fraunces 72pt Italic et Cormorant Garamond,
+> logo officiel, langage des maquettes), puis par `MARQUE.md` et `DESIGN.md`. Les séries numérotées,
+> le stock et les anciennes collections cités plus bas n'existent plus (pièces créées sur demande).
+> Document gardé pour l'historique, sans mise à jour.
+
 > **Agent Veille, équipe Design — 13 octobre 2026.** Pour les trois directions artistiques
 > (`da-dentelle`, `da-atelier`, `da-edition`), le critique design, le gardien de la marque et le chef
 > de projet. Ce document complète la première veille (`docs/VEILLE-DESIGN-2026.md`) sans la refaire.

@@ -10,7 +10,7 @@ import { aiEnabled } from "@/lib/ai/client";
 import { generateStructured } from "@/lib/ai/structured";
 import { getAllProducts, getCurrentCollection } from "@/lib/commerce";
 import { getArticles } from "@/lib/content/journal";
-import { editionInfo, productAvailability } from "@/lib/commerce/availability";
+import { leadTimeText, madeToOrderLabel } from "@/lib/commerce/availability";
 import { formatPrice } from "@/lib/format";
 import { kv } from "@/lib/store";
 import { runSiteAudit, type AuditReport } from "../seo-audit";
@@ -21,7 +21,7 @@ export const IDEAS_KEY = "seo:ideas";
 
 const SeoFix = z.object({
   title: z.string().describe("« Nom, matière principale | Awrea Paris », 60 caractères au plus"),
-  description: z.string().describe("140 à 155 caractères, une image concrète, puis « fait main à Paris »"),
+  description: z.string().describe("140 à 155 caractères, une image concrète, puis « créée sur demande par des artisans français »"),
 });
 
 const ArticleOut = z.object({
@@ -34,7 +34,7 @@ const ArticleOut = z.object({
   next_ideas: z.array(z.object({ title: z.string(), angle: z.string(), target_query: z.string() })).describe("3 idées d’articles pour les semaines suivantes, chacune visant une requête de recherche"),
 });
 
-const TARGET_QUERIES = ["robe dentelle noire fait main Paris", "body dentelle créatrice française", "pièce unique mode femme Paris", "Awrea Paris", "entretien dentelle", "mode éthique Paris créatrice"];
+const TARGET_QUERIES = ["robe dentelle noire créatrice française", "body dentelle créatrice française", "vêtement créé sur demande", "Awrea Paris", "Hypnotic Lace", "mode éthique sans stock"];
 
 export async function runSeoAgent(origin: string, trigger: AgentRun["trigger"] = "cron"): Promise<AgentRun> {
   const rec = new RunRecorder("seo", trigger);
@@ -50,14 +50,14 @@ export async function runSeoAgent(origin: string, trigger: AgentRun["trigger"] =
     for (const p of toFix) {
       const fix = aiEnabled
         ? await generateStructured({
-            instructions: "Mission : agent SEO. Vous réécrivez la balise title et la meta description d’une fiche, en français, dans le ton de la Maison. Le title suit le modèle « Nom de la pièce, matière principale | Awrea Paris ». La description donne une image concrète, puis « fait main à Paris ». Respectez strictement les longueurs.",
+            instructions: "Mission : agent SEO. Vous réécrivez la balise title et la meta description d’une fiche, en français, dans le ton de la Maison. Le title suit le modèle « Nom de la pièce, matière principale | Awrea Paris ». La description donne une image concrète, puis « créée sur demande par des artisans français ». N’inventez aucune matière. Respectez strictement les longueurs.",
             content: `Pièce : ${p.title}\nAccroche : ${p.tagline}\nMatières : ${p.materials.map((m) => m.name).join(", ")}\nTitle actuel (${p.seo.title.length} car.) : ${p.seo.title}\nDescription actuelle (${p.seo.description.length} car.) : ${p.seo.description}\nRequêtes visées : ${TARGET_QUERIES.join(" ; ")}`,
             schema: SeoFix,
             effort: "low",
           })
         : {
-            title: `${p.title}, ${p.materials[0]?.name.split(" ")[0].toLowerCase() ?? "création"} | Awrea Paris`.slice(0, 60),
-            description: `${p.tagline} ${p.title}, pièce de créatrice faite main à Paris en série numérotée.`.slice(0, 158),
+            title: `${p.title} | Awrea Paris`.slice(0, 60),
+            description: `${p.tagline} ${p.title}, créée sur demande par des artisans français.`.slice(0, 158),
           };
       await rec.act("update_product_content", { handle: p.handle, seo: { title: fix.title.slice(0, 70), description: fix.description.slice(0, 170) } }, { summary: `Balises SEO réécrites : ${p.title}`, rationale: `Title ${p.seo.title.length} car., description ${p.seo.description.length} car.` });
     }
@@ -67,11 +67,11 @@ export async function runSeoAgent(origin: string, trigger: AgentRun["trigger"] =
     const last = articles[0] ? new Date(articles[0].date).getTime() : 0;
     if (Date.now() - last > 7 * 24 * 60 * 60 * 1000) {
       const ideas = (await kv.get<{ title: string; angle: string; target_query: string }[]>(IDEAS_KEY)) ?? [];
-      const catalogue = products.map((p) => `${p.handle} : ${p.title} (${p.materials.map((m) => m.name).join(", ")}). ${p.tagline}`).join("\n");
+      const catalogue = products.map((p) => `${p.handle} : ${p.title} (${p.materials.map((m) => m.name).join(", ") || "composition à préciser par la Maison"}). ${p.tagline} ${madeToOrderLabel(p)}.`).join("\n");
       let article: z.infer<typeof ArticleOut>;
       if (aiEnabled) {
         article = await generateStructured({
-          instructions: `Mission : agent SEO et éditorial. Vous écrivez un article du Journal d’Awrea Paris, de 700 à 1 000 mots, utile et sincère. Il parle de savoir-faire, de coulisses, de matières ou de conseils, et répond naturellement à l’une des requêtes visées, sans empiler les mots-clés. Écrivez comme la créatrice : des phrases courtes, la matière, le geste, le temps passé. Pas d’intertitre coupé par deux-points. N’employez que les faits fournis. Proposez aussi trois idées pour les semaines suivantes.`,
+          instructions: `Mission : agent SEO et éditorial. Vous écrivez un article du Journal d’Awrea Paris, de 700 à 1 000 mots, utile et sincère. Il parle de la création sur demande, des artisans français, des matières ou de conseils, et répond naturellement à l’une des requêtes visées, sans empiler les mots-clés. Écrivez comme la créatrice : des phrases courtes, la matière, le geste, le temps passé. Pas d’intertitre coupé par deux-points. N’employez que les faits fournis : aucune composition, aucune heure de travail, aucun lieu de fabrication inventés ; jamais de série ni de numéro d’édition. Proposez aussi trois idées pour les semaines suivantes.`,
           content: `Articles déjà publiés : ${articles.map((a) => a.title).join(" ; ")}\nIdées en réserve : ${ideas.map((i) => `${i.title} (${i.target_query})`).join(" ; ") || "aucune"}\nRequêtes visées : ${TARGET_QUERIES.join(" ; ")}\nPièces (handle : nom, matières, accroche) :\n${catalogue}`,
           schema: ArticleOut,
           effort: "high",
@@ -80,20 +80,20 @@ export async function runSeoAgent(origin: string, trigger: AgentRun["trigger"] =
       } else {
         const p = products.find((x) => !articles.some((a) => a.title.includes(x.title))) ?? products[0];
         article = {
-          title: `${p.title}, de l’esquisse au dernier point`,
-          excerpt: `Chaque exemplaire est cousu à la main dans l’atelier, à Paris, puis numéroté.`,
+          title: `${p.title}, une pièce créée sur demande`,
+          excerpt: "Cette pièce n’existe pas avant votre commande. Des artisans français la confectionnent ensuite, dans votre taille.",
           category: "Coulisses",
           cover_handle: p.handle,
           sections: [
-            { heading: null, paragraphs: [`${p.title} est née d’une image notée dans le carnet de la créatrice. ${p.tagline}`, "Comme chaque pièce de la maison, elle a été coupée, assemblée et finie à la main, à Paris, puis numérotée."] },
-            { heading: "La matière d’abord", paragraphs: [`${p.materials.map((m) => `${m.percent} % ${m.name.toLowerCase()}`).join(", ")} : la matière décide du tombé avant que le patron ne prenne forme. ${p.description[0] ?? ""}`] },
-            { heading: "Une série courte", paragraphs: [`${editionInfo(p).unique ? "C’est une pièce unique" : `La série compte ${editionInfo(p).total} pièces`} : lorsqu’elle est complète, elle ne revient pas à l’identique. Consommer plus juste commence là.`] },
+            { heading: null, paragraphs: [`${p.tagline}`, `${p.description[0] ?? ""}`.trim() || `${p.title} appartient à la collection de la Maison.`] },
+            { heading: "Créée sur demande", paragraphs: [`Aucune pièce de la Maison n’est produite d’avance. Celle-ci est créée sur demande par des artisans français, en ${leadTimeText(p.leadTime)}. Il n’y a pas de stock, seulement des pièces pensées pour la personne qui les porte.`] },
+            { heading: "Le temps de la confection", paragraphs: ["Votre commande passe par cinq étapes, de la commande reçue à la livraison. Vous les suivez dans votre compte, ou sur la page de suivi avec votre numéro de commande et votre adresse e-mail."] },
           ],
-          seo: { title: `${p.title} dans l’atelier | Awrea Paris`.slice(0, 60), description: `${p.title}, une pièce coupée, assemblée et finie à la main dans l’atelier, à Paris, puis numérotée. La matière décide du tombé.`.slice(0, 158) },
+          seo: { title: `${p.title}, sur demande | Awrea Paris`.slice(0, 60), description: `${p.title} : ${p.tagline.charAt(0).toLowerCase()}${p.tagline.slice(1)} Une pièce créée sur demande par des artisans français.`.slice(0, 158) },
           next_ideas: [
-            { title: "Comment choisir sa robe en dentelle noire", angle: "Guide de coupe et de taille", target_query: "robe dentelle noire fait main Paris" },
+            { title: "Comment choisir sa robe en dentelle noire", angle: "Guide de coupe et de taille", target_query: "robe dentelle noire créatrice française" },
             { title: "Trois façons de porter un body en dentelle", angle: "Guide de port", target_query: "body dentelle créatrice française" },
-            { title: "Pourquoi nous numérotons nos pièces", angle: "Le sens des séries courtes", target_query: "pièce unique mode femme Paris" },
+            { title: "Pourquoi chaque pièce est créée sur demande", angle: "Le sens d’une Maison sans stock", target_query: "mode éthique sans stock" },
           ],
         };
       }
@@ -119,7 +119,7 @@ export async function runSeoAgent(origin: string, trigger: AgentRun["trigger"] =
     const current = await getCurrentCollection();
     const notes = [
       current ? `Collection en cours : ${current.title} (${current.season}). ${current.lead}` : "",
-      ...products.slice(0, 8).map((p) => `${p.title} : ${formatPrice(p.price)}, ${editionInfo(p).unique ? "pièce unique" : `série de ${editionInfo(p).total}`}, ${productAvailability(p) === "available" ? "disponible" : productAvailability(p) === "preorder" ? "sur commande" : "épuisée"}.`),
+      ...products.slice(0, 8).map((p) => `${p.title} : ${formatPrice(p.price)}, ${madeToOrderLabel(p)}.`),
     ].filter(Boolean);
     await rec.act("update_ai_visibility", { notes: notes.slice(0, 12) }, { summary: "Mise à jour de llms.txt", rationale: "Informations à jour pour les moteurs de réponse IA" });
 

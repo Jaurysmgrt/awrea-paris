@@ -34,9 +34,10 @@
       grid-template-rows: auto auto 1fr auto auto;
     }
   }
+  /* logo entier : la hauteur est fixée (« PARIS » reste lisible), la largeur suit */
   .admin__logo {
-    display: block;
-    width: var(--spacing-2xl);
+    display: inline-block;
+    --logo-h: var(--size-logo);
     color: var(--color-ivory);
   }
   .admin__title {
@@ -79,7 +80,8 @@
     gap: var(--spacing-s);
     min-height: var(--spacing-touch);
     padding: var(--spacing-2xs) var(--spacing-xs);
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
+    font-style: normal;
     font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-label);
@@ -149,18 +151,21 @@
   }
   .kpis__value {
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-3);
-    line-height: var(--leading-tight);
+    line-height: var(--lh-step-3);
   }
   .kpis__value--small {
     font-size: var(--text-step-1);
+    line-height: var(--lh-step-1);
   }
 
   .status {
     display: inline-block;
     padding: var(--spacing-3xs) var(--spacing-2xs);
     border: var(--border-width-hair) solid currentColor;
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
+    font-style: normal;
     font-weight: var(--font-weight-regular);
     font-size: var(--text-step--2);
     letter-spacing: var(--tracking-snug);
@@ -176,7 +181,7 @@
   .status--proposed,
   .status--pending {
     border-color: var(--accent);
-    box-shadow: inset var(--spacing-3xs) 0 0 var(--accent); /* token-ok : filet doré, pas une ombre */
+    box-shadow: inset var(--spacing-3xs) 0 0 var(--accent); /* token-ok : filet de repère, pas une ombre */
   }
   .status--failed,
   .status--rejected {
@@ -382,7 +387,9 @@
   }
   .report > summary {
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-1);
+    line-height: var(--lh-step-1);
     letter-spacing: 0;
     text-transform: none;
   }
@@ -400,7 +407,7 @@
     justify-items: center;
   }
   .admin-login__logo {
-    width: var(--spacing-2xl);
+    --logo-h: var(--size-logo-l);
     color: var(--color-ivory);
   }
   .admin-login__title {
@@ -423,7 +430,8 @@
   }
   .totp-secret,
   .recovery-codes code {
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
+    font-style: normal;
     letter-spacing: var(--tracking-label);
     font-variant-numeric: tabular-nums;
     word-break: break-all;
@@ -511,8 +519,7 @@
     gap: var(--spacing-m);
   }
   .slip__logo {
-    width: var(--spacing-2xl);
-    height: auto;
+    --logo-h: var(--size-logo);
   }
   .slip__ref {
     display: grid;
@@ -525,6 +532,7 @@
   }
   .slip__message {
     font-family: var(--font-display);
+    font-style: var(--font-style-display);
     font-size: var(--text-step-1);
     line-height: var(--leading-text);
   }

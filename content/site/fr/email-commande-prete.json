@@ -1,0 +1,69 @@
+{
+  "nom": "Commande prête",
+  "quand": "Quand la créatrice passe la commande à l’étape « Prête » : la pièce est terminée et va partir.",
+  "famille": "service",
+  "sujet": "Votre pièce est prête",
+  "preheader": "Terminée, elle attend son papier de soie.",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la cliente",
+      "exemple": "Camille"
+    },
+    "commande": {
+      "description": "Le numéro de la commande",
+      "exemple": "AW-1042"
+    },
+    "suivi": {
+      "description": "Le lien du suivi de la commande (sans compte)",
+      "exemple": "https://www.awreaparis.com/suivi/AW-1042"
+    },
+    "retrait": {
+      "description": "Rempli quand la cliente vient chercher sa pièce à l’atelier",
+      "exemple": ""
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-cmdpret01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-cmdpret02",
+      "type": "titre",
+      "titre": "Votre pièce est prête"
+    },
+    {
+      "id": "b-cmdpret03",
+      "type": "texte",
+      "texte": "Bonjour {prenom},\n\nVotre pièce est terminée. La créatrice l’a vérifiée couture après couture, elle attend maintenant son papier de soie et son certificat d’authenticité."
+    },
+    {
+      "id": "b-cmdpret04",
+      "type": "texte",
+      "texte": "Nous vous écrivons le jour de son départ, avec le numéro de suivi du transporteur.",
+      "sauf": "retrait"
+    },
+    {
+      "id": "b-cmdpret05",
+      "type": "texte",
+      "texte": "Elle vous attend à l’atelier. Nous vous écrivons pour choisir le jour ensemble.",
+      "si": "retrait"
+    },
+    {
+      "id": "b-cmdpret06",
+      "type": "texte",
+      "texte": "Votre commande {commande} se suit ici : {suivi}"
+    },
+    {
+      "id": "b-cmdpret07",
+      "type": "signature",
+      "texte": "À très vite,\nL’atelier Awrea Paris"
+    },
+    {
+      "id": "b-cmdpret08",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

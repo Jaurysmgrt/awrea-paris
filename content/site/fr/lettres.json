@@ -1,19 +1,19 @@
 {
   "seo": {
-    "title": "Ne plus recevoir les lettres | Awrea Paris",
-    "description": "Se désinscrire des lettres de l’atelier Awrea Paris en un clic."
+    "title": "Ne plus recevoir la lettre | Awrea Paris",
+    "description": "Se désinscrire de la lettre de la Maison Awrea Paris en un clic."
   },
-  "titre": "Ne plus recevoir les lettres",
-  "texte": "Un clic, et les lettres de l’atelier cessent d’arriver dans votre boîte. Les e-mails liés à une commande en cours continuent de partir, eux.",
+  "titre": "Ne plus recevoir la lettre",
+  "texte": "Un clic, et la lettre de la Maison cesse d’arriver dans votre boîte. Les e-mails qui suivent une commande, de sa confection à sa livraison, continuent de vous parvenir.",
   "bouton": "Me désinscrire",
   "attente": "Un instant…",
   "fait": {
     "titre": "C’est fait",
-    "texte": "Vous ne recevrez plus les lettres de l’atelier. Si vous changez d’avis, l’inscription reste ouverte en bas de chaque page du site."
+    "texte": "Vous ne recevrez plus la lettre de la Maison. Si vous changez d’avis, l’inscription reste ouverte en bas de chaque page du site."
   },
   "invalide": {
     "titre": "Ce lien n’est plus valable",
-    "texte": "Écrivez-nous à {email} : nous vous retirons de la liste nous-mêmes."
+    "texte": "Écrivez-nous à {email} : nous vous retirons de la liste nous-mêmes."
   },
   "erreur": "La désinscription n’a pas abouti. Réessayez dans un instant, ou écrivez-nous."
 }

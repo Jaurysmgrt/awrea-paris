@@ -1,6 +1,9 @@
 /**
  * Exécuteurs des actions des agents. Chaque action a un schéma de paramètres (validé)
  * et une exécution : Shopify Admin quand il est configuré, données de démonstration sinon.
+ *
+ * Modèle « sur demande » : aucune action ne touche à un stock ni à une liste d'attente. Les prix,
+ * délais et indicateurs « provisoire » passent par lib/commerce/pieces.ts, comme dans l'Atelier.
  */
 import * as z from "zod/v4";
 import { revalidatePath } from "next/cache";
@@ -11,14 +14,15 @@ import { getOrder, setOrderStatus } from "@/lib/commerce/orders";
 import type { Product } from "@/lib/commerce/types";
 import {
   adminEnabled,
+  PIECE_METAFIELDS,
   shopifyCancelOrder,
   shopifyCreateProduct,
   shopifyDeleteProduct,
   shopifyRefundOrder,
-  shopifySetPrice,
-  shopifySetStock,
   shopifyUpdateProduct,
 } from "@/lib/shopify/admin";
+import { DEFAULT_LEAD_TIME } from "@/lib/commerce/availability";
+import { updatePiece } from "@/lib/commerce/pieces";
 import { updateInbox, listInbox } from "@/lib/inbox";
 import { sendEmail } from "@/lib/email/send";
 import { brandEmail } from "@/lib/email/templates";
@@ -26,9 +30,7 @@ import { identity } from "@/content/brand/identity";
 import { formatPrice, slugify } from "@/lib/format";
 import { JOURNAL_KEY } from "@/lib/content/journal";
 import type { Article } from "@/content/fr/journal";
-import type { WaitlistEntry } from "@/lib/waitlist";
 import type { ActionType } from "./policy";
-import { imageAt } from "@/lib/media";
 
 const atelierEmail = () => process.env.ATELIER_EMAIL ?? identity.email;
 
@@ -52,13 +54,17 @@ export const ProductDraftSchema = z.object({
   category: z.enum(["robe", "body", "top", "jupe", "accessoire"]),
   collection: z.string().max(80),
   price: z.number().int().positive().describe("Prix en centimes d’euro"),
-  edition_total: z.number().int().min(1).max(50),
-  lead_time_weeks: z.number().int().min(1).max(16).optional(),
-  sizes: z.array(z.object({ size: Size, quantity: z.number().int().min(0).max(50), preorder: z.boolean() })).min(1),
+  price_provisional: z.boolean().default(false),
+  /** délai de fabrication en semaines : chaque pièce est créée sur demande, sans stock */
+  lead_time: z.object({ min: z.number().int().min(1).max(26), max: z.number().int().min(1).max(26) }).optional(),
+  lead_time_provisional: z.boolean().default(true),
+  sizes: z.array(Size).min(1),
   images: z.array(ImageSchema).min(1),
   description: z.array(z.string().min(20)).min(1).max(4),
-  materials: z.array(z.object({ name: z.string(), percent: z.number().min(0).max(100) })).min(1),
+  /** composition connue seulement : vide tant que la Maison ne l'a pas donnée (jamais inventée) */
+  materials: z.array(z.object({ name: z.string(), percent: z.number().min(0).max(100) })).default([]),
   lining: z.string().optional(),
+  /** conseils connus, sinon un repère « [À COMPLÉTER : …] » */
   care: z.array(z.string()).min(1),
   fit: z.string().min(10),
   model: z.string().default(""),
@@ -88,8 +94,6 @@ export const ACTION_SCHEMAS = {
     seo: z.object({ title: z.string().max(70), description: z.string().max(170) }).optional(),
     alts: z.array(z.object({ index: z.number().int().min(0), alt: z.string().min(3).max(240) })).optional(),
   }),
-  update_stock: z.object({ handle: z.string(), size: Size, quantity: z.number().int().min(0).max(100) }),
-  notify_waitlist: z.object({ handle: z.string(), size: Size.nullable(), message: z.string().max(800).optional() }),
   send_reply: z.object({ messageId: z.string(), subject: z.string().max(120), body: z.string().min(20).max(4000) }),
   save_reply_draft: z.object({ messageId: z.string(), body: z.string().min(20).max(4000), note: z.string().max(600).optional(), sensitive: z.boolean() }),
   escalate_message: z.object({ messageId: z.string(), reason: z.string().max(400) }),
@@ -112,6 +116,9 @@ export const ACTION_SCHEMAS = {
   delete_product: z.object({ handle: z.string() }),
   cancel_order: z.object({ orderId: z.string(), refund: z.boolean() }),
   send_newsletter_all: z.object({ subject: z.string().max(80), preheader: z.string().max(140), paragraphs: z.array(z.string()).min(1).max(8), cta: z.object({ label: z.string(), href: z.string() }).optional() }),
+  // le message part à l'adresse de la commande, jamais à une adresse fournie par un agent
+  send_client_message: z.object({ orderId: z.string(), subject: z.string().min(3).max(120), body: z.string().min(20).max(4000) }),
+  confirm_piece_terms: z.object({ handle: z.string(), price: z.boolean(), leadTime: z.boolean() }).refine((x) => x.price || x.leadTime, "Rien à confirmer"),
 } satisfies Record<ActionType, z.ZodType>;
 
 export type ActionParams<T extends ActionType> = z.infer<(typeof ACTION_SCHEMAS)[T]>;
@@ -123,18 +130,13 @@ export interface ActionResult {
 
 /* ---------------------------------------------------------------- EXÉCUTION */
 
-async function findVariant(handle: string, size: string): Promise<{ p: Product; id: string } | null> {
-  const p = await getProduct(handle);
-  const v = p?.variants.find((x) => x.size === size);
-  return p && v ? { p, id: v.id } : null;
-}
-
 export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promise<ActionResult> } = {
   async publish_product({ product: d }) {
     const handle = d.handle ? slugify(d.handle) : slugify(d.title);
     const existing = await getProduct(handle);
     if (existing) throw new Error(`Une pièce existe déjà sous l’adresse /boutique/${handle}.`);
     const code = d.title.split(" ").pop()!.slice(0, 3).toUpperCase();
+    const leadTime = d.lead_time && d.lead_time.min <= d.lead_time.max ? d.lead_time : DEFAULT_LEAD_TIME[d.category];
     if (adminEnabled) {
       await shopifyCreateProduct({
         handle,
@@ -146,17 +148,19 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
         seo: d.seo,
         metafields: [
           { key: "tagline", type: "single_line_text_field", value: d.tagline },
-          { key: "edition_total", type: "number_integer", value: String(d.edition_total) },
-          { key: "edition_produced", type: "number_integer", value: "0" },
-          ...(d.lead_time_weeks ? [{ key: "lead_time_weeks", type: "number_integer", value: String(d.lead_time_weeks) }] : []),
+          { ...PIECE_METAFIELDS.leadTimeMin, value: String(leadTime.min) },
+          { ...PIECE_METAFIELDS.leadTimeMax, value: String(leadTime.max) },
+          { ...PIECE_METAFIELDS.priceProvisional, value: String(d.price_provisional) },
+          { ...PIECE_METAFIELDS.leadTimeProvisional, value: String(d.lead_time_provisional) },
+          { ...PIECE_METAFIELDS.isNew, value: "true" },
           { key: "materials", type: "json", value: JSON.stringify(d.materials) },
           { key: "care", type: "list.single_line_text_field", value: JSON.stringify(d.care) },
           { key: "fit", type: "multi_line_text_field", value: d.fit },
           { key: "model", type: "single_line_text_field", value: d.model || "La taille portée sur les photos reste à préciser par l’atelier." },
-          { key: "details", type: "list.single_line_text_field", value: JSON.stringify(d.details.length ? d.details : ["Fait main à Paris"]) },
+          { key: "details", type: "list.single_line_text_field", value: JSON.stringify(d.details.length ? d.details : ["Créée sur demande par des artisans français"]) },
         ],
         images: d.images.map((i) => ({ url: i.src.startsWith("http") ? i.src : `${identity.url}${i.src}`, alt: i.alt })),
-        sizes: d.sizes.map((s) => ({ ...s, sku: `AW-${code}-${s.size}` })),
+        sizes: d.sizes.map((size) => ({ size, sku: `AW-${code}-${size}` })),
         price: d.price,
       });
     } else {
@@ -168,9 +172,11 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
         category: d.category,
         collection: d.collection,
         price: d.price,
-        edition: { total: d.edition_total, produced: 0 },
-        leadTimeWeeks: d.lead_time_weeks,
-        variants: d.sizes.map((s) => ({ id: `${handle}-${s.size.toLowerCase()}`, sku: `AW-${code}-${s.size}`, size: s.size, quantity: s.quantity, preorder: s.preorder })),
+        priceProvisional: d.price_provisional,
+        leadTime,
+        leadTimeProvisional: d.lead_time_provisional,
+        isNew: true,
+        variants: d.sizes.map((size) => ({ id: `${handle}-${size.toLowerCase()}`, sku: `AW-${code}-${size}`, size })),
         images: d.images,
         detailImage: d.images[d.images.length - 1],
         description: d.description,
@@ -193,7 +199,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       await kv.set(DEMO_KEYS.extra, [...extra, product]);
     }
     refresh();
-    return { summary: `Fiche « ${d.title} » publiée (${formatPrice(d.price)}, ${d.edition_total === 1 ? "pièce unique" : `série de ${d.edition_total}`})`, target: { type: "product", id: handle, label: d.title, href: `/boutique/${handle}` } };
+    return { summary: `Fiche « ${d.title} » publiée (${formatPrice(d.price)}, créée sur demande en ${leadTime.min} à ${leadTime.max} semaines)`, target: { type: "product", id: handle, label: d.title, href: `/boutique/${handle}` } };
   },
 
   async update_product_content({ handle, tagline, description, seo, alts }) {
@@ -210,47 +216,6 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
     refresh();
     const what = [tagline && "accroche", description && "description", seo && "balises SEO", alts?.length && `${alts.length} texte(s) alternatif(s)`].filter(Boolean).join(", ");
     return { summary: `${p.title} : ${what || "contenu"} mis à jour`, target: { type: "product", id: handle, label: p.title, href: `/boutique/${handle}` } };
-  },
-
-  async update_stock({ handle, size, quantity }) {
-    const found = await findVariant(handle, size);
-    if (!found) throw new Error(`Taille ${size} introuvable pour ${handle}`);
-    if (adminEnabled) await shopifySetStock(found.id, quantity);
-    else {
-      const stock = (await kv.get<Record<string, number>>(DEMO_KEYS.stock)) ?? {};
-      stock[found.id] = quantity;
-      await kv.set(DEMO_KEYS.stock, stock);
-    }
-    refresh();
-    return { summary: `Stock ${found.p.title} taille ${size} → ${quantity}`, target: { type: "product", id: handle, label: found.p.title, href: `/boutique/${handle}` } };
-  },
-
-  async notify_waitlist({ handle, size, message }) {
-    const p = await getProduct(handle);
-    if (!p) throw new Error(`Pièce ${handle} introuvable`);
-    const list = (await kv.get<WaitlistEntry[]>("waitlist")) ?? [];
-    const targets = list.filter((w) => w.handle === handle && !w.notifiedAt && (size === null || w.size === null || w.size === size));
-    for (const w of targets) {
-      await sendEmail({
-        to: w.email,
-        subject: `${p.title} est de nouveau disponible`,
-        tag: "liste-attente",
-        ...brandEmail({
-          preheader: "Une nouvelle pièce vient de sortir de l’atelier.",
-          title: `${p.title}, de nouveau disponible`,
-          paragraphs: [
-            "Bonjour,",
-            message ?? `Vous nous aviez demandé de vous prévenir : une nouvelle pièce ${p.title}${w.size ? ` en taille ${w.size}` : ""} vient de sortir de l’atelier.`,
-          ],
-          items: [{ title: p.title, meta: w.size ? `Taille ${w.size}` : "Fait main à Paris", price: p.price, image: imageAt(p.images[0].src, 480) }],
-          cta: { label: "Voir la pièce", href: `/boutique/${p.handle}` },
-          signature: "Avec toute notre attention,\nl’atelier Awrea Paris",
-        }),
-      });
-      w.notifiedAt = new Date().toISOString();
-    }
-    await kv.set("waitlist", list);
-    return { summary: `${targets.length} cliente(s) de la liste d’attente prévenue(s) pour ${p.title}${size ? ` (${size})` : ""}`, target: { type: "product", id: handle, label: p.title, href: `/boutique/${handle}` } };
   },
 
   async send_reply({ messageId, subject, body }) {
@@ -359,17 +324,12 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
     return { summary: `Commande ${o.number} remboursée (${formatPrice(o.total)})`, target: { type: "order", id: o.id, label: o.number, href: "atelier:/commandes" } };
   },
 
+  // même chemin que l'Atelier (Catalogue) : une pièce Shopify aux prix différents selon la taille garde ses prix
   async change_price({ handle, price }) {
     const p = await getProduct(handle);
     if (!p) throw new Error(`Pièce ${handle} introuvable`);
-    if (adminEnabled) await shopifySetPrice(handle, price);
-    else {
-      const prices = (await kv.get<Record<string, number>>(DEMO_KEYS.price)) ?? {};
-      prices[handle] = price;
-      await kv.set(DEMO_KEYS.price, prices);
-    }
-    refresh();
-    return { summary: `Prix de ${p.title} : ${formatPrice(p.price)} → ${formatPrice(price)}`, target: { type: "product", id: handle, label: p.title, href: `/boutique/${handle}` } };
+    await updatePiece(handle, { price });
+    return { summary: `Prix de ${p.title} : ${formatPrice(p.price)} → ${formatPrice(price)}`, target: { type: "product", id: handle, label: p.title, href: `/boutique/${handle}` } };
   },
 
   async delete_product({ handle }) {
@@ -398,6 +358,28 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       await sendEmail({ to: s.email, subject, tag: "newsletter", ...brandEmail({ preheader, title: subject, paragraphs, cta, signature: "La Créatrice", footnote: "Vous recevez cette lettre car vous vous êtes inscrite sur awreaparis.com. Désinscription : répondez simplement « stop »." }) });
     }
     return { summary: `Newsletter « ${subject} » envoyée à ${subs.length} abonnée(s)` };
+  },
+
+  async send_client_message({ orderId, subject, body }) {
+    const o = await getOrder(orderId);
+    if (!o) throw new Error("Commande introuvable");
+    const paragraphs = body.split(/\n{2,}/);
+    // la formule de fin du message préparé devient la signature de l'e-mail
+    const signature = paragraphs.length > 1 && /^avec\b/i.test(paragraphs[paragraphs.length - 1]) ? paragraphs.pop() : undefined;
+    await sendEmail({
+      to: o.email,
+      subject,
+      replyTo: atelierEmail(),
+      tag: "message-cliente",
+      ...brandEmail({ preheader: (paragraphs[1] ?? subject).slice(0, 90), title: subject, paragraphs, cta: { label: "Suivre ma commande", href: "/suivi" }, signature }),
+    });
+    return { summary: `Message « ${subject} » envoyé à ${o.name} (${o.email})`, target: { type: "order", id: o.id, label: o.number, href: `atelier:/commandes/${o.number}` } };
+  },
+
+  // la créatrice confirme la valeur affichée : prix et délai restent les mêmes, seule la mention « provisoire » disparaît
+  async confirm_piece_terms({ handle, price, leadTime }) {
+    const r = await updatePiece(handle, { ...(price ? { priceProvisional: false } : {}), ...(leadTime ? { leadTimeProvisional: false } : {}) });
+    return { summary: r.summary, target: { type: "product", id: handle, label: r.title, href: `/boutique/${handle}` } };
   },
 };
 

@@ -22,7 +22,7 @@ export function RevokeForm({ token }: { token: string }) {
       ) : null}
       <button
         type="button"
-        className="btn btn--solid btn--block"
+        className="btn btn--block"
         disabled={state === "busy" || !token}
         onClick={async () => {
           setState("busy");

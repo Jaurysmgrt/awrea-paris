@@ -9,7 +9,7 @@ import { generateStructured } from "@/lib/ai/structured";
 import { listInbox, type InboxMessage } from "@/lib/inbox";
 import { getAllProducts } from "@/lib/commerce";
 import { getOrder, statusLabel, trackingUrl } from "@/lib/commerce/orders";
-import { availabilityLabel, variantAvailability } from "@/lib/commerce/availability";
+import { madeToOrderLabel } from "@/lib/commerce/availability";
 import type { Order, Product } from "@/lib/commerce/types";
 import { shop } from "@/content/settings";
 import { formatPrice } from "@/lib/format";
@@ -39,10 +39,11 @@ function orderFacts(o: Order | null, email: string): string {
 
 function catalogueFacts(products: Product[], text: string): string {
   const t = text.toLowerCase();
-  const hit = products.filter((p) => t.includes((p.title.split(" ")[1] ?? p.title).toLowerCase()));
+  // le nom propre de la pièce est le dernier mot de son titre (« La robe Odessa »)
+  const hit = products.filter((p) => t.includes((p.title.split(" ").pop() ?? p.title).toLowerCase()));
   return (hit.length ? hit : products)
     .slice(0, hit.length ? 4 : 8)
-    .map((p) => `${p.title} (${formatPrice(p.price)}). Tailles : ${p.variants.map((v) => `${v.size} ${availabilityLabel(variantAvailability(p, v), p.leadTimeWeeks).toLowerCase()}`).join(", ")}. Coupe : ${p.fit} Entretien : ${p.care.join(" ")}`)
+    .map((p) => `${p.title} (${formatPrice(p.price)}), ${madeToOrderLabel(p)}. Tailles : ${p.variants.map((v) => v.size).join(", ")}. Coupe : ${p.fit} Entretien : ${p.care.join(" ")}`)
     .join("\n");
 }
 
