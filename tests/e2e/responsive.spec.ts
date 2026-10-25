@@ -46,8 +46,9 @@ for (const vp of VIEWPORTS) {
           const notText = ".t-label, .eyebrow, .price, .t-h1, .t-h2, .t-h3, .t-h4, .t-display, .t-giant, .t-center, .t-left, .badge";
           const prose = Array.from(document.querySelectorAll(`main .prose p:not(${notText}), main p.t-body:not(${notText})`)).filter((p) => p.tagName === "P");
           // un paragraphe qu'aucun réglage ne justifie sans trou passe volontairement en fer à gauche
-          // (components/typography/Justification.tsx, data-fer-a-gauche) : la règle CSS s'applique bien
-          const notJustified = prose.filter((p) => getComputedStyle(p).textAlign !== "justify" && !(p as HTMLElement).dataset.ferAGauche).length;
+          // (components/typography/Justification.tsx, data-fer-a-gauche) : la règle CSS s'applique bien ;
+          // sur téléphone, un paragraphe qui contient une adresse web y passe d'avance (styles/components.css)
+          const notJustified = prose.filter((p) => getComputedStyle(p).textAlign !== "justify" && !(p as HTMLElement).dataset.ferAGauche && !p.querySelector(".adresse-web")).length;
           return { overflow: de.scrollWidth - de.clientWidth, offenders, h1: document.querySelectorAll("h1").length, imgsNoAlt, badJustify, notJustified, lang: de.lang };
         });
         expect(r.overflow, `Débordement horizontal : ${r.offenders.join(", ")}`).toBeLessThanOrEqual(1);
