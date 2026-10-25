@@ -156,5 +156,5 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // tout sauf les fichiers statiques (scripts compilés, images, vidéos, icônes, fichiers publics)
-  matcher: ["/((?!_next/static|_next/image|media/|brand/|favicon.ico|icon.svg|apple-icon.png|robots.txt|sitemap.xml|manifest.webmanifest|llms).*)"],
+  matcher: ["/((?!_next/static|_next/image|media/|brand/|favicon.ico|icon.png|apple-icon.png|opengraph-image.png|robots.txt|sitemap.xml|manifest.webmanifest|llms).*)"],
 };

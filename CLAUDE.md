@@ -1,6 +1,7 @@
 # Awrea Paris — règles du projet
 
-Site e-commerce de luxe d'Awrea Paris (prêt-à-porter féminin fait main à Paris) : Next.js 16
+Site e-commerce de luxe d'Awrea Paris (prêt-à-porter féminin créé sur demande par des artisans
+français, sans stock ; collection « Hypnotic Lace ») : Next.js 16
 (App Router, Turbopack, `proxy.ts`), TypeScript, Tailwind v4 (tokens CSS), GSAP, Lenis, OGL,
 Shopify headless, Supabase, Claude. Lire aussi `AGENTS.md` (Next.js 16 diffère de vos souvenirs :
 consulter `node_modules/next/dist/docs/` avant d'écrire du code Next).
@@ -35,10 +36,21 @@ base, compilation et parcours Playwright doivent être verts.
 
 ## Design et contenu (référence : `MARQUE.md`)
 
+- **Ressources officielles** (`ressources-awrea/`, inventaire et droits dans `RESSOURCES.md`) : elles
+  priment sur toute autre consigne de typographie, de textes, de produits et de mise en page.
 - Palette unique : noir `#0A0A0A`, blanc cassé `#F7F6F3`, gris pierre `#E4E2DD`, gris taupe `#8C8780`
-  (textes secondaires ; `--color-taupe-deep` pour les petits textes sur fond clair). **Aucun doré.**
-- Deux familles : Instrument Serif (titres, très grands, jamais en italique) et Inter Tight (textes
-  300, navigation et boutons en petites capitales espacées 400). Aucune calligraphie, aucun italique.
+  (textes secondaires ; `--color-taupe-deep` pour les petits textes sur fond clair). La dorure fait
+  partie de l'identité dans les mots, les photos et les bijoux, **jamais comme couleur de l'interface**.
+- Polices officielles : Fraunces 72pt Italic 400 pour tous les titres (très grands, en italique) et
+  Cormorant Garamond 400 pour les textes, la navigation, les boutons et les formulaires (texte courant
+  20 px sur 32 px, jamais sous 16 px). Aucune autre police ; la police du logo (Croisan, licence
+  personnelle) n'est jamais chargée : le logo vient des fichiers officiels (`content/brand/assets.ts`).
+  Ni faux italique ni faux gras.
+- Langage des maquettes (`ressources-awrea/DA PRÉSENTATION`, référence) étendu à tout le site : filets
+  noirs très fins, champs sans cadre soulignés d'un filet, boutons noirs en pilule (`.btn`), pastille
+  « Nouveau » (`.badge`), photos des cartes aux angles arrondis ; détail dans `DESIGN.md`.
+- Textes officiels de la créatrice (À propos, collection, teasing, CGV, mentions légales) repris mot
+  pour mot, marqués `officiel` : le contrôle d'écriture ne s'y applique pas.
 - Grille de 8 px : tous les espacements sont des multiples de 8 ; interlignage 1,6 du texte courant ;
   distances identiques partout (`--space-title`, `--space-paragraph`, `--space-block`,
   `--space-section`). Jamais de valeur en dur : passer par les tokens (`npm run audit:tokens`).
@@ -56,7 +68,8 @@ base, compilation et parcours Playwright doivent être verts.
   Chaîne Plume → Détecteur IA → Lecture à voix haute → Typographe → Cohérence.
 - Aucun texte ni aucune image en dur dans les composants : tout vit dans les documents de contenu
   (`content/site/<langue>/`), modifiables dans l'éditeur visuel « Édition » (`lib/edition/`).
-  Aucune image générée par IA ni de banque d'images.
+  Aucune image de banque d'images ; les photos provisoires générées des pièces (`provisoire: true`,
+  `RESSOURCES.md`) restent admises jusqu'aux shootings, signalées comme provisoires.
 - Un seul `h1` par page. Mode Nuit (`html[data-mode="dark"]`) et animations apaisées
   (`html[data-motion="reduce"]`) à respecter dans tout nouveau composant. WCAG 2.1 AA (tests axe).
 - N'inventer aucune information sur l'entreprise : champ `[À COMPLÉTER]` via le registre légal.

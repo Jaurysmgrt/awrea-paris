@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Look, Product } from "@/lib/commerce/types";
 import { Media } from "@/components/ui/Media";
 import { QuickAdd } from "@/components/commerce/QuickAdd";
+import { ProvisionalNote } from "@/components/commerce/ProvisionalNote";
 import { Icon } from "@/components/ui/Icon";
 
 export function ShopTheLook({ look, products, priority }: { look: Look; products: Product[]; priority?: boolean }) {
@@ -62,6 +63,7 @@ export function ShopTheLook({ look, products, priority }: { look: Look; products
           </div>
         ) : null}
       </div>
+      <ProvisionalNote image={look.image} />
       <figcaption className="look__caption">
         <span className="t-h4">{look.title}</span>
         <span className="t-note">{look.note}</span>

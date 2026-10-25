@@ -1,60 +1,194 @@
 # Informations légales à compléter — Awrea Paris
 
 > Fichier généré par `npm run legal:todo` à partir de `content/legal/fields.ts`. Aucune information sur l’entreprise n’a été inventée :
-> tant qu’un champ est vide, il apparaît sur le site sous la forme d’un repère doré « [À COMPLÉTER : …] ».
+> tant qu’un champ est vide, il apparaît sur le site sous la forme d’un repère « [À COMPLÉTER : …] ».
 > Pour compléter : renseigner la valeur dans `content/legal/fields.ts`, puis relancer `npm run legal:todo`.
+> Les informations déjà renseignées viennent des mentions légales et des CGV officielles de la créatrice (`ressources-awrea/`).
 
-**20 information(s) à fournir** sur 20.
+**11 information(s) à fournir** sur 20.
 
 ## Informations de l’entreprise
 
 | Champ | Information attendue | Où la trouver | Pages concernées |
 |---|---|---|---|
-| `raisonSociale` | dénomination sociale ou nom de l’entrepreneuse | Extrait Kbis, avis de situation INSEE ou attestation d’immatriculation au registre national des entreprises (RNE) | Mentions légales (`/mentions-legales`), CGV (`/cgv`), CGU (`/cgu`), Confidentialité (`/confidentialite`), Propriété intellectuelle (`/propriete-intellectuelle`), Rétractation (`/retractation`) |
-| `formeJuridique` | forme juridique (SAS, SASU, SARL, EURL, entreprise individuelle…) | Statuts ou Kbis | Mentions légales (`/mentions-legales`), CGV (`/cgv`) |
-| `capital` | montant du capital social (sociétés uniquement ; supprimer la mention pour une entreprise individuelle) | Statuts ou Kbis | Mentions légales (`/mentions-legales`), CGV (`/cgv`) |
-| `siege` | adresse du siège social (ou du domicile professionnel) | Kbis ou attestation RNE | Mentions légales (`/mentions-legales`), CGV (`/cgv`), Confidentialité (`/confidentialite`), Rétractation (`/retractation`) |
-| `immatriculation` | numéro et ville d’immatriculation (RCS, ou RNE pour une entreprise artisanale ou individuelle) | Kbis ou attestation d’immatriculation | Mentions légales (`/mentions-legales`), CGV (`/cgv`) |
-| `siret` | numéro SIRET | Avis de situation INSEE (sirene.fr) | Mentions légales (`/mentions-legales`), CGV (`/cgv`) |
-| `tva` | numéro de TVA intracommunautaire, ou la mention « TVA non applicable, art. 293 B du CGI » en franchise de TVA | Espace professionnel impots.gouv.fr | Mentions légales (`/mentions-legales`), CGV (`/cgv`) |
-| `directricePublication` | nom et prénom de la directrice de la publication | Représentante légale de l’entreprise | Mentions légales (`/mentions-legales`) |
-| `email` | adresse e-mail de contact (à confirmer : contact@awreaparis.com est utilisée par défaut sur le site) | Boîte de réception de la maison | Mentions légales (`/mentions-legales`), CGV (`/cgv`), Confidentialité (`/confidentialite`), Rétractation (`/retractation`) |
-| `telephone` | numéro de téléphone du service client (obligatoire dans les mentions légales et les CGV) | Ligne professionnelle | Mentions légales (`/mentions-legales`), CGV (`/cgv`) |
-| `horaires` | jours et horaires de disponibilité du service client | Organisation de l’atelier | CGV (`/cgv`) |
-| `mediateur` | médiateur de la consommation : nom, adresse postale et site internet (adhésion obligatoire, articles L612-1 et suivants du Code de la consommation) | Convention signée avec un médiateur référencé par la CECMC (liste sur economie.gouv.fr) | CGV (`/cgv`), Mentions légales (`/mentions-legales`) |
-| `hebergeurTelephone` | numéro de téléphone de l’hébergeur Vercel Inc. (exigé par l’article 6 de la LCEN) | Page légale de Vercel (vercel.com/legal) ou contrat d’hébergement | Mentions légales (`/mentions-legales`) |
-| `marque` | numéro et date d’enregistrement de la marque « Awrea Paris » (INPI ou EUIPO), si elle est déposée ; sinon supprimer la mention | Certificat d’enregistrement INPI (data.inpi.fr) ou EUIPO | Propriété intellectuelle (`/propriete-intellectuelle`) |
-| `creditsPhotos` | crédits des photographes, vidéastes et mannequins (noms ou agences) et étendue des droits cédés | Contrats de cession de droits et autorisations de droit à l’image signés | Propriété intellectuelle (`/propriete-intellectuelle`), Mentions légales (`/mentions-legales`) |
-| `regionBase` | région d’hébergement du projet Supabase (base clientes) — recommandé : Union européenne (Francfort ou Paris) | Réglages du projet Supabase (Project Settings → General) | Confidentialité (`/confidentialite`) |
-| `regionsPrestataires` | régions d’hébergement retenues pour Upstash (stockage technique) et Sentry (suivi des erreurs) — recommandé : Union européenne | Réglages des comptes Upstash et Sentry | Confidentialité (`/confidentialite`) |
+| `tva` | numéro de TVA intracommunautaire, ou la mention « TVA non applicable, art. 293 B du CGI » si la micro-entreprise est en franchise de TVA (les CGV officielles annoncent des prix « HT et TTC ») | Espace professionnel impots.gouv.fr | Mentions légales (`/mentions-legales`) |
+| `directricePublication` | nom et prénom de la directrice de la publication (les mentions officielles ne la nomment pas ; pour une entreprise individuelle, c’est en principe l’entrepreneuse elle-même, Léane Soubrier : à confirmer) | Représentante légale de l’entreprise | Mentions légales (`/mentions-legales`) |
+| `mediateur` | médiateur de la consommation : nom, adresse postale et site internet (adhésion obligatoire, articles L612-1 et suivants du Code de la consommation ; ni les CGV ni les mentions officielles n’en nomment) | Convention signée avec un médiateur référencé par la CECMC (liste sur economie.gouv.fr) | Mentions légales (`/mentions-legales`) |
+| `hebergeur` | hébergeur du nouveau site : dénomination, adresse et téléphone (les mentions officielles nomment Wix Online Platform Limited, hébergeur du site Wix ; le nouveau site est prévu sur Vercel Inc., 440 N Barranca Avenue #4133, Covina, CA 91723, États-Unis) | Contrat d’hébergement (vercel.com/legal), puis mise à jour des mentions légales officielles | Mentions légales (`/mentions-legales`) |
+| `marque` | numéro et date d’enregistrement de la marque « Awrea Paris » (les mentions officielles la disent déposée : INPI ou EUIPO) | Certificat d’enregistrement INPI (data.inpi.fr) ou EUIPO | Propriété intellectuelle (`/propriete-intellectuelle`) |
+| `creditsPhotos` | crédits des photographes, vidéastes et mannequins (portrait de la créatrice, futures prises de vue) et étendue des droits cédés | Contrats de cession de droits et autorisations de droit à l’image signés | Propriété intellectuelle (`/propriete-intellectuelle`), Mentions légales (`/mentions-legales`) |
+| `regionBase` | région d’hébergement du projet Supabase (base clientes), de préférence dans l’Union européenne (Francfort ou Paris) | Réglages du projet Supabase (Project Settings → General) | Confidentialité (`/confidentialite`) |
+| `regionsPrestataires` | régions d’hébergement retenues pour Upstash (stockage technique) et Sentry (suivi des erreurs), de préférence dans l’Union européenne | Réglages des comptes Upstash et Sentry | Confidentialité (`/confidentialite`) |
 | `outilEmails` | outil d’e-mails marketing retenu : Brevo (France) ou Klaviyo (États-Unis) | Choix de la maison | Confidentialité (`/confidentialite`) |
-| `paiementFractionne` | prestataire du paiement en plusieurs fois (par exemple Shop Pay Installments, Klarna ou Alma) tel qu’activé dans Shopify | Shopify → Paramètres → Paiements | CGV (`/cgv`), Confidentialité (`/confidentialite`) |
+| `paiementFractionne` | prestataire du paiement en plusieurs fois (par exemple Shop Pay Installments, Klarna ou Alma) s’il est activé dans Shopify ; les CGV officielles ne le prévoient pas | Shopify → Paramètres → Paiements | Confidentialité (`/confidentialite`) |
 | `delaiConservationDevis` | durée de conservation des demandes de rendez-vous et de sur-mesure sans suite (proposé : 3 ans après le dernier échange) | Décision de la maison (à valider) | Confidentialité (`/confidentialite`) |
+
+### Déjà renseignées
+
+- `raisonSociale` — nom de l’entrepreneuse (entreprise individuelle) : Léane Soubrier
+- `nomCommercial` — nom commercial sous lequel l’entreprise exerce : Awrea Paris
+- `formeJuridique` — forme juridique : entrepreneur individuel (micro-entreprise)
+- `siege` — adresse postale de l’entreprise : 46 rue Paul Déroulède, 78290 Croissy-sur-Seine, France
+- `immatriculation` — registre d’immatriculation (inscription au RNE le 05/02/2026, début d’activité le 01/04/2026) : registre national des entreprises (RNE)
+- `siren` — numéro SIREN : 100 222 926
+- `siret` — numéro SIRET : 100 222 926 00014
+- `email` — adresse e-mail de contact : awrea.contact@gmail.com
+- `telephone` — numéro de téléphone : 06 99 55 74 43
+
+### Sans objet
+
+- `capital` — capital social (sans objet pour une entreprise individuelle : aucune mention à publier)
 
 ## Conditions commerciales à confirmer
 
-Ces valeurs viennent des réglages de démonstration du site (`content/settings.ts`) et sont reprises automatiquement dans les CGV et la page Livraison et retours :
+Ces valeurs viennent des réglages de démonstration du site (`content/settings.ts`) et sont reprises automatiquement dans la page Livraison et retours :
 
-- [ ] Seuil de livraison offerte, tarifs et délais de livraison (content/settings.ts → shop.shippingRates, freeShippingThreshold).
-- [ ] Délai de rétractation et de retour (14 jours minimum légal ; content/settings.ts → returnDays) et prise en charge des frais de retour (offerts en France, à la charge de la cliente hors de France : à confirmer).
-- [ ] Délais de fabrication des précommandes indiqués sur chaque fiche, et moment du débit pour une précommande (au moment de la commande par défaut avec Shopify).
-- [ ] Durée de validité des cartes cadeaux (un an par défaut dans les CGV) et règles de cumul des codes de réduction.
+- [ ] Zones, tarifs et délais de livraison (content/settings.ts → shop.shippingRates, freeShippingThreshold) : les CGV officielles (article 5) prévoient une livraison en France métropolitaine seulement, en 5 à 10 jours ouvrés.
+- [ ] Délai de rétractation et de retour (14 jours minimum légal ; content/settings.ts → returnDays) ; frais de retour à la charge de la cliente (article 7 des CGV officielles).
+- [ ] Délais de fabrication des pièces créées sur demande, indiqués sur chaque fiche, dans le panier et au paiement (provisoires : bodys et tops 2 à 3 semaines, robes 3 à 4 semaines, liste dans `ACTIVATION.md`, étape 4.2 bis), et moment du débit (à la commande, comme le prévoit l’article 4 des CGV officielles).
+- [ ] Durée de validité des cartes cadeaux et règles de cumul des codes de réduction (les CGV officielles n’en parlent pas).
 - [ ] Prix de l’emballage cadeau (content/settings.ts → giftWrapPrice).
-- [ ] Mode de gestion des droits et taxes à l’importation hors Union européenne (perçus à la commande avec Shopify Markets, ou dus à la réception).
+- [ ] Mode de gestion des droits et taxes à l’importation hors Union européenne, si la livraison hors de France est maintenue (perçus à la commande avec Shopify Markets, ou dus à la réception).
+
+## Pièces de la collection Hypnotic Lace
+
+> Section tenue à la main : `npm run legal:todo` réécrit ce fichier sans elle tant que le script ne
+> la reprend pas (`scripts/legal-todo.ts`). La recopier avant de relancer le script.
+
+Aucune matière, composition, doublure, consigne d’entretien ni mesure n’a été inventée : les fiches
+ne décrivent que ce que montrent les photos. Tant qu’elles manquent, les fiches affichent
+« [À COMPLÉTER : …] » (entretien, composition) ou masquent le champ (doublure, taille portée par le
+mannequin). À renseigner dans Shopify (métachamps `awrea.*`, `ACTIVATION.md`, étape 4.2) ou, en
+démonstration, dans `data/demo/products.ts`.
+
+| Pièce | Composition exacte des matières | Doublure | Conseils d’entretien | Taille portée par le mannequin |
+|---|---|---|---|---|
+| Le body Aura (`body-aura`) | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] |
+| La robe Odessa (`robe-odessa`) | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] |
+| La robe Aria (`robe-aria`) | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] |
+| La robe Sienna (`robe-sienna`) | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] |
+| Le body Gaïa (`body-gaia`) | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] |
+| Le top Evina (`top-evina`) | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] |
+| Le top Kira (`top-kira`) | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] | [À COMPLÉTER] |
+
+- [ ] Composition en pourcentage de chaque matière : mention obligatoire pour un textile vendu
+  (règlement (UE) n° 1007/2011), à reporter aussi sur l’étiquette cousue.
+- [ ] Origine des matières et lieu de confection de chaque pièce (« artisans français ») pour la
+  rubrique Fabrication de la fiche (métachamp `awrea.traceability`).
+- [ ] Mention « visuel provisoire » sous chaque photo générée en attendant les prises de vue : à
+  faire valider (transparence sur les images générées).
+- [ ] Images générées hors du site : elles ne sont envoyées ni à Google ni à Meta (flux produits,
+  données structurées), faute de pouvoir y porter la mention « visuel provisoire », et parce que
+  ces plateformes encadrent les images produites par IA (Google Merchant Center demande de garder
+  les métadonnées IPTC qui les signalent, « trainedAlgorithmicMedia »). À faire vérifier avant de
+  les utiliser ailleurs, par exemple en publicité ou sur Instagram : règles de chaque plateforme,
+  conditions d’utilisation de l’outil qui les a produites (`RESSOURCES.md`), et mention
+  « image générée » conservée dans le fichier.
+- [ ] Fabrication sur demande en tailles standard : vérifier avec la juriste que le droit de
+  rétractation s’applique (l’exception vise les biens nettement personnalisés) et que les CGV
+  officielles l’indiquent.
+- [ ] Délai de livraison : le délai annoncé avant la commande (fabrication puis livraison) engage
+  la Maison ; vérifier sa cohérence avec l’article des CGV officielles consacré à la livraison.
+
+## Écarts entre les CGV officielles et le fonctionnement du site
+
+> Section tenue à la main par l’équipe juridique : `npm run legal:todo` réécrit ce fichier sans elle
+> tant que le script ne la reprend pas (`scripts/legal-todo.ts`). La recopier avant de relancer le script.
+
+Les conditions générales de vente de la créatrice (`ressources-awrea/CONDITION GÉNÉRALES DE VENTE`,
+onze images) sont reprises mot pour mot sur la page `/cgv` (`content/site/fr/cgv.json`, articles
+marqués officiels). Elles ont été rédigées pour l’ancien site Wix et avant la création sur demande :
+elles n’ont **pas** été réécrites pour résoudre les écarts ci-dessous. Chaque point est à trancher
+par la créatrice avec une ou un professionnel du droit, puis à reporter dans les CGV (l’éditeur
+« Édition » permet de modifier le texte), et à défaut dans le fonctionnement du site. Les autres pages
+légales (livraison et retours, rétractation, confidentialité, CGU) suivent les CGV et renvoient à
+leurs articles.
+
+### Corrections faites à la transcription (typographie et fautes évidentes seulement)
+
+- Typographie française partout : apostrophes ’, guillemets « » et espaces insécables avant : ; et
+  dans les guillemets, points de suspension « … », tiret des titres d’articles en demi-cadratin « – »
+  (comme l’article 3 de l’original), majuscule accentuée « À ce titre » (article 5).
+- Article 1 : point ajouté après « vêtements pour femmes adultes » ; « toute autre document » → « tout autre document ».
+- Article 2 : espace supprimée avant le point (« sur le site . »).
+- Article 3 : « 2 jours jours » → « 2 jours ».
+- Article 4 : « Paypal », « Apple pay » → « PayPal », « Apple Pay » ; « transactions bancaires réalisée » → « réalisées ».
+- Article 8 : « 14 jours jours » → « 14 jours » ; « Non respect » → « Non-respect ».
+- Article 9 : « 9.4 limitation » → « 9.4 Limitation » ; « données à caractère personnelles » → « personnel » ;
+  « indiqué à l’article 9.3 » → « indiquée » (quatre fois) ; « des informations des informations » → « des informations » ;
+  point ajouté après l’adresse e-mail et après « par le Vendeur » ; « Client.. » → « Client. » ;
+  « peuvent être exercé » → « exercés » ; « à caractère informatifs et publicitaires » → « informatif et publicitaire ».
+- Gardés tels quels, à corriger par la créatrice : le « 3 » isolé de l’article 5 (« transportées. 3 En cas
+  de demande… ») ; le paragraphe collé au milieu d’une phrase de l’article 5 (« pour formuler des
+  réclamations par Pour toute réclamation… dans les meilleurs délais., accompagnées de tous les
+  justificatifs… ») et le repère « [adresse email] » qu’il contient ; les deux adresses de l’ancien
+  site (`https://awreaparis.wixsite.com/awrea-paris`, et `…/awreaparis` à l’article 9.1).
+
+### Article par article
+
+| Article des CGV officielles | Ce que fait le site | Question à faire valider |
+|---|---|---|
+| 1. Champ d’application | Site `www.awreaparis.com` ; pièces créées sur demande, sans stock ; case à cocher des CGV avant le paiement (version enregistrée avec la commande). | Remplacer l’adresse du site Wix par `www.awreaparis.com`. Remplacer « dans la limite des stocks disponibles » par la création sur demande et son délai de fabrication. Ajouter l’adresse postale (l’article 7 renvoie aux « coordonnées postales » de l’article 1, qui n’en donne pas), le nom commercial Awrea Paris et la mention « entrepreneur individuel » ou « EI » ; préciser que le « numéro d’immatriculation » cité est le SIRET. |
+| 2. Prix | Prix affichés TTC (« 70,00 € ») ; frais de livraison calculés avant le paiement, livraison offerte dès 250 € en France ; emballage cadeau payant ; codes de réduction et cartes cadeaux acceptés au panier ; facture PDF émise au paiement. | Situation de TVA de la micro-entreprise (franchise « TVA non applicable, art. 293 B du CGI » ou prix HT et TTC) : l’article annonce des prix « HT et TTC ». Mentionner l’emballage cadeau, les cartes cadeaux (durée de validité) et les codes de réduction (cumul). Moment de remise de la facture (l’article dit « lors de la livraison »). |
+| 3. Commandes | Confirmation par e-mail ; suivi en cinq étapes (« Commande reçue », « En confection », « Prête », « Expédiée », « Livrée ») sur `/suivi` et dans le compte ; aucun bouton d’annulation en ligne (demande par e-mail ou contact). | Retirer « dans la limite des stocks disponibles ». Dire quand la commande est « acceptée par le Vendeur » (point de départ des deux jours d’annulation) et ce que devient une annulation quand la confection a commencé. Prévoir ou non une annulation en ligne. |
+| 4. Conditions de paiement | Paiement intégral à la commande par Shopify : carte bancaire, Shop Pay, Apple Pay, Google Pay, PayPal, et paiement en 3 ou 4 fois s’il est activé (`content/settings.ts` → `paymentMethods`). | Aligner la liste sur les moyens réellement activés dans Shopify : Shop Pay et le paiement fractionné n’y figurent pas, et « Stripe » est le prestataire derrière la carte bancaire plutôt qu’un moyen de paiement. Le paiement fractionné est-il compatible avec « payable comptant, en totalité » ? |
+| 5. Livraisons | Délai de fabrication de 2 à 4 semaines selon la pièce (provisoire, réglable dans l’Atelier), puis transport ; tarifs du site en France, mais aussi en Europe (Mondial Relay, DHL), à l’international (DHL) et retrait à l’atelier « Paris » sur rendez-vous ; la page Livraison et retours n’affiche plus que la France métropolitaine ; réclamations à `awrea.contact@gmail.com`. | Le délai « 5 à 10 jours ouvrés » ignore la fabrication : indiquer le délai total (fabrication et livraison) ou renvoyer au délai affiché sur la fiche, qui engage la Maison. Livrer seulement en France métropolitaine (retirer les tarifs Europe et international, et le retrait à l’atelier, de `content/settings.ts`) ou étendre l’article. Réécrire le paragraphe collé et compléter « [adresse email] ». Vérifier la clause « réputés conformes » après 48 heures ou 14 jours : elle ne peut pas écarter la garantie légale de conformité de deux ans. Vérifier les références « L 216-2, L 216-3 et L241-4 » (numérotation modifiée depuis 2021). |
+| 6. Transfert de propriété | Paiement à la commande : la propriété est transférée avant la confection. | Aucun écart relevé. |
+| 7. Droit de rétractation | Rétractation en ligne en deux étapes (`/retractation`, « Se rétracter du contrat ici ») avec accusé de réception, formulaire type en annexe de `/cgv` ; 14 jours après la réception ; étiquette Colissimo **prépayée** envoyée pour un retour depuis la France (`lib/labels.ts`), bordereau hors de France ; les pages du site disent, comme l’article, que les frais de retour restent à la charge de la cliente. | L’article cite la règle des livraisons régulières (abonnements) mais n’énonce ni le délai de 14 jours ni son point de départ : à compléter. Frais de retour : l’article les laisse à la cliente, le site envoie une étiquette prépayée en France ; choisir l’un ou l’autre. Le remboursement « dans les 14 jours à compter de la réception » des pièces : la loi compte 14 jours à partir de la demande (report possible jusqu’à la réception) et inclut les frais de livraison initiaux. « Échange sous réserve de disponibilité » : sans stock, un échange est une nouvelle création, avec son délai. Pièces créées sur demande dans les tailles du guide : la rétractation s’applique (le site le dit) ; pièces sur mesure : exception de l’article L221-28, 3°, que les pages du site citent mais que les CGV ne mentionnent pas. « Ne sont pas repris » pour une pièce abîmée : la loi prévoit plutôt une retenue pour dépréciation. |
+| 8. Responsabilité du Vendeur, garanties | Les pages du site rappellent la garantie légale de conformité et des vices cachés de deux ans. | Les articles cités (L217-4, L217-5, L217-12, L217-16) sont dans leur rédaction d’avant 2022 : mettre à jour et ajouter l’encadré d’information obligatoire sur la garantie légale de conformité (décret n° 2022-424 du 25 mars 2022), présent dans les anciennes CGV du site. La limitation « au remplacement ou au remboursement » écarte la réparation, la réduction du prix et la résolution prévues par la loi. Les photographies « non contractuelles » : les visuels des pièces sont aujourd’hui provisoires et générés, signalés « visuel provisoire ». |
+| 9. Données personnelles | Paiement par Shopify : le site n’enregistre aucune donnée bancaire ; données du compte, de la liste d’envies, des rendez-vous, de l’assistante IA, des avis, des lettres (avec consentement) et des cookies ; prestataires et durées détaillés sur `/confidentialite` (factures gardées 10 ans, obligation comptable). | 9.1 : « celui-ci enregistre des données financières » est inexact pour ce site. 9.1 et 9.2 : la collecte et les destinataires ne couvrent que la commande (ajouter compte, rendez-vous, assistante, lettres, cookies, hébergeurs et transferts hors de l’Union européenne, ou renvoyer à la politique de confidentialité). 9.3 : ajouter les coordonnées du responsable (les droits de 9.7 renvoient à une adresse que 9.3 ne donne pas). 9.4 : les e-mails après achat (conseils d’entretien, demande d’avis) reposent sur l’intérêt légitime, à confirmer. 9.5 : durée unique de 5 ans, alors que les factures se gardent 10 ans et que d’autres données ont des durées plus courtes. |
+| 10. Propriété intellectuelle | Page `/propriete-intellectuelle` cohérente. | Remplacer l’adresse du site Wix. |
+| 11. Droit applicable, langue | Aucun médiateur renseigné. | Les CGV ne nomment aucun médiateur de la consommation : adhésion obligatoire et coordonnées à indiquer dans les CGV et sur le site (champ `mediateur`, affiché pour l’instant « À COMPLÉTER » dans les mentions légales). Vérifier aussi qu’aucun lien vers l’ancienne plateforme européenne de règlement en ligne des litiges n’est encore attendu (fermée en juillet 2025, à confirmer). |
+
+### Ce que les CGV officielles ne disent pas
+
+- La création sur demande, sans stock, par des artisans français, et le délai de fabrication indiqué
+  sur chaque fiche (`content/site/fr/sur-commande.json`, `content/site/fr/catalogue.json`).
+- Le certificat d’authenticité et son numéro de création.
+- Le Cercle Awrea, les avant-premières, la liste d’envies partagée, l’assistante IA (encadrés par les
+  CGU, `/cgu`).
+- Les cartes cadeaux, l’emballage cadeau et les codes de réduction.
+
+### Écarts entre les mentions légales officielles et le site
+
+Les mentions légales de la créatrice (`ressources-awrea/MENTIONS LÉGALES`, trois images) sont reprises
+mot pour mot sur `/mentions-legales` (`content/site/fr/mentions-legales.json`), suivies de compléments
+du site marqués « À COMPLÉTER » (directrice de la publication, TVA, médiation, crédits). Corrections
+faites : « Fance » → « France », « ( Mirco-entreprise) » → « (Micro-entreprise) », espace avant la
+virgule de l’adresse, « situé » → « située » (la société Wix), point ajouté après « 05/02/2026 »,
+« loi nº78-17 DU » → « loi n° 78-17 du », « Données Personnelles » → « Données personnelles »,
+typographie française.
+
+- [ ] **Hébergeur** : le texte officiel nomme Wix Online Platform Limited (hébergeur de l’ancien site
+  Wix). Le nouveau site est prévu sur Vercel Inc. (440 N Barranca Avenue #4133, Covina, CA 91723,
+  États-Unis), la boutique sur Shopify : mettre à jour le paragraphe « Hébergement » (champ
+  `hebergeur`).
+- [ ] « Société : Awrea Paris » et « Raison sociale : Auto-entrepreneur (Micro-entreprise) » : une
+  entreprise individuelle n’a ni société ni raison sociale ; indiquer « Léane Soubrier, entrepreneur
+  individuel (EI), nom commercial Awrea Paris ».
+- [ ] « Commune : Yvelines » : Yvelines est le département, la commune est Croissy-sur-Seine.
+- [ ] « Awrea Paris étant une marque déposée » : numéro et date d’enregistrement à fournir (champ
+  `marque`), ou phrase à retirer si la marque n’est pas enregistrée.
+- [ ] Directrice de la publication (obligatoire) et situation de TVA : absentes du texte officiel.
+- [ ] « Tout le contenu du présent sur le site » : formulation à corriger (« du présent site »).
+- [ ] « Charte de Protection des Données Personnelles » : la page du site s’appelle « Politique de
+  confidentialité » (`/confidentialite`) ; harmoniser le nom, et compléter la liste des droits (le
+  paragraphe cite la loi de 1978 et seulement quatre droits).
 
 ## Autres informations à confirmer
 
-- [ ] Nom de domaine du site : variable `NEXT_PUBLIC_SITE_URL` (par défaut « https://www.awreaparis.com », hypothèse à confirmer — l’ancien site était publié sur GitHub Pages).
-- [ ] Adresse e-mail de contact publiée partout sur le site : `content/brand/identity.ts` → `email` (actuellement « contact@awreaparis.com », à confirmer ou remplacer).
+- [ ] Nom de domaine du site : variable `NEXT_PUBLIC_SITE_URL` (par défaut « https://www.awreaparis.com », adresse citée par les mentions légales officielles ; les CGV officielles citent encore l’adresse du site Wix).
+- [ ] Adresse e-mail de contact : « awrea.contact@gmail.com » (mentions légales officielles), reprise dans `content/brand/identity.ts` → `email`. Les e-mails du site partent de `EMAIL_FROM` : une adresse Gmail ne peut pas servir d’expéditrice vérifiée (Resend) ; prévoir une adresse du domaine pour l’envoi.
 - [ ] Adresse e-mail presse : `content/fr/legal.ts` → `press.contact.email` (actuellement « presse@awreaparis.com », à confirmer).
-- [ ] Téléphone et adresse de l’atelier (facultatifs, publiés seulement s’ils sont renseignés) : `content/brand/identity.ts` → `phone`, `address`.
-- [ ] Année de création de la maison (publiée seulement si renseignée) : `content/brand/identity.ts` → `foundingYear`.
+- [ ] Adresse de l’atelier où la créatrice reçoit sur rendez-vous et lieu du retrait des commandes (publiés seulement s’ils sont renseignés) : `content/brand/identity.ts` → `address` (ville « Paris » par défaut, à confirmer) ; l’adresse de l’entreprise est à Croissy-sur-Seine (`legalAddress`).
+- [ ] Année de création de la Maison (publiée seulement si renseignée) : `content/brand/identity.ts` → `foundingYear`. L’entreprise est inscrite au RNE depuis le 05/02/2026, début d’activité le 01/04/2026.
 - [ ] Durée de conservation des demandes de rendez-vous sans suite (champ `delaiConservationDevis`).
 
 ## Avant la mise en ligne
 
-- [ ] Faire relire l’ensemble des pages légales (CGV, CGU, confidentialité, cookies, mentions légales, propriété intellectuelle, notice de l’assistante IA) par une ou un juriste.
+- [ ] Faire relire l’ensemble des pages légales (CGV, CGU, confidentialité, cookies, mentions légales, propriété intellectuelle, notice de l’assistante IA) par une ou un juriste, en commençant par les écarts listés plus haut.
+- [ ] Mettre à jour les CGV et les mentions légales officielles (adresse du site, hébergeur, création sur demande, délais, rétractation, garanties, médiation), puis les reporter mot pour mot dans l’éditeur « Édition » (documents « Conditions générales de vente » et « Mentions légales »).
 - [ ] Signer la convention avec un médiateur de la consommation et renseigner le champ `mediateur`.
-- [ ] Vérifier dans Shopify : politiques (CGV, confidentialité, retours) liées au checkout, droits et taxes (Shopify Markets), paiement en plusieurs fois.
+- [ ] Vérifier dans Shopify : politiques (CGV, confidentialité, retours) liées au checkout, moyens de paiement activés (article 4 des CGV), zones de livraison (article 5), paiement en plusieurs fois.
 - [ ] Tenir le registre des traitements (RGPD, article 30) : la page Confidentialité en fournit la base.
 - [ ] Conserver les contrats de cession de droits (photographes, vidéastes) et les autorisations de droit à l’image des mannequins.

@@ -1,0 +1,82 @@
+{
+  "seo": {
+    "title": "Awrea Paris, prêt-à-porter féminin créé sur demande",
+    "description": "Awrea Paris : la dentelle, les drapés et l’éclat de la dorure. Les pièces de la collection Hypnotic Lace sont créées sur demande, sans stock, par des artisans français."
+  },
+  "maison": {
+    "texte": {
+      "officiel": true,
+      "titre": "Des pièces qui subliment la silhouette",
+      "accroche": "Awrea Paris célèbre la rencontre des contrastes.",
+      "paragraphe": "La délicatesse de la dentelle dialogue avec la force du bijou, dans un équilibre subtil entre sensualité et caractère. Chaque pièce est créée sur demande, loin des logiques de production de masse. Ce choix est au cœur de notre vision : produire uniquement ce qui est désiré, avec conscience et respect de l’environnement. Il n’y a pas de stock, seulement des créations pensées pour la personne qui les porte. Nos modèles prennent vie entre les mains d’artisans français, gardiens d’un savoir-faire précieux. Nous accordons une attention essentielle aux conditions de travail et à la valorisation de ces métiers, convaincus que la beauté d’une pièce naît aussi de l’éthique qui l’accompagne.",
+      "chute": [
+        "Porter Awrea, c’est choisir une pièce d’exception, conçue pour traverser le temps.",
+        "Une création qui révèle le corps au lieu de le dissimuler, qui célèbre l’allure, la confiance et la liberté d’être soi."
+      ]
+    },
+    "image": {
+      "src": "/media/img/aura-1",
+      "alt": "Le body Aura porté, dentelle noire pailletée d’or, drapé noir noué sur le buste et manches longues en dentelle",
+      "width": 1536,
+      "height": 2304,
+      "provisoire": true
+    },
+    "cta": {
+      "label": "Lire l’histoire de la Maison",
+      "href": "/la-maison"
+    }
+  },
+  "collection": {
+    "surtitre": "La collection",
+    "texte": {
+      "officiel": true,
+      "titre": "« Hypnotic Lace »",
+      "accroche": "La délicatesse, le pouvoir de l’or.",
+      "paragraphes": [
+        "La délicatesse rencontre la force. L’élégance devient une signature. Une rencontre entre la finesse de la dentelle, la sensualité des drapés et l’éclat audacieux de la dorure.",
+        "À travers des silhouettes sculpturales et des détails précieux, la collection « Hypnotic Lace » célèbre une féminité contrastée : délicate, sensuelle et affirmée."
+      ]
+    },
+    "image": {
+      "src": "/media/img/aria-1",
+      "alt": "La robe Aria portée, buste en dentelle noire, drapé froncé retenu par un anneau doré et jupe sirène en satin noir",
+      "width": 1330,
+      "height": 1995,
+      "provisoire": true
+    },
+    "cta": {
+      "label": "Voir la collection Hypnotic Lace",
+      "href": "/collections/hypnotic-lace"
+    }
+  },
+  "selection": {
+    "surtitre": "Hypnotic Lace",
+    "titre": "Les pièces de la collection",
+    "pieces": ["body-aura", "robe-odessa", "robe-aria"],
+    "cta": {
+      "label": "Toutes les pièces",
+      "href": "/boutique"
+    }
+  },
+  "surDemande": {
+    "surtitre": "Sur commande",
+    "titre": "Votre pièce commence avec votre commande",
+    "texte": "Rien n’attend sur une étagère. Vous choisissez la pièce et votre taille, puis des artisans français la confectionnent pour vous : comptez {hauts} pour un body ou un top, {robes} pour une robe. La Maison ne fabrique ainsi que ce qui est désiré.",
+    "image": {
+      "src": "/media/img/sienna-detail",
+      "alt": "La robe Sienna de près, dentelle noire et or au col montant, taille froncée en pointe",
+      "width": 990,
+      "height": 1487,
+      "provisoire": true
+    },
+    "cta": {
+      "label": "Les étapes d’une commande",
+      "href": "/sur-commande"
+    }
+  },
+  "lettre": {
+    "surtitre": "La lettre de la Maison",
+    "titre": "Recevoir les nouvelles de l’atelier",
+    "texte": "Les pièces qui arrivent, les collections qui se préparent et les rendez-vous de la Maison, par e-mail."
+  }
+}

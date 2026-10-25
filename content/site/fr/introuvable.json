@@ -1,0 +1,13 @@
+{
+  "surtitre": "Erreur 404",
+  "titre": "Un fil s’est perdu",
+  "texte": "La page que vous cherchez n’existe pas, ou plus. La collection Hypnotic Lace, elle, est toujours là.",
+  "collection": {
+    "label": "Voir la collection",
+    "href": "/collections/hypnotic-lace"
+  },
+  "accueil": {
+    "label": "Revenir à l’accueil",
+    "href": "/"
+  }
+}

@@ -1,49 +1,74 @@
 /**
- * Questions fréquentes, rédigées en questions naturelles (pour Google et les moteurs IA).
- * Balisées en FAQPage (Schema.org). Utilisées aussi par l'assistant et l'agent Service client.
+ * Questions fréquentes : le texte vit dans le document de contenu « faq »
+ * (content/site/fr/faq.json, modifiable dans l'éditeur Édition). Ce module le met en forme pour
+ * la page /faq, la recherche, llms.txt, les données structurées (FAQPage), l'assistante et les agents.
+ *
+ * Repères remplis à l'affichage : {hauts} et {robes} (délais de fabrication des bodys et tops, des
+ * robes, lus dans le catalogue), {seuil} (livraison offerte), {email} (adresse de la Maison).
+ * Un lien s'écrit [libellé](/adresse) ; il devient un simple libellé hors de la page.
+ *
+ * Module pur : aucun accès au stockage, utilisable partout.
  */
+import doc from "@/content/site/fr/faq.json";
+import { identity } from "@/content/brand/identity";
+import { shop } from "@/content/settings";
+import { DEFAULT_LEAD_TIME, leadTimeText } from "@/lib/commerce/availability";
+import type { Category, LeadTime, Product } from "@/lib/commerce/types";
+import { formatPrice } from "@/lib/format";
+import { fill } from "@/lib/edition/fill";
+
+export type FaqDoc = typeof doc;
+
 export interface FaqItem {
   q: string;
   a: string;
 }
 
-export const faq: { title: string; items: FaqItem[] }[] = [
-  {
-    title: "La maison",
-    items: [
-      { q: "Qui est derrière Awrea Paris ?", a: "Awrea Paris est une marque de prêt-à-porter féminin fondée à Paris par une jeune créatrice parisienne. Elle dessine, coupe et coud elle-même chaque pièce dans son atelier, en pièce unique ou en très petite série numérotée." },
-      { q: "Où sont fabriquées les pièces Awrea Paris ?", a: "Toutes les pièces sont fabriquées à la main à Paris, dans l’atelier de la créatrice. Aucune étape de fabrication n’est délocalisée." },
-      { q: "Que signifie « Consommer plus juste » ?", a: "C’est le manifeste de la maison : produire peu, en séries courtes et numérotées, au prix juste. Une création exclusive n’a pas besoin d’être réservée à l’ultra luxe." },
-      { q: "Pourquoi les pièces sont-elles numérotées ?", a: "Chaque série compte d’une à dix pièces au plus. Chaque exemplaire reçoit un numéro (par exemple N° 3 / 5) et un certificat signé par la créatrice. Lorsqu’une série est complète, elle ne revient pas à l’identique." },
-    ],
-  },
-  {
-    title: "Tailles et conseils",
-    items: [
-      { q: "Comment choisir ma taille ?", a: "Chaque fiche produit comporte un guide des tailles et un conseil de coupe. Entre deux tailles, choisissez plutôt la plus petite pour les pièces lacées, la plus grande pour les pièces en satin. L’assistant du site et l’atelier peuvent aussi vous conseiller." },
-      { q: "Puis-je essayer les pièces avant d’acheter ?", a: "Oui. L’atelier parisien vous reçoit sur rendez-vous pour un essayage des pièces disponibles. Prenez rendez-vous depuis la page Contact." },
-      { q: "Proposez-vous du sur mesure ?", a: "Oui, sur rendez-vous. Certaines pièces, comme le corset Elia, sont réalisées à vos mesures après commande. L’atelier vous contacte pour relever vos mesures." },
-      { q: "Les pièces peuvent-elles être retouchées ?", a: "Oui. Toutes les pièces Awrea peuvent être ajustées ou réparées à l’atelier, y compris plusieurs années après l’achat." },
-    ],
-  },
-  {
-    title: "Commandes et précommandes",
-    items: [
-      { q: "Faut-il créer un compte pour commander ?", a: "Non. Vous pouvez commander sans compte ; il vous suffit d’une adresse e-mail. Le compte permet seulement de retrouver vos commandes, vos adresses et votre liste d’envies." },
-      { q: "Quels moyens de paiement acceptez-vous ?", a: "Carte bancaire, Apple Pay, Google Pay, PayPal et le paiement en trois ou quatre fois. Le paiement est entièrement sécurisé." },
-      { q: "Comment fonctionne la précommande ?", a: "Lorsqu’une taille n’est plus en stock mais que la série n’est pas complète, vous pouvez la précommander. Le délai de fabrication est indiqué sur la fiche (deux à six semaines selon la pièce) ; vous êtes débitée à la commande et prévenue à l’expédition." },
-      { q: "Une pièce est épuisée : puis-je être prévenue ?", a: "Oui. Inscrivez-vous à la liste d’attente depuis la fiche de la pièce : vous recevrez un e-mail dès qu’un nouvel exemplaire sort de l’atelier." },
-      { q: "Proposez-vous des cartes cadeaux et un emballage cadeau ?", a: "Oui. Les cartes cadeaux sont utilisables sur tout le site. L’emballage cadeau, avec un message manuscrit de votre part, peut être ajouté depuis le panier." },
-    ],
-  },
-  {
-    title: "Livraison et retours",
-    items: [
-      { q: "Livrez-vous à l’international ?", a: "Oui. Nous livrons en France, dans l’Union européenne et à l’international par transporteur suivi. Hors Union européenne, les droits de douane et taxes du pays sont calculés et réglés dès la commande : rien à payer à la livraison." },
-      { q: "La livraison est-elle offerte ?", a: "La livraison en France est offerte dès 250 € d’achat, ainsi que la livraison dans l’Union européenne au-delà de ce même montant." },
-      { q: "Combien de temps prend la livraison ?", a: "Les pièces disponibles sont expédiées sous 2 à 5 jours ouvrés, puis livrées en 1 à 7 jours selon la destination. Les précommandes sont expédiées à la fin du délai de fabrication indiqué." },
-      { q: "Comment suivre mon colis ?", a: "Un e-mail avec le numéro de suivi vous est envoyé à l’expédition. Vous pouvez aussi retrouver le suivi dans votre compte ou en demandant à l’assistant du site avec votre numéro de commande." },
-      { q: "Puis-je retourner une pièce ?", a: "Oui, sous 14 jours après réception, si la pièce n’a pas été portée et qu’elle est renvoyée avec son certificat. Les pièces réalisées sur mesure ne sont ni reprises ni échangées." },
-    ],
-  },
-];
+export interface FaqGroup {
+  id: string;
+  title: string;
+  items: (FaqItem & { id: string })[];
+}
+
+export type FaqVars = { hauts: string; robes: string; seuil: string; email: string };
+
+const family = (products: Pick<Product, "category" | "leadTime">[], categories: Category[]): LeadTime => {
+  const known = products.filter((p) => categories.includes(p.category)).map((p) => p.leadTime);
+  const source = known.length ? known : categories.map((c) => DEFAULT_LEAD_TIME[c]);
+  return { min: Math.min(...source.map((t) => t.min)), max: Math.max(...source.map((t) => t.max)) };
+};
+
+/** Valeurs des repères, d'après le catalogue (sans catalogue : les délais par défaut). */
+export function faqVars(products: Pick<Product, "category" | "leadTime">[] = []): FaqVars {
+  return {
+    hauts: leadTimeText(family(products, ["body", "top"])),
+    robes: leadTimeText(family(products, ["robe"])),
+    seuil: formatPrice(shop.freeShippingThreshold),
+    email: identity.email,
+  };
+}
+
+const LINK = /\[([^\]]+)\]\((\/[^)\s]*)\)/g;
+
+/** Liens [libellé](/adresse) remplacés par leur libellé (données structurées, recherche, llms.txt). */
+export const plainLinks = (text: string) => text.replace(LINK, "$1");
+
+/** Repère d'une information à compléter par la Maison : « [À COMPLÉTER : …] ». */
+export const TO_COMPLETE = /\s*\[\s*À COMPLÉTER[^\]]*\]/gi;
+
+/**
+ * Groupes de questions, repères remplis. `links` : garder les liens (page /faq) ou n'en garder que
+ * le libellé. `withoutToComplete` : retirer les repères « à compléter » (assistante, données publiées).
+ */
+export function faqGroups(d: Pick<FaqDoc, "groupes">, vars: FaqVars, opts: { links?: boolean; withoutToComplete?: boolean } = {}): FaqGroup[] {
+  const text = (s: string) => {
+    let out = fill(s, vars);
+    if (!opts.links) out = plainLinks(out);
+    if (opts.withoutToComplete) out = out.replace(TO_COMPLETE, "");
+    return out;
+  };
+  return d.groupes.map((g) => ({ id: g.id, title: g.titre, items: g.questions.map((it) => ({ id: it.id, q: text(it.q), a: text(it.r) })) }));
+}
+
+/** FAQ du dépôt, repères remplis avec les délais par défaut : recherche, llms.txt, données structurées. */
+export const faq: FaqGroup[] = faqGroups(doc, faqVars(), { withoutToComplete: true });

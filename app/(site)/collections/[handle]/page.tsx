@@ -1,32 +1,79 @@
-import { notFound } from "next/navigation";
-import Link from "@/components/ui/Link";
+import type { Metadata } from "next";
+import { notFound, redirect } from "next/navigation";
 import { getCollection, getCollections, getProductsByHandles } from "@/lib/commerce";
+import { findDoc, getDoc, isEditing } from "@/lib/edition/read";
+import { slugOf } from "@/lib/edition/documents";
+import { fill } from "@/lib/edition/fill";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { collectionSchema } from "@/lib/seo/schema";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
 import { Media } from "@/components/ui/Media";
-import { ProductCard } from "@/components/commerce/ProductCard";
-import { LightHalo } from "@/components/signature/LightHalo";
-import { identity } from "@/content/brand/identity";
+import { ProvisionalNote } from "@/components/commerce/ProvisionalNote";
+import { ModelePage, type ModeleContent } from "@/components/edition/ModelePage";
+import { PieceListing } from "@/components/commerce/PieceListing";
+import { FILTER_KEYS, hasFilterParams, type SearchParams } from "@/components/commerce/piece-filters";
+import s from "./collection.module.css";
+
+/**
+ * Page d'une collection, d'après la maquette PAGE PRODUIT : grand titre centré « Collection
+ * « Hypnotic Lace » » en Fraunces italique, le texte officiel de la collection (TEXTE DE
+ * COLLECTION, mot pour mot, marqué data-officiel), puis la colonne « Filtrer par » et les cartes.
+ * Textes : document « collections » ; filtres : document « boutique ».
+ *
+ * Une collection créée dans l'éditeur (modèle « Collection ») sans collection du catalogue
+ * s'affiche comme les autres pages de modèle.
+ */
+type CollectionsTexts = typeof import("@/content/site/fr/collections.json");
 
 export const revalidate = 300;
+
+const modeleDoc = (handle: string) => `collection-${slugOf(handle)}`;
 
 export async function generateStaticParams() {
   return (await getCollections()).map((c) => ({ handle: c.handle }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }) {
-  const c = await getCollection((await params).handle);
-  if (!c) return {};
-  return pageMetadata({ ...c.seo, path: `/collections/${c.handle}`, image: c.cover.src });
+export async function generateMetadata({ params, searchParams }: { params: Promise<{ handle: string }>; searchParams: Promise<SearchParams> }): Promise<Metadata> {
+  const [{ handle }, sp] = await Promise.all([params, searchParams]);
+  const c = await getCollection(handle);
+  if (!c) {
+    const page = await findDoc<ModeleContent>(modeleDoc(handle), "fr", { plain: true });
+    return page ? pageMetadata({ title: page.seo.title, description: page.seo.description, path: `/collections/${slugOf(handle)}` }) : {};
+  }
+  // les vues filtrées ne sont pas indexées : la page canonique reste celle de la collection
+  return pageMetadata({ ...c.seo, path: `/collections/${c.handle}`, image: c.cover.src, noindex: hasFilterParams(sp) });
 }
 
-export default async function CollectionPage({ params }: { params: Promise<{ handle: string }> }) {
-  const c = await getCollection((await params).handle);
-  if (!c) notFound();
-  const products = await getProductsByHandles(c.products);
+export default async function CollectionPage({ params, searchParams }: { params: Promise<{ handle: string }>; searchParams: Promise<SearchParams> }) {
+  const [{ handle }, sp] = await Promise.all([params, searchParams]);
+  const c = await getCollection(handle);
+  if (!c) {
+    const doc = modeleDoc(handle);
+    const [content, editing] = await Promise.all([findDoc<ModeleContent>(doc), isEditing()]);
+    if (!content) notFound();
+    return <ModelePage doc={doc} content={content} editing={editing} crumbs={[{ name: content.titre, path: `/collections/${slugOf(handle)}` }]} />;
+  }
+
+  // filtre Collection envoyé sans JavaScript : une autre collection, ou toutes les pièces
+  const asked = sp.collection === undefined ? null : [sp.collection].flat()[0] ?? "";
+  if (asked !== null && asked !== c.handle) {
+    const others = await getCollections();
+    const rest = new URLSearchParams();
+    for (const k of FILTER_KEYS) {
+      const v = [sp[k]].flat()[0];
+      if (k !== "collection" && v) rest.set(k, v);
+    }
+    const path = others.some((o) => o.handle === asked) ? `/collections/${asked}` : asked === "" ? "/boutique" : `/collections/${c.handle}`;
+    redirect(rest.size ? `${path}?${rest}` : path);
+  }
+
+  const [t, products, collections] = await Promise.all([getDoc<CollectionsTexts>("collections"), getProductsByHandles(c.products), getCollections()]);
+  const pieces = products.filter((p) => p.variants.length > 0);
+  const official = c.officiel ? "" : undefined;
+  const intro = [c.lead, ...c.intention].filter((x) => x.trim());
+
   return (
     <>
       <JsonLd
@@ -34,53 +81,47 @@ export default async function CollectionPage({ params }: { params: Promise<{ han
           title: c.title,
           description: c.seo.description,
           path: `/collections/${c.handle}`,
-          items: products.map((p) => ({ name: p.title, path: `/boutique/${p.handle}` })),
+          items: pieces.map((p) => ({ name: p.title, path: `/boutique/${p.handle}` })),
         })}
       />
-      <Section theme="ink" as="header" className="collection-hero" labelledBy="collection-h1">
-        <LightHalo />
-        <div className="container collection-hero__inner">
-          <Breadcrumbs items={[{ name: "Collections", path: "/collections" }, { name: c.title, path: `/collections/${c.handle}` }]} />
-          <p className="eyebrow">{c.season}</p>
-          <h1 id="collection-h1" className="t-giant collection-hero__title">
-            {c.title}
-          </h1>
-          <p className="t-lead collection-hero__lead">{c.lead}</p>
-        </div>
-        <div className="collection-hero__media">
-          <Media image={c.cover} ratio="tall" priority sizes="(min-width: 64rem) 40vw, 100vw" />
-        </div>
-      </Section>
-
-      <Section theme="paper" className="section--tall" labelledBy="intention-title">
-        <div className="container-prose stack-m">
-          <p className="eyebrow">Intention</p>
-          <h2 id="intention-title" className="t-h2">
-            Les mots de la créatrice
-          </h2>
-          <div className="prose">
-            {c.intention.map((t) => (
-              <p key={t}>{t}</p>
+      <PageHeader
+        title={fill(t.collection.titre, { collection: c.title })}
+        crumbs={[
+          { name: t.titre, path: "/collections" },
+          { name: c.title, path: `/collections/${c.handle}` },
+        ]}
+      >
+        {intro.length ? (
+          <div className={s.texte} data-officiel={official}>
+            {c.lead.trim() ? <p className={`t-lead t-center ${s.accroche}`}>{c.lead}</p> : null}
+            {c.intention.map((p) => (
+              <p key={p}>{p}</p>
             ))}
           </div>
-          <p className="t-label collection-sign">{identity.founderTitle}</p>
+        ) : null}
+      </PageHeader>
+
+      <Section theme="ivory" className="section section--flush-top" aria-label={t.collection.piecesTitre}>
+        <div className="container">
+          <PieceListing products={pieces} collections={collections} searchParams={sp} action={`/collections/${c.handle}`} current={c.handle} heading={t.collection.piecesTitre} />
         </div>
       </Section>
 
       {c.moodboard.length ? (
-        <Section theme="ivory" className="section--tall" labelledBy="moodboard-title">
+        <Section theme="pearl" className="section--tall" labelledBy="moodboard-title">
           <div className="container">
             <header className="section-head">
-              <p className="eyebrow">Moodboard</p>
+              <p className="eyebrow">{t.collection.moodboard.surtitre}</p>
               <h2 id="moodboard-title" className="t-h2">
-                Ce que l’on voyait au mur de l’atelier
+                {t.collection.moodboard.titre}
               </h2>
             </header>
             <ul className="moodboard">
               {c.moodboard.map((m, i) => (
-                <li key={`${m.image.src}-${i}`} className={`moodboard__item moodboard__item--${m.span ?? "tall"}`} data-reveal>
+                <li key={`${m.image.src}-${i}`} className={`moodboard__item moodboard__item--${m.span ?? "tall"}`}>
                   <figure>
-                    <Media image={m.image} ratio="auto" sizes="(min-width: 64rem) 40vw, 100vw" className="moodboard__media reveal-img" />
+                    <Media image={m.image} ratio="auto" sizes="(min-width: 64rem) 40vw, 100vw" className="moodboard__media media--card" />
+                    <ProvisionalNote image={m.image} />
                     {m.caption ? <figcaption className="t-note media__caption">{m.caption}</figcaption> : null}
                   </figure>
                 </li>
@@ -89,27 +130,6 @@ export default async function CollectionPage({ params }: { params: Promise<{ han
           </div>
         </Section>
       ) : null}
-
-      <Section theme="pearl" className="section--tall" labelledBy="pieces-title">
-        <div className="container">
-          <header className="section-head">
-            <p className="eyebrow">Les pièces</p>
-            <h2 id="pieces-title" className="t-h2">
-              {products.length} pièces, numérotées
-            </h2>
-            <Link href="/boutique" className="link section-head__link">
-              Toute la boutique
-            </Link>
-          </header>
-          <ul className="editorial-grid">
-            {products.map((p, i) => (
-              <li key={p.handle} className={`editorial-grid__item editorial-grid__item--${i % 4}`} data-reveal>
-                <ProductCard product={p} sizes="(min-width: 64rem) 33vw, 50vw" />
-              </li>
-            ))}
-          </ul>
-        </div>
-      </Section>
     </>
   );
 }
