@@ -1,4 +1,5 @@
 import type { ActionStatus } from "@/lib/agents/log";
+import { AGENT_NAMES, agentName } from "./agent-names";
 
 const LABELS: Record<ActionStatus | "pending", string> = {
   done: "Fait",
@@ -14,17 +15,9 @@ export function Status({ value }: { value: ActionStatus | "pending" }) {
   return <span className={`status status--${value}`}>{LABELS[value]}</span>;
 }
 
-export function AgentName({ id }: { id: string }) {
-  const names: Record<string, string> = {
-    catalogue: "Catalogue",
-    "service-client": "Service client",
-    "commandes-stock": "Commandes et stock",
-    seo: "SEO et visibilité IA",
-    contenu: "Contenu",
-    rapport: "Rapport",
-    systeme: "Atelier",
-  };
-  return <span className="agent-name">{names[id] ?? id}</span>;
+/** Nom de l'agent ; `names` : noms complétés côté serveur par les registres (agent-names.ts). */
+export function AgentName({ id, names = AGENT_NAMES }: { id: string; names?: Record<string, string> }) {
+  return <span className="agent-name">{agentName(id, names)}</span>;
 }
 
 export function When({ iso }: { iso: string }) {

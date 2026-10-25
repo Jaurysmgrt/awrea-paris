@@ -10,6 +10,9 @@ export interface InboxMessage {
   subject: string;
   message: string;
   orderNumber?: string;
+  /** coordonnées facultatives laissées dans le formulaire de contact */
+  phone?: string;
+  address?: string;
   appointment?: { type: string; preferredDate?: string; slot?: string };
   status: "new" | "drafted" | "answered" | "escalated";
   draft?: { body: string; agentNote?: string; date: string; sensitive: boolean };

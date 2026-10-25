@@ -51,9 +51,9 @@ function TextField({ path, label, value, multiline, onChange }: { path: string; 
   const blocked = guardValue(path, undefined, value);
   const id = `f-${path}`;
   return (
-    <div className={s.field}>
+    <div className="field">
       <div className={s.fieldHead}>
-        <label htmlFor={id} className={s.label}>
+        <label htmlFor={id} className="field__label">
           {label}
         </label>
         <span className={value.length > rule.max * 0.9 ? s.countNear : s.count}>
@@ -61,9 +61,9 @@ function TextField({ path, label, value, multiline, onChange }: { path: string; 
         </span>
       </div>
       {multiline ? (
-        <textarea id={id} className={s.input} rows={5} value={value} maxLength={rule.max} onChange={(e) => onChange(e.target.value)} />
+        <textarea id={id} className="field__input" rows={5} value={value} maxLength={rule.max} onChange={(e) => onChange(e.target.value)} />
       ) : (
-        <input id={id} className={s.input} value={value} maxLength={rule.max} onChange={(e) => onChange(e.target.value.replace(/\n/g, " "))} />
+        <input id={id} className="field__input" value={value} maxLength={rule.max} onChange={(e) => onChange(e.target.value.replace(/\n/g, " "))} />
       )}
       {/^\[[^\]]+\]$/.test(value.trim()) ? <p className={s.hint}>Texte à écrire : tant qu’il reste entre crochets, ce bloc n’apparaît pas dans l’e-mail.</p> : null}
       {blocked && value.trim() ? <p className={s.issue}>{blocked}</p> : null}
@@ -74,7 +74,7 @@ function TextField({ path, label, value, multiline, onChange }: { path: string; 
         </p>
       ))}
       {issues.some((i) => i.autofix) ? (
-        <button type="button" className={s.quiet} onClick={() => onChange(fixTypography(value, "fr"))}>
+        <button type="button" className={`btn btn--link ${s.start}`} onClick={() => onChange(fixTypography(value, "fr"))}>
           Corriger la typographie
         </button>
       ) : null}
@@ -122,7 +122,7 @@ function ImageField({ value, onChange }: { value: Img; onChange: (v: Img) => voi
       </div>
       <div className={s.stack}>
         <input ref={input} type="file" accept="image/jpeg,image/png,image/webp,image/avif" hidden onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
-        <button type="button" className={s.btn} onClick={() => input.current?.click()} disabled={busy}>
+        <button type="button" className="btn btn--outline" onClick={() => input.current?.click()} disabled={busy}>
           {busy ? "Traitement…" : value.src ? "Changer la photographie" : "Choisir une photographie"}
         </button>
         <TextField path="image.alt" label="Ce que montre la photographie" value={value.alt} multiline onChange={(alt) => onChange({ ...value, alt })} />
@@ -152,22 +152,22 @@ function BlockFields({ block, index, doc, products, onChange }: { block: EmailBl
         return (
           <div key={f.key} className={s.pair}>
             <TextField path={`${path}.label`} label="Texte du bouton" value={l.label} onChange={(label) => set(f.key, { ...l, label })} />
-            <div className={s.field}>
-              <label className={s.label} htmlFor={`${path}-href`}>
+            <div className="field">
+              <label className="field__label" htmlFor={`${path}-href`}>
                 Page ouverte
               </label>
-              <input id={`${path}-href`} className={s.input} value={l.href} placeholder="/boutique" onChange={(e) => set(f.key, { ...l, href: e.target.value.trim() })} />
+              <input id={`${path}-href`} className="field__input" value={l.href} placeholder="/boutique" onChange={(e) => set(f.key, { ...l, href: e.target.value.trim() })} />
             </div>
           </div>
         );
       }
       case "pieces":
         return (
-          <div key={f.key} className={s.field}>
-            <label className={s.label} htmlFor={path}>
+          <div key={f.key} className="field">
+            <label className="field__label" htmlFor={path}>
               {f.label}
             </label>
-            <select id={path} className={s.input} value={String((block[f.key] as string[] | undefined)?.[0] ?? "")} onChange={(e) => set(f.key, e.target.value ? [e.target.value] : [])}>
+            <select id={path} className="field__input" value={String((block[f.key] as string[] | undefined)?.[0] ?? "")} onChange={(e) => set(f.key, e.target.value ? [e.target.value] : [])}>
               <option value="">Choisir une pièce</option>
               {products.map((p) => (
                 <option key={p.handle} value={p.handle}>
@@ -180,7 +180,7 @@ function BlockFields({ block, index, doc, products, onChange }: { block: EmailBl
       case "choix":
         return (
           <fieldset key={f.key} className={s.choices}>
-            <legend className={s.label}>{f.label}</legend>
+            <legend className="field__label">{f.label}</legend>
             {f.options!.map((o) => (
               <label key={o.value} className={s.choice}>
                 <input type="radio" name={`${block.id}-${f.key}`} checked={block[f.key] === o.value} onChange={() => set(f.key, o.value)} /> {o.label}
@@ -197,13 +197,13 @@ function BlockFields({ block, index, doc, products, onChange }: { block: EmailBl
       {def.fields.map(field)}
       {def.fields.length === 0 ? <p className={s.hint}>{def.description}</p> : null}
       {vars.length && block.type !== "entete" && block.type !== "pied" ? (
-        <div className={s.field}>
-          <label className={s.label} htmlFor={`${block.id}-cond`}>
+        <div className="field">
+          <label className="field__label" htmlFor={`${block.id}-cond`}>
             Ce bloc paraît
           </label>
           <select
             id={`${block.id}-cond`}
-            className={s.input}
+            className="field__input"
             value={block.si ? `si:${block.si}` : block.sauf ? `sauf:${block.sauf}` : ""}
             onChange={(e) => {
               const [k, v] = e.target.value.split(":");
@@ -336,13 +336,13 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
             {status}
           </p>
           <div className={s.actions}>
-            <button type="button" className={s.btn} onClick={test} disabled={Boolean(busy)}>
+            <button type="button" className="btn btn--outline" onClick={test} disabled={Boolean(busy)}>
               {busy === "essai" ? "Envoi…" : "M’envoyer un essai"}
             </button>
-            <button type="button" className={s.btn} onClick={loadHistory}>
+            <button type="button" className="btn btn--outline" onClick={loadHistory}>
               Historique
             </button>
-            <button type="button" className={s.solid} onClick={publish} disabled={Boolean(busy)}>
+            <button type="button" className="btn" onClick={publish} disabled={Boolean(busy)}>
               {busy === "publier" ? "Un instant…" : "Publier"}
             </button>
           </div>
@@ -446,7 +446,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
           </ul>
         ) : null}
         <div>
-          <button type="button" className={s.btn} onClick={() => setLibrary(!library)} aria-expanded={library}>
+          <button type="button" className="btn btn--outline" onClick={() => setLibrary(!library)} aria-expanded={library}>
             {library ? "Fermer la bibliothèque" : "Ajouter un bloc"}
           </button>
         </div>
@@ -457,14 +457,14 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
           </h2>
           <p className={s.hint}>Pour un service d’envoi : le gabarit garde sa mise en page, et les repères prennent la syntaxe du service.</p>
           <div className={s.actions}>
-            <a className={s.btn} href={`${atelier.api("/edition/email/export")}?id=${id}&pour=brevo`}>
+            <a className="btn btn--outline" href={`${atelier.api("/edition/email/export")}?id=${id}&pour=brevo`}>
               Pour Brevo
             </a>
-            <a className={s.btn} href={`${atelier.api("/edition/email/export")}?id=${id}&pour=klaviyo`}>
+            <a className="btn btn--outline" href={`${atelier.api("/edition/email/export")}?id=${id}&pour=klaviyo`}>
               Pour Klaviyo
             </a>
             {doc.famille === "commande" ? (
-              <a className={s.btn} href={`${atelier.api("/edition/email/export")}?id=${id}&pour=shopify`}>
+              <a className="btn btn--outline" href={`${atelier.api("/edition/email/export")}?id=${id}&pour=shopify`}>
                 Pour Shopify
               </a>
             ) : null}
@@ -500,7 +500,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
         </div>
         {doc.blocs.some((b) => b.si || b.sauf) ? (
           <fieldset className={s.choices}>
-            <legend className={s.label}>Essayer un cas</legend>
+            <legend className="field__label">Essayer un cas</legend>
             {vars
               .filter(([k]) => doc.blocs.some((b) => b.si === k || b.sauf === k))
               .map(([k, v]) => (
@@ -533,7 +533,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
                       {i === 0 ? " · en service" : ""}
                     </span>
                     {i > 0 ? (
-                      <button type="button" className={s.btn} onClick={() => restore(v)}>
+                      <button type="button" className="btn btn--outline" onClick={() => restore(v)}>
                         Remettre en service
                       </button>
                     ) : null}
@@ -544,7 +544,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
               <p className={s.hint}>Aucune publication pour l’instant.</p>
             )}
             <div>
-              <button type="button" className={s.quiet} onClick={() => setHistory(null)}>
+              <button type="button" className={`btn btn--link ${s.start}`} onClick={() => setHistory(null)}>
                 Fermer
               </button>
             </div>

@@ -118,16 +118,25 @@ export function returnDeadline(order: Order): Date {
   return base;
 }
 
-/** Pièces encore retournables : livrées (ou expédiées), dans le délai, pas déjà retournées, hors sur-mesure. */
+/**
+ * Pièces encore retournables : livrées (ou expédiées), dans le délai, pas déjà retournées, hors
+ * sur-mesure. Une pièce par entrée (quantité 1) : une ligne commandée en deux exemplaires donne deux
+ * pièces, retournables chacune.
+ */
 export async function returnable(order: Order): Promise<{ eligible: boolean; reason?: string; lines: Order["lines"] }> {
   if (!["shipped", "delivered"].includes(order.status)) return { eligible: false, reason: "Le retour s’ouvre dès l’expédition de la commande.", lines: [] };
   if (returnDeadline(order) < new Date()) return { eligible: false, reason: `Le délai de retour de ${shop.returnDays} jours après la livraison est dépassé. Écrivez-nous : l’atelier trouvera une solution.`, lines: [] };
   const done = (await returnsOf(order.number)).filter((r) => r.status !== "refuse").flatMap((r) => r.items);
-  const left = order.lines.filter((l) => !l.handle.startsWith("sur-mesure")).filter((l) => {
-    const already = done.filter((d) => d.handle === l.handle && d.size === l.size).length;
+  const left: Order["lines"] = [];
+  const seen = new Set<string>();
+  for (const l of order.lines.filter((x) => !x.handle.startsWith("sur-mesure"))) {
+    const key = `${l.handle}|${l.size}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
     const bought = order.lines.filter((x) => x.handle === l.handle && x.size === l.size).reduce((s, x) => s + x.quantity, 0);
-    return already < bought;
-  });
+    const already = done.filter((d) => d.handle === l.handle && d.size === l.size).length;
+    for (let i = already; i < bought; i++) left.push({ ...l, quantity: 1 });
+  }
   return left.length ? { eligible: true, lines: left } : { eligible: false, reason: "Toutes les pièces de cette commande font déjà l’objet d’un retour.", lines: [] };
 }
 

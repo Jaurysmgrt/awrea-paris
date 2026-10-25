@@ -9,7 +9,7 @@ for (const [w, h] of [[390, 844], [1440, 900]]) {
   await page.goto(base + "/boutique/robe-odessa", { waitUntil: "load" });
   await page.waitForTimeout(1500);
   await page.locator(".product-form .chip", { hasText: /^S/ }).click();
-  await page.getByRole("button", { name: /Ajouter au panier|Précommander/ }).click();
+  await page.getByRole("button", { name: "Ajouter au panier" }).click();
   await page.waitForTimeout(1500);
   await page.locator("dialog.drawer").getByText(/Emballage cadeau avec un mot/).click();
   await page.waitForTimeout(900);

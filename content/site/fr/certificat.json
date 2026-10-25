@@ -1,0 +1,32 @@
+{
+  "entete": "Certificat d’authenticité",
+  "creation": "Création n° {numero}",
+  "faits": {
+    "collection": "Collection",
+    "taille": "Taille",
+    "matieres": "Matières",
+    "confection": "Confectionnée le"
+  },
+  "mot": "Le mot de la créatrice",
+  "signature": "La créatrice",
+  "qr": "QR code du certificat {serial}",
+  "rattachement": "Code de rattachement : {code}",
+  "pied": "Créée sur demande par des artisans français · Awrea Paris",
+  "page": {
+    "titre": "Certificat {serial} | Awrea Paris",
+    "voirPiece": "Voir la pièce"
+  },
+  "actions": {
+    "imprimer": "Imprimer le certificat",
+    "votre": "Cette pièce fait partie de votre collection. Elle vous attend dans {lien}.",
+    "lienCompte": "votre compte",
+    "offerte": "On vous a offert cette pièce ? Rattachez-la à votre compte avec le code imprimé sur votre certificat.",
+    "code": "Code du certificat",
+    "exemple": "XXXX-XXXX",
+    "erreur": "Le rattachement n’a pas abouti. Merci de réessayer.",
+    "verification": "Vérification…",
+    "rattacher": "Rattacher à mon compte",
+    "connexion": "Cette pièce vous appartient ? {lien} pour la rattacher à votre compte.",
+    "lienConnexion": "Connectez-vous"
+  }
+}

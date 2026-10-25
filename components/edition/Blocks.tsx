@@ -9,6 +9,7 @@ import { VideoLazy } from "@/components/ui/VideoLazy";
 import { NewsletterForm } from "@/components/ui/NewsletterForm";
 import { ProductCard } from "@/components/commerce/ProductCard";
 import { OutfitAdd } from "@/components/commerce/OutfitAdd";
+import { ProvisionalNote } from "@/components/commerce/ProvisionalNote";
 import { getProductsByHandles } from "@/lib/commerce";
 import { paragraphs } from "@/lib/edition/fill";
 import { stegaClean } from "@/lib/edition/stega";
@@ -43,10 +44,17 @@ async function Bloc({ b, first }: { b: Block; first: boolean }) {
   switch (b.type) {
     case "grande-image": {
       const h = text(b.hauteur) || "haute";
+      const image = img(b.image);
       return (
         <figure className={`bloc bloc-image bloc-image--${stegaClean(h)}`}>
-          <Media image={img(b.image)} ratio="auto" sizes="100vw" priority={first} className="bloc-image__media" />
+          <Media image={image} ratio="auto" sizes="100vw" priority={first} className="bloc-image__media" />
           {text(b.legende) ? <figcaption className="t-label media__caption container">{text(b.legende)}</figcaption> : null}
+          {/* photo pleine largeur : la mention « visuel provisoire » reste dans la colonne du texte */}
+          {image.provisoire ? (
+            <div className="media__caption container">
+              <ProvisionalNote image={image} />
+            </div>
+          ) : null}
         </figure>
       );
     }
@@ -65,7 +73,7 @@ async function Bloc({ b, first }: { b: Block; first: boolean }) {
             ) : null}
           </div>
           <div className="bloc-texte-image__media">
-            <Media image={img(b.image)} ratio="tall" sizes="(min-width: 64rem) 50vw, 100vw" />
+            <Media image={img(b.image)} ratio="tall" sizes="(min-width: 64rem) 50vw, 100vw" provisoire={img(b.image).provisoire} />
           </div>
         </div>
       );
@@ -83,7 +91,7 @@ async function Bloc({ b, first }: { b: Block; first: boolean }) {
         <ul className={`bloc container bloc-galerie bloc-galerie--${stegaClean(text(b.disposition) || "quinconce")}`}>
           {list.map((im, i) => (
             <li key={i} className="bloc-galerie__item">
-              <Media image={img(im)} ratio="tall" sizes="(min-width: 64rem) 33vw, 50vw" />
+              <Media image={img(im)} ratio="tall" sizes="(min-width: 64rem) 33vw, 50vw" provisoire={img(im).provisoire} />
             </li>
           ))}
         </ul>
@@ -103,7 +111,7 @@ async function Bloc({ b, first }: { b: Block; first: boolean }) {
       return (
         <div className="bloc container grid-12 bloc-tenue">
           <div className="bloc-tenue__media">
-            <Media image={img(b.image)} ratio="look" sizes="(min-width: 64rem) 50vw, 100vw" />
+            <Media image={img(b.image)} ratio="look" sizes="(min-width: 64rem) 50vw, 100vw" provisoire={img(b.image).provisoire} />
           </div>
           <div className="bloc-tenue__texte stack-m">
             <Title value={b.titre} first={first} />
@@ -126,6 +134,11 @@ async function Bloc({ b, first }: { b: Block; first: boolean }) {
               </span>
             ))}
           </div>
+          {img(b.image).provisoire ? (
+            <div className="media__caption">
+              <ProvisionalNote image={img(b.image)} />
+            </div>
+          ) : null}
         </figure>
       );
     }

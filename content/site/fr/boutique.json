@@ -1,0 +1,63 @@
+{
+  "seo": {
+    "title": "Boutique de robes, bodys et tops en dentelle | Awrea Paris",
+    "description": "La boutique Awrea Paris : robes, bodys et tops en dentelle, drapés et dorure. Chaque pièce est créée sur demande, sans stock, par des artisans français."
+  },
+  "titre": "Toutes les pièces",
+  "chapeau": "Chaque pièce est créée sur demande, dans votre taille, par des artisans français. Sa fiche indique son délai de fabrication.",
+  "piecesTitre": "Les pièces",
+  "vide": {
+    "texte": "Aucune pièce ne répond à cette sélection.",
+    "lien": "Voir toutes les pièces"
+  },
+  "categories": {
+    "robe": "Robes",
+    "body": "Bodys",
+    "top": "Tops",
+    "jupe": "Jupes",
+    "accessoire": "Accessoires"
+  },
+  "filtres": {
+    "titre": "Filtrer par",
+    "bouton": "Filtrer",
+    "boutonActifs": "Filtrer, {n} choix",
+    "fermer": "Voir les pièces",
+    "effacer": "Effacer les filtres",
+    "appliquer": "Afficher les pièces",
+    "groupes": {
+      "categorie": "Catégorie",
+      "prix": "Prix",
+      "taille": "Taille",
+      "collection": "Collection"
+    },
+    "tout": {
+      "categorie": "Tout",
+      "prix": "Tous les prix",
+      "taille": "Toutes les tailles",
+      "collection": "Toutes les collections"
+    },
+    "prix": [
+      {
+        "id": "moins-de-100",
+        "label": "Moins de 100 €",
+        "max": 100
+      },
+      {
+        "id": "100-a-200",
+        "label": "De 100 à 200 €",
+        "min": 100,
+        "max": 200
+      },
+      {
+        "id": "200-et-plus",
+        "label": "200 € et plus",
+        "min": 200
+      }
+    ],
+    "resultats": {
+      "aucune": "Aucune pièce",
+      "une": "1 pièce",
+      "plusieurs": "{n} pièces"
+    }
+  }
+}
