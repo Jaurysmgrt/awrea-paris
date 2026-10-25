@@ -9,9 +9,13 @@ import { useEffect, useRef, useState } from "react";
 import type { Look, Product } from "@/lib/commerce/types";
 import { Media } from "@/components/ui/Media";
 import { QuickAdd } from "@/components/commerce/QuickAdd";
+import { ProvisionalNote } from "@/components/commerce/ProvisionalNote";
 import { Icon } from "@/components/ui/Icon";
+import { useTexts } from "@/components/content/Texts";
+import { fill, type CatalogueTexts } from "@/lib/commerce/texts";
 
 export function ShopTheLook({ look, products, priority }: { look: Look; products: Product[]; priority?: boolean }) {
+  const t = useTexts<CatalogueTexts>("catalogue").silhouette;
   const [active, setActive] = useState<number | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const items = look.hotspots
@@ -41,7 +45,7 @@ export function ShopTheLook({ look, products, priority }: { look: Look; products
             aria-controls={`look-${look.handle}-panel`}
             onClick={() => setActive(active === i ? null : i)}
           >
-            <span className="sr-only">Voir {p.title}</span>
+            <span className="sr-only">{fill(t.voir, { piece: p.title })}</span>
           </button>
         ))}
         {current ? (
@@ -55,13 +59,14 @@ export function ShopTheLook({ look, products, priority }: { look: Look; products
             role="region"
             aria-label={current.p.title}
           >
-            <button type="button" className="icon-btn look__close" onClick={() => setActive(null)} aria-label="Fermer">
+            <button type="button" className="icon-btn look__close" onClick={() => setActive(null)} aria-label={t.fermer}>
               <Icon name="close" />
             </button>
             <QuickAdd product={current.p} compact />
           </div>
         ) : null}
       </div>
+      <ProvisionalNote image={look.image} />
       <figcaption className="look__caption">
         <span className="t-h4">{look.title}</span>
         <span className="t-note">{look.note}</span>

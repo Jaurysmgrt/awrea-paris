@@ -1,10 +1,11 @@
 "use client";
-/** « Suivre une commande » : numéro et e-mail de la commande, sans compte. */
+/** « Suivre une commande » : numéro et e-mail de la commande, sans compte. Textes du document « suivi-commande ». */
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Turnstile } from "@/components/security/Turnstile";
+import type { SuiviTexts } from "@/components/commerce/OrderStages";
 
-export function TrackForm() {
+export function TrackForm({ t }: { t: SuiviTexts["formulaire"] }) {
   const router = useRouter();
   const [state, setState] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState("");
@@ -23,7 +24,7 @@ export function TrackForm() {
         const j = res ? await res.json().catch(() => ({})) : {};
         if (!res?.ok) {
           setState("error");
-          setError(j.error ?? "La recherche n’a pas abouti. Merci de réessayer.");
+          setError(j.error ?? t.erreur);
           return;
         }
         router.push(j.link);
@@ -32,13 +33,13 @@ export function TrackForm() {
       <div className="form__row">
         <div className="field">
           <label className="field__label" htmlFor="track-number">
-            Numéro de commande
+            {t.numero}
           </label>
-          <input className="field__input" id="track-number" name="number" required placeholder="AW-1031" autoComplete="off" autoCapitalize="characters" />
+          <input className="field__input" id="track-number" name="number" required placeholder={t.exempleNumero} autoComplete="off" autoCapitalize="characters" />
         </div>
         <div className="field">
           <label className="field__label" htmlFor="track-email">
-            E-mail de la commande
+            {t.email}
           </label>
           <input className="field__input" id="track-email" name="email" type="email" required autoComplete="email" />
         </div>
@@ -51,7 +52,7 @@ export function TrackForm() {
       ) : null}
       <div>
         <button type="submit" className="btn btn--solid" disabled={state === "loading"}>
-          {state === "loading" ? "Recherche…" : "Suivre ma commande"}
+          {state === "loading" ? t.envoi : t.envoyer}
         </button>
       </div>
     </form>

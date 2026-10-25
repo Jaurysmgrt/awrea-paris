@@ -5,11 +5,17 @@
 import { cache } from "react";
 import { shopifyCollections, shopifyEnabled, shopifyProducts } from "@/lib/shopify/storefront";
 import { demoCollections, demoLooks, demoProducts } from "./catalog-demo";
-import { productAvailability } from "./availability";
 import { hideUpcoming } from "@/lib/drops";
 import type { Collection, Look, Product, ProductFilter } from "./types";
 
 export const commerceMode: "shopify" | "demo" = shopifyEnabled ? "shopify" : "demo";
+
+/**
+ * Une pièce se commande dès qu'elle a au moins une taille vendable. Une pièce Shopify dont aucune
+ * taille n'est vendable (inventaire suivi sans « continuer à vendre ») reste dans l'Atelier mais
+ * sort des listes publiques, plutôt que d'y offrir une fiche sans taille à choisir.
+ */
+const orderable = (p: Product) => p.variants.length > 0;
 
 export const getAllProducts = cache(async (): Promise<Product[]> => {
   if (shopifyEnabled) {
@@ -22,18 +28,17 @@ export const getAllProducts = cache(async (): Promise<Product[]> => {
   return demoProducts();
 });
 
-/** Pièces de la boutique, sans celles d'un drop pas encore ouvert (lib/drops.ts). */
+/**
+ * Pièces de la boutique, sans les pièces d'une collection pas encore dévoilée (lib/drops.ts). Chaque pièce est
+ * créée sur demande : le filtre de taille garde les pièces proposées dans cette taille.
+ */
 export async function getProducts(filter: ProductFilter = {}): Promise<Product[]> {
   const all = await hideUpcoming(await getAllProducts());
   return all.filter((p) => {
+    if (!orderable(p)) return false;
     if (filter.collection && p.collection !== filter.collection) return false;
     if (filter.category && p.category !== filter.category) return false;
-    if (filter.size && !p.variants.some((v) => v.size === filter.size && (v.quantity > 0 || v.preorder))) return false;
-    if (filter.availability && filter.availability !== "all") {
-      const a = productAvailability(p);
-      if (filter.availability === "available" && a !== "available") return false;
-      if (filter.availability === "preorder" && a !== "preorder") return false;
-    }
+    if (filter.size && !p.variants.some((v) => v.size === filter.size)) return false;
     return true;
   });
 }
@@ -48,9 +53,9 @@ export async function getProductsByHandles(handles: string[], { includeUpcoming 
   return handles.map((h) => all.find((p) => p.handle === h)).filter((p): p is Product => Boolean(p));
 }
 
-/** Pièces visibles publiquement (listes, recherche, flux, plan du site) : sans les drops pas encore ouverts. */
+/** Pièces visibles publiquement (listes, recherche, flux, plan du site) : sans les pièces d'une collection pas encore dévoilée. */
 export async function getPublicProducts(): Promise<Product[]> {
-  return hideUpcoming(await getAllProducts());
+  return (await hideUpcoming(await getAllProducts())).filter(orderable);
 }
 
 export const getCollections = cache(async (): Promise<Collection[]> => {

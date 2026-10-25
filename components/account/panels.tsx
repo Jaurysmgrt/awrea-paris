@@ -1,17 +1,27 @@
 "use client";
-/** Rubriques de l'espace « Mon compte ». */
+/**
+ * Rubriques de l'espace « Mon compte ». Les commandes montrent la frise de leur confection
+ * (OrderStages, document « suivi-commande ») ; les certificats leur numéro de création (document
+ * « certificat »). Ces deux documents sont transmis par le TextsRoot de la page /compte.
+ */
 import { useState } from "react";
 import Link from "@/components/ui/Link";
 import { formatDate, formatPrice } from "@/lib/format";
 import { useWishlist } from "@/components/commerce/WishlistProvider";
 import { useConsent } from "@/components/consent/ConsentProvider";
+import { useTexts } from "@/components/content/Texts";
+import { OrderStages, type SuiviTexts } from "@/components/commerce/OrderStages";
 import { accountCopy as t } from "@/content/fr/account";
 import { shop } from "@/content/settings";
+import { delaiText, fill, type CatalogueTexts } from "@/lib/commerce/texts";
 import type { Order } from "@/lib/commerce/types";
-import type { Address, CustomerProfile, Sizes, WaitlistItem } from "@/lib/customers/types";
+import type { OrderTimeline } from "@/lib/customers/order-timeline";
+import type { Address, CustomerProfile, Sizes } from "@/lib/customers/types";
 import type { PublicCertificate } from "@/lib/certificates";
 
-export type AccountOrder = Order & { statusLabel: string; trackingUrl: string | null; followUrl?: string };
+type CertificatTexts = typeof import("@/content/site/fr/certificat.json");
+
+export type AccountOrder = Order & { statusLabel: string; trackingUrl: string | null; followUrl?: string; timeline: OrderTimeline };
 
 const SIZES = ["XS", "S", "M", "L", "XL"] as const;
 const COUNTRIES = shop.countries;
@@ -32,12 +42,14 @@ function Saved({ message }: { message: string | null }) {
 
 // ------------------------------------------------------------------ commandes
 export function OrdersPanel({ orders }: { orders: AccountOrder[] }) {
+  const stages = useTexts<SuiviTexts>("suivi-commande").frise;
+  const catalogue = useTexts<CatalogueTexts>("catalogue");
   if (!orders.length) {
     return (
       <p className="t-body">
         {t.orders.empty}{" "}
         <Link href="/boutique" className="text-link">
-          Les pièces vous attendent dans la boutique
+          {t.orders.shop}
         </Link>
         .
       </p>
@@ -49,18 +61,22 @@ export function OrdersPanel({ orders }: { orders: AccountOrder[] }) {
         {orders.map((o) => (
           <li key={o.id} className="order">
             <div className="order__head">
-              <h3 className="t-h4">Commande {o.number}</h3>
+              <h3 className="t-h4">{t.orders.title(o.number)}</h3>
               <span className="t-label t-soft">{formatDate(o.createdAt)}</span>
             </div>
-            <p className="badge">{o.statusLabel}</p>
+            <OrderStages
+              timeline={o.timeline}
+              t={stages}
+              delai={o.timeline.leadTime ? delaiText(catalogue, o.timeline.leadTime) : null}
+              label={t.orders.stages(o.number)}
+            />
             <ul className="order__lines">
               {o.lines.map((l, i) => (
                 <li key={i} className="t-body">
                   <Link href={`/boutique/${l.handle}`} className="link-plain">
                     {l.title}
                   </Link>{" "}
-                  · taille {l.size}
-                  {l.editionLabel ? ` · ${l.editionLabel}` : ""}
+                  · {t.orders.size(l.size)}
                 </li>
               ))}
             </ul>
@@ -90,6 +106,7 @@ export function OrdersPanel({ orders }: { orders: AccountOrder[] }) {
 
 // ------------------------------------------------------------------ certificats
 export function CertificatesPanel({ certificates }: { certificates: PublicCertificate[] }) {
+  const tc = useTexts<CertificatTexts>("certificat");
   return (
     <div className="stack-l">
       <p className="t-body">{certificates.length ? t.certificates.intro : t.certificates.empty}</p>
@@ -100,8 +117,7 @@ export function CertificatesPanel({ certificates }: { certificates: PublicCertif
               <div className="stack-s">
                 <h3 className="t-h4">{c.productTitle}</h3>
                 <p className="t-label t-soft">
-                  {c.editionTotal === 1 ? t.certificates.unique : c.editionNumber ? `N° ${c.editionNumber} / ${c.editionTotal}` : t.certificates.madeToOrder}
-                  {c.size ? ` · taille ${c.size}` : ""} · {formatDate(c.madeOn)}
+                  {[c.creation ? fill(tc.creation, { numero: c.creation }) : null, c.size ? t.orders.size(c.size) : null, formatDate(c.madeOn)].filter(Boolean).join(" · ")}
                 </p>
               </div>
               <p className="t-label certificates__serial">{c.serial}</p>
@@ -327,10 +343,9 @@ export function AddressesPanel({ addresses: initial }: { addresses: Address[] })
   );
 }
 
-// ------------------------------------------------------------------ envies et alertes
-export function WishPanel({ waitlist: initial }: { waitlist: WaitlistItem[] }) {
+// ------------------------------------------------------------------ envies
+export function WishPanel() {
   const { handles } = useWishlist();
-  const [waitlist, setWaitlist] = useState(initial);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   return (
@@ -348,7 +363,7 @@ export function WishPanel({ waitlist: initial }: { waitlist: WaitlistItem[] }) {
             <input className="field__input" readOnly value={shareUrl} aria-label="Lien de partage" onFocus={(e) => e.currentTarget.select()} />
             <button
               type="button"
-              className="btn"
+              className="btn btn--outline"
               onClick={async () => {
                 await navigator.clipboard?.writeText(shareUrl).catch(() => {});
                 setMsg(t.wish.copied);
@@ -383,34 +398,6 @@ export function WishPanel({ waitlist: initial }: { waitlist: WaitlistItem[] }) {
           </div>
         )}
         <Saved message={msg} />
-      </div>
-      <div className="stack">
-        <h3 className="t-label">{t.wish.waitlist}</h3>
-        {waitlist.length ? (
-          <ul className="stack">
-            {waitlist.map((w) => (
-              <li key={w.id} className="waitlist-item">
-                <Link href={`/boutique/${w.handle}`} className="link-plain t-body">
-                  {w.handle.replace(/-/g, " ")}
-                </Link>
-                {w.size ? <span className="t-label">Taille {w.size}</span> : null}
-                {w.notifiedAt ? <span className="t-note">{`${t.wish.notified} ${formatDate(w.notifiedAt)}`}</span> : null}
-                <button
-                  type="button"
-                  className="link link--quiet"
-                  onClick={async () => {
-                    const r = await send<{ waitlist: WaitlistItem[] }>(`/api/account/waitlist?id=${encodeURIComponent(w.id)}`, "DELETE");
-                    if (r.ok) setWaitlist(r.data.waitlist);
-                  }}
-                >
-                  {t.wish.remove}
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="t-body">{t.wish.waitlistEmpty}</p>
-        )}
       </div>
     </div>
   );
@@ -590,7 +577,7 @@ export function DataPanel({ onDeleted }: { onDeleted: () => void }) {
           </p>
         ) : null}
         <div>
-          <button type="submit" className="btn" disabled={confirm !== "SUPPRIMER"}>
+          <button type="submit" className="btn btn--outline" disabled={confirm !== "SUPPRIMER"}>
             {t.data.deleteButton}
           </button>
         </div>

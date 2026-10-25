@@ -1,12 +1,16 @@
 /**
  * Certificats d'authenticité numériques.
  *
- * Chaque pièce vendue reçoit un certificat : numéro de série imprimé sous un QR code, page publique
- * qui en atteste l'authenticité (sans aucune donnée personnelle), et rattachement au compte de sa
- * propriétaire — automatiquement pour l'acheteuse (même adresse e-mail), ou avec le code imprimé
- * sur le certificat papier quand la pièce est offerte.
+ * Chaque pièce commandée reçoit un certificat : son NUMÉRO DE CRÉATION (numéro d'ordre de la Maison,
+ * unique, attribué dans l'ordre à chaque pièce confectionnée, « Création n° 0001 »), un code de
+ * vérification imprimé sous un QR code (serial), une page publique qui en atteste l'authenticité
+ * (sans aucune donnée personnelle), et le rattachement au compte de sa propriétaire :
+ * automatiquement pour l'acheteuse (même adresse e-mail), ou avec le code imprimé sur le certificat
+ * papier quand la pièce est offerte. Les pièces sont créées sur demande : aucune série, aucun
+ * numéro d'édition ni total.
  *
- * Stockage : Supabase (table certificates) si la base est configurée, sinon le stockage technique.
+ * Stockage : Supabase (table certificates, numéro tiré de la séquence certificate_creation_seq) si
+ * la base est configurée, sinon le stockage technique (compteur permanent kv.next).
  */
 import "server-only";
 import { createHash, randomInt } from "node:crypto";
@@ -27,8 +31,8 @@ export interface Certificate {
   productTitle: string;
   size?: string;
   image?: string;
-  editionNumber: number | null;
-  editionTotal: number;
+  /** numéro de création unique de la Maison (null : certificat émis avant le modèle sur demande) */
+  creationNumber: number | null;
   collection?: string;
   madeOn: string;
   materials: string;
@@ -45,7 +49,14 @@ export interface Certificate {
 }
 
 /** Ce que la page publique montre : jamais l'e-mail, la commande ni le code. */
-export type PublicCertificate = Omit<Certificate, "ownerEmailHash" | "claimCodeHash" | "claimCodeSealed" | "customerId" | "orderNumber"> & { claimed: boolean };
+export type PublicCertificate = Omit<Certificate, "ownerEmailHash" | "claimCodeHash" | "claimCodeSealed" | "customerId" | "orderNumber"> & {
+  claimed: boolean;
+  /** numéro de création sur quatre chiffres (« 0001 »), à composer avec le texte « Création n° {numero} » */
+  creation: string | null;
+};
+
+/** Numéro de création affiché sur quatre chiffres au moins : 1 → « 0001 ». */
+export const creationText = (n: number | null | undefined): string | null => (typeof n === "number" && n > 0 ? String(n).padStart(4, "0") : null);
 
 const KEY = "certificates";
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sans 0/O ni 1/I
@@ -58,7 +69,10 @@ function productCode(p: Product): string {
   const code = (fromSku ?? p.handle.replace(/^[a-z]+-/, "").slice(0, 3)).toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
   return code || "AW";
 }
-const SERIAL = /^AW-[A-Z0-9]{1,8}-\d{2,4}-[A-Z0-9]{4}$/;
+/** code de vérification : AW-<pièce>-<numéro de création>-<4 signes> (anciens certificats : 2 chiffres) */
+const SERIAL = /^AW-[A-Z0-9]{1,8}-\d{2,6}-[A-Z0-9]{4}$/;
+/** compteur permanent des numéros de création (stockage technique, sans Supabase) */
+export const CREATION_KEY = "certificates:creation";
 
 // ------------------------------------------------------------------ stockage
 async function demoAll(): Promise<Record<string, Certificate>> {
@@ -66,7 +80,7 @@ async function demoAll(): Promise<Record<string, Certificate>> {
 }
 
 type Row = {
-  serial: string; product_handle: string; product_title: string; size: string | null; image: string | null; edition_number: number | null; edition_total: number | null;
+  serial: string; product_handle: string; product_title: string; size: string | null; image: string | null; creation_number: number | string | null;
   collection: string | null; made_on: string | null; materials: string | null; order_number: string | null; owner_email_hash: string | null; claim_code_hash: string | null;
   claim_code_sealed: string | null; creator_note: string | null; customer_id: string | null; claimed_at: string | null; created_at: string;
 };
@@ -76,8 +90,7 @@ const fromRow = (r: Row): Certificate => ({
   productTitle: r.product_title,
   size: r.size ?? undefined,
   image: r.image ?? undefined,
-  editionNumber: r.edition_number,
-  editionTotal: r.edition_total ?? 1,
+  creationNumber: r.creation_number === null || r.creation_number === undefined ? null : Number(r.creation_number),
   collection: r.collection ?? undefined,
   madeOn: r.made_on ?? r.created_at.slice(0, 10),
   materials: r.materials ?? "",
@@ -94,8 +107,8 @@ const fromRow = (r: Row): Certificate => ({
 async function save(c: Certificate) {
   if (isSupabaseConfigured) {
     const { error } = await supabaseAdmin().from("certificates").upsert({
-      serial: c.serial, product_handle: c.productHandle, product_title: c.productTitle, size: c.size ?? null, image: c.image ?? null, edition_number: c.editionNumber,
-      edition_total: c.editionTotal, collection: c.collection ?? null, made_on: c.madeOn, materials: c.materials, order_number: c.orderNumber ?? null,
+      serial: c.serial, product_handle: c.productHandle, product_title: c.productTitle, size: c.size ?? null, image: c.image ?? null, creation_number: c.creationNumber,
+      collection: c.collection ?? null, made_on: c.madeOn, materials: c.materials, order_number: c.orderNumber ?? null,
       owner_email_hash: c.ownerEmailHash ?? null, claim_code_hash: c.claimCodeHash ?? null, claim_code_sealed: c.claimCodeSealed ?? null, creator_note: c.note ?? null,
       customer_id: c.customerId ?? null, claimed_at: c.claimedAt ?? null, created_at: c.createdAt,
     });
@@ -124,8 +137,8 @@ export function toPublic(c: Certificate): PublicCertificate {
     productTitle: c.productTitle,
     size: c.size,
     image: c.image,
-    editionNumber: c.editionNumber,
-    editionTotal: c.editionTotal,
+    creationNumber: c.creationNumber,
+    creation: creationText(c.creationNumber),
     collection: c.collection,
     madeOn: c.madeOn,
     materials: c.materials,
@@ -168,6 +181,20 @@ export async function issueCertificates(order: Order): Promise<{ certificate: Ce
   }
 }
 
+/**
+ * Numéro de création suivant : tiré de façon atomique (séquence PostgreSQL, ou compteur permanent du
+ * stockage technique), jamais deux fois le même même en cas de commandes simultanées, jamais remis
+ * à zéro. Un numéro tiré pour une commande annulée n'est pas réattribué.
+ */
+async function nextCreationNumber(): Promise<number> {
+  if (isSupabaseConfigured) {
+    const { data, error } = await supabaseAdmin().rpc("next_creation_number");
+    if (error || data === null || data === undefined) throw new Error(`numéro de création : ${error?.message ?? "absent"}`);
+    return Number(data);
+  }
+  return kv.next(CREATION_KEY);
+}
+
 async function issue(order: Order): Promise<{ certificate: Certificate; claimCode: string }[]> {
   const [products, collections] = await Promise.all([getAllProducts(), getCollections()]);
   const issued: { certificate: Certificate; claimCode: string }[] = [];
@@ -175,22 +202,17 @@ async function issue(order: Order): Promise<{ certificate: Certificate; claimCod
     const p = products.find((x) => x.handle === line.handle);
     if (!p) continue;
     for (let i = 0; i < line.quantity; i++) {
-      const fromLabel = line.editionLabel?.match(/N°\s*(\d+)/)?.[1];
-      let number: number | null = fromLabel ? Number(fromLabel) : p.edition.total === 1 ? 1 : null;
-      if (number === null && !/commande/i.test(line.editionLabel ?? "")) {
-        // pilote Shopify : numéro attribué ici, de façon atomique
-        const n = await kv.incr(`edition:${p.handle}`, 10 * 365 * 86_400);
-        number = p.edition.produced + n <= p.edition.total ? p.edition.produced + n : null;
-      }
+      // pièces créées sur demande, sans série : un numéro de création unique de la Maison par pièce,
+      // repris dans le code de vérification ; plus de numéro d'édition « N° x / y »
+      const creation = await nextCreationNumber();
       const claimCode = `${random(4)}-${random(4)}`;
       const certificate: Certificate = {
-        serial: `AW-${productCode(p)}-${String(number ?? 0).padStart(2, "0")}-${random(4)}`,
+        serial: `AW-${productCode(p)}-${creationText(creation)}-${random(4)}`,
         productHandle: p.handle,
         productTitle: p.title,
         size: line.size,
         image: p.images[0]?.src,
-        editionNumber: number,
-        editionTotal: p.edition.total,
+        creationNumber: creation,
         collection: collections.find((c) => c.handle === p.collection)?.title,
         madeOn: order.createdAt.slice(0, 10),
         materials: p.materials.map((m) => `${m.percent}\u202f% ${m.name.toLowerCase()}`).join(", "), // espace fine insécable
@@ -212,6 +234,16 @@ export async function certificatesOfOrder(order: Pick<Order, "id">): Promise<Pub
   const serials = (await kv.get<string[]>(orderKey(order.id))) ?? [];
   const list = await Promise.all(serials.map((s) => getCertificate(s)));
   return list.filter((c): c is Certificate => Boolean(c)).map(toPublic);
+}
+
+/**
+ * Certificats d'une commande avec leur lien et leur code de rattachement en clair, pour l'e-mail
+ * « Commande reçue » (le code n'est jamais montré sur la page publique).
+ */
+export async function certificateCodesOfOrder(order: Pick<Order, "id">): Promise<{ productTitle: string; url: string; code: string | null }[]> {
+  const serials = (await kv.get<string[]>(orderKey(order.id))) ?? [];
+  const list = await Promise.all(serials.map((s) => getCertificate(s)));
+  return list.filter((c): c is Certificate => Boolean(c)).map((c) => ({ productTitle: c.productTitle, url: certificateUrl(c.serial), code: claimCodeOf(c) }));
 }
 
 /** Rattache un certificat au compte de la cliente connectée, avec le code du certificat papier. */
@@ -239,6 +271,18 @@ export async function listCertificates({ order, limit = 200 }: { order?: string;
     .filter((c) => !order || c.orderNumber === order)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, limit);
+}
+
+/**
+ * Pièces d'une commande passées à « Prête » : la date de confection de leurs certificats devient
+ * celle du jour (la créatrice peut encore la corriger dans l'Atelier).
+ */
+export async function markOrderMade(order: Pick<Order, "id">, at: string = new Date().toISOString()): Promise<void> {
+  const serials = (await kv.get<string[]>(orderKey(order.id))) ?? [];
+  for (const serial of serials) {
+    const c = await getCertificate(serial);
+    if (c) await save({ ...c, madeOn: at.slice(0, 10) });
+  }
 }
 
 /** Corrige la date de fabrication ou écrit le mot de la créatrice (Atelier). */
@@ -276,7 +320,7 @@ export async function sendCertificatesEmail(order: Order, issued: { certificate:
     paragraphs: [
       first ? `Bonjour ${first},` : "Bonjour,",
       "Chaque pièce Awrea Paris est accompagnée d’un certificat signé par la créatrice. Sa version numérique est déjà en ligne, et rattachée à votre compte si vous en avez un avec cette adresse.",
-      ...issued.map((x) => `${x.certificate.productTitle}${x.certificate.editionNumber && x.certificate.editionTotal > 1 ? `, N° ${x.certificate.editionNumber} / ${x.certificate.editionTotal}` : ""} : ${certificateUrl(x.certificate.serial)}`),
+      ...issued.map((x) => `${x.certificate.productTitle}${x.certificate.creationNumber ? `, création n° ${creationText(x.certificate.creationNumber)}` : ""} : ${certificateUrl(x.certificate.serial)}`),
       `Si vous offrez une pièce, transmettez avec elle son code de rattachement : ${issued.map((x) => `${x.certificate.productTitle} : ${x.claimCode}`).join(" ; ")}.`,
     ],
     cta: { label: "Voir mes certificats", href: "/compte#certificats" },

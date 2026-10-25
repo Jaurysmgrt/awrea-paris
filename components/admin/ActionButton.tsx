@@ -2,7 +2,14 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-/** Bouton qui appelle une route du tableau de bord puis rafraîchit la page. */
+/**
+ * Bouton qui appelle une route du tableau de bord puis rafraîchit la page. Langage du design
+ * system : « default » et « solid » (ancien nom) donnent le bouton noir en pilule (.btn), l'action
+ * principale ; « outline » l'action secondaire qui le côtoie (.btn--outline) ; « quiet » un lien
+ * souligné (.btn--link) pour les gestes discrets d'une ligne de tableau.
+ */
+const CLASSES = { default: "btn", solid: "btn", outline: "btn btn--outline", quiet: "btn btn--link" } as const;
+
 export function ActionButton({
   endpoint,
   body,
@@ -16,7 +23,7 @@ export function ActionButton({
   body?: unknown;
   label: string;
   busyLabel?: string;
-  variant?: "default" | "solid" | "quiet";
+  variant?: keyof typeof CLASSES;
   confirm?: string;
   onDone?: (json: Record<string, unknown>) => void;
 }) {
@@ -27,7 +34,7 @@ export function ActionButton({
     <span className="action-button">
       <button
         type="button"
-        className={variant === "quiet" ? "link link--quiet" : `btn ${variant === "solid" ? "btn--solid" : ""}`}
+        className={CLASSES[variant]}
         disabled={busy}
         onClick={async () => {
           if (confirm && !window.confirm(confirm)) return;

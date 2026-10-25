@@ -1,10 +1,13 @@
 "use client";
 /**
  * Retour ou échange de taille en libre-service : choisir les pièces, la raison, puis un
- * remboursement ou une autre taille. L'étiquette arrive aussitôt (page et e-mail).
+ * remboursement ou une autre taille. L'étiquette arrive aussitôt (page et e-mail). Textes du
+ * document « suivi-commande » (clé « retour »), transmis par la page.
  */
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { fill } from "@/lib/edition/fill";
+import type { SuiviTexts } from "@/components/commerce/OrderStages";
 
 export interface ReturnableLine {
   index: number;
@@ -14,17 +17,12 @@ export interface ReturnableLine {
   sizes: string[];
 }
 
-const REASONS = [
-  ["trop-petite", "Taille trop petite"],
-  ["trop-grande", "Taille trop grande"],
-  ["tombe", "Le tombé ne me convient pas"],
-  ["matiere", "La matière ne correspond pas à mon attente"],
-  ["autre", "Autre raison"],
-] as const;
+type Reason = keyof SuiviTexts["retour"]["raisons"];
+const REASONS: Reason[] = ["trop-petite", "trop-grande", "tombe", "matiere", "autre"];
 
 type Choice = { on: boolean; reason: string; wish: "remboursement" | "echange"; exchangeSize: string };
 
-export function ReturnForm({ number, token, lines, returnDays }: { number: string; token: string; lines: ReturnableLine[]; returnDays: number }) {
+export function ReturnForm({ number, token, lines, returnDays, t }: { number: string; token: string; lines: ReturnableLine[]; returnDays: number; t: SuiviTexts["retour"] }) {
   const router = useRouter();
   const [choices, setChoices] = useState<Record<number, Choice>>(() => Object.fromEntries(lines.map((l) => [l.index, { on: false, reason: "trop-petite", wish: "remboursement", exchangeSize: l.sizes[0] ?? "" }])));
   const [accept, setAccept] = useState(false);
@@ -40,7 +38,7 @@ export function ReturnForm({ number, token, lines, returnDays }: { number: strin
         e.preventDefault();
         if (!picked.length) {
           setState("error");
-          setError("Choisissez au moins une pièce.");
+          setError(t.aucune);
           return;
         }
         setState("loading");
@@ -62,7 +60,7 @@ export function ReturnForm({ number, token, lines, returnDays }: { number: strin
         const j = res ? await res.json().catch(() => ({})) : {};
         if (!res?.ok) {
           setState("error");
-          setError(j.error ?? "La demande n’a pas pu être enregistrée.");
+          setError(j.error ?? t.erreur);
           return;
         }
         router.refresh();
@@ -76,39 +74,39 @@ export function ReturnForm({ number, token, lines, returnDays }: { number: strin
               <label className="check">
                 <input type="checkbox" checked={c.on} onChange={(e) => set(l.index, { on: e.target.checked })} />
                 <span>
-                  <span className="t-h4">{l.title}</span> <span className="t-label t-soft">taille {l.size}</span> <span className="price">{l.price}</span>
+                  <span className="t-body">{l.title}</span> <span className="t-label t-soft">{fill(t.taille, { taille: l.size })}</span> <span className="price">{l.price}</span>
                 </span>
               </label>
               {c.on ? (
                 <div className="return-line__choices stack-s">
                   <div className="field">
                     <label className="field__label" htmlFor={`reason-${l.index}`}>
-                      Raison
+                      {t.raison}
                     </label>
                     <select id={`reason-${l.index}`} className="field__input" value={c.reason} onChange={(e) => set(l.index, { reason: e.target.value })}>
-                      {REASONS.map(([v, label]) => (
+                      {REASONS.map((v) => (
                         <option key={v} value={v}>
-                          {label}
+                          {t.raisons[v]}
                         </option>
                       ))}
                     </select>
                   </div>
                   <fieldset className="field">
-                    <legend className="field__label">Je souhaite</legend>
+                    <legend className="field__label">{t.souhait}</legend>
                     <div className="options">
                       <label className="option">
                         <input type="radio" name={`wish-${l.index}`} checked={c.wish === "remboursement"} onChange={() => set(l.index, { wish: "remboursement" })} />
                         <span className="option__body">
-                          <span className="option__title">Être remboursée</span>
-                          <span className="t-note">Sur le moyen de paiement d’origine, dès réception à l’atelier</span>
+                          <span className="option__title">{t.remboursement}</span>
+                          <span className="t-note">{t.remboursementNote}</span>
                         </span>
                       </label>
                       {l.sizes.length ? (
                         <label className="option">
                           <input type="radio" name={`wish-${l.index}`} checked={c.wish === "echange"} onChange={() => set(l.index, { wish: "echange" })} />
                           <span className="option__body">
-                            <span className="option__title">Une autre taille</span>
-                            <span className="t-note">Envoyée dès réception de votre pièce</span>
+                            <span className="option__title">{t.echange}</span>
+                            <span className="t-note">{t.echangeNote}</span>
                           </span>
                         </label>
                       ) : null}
@@ -117,7 +115,7 @@ export function ReturnForm({ number, token, lines, returnDays }: { number: strin
                   {c.wish === "echange" ? (
                     <div className="field">
                       <label className="field__label" htmlFor={`size-${l.index}`}>
-                        Nouvelle taille
+                        {t.nouvelleTaille}
                       </label>
                       <select id={`size-${l.index}`} className="field__input" value={c.exchangeSize} onChange={(e) => set(l.index, { exchangeSize: e.target.value })}>
                         {l.sizes.map((s) => (
@@ -136,13 +134,13 @@ export function ReturnForm({ number, token, lines, returnDays }: { number: strin
       </ul>
       <div className="field">
         <label className="field__label" htmlFor="return-comment">
-          Un mot pour l’atelier (facultatif)
+          {t.mot}
         </label>
         <textarea id="return-comment" name="comment" className="field__input" maxLength={600} />
       </div>
       <label className="check t-note">
         <input type="checkbox" checked={accept} onChange={(e) => setAccept(e.target.checked)} required />
-        <span>Je renvoie la pièce non portée, avec ses étiquettes et son certificat, dans les {returnDays} jours suivant la livraison.</span>
+        <span>{fill(t.engagement, { jours: returnDays })}</span>
       </label>
       {state === "error" ? (
         <p className="field__error" role="alert">
@@ -151,7 +149,7 @@ export function ReturnForm({ number, token, lines, returnDays }: { number: strin
       ) : null}
       <div>
         <button type="submit" className="btn btn--solid" disabled={state === "loading" || !accept}>
-          {state === "loading" ? "Enregistrement…" : "Demander le retour"}
+          {state === "loading" ? t.envoi : t.envoyer}
         </button>
       </div>
     </form>

@@ -1,22 +1,26 @@
 "use client";
 /**
- * Recherche plein écran : un grand champ en Bodoni sur papier ivoire (noir en mode Nuit),
- * des résultats qui apparaissent à chaque lettre, regroupés en Pièces, Collections, Journal
- * et La maison. « Entrée » ouvre la page de résultats complète (/recherche).
- * Chargée à la demande : elle ne pèse rien tant qu'on ne l'ouvre pas.
+ * Recherche plein écran : un grand champ sur fond blanc cassé (noir en mode Nuit), des
+ * résultats qui apparaissent à chaque lettre, regroupés en Pièces, Collections, Journal et
+ * La Maison. « Entrée » ouvre la page de résultats complète (/recherche). Textes du document
+ * « site » (clé « recherche »). Chargée à la demande : elle ne pèse rien tant qu'on ne l'ouvre pas.
  */
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "@/components/ui/Link";
-import { groupByKind, search, searchSuggestions, type SearchEntry } from "@/lib/search/match";
+import { groupByKind, search, type SearchEntry } from "@/lib/search/match";
+import { useTexts } from "@/components/content/Texts";
+import { fill } from "@/lib/edition/fill";
 import { isolate } from "@/lib/dom/isolate";
 import { loadSearchIndex } from "./load";
 import { SearchResults } from "./SearchResults";
 
 type Props = { open: boolean; onClose: () => void };
+type SiteTexts = typeof import("@/content/site/fr/site.json");
 
 export default function SearchOverlay({ open, onClose }: Props) {
   const router = useRouter();
+  const t = useTexts<SiteTexts>("site").recherche;
   const [entries, setEntries] = useState<SearchEntry[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [q, setQ] = useState("");
@@ -55,7 +59,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
   const results = useMemo(() => (entries ? search(entries, query) : []), [entries, query]);
   const groups = useMemo(() => groupByKind(results), [results]);
   const typed = query.trim().length > 0;
-  const status = !typed || !entries ? "" : results.length ? `${results.length} résultat${results.length > 1 ? "s" : ""}` : "Aucun résultat";
+  const status = !typed || !entries ? "" : results.length > 1 ? fill(t.resultats, { n: results.length }) : results.length ? t.unResultat : t.aucunResultat;
 
   const go = () => onClose();
 
@@ -67,7 +71,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
       data-open={open}
       role="dialog"
       aria-modal="true"
-      aria-label="Recherche"
+      aria-label={t.nom}
       aria-hidden={!open}
       inert={!open}
     >
@@ -86,7 +90,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
             }}
           >
             <label htmlFor="search-q" className="t-label search__label">
-              Rechercher
+              {t.label}
             </label>
             <input
               id="search-q"
@@ -95,7 +99,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
               name="q"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Une pièce, une matière…"
+              placeholder={t.champ}
               autoComplete="off"
               autoCapitalize="off"
               spellCheck={false}
@@ -105,7 +109,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
             />
           </form>
           <button type="button" className="link link--quiet search__close" onClick={onClose}>
-            Fermer
+            {t.fermer}
           </button>
         </div>
 
@@ -115,9 +119,9 @@ export default function SearchOverlay({ open, onClose }: Props) {
 
         {!typed ? (
           <div className="search__suggest">
-            <p className="t-label t-soft">Pistes</p>
+            <p className="t-label t-soft">{t.pistes}</p>
             <ul className="search__chips">
-              {searchSuggestions.map((s) => (
+              {t.suggestions.map((s) => (
                 <li key={s}>
                   <button type="button" className="chip" onClick={() => setQ(s)}>
                     {s}
@@ -128,7 +132,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
           </div>
         ) : !entries ? (
           failed ? (
-            <p className="t-body search__empty">La recherche ne répond pas pour l’instant. Toutes les pièces restent visibles dans la boutique.</p>
+            <p className="t-body search__empty">{t.indisponible}</p>
           ) : (
             <div className="search__skeleton" aria-hidden="true">
               {Array.from({ length: 4 }, (_, i) => (
@@ -142,13 +146,12 @@ export default function SearchOverlay({ open, onClose }: Props) {
           )
         ) : groups.length === 0 ? (
           <div className="search__empty stack-s">
-            <p className="t-h3">Rien ne répond encore à « {query.trim()} ».</p>
-            <p className="t-body t-soft">
-              Essayez une matière, une forme ou le nom d’une collection. Ou{" "}
-              <Link href="/boutique" className="text-link" onClick={go}>
-                parcourez toute la boutique
+            <p className="t-h3">{fill(t.aucun, { q: query.trim() })}</p>
+            <p className="t-body t-soft">{t.essayez}</p>
+            <p>
+              <Link href={t.toutes.href} className="text-link" onClick={go}>
+                {t.toutes.label}
               </Link>
-              .
             </p>
           </div>
         ) : (
@@ -157,7 +160,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
             {results.length > 8 ? (
               <p>
                 <Link href={`/recherche?q=${encodeURIComponent(query.trim())}`} className="link" onClick={go}>
-                  Voir les {results.length} résultats
+                  {fill(t.voirTout, { n: results.length })}
                 </Link>
               </p>
             ) : null}

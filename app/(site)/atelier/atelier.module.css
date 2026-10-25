@@ -1,0 +1,10 @@
+/*
+ * L’Atelier : les quatre chapitres, photo et texte en alternance, séparés par le blanc d’une
+ * section. Tokens seulement.
+ */
+.chapitres {
+  display: grid;
+  gap: var(--space-section);
+  padding-block: 0;
+  list-style: none;
+}

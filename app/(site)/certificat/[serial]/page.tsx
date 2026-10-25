@@ -5,25 +5,32 @@ import { Section } from "@/components/ui/Section";
 import { Media } from "@/components/ui/Media";
 import { CertificateActions } from "@/components/certificate/CertificateActions";
 import { getCertificate, certificateQr, creatorWord, emailHash, toPublic } from "@/lib/certificates";
-import { CertificateSheet } from "@/components/certificate/CertificateSheet";
+import { CertificateSheet, type CertificatTexts } from "@/components/certificate/CertificateSheet";
 import { getCustomerSession } from "@/lib/auth/customer";
+import { getDoc } from "@/lib/edition/read";
+import { fill } from "@/lib/edition/fill";
+import { getProduct } from "@/lib/commerce";
 
 type Params = { params: Promise<{ serial: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { serial } = await params;
-  return { title: { absolute: `Certificat ${serial.toUpperCase()} | Awrea Paris` }, robots: { index: false, follow: false } };
+  const t = await getDoc<CertificatTexts>("certificat", "fr", { plain: true });
+  return { title: { absolute: fill(t.page.titre, { serial: serial.toUpperCase() }) }, robots: { index: false, follow: false } };
 }
 
 /**
  * Certificat d'authenticité numérique : la page vers laquelle mène le QR code du certificat
- * papier. Elle atteste la pièce (numéro d'édition, date, matières) sans aucune donnée personnelle.
+ * papier. Elle atteste la pièce (numéro de création, date de confection, matières quand elles sont
+ * connues) sans aucune donnée personnelle. Textes : document « certificat ».
  */
 export default async function CertificatPage({ params }: Params) {
   const { serial } = await params;
   const c = await getCertificate(serial);
   if (!c) notFound();
-  const [session, qr] = await Promise.all([getCustomerSession(), certificateQr(c.serial)]);
+  const [session, qr, t, piece] = await Promise.all([getCustomerSession(), certificateQr(c.serial), getDoc<CertificatTexts>("certificat"), getProduct(c.productHandle).catch(() => null)]);
+  // la photo du certificat est celle de la pièce : provisoire tant que la Maison n'a pas ses prises de vue
+  const provisoire = Boolean(piece?.images.concat(piece.detailImage ?? []).some((i) => i.src === c.image && i.provisoire));
   const mine = Boolean(session && (c.customerId === session.id || c.ownerEmailHash === emailHash(session.email)));
 
   return (
@@ -31,16 +38,16 @@ export default async function CertificatPage({ params }: Params) {
       <div className="container certificate-page__grid">
         {c.image ? (
           <div className="certificate-page__media no-print">
-            <Media image={{ src: c.image, alt: c.productTitle, width: 1200, height: 1800 }} sizes="(min-width: 64rem) 30vw, 80vw" priority />
+            <Media image={{ src: c.image, alt: c.productTitle, width: 1200, height: 1800 }} sizes="(min-width: 64rem) 30vw, 80vw" priority provisoire={provisoire} />
           </div>
         ) : null}
         <div className="stack-l">
-          <CertificateSheet c={toPublic(c)} qr={qr} word={creatorWord(c)} />
+          <CertificateSheet c={toPublic(c)} qr={qr} word={creatorWord(c)} t={t} />
           <div className="no-print stack-s">
-            <CertificateActions serial={c.serial} mine={mine} signedIn={Boolean(session)} />
+            <CertificateActions serial={c.serial} mine={mine} signedIn={Boolean(session)} t={t.actions} />
             <p className="t-note">
               <Link href={`/boutique/${c.productHandle}`} className="text-link">
-                Voir la pièce
+                {t.page.voirPiece}
               </Link>
             </p>
           </div>

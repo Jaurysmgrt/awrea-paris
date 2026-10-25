@@ -1,0 +1,16 @@
+{
+  "seo": {
+    "title": "Outfits, des tenues complètes | Awrea Paris",
+    "description": "Les outfits Awrea Paris : des tenues composées par la créatrice avec les pièces de la collection Hypnotic Lace, créées sur demande par des artisans français."
+  },
+  "titre": "Outfits",
+  "chapeau": "Chaque tenue est composée par la créatrice. Elle se commande entière, en un seul geste, ou pièce par pièce, dans votre taille.",
+  "silhouette": "Silhouette {numero}",
+  "vide": {
+    "texte": "Une tenue se montre portée, en entier. Les premières paraîtront ici avec les prises de vue de la collection Hypnotic Lace. En attendant, ses sept pièces se commandent une à une.",
+    "lien": {
+      "label": "Voir les sept pièces",
+      "href": "/collections/hypnotic-lace"
+    }
+  }
+}

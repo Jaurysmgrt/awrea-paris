@@ -7,7 +7,7 @@ declare
   unprotected text;
 begin
   select string_agg(t, ', ') into missing
-  from unnest(array['customers','addresses','orders','wishlist_items','shared_wishlists','waitlist_entries','browsing_events','carts','consent_records','reviews','certificates','appointments','push_subscriptions','drop_signups']) as t
+  from unnest(array['customers','addresses','orders','wishlist_items','shared_wishlists','browsing_events','carts','consent_records','reviews','certificates','appointments','push_subscriptions','drop_signups']) as t
   where to_regclass('public.' || t) is null;
   if missing is not null then raise exception 'Tables absentes après restauration : %', missing; end if;
   select string_agg(relname, ', ') into unprotected

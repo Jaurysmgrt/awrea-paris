@@ -3,7 +3,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import path from "node:path";
 import { looksLikeProse } from "../../lib/writing/rules.ts";
 const root = "/home/user/awrea-paris";
-function walk(d: string, out: string[] = []) { const a = path.join(root, d); if (!existsSync(a)) return out; for (const n of readdirSync(a)) { const r = `${d}/${n}`; if (statSync(path.join(root, r)).isDirectory()) { if (!r.includes("(lab)")) walk(r, out); } else if (/\.tsx?$/.test(n)) out.push(r); } return out; }
+function walk(d: string, out: string[] = []) { const a = path.join(root, d); if (!existsSync(a)) return out; for (const n of readdirSync(a)) { const r = `${d}/${n}`; if (statSync(path.join(root, r)).isDirectory()) walk(r, out); else if (/\.tsx?$/.test(n)) out.push(r); } return out; }
 const rows: [string, number, number][] = [];
 for (const f of [...walk("app"), ...walk("components"), ...walk("lib")]) {
   const src = readFileSync(path.join(root, f), "utf8");

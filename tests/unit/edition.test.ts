@@ -1,12 +1,15 @@
-/** Éditeur « Édition » : chemins, marques invisibles, traductions, garde-fous, blocs. */
+/** Éditeur « Édition » : chemins, marques invisibles, traductions, garde-fous, blocs, photos provisoires. */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { changedPaths, getAt, isSafePath, listOp, parsePath, setAt } from "@/lib/edition/paths";
 import { hasStega, stegaClean, stegaEncodeDeep, stegaSources } from "@/lib/edition/stega";
 import { localize, withFallback } from "@/lib/edition/merge";
 import { guardValue, ruleFor } from "@/lib/edition/guard";
 import { createBlock, duplicateBlock, todos } from "@/lib/edition/blocks";
 import { fill } from "@/lib/edition/fill";
+import { imagesIn, isImg, isProvisional, provisionalAfterReplace, provisionalIn, withProvisional } from "@/lib/edition/provisoires";
 
 test("chemins : lecture, écriture sans muter, listes, sécurité", () => {
   const doc = { sections: [{ id: "a", titre: "Un" }, { id: "b", titre: "Deux" }] };
@@ -61,4 +64,54 @@ test("blocs : création avec repères, duplication, textes à écrire", () => {
   const c = duplicateBlock(b);
   assert.notEqual(c.id, b.id);
   assert.equal(createBlock("inconnu"), null);
+});
+
+test("photos provisoires : un seul marqueur, repéré dans tout le document, jamais faux par écrit", () => {
+  const photo = { src: "/media/img/aura-1", alt: "Le body Aura porté", width: 1536, height: 2304, provisoire: true };
+  assert.ok(isImg(photo) && isProvisional(photo));
+  assert.ok(!isProvisional({ ...photo, provisoire: false }));
+  assert.ok(!isImg({ src: "/v.mp4", poster: "/v.jpg", label: "Vidéo" }));
+  const doc = { image: photo, chapitres: [{ titre: "Un", image: { ...photo, src: "/media/img/sienna-detail" } }, { titre: "Deux", image: { src: "/media/img/creatrice-portrait", alt: "La créatrice", width: 1200, height: 1500 } }] };
+  assert.deepEqual(imagesIn(doc).map((f) => f.path), ["image", "chapitres.0.image", "chapitres.1.image"]);
+  assert.deepEqual(provisionalIn(doc).map((f) => [f.path, f.etat]), [["image", "a-remplacer"], ["chapitres.0.image", "a-remplacer"]]);
+  // enregistrement : la clé n'est écrite que si elle vaut vrai
+  assert.equal("provisoire" in withProvisional(photo, false), false);
+  assert.equal(withProvisional({ ...photo, provisoire: undefined }, true).provisoire, true);
+  // le marqueur n'est pas un texte : jamais marqué par le mode Édition
+  assert.equal(stegaEncodeDeep({ image: photo }, "accueil", "fr").image.provisoire, true);
+});
+
+test("photos provisoires : remplacée par un envoi, la photo ne l’est plus, sauf case cochée", () => {
+  const envoi = { src: "/media/edition/20261024-abcdef1234", alt: "", width: 1200, height: 1800 };
+  // case jamais touchée : la nouvelle photo n'est pas provisoire, même si l'ancienne l'était
+  assert.equal(provisionalAfterReplace({ touched: false, checked: true }, envoi), false);
+  // la créatrice coche la case elle-même : la photo reste un visuel d'attente
+  assert.equal(provisionalAfterReplace({ touched: true, checked: true }, envoi), true);
+  // une photo déposée comme provisoire, reprise depuis la médiathèque, garde sa pastille
+  assert.equal(provisionalAfterReplace({ touched: false, checked: false }, { ...envoi, provisoire: true }), true);
+  assert.equal(provisionalAfterReplace({ touched: true, checked: false }, { ...envoi, provisoire: true }), false);
+
+  // remplacée ou décochée dans le brouillon : provisoire en ligne jusqu'à « Publier »
+  const enLigne = { maison: { image: { src: "/media/img/aura-1", alt: "Aura", width: 2, height: 3, provisoire: true } }, sections: [{ id: "a", image: { src: "/media/img/odessa-1", alt: "Odessa", width: 2, height: 3, provisoire: true } }, { id: "b", texte: "Texte" }] };
+  const brouillon = { maison: { image: { ...envoi, alt: "Aura" } }, sections: [{ id: "b", texte: "Texte" }, enLigne.sections[0]] };
+  assert.deepEqual(provisionalIn(enLigne, brouillon).map((f) => [f.path, f.etat]), [["sections.1.image", "a-remplacer"], ["maison.image", "a-publier"]]);
+  assert.deepEqual(provisionalIn(enLigne, null).map((f) => f.etat), ["a-remplacer", "a-remplacer"]);
+});
+
+test("photos provisoires : les visuels d’attente du dépôt portent le marqueur, le portrait officiel non", () => {
+  // RESSOURCES.md : photos IA en attendant les prises de vue, et les sacs découpés dans une maquette
+  const PROVISOIRES = ["aura-1", "aura-detail", "odessa-1", "odessa-detail", "aria-1", "aria-detail", "sienna-1", "sienna-detail", "gaia-1", "gaia-detail", "evina-1", "kira-1", "contact-sacs"];
+  const dir = path.join(process.cwd(), "content", "site", "fr");
+  const found: { doc: string; path: string; src: string; provisoire: boolean }[] = [];
+  for (const f of readdirSync(dir).filter((x) => x.endsWith(".json"))) {
+    const doc = JSON.parse(readFileSync(path.join(dir, f), "utf8"));
+    for (const i of imagesIn(doc)) found.push({ doc: f, path: i.path, src: i.image.src, provisoire: i.image.provisoire === true });
+  }
+  for (const i of found) {
+    const name = i.src.replace(/^\/media\/img\//, "");
+    if (PROVISOIRES.includes(name)) assert.ok(i.provisoire, `${i.doc} › ${i.path} (${i.src}) : visuel d’attente sans « provisoire: true »`);
+    if (name === "creatrice-portrait") assert.ok(!i.provisoire, `${i.doc} › ${i.path} : le portrait de la créatrice est une photo officielle`);
+  }
+  assert.ok(found.some((i) => i.src === "/media/img/contact-sacs" && i.provisoire), "le visuel des sacs de la page Contact est provisoire");
+  assert.ok(found.some((i) => i.src === "/media/img/creatrice-portrait" && !i.provisoire), "le portrait de la créatrice paraît sur la page La Maison");
 });

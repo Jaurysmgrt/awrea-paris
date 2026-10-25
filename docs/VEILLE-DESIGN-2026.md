@@ -1,5 +1,11 @@
 # Veille design 2026 — sites de mode et de luxe primés
 
+> **Archive.** La typographie et les règles décrites ici sont remplacées par les ressources
+> officielles de la Maison (`RESSOURCES.md` : polices Fraunces 72pt Italic et Cormorant Garamond,
+> logo officiel, langage des maquettes), puis par `MARQUE.md` et `DESIGN.md`. Les séries numérotées,
+> le stock et les anciennes collections cités plus bas n'existent plus (pièces créées sur demande).
+> Document gardé pour l'historique, sans mise à jour.
+
 > **Mise à jour du 13/10/2026** : la direction artistique a changé (`MARQUE.md`) — aucun doré,
 > Instrument Serif et Inter Tight. Les mentions « noir et or », Bodoni ou calligraphie ci-dessous
 > sont historiques ; les arbitrages de la deuxième veille sont dans `docs/equipes/design/arbitrages.md`.

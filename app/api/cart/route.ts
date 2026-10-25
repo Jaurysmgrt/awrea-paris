@@ -27,7 +27,8 @@ export async function GET() {
 export async function POST(req: Request) {
   const parsed = Action.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Cette demande n’a pas pu être lue. Merci de réessayer." }, { status: 400 });
-  // drops : une pièce pas encore ouverte ne s'achète qu'avec l'accès anticipé ou la vente privée
+  // avant-premières : une pièce pas encore dévoilée ne se commande qu'avec le lien de l'avant-première
+  // ou le mot de passe d'une présentation privée
   const action = parsed.data;
   if (action.type === "add" || action.type === "addMany" || action.type === "checkout") {
     let handles: string[];
