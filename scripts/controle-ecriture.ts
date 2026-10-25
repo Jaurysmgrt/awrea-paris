@@ -12,6 +12,13 @@
  * Exceptions : un commentaire « ecriture-ok : raison » sur la ligne (ou juste au-dessus) d'une
  * chaîne technique ; les textes que la créatrice a gardés malgré un signalement sont listés dans
  * content/ecriture-acceptes.json par l'éditeur visuel, et ne bloquent pas.
+ *
+ * Textes officiels de la créatrice (À propos, collection, teasing, CGV, mentions légales) : repris
+ * mot pour mot, seule la typographie française y est contrôlée (apostrophes, guillemets, espaces
+ * insécables, points de suspension). Ils se signalent par "officiel": true dans un document JSON (sur
+ * le document entier ou sur un bloc), par une propriété officiel: true dans un objet TypeScript, par
+ * un commentaire « ecriture-officiel » sur la ligne ou juste au-dessus, et dans les pages rendues par
+ * l'attribut data-officiel sur l'élément qui les contient.
  */
 import ts from "typescript";
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
@@ -54,6 +61,10 @@ const SKIP_KEYS = new Set(
 );
 /** Appels dont les arguments sont techniques (journaux du serveur, stockage, sélecteurs…). */
 const SKIP_CALL = /^(console\.\w+|require|import|kv\.\w+|fetch|URL|URLSearchParams|RegExp|\w+\.(?:get|set|has|delete|append|getAll|querySelector|querySelectorAll|closest|matches|getElementById|addEventListener|removeEventListener|setAttribute|getAttribute|removeAttribute|hasAttribute|toggleAttribute|setProperty|getPropertyValue|startsWith|endsWith|includes|indexOf|lastIndexOf|split|join|padStart|padEnd|localeCompare|toLocaleString|toLocaleDateString|toLocaleTimeString|replaceAll|replace|match|matchAll|search|test|exec|update|digest|createHash|createHmac|from|toString|push|prefetch|replaceState|pushState|postMessage|track|dispatchEvent|createElement|insertAdjacentHTML)|matchMedia|revalidateTag|revalidatePath|updateTag|redirect|permanentRedirect|notFound|encodeURIComponent|decodeURIComponent|createHmac|createHash|Buffer\.from|Intl\.\w+|gsap\.\w+|gsap|dur|easeFn|cookies|headers|draftMode|unstable_cache|cacheTag|cacheLife|localStorage\.\w+|sessionStorage\.\w+|z\.\w+|parseInt|parseFloat|Number|Date|new Date|structuredClone|JSON\.\w+|setTimeout|clearTimeout|navigator\.\w+|document\.\w+|window\.\w+|router\.\w+|useRouter|usePathname|useSearchParams|signal|logError|trace|t\.\w+)$/;
+
+/** Seules règles appliquées aux textes officiels : la typographie, jamais le style. */
+const TYPO_RULES = new Set<WritingIssue["rule"]>(["apostrophe", "guillemets", "espace-insecable", "suspension"]);
+const typographyOnly = (issues: WritingIssue[]) => issues.filter((i) => TYPO_RULES.has(i.rule));
 
 const SECTION_LANG = (file: string): Lang => (/(^|\/)en(\/|\.)/.test(file) ? "en" : "fr");
 
@@ -130,6 +141,17 @@ function hasIgnore(sf: ts.SourceFile, node: ts.Node): boolean {
   const { line } = sf.getLineAndCharacterOfPosition(node.getStart(sf));
   const lines = sf.text.split("\n");
   return /ecriture-ok/.test(lines[line] ?? "") || /ecriture-ok/.test(lines[line - 1] ?? "");
+}
+
+/** Texte officiel : commentaire « ecriture-officiel », ou objet englobant marqué officiel: true. */
+function isOfficial(sf: ts.SourceFile, node: ts.Node): boolean {
+  const { line } = sf.getLineAndCharacterOfPosition(node.getStart(sf));
+  const lines = sf.text.split("\n");
+  if (/ecriture-officiel/.test(lines[line] ?? "") || /ecriture-officiel/.test(lines[line - 1] ?? "")) return true;
+  for (let n: ts.Node | undefined = node.parent; n; n = n.parent) {
+    if (ts.isObjectLiteralExpression(n) && n.properties.some((p) => ts.isPropertyAssignment(p) && p.name.getText(sf).replace(/["']/g, "") === "officiel" && p.initializer.kind === ts.SyntaxKind.TrueKeyword)) return true;
+  }
+  return false;
 }
 
 interface Piece {
@@ -234,7 +256,9 @@ function scanTs(file: string) {
     }
 
     if (text !== undefined && text.trim()) {
-      const issues = checkText(text, ctx);
+      const official = isOfficial(sf, node);
+      const check = (t: string) => (official ? typographyOnly(checkText(t, ctx)) : checkText(t, ctx));
+      const issues = check(text);
       const { line } = sf.getLineAndCharacterOfPosition(node.getStart(sf));
       if (fixable) pieces = [fixable];
       if (FIX && pieces.length && issues.some((i) => i.autofix)) {
@@ -242,7 +266,7 @@ function scanTs(file: string) {
           const fixed = fixPiece(piece, lang);
           if (fixed !== piece.raw) edits.push({ start: piece.start, end: piece.end, text: fixed });
         }
-        record(file, line + 1, text, checkText(fixTypography(text, lang), ctx));
+        record(file, line + 1, text, check(fixTypography(text, lang)));
       } else {
         record(file, line + 1, text, issues);
       }
@@ -262,15 +286,19 @@ function scanTs(file: string) {
 function scanJson(file: string) {
   const data = JSON.parse(readFileSync(path.join(root, file), "utf8"));
   const lang = SECTION_LANG(file);
-  const walk = (v: unknown, key: string, trail: string) => {
+  const walk = (v: unknown, key: string, trail: string, official: boolean) => {
     if (typeof v === "string") {
       if (SKIP_KEYS.has(key) || !/\p{L}/u.test(v) || looksLikeCode(v)) return;
       const role = /^(cta|button|label|link)$/i.test(key) ? "bouton" : /^(title|titre|heading|kicker)$/i.test(key) ? "titre" : undefined;
-      record(`${file} › ${trail}`, 1, v, checkText(v, { lang, role, prose: true }));
-    } else if (Array.isArray(v)) v.forEach((x, i) => walk(x, key, `${trail}[${i}]`));
-    else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) walk(x, k, trail ? `${trail}.${k}` : k);
+      const issues = checkText(v, { lang, role, prose: true });
+      record(`${file} › ${trail}`, 1, v, official ? typographyOnly(issues) : issues);
+    } else if (Array.isArray(v)) v.forEach((x, i) => walk(x, key, `${trail}[${i}]`, official));
+    else if (v && typeof v === "object") {
+      const inner = official || (v as Record<string, unknown>).officiel === true;
+      for (const [k, x] of Object.entries(v)) walk(x, k, trail ? `${trail}.${k}` : k, inner);
+    }
   };
-  walk(data, "", "");
+  walk(data, "", "", false);
 }
 
 function scanPlain(file: string) {
@@ -290,6 +318,38 @@ function walkDir(dir: string, out: string[] = []): string[] {
 }
 
 // ------------------------------------------------------------------ pages rendues
+/** Sépare les éléments marqués data-officiel (textes de la créatrice) du reste de la page. */
+function splitOfficial(html: string): { rest: string; official: string[] } {
+  const official: string[] = [];
+  let rest = html;
+  for (let guard = 0; guard < 200; guard++) {
+    const m = /<([a-z][a-z0-9]*)\b[^>]*\sdata-officiel\b[^>]*>/i.exec(rest);
+    if (!m) break;
+    const re = new RegExp(`<(/?)${m[1]}\\b[^>]*>`, "gi");
+    re.lastIndex = m.index + m[0].length;
+    let depth = 1;
+    let end = rest.length;
+    for (let t = re.exec(rest); t; t = re.exec(rest)) {
+      if (t[1]) depth--;
+      else if (!t[0].endsWith("/>")) depth++;
+      if (depth === 0) {
+        end = t.index + t[0].length;
+        break;
+      }
+    }
+    official.push(rest.slice(m.index, end));
+    rest = `${rest.slice(0, m.index)} ${rest.slice(end)}`;
+  }
+  return { rest, official };
+}
+
+/** Blocs de texte lisibles d'un morceau de page. */
+const pageBlocks = (html: string) =>
+  htmlText(html.replace(/<(svg|template)[\s\S]*?<\/\1>/gi, " ").replace(/<(?:p|li|h\d|button|a|label|figcaption|dt|dd|blockquote|summary|th|option|span)[^>]*>/gi, "\n$&"))
+    .split(/\n+/)
+    .map((b) => b.replace(/[ \t\r\n]+/g, " ").trim())
+    .filter((b) => /\p{L}/u.test(b));
+
 async function scanSite(base: string) {
   const origin = base.replace(/\/$/, "");
   const urls = new Set<string>();
@@ -312,10 +372,12 @@ async function scanSite(base: string) {
     const attrs = [...html.matchAll(/\s(?:alt|title|aria-label|placeholder)="([^"]*)"/g)].map((m) => decode(m[1]));
     const metas = [...html.matchAll(/<meta[^>]+(?:name|property)="(?:description|og:title|og:description|twitter:title|twitter:description)"[^>]+content="([^"]*)"/g)].map((m) => decode(m[1]));
     const title = [...html.matchAll(/<title>([^<]*)<\/title>/g)].map((m) => decode(m[1]));
-    const body = htmlText(html.replace(/<head[\s\S]*?<\/head>/i, " ").replace(/<(svg|template)[\s\S]*?<\/\1>/gi, " ").replace(/<(?:p|li|h\d|button|a|label|figcaption|dt|dd|blockquote|summary|th|option|span)[^>]*>/gi, "\n$&"));
-    const blocks = [...body.split(/\n+/), ...attrs, ...metas, ...title].map((b) => b.replace(/[ \t\r\n]+/g, " ").trim()).filter((b) => /\p{L}/u.test(b));
+    const { rest, official } = splitOfficial(html.replace(/<head[\s\S]*?<\/head>/i, " "));
+    const officialBlocks = new Set(official.flatMap(pageBlocks));
+    const blocks = [...pageBlocks(rest), ...officialBlocks, ...[...attrs, ...metas, ...title].map((b) => b.replace(/[ \t\r\n]+/g, " ").trim()).filter((b) => /\p{L}/u.test(b))];
     for (const b of blocks) {
-      const issues = checkText(b, { lang, prose: true });
+      const all = checkText(b, { lang, prose: true });
+      const issues = officialBlocks.has(b) ? typographyOnly(all) : all;
       for (const i of issues) {
         const k = `${i.rule}|${i.excerpt}`;
         if (seen.has(k)) continue;

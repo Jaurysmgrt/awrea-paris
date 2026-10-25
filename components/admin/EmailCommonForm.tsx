@@ -60,7 +60,7 @@ export function EmailCommonForm({ fields }: { fields: CommonField[] }) {
         </p>
       ) : null}
       <div>
-        <button type="submit" className="btn btn--solid" disabled={busy}>
+        <button type="submit" className="btn" disabled={busy}>
           {busy ? "Un instant…" : "Enregistrer et publier"}
         </button>
       </div>

@@ -1,0 +1,29 @@
+/*
+ * Accueil : ce qui est propre à cette page (le reste vient de components/home/editorial.module.css
+ * et du design system). Tokens seulement.
+ */
+
+/* l’ouverture passe sous l’en-tête fixe du site, comme les en-têtes de page (.page-head) */
+.ouverture {
+  padding-top: calc(var(--header-h) + var(--spacing-xl));
+}
+
+/* le titre de la Maison, très grand, sur deux lignes équilibrées */
+.titre {
+  text-wrap: balance;
+}
+
+/* sélection de pièces : une colonne sur téléphone, trois dès la tablette, comme les cartes de la
+   maquette PAGE PRODUIT (photo aux angles arrondis, nom, prix) */
+.pieces {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-block) var(--spacing-gutter);
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 48rem) {
+  .pieces {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

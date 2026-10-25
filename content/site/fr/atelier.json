@@ -1,0 +1,83 @@
+{
+  "seo": {
+    "title": "L’Atelier, des pièces créées sur demande | Awrea Paris",
+    "description": "Les pièces Awrea Paris naissent sur demande, entre les mains d’artisans français, avec attention pour leurs conditions de travail et pour l’environnement. Il n’y a pas de stock."
+  },
+  "titre": "L’Atelier",
+  "chapeau": "Une pièce Awrea commence le jour où vous la commandez. Elle prend forme dans votre taille, entre les mains d’artisans français.",
+  "chapitres": [
+    {
+      "surtitre": "Sur demande",
+      "titre": "Rien n’est fabriqué d’avance",
+      "citation": {
+        "officiel": true,
+        "texte": "Chaque pièce est créée sur demande, loin des logiques de production de masse."
+      },
+      "texte": "Votre commande met l’atelier au travail. La pièce est coupée et assemblée dans votre taille, puis elle vous est envoyée. Aucune étagère pleine, aucun carton d’invendus.",
+      "image": {
+        "src": "/media/img/aura-detail",
+        "alt": "Le body Aura de près, dentelle noire pailletée d’or et drapé noir noué sur le buste",
+        "width": 990,
+        "height": 1486,
+        "provisoire": true
+      }
+    },
+    {
+      "surtitre": "Les artisans",
+      "titre": "Des mains françaises",
+      "citation": {
+        "officiel": true,
+        "texte": "Nos modèles prennent vie entre les mains d’artisans français, gardiens d’un savoir-faire précieux."
+      },
+      "texte": "La dentelle, les drapés et l’éclat de la dorure demandent des gestes sûrs. Ce sont les leurs, à chaque pièce.",
+      "image": {
+        "src": "/media/img/sienna-detail",
+        "alt": "La robe Sienna de près, dentelle noire et or au col montant, taille froncée en pointe",
+        "width": 990,
+        "height": 1487,
+        "provisoire": true
+      }
+    },
+    {
+      "surtitre": "Le travail",
+      "titre": "Le temps de bien faire",
+      "citation": {
+        "officiel": true,
+        "texte": "Nous accordons une attention essentielle aux conditions de travail et à la valorisation de ces métiers, convaincus que la beauté d’une pièce naît aussi de l’éthique qui l’accompagne."
+      },
+      "texte": "Les semaines qui séparent votre commande de l’expédition sont celles de la confection. Elles laissent aux artisans le temps de bien faire.",
+      "image": {
+        "src": "/media/img/odessa-detail",
+        "alt": "La robe Odessa de près, bustier noir à bretelles et taille en dentelle noire",
+        "width": 990,
+        "height": 1486,
+        "provisoire": true
+      }
+    },
+    {
+      "surtitre": "L’environnement",
+      "titre": "Ce qui est désiré, seulement",
+      "citation": {
+        "officiel": true,
+        "texte": "Ce choix est au cœur de notre vision : produire uniquement ce qui est désiré, avec conscience et respect de l’environnement. Il n’y a pas de stock, seulement des créations pensées pour la personne qui les porte."
+      },
+      "texte": "Une pièce commandée est une pièce attendue, puis portée. Rien n’est produit pour dormir dans une réserve.",
+      "image": {
+        "src": "/media/img/gaia-detail",
+        "alt": "Le body Gaïa de près, jersey noir et bandes de dentelle noire posées en biais",
+        "width": 1030,
+        "height": 1544,
+        "provisoire": true
+      }
+    }
+  ],
+  "fin": {
+    "surtitre": "Sur commande",
+    "titre": "Votre pièce, étape par étape",
+    "texte": "De la commande à la livraison, chaque étape de la confection se suit dans votre compte.",
+    "cta": {
+      "label": "Voir comment se passe une commande",
+      "href": "/sur-commande"
+    }
+  }
+}

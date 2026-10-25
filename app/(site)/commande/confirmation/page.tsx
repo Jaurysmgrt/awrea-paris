@@ -5,7 +5,10 @@ import { Envelope } from "@/components/signature/Envelope";
 import { verify } from "@/lib/auth/session";
 import { getOrder, statusLabel } from "@/lib/commerce/orders";
 import { formatPrice } from "@/lib/format";
-import { shop } from "@/content/settings";
+import { getDoc } from "@/lib/edition/read";
+import { delaiText, fill, type CatalogueTexts } from "@/lib/commerce/texts";
+import { timelineOf } from "@/lib/store/order-stages";
+import { OrderStages, type SuiviTexts } from "@/components/commerce/OrderStages";
 import { PurchaseTracker } from "@/components/analytics/PurchaseTracker";
 import { AtelierNote } from "@/components/ui/AtelierNote";
 import { atelierMoments } from "@/content/fr/coulisses";
@@ -30,6 +33,13 @@ export default async function ConfirmationPage({
   const order = token && token.n === sp.n ? await getOrder(token.n) : null;
   const first = order?.name.split(" ")[0];
   const certificates = order ? await certificatesOfOrder(order).catch(() => []) : [];
+  // la suite de la commande : frise de la confection, délai et fin prévue, e-mails à chaque étape
+  const [suite, suivi, catalogue, tc] = await Promise.all([
+    order ? timelineOf(order) : null,
+    getDoc<SuiviTexts>("suivi-commande"),
+    getDoc<CatalogueTexts>("catalogue"),
+    getDoc<{ creation: string }>("certificat"),
+  ]);
 
   return (
     <>
@@ -63,9 +73,7 @@ export default async function ConfirmationPage({
                   {order.lines.map((l, i) => (
                     <li key={i} className="confirmation__line">
                       <span className="t-h4">{l.title}</span>
-                      <span className="t-label t-soft">
-                        Taille {l.size} · {l.editionLabel}
-                      </span>
+                      <span className="t-label t-soft">Taille {l.size}</span>
                       <span className="price">{formatPrice(l.unitPrice)}</span>
                     </li>
                   ))}
@@ -84,11 +92,12 @@ export default async function ConfirmationPage({
                     <dd>{formatPrice(order.total)}</dd>
                   </div>
                 </dl>
-                <p className="t-note">
-                  {order.status === "in_production"
-                    ? "Une partie de votre commande est en fabrication : nous vous écrirons à l’expédition, avec le lien de suivi."
-                    : `Expédition sous ${shop.dispatchDays}. Vous recevrez le lien de suivi par e-mail.`}
-                </p>
+                {suite ? (
+                  <div className="stack-s">
+                    <OrderStages timeline={suite.timeline} t={suivi.frise} delai={suite.timeline.leadTime ? delaiText(catalogue, suite.timeline.leadTime) : null} />
+                    <p className="t-note">{suivi.confirmation.suite}</p>
+                  </div>
+                ) : null}
                 {certificates.length ? (
                   <div className="stack-s confirmation__certificates">
                     <p className="t-label">
@@ -99,7 +108,7 @@ export default async function ConfirmationPage({
                         <li key={c.serial}>
                           <Link href={`/certificat/${c.serial}`} className="link">
                             {c.productTitle}
-                            {c.editionTotal > 1 && c.editionNumber ? `, N° ${c.editionNumber} / ${c.editionTotal}` : ""}
+                            {c.creation ? `, ${fill(tc.creation, { numero: c.creation }).toLowerCase()}` : ""}
                           </Link>
                         </li>
                       ))}

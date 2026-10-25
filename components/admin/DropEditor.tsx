@@ -1,11 +1,52 @@
 "use client";
-/** Créer ou modifier un drop : dates (heure de Paris), pièces, vente privée. */
-import { useState } from "react";
+/**
+ * Atelier : annoncer ou modifier une avant-première. La créatrice écrit le nom de la collection, son
+ * texte, choisit ses images et ses pièces, fixe l'avant-première et le dévoilement (heure de
+ * Paris), décide d'écrire aux inscrites à la lettre, ou fait de la collection une présentation
+ * privée protégée par un mot de passe. Textes transmis par la page (avant-premieres.json, atelier).
+ */
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAtelier } from "./AtelierContext";
 
 type Piece = { handle: string; title: string };
-export type DropDraft = { slug: string; title: string; teaser: string; image?: string; products: string[]; earlyAccessAt: string; publicAt: string; privateSale: boolean; hasPassword?: boolean };
+type Erreur = "dates" | "motDePasse" | "donnees" | "generale";
+export type DropDraft = {
+  slug: string;
+  title: string;
+  teaser: string;
+  images: string[];
+  products: string[];
+  earlyAccessAt: string;
+  publicAt: string;
+  privateSale: boolean;
+  notifyLetters: boolean;
+  hasPassword?: boolean;
+};
+export type DropEditorTexts = {
+  nom: string;
+  adresse: string;
+  texte: string;
+  texteAide: string;
+  images: string;
+  imagesAide: string;
+  avantPremiere: string;
+  presentation: string;
+  devoilement: string;
+  pieces: string;
+  piecesAide: string;
+  lettre: string;
+  privee: string;
+  motDePasse: string;
+  nouveauMotDePasse: string;
+  creer: string;
+  enregistrer: string;
+  envoi: string;
+  fait: string;
+  erreurs: Record<Erreur, string>;
+};
+
+const CODES: Erreur[] = ["dates", "motDePasse", "donnees"];
 
 /** « 2026-10-20T18:00 » (heure de Paris) → ISO UTC, et l'inverse */
 function parisToIso(local: string): string {
@@ -20,93 +61,131 @@ function isoToParis(iso: string): string {
   const g = (t: string) => p.find((x) => x.type === t)?.value ?? "";
   return `${g("year")}-${g("month")}-${g("day")}T${g("hour")}:${g("minute")}`;
 }
+const lines = (v: FormDataEntryValue | null) =>
+  String(v ?? "")
+    .split(/\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
 
-export function DropEditor({ pieces, drop }: { pieces: Piece[]; drop?: DropDraft }) {
+export function DropEditor({ pieces, drop, t }: { pieces: Piece[]; drop?: DropDraft; t: DropEditorTexts }) {
   const { api } = useAtelier();
   const router = useRouter();
+  const id = useId();
   const [privateSale, setPrivateSale] = useState(Boolean(drop?.privateSale));
-  const [state, setState] = useState<{ busy: boolean; message: string; error: boolean }>({ busy: false, message: "", error: false });
+  const [state, setState] = useState<{ busy: boolean; done: boolean; error: Erreur | null }>({ busy: false, done: false, error: null });
+  const f = (name: string) => `${id}-${name}`;
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (state.busy) return;
+    const form = new FormData(e.currentTarget);
+    setState({ busy: true, done: false, error: null });
+    const res = await fetch(api("/drops"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        slug: form.get("slug"),
+        title: form.get("title"),
+        teaser: form.get("teaser"),
+        images: lines(form.get("images")),
+        products: form.getAll("products"),
+        earlyAccessAt: parisToIso(String(form.get("earlyAccessAt"))),
+        publicAt: parisToIso(String(form.get("publicAt"))),
+        privateSale,
+        notifyLetters: !privateSale && form.get("notifyLetters") === "on",
+        password: privateSale && form.get("password") ? form.get("password") : null,
+      }),
+    }).catch(() => null);
+    const j = res ? ((await res.json().catch(() => ({}))) as { error?: unknown }) : {};
+    const error: Erreur | null = res?.ok ? null : CODES.includes(j.error as Erreur) ? (j.error as Erreur) : "generale";
+    setState({ busy: false, done: !error, error });
+    if (res?.ok) router.refresh();
+  }
+
   return (
-    <form
-      className="stack-m"
-      onSubmit={async (e) => {
-        e.preventDefault();
-        const f = new FormData(e.currentTarget);
-        setState({ busy: true, message: "", error: false });
-        const res = await fetch(api("/drops"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            slug: f.get("slug"),
-            title: f.get("title"),
-            teaser: f.get("teaser"),
-            image: f.get("image") || undefined,
-            products: f.getAll("products"),
-            earlyAccessAt: parisToIso(String(f.get("earlyAccessAt"))),
-            publicAt: parisToIso(String(f.get("publicAt"))),
-            privateSale,
-            password: privateSale && f.get("password") ? f.get("password") : null,
-          }),
-        }).catch(() => null);
-        const j = res ? await res.json().catch(() => ({})) : {};
-        setState({ busy: false, message: res?.ok ? "Le drop est enregistré." : (j.error ?? "L’enregistrement n’a pas abouti."), error: !res?.ok });
-        if (res?.ok) router.refresh();
-      }}
-    >
+    <form className="stack-m" onSubmit={onSubmit}>
       <div className="form__row">
         <div className="field">
-          <label className="field__label" htmlFor="drop-title">Nom de la série</label>
-          <input id="drop-title" name="title" className="field__input" required maxLength={80} defaultValue={drop?.title} />
+          <label className="field__label" htmlFor={f("title")}>
+            {t.nom}
+          </label>
+          <input id={f("title")} name="title" className="field__input" required minLength={2} maxLength={80} defaultValue={drop?.title} />
         </div>
         <div className="field">
-          <label className="field__label" htmlFor="drop-slug">Adresse (lettres, chiffres, tirets)</label>
-          <input id="drop-slug" name="slug" className="field__input" required pattern="[a-z0-9]+(-[a-z0-9]+)*" defaultValue={drop?.slug} readOnly={Boolean(drop)} />
+          <label className="field__label" htmlFor={f("slug")}>
+            {t.adresse}
+          </label>
+          <input id={f("slug")} name="slug" className="field__input" required maxLength={60} pattern="[a-z0-9]+(-[a-z0-9]+)*" defaultValue={drop?.slug} readOnly={Boolean(drop)} />
         </div>
       </div>
       <div className="field">
-        <label className="field__label" htmlFor="drop-teaser">Texte d’annonce</label>
-        <textarea id="drop-teaser" name="teaser" className="field__input" required maxLength={400} defaultValue={drop?.teaser} />
+        <label className="field__label" htmlFor={f("teaser")}>
+          {t.texte}
+        </label>
+        <textarea id={f("teaser")} name="teaser" className="field__input" required minLength={2} maxLength={2400} rows={8} defaultValue={drop?.teaser} aria-describedby={f("teaser-aide")} />
+        <p id={f("teaser-aide")} className="field__hint">
+          {t.texteAide}
+        </p>
       </div>
       <div className="field">
-        <label className="field__label" htmlFor="drop-image">Image (chemin, facultatif)</label>
-        <input id="drop-image" name="image" className="field__input" placeholder="/media/img/odessa-1" defaultValue={drop?.image} />
+        <label className="field__label" htmlFor={f("images")}>
+          {t.images}
+        </label>
+        <textarea id={f("images")} name="images" className="field__input" rows={3} defaultValue={drop?.images.join("\n")} aria-describedby={f("images-aide")} spellCheck={false} />
+        <p id={f("images-aide")} className="field__hint">
+          {t.imagesAide}
+        </p>
       </div>
       <div className="form__row">
         <div className="field">
-          <label className="field__label" htmlFor="drop-early">Accès anticipé (heure de Paris)</label>
-          <input id="drop-early" name="earlyAccessAt" type="datetime-local" className="field__input" required defaultValue={isoToParis(drop?.earlyAccessAt ?? "")} />
+          <label className="field__label" htmlFor={f("early")}>
+            {privateSale ? t.presentation : t.avantPremiere}
+          </label>
+          <input id={f("early")} name="earlyAccessAt" type="datetime-local" className="field__input" required defaultValue={isoToParis(drop?.earlyAccessAt ?? "")} />
         </div>
         <div className="field">
-          <label className="field__label" htmlFor="drop-public">Ouverture à toutes (heure de Paris)</label>
-          <input id="drop-public" name="publicAt" type="datetime-local" className="field__input" required defaultValue={isoToParis(drop?.publicAt ?? "")} />
+          <label className="field__label" htmlFor={f("public")}>
+            {t.devoilement}
+          </label>
+          <input id={f("public")} name="publicAt" type="datetime-local" className="field__input" required defaultValue={isoToParis(drop?.publicAt ?? "")} />
         </div>
       </div>
-      <fieldset className="stack-s">
-        <legend className="field__label">Pièces de la série</legend>
+      <fieldset className="stack-s" aria-describedby={f("pieces-aide")}>
+        <legend className="field__label">{t.pieces}</legend>
+        <p id={f("pieces-aide")} className="field__hint">
+          {t.piecesAide}
+        </p>
         {pieces.map((p) => (
-          <label key={p.handle} className="check t-note">
+          <label key={p.handle} className="check">
             <input type="checkbox" name="products" value={p.handle} defaultChecked={drop?.products.includes(p.handle)} />
             <span>{p.title}</span>
           </label>
         ))}
       </fieldset>
-      <label className="check t-note">
+      <label className="check">
         <input type="checkbox" checked={privateSale} onChange={(e) => setPrivateSale(e.target.checked)} />
-        <span>Vente privée : jusqu’à l’ouverture à toutes, réservée aux personnes qui ont le mot de passe</span>
+        <span>{t.privee}</span>
       </label>
       {privateSale ? (
         <div className="field">
-          <label className="field__label" htmlFor="drop-password">{drop?.hasPassword ? "Nouveau mot de passe (laisser vide pour garder l’actuel)" : "Mot de passe de la vente privée"}</label>
-          <input id="drop-password" name="password" type="text" className="field__input" minLength={6} maxLength={120} autoComplete="off" required={!drop?.hasPassword} />
+          <label className="field__label" htmlFor={f("password")}>
+            {drop?.hasPassword ? t.nouveauMotDePasse : t.motDePasse}
+          </label>
+          <input id={f("password")} name="password" type="text" className="field__input" minLength={6} maxLength={120} autoComplete="off" required={!drop?.hasPassword} />
         </div>
-      ) : null}
+      ) : (
+        <label className="check">
+          <input type="checkbox" name="notifyLetters" defaultChecked={drop?.notifyLetters} />
+          <span>{t.lettre}</span>
+        </label>
+      )}
       <div>
-        <button type="submit" className="btn btn--solid" disabled={state.busy}>
-          {state.busy ? "Enregistrement…" : drop ? "Enregistrer les modifications" : "Créer le drop"}
+        <button type="submit" className="btn" disabled={state.busy} aria-busy={state.busy || undefined}>
+          {state.busy ? t.envoi : drop ? t.enregistrer : t.creer}
         </button>
       </div>
       <p className={state.error ? "field__error" : "t-note"} role="status">
-        {state.message}
+        {state.error ? t.erreurs[state.error] : state.done ? t.fait : ""}
       </p>
     </form>
   );

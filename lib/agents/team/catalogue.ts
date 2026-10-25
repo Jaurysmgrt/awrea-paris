@@ -1,15 +1,25 @@
 /**
- * AGENT CATALOGUE — à partir de photos et de quelques notes, rédige la fiche produit complète
- * (nom, accroche, description dans le ton de la maison, matières, entretien, coupe, textes
- * alternatifs, balises SEO) et la publie (action autonome). Sans prix, la fiche reste en brouillon.
+ * AGENT CATALOGUE — il connaît les pièces de la Maison (aujourd'hui les sept pièces de la collection
+ * Hypnotic Lace) et fait deux choses :
+ *  1. le bilan du catalogue (runCatalogueReview) : photos provisoires (images générées en attendant
+ *     les shootings), prix et délais de fabrication encore provisoires, informations que la Maison
+ *     doit donner (composition, entretien, taille du mannequin), jamais inventées ;
+ *  2. une nouvelle fiche à partir de photos et de quelques notes (runCatalogueAgent) : nom, accroche,
+ *     description dans le ton de la Maison, coupe, textes alternatifs, balises SEO, publiée seule.
+ *     Sans prix, la fiche reste en brouillon. Composition et entretien ne sont repris que s'ils sont
+ *     dans les notes ; sinon un repère « [À COMPLÉTER : …] ».
  */
 import * as z from "zod/v4";
 import type { BetaContentBlockParam } from "@anthropic-ai/sdk/resources/beta/messages/messages";
 import { aiEnabled } from "@/lib/ai/client";
 import { generateStructured } from "@/lib/ai/structured";
-import { getCollections } from "@/lib/commerce";
+import { getAllProducts, getCollections } from "@/lib/commerce";
+import { leadTimeText } from "@/lib/commerce/availability";
+import { formatPrice } from "@/lib/format";
 import { kv } from "@/lib/store";
+import { logAction } from "../log";
 import { RunRecorder, type AgentRun } from "../run";
+import { catalogueReview } from "../confection";
 
 export interface CatalogueInput {
   notes: string;
@@ -17,9 +27,12 @@ export interface CatalogueInput {
   category?: "robe" | "body" | "top" | "jupe" | "accessoire";
   collection?: string;
   priceEuros?: number;
-  editionTotal?: number;
-  leadTimeWeeks?: number;
-  sizes: { size: "XS" | "S" | "M" | "L" | "XL" | "TU"; quantity: number; preorder: boolean }[];
+  priceProvisional?: boolean;
+  /** délai de fabrication en semaines : chaque pièce est créée sur demande, sans stock */
+  leadTime?: { min: number; max: number };
+  leadTimeProvisional?: boolean;
+  /** tailles proposées (toutes se commandent) */
+  sizes: ("XS" | "S" | "M" | "L" | "XL" | "TU")[];
   /** identifiants de médias déposés dans le tableau de bord (/api/media/<id>) */
   mediaIds: string[];
 }
@@ -34,19 +47,19 @@ export interface StoredMedia {
 }
 
 const Copy = z.object({
-  title: z.string().describe("Nom de la pièce : type + prénom évocateur, ex. « Robe Odessa ». Reprendre le nom des notes s’il est donné."),
+  title: z.string().describe("Nom de la pièce avec son article, comme les pièces de la Maison : « La robe Odessa », « Le body Aura », « Le top Kira ». Un prénom qui n’est pas déjà pris. Reprendre le nom des notes s’il est donné."),
   tagline: z.string().describe("Une phrase d’accroche sur la matière ou le geste, 12 à 22 mots"),
   category: z.enum(["robe", "body", "top", "jupe", "accessoire"]),
   description: z.array(z.string()).describe("2 ou 3 paragraphes courts : la matière, le tombé, la façon de la porter"),
-  materials: z.array(z.object({ name: z.string(), percent: z.number() })).describe("Composition ; si inconnue, une seule ligne avec la matière principale et 100"),
+  materials: z.array(z.object({ name: z.string(), percent: z.number() })).describe("Composition exacte, seulement si les notes la donnent ; sinon une liste vide, et la composition va dans missing_information"),
   lining: z.string().nullable(),
-  care: z.array(z.string()).describe("3 ou 4 consignes d’entretien adaptées aux matières"),
+  care: z.array(z.string()).describe("Consignes d’entretien, seulement si les notes les donnent ; sinon une seule ligne « [À COMPLÉTER : conseils d’entretien] »"),
   fit: z.string().describe("Conseil de coupe et de taille, 1 à 2 phrases"),
   details: z.array(z.string()).describe("3 à 5 détails de façon"),
   alts: z.array(z.string()).describe("Un texte alternatif par photo, dans l’ordre des photos : pièce, matière, pose, fond ; sans « image de »"),
   seo: z.object({
     title: z.string().describe("« Nom, matière principale | Awrea Paris », 60 caractères au plus"),
-    description: z.string().describe("140 à 155 caractères, une image concrète, puis « fait main à Paris »"),
+    description: z.string().describe("140 à 155 caractères, une image concrète, puis « créée sur demande par des artisans français »"),
   }),
   tags: z.array(z.string()).describe("3 à 6 mots-clés simples"),
   missing_information: z.array(z.string()).describe("Informations manquantes à confirmer par la créatrice (vide si rien ne manque)"),
@@ -57,7 +70,7 @@ export async function runCatalogueAgent(input: CatalogueInput, trigger: AgentRun
   try {
     const media = (await Promise.all(input.mediaIds.map((id) => kv.get<StoredMedia>(`media:${id}`)))).filter((m): m is StoredMedia => Boolean(m));
     if (!media.length) throw new Error("Aucune photo n’a été fournie.");
-    const collections = await getCollections();
+    const [collections, existing] = await Promise.all([getCollections(), getAllProducts()]);
     const collection = input.collection ?? collections.find((c) => c.current)?.handle ?? collections[0]?.handle ?? "";
 
     let copy: z.infer<typeof Copy>;
@@ -75,38 +88,41 @@ Informations saisies par la créatrice.
 Nom proposé : ${input.name ?? "(à proposer)"}
 Catégorie : ${input.category ?? "(à déduire des photos)"}
 Collection : ${collections.find((c) => c.handle === collection)?.title ?? collection}
-Série : ${input.editionTotal === 1 ? "pièce unique" : input.editionTotal ? `${input.editionTotal} pièces numérotées` : "(non précisée)"}
-Tailles : ${input.sizes.map((s) => `${s.size} (${s.quantity} en stock${s.preorder ? ", précommande possible" : ""})`).join(", ")}
-Délai de fabrication en précommande : ${input.leadTimeWeeks ? `${input.leadTimeWeeks} semaines` : "(non précisé)"}`,
+Fabrication : sur demande, sans stock, par des artisans français
+Tailles proposées : ${input.sizes.join(", ")}
+Délai de fabrication : ${input.leadTime ? `${input.leadTime.min} à ${input.leadTime.max} semaines` : "(non précisé)"}
+Pièces déjà au catalogue, dont le nom ne doit pas être repris : ${existing.map((p) => `${p.title} (${p.category})`).join(", ") || "aucune"}`,
         },
       ];
       copy = await generateStructured({
-        instructions: "Mission : agent Catalogue. Vous rédigez la fiche d’une pièce, prête à paraître. Décrivez seulement ce que montrent les photos et ce que disent les notes ; le reste va dans missing_information. Parlez de la matière, du tombé, de la façon de porter la pièce, en phrases courtes. On dit « pièce », jamais « article » ni « produit ». Le ton juste, à ne pas recopier : « La dentelle se pose sur la peau sans la serrer. Le satin, lui, tombe droit. »",
+        instructions: "Mission : agent Catalogue. Vous rédigez la fiche d’une pièce, prête à paraître. Décrivez seulement ce que montrent les photos et ce que disent les notes ; le reste va dans missing_information. Une composition, un pourcentage, un conseil d’entretien ou une mesure qui ne sont pas dans les notes ne s’inventent jamais. Chaque pièce est créée sur demande, sans stock, par des artisans français : ne parlez ni de série, ni de numéro d’édition, ni de quantité. Parlez de la matière, du tombé, de la façon de porter la pièce, en phrases courtes. On dit « pièce », jamais « article » ni « produit ». Le ton juste, à ne pas recopier : « La dentelle se pose sur la peau sans la serrer. Le satin, lui, tombe droit. »",
         content,
         schema: Copy,
         effort: "high",
       });
     } else {
-      const name = input.name ?? "Pièce nouvelle";
+      const name = input.name ?? "La pièce nouvelle";
       const cat = input.category ?? "robe";
-      const mat = input.notes.match(/(dentelle|satin|jersey|soie|coton|tulle)/i)?.[1]?.toLowerCase() ?? "dentelle";
+      const mat = input.notes.match(/(dentelle|satin|jersey|soie|coton|tulle)/i)?.[1]?.toLowerCase() ?? null;
+      const kind = { robe: "Une robe", body: "Un body", top: "Un top", jupe: "Une jupe", accessoire: "Une pièce" }[cat];
       copy = {
         title: name,
-        tagline: `${{ robe: "Une robe", body: "Un body", top: "Un top", jupe: "Une jupe", accessoire: "Une pièce" }[cat]} en ${mat}, ${cat === "body" || cat === "top" ? "façonné" : "façonnée"} à la main dans l’atelier, à Paris.`,
+        tagline: `${kind}${mat ? ` en ${mat}` : ""}, créée sur demande pour vous par des artisans français.`,
         category: cat,
         description: [
-          `${name} est née dans l’atelier parisien de la maison. ${input.notes ? input.notes.replace(/\s+/g, " ").slice(0, 220) : `Le ${mat} y est travaillé à la main, point après point.`}`,
-          "Chaque exemplaire est numéroté et accompagné d’un certificat signé par la créatrice.",
+          input.notes ? input.notes.replace(/\s+/g, " ").slice(0, 240) : `${name} est dessinée par la créatrice d’Awrea Paris.`,
+          "Elle est confectionnée après votre commande, dans votre taille, par des artisans français.",
         ],
-        materials: [{ name: mat.charAt(0).toUpperCase() + mat.slice(1), percent: 100 }],
+        // composition et entretien : jamais inventés, la créatrice les donne
+        materials: [],
         lining: null,
-        care: ["Lavage à la main à l’eau froide.", "Séchage à plat.", "Repassage doux sur l’envers."],
-        fit: "Coupe ajustée. Prenez votre taille habituelle ; l’atelier peut ajuster la pièce sur rendez-vous.",
-        details: ["Fait main à Paris", "Certificat numéroté signé par la créatrice"],
-        alts: media.map((_, i) => `${name} en ${mat}, photographie ${i + 1} sur fond studio`),
-        seo: { title: `${name}, ${mat} | Awrea Paris`.slice(0, 60), description: `${name} en ${mat}, une pièce coupée et cousue à la main dans l’atelier, à Paris, puis numérotée.`.slice(0, 160) },
-        tags: [mat, cat, "fait main"],
-        missing_information: ["Mode démonstration : textes générés à partir d’un modèle, à relire."],
+        care: ["[À COMPLÉTER : conseils d’entretien]"],
+        fit: "Pour choisir votre taille, appuyez-vous sur le guide des tailles. La Maison vous conseille volontiers avant la commande.",
+        details: ["Créée sur demande par des artisans français"],
+        alts: media.map((_, i) => `${name}${mat ? ` en ${mat}` : ""}, photographie ${i + 1}`),
+        seo: { title: `${name}${mat ? `, ${mat}` : ""} | Awrea Paris`.slice(0, 60), description: `${kind}${mat ? ` en ${mat}` : ""} dessinée par la créatrice d’Awrea Paris, créée sur demande par des artisans français.`.slice(0, 160) },
+        tags: [mat, cat, "sur demande"].filter((t): t is string => Boolean(t)),
+        missing_information: ["Mode démonstration : textes générés à partir d’un modèle, à relire.", "Composition des matières", "Conseils d’entretien"],
       };
     }
 
@@ -121,8 +137,9 @@ Délai de fabrication en précommande : ${input.leadTimeWeeks ? `${input.leadTi
           category: input.category ?? copy.category,
           collection,
           price: hasPrice ? Math.round(input.priceEuros! * 100) : 100,
-          edition_total: input.editionTotal ?? 5,
-          lead_time_weeks: input.leadTimeWeeks,
+          price_provisional: input.priceProvisional ?? false,
+          lead_time: input.leadTime,
+          lead_time_provisional: input.leadTimeProvisional ?? !input.leadTime,
           sizes: input.sizes,
           images: media.map((m, i) => ({ src: `/api/media/${m.id}`, alt: copy.alts[i] ?? copy.alts[0] ?? copy.title, width: m.width, height: m.height })),
           description: copy.description,
@@ -147,5 +164,39 @@ Délai de fabrication en précommande : ${input.leadTimeWeeks ? `${input.leadTi
   } catch (e) {
     rec.error(e);
     return rec.finish("Passage interrompu");
+  }
+}
+
+/**
+ * Bilan du catalogue : ce qui reste provisoire ou à compléter, pièce par pièce, consigné dans le
+ * journal. Rien n'est modifié : la créatrice confirme les prix et les délais dans les Validations
+ * (proposés par l'agent Commandes et confection) ou dans l'onglet Catalogue.
+ */
+export async function runCatalogueReview(trigger: AgentRun["trigger"] = "manuel"): Promise<AgentRun> {
+  const rec = new RunRecorder("catalogue", trigger);
+  try {
+    const [products, collections] = await Promise.all([getAllProducts(), getCollections()]);
+    const review = catalogueReview(products);
+    for (const p of review.pieces) {
+      const notes = [
+        p.provisionalPhotos ? `${p.provisionalPhotos} photo${p.provisionalPhotos > 1 ? "s" : ""} provisoire${p.provisionalPhotos > 1 ? "s" : ""}` : null,
+        p.priceProvisional ? `prix provisoire (${formatPrice(p.price)})` : null,
+        p.leadTimeProvisional ? `délai provisoire (${leadTimeText(p.leadTime)})` : null,
+        ...p.toComplete.map((t) => `${t} à compléter`),
+      ].filter(Boolean);
+      if (!notes.length) continue;
+      await logAction({ agent: "catalogue", kind: "bilan", status: "info", summary: `${p.title} : ${notes.join(", ")}`, target: { type: "product", id: p.handle, label: p.title, href: "atelier:/catalogue" } });
+    }
+    const byCollection = collections
+      .map((c) => ({ title: c.title, n: products.filter((p) => p.collection === c.handle).length }))
+      .filter((c) => c.n > 0)
+      .map((c) => `${c.n} pièce${c.n > 1 ? "s" : ""} dans ${c.title}`);
+    const n = products.length;
+    return rec.finish(
+      `${byCollection.join(", ") || `${n} pièce${n > 1 ? "s" : ""}`}. Photos provisoires : ${review.photos} pièce${review.photos > 1 ? "s" : ""}. Prix provisoires : ${review.prices}. Délais provisoires : ${review.leadTimes}. Fiches à compléter : ${review.incomplete}.`,
+    );
+  } catch (e) {
+    rec.error(e);
+    return rec.finish("Bilan interrompu");
   }
 }

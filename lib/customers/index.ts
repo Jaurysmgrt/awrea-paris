@@ -11,10 +11,10 @@ import { kv } from "@/lib/store";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/db/supabase";
 import { supabaseServer } from "@/lib/db/server";
 import { getOrders } from "@/lib/commerce/orders";
-import { getWaitlist, WAITLIST_KEY, type WaitlistEntry } from "@/lib/waitlist";
-import type { Order, OrderStatus, Size } from "@/lib/commerce/types";
+import { withStages } from "@/lib/store/order-stages";
+import type { LeadTime, Order, OrderStageDates, OrderStatus, Size } from "@/lib/commerce/types";
 import { segmentOf } from "./segments";
-import type { Address, BrowsingEvent, CustomerProfile, CustomerSession, CustomerStats, ProfilePatch, Sizes, WaitlistItem } from "./types";
+import type { Address, BrowsingEvent, CustomerProfile, CustomerSession, CustomerStats, ProfilePatch, Sizes } from "./types";
 
 export * from "./types";
 export { segmentOf, segmentLabel } from "./segments";
@@ -124,6 +124,10 @@ type OrderRow = {
   payment_method: string | null;
   gift: boolean;
   placed_at: string;
+  delivered_at: string | null;
+  /** date de chaque étape, tenue par un déclencheur à chaque changement de statut */
+  stage_dates: OrderStageDates | null;
+  lead_time: LeadTime | null;
 };
 const orderFromRow = (r: OrderRow): Order => ({
   id: r.id,
@@ -132,6 +136,9 @@ const orderFromRow = (r: OrderRow): Order => ({
   email: r.email,
   name: r.customer_name ?? "",
   status: r.status as OrderStatus,
+  deliveredAt: r.delivered_at ?? undefined,
+  stages: r.stage_dates ?? undefined,
+  leadTime: r.lead_time ?? undefined,
   lines: r.items ?? [],
   total: r.total,
   shipping: r.shipping ?? { method: "", price: 0, country: "" },
@@ -276,14 +283,15 @@ export async function deleteAddress(s: CustomerSession, id: string): Promise<Add
 }
 
 // ------------------------------------------------------------------ commandes
+/** Commandes de la cliente, avec la date de chaque étape et le délai de fabrication annoncé. */
 export async function listOrders(s: CustomerSession): Promise<Order[]> {
   if (isSupabaseConfigured) {
     const db = await supabaseServer();
     const { data } = await db.from("orders").select("*").order("placed_at", { ascending: false });
-    return (data as OrderRow[] | null)?.map(orderFromRow) ?? [];
+    return withStages((data as OrderRow[] | null)?.map(orderFromRow) ?? []);
   }
   const email = s.email.toLowerCase();
-  return (await getOrders()).filter((o) => o.email.toLowerCase() === email);
+  return withStages((await getOrders()).filter((o) => o.email.toLowerCase() === email));
 }
 
 // ------------------------------------------------------------------ liste d'envies
@@ -361,39 +369,6 @@ export async function getSharedWishlist(token: string): Promise<{ firstName: str
   return { firstName: p?.firstName ?? null, handles: (await kv.get<string[]>(demoKey(share.customerId, "wish"))) ?? [] };
 }
 
-// ------------------------------------------------------------------ listes d'attente
-export async function listWaitlist(s: CustomerSession): Promise<WaitlistItem[]> {
-  if (isSupabaseConfigured) {
-    const db = await supabaseServer();
-    const { data } = await db.from("waitlist_entries").select("id, product_handle, size, created_at, notified_at").order("created_at", { ascending: false });
-    return (data ?? []).map((r: { id: string; product_handle: string; size: string | null; created_at: string; notified_at: string | null }) => ({
-      id: r.id,
-      handle: r.product_handle,
-      size: r.size,
-      createdAt: r.created_at,
-      notifiedAt: r.notified_at,
-    }));
-  }
-  const email = s.email.toLowerCase();
-  return (await getWaitlist())
-    .filter((w) => w.email.toLowerCase() === email)
-    .map((w) => ({ id: `${w.handle}:${w.size ?? ""}`, handle: w.handle, size: w.size, createdAt: w.date, notifiedAt: w.notifiedAt ?? null }));
-}
-
-export async function removeWaitlist(s: CustomerSession, id: string) {
-  if (isSupabaseConfigured) {
-    const db = await supabaseServer();
-    await db.from("waitlist_entries").delete().eq("id", id);
-    return;
-  }
-  const email = s.email.toLowerCase();
-  const list = await getWaitlist();
-  await kv.set<WaitlistEntry[]>(
-    WAITLIST_KEY,
-    list.filter((w) => !(w.email.toLowerCase() === email && `${w.handle}:${w.size ?? ""}` === id)),
-  );
-}
-
 // ------------------------------------------------------------------ navigation (consentement « personnalisation »)
 export async function recordBrowsing(s: CustomerSession, ev: Omit<BrowsingEvent, "at">) {
   if (isSupabaseConfigured) {
@@ -446,12 +421,11 @@ export async function saveCartSnapshot(s: CustomerSession, lines: { handle: stri
 
 // ------------------------------------------------------------------ RGPD : export et suppression
 export async function exportData(s: CustomerSession) {
-  const [profile, addresses, orders, wishlist, waitlist, browsing, reviews] = await Promise.all([
+  const [profile, addresses, orders, wishlist, browsing, reviews] = await Promise.all([
     getProfile(s),
     listAddresses(s),
     listOrders(s),
     getWishlist(s),
-    listWaitlist(s),
     listBrowsing(s, SEEN_CAP),
     reviewsOf(s),
   ]);
@@ -462,14 +436,13 @@ export async function exportData(s: CustomerSession) {
     addresses,
     orders,
     wishlist,
-    waitlist,
     browsing,
     reviews,
   };
 }
 
 /**
- * Suppression du compte : profil, adresses, envies, listes d'attente, navigation, abonnements.
+ * Suppression du compte : profil, adresses, envies, navigation, abonnements.
  * Les commandes sont conservées sans lien avec le compte (obligation comptable de 10 ans),
  * les avis publiés restent anonymes (« Une cliente », sans photos).
  */
@@ -477,13 +450,11 @@ export async function deleteAccount(s: CustomerSession) {
   await anonymizeReviewsOf(s);
   if (isSupabaseConfigured) {
     const admin = supabaseAdmin();
-    await admin.from("waitlist_entries").delete().eq("customer_id", s.id);
     await admin.from("drop_signups").delete().eq("customer_id", s.id);
     const { error } = await admin.auth.admin.deleteUser(s.id); // cascade sur customers et tables liées
     if (error) throw new Error(error.message);
     return;
   }
-  const email = s.email.toLowerCase();
   const shareToken = await kv.get<string>(demoKey(s.id, "share"));
   if (shareToken) await kv.del(`wishshare:${shareToken}`);
   await Promise.all(["", "addr", "wish", "seen", "cart", "share"].map((part) => kv.del(demoKey(s.id, part || undefined))));
@@ -491,11 +462,6 @@ export async function deleteAccount(s: CustomerSession) {
   await kv.set(
     "customers:index",
     index.filter((id) => id !== s.id),
-  );
-  const list = await getWaitlist();
-  await kv.set<WaitlistEntry[]>(
-    WAITLIST_KEY,
-    list.filter((w) => w.email.toLowerCase() !== email),
   );
 }
 

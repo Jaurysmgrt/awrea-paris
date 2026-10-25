@@ -1,7 +1,7 @@
-import { LegalView, legalMetadata } from "@/components/ui/LegalView";
+import { LegalView, legalMetadata, legalPageView } from "@/components/ui/LegalView";
 
 export const metadata = legalMetadata("livraison-retours");
 
 export default function Page() {
-  return <LegalView slug="livraison-retours" />;
+  return <LegalView page={legalPageView("livraison-retours")} />;
 }

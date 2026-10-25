@@ -6,7 +6,7 @@
 import { betaZodTool } from "@anthropic-ai/sdk/helpers/beta/zod";
 import * as z from "zod/v4";
 import { getAllProducts, getProduct } from "@/lib/commerce";
-import { availabilityLabel, editionInfo, productAvailability, variantAvailability } from "@/lib/commerce/availability";
+import { leadTimeText, madeToOrderLabel } from "@/lib/commerce/availability";
 import { getOrder, statusLabel, trackingUrl } from "@/lib/commerce/orders";
 import type { Product } from "@/lib/commerce/types";
 import { shop } from "@/content/settings";
@@ -32,28 +32,26 @@ export function newAssistantContext(): AssistantContext {
   return { pieces: new Map(), handoff: null };
 }
 
+// pièces créées sur demande, sans stock : la carte et le résumé donnent le délai de fabrication
 function card(p: Product): PieceCard {
-  const ed = editionInfo(p);
   return {
     handle: p.handle,
     title: p.title,
     price: formatPrice(p.price),
     image: p.images[0]?.src ?? "",
-    edition: ed.unique ? "Pièce unique" : ed.complete ? "Sur commande" : ed.label,
-    availability: availabilityLabel(productAvailability(p), p.leadTimeWeeks),
+    edition: "Sur demande",
+    availability: madeToOrderLabel(p),
   };
 }
 
 function summary(p: Product) {
-  const ed = editionInfo(p);
   return {
     handle: p.handle,
     nom: p.title,
     accroche: p.tagline,
     categorie: p.category,
     prix: formatPrice(p.price),
-    edition: ed.unique ? "pièce unique" : `${ed.label} · ${ed.remainingLabel}`,
-    disponibilite: availabilityLabel(productAvailability(p), p.leadTimeWeeks),
+    disponibilite: madeToOrderLabel(p),
     url: `/boutique/${p.handle}`,
   };
 }
@@ -80,7 +78,7 @@ export function assistantTools(ctx: AssistantContext) {
       const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
       const list = all.filter((p) => {
         if (category && p.category !== category) return false;
-        if (size && !p.variants.some((v) => v.size === size && (v.quantity > 0 || v.preorder))) return false;
+        if (size && !p.variants.some((v) => v.size === size)) return false;
         if (max_price_eur && p.price / 100 > max_price_eur) return false;
         if (!words.length) return true;
         const hay = norm([p.title, p.tagline, ...p.description, ...p.tags, ...p.materials.map((m) => m.name), p.collection].join(" "));
@@ -109,9 +107,9 @@ export function assistantTools(ctx: AssistantContext) {
         entretien: p.care,
         coupe: p.fit,
         mannequin: p.model,
-        tailles: p.variants.map((v) => ({ taille: v.size, statut: availabilityLabel(variantAvailability(p, v), p.leadTimeWeeks) })),
-        delai_fabrication_semaines: p.leadTimeWeeks ?? null,
-        fait_main: "Fait main à Paris, dans l’atelier de la créatrice",
+        tailles: p.variants.map((v) => v.size),
+        delai_fabrication: leadTimeText(p.leadTime),
+        fabrication: "Créée sur demande, sans stock, par des artisans français",
       });
     },
   });

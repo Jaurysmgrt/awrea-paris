@@ -55,7 +55,7 @@ export function LoginForm({ next }: { next: string }) {
             </li>
           ))}
         </ul>
-        <button type="button" className="btn btn--solid btn--block" onClick={() => (window.location.href = next)}>
+        <button type="button" className="btn btn--block" onClick={() => (window.location.href = next)}>
           J’ai noté mes codes, entrer
         </button>
       </div>
@@ -96,7 +96,7 @@ export function LoginForm({ next }: { next: string }) {
           <input id="confirm" name="confirm" type="password" required minLength={12} autoComplete="new-password" className="field__input" />
         </div>
         <ErrorLine error={error} />
-        <button type="submit" className="btn btn--solid btn--block" disabled={busy}>
+        <button type="submit" className="btn btn--block" disabled={busy}>
           {busy ? "Enregistrement…" : "Enregistrer et continuer"}
         </button>
       </form>
@@ -143,7 +143,7 @@ export function LoginForm({ next }: { next: string }) {
           <input id="enroll-code" name="code" inputMode="numeric" autoComplete="one-time-code" pattern="\d{6}" maxLength={6} required className="field__input" />
         </div>
         <ErrorLine error={error} />
-        <button type="submit" className="btn btn--solid btn--block" disabled={busy || !enroll}>
+        <button type="submit" className="btn btn--block" disabled={busy || !enroll}>
           {busy ? "Vérification…" : "Activer et entrer"}
         </button>
       </form>
@@ -175,7 +175,7 @@ export function LoginForm({ next }: { next: string }) {
           <p className="field__hint">Six chiffres, ou l’un de vos codes de secours.</p>
         </div>
         <ErrorLine error={error} />
-        <button type="submit" className="btn btn--solid btn--block" disabled={busy}>
+        <button type="submit" className="btn btn--block" disabled={busy}>
           {busy ? "Vérification…" : "Entrer"}
         </button>
       </form>
@@ -214,7 +214,7 @@ export function LoginForm({ next }: { next: string }) {
       </div>
       <Turnstile action="atelier" />
       <ErrorLine error={error} />
-      <button type="submit" className="btn btn--solid btn--block" disabled={busy}>
+      <button type="submit" className="btn btn--block" disabled={busy}>
         {busy ? "Connexion…" : "Continuer"}
       </button>
     </form>
