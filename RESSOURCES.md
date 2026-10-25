@@ -23,7 +23,7 @@ Les polices provisoires Instrument Serif, General Sans et Inter Tight sont retir
 
 | Fichier | Contenu | Usage sur le site |
 | --- | --- | --- |
-| `LOGO ENTIER.png` (848 × 448) | « AWREA » et « PARIS » espacé dessous, noir sur blanc | En-tête (centré au-dessus de la navigation, maquette EN-TÊTE DU SITE), pied de page, e-mails, factures. Préparé en `public/brand/awrea-logo.png` (fond transparent, affiché en masque : noir sur fond clair, blanc cassé en mode Nuit) |
+| `LOGO ENTIER.png` (848 × 448) | « AWREA » et « PARIS » espacé dessous, noir sur blanc | En-tête (centré au-dessus de la navigation, maquette EN-TÊTE DU SITE), pied de page, e-mails, factures. Préparé en `public/brand/awrea-logo.png` (fond transparent, affiché en masque : noir sur fond clair, blanc cassé en mode Nuit) et en `public/brand/awrea-logo-blanc.png` (même dessin en blanc cassé, pour les e-mails sur fond noir et en mode sombre, où le masque CSS n'existe pas) |
 | `LOGO MINI.png` (564 × 548) | Monogramme « AW » et « PARIS » dessous | En-tête compact au défilement, certificat, cachet de l'enveloppe. `public/brand/awrea-monogramme.png` ; le « AW » seul (`awrea-aw.png`) donne les icônes `app/icon.png` et `app/apple-icon.png` |
 
 À fournir : le logo en SVG (un tracé automatique déformait les déliés, il n'a pas été retenu).
