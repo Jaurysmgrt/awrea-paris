@@ -1,5 +1,8 @@
 "use client";
-/** Date de fabrication et mot de la créatrice d'un certificat (Atelier). */
+/**
+ * Date de confection et mot de la créatrice d'un certificat (Atelier). Le numéro de création
+ * (« Création n° 0001 ») et le code de vérification ne se modifient jamais : ils ne figurent pas ici.
+ */
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAtelier } from "./AtelierContext";
@@ -26,7 +29,7 @@ export function CertificateEditor({ serial, madeOn, note, defaultWord }: { seria
     >
       <div className="field">
         <label htmlFor="cert-made" className="field__label">
-          Façonnée le
+          Confectionnée le
         </label>
         <input id="cert-made" name="madeOn" type="date" className="field__input" defaultValue={madeOn} required />
       </div>

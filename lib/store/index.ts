@@ -1,6 +1,6 @@
 /**
  * Persistance clé-valeur minimale, utilisée pour :
- * liste d'attente, newsletter, messages, commandes de démo, stocks de démo,
+ * newsletter, messages, commandes de démo et leurs étapes, numéros de création des certificats,
  * propositions et journal d'actions des agents.
  *
  * Pilotes :
@@ -23,6 +23,11 @@ export interface KV {
   incr(key: string, ttlSeconds: number): Promise<number>;
   /** Lit un compteur sans l'incrémenter (0 s'il n'existe pas ou a expiré) */
   peek(key: string): Promise<number>;
+  /**
+   * Numéro d'ordre permanent (numéro de création d'une pièce, par exemple) : incrémenté de façon
+   * atomique, jamais remis à zéro ni expiré, jamais deux fois le même même en cas d'appels simultanés.
+   */
+  next(key: string): Promise<number>;
 }
 
 const restUrl = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
@@ -67,23 +72,29 @@ class UpstashKV implements KV {
   async peek(key: string) {
     return Number((await this.cmd<string | null>("GET", key)) ?? 0);
   }
+  async next(key: string) {
+    // INCR est atomique côté Redis, et la clé ne reçoit aucune expiration
+    return Number(await this.cmd<number>("INCR", key));
+  }
 }
 
 type FileData = Record<string, unknown>;
 
 class FileKV implements KV {
   private cache: FileData | null = null;
+  private loading: Promise<FileData> | null = null;
   private writing: Promise<void> = Promise.resolve();
   constructor(private file: string) {}
 
-  private async load(): Promise<FileData> {
-    if (this.cache) return this.cache;
-    try {
-      this.cache = JSON.parse(await fs.readFile(this.file, "utf8")) as FileData;
-    } catch {
-      this.cache = {};
-    }
-    return this.cache;
+  /** Un seul chargement du fichier, partagé par les appels simultanés (aucune écriture perdue). */
+  private load(): Promise<FileData> {
+    if (this.cache) return Promise.resolve(this.cache);
+    this.loading ??= fs
+      .readFile(this.file, "utf8")
+      .then((raw) => JSON.parse(raw) as FileData)
+      .catch(() => ({}) as FileData)
+      .then((data) => (this.cache ??= data));
+    return this.loading;
   }
   private async save() {
     const data = JSON.stringify(this.cache ?? {}, null, 1);
@@ -138,6 +149,14 @@ class FileKV implements KV {
   async peek(key: string) {
     const c = this.counters.get(key);
     return c && c.exp > Date.now() ? c.n : 0;
+  }
+  async next(key: string) {
+    const d = await this.load();
+    // lecture et écriture sans attente entre les deux : atomique dans ce processus
+    const n = (Number(d[key]) || 0) + 1;
+    d[key] = n;
+    await this.save();
+    return n;
   }
 }
 

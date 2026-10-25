@@ -24,6 +24,7 @@ export default async function MessagesPage() {
         {m.name || m.email} · {m.subject}
       </h3>
       <p className="t-label t-soft">{m.email}{m.orderNumber ? ` · ${m.orderNumber}` : ""}{m.appointment ? ` · ${m.appointment.type}${m.appointment.preferredDate ? `, ${m.appointment.preferredDate}` : ""}${m.appointment.slot ? ` (${m.appointment.slot})` : ""}` : ""}</p>
+      {m.phone || m.address ? <p className="t-note">{[m.phone ? `Téléphone : ${m.phone}` : "", m.address ? `Adresse : ${m.address}` : ""].filter(Boolean).join(" · ")}</p> : null}
       <blockquote className="message__body t-body">{m.message}</blockquote>
       {m.draft?.agentNote ? <p className="notice t-note">Note de l’agent : {m.draft.agentNote}</p> : null}
       {editable ? <MessageEditor id={m.id} subject={m.subject.startsWith("Re") ? m.subject : `Re : ${m.subject}`} draft={m.draft?.body ?? ""} /> : null}

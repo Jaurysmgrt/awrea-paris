@@ -3,10 +3,16 @@
  * Réglages › Notifications › Webhooks, ou, pour les webhooks d'une application du Dev Dashboard,
  * son secret client SHOPIFY_CLIENT_SECRET).
  * Sujets à abonner dans Shopify (Paramètres → Notifications → Webhooks, format JSON) :
- *   orders/create, orders/updated, fulfillment_events/create,
+ *   orders/create, orders/updated, fulfillments/create, fulfillment_events/create,
+ *   products/create, products/update, products/delete, collections/update,
  *   customers/data_request, customers/redact (RGPD).
  * Chaque commande est recopiée dans la base clientes et rattachée à la cliente de même e-mail ;
- * la livraison déclenche l'e-mail d'entretien ; les agents sont prévenus.
+ * ses étapes (reçue, en confection, prête) suivent les étiquettes posées par la Maison
+ * (lib/commerce/orders.ts) : chaque passage est daté et envoie l'e-mail de l'étape, une seule fois
+ * (lib/email/commandes.ts), comme l'expédition ; la livraison est datée et déclenche l'e-mail
+ * d'arrivée ; les agents sont prévenus. La confirmation de commande reste celle de Shopify (la
+ * Maison peut choisir de la remplacer par l'e-mail « Commande reçue » du site, ACTIVATION.md).
+ * Aucun stock n'est suivi : les pièces sont créées sur demande.
  */
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { issueCertificates, sendCertificatesEmail } from "@/lib/certificates";
@@ -15,8 +21,10 @@ import { revalidateTag } from "next/cache";
 import { NextResponse, after } from "next/server";
 import { admin, adminEnabled } from "@/lib/shopify/admin";
 import { upsertOrder } from "@/lib/customers/shopify-sync";
-import { onOrderDelivered, onOrderShipped } from "@/lib/marketing/flows";
-import { getOrder } from "@/lib/commerce/orders";
+import { onOrderDelivered } from "@/lib/marketing/flows";
+import { recordOrderStage } from "@/lib/store/order-stages";
+import { sendOrderStageEmail } from "@/lib/email/commandes";
+import { getOrder, shopifyStatus } from "@/lib/commerce/orders";
 import { onOrderCreated } from "@/lib/agents/events";
 import { classifySource } from "@/components/analytics/source";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/db/supabase";
@@ -34,6 +42,8 @@ type ShopifyOrder = {
   financial_status: string | null;
   fulfillment_status: string | null;
   cancelled_at: string | null;
+  /** étiquettes de la commande, séparées par des virgules (« en-confection », « prete ») */
+  tags?: string | null;
   total_price: string;
   line_items: { title: string; quantity: number; price: string; variant_title: string | null; product_id: number | null }[];
   shipping_lines: { title: string; price: string }[];
@@ -65,10 +75,13 @@ async function handlesFor(productIds: number[]): Promise<Record<number, string>>
 }
 
 function statusOf(o: ShopifyOrder): OrderStatus {
-  if (o.cancelled_at || o.financial_status === "refunded") return "refunded";
-  if (o.fulfillment_status === "fulfilled") return o.fulfillments.some((f) => f.tracking_number) ? "shipped" : "delivered";
-  if (o.financial_status === "paid" || o.financial_status === "partially_paid") return "paid";
-  return "pending";
+  return shopifyStatus({
+    cancelled: Boolean(o.cancelled_at),
+    financial: o.financial_status,
+    fulfillment: o.fulfillment_status,
+    tracked: o.fulfillments.some((f) => f.tracking_number),
+    tags: o.tags ?? "",
+  });
 }
 
 async function toOrder(o: ShopifyOrder): Promise<Order & { shopifyId: string; source: string | null }> {
@@ -119,13 +132,27 @@ export async function POST(req: Request) {
       after(() => issueCertificates(order).then((issued) => sendCertificatesEmail(order, issued)).catch((e) => console.error("[webhook] certificats", e)));
       if (order.status !== "pending") after(() => issueInvoice(order).catch((e) => console.error("[webhook] facture", e)));
     }
+    // étiquettes « en-confection » et « prete » posées dans Shopify (ou depuis l'Atelier) : étape
+    // datée et e-mail à la cliente, qui ne part qu'une fois par étape
+    if (order.status === "in_production" || order.status === "ready") {
+      const stage = order.status;
+      after(() =>
+        recordOrderStage(order, stage)
+          .then(() => sendOrderStageEmail(order, stage))
+          .catch((e) => console.error("[webhook] étape", e)),
+      );
+    }
   } else if (topic === "fulfillments/create" || topic === "fulfillments/update") {
     // commande remise au transporteur : e-mail d'expédition avec le lien de suivi
     const p = payload as { order_id?: number; tracking_number?: string | null; tracking_company?: string | null; status?: string };
     const order = p.order_id ? await getOrder(`gid://shopify/Order/${p.order_id}`) : null;
     if (order && p.status !== "cancelled") {
       const shipped = { ...order, shipping: { ...order.shipping, carrier: p.tracking_company ?? order.shipping.carrier, tracking: p.tracking_number ?? order.shipping.tracking } };
-      after(() => onOrderShipped(shipped).catch((e) => console.error("[webhook] expédition", e)));
+      after(() =>
+        recordOrderStage(shipped, "shipped")
+          .then(() => sendOrderStageEmail(shipped, "shipped"))
+          .catch((e) => console.error("[webhook] expédition", e)),
+      );
     }
   } else if (topic === "fulfillment_events/create" && payload.status === "delivered" && adminEnabled) {
     const orderId = `gid://shopify/Order/${payload.order_id}`;
@@ -146,7 +173,8 @@ export async function POST(req: Request) {
         shipping: { method: "", price: 0, country: "" },
         paymentMethod: "",
       };
-      if (isSupabaseConfigured) await supabaseAdmin().from("orders").update({ status: "delivered", delivered_at: new Date().toISOString() }).eq("shopify_order_id", orderId);
+      // étape « Livrée » datée (et recopiée dans la base clientes)
+      await recordOrderStage(delivered, "delivered").catch((e) => console.error("[webhook] livraison", e));
       after(() => onOrderDelivered(delivered).catch((e) => console.error("[webhook] entretien", e)));
     }
   } else if (topic === "customers/redact" && isSupabaseConfigured) {
@@ -156,9 +184,10 @@ export async function POST(req: Request) {
     await kv.push("rgpd:requests", { kind: "effacement (Shopify)", at: new Date().toISOString() }, 1000);
   } else if (topic === "customers/data_request") {
     await kv.push("rgpd:requests", { kind: "accès (Shopify)", at: new Date().toISOString() }, 1000);
-  } else if (/^(products|collections|inventory_levels)\//.test(topic)) {
-    // catalogue, prix ou stock modifiés dans Shopify : données régénérées dès la visite suivante
-    // (rares changements : on préfère une page juste à une page servie de l'ancien cache)
+  } else if (/^(products|collections)\//.test(topic)) {
+    // catalogue, prix ou délais modifiés dans Shopify : données régénérées dès la visite suivante
+    // (rares changements : on préfère une page juste à une page servie de l'ancien cache).
+    // Aucun stock n'est suivi : les évènements de niveau de stock ne sont plus écoutés.
     revalidateTag("shopify", { expire: 0 });
   }
   return NextResponse.json({ ok: true });

@@ -5,13 +5,13 @@
  */
 import { kv } from "@/lib/store";
 import { ACTION_SCHEMAS, EXECUTORS, type ActionParams, type ActionResult } from "./actions";
-import { POLICY, requiresApproval, type ActionType } from "./policy";
+import { isActionType, POLICY, requiresApproval, type ActionType } from "./policy";
 import { logAction, type AgentId } from "./log";
 import { cleanTexts } from "@/lib/writing/agents";
 import { reportWriting } from "@/lib/writing/report";
 
 /** Actions qui mettent un texte sous les yeux des clientes sans relecture humaine. */
-const PUBLISHES_TEXT = new Set<ActionType>(["publish_product", "update_product_content", "send_reply", "publish_article", "update_ai_visibility", "notify_waitlist"]);
+const PUBLISHES_TEXT = new Set<ActionType>(["publish_product", "update_product_content", "send_reply", "publish_article", "update_ai_visibility"]);
 
 export interface Proposal<T extends ActionType = ActionType> {
   id: string;
@@ -28,8 +28,12 @@ export interface Proposal<T extends ActionType = ActionType> {
 
 export const PROPOSALS_KEY = "agents:proposals";
 
+/**
+ * Propositions enregistrées. Celles d'une action retirée (stock, liste d'attente, avant le modèle
+ * « sur demande ») ne peuvent plus être exécutées ni décrites : elles sont écartées.
+ */
 export async function getProposals(): Promise<Proposal[]> {
-  return (await kv.get<Proposal[]>(PROPOSALS_KEY)) ?? [];
+  return ((await kv.get<Proposal[]>(PROPOSALS_KEY)) ?? []).filter((p) => isActionType(p.action));
 }
 
 async function saveProposals(list: Proposal[]) {

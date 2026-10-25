@@ -1,6 +1,11 @@
+import Link from "@/components/ui/Link";
 import { POLICY } from "@/lib/agents/policy";
 import { AGENTS } from "@/lib/agents/registry";
-import { commerceMode } from "@/lib/commerce";
+import { commerceMode, getAllProducts } from "@/lib/commerce";
+import { DEFAULT_LEAD_TIME } from "@/lib/commerce/availability";
+import { delaiText, type CatalogueTexts } from "@/lib/commerce/texts";
+import type { Category } from "@/lib/commerce/types";
+import { getDoc } from "@/lib/edition/read";
 import { MODEL } from "@/lib/ai/client";
 import { adminEnabled } from "@/lib/shopify/admin";
 import { services as providers } from "@/lib/config/providers";
@@ -8,12 +13,13 @@ import { turnstileEnabled } from "@/lib/security/turnstile";
 import { currentAdmin, usingDemoPassword } from "@/lib/auth/admin";
 import { ACCOUNT_GUARD, emailKey, hasTotp, listAccounts, recoveryLeft } from "@/lib/auth/accounts";
 import { loginGuard } from "@/lib/security/rate-limit";
-import { atelierApi, atelierPathIsSecret } from "@/lib/admin/path";
+import { atelierApi, atelierHref, atelierPathIsSecret } from "@/lib/admin/path";
 import { cspMode } from "@/lib/security/headers";
 import { securityDigest, securityEvents, type SecurityEventType } from "@/lib/security/audit";
 import { isSupabaseConfigured } from "@/lib/db/supabase";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { When } from "@/components/admin/Status";
+import { agentName, withRegistryNames } from "@/components/admin/agent-names";
 
 const EVENT_LABELS: Record<SecurityEventType, string> = {
   admin_password_ok: "Mot de passe accepté",
@@ -28,8 +34,25 @@ const EVENT_LABELS: Record<SecurityEventType, string> = {
   admin_revoked: "Sessions fermées par le lien « ce n’était pas moi »",
 };
 
+/** Ordre des catégories dans le tableau des délais par défaut. */
+const CATEGORIES: Category[] = ["body", "top", "robe", "jupe", "accessoire"];
+
 export default async function ReglagesPage() {
-  const [events, digest, accounts, me] = await Promise.all([securityEvents(30), securityDigest(24), listAccounts(), currentAdmin()]);
+  const [events, digest, accounts, me, products, catalogue, boutique] = await Promise.all([
+    securityEvents(30),
+    securityDigest(24),
+    listAccounts(),
+    currentAdmin(),
+    getAllProducts().catch(() => []),
+    getDoc<CatalogueTexts>("catalogue", "fr", { plain: true }),
+    getDoc<{ categories: Partial<Record<Category, string>> }>("boutique", "fr", { plain: true }),
+  ]);
+  const toConfirm = [
+    { label: "Délais de fabrication provisoires", pieces: products.filter((p) => p.leadTimeProvisional).map((p) => p.title) },
+    { label: "Prix provisoires", pieces: products.filter((p) => p.priceProvisional).map((p) => p.title) },
+    { label: "Visuels provisoires", pieces: products.filter((p) => p.images.some((i) => i.provisoire)).map((p) => p.title) },
+  ].filter((x) => x.pieces.length);
+  const agentNames = withRegistryNames(AGENTS);
   const locked = await Promise.all(accounts.map((a) => loginGuard.blocked("admin-compte", emailKey(a.email), ACCOUNT_GUARD)));
   const security = [
     { name: "Adresse secrète de l’Atelier", ok: atelierPathIsSecret(), hint: "ADMIN_PATH, de la forme /prive- suivie d’au moins douze lettres ou chiffres" },
@@ -58,8 +81,51 @@ export default async function ReglagesPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Réglages</h1>
-        <p className="t-lead">Connexions, règles d’autonomie des agents et calendrier.</p>
+        <p className="t-lead">Délais de fabrication, connexions, sécurité, règles d’autonomie des agents et calendrier.</p>
       </header>
+      <section className="panel" aria-labelledby="delais-title">
+        <h2 id="delais-title" className="t-h3">Délais de fabrication</h2>
+        <p className="t-body">
+          Chaque pièce est créée sur demande, sans stock, par des artisans français. Son délai de fabrication s’affiche sur sa fiche, dans le panier, au paiement et dans le suivi de la
+          commande. Il se règle pièce par pièce dans le Catalogue.
+        </p>
+        <div className="table-scroll"><table className="table">
+          <thead><tr><th scope="col">Catégorie</th><th scope="col">Délai par défaut</th><th scope="col">Pièces</th></tr></thead>
+          <tbody>
+            {CATEGORIES.map((c) => {
+              const pieces = products.filter((p) => p.category === c);
+              return (
+                <tr key={c}>
+                  <th scope="row">{boutique.categories?.[c] ?? c}</th>
+                  <td>{delaiText(catalogue, DEFAULT_LEAD_TIME[c])}</td>
+                  <td>{pieces.length ? pieces.map((p) => `${p.title} (${delaiText(catalogue, p.leadTime)})`).join(", ") : "Aucune pour l’instant"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table></div>
+        <p className="t-note">
+          Le délai par défaut d’une catégorie sert à une nouvelle pièce tant que le sien n’est pas réglé, et à une pièce de Shopify dont le délai n’est pas renseigné. Ces délais par
+          défaut sont provisoires, en attendant leur confirmation par la Maison (ACTIVATION.md).
+        </p>
+        <h3 className="t-label">À confirmer</h3>
+        {toConfirm.length ? (
+          <ul className="stack-s">
+            {toConfirm.map((x) => (
+              <li key={x.label} className="t-body">
+                {x.label} : {x.pieces.join(", ")}.
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="t-body">Aucun prix, délai ni visuel provisoire : tout est confirmé.</p>
+        )}
+        <div>
+          <Link href={atelierHref("/catalogue")} className="btn btn--outline">
+            Confirmer dans le Catalogue
+          </Link>
+        </div>
+      </section>
       <section className="panel" aria-labelledby="svc-title">
         <h2 id="svc-title" className="t-h3">Connexions</h2>
         <div className="table-scroll"><table className="table">
@@ -141,13 +207,13 @@ export default async function ReglagesPage() {
         <h2 id="cal-title" className="t-h3">Calendrier des agents</h2>
         <div className="table-scroll"><table className="table">
           <thead><tr><th scope="col">Agent</th><th scope="col">Cadence</th></tr></thead>
-          <tbody>{AGENTS.map((a) => <tr key={a.id}><th scope="row">{a.name}</th><td>{a.schedule}</td></tr>)}</tbody>
+          <tbody>{AGENTS.map((a) => <tr key={a.id}><th scope="row">{agentName(a.id, agentNames)}</th><td>{a.schedule}</td></tr>)}</tbody>
         </table></div>
       </section>
       {commerceMode === "demo" ? (
         <section className="panel" aria-labelledby="reset-title">
           <h2 id="reset-title" className="t-h3">Données de démonstration</h2>
-          <p className="t-body">Efface les commandes de test, messages, propositions, journaux et contenus générés, et rétablit les stocks d’origine.</p>
+          <p className="t-body">Efface les commandes de test, messages, propositions, journaux, factures, certificats et contenus générés, et rétablit les pièces d’origine (prix, délais de fabrication, indicateurs provisoires). Les numéros de création déjà attribués ne reviennent jamais.</p>
           <ActionButton endpoint={atelierApi("/reset")} label="Réinitialiser la démonstration" confirm="Effacer toutes les données de démonstration ?" />
         </section>
       ) : null}

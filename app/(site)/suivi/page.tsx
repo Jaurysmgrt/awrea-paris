@@ -1,28 +1,35 @@
+import type { Metadata } from "next";
+import { getDoc } from "@/lib/edition/read";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
 import { TrackForm } from "@/components/orders/TrackForm";
 import Link from "@/components/ui/Link";
+import type { SuiviTexts } from "@/components/commerce/OrderStages";
 
-export const metadata = pageMetadata({
-  title: "Suivre une commande | Awrea Paris",
-  description: "Suivez votre commande Awrea Paris sans compte : numéro de commande et adresse e-mail suffisent. Retours, échanges de taille et facture au même endroit.",
-  path: "/suivi",
-});
+/**
+ * Suivre une commande sans compte : le numéro et l'adresse e-mail de la commande ouvrent son suivi
+ * (étapes de la confection, facture, retours). Textes : document « suivi-commande ».
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getDoc<SuiviTexts>("suivi-commande", "fr", { plain: true });
+  return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/suivi" });
+}
 
-export default function SuiviPage() {
+export default async function SuiviPage() {
+  const doc = await getDoc<SuiviTexts>("suivi-commande");
+  const t = doc.recherche;
+  const [avant, apres = ""] = t.aide.split("{lien}");
   return (
     <>
-      <PageHeader
-        title="Suivre une commande"
-        lead="Le numéro de la commande et l’adresse e-mail utilisée suffisent : aucun compte n’est nécessaire. Vous y trouverez aussi la facture, et le retour ou l’échange de taille."
-        crumbs={[{ name: "Suivre une commande", path: "/suivi" }]}
-      />
+      <PageHeader title={t.titre} lead={t.chapeau} crumbs={[{ name: t.titre, path: "/suivi" }]} />
       <Section theme="ivory" className="section">
         <div className="container-prose stack-l">
-          <TrackForm />
+          <TrackForm t={doc.formulaire} />
           <p className="t-note">
-            Le numéro figure dans l’e-mail de confirmation (il commence par « AW- »). Vous avez un compte ? Vos commandes vous attendent dans <Link href="/compte">votre espace</Link>.
+            {avant}
+            <Link href="/compte">{t.lienCompte}</Link>
+            {apres}
           </p>
         </div>
       </Section>

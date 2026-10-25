@@ -9,6 +9,10 @@
  *  - mode `stockage` avec Supabase : le compartiment public « medias » de Supabase Storage ;
  *  - mode `stockage` sans Supabase (démonstration en ligne) : le stockage technique, une seule taille.
  * Jamais d'image générée ni de banque d'images : seulement ce que la créatrice dépose.
+ *
+ * Photos provisoires (lib/edition/provisoires.ts) : une photo déposée n'est pas provisoire, sauf si
+ * la créatrice a coché « Photo provisoire » avant l'envoi ; le marqueur de la médiathèque suit
+ * ensuite la case qu'elle coche ou décoche en enregistrant la photo sur une page.
  */
 import "server-only";
 import { promises as fs } from "node:fs";
@@ -19,6 +23,7 @@ import { kv } from "@/lib/store";
 import { isSupabaseConfigured, supabaseUrl } from "@/lib/db/supabase";
 import { editionStorage } from "./config";
 import type { Img } from "./blocks";
+import { withProvisional } from "./provisoires";
 
 export const WIDTHS = [480, 960, 1200, 1920] as const;
 const BUCKET = "medias";
@@ -61,7 +66,7 @@ async function store(id: string, files: { name: string; data: Buffer }[]): Promi
 }
 
 /** Traite une photo déposée et renvoie l'image prête pour un document (point focal au centre). */
-export async function ingestImage(input: Buffer, name: string, by: string, alt: string): Promise<MediaEntry> {
+export async function ingestImage(input: Buffer, name: string, by: string, alt: string, opts: { provisoire?: boolean } = {}): Promise<MediaEntry> {
   if (input.length > MAX_UPLOAD) throw new Error("Cette photo est trop lourde (12 Mo au plus).");
   const base = sharp(input, { failOn: "error" }).rotate();
   const meta = await base.metadata();
@@ -77,7 +82,7 @@ export async function ingestImage(input: Buffer, name: string, by: string, alt: 
   for (const w of [480, 960]) if (!files.some((f) => f.name === variantName(id, w))) files.push({ name: variantName(id, w), data: files[0].data });
   const src = await store(id, files);
   const width = Math.min(meta.width, 1200);
-  const entry: MediaEntry = { id, name: name.slice(0, 120), src, alt, width, height: Math.round(width * ratio), focal: { x: 50, y: 50 }, at: new Date().toISOString(), by };
+  const entry: MediaEntry = { id, name: name.slice(0, 120), src, alt, width, height: Math.round(width * ratio), focal: { x: 50, y: 50 }, at: new Date().toISOString(), by, ...(opts.provisoire ? { provisoire: true } : {}) };
   const library = (await kv.get<MediaEntry[]>(LIBRARY_KEY).catch(() => null)) ?? [];
   await kv.set(LIBRARY_KEY, [entry, ...library].slice(0, 400));
   return entry;
@@ -85,6 +90,17 @@ export async function ingestImage(input: Buffer, name: string, by: string, alt: 
 
 export async function mediaLibrary(): Promise<MediaEntry[]> {
   return (await kv.get<MediaEntry[]>(LIBRARY_KEY).catch(() => null)) ?? [];
+}
+
+/** La case « Photo provisoire » cochée ou décochée sur une page suit la photo dans la médiathèque. */
+export async function setMediaProvisional(src: string, provisoire: boolean): Promise<void> {
+  if (!src) return;
+  const library = await mediaLibrary();
+  const at = library.findIndex((m) => m.src === src);
+  if (at < 0 || (library[at].provisoire === true) === provisoire) return;
+  const next = library.slice();
+  next[at] = withProvisional(library[at], provisoire);
+  await kv.set(LIBRARY_KEY, next);
 }
 
 /** Texte alternatif de départ, tiré du nom du fichier (« robe-odessa-dos.jpg » → « Robe odessa dos »). */

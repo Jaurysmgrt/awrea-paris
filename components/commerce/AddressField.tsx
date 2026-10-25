@@ -4,6 +4,8 @@
  * flèches pour parcourir, Entrée pour choisir, Échap pour fermer. La saisie libre reste possible.
  */
 import { useEffect, useId, useRef, useState } from "react";
+import { useTexts } from "@/components/content/Texts";
+import type { CommerceTexts } from "@/lib/commerce/texts";
 
 export interface PickedAddress {
   line1: string;
@@ -27,6 +29,7 @@ export function AddressField({
   onPick: (a: PickedAddress) => void;
 }) {
   const listId = useId();
+  const champs = useTexts<CommerceTexts>("commerce").commande.champs;
   const [value, setValue] = useState(defaultValue ?? "");
   const [items, setItems] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
@@ -96,7 +99,7 @@ export function AddressField({
           }
         }}
       />
-      <ul id={listId} role="listbox" className="combo__list" hidden={!open} aria-label="Adresses suggérées">
+      <ul id={listId} role="listbox" className="combo__list" hidden={!open} aria-label={champs.adressesSuggerees}>
         {items.map((s, i) => (
           <li
             key={s.label}

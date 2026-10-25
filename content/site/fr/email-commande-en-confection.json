@@ -1,0 +1,67 @@
+{
+  "nom": "Commande en confection",
+  "quand": "Quand la créatrice passe la commande à l’étape « En confection » dans l’Atelier.",
+  "famille": "service",
+  "sujet": "Votre pièce est en confection",
+  "preheader": "La dentelle est posée sur la table de coupe.",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la cliente",
+      "exemple": "Camille"
+    },
+    "commande": {
+      "description": "Le numéro de la commande",
+      "exemple": "AW-1042"
+    },
+    "suivi": {
+      "description": "Le lien du suivi de la commande (sans compte)",
+      "exemple": "https://www.awreaparis.com/suivi/AW-1042"
+    },
+    "debut": {
+      "description": "Le premier jour prévu pour la fin de la confection",
+      "exemple": "2 novembre 2026"
+    },
+    "fin": {
+      "description": "Le dernier jour prévu pour la fin de la confection",
+      "exemple": "9 novembre 2026"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-cmdconf01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-cmdconf02",
+      "type": "titre",
+      "titre": "Votre pièce est en confection"
+    },
+    {
+      "id": "b-cmdconf03",
+      "type": "texte",
+      "texte": "Bonjour {prenom},\n\nLa dentelle est posée sur la table, les premières coupes de votre pièce ont commencé. Nos artisans la montent à votre taille, point après point."
+    },
+    {
+      "id": "b-cmdconf04",
+      "type": "texte",
+      "texte": "Elle devrait être prête entre le {debut} et le {fin}. Nous vous écrivons dès qu’elle l’est.",
+      "si": "debut"
+    },
+    {
+      "id": "b-cmdconf05",
+      "type": "texte",
+      "texte": "Votre commande {commande} se suit ici : {suivi}"
+    },
+    {
+      "id": "b-cmdconf06",
+      "type": "signature",
+      "texte": "À très vite,\nL’atelier Awrea Paris"
+    },
+    {
+      "id": "b-cmdconf07",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}
