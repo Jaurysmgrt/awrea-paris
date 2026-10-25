@@ -77,7 +77,6 @@ export default async function HomePage() {
           <Visuel image={col.image} sizes="(min-width: 48rem) 45vw, 100vw" />
           <div className={ed.texte}>
             <div className={ed.tete}>
-              <p className="eyebrow">{col.surtitre}</p>
               <div className={ed.tete} data-officiel>
                 <h2 id="accueil-collection" className="t-display">
                   {col.texte.titre}
@@ -106,7 +105,6 @@ export default async function HomePage() {
         <Section theme="ivory" className="section--tall" labelledBy="accueil-pieces">
           <div className="container">
             <header className={`${ed.tete} ${ed.centre}`}>
-              <p className="eyebrow">{t.selection.surtitre}</p>
               <h2 id="accueil-pieces" className="t-h2">
                 {t.selection.titre}
               </h2>
@@ -133,7 +131,6 @@ export default async function HomePage() {
           <Visuel image={surDemande.image} ratio="look" sizes="(min-width: 48rem) 45vw, 100vw" />
           <div className={ed.texte}>
             <div className={ed.tete}>
-              <p className="eyebrow">{surDemande.surtitre}</p>
               <h2 id="accueil-sur-demande" className="t-h2">
                 {surDemande.titre}
               </h2>
@@ -152,7 +149,6 @@ export default async function HomePage() {
       <Section theme="paper" className="section--tall" labelledBy="accueil-lettre">
         <div className={`container-text ${ed.centre}`}>
           <div className={ed.tete}>
-            <p className="eyebrow">{lettre.surtitre}</p>
             <h2 id="accueil-lettre" className="t-h2">
               {lettre.titre}
             </h2>

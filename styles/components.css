@@ -158,26 +158,9 @@
     line-height: var(--lh-step-6);
   }
 
-  /* titre écrit au chargement (components/ui/SplitTitle.tsx) */
-  .split {
-    animation: split-rise var(--dur) var(--ease) both;
-  }
+  /* titre découpé (components/ui/SplitTitle.tsx) : affiché d'un bloc, sans effet d'écriture */
   .split__word {
     white-space: nowrap;
-  }
-  .split__char {
-    animation: split-in var(--dur) var(--ease) both;
-    animation-delay: calc(var(--i) * var(--dur-stagger) * 0.6);
-  }
-  @keyframes split-rise {
-    from {
-      transform: translateY(0.08em);
-    }
-  }
-  @keyframes split-in {
-    from {
-      opacity: 0;
-    }
   }
 
   /* chapeau : 25 px sur 40 px */
@@ -262,12 +245,6 @@
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     line-height: var(--leading-label);
-  }
-  .eyebrow::before {
-    content: "";
-    width: var(--spacing-l);
-    height: var(--border-width-hair);
-    background: var(--accent);
   }
 
   /* texte courant : Cormorant Garamond, justifié, sur la mesure de lecture */

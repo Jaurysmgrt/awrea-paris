@@ -261,6 +261,9 @@ test.describe("Pied de page de la maquette et lettre de la Maison", () => {
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("data-mode", "dark");
     const footer = page.locator("footer");
+    // réglages d'affichage repliés derrière le lien « Affichage » du pied de page
+    const ouvrirAffichage = () => footer.locator(".site-footer__tools > summary").click();
+    await ouvrirAffichage();
     await footer.getByText("Jour", { exact: true }).click();
     await expect(page.locator("html")).toHaveAttribute("data-mode", "light");
     await footer.getByText("Nuit", { exact: true }).click();
@@ -274,6 +277,7 @@ test.describe("Pied de page de la maquette et lettre de la Maison", () => {
     expect(bg).not.toBe("rgb(247, 246, 243)"); // jamais de blanc cassé en mode Nuit
     // la pastille Instagram s'inverse : blanc cassé sur fond noir
     await expect.poll(() => page.locator(".site-footer__social").evaluate((el) => getComputedStyle(el).backgroundColor)).toBe("rgb(247, 246, 243)");
+    await ouvrirAffichage();
     await footer.getByText(/^Auto/).click();
     await expect(page.locator("html")).toHaveAttribute("data-mode", "light");
   });
@@ -281,6 +285,7 @@ test.describe("Pied de page de la maquette et lettre de la Maison", () => {
   test("animations apaisées sur demande, même si le système ne le demande pas", async ({ page }) => {
     await acceptCookies(page);
     await page.goto("/");
+    await page.locator("footer .site-footer__tools > summary").click();
     await page.locator("footer").getByRole("switch", { name: "Animations apaisées" }).check();
     await expect(page.locator("html")).toHaveAttribute("data-motion", "reduce");
     await page.reload();
