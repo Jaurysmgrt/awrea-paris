@@ -1,5 +1,9 @@
-import { legalPages, type LegalBlock, type LegalSlug } from "@/content/fr/legal";
+import { Fragment } from "react";
+import { legalPages, type LegalSlug } from "@/content/fr/legal";
 import { cookieCategories, cookieInventory } from "@/content/fr/cookies";
+import { getDoc } from "@/lib/edition/read";
+import { fill } from "@/lib/edition/fill";
+import { fromPage, type LegalBlock, type LegalDocContent, type LegalPageView } from "@/lib/legal/doc";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { formatDate } from "@/lib/format";
 import { LegalText } from "@/components/legal/LegalText";
@@ -7,13 +11,27 @@ import { WithdrawalForm } from "@/components/legal/WithdrawalForm";
 import { CookieSettingsButton } from "@/components/consent/ConsentProvider";
 import { PageHeader } from "./PageHeader";
 import { Section } from "./Section";
+import styles from "./LegalView.module.css";
 
+/** Textes communs des pages légales : content/site/fr/juridique.json. */
+type JuridiqueTexts = typeof import("@/content/site/fr/juridique.json");
+
+/** Métadonnées d'une page légale écrite dans le code (content/fr/legal.ts). */
 export function legalMetadata(slug: LegalSlug) {
   const p = legalPages[slug];
   return pageMetadata({ ...p.seo, path: `/${p.slug}` });
 }
 
-function CookieTable() {
+/** Métadonnées d'une page légale tenue dans un document de l'éditeur (CGV, mentions légales). */
+export async function legalDocMetadata(doc: string, path: string) {
+  const d = await getDoc<LegalDocContent>(doc, "fr", { plain: true });
+  return pageMetadata({ title: d.seo.title, description: d.seo.description, path });
+}
+
+/** Vue d'une page légale écrite dans le code. */
+export const legalPageView = (slug: LegalSlug): LegalPageView => fromPage(legalPages[slug]);
+
+function CookieTable({ t }: { t: JuridiqueTexts["cookies"] }) {
   return (
     <>
       {cookieCategories.map((cat) => {
@@ -25,11 +43,11 @@ function CookieTable() {
               <caption className="t-label">{cat.label}</caption>
               <thead>
                 <tr>
-                  <th scope="col">Nom</th>
-                  <th scope="col">Fournisseur</th>
-                  <th scope="col">Finalité</th>
-                  <th scope="col">Durée</th>
-                  <th scope="col">Type</th>
+                  <th scope="col">{t.nom}</th>
+                  <th scope="col">{t.fournisseur}</th>
+                  <th scope="col">{t.finalite}</th>
+                  <th scope="col">{t.duree}</th>
+                  <th scope="col">{t.nature}</th>
                 </tr>
               </thead>
               <tbody>
@@ -38,10 +56,10 @@ function CookieTable() {
                     <th scope="row">
                       <code>{c.name}</code>
                     </th>
-                    <td data-label="Fournisseur">{c.provider}</td>
-                    <td data-label="Finalité">{c.purpose}</td>
-                    <td data-label="Durée">{c.duration}</td>
-                    <td data-label="Type">{c.kind}</td>
+                    <td data-label={t.fournisseur}>{c.provider}</td>
+                    <td data-label={t.finalite}>{c.purpose}</td>
+                    <td data-label={t.duree}>{c.duration}</td>
+                    <td data-label={t.nature}>{c.kind}</td>
                   </tr>
                 ))}
               </tbody>
@@ -53,26 +71,24 @@ function CookieTable() {
   );
 }
 
-function WithdrawalModel() {
+/** Formulaire type de rétractation (annexe à l'article R221-1 du Code de la consommation). */
+function WithdrawalModel({ t }: { t: JuridiqueTexts["modeleRetractation"] }) {
   return (
     <div className="legal__box legal__model">
-      <p className="t-label">Formulaire de rétractation</p>
-      <p>(Veuillez compléter et renvoyer le présent formulaire uniquement si vous souhaitez vous rétracter du contrat.)</p>
+      <p className="t-label">{t.titre}</p>
+      <p>{t.consigne}</p>
       <p>
-        À l’attention de <LegalText text="{{raisonSociale}}, {{siege}}, {{email}}" />{"\u00a0"}:
+        <LegalText text={t.destinataire} />
       </p>
-      <p>Je/Nous (*) vous notifie/notifions (*) par la présente ma/notre (*) rétractation du contrat portant sur la vente du bien (*)/pour la prestation de services (*) ci-dessous :</p>
-      <p>Commandé le (*)/reçu le (*) :</p>
-      <p>Nom du (des) consommateur(s) :</p>
-      <p>Adresse du (des) consommateur(s) :</p>
-      <p>Signature du (des) consommateur(s) (uniquement en cas de notification du présent formulaire sur papier) :</p>
-      <p>Date :</p>
-      <p className="t-note">(*) Rayez la mention inutile.</p>
+      {t.lignes.map((l, i) => (
+        <p key={i}>{l}</p>
+      ))}
+      <p className="t-note">{t.note}</p>
     </div>
   );
 }
 
-function Block({ block }: { block: LegalBlock }) {
+function Block({ block, t }: { block: LegalBlock; t: JuridiqueTexts }) {
   if (typeof block === "string") {
     return (
       <p>
@@ -83,12 +99,39 @@ function Block({ block }: { block: LegalBlock }) {
   if ("list" in block) {
     return (
       <ul>
-        {block.list.map((t) => (
-          <li key={t}>
-            <LegalText text={t} />
+        {block.list.map((item, i) => (
+          <li key={i}>
+            <LegalText text={item} />
           </li>
         ))}
       </ul>
+    );
+  }
+  if ("lines" in block) {
+    // lignes courtes (coordonnées) : une information par ligne, au fer à gauche
+    return (
+      <p className="t-left">
+        {block.lines.map((l, i) => (
+          <Fragment key={i}>
+            {i ? <br /> : null}
+            <LegalText text={l} />
+          </Fragment>
+        ))}
+      </p>
+    );
+  }
+  if ("h3" in block) {
+    return (
+      <h3 id={block.id} className={styles.intertitre}>
+        <LegalText text={block.h3} />
+      </h3>
+    );
+  }
+  if ("h4" in block) {
+    return (
+      <h4 className={styles.sousTitre}>
+        <LegalText text={block.h4} />
+      </h4>
     );
   }
   if ("table" in block) {
@@ -98,8 +141,8 @@ function Block({ block }: { block: LegalBlock }) {
           <caption className="sr-only">{block.table.caption}</caption>
           <thead>
             <tr>
-              {block.table.head.map((h) => (
-                <th key={h} scope="col">
+              {block.table.head.map((h, i) => (
+                <th key={i} scope="col">
                   {h}
                 </th>
               ))}
@@ -130,9 +173,9 @@ function Block({ block }: { block: LegalBlock }) {
     return (
       <div className="legal__box">
         {block.box.title ? <p className="t-label">{block.box.title}</p> : null}
-        {block.box.paragraphs.map((t) => (
-          <p key={t}>
-            <LegalText text={t} />
+        {block.box.paragraphs.map((p, i) => (
+          <p key={i}>
+            <LegalText text={p} />
           </p>
         ))}
       </div>
@@ -140,7 +183,7 @@ function Block({ block }: { block: LegalBlock }) {
   }
   switch (block.widget) {
     case "cookie-table":
-      return <CookieTable />;
+      return <CookieTable t={t.cookies} />;
     case "cookie-settings":
       return (
         <p className="legal__action">
@@ -150,32 +193,35 @@ function Block({ block }: { block: LegalBlock }) {
     case "withdrawal-form":
       return <WithdrawalForm />;
     case "withdrawal-model":
-      return <WithdrawalModel />;
+      return <WithdrawalModel t={t.modeleRetractation} />;
   }
 }
 
 /**
- * Pages légales et pratiques : même gabarit partout — date de mise à jour et version en tête,
+ * Pages légales et pratiques : même gabarit partout. Date de mise à jour et version en tête,
  * sommaire cliquable, texte justifié avec césure, repères « À COMPLÉTER » bien visibles.
+ * Les textes officiels de la créatrice (CGV, mentions légales) sont rendus avec data-officiel :
+ * repris mot pour mot, seule leur typographie est contrôlée (scripts/controle-ecriture.ts).
  */
-export function LegalView({ slug }: { slug: LegalSlug }) {
-  const p = legalPages[slug];
-  const version = "version" in p ? p.version : undefined;
+export async function LegalView(props: { page: LegalPageView } | { slug: LegalSlug }) {
+  const page = "page" in props ? props.page : legalPageView(props.slug);
+  const t = await getDoc<JuridiqueTexts>("juridique");
+  const official = (yes: boolean) => (yes ? { "data-officiel": "" } : {});
   return (
     <>
-      <PageHeader title={p.title} lead={<LegalText text={p.intro} />} crumbs={[{ name: p.title, path: `/${p.slug}` }]} />
+      <PageHeader title={page.title} lead={page.lead ? <LegalText text={page.lead} /> : undefined} crumbs={[{ name: page.title, path: page.path }]} />
       <Section theme="ivory" className="section section--flush-top">
         <div className="container legal">
           <p className="legal__updated t-label">
-            Mise à jour le {formatDate(p.updated)}
-            {version ? ` · version ${version}` : ""}
+            {fill(t.misAJour, { date: formatDate(page.updated) })}
+            {page.version ? ` · ${fill(t.version, { version: page.version })}` : ""}
           </p>
-          {p.sections.length > 2 ? (
-            <nav className="legal__toc" aria-label="Sommaire">
-              <p className="t-label">Sommaire</p>
+          {page.sections.length > 2 ? (
+            <nav className="legal__toc" aria-label={t.sommaire}>
+              <p className="t-label">{t.sommaire}</p>
               <ol>
-                {p.sections.map((s) => (
-                  <li key={s.id}>
+                {page.sections.map((s) => (
+                  <li key={s.id} {...official(s.official)}>
                     <a href={`#${s.id}`} className="link-plain">
                       {s.title}
                     </a>
@@ -185,11 +231,18 @@ export function LegalView({ slug }: { slug: LegalSlug }) {
             </nav>
           ) : null}
           <div className="prose legal__body">
-            {p.sections.map((s) => (
-              <section key={s.id} id={s.id} aria-labelledby={`${s.id}-titre`} className="legal__section">
+            {page.preamble ? (
+              <div className="legal__section" {...official(page.preamble.official)}>
+                {page.preamble.blocks.map((b, i) => (
+                  <Block key={i} block={b} t={t} />
+                ))}
+              </div>
+            ) : null}
+            {page.sections.map((s) => (
+              <section key={s.id} id={s.id} aria-labelledby={`${s.id}-titre`} className="legal__section" {...official(s.official)}>
                 <h2 id={`${s.id}-titre`}>{s.title}</h2>
                 {s.blocks.map((b, i) => (
-                  <Block key={i} block={b} />
+                  <Block key={i} block={b} t={t} />
                 ))}
               </section>
             ))}

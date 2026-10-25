@@ -2,6 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fence, safeOutbound, suspicious } from "@/lib/ai/guard";
+import { identity } from "@/content/brand/identity";
 
 test("repère les consignes adressées au modèle", () => {
   for (const t of [
@@ -18,8 +19,8 @@ test("repère les consignes adressées au modèle", () => {
 
 test("une réponse automatique ne cite que le site, les transporteurs et l'adresse de la maison", () => {
   assert.equal(safeOutbound("Votre commande AW-1031 est expédiée : https://www.laposte.fr/outils/suivre-vos-envois?code=6A123"), true);
-  assert.equal(safeOutbound("Écrivez-nous à contact@awreaparis.com ou sur https://www.awreaparis.com/contact"), true);
-  assert.equal(safeOutbound("Un S correspond à 84 cm, 66 cm et 92 cm."), true);
+  // l'adresse de la maison est celle des mentions légales (content/brand/identity.ts)
+  assert.equal(safeOutbound(`Écrivez-nous à ${identity.email} ou sur https://www.awreaparis.com/contact`), true);  assert.equal(safeOutbound("Un S correspond à 84 cm, 66 cm et 92 cm."), true);
   assert.equal(safeOutbound("Payez ici : https://evil.example/pay"), false);
   assert.equal(safeOutbound("Rendez-vous sur paiement-awrea.com pour régler"), false);
   assert.equal(safeOutbound("Appelez le 06 12 34 56 78"), false);

@@ -26,10 +26,10 @@ export function MessageEditor({ id, subject, draft }: { id: string; subject: str
         <textarea id={`b-${id}`} className="field__input message__draft" value={body} onChange={(e) => setBody(e.target.value)} />
       </div>
       <div className="proposal__actions">
-        <button type="button" className="btn btn--solid" disabled={state === "busy" || body.trim().length < 2} onClick={() => post({ action: "send", subject: s, body })}>
+        <button type="button" className="btn" disabled={state === "busy" || body.trim().length < 2} onClick={() => post({ action: "send", subject: s, body })}>
           Envoyer la réponse
         </button>
-        <button type="button" className="btn" disabled={state === "busy"} onClick={() => post({ action: "close" })}>
+        <button type="button" className="btn btn--outline" disabled={state === "busy"} onClick={() => post({ action: "close" })}>
           Classer sans répondre
         </button>
       </div>

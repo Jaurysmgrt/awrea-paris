@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { acceptCookies, VIEWPORTS } from "./helpers";
 
 const PAGES = [
-  "/", "/collections", "/collections/lace-is-more", "/boutique", "/boutique?categorie=body", "/boutique/robe-odessa", "/boutique/etole-nyx",
+  "/", "/collections", "/collections/hypnotic-lace", "/boutique", "/boutique?categorie=body", "/boutique/robe-odessa", "/boutique/top-evina",
   "/outfits", "/la-maison", "/atelier", "/journal", "/journal/moodboard-lace-is-more", "/presse", "/contact", "/faq",
   "/livraison-retours", "/cgv", "/cgu", "/mentions-legales", "/propriete-intellectuelle", "/confidentialite", "/cookies", "/assistant-ia", "/retractation", "/compte", "/liste-envies", "/commande", "/page-inexistante",
 ];

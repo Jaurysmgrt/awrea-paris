@@ -1,7 +1,8 @@
 /**
- * Outil d'e-mails marketing : Brevo (par défaut, société française, données dans l'UE)
- * ou Klaviyo. Les gabarits restent ceux du site (lib/email/templates.ts) pour garder
- * la même direction artistique partout.
+ * Outil d'e-mails de la Maison (lettre, avant-premières, scénarios) : Brevo (par défaut, société
+ * française, données dans l'UE) ou Klaviyo. Les gabarits restent ceux du site
+ * (lib/email/templates.ts) pour garder la même direction artistique partout. Aucune donnée de
+ * stock ni de rareté n'est transmise : les pièces sont créées sur demande.
  *  - Brevo : contacts et listes synchronisés, e-mails envoyés par l'API transactionnelle.
  *  - Klaviyo : profils et évènements envoyés ; les scénarios peuvent aussi être bâtis dans Klaviyo.
  *  - Aucun : e-mails transmis à l'outil transactionnel du site (Resend) ou à la boîte d'envoi simulée.
@@ -99,7 +100,11 @@ async function klaviyo(path: string, body: unknown) {
   if (!res.ok && res.status !== 202 && res.status !== 204) throw new Error(`Klaviyo ${path} : ${res.status}`);
 }
 
-/** Envoi d'un e-mail de scénario, au gabarit de la maison. */
+/**
+ * Envoi d'un e-mail de scénario (lib/marketing/flows.ts), au gabarit de la Maison : bienvenue,
+ * avant-première d'une collection, livraison, entretien, avis, panier en attente. Les en-têtes
+ * (désinscription en un clic des lettres) suivent l'e-mail, quel que soit l'outil d'envoi.
+ */
 export async function sendFlowEmail(mail: OutgoingEmail & { flow: string }): Promise<void> {
   const record = { to: mail.to, subject: mail.subject, flow: mail.flow, date: new Date().toISOString() };
   if (marketingProvider === "brevo") {
@@ -114,6 +119,8 @@ export async function sendFlowEmail(mail: OutgoingEmail & { flow: string }): Pro
         textContent: mail.text,
         tags: [mail.flow],
         replyTo: mail.replyTo ? { email: mail.replyTo } : undefined,
+        // désinscription en un clic des lettres (List-Unsubscribe), comme pour les envois du site
+        headers: mail.headers && Object.keys(mail.headers).length ? mail.headers : undefined,
       }),
     });
     await kv.push("marketing:sent", { ...record, provider: "brevo", ok: res.ok }, 500);

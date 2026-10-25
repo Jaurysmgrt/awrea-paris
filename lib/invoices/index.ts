@@ -10,6 +10,10 @@
  * - Régime de TVA : TVA française incluse (20 %), exportation hors Union européenne exonérée,
  *   ou franchise en base (mention « art. 293 B du CGI » dans le registre légal).
  *
+ * - Désignation au modèle de la Maison : chaque pièce est créée sur demande par des artisans
+ *   français, sans stock ; la ligne porte la taille et « création sur demande » (plus aucun numéro
+ *   d'édition ni de série : le numéro de création est inscrit sur le certificat d'authenticité).
+ *
  * Conservation : dix ans (obligation comptable), dans le stockage technique.
  */
 import "server-only";
@@ -96,7 +100,7 @@ async function store(invoice: Invoice) {
 function linesOf(order: Order, giftWrapPrice = shop.giftWrapPrice): InvoiceLine[] {
   const lines: InvoiceLine[] = order.lines.map((l) => ({
     title: l.title,
-    detail: [l.size === "TU" ? "Taille unique" : `Taille ${l.size}`, l.editionLabel].filter(Boolean).join(" · "),
+    detail: `${l.size === "TU" ? "Taille unique" : `Taille ${l.size}`} · création sur demande`,
     quantity: l.quantity,
     unitTtc: l.unitPrice,
   }));
@@ -186,7 +190,7 @@ export async function accountingCsv(month: string): Promise<string> {
   const euros = (c: number) => (c / 100).toFixed(2).replace(".", ",");
   const esc = (v: string) => (/[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
   const sign = (i: Invoice) => (i.kind === "avoir" ? -1 : 1);
-  const head = ["Date", "Pièce", "Numéro", "Facture d’origine", "Commande", "Cliente", "Pays", "Régime", "Taux TVA", "Total HT", "TVA", "Total TTC", "Droits et taxes à l’importation", "Paiement"];
+  const head = ["Date", "Document", "Numéro", "Facture d’origine", "Commande", "Cliente", "Pays", "Régime", "Taux TVA", "Total HT", "TVA", "Total TTC", "Droits et taxes à l’importation", "Paiement"];
   const lines = rows.map((i) =>
     [
       i.issuedAt.slice(0, 10),

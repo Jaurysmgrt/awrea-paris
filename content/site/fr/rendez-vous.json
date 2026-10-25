@@ -4,11 +4,11 @@
     "description": "Un essayage à l’atelier, un appel vidéo avec la créatrice ou un premier rendez-vous sur mesure : choisissez votre jour et votre heure."
   },
   "titre": "Prendre rendez-vous",
-  "chapeau": "Un essayage à l’atelier, un appel vidéo ou un premier rendez-vous sur mesure. Choisissez le jour et l’heure : ils vous sont réservés.",
+  "chapeau": "Avant de commander une pièce, parlez-en avec la créatrice : à l’atelier, en appel vidéo, ou pour un premier rendez-vous sur mesure. Choisissez le jour et l’heure, ils vous sont réservés.",
   "types": {
     "essayage": {
       "titre": "Essayage à l’atelier",
-      "texte": "Les pièces de votre choix vous attendent, à votre taille. La créatrice ajuste ce qui doit l’être.",
+      "texte": "Essayer, toucher la dentelle, trouver votre taille avec la créatrice. Votre pièce est ensuite créée sur demande, dans cette taille.",
       "duree": "Une heure"
     },
     "visio": {

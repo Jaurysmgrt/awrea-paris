@@ -40,8 +40,8 @@
   font-size: var(--text-step--1);
 }
 
-.btn,
-.solid,
+/* Actions de l'éditeur : boutons du design system (.btn, .btn--outline, .btn--link). Ici, seulement
+   les petites commandes (blocs, bibliothèque, aperçus). */
 .segmented button,
 .tools button,
 .library button {
@@ -63,32 +63,20 @@
   cursor: pointer;
   transition: border-color var(--dur) var(--ease);
 }
-.btn:hover,
 .segmented button:hover,
 .tools button:hover,
 .library button:hover {
   border-color: var(--accent);
 }
-.solid,
 .segmented button[aria-pressed="true"] {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--bg);
 }
-.quiet {
+/* lien d'action dans une grille : il garde sa largeur */
+.start {
   justify-self: start;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--fg);
-  font: inherit;
-  font-size: var(--text-step--1);
-  text-decoration: underline;
-  text-underline-offset: var(--spacing-3xs);
-  cursor: pointer;
 }
-.btn:disabled,
-.solid:disabled,
 .tools button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -114,20 +102,11 @@
   line-height: var(--leading-tight);
 }
 
-.field {
-  display: grid;
-  gap: var(--spacing-3xs);
-}
+/* champs du design system (.field, .field__label, .field__input) ; en tête, l'étiquette et le compte */
 .fieldHead {
   display: flex;
   justify-content: space-between;
   gap: var(--spacing-xs);
-}
-.label {
-  font-weight: var(--font-weight-regular);
-  font-size: var(--text-step--2);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
 }
 .count {
   color: var(--fg-soft);
@@ -138,20 +117,6 @@
   font-weight: var(--font-weight-medium);
   font-size: var(--text-step--2);
   font-variant-numeric: tabular-nums;
-}
-.input {
-  width: 100%;
-  padding: var(--spacing-2xs);
-  border: var(--border-width-hair) solid var(--line);
-  border-radius: var(--radius-none);
-  background: var(--bg);
-  color: var(--fg);
-  font: inherit;
-  font-size: var(--text-step-0);
-  resize: vertical;
-}
-.input:focus {
-  border-color: var(--accent);
 }
 .hint {
   color: var(--fg-soft);
