@@ -62,8 +62,7 @@ de passe, avec votre mot de passe.
    ouvre l’Atelier une seule fois si votre téléphone n’est pas à portée de main. Ils ne seront plus
    affichés. Puis **J’ai noté mes codes, entrer**.
 
-> Capture à ajouter : l’écran de la double authentification avec son code carré
-> (`docs/guide/01-double-authentification.png`).
+![L’écran de la double authentification avec son code carré](docs/guide/01-double-authentification.png)
 
 ### Les fois suivantes
 
@@ -71,7 +70,7 @@ de passe, avec votre mot de passe.
 2. **Adresse e-mail**, **Mot de passe**, puis **Continuer**.
 3. Le code à six chiffres de votre application (ou un code de secours), puis **Entrer**.
 
-> Capture à ajouter : l’écran de connexion (`docs/guide/02-connexion.png`).
+![L’écran de connexion](docs/guide/02-connexion.png)
 
 ### Ce qui vous protège
 
@@ -113,7 +112,7 @@ Le menu de gauche réunit tout. Voici à quoi sert chaque entrée.
 | **Journal des actions** | Tout ce que les agents ont fait, avec la date |
 | **Réglages** | Les services branchés, ceux qui manquent, les connexions à l’Atelier |
 
-> Capture à ajouter : la Vue d’ensemble et son menu (`docs/guide/03-vue-d-ensemble.png`).
+![La Vue d’ensemble et son menu](docs/guide/03-vue-d-ensemble.png)
 
 ## 3. Modifier un texte du site
 
@@ -139,8 +138,7 @@ Les textes officiels que vous avez écrits (À propos, texte de la collection, p
 Maison, conditions générales de vente, mentions légales) sont repris mot pour mot. Le panneau n’y
 signale que la typographie.
 
-> Capture à ajouter : un paragraphe en cours de modification, avec son panneau
-> (`docs/guide/04-modifier-un-texte.png`).
+![Un paragraphe en cours de modification, avec son panneau](docs/guide/04-modifier-un-texte.png)
 
 ## 4. Vérifier, publier, programmer, revenir en arrière
 
@@ -166,8 +164,7 @@ elle revient sur le site, et celle d’aujourd’hui reste dans l’historique. 
 Dans Atelier › **Pages**, la colonne **État** dit pour chaque page : **En ligne**, **Modifiée, pas
 encore en ligne** (un brouillon attend) ou **Brouillon** (page jamais publiée).
 
-> Capture à ajouter : la barre Édition et la fenêtre Historique
-> (`docs/guide/05-publier-historique.png`).
+![La barre Édition et la fenêtre Historique](docs/guide/05-publier-historique.png)
 
 ## 5. Composer une page, créer une page
 
@@ -236,8 +233,7 @@ Le site se met à jour tout seul quelques instants après. Le détail est dans `
 > À vérifier : le remplacement des photos d’une pièce depuis l’Atelier, sans passer par Shopify,
 > n’est pas prévu à ce jour.
 
-> Capture à ajouter : une photo provisoire avec sa pastille, et la liste des photos à remplacer
-> (`docs/guide/06-photos-provisoires.png`).
+![Une photo provisoire avec sa pastille, et la liste des photos à remplacer](docs/guide/06-photos-provisoires.png)
 
 ## 7. Les pièces, prix, délai, provisoire, Nouveau
 
@@ -271,7 +267,7 @@ COMPLÉTER » (partie 15).
 > À vérifier : la façon dont l’agent Catalogue laisse « À COMPLÉTER » les matières et l’entretien
 > qu’il ne connaît pas.
 
-> Capture à ajouter : la page Catalogue (`docs/guide/07-catalogue.png`).
+![La page Catalogue](docs/guide/07-catalogue.png)
 
 ## 8. Suivre les commandes et faire avancer les étapes
 
@@ -315,8 +311,7 @@ rappelle par la mention **Dans Shopify**.
 > À vérifier : les écrans des étapes, les e-mails de chaque étape et le passage automatique à
 > « Livrée » avec Shopify sont en cours de construction.
 
-> Capture à ajouter : la liste des commandes et la fiche d’une commande avec sa frise
-> (`docs/guide/08-commandes.png`).
+![La liste des commandes et la fiche d’une commande avec sa frise](docs/guide/08-commandes.png)
 
 ## 9. Certificats et numéros de création
 
@@ -341,7 +336,7 @@ Votre cliente reçoit le lien de son certificat et un code personnel pour le rat
 
 > À vérifier : l’affichage « Création n° 0001 » sur le certificat imprimé et sur l’étiquette.
 
-> Capture à ajouter : la feuille d’un certificat prête à imprimer (`docs/guide/09-certificat.png`).
+![La feuille d’un certificat prête à imprimer](docs/guide/09-certificat.png)
 
 ## 10. Retours, échanges et factures
 
@@ -397,7 +392,7 @@ cours**, **Dévoilée**), ses dates, le nombre d’inscrites, et les liens **Voi
 > À vérifier : l’écran des avant-premières est en cours de construction ; vérifier les libellés et
 > l’envoi de la lettre aux inscrites.
 
-> Capture à ajouter : le formulaire d’une avant-première (`docs/guide/11-avant-premieres.png`).
+![Le formulaire d’une avant-première](docs/guide/11-avant-premieres.png)
 
 ## 12. Les e-mails et leur aperçu
 
@@ -428,7 +423,7 @@ Klaviyo** ou **Pour Shopify** télécharge le gabarit à importer (`ACTIVATION.m
 > À vérifier : la place des e-mails des étapes de commande (« Commande reçue », « En confection »,
 > « Prête », « Expédiée ») dans la liste des e-mails.
 
-> Capture à ajouter : l’éditeur d’un e-mail avec son aperçu (`docs/guide/12-e-mails.png`).
+![L’éditeur d’un e-mail avec son aperçu](docs/guide/12-e-mails.png)
 
 ## 13. Les rendez-vous
 
@@ -465,7 +460,7 @@ fait, avec la date.
 
 Les agents n’ont jamais accès aux données bancaires ni aux mots de passe.
 
-> Capture à ajouter : une proposition en attente avec ses boutons (`docs/guide/14-validations.png`).
+![Une proposition en attente avec ses boutons](docs/guide/14-validations.png)
 
 ## 15. Les informations à compléter
 
