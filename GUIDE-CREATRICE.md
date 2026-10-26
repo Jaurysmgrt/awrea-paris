@@ -154,7 +154,8 @@ Tous ces boutons sont dans la barre **Édition**, en bas de la page.
 **Publier** met la page en ligne tout de suite, avec tous vos changements.
 
 **Programmer** choisit le jour et l’heure, à l’heure de Paris. La page passe en ligne toute seule
-au moment choisi (au quart d’heure près). D’ici là, vous pouvez encore la modifier. Les publications
+au moment choisi, au quart d’heure près (pendant l’essai privé du site, au plus tard le lendemain
+matin, ou dès que vous ouvrez l’éditeur). D’ici là, vous pouvez encore la modifier. Les publications
 prévues sont listées dans Atelier › **Pages**, sous **Publications programmées**, avec un bouton
 **Annuler**.
 

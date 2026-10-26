@@ -81,8 +81,11 @@ ensuite, dans n'importe quel ordre.
 
 ## Étape 1 — Vercel (hébergement)
 
-1. Créer un compte sur [vercel.com](https://vercel.com/signup) avec le compte GitHub, puis passer
-   au forfait **Pro**.
+1. Créer un compte sur [vercel.com](https://vercel.com/signup) avec le compte GitHub (fait le
+   26/10/2026). Pour l'essai privé (`SITE_PRIVE=1`), le forfait gratuit **Hobby** suffit ; avant
+   l'ouverture au public, passer au forfait **Pro** (Hobby est réservé aux sites non commerciaux)
+   et remettre la publication programmée toutes les 15 minutes : dans `vercel.json`, la tâche
+   `/api/cron/edition` reprend `*/15 * * * *` (Hobby n'accepte qu'une tâche par jour).
 2. **Add New** › **Project** › importer le dépôt du site. Ne rien changer aux réglages proposés
    (Next.js est détecté ; la région Paris est déjà indiquée dans `vercel.json`).
 3. **Settings** › **Domains** : ajouter `www.awreaparis.com` puis `awreaparis.com`, et suivre les
@@ -641,9 +644,10 @@ l'historique et les versions publiées, et Supabase (étape 5) pour les photos d
 
    Chaque publication est alors aussi enregistrée dans le dépôt (`content/site/`), qui garde
    l'archive de tous les contenus et relance un déploiement.
-3. **Publications programmées** : rien à faire, Vercel Cron les publie tous les quarts d'heure
-   (`vercel.json`, `CRON_SECRET` de l'étape 2), et l'éditeur publie aussi celles arrivées à
-   échéance dès qu'il s'ouvre.
+3. **Publications programmées** : rien à faire, Vercel Cron les publie (`vercel.json`,
+   `CRON_SECRET` de l'étape 2) : une fois par jour sur le forfait Hobby, tous les quarts d'heure
+   une fois `*/15 * * * *` remis avec le forfait Pro (étape 1) ; l'éditeur publie aussi celles
+   arrivées à échéance dès qu'il s'ouvre.
 4. **E-mails** : l'Atelier › **E-mails** montre chaque e-mail tel qu'il arrive (Apple Mail, Gmail,
    Outlook, téléphone, clair et sombre). Les e-mails du site partent directement avec la version
    publiée. Pour les services d'envoi :
