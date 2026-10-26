@@ -29,7 +29,7 @@ jobs:
         run: npm audit || true
       - name: Site en ligne (TLS, HTTPS, en-têtes, journal)
         run: node scripts/security-check.mjs "$SITE_URL" --json rapport-securite.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: rapport-securite

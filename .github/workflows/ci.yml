@@ -66,7 +66,7 @@ jobs:
           npm run audit:ecriture -- --site http://localhost:3300
       - name: Rapport en cas d'échec
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: rapport-playwright
           path: test-results/
