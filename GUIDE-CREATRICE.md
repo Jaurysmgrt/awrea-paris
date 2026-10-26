@@ -44,6 +44,13 @@ L’Atelier a une adresse secrète. Aucun lien du site n’y mène et les moteur
 connaissent pas. Elle vous est donnée à l’installation : gardez-la dans votre gestionnaire de mots
 de passe, avec votre mot de passe.
 
+### Tant que le site est privé
+
+Jusqu’à son ouverture, le site est privé. Une visiteuse ne voit qu’une page « Bientôt », avec le
+logo et un lien pour vous écrire. Vous, une fois entrée dans l’Atelier, voyez tout le site et pouvez
+le modifier, depuis le même navigateur. Le jour de l’ouverture, la personne qui s’occupe du site
+retire le réglage `SITE_PRIVE` (`ACTIVATION.md`, étape 2), et le site devient public.
+
 ### La première fois
 
 1. Ouvrez l’adresse secrète de l’Atelier.

@@ -154,6 +154,16 @@ double authentification, routes internes en 404, `robots.txt` sans l'adresse, pa
 (succès, échec du mot de passe ou du code, blocage) avec la famille d'appareil et le réseau
 tronqué (minimisation RGPD).
 
+### Site privé avant l'ouverture
+
+Tant que `SITE_PRIVE=1` (`lib/security/private-site.ts`, `proxy.ts`), une visiteuse sans session de
+l'Atelier ne voit que la page d'attente `/acces-prive`, sans en-tête, menu ni contenu ; les API
+publiques répondent 404 (sauf webhooks et tâches planifiées, authentifiés autrement) ; `robots.txt`
+ferme tout, le plan du site et `llms.txt` sont vides, et chaque réponse porte `X-Robots-Tag:
+noindex`. La créatrice connectée (session de l'Atelier, double authentification) voit tout le site.
+Contrôlé par `tests/e2e/site-prive.spec.ts` (serveur lancé avec `SITE_PRIVE=1`) et
+`tests/unit/site-prive.test.ts`.
+
 ## 5. Données
 
 - **Sécurité par ligne (RLS) partout** : les 14 tables de la base clientes sont protégées ; une

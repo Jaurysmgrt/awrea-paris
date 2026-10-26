@@ -314,3 +314,7 @@
   en TypeScript (CGU, confidentialité, cookies, livraison et retours, rétractation, Journal, FAQ,
   espace cliente, bandeau cookies), les e-mails et l'assistante. À arbitrer : indexer ou non ces
   pages restées en français sous `/en`.
+- **Site privé** (26/10) : la créatrice garde le site pour elle jusqu'à ce qu'il soit fini. Nouveau
+  mode `SITE_PRIVE=1` : page d'attente « Bientôt » (français et anglais) pour les visiteuses, rien
+  d'indexable, tout le site pour la créatrice connectée à l'Atelier ; tests unitaires et parcours
+  dédiés. Le domaine `awreaparis.com`, enregistré chez Wix, reste non relié.

@@ -111,6 +111,7 @@ de mots de passe de votre gestionnaire, réglé sur 64 caractères, lettres et c
 | `CRON_SECRET` | 32 caractères aléatoires (protège les tâches planifiées) |
 | `ATELIER_EMAIL` | l'adresse de l'atelier (copies des demandes, rapports des agents) |
 | `SECURITY_ALERT_EMAIL` | une adresse qui reçoit une copie des alertes de connexion (facultatif) |
+| `SITE_PRIVE` | `1` tant que le site n'est pas ouvert au public (décision de la créatrice du 26/10/2026) : une visiteuse ne voit que la page « Bientôt », rien n'est indexé, et la créatrice connectée à l'Atelier voit tout le site. Pour l'ouvrir : supprimer la variable, puis **Redeploy** |
 
 Gardez l'adresse secrète dans votre gestionnaire de mots de passe, avec le site. Elle n'apparaît nulle
 part sur le site : ni lien, ni moteur de recherche. L'ancienne adresse `/gestion` répond « page

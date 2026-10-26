@@ -13,6 +13,9 @@
  *    valeur envoyée par le navigateur est écrasée). L'Atelier, l'API et les fichiers (plan du site,
  *    llms.txt, images) n'existent qu'en un exemplaire : sous /en, ils répondent 404 comme toute
  *    adresse inconnue.
+ *  - Site privé (SITE_PRIVE=1, lib/security/private-site.ts) : sans session de l'Atelier, toute
+ *    page du site montre la page d'attente et toute API répond 404 (sauf webhooks et tâches
+ *    planifiées) ; aucune réponse n'est indexée.
  */
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
@@ -22,6 +25,7 @@ import { countRefusal } from "@/lib/security/rate-limit";
 import { providerOf } from "@/lib/config/providers";
 import { atelierBase, isInternalAtelierPath, toInternal } from "@/lib/admin/path";
 import { DEFAULT_LOCALE, LOCALE_HEADER, isLocalizable, splitLocale, type Locale } from "@/lib/i18n/routing";
+import { PRIVATE_PAGE, openWhilePrivate, sitePrive } from "@/lib/security/private-site";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY;
@@ -85,6 +89,20 @@ function notFound(request: NextRequest, nonce: string | null, locale: Locale = D
 
 function rewrite(request: NextRequest, url: URL, nonce: string | null, locale: Locale = DEFAULT_LOCALE) {
   return NextResponse.rewrite(url, { request: { headers: upstreamHeaders(request, nonce, locale) } });
+}
+
+/** Site privé, visiteuse sans session de l'Atelier : la page d'attente, ou 404 pour une API. */
+function privateGate(request: NextRequest, path: string, nonce: string | null, locale: Locale) {
+  let response: NextResponse;
+  if (path.startsWith("/api/")) response = NextResponse.json({ error: "Introuvable" }, { status: 404 });
+  else {
+    const url = request.nextUrl.clone();
+    url.pathname = PRIVATE_PAGE;
+    url.search = "";
+    response = rewrite(request, url, nonce, locale);
+  }
+  response.headers.set("Cache-Control", "private, no-store");
+  return response;
 }
 
 /** Pages de l'Atelier ouvertes sans session : connexion et lien « ce n'était pas moi ». */
@@ -162,8 +180,12 @@ export async function proxy(request: NextRequest) {
   if (translated && (!isLocalizable(path) || isInternalAtelierPath(path) || (base && toInternal(path, base)))) response = notFound(request, nonce, locale);
   else if (base && toInternal(pathname, base)) response = await protectAtelier(request, base, nonce);
   else if (isInternalAtelierPath(pathname)) response = notFound(request, nonce);
+  else if (sitePrive() && !openWhilePrivate(path) && !(await isAdminToken(request.cookies.get(ADMIN_COOKIE)?.value))) response = privateGate(request, path, nonce, locale);
   else if (path.startsWith("/compte") || pathname.startsWith("/api/account")) response = await refreshCustomerSession(request, nonce, locale, target);
   else response = forward(request, nonce, locale, target);
+
+  // site privé : aucune réponse n'est indexée, même pour la créatrice connectée
+  if (sitePrive()) response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
 
   if (isDocument(request) && (await isEditorSession(request))) {
     response.headers.set("X-Frame-Options", "SAMEORIGIN");

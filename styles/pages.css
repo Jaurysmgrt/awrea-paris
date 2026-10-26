@@ -952,6 +952,23 @@
     gap: var(--spacing-s);
   }
 
+  /* page d'attente du site privé (app/acces-prive) : le logo, un mot, l'adresse de contact */
+  .acces-prive {
+    min-height: 100svh;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: var(--space-paragraph);
+    padding: var(--spacing-xl) var(--spacing-s);
+    background: var(--bg);
+    color: var(--fg);
+    text-align: center;
+  }
+  .acces-prive__logo {
+    --logo-h: var(--size-logo-l);
+    margin-block-end: var(--space-block);
+  }
+
   /* ============================================================ PAGES LÉGALES */
   .legal {
     display: grid;
