@@ -30,7 +30,7 @@ jobs:
       CRON_SECRET: ${{ secrets.CRON_SECRET }}
       NEXT_TELEMETRY_DISABLED: 1
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.deployment.sha }}
       - uses: actions/setup-node@v4
