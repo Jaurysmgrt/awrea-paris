@@ -57,7 +57,7 @@ export async function buildSearchIndex(locale: Locale = "fr"): Promise<SearchEnt
     getCollections(locale),
     getArticles(),
     getDoc<{ categories: Record<string, string> }>("boutique", locale, { plain: true }).catch(() => null),
-    Promise.all(PAGE_DOCS.map((d) => getDoc<{ seo?: { description?: string } }>(d.doc, locale, { plain: true }).catch(() => null))),
+    Promise.all(PAGE_DOCS.map((d) => getDoc<{ titre?: string; seo?: { description?: string } }>(d.doc, locale, { plain: true }).catch(() => null))),
   ]);
   const categoryLabel = (value: string) => boutique?.categories[value] ?? value;
   const collectionTitle = new Map(collections.map((c) => [c.handle, c.title]));
@@ -113,7 +113,8 @@ export async function buildSearchIndex(locale: Locale = "fr"): Promise<SearchEnt
     });
   }
 
-  const maison: PageEntry[] = PAGE_DOCS.map((d, i) => ({ href: d.href, title: d.title, note: docs[i]?.seo?.description ?? "", extra: d.extra }));
+  // titre de la page dans sa langue (document de contenu), à défaut celui de la liste
+  const maison: PageEntry[] = PAGE_DOCS.map((d, i) => ({ href: d.href, title: (typeof docs[i]?.titre === "string" && docs[i]?.titre) || d.title, note: docs[i]?.seo?.description ?? "", extra: d.extra }));
   for (const page of [...maison, ...pages]) {
     entries.push({ kind: "maison", href: page.href, title: page.title, note: clip(page.note), key: normalize(page.title), terms: normalize(`${page.note} ${page.extra}`) });
   }

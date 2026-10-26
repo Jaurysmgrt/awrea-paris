@@ -51,22 +51,43 @@ const PARIS = new Intl.DateTimeFormat("fr-FR", {
   hourCycle: "h23",
 });
 
+/** Version anglaise (britannique) : « Thursday 5 November », « 6 pm », « 2.30 pm ». */
+const PARIS_EN = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Europe/Paris",
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+});
+
 /**
  * Date écrite en toutes lettres, heure de Paris : { jour: « jeudi 5 novembre », heure: « 18 h » }.
  * L'année n'est écrite que si elle diffère de l'année en cours ; « 1er » pour le premier du mois ;
- * espaces insécables entre le chiffre et le mois, et dans l'heure.
+ * espaces insécables entre le chiffre et le mois, et dans l'heure. En anglais (`locale` « en ») :
+ * { jour: « Thursday 5 November », heure: « 6 pm » ou « 2.30 pm » }.
  */
-export function parisDate(iso: string, now: number = Date.now()): { jour: string; heure: string } {
+export function parisDate(iso: string, now: number = Date.now(), locale: "fr" | "en" = "fr"): { jour: string; heure: string } {
+  const format = locale === "en" ? PARIS_EN : PARIS;
   const parts = (d: Date) => {
-    const all = PARIS.formatToParts(d);
+    const all = format.formatToParts(d);
     return (type: Intl.DateTimeFormatPartTypes) => all.find((p) => p.type === type)?.value ?? "";
   };
   const g = parts(new Date(iso));
   const year = parts(new Date(now))("year");
-  const day = g("day") === "1" ? "1er" : g("day");
   const minute = g("minute");
+  const withYear = g("year") !== year ? ` ${g("year")}` : "";
+  if (locale === "en") {
+    return {
+      jour: `${g("weekday")} ${g("day")} ${g("month")}${withYear}`,
+      heure: `${Number(g("hour"))}${minute && minute !== "00" ? `.${minute}` : ""} ${g("dayPeriod").toLowerCase()}`,
+    };
+  }
+  const day = g("day") === "1" ? "1er" : g("day");
   return {
-    jour: `${g("weekday")} ${day} ${g("month")}${g("year") !== year ? ` ${g("year")}` : ""}`,
+    jour: `${g("weekday")} ${day} ${g("month")}${withYear}`,
     heure: `${Number(g("hour"))} h${minute && minute !== "00" ? ` ${minute}` : ""}`,
   };
 }
