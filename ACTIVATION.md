@@ -88,6 +88,11 @@ ensuite, dans n'importe quel ordre.
 3. **Settings** › **Domains** : ajouter `www.awreaparis.com` puis `awreaparis.com`, et suivre les
    indications de Vercel chez le registraire du domaine (les « DNS »). Le site redirige
    automatiquement l'adresse sans « www » vers celle avec « www ».
+   Le domaine `awreaparis.com` est enregistré chez **Wix** (constaté le 26/10/2026 : il affiche
+   « Ce domaine n'est pas connecté à un site »). Chez Wix : **Domaines** › `awreaparis.com` ›
+   **Gérer les enregistrements DNS**, puis remplacer les enregistrements A (`@`) et CNAME (`www`)
+   par les valeurs exactes que Vercel affiche. Ne pas toucher aux enregistrements MX s'il y en a
+   (e-mails).
 4. Variable à créer : `NEXT_PUBLIC_SITE_URL` = `https://www.awreaparis.com`.
 
 **Vérifier** : le site s'ouvre à son adresse, avec le cadenas du navigateur.
