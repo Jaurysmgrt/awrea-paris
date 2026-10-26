@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "@/components/ui/Link";
 import { getDoc } from "@/lib/edition/read";
+import { getLocale } from "@/lib/i18n/server";
 import { fill } from "@/lib/edition/fill";
 import { getArticle, getArticles } from "@/lib/content/journal";
 import { pageMetadata, siteDefaults } from "@/lib/seo/metadata";
@@ -30,6 +31,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+  const locale = await getLocale();
+  // article écrit en français (content/fr/journal.ts) : signalé comme tel sous /en
+  const fr = locale !== "fr" ? "fr" : undefined;
   const a = await getArticle((await params).slug);
   if (!a) notFound();
   const [t, all] = await Promise.all([getDoc<Journal>("journal"), getArticles()]);
@@ -42,10 +46,14 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         <div className="container-prose page-head">
           <Breadcrumbs items={[{ name: t.titre, path: "/journal" }, { name: a.title, path: `/journal/${a.slug}` }]} />
           <p className="t-label t-soft">
-            {a.category} · <time dateTime={a.date}>{formatDate(a.date)}</time> · {fill(t.lecture, { minutes: a.readingMinutes })}
+            {a.category} · <time dateTime={a.date}>{formatDate(a.date, locale)}</time> · {fill(t.lecture, { minutes: a.readingMinutes })}
           </p>
-          <h1 className="t-h1">{a.title}</h1>
-          <p className="t-lead">{a.excerpt}</p>
+          <h1 className="t-h1" lang={fr}>
+            {a.title}
+          </h1>
+          <p className="t-lead" lang={fr}>
+            {a.excerpt}
+          </p>
         </div>
         <div className="container">
           <Media image={a.cover} ratio="wide" priority sizes="100vw" />
@@ -53,7 +61,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </div>
       </Section>
       <Section theme="ivory" className="section">
-        <div className="container-prose prose article-body">
+        <div className="container-prose prose article-body" lang={fr}>
           {a.body.map((b, i) => {
             switch (b.type) {
               case "p":

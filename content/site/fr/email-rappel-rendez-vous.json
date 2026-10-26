@@ -15,7 +15,7 @@
     },
     "rendezvous": {
       "description": "Le rendez-vous",
-      "exemple": "Essayage à l’atelier"
+      "exemple": "Appel vidéo avec la créatrice"
     },
     "visio": {
       "description": "Le lien de l’appel vidéo, pour un rendez-vous à distance",
@@ -40,7 +40,7 @@
     {
       "id": "b-rdv0texte",
       "type": "texte",
-      "texte": "Bonjour {prenom},\n\n{rendezvous}, {quand}. Nous vous attendons, et nous aurons le temps."
+      "texte": "Bonjour {prenom},\n\n{rendezvous}, {quand}. La créatrice vous attend, et vous aurez le temps."
     },
     {
       "id": "b-rdv0visio",

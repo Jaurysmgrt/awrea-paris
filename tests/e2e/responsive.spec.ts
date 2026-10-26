@@ -42,20 +42,21 @@ for (const vp of VIEWPORTS) {
           }
           const imgsNoAlt = Array.from(document.querySelectorAll("img")).filter((i) => !i.hasAttribute("alt")).length;
           const badJustify = Array.from(document.querySelectorAll("main h1, main h2, main h3, main .btn, main .price, main nav a")).filter((el) => getComputedStyle(el).textAlign === "justify").length;
-          // mêmes exclusions que la règle de styles/base.css : étiquettes, titres, prix, boutons
-          const notText = ".t-label, .eyebrow, .price, .t-h1, .t-h2, .t-h3, .t-h4, .t-display, .t-giant, .t-center, .t-left, .badge";
-          const prose = Array.from(document.querySelectorAll(`main .prose p:not(${notText}), main p.t-body:not(${notText})`)).filter((p) => p.tagName === "P");
-          // un paragraphe qu'aucun réglage ne justifie sans trou passe volontairement en fer à gauche
-          // (components/typography/Justification.tsx, data-fer-a-gauche) : la règle CSS s'applique bien ;
-          // sur téléphone, un paragraphe qui contient une adresse web y passe d'avance (styles/components.css)
-          const notJustified = prose.filter((p) => getComputedStyle(p).textAlign !== "justify" && !(p as HTMLElement).dataset.ferAGauche && !p.querySelector(".adresse-web")).length;
-          return { overflow: de.scrollWidth - de.clientWidth, offenders, h1: document.querySelectorAll("h1").length, imgsNoAlt, badJustify, notJustified, lang: de.lang };
+          // texte aligné à gauche (styles/base.css) : aucun paragraphe de texte justifié
+          const prose = Array.from(document.querySelectorAll("main .prose p, main p.t-body")).filter((p) => p.tagName === "P");
+          const justified = prose.filter((p) => getComputedStyle(p).textAlign === "justify").length;
+          // en-tête : la navigation ne passe jamais sous le sélecteur de langue « FR · EN »
+          const nav = document.querySelector(".site-nav__list")?.getBoundingClientRect();
+          const langue = document.querySelector(".site-header__lang")?.getBoundingClientRect();
+          const headerOverlap = nav && langue && nav.width > 0 && langue.width > 0 ? Math.max(0, Math.round(nav.right - langue.left)) : 0;
+          return { overflow: de.scrollWidth - de.clientWidth, offenders, h1: document.querySelectorAll("h1").length, imgsNoAlt, badJustify, justified, headerOverlap, lang: de.lang };
         });
         expect(r.overflow, `Débordement horizontal : ${r.offenders.join(", ")}`).toBeLessThanOrEqual(1);
         expect(r.h1, "Une seule balise H1").toBe(1);
         expect(r.imgsNoAlt, "Images sans attribut alt").toBe(0);
         expect(r.badJustify, "Titres, boutons, prix ou navigation justifiés").toBe(0);
-        expect(r.notJustified, "Paragraphes de texte non justifiés").toBe(0);
+        expect(r.justified, "Paragraphes de texte justifiés (trous entre les mots)").toBe(0);
+        expect(r.headerOverlap, "Navigation sous le sélecteur de langue").toBe(0);
         expect(r.lang).toBe("fr");
         expect(errors, errors.join("\n")).toHaveLength(0);
       });

@@ -5,6 +5,8 @@ import { findDoc, getDoc, isEditing } from "@/lib/edition/read";
 import { slugOf } from "@/lib/edition/documents";
 import { fill } from "@/lib/edition/fill";
 import { pageMetadata } from "@/lib/seo/metadata";
+import { getLocale } from "@/lib/i18n/server";
+import { localizePath } from "@/lib/i18n/routing";
 import { collectionSchema } from "@/lib/seo/schema";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -32,14 +34,14 @@ export const revalidate = 300;
 const modeleDoc = (handle: string) => `collection-${slugOf(handle)}`;
 
 export async function generateStaticParams() {
-  return (await getCollections()).map((c) => ({ handle: c.handle }));
+  return (await getCollections("fr")).map((c) => ({ handle: c.handle }));
 }
 
 export async function generateMetadata({ params, searchParams }: { params: Promise<{ handle: string }>; searchParams: Promise<SearchParams> }): Promise<Metadata> {
   const [{ handle }, sp] = await Promise.all([params, searchParams]);
   const c = await getCollection(handle);
   if (!c) {
-    const page = await findDoc<ModeleContent>(modeleDoc(handle), "fr", { plain: true });
+    const page = await findDoc<ModeleContent>(modeleDoc(handle), { plain: true });
     return page ? pageMetadata({ title: page.seo.title, description: page.seo.description, path: `/collections/${slugOf(handle)}` }) : {};
   }
   // les vues filtrées ne sont pas indexées : la page canonique reste celle de la collection
@@ -67,7 +69,7 @@ export default async function CollectionPage({ params, searchParams }: { params:
       if (k !== "collection" && v) rest.set(k, v);
     }
     const path = others.some((o) => o.handle === asked) ? `/collections/${asked}` : asked === "" ? "/boutique" : `/collections/${c.handle}`;
-    redirect(rest.size ? `${path}?${rest}` : path);
+    redirect(localizePath(rest.size ? `${path}?${rest}` : path, await getLocale()));
   }
 
   const [t, products, collections] = await Promise.all([getDoc<CollectionsTexts>("collections"), getProductsByHandles(c.products), getCollections()]);
@@ -83,7 +85,7 @@ export default async function CollectionPage({ params, searchParams }: { params:
           description: c.seo.description,
           path: `/collections/${c.handle}`,
           items: pieces.map((p) => ({ name: p.title, path: `/boutique/${p.handle}` })),
-        })}
+        }, await getLocale())}
       />
       <PageHeader
         title={fill(t.collection.titre, { collection: c.title })}

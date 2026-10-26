@@ -1,0 +1,183 @@
+{
+  "seo": {
+    "title": "Coming soon | Awrea Paris",
+    "description": "The next Awrea Paris collection: its name, its unveiling date, its first images. Subscribers to the Maison’s letter can order its pieces in preview.",
+    "privee": "A private presentation by Awrea Paris, opened with the password the Maison has given you."
+  },
+  "fil": "Coming soon",
+  "attente": {
+    "titre": "Coming soon",
+    "chapeau": "The next collection is being prepared in the atelier, between lace and draping. Subscribers to the Maison’s letter see it before anyone else and order its pieces in preview.",
+    "boutique": {
+      "titre": "In the meantime",
+      "texte": "The Hypnotic Lace collection can be ordered today. Each piece is made to order by French artisans, once your order is placed.",
+      "label": "See the pieces",
+      "href": "/boutique"
+    }
+  },
+  "etat": {
+    "annonce": "Next collection",
+    "avantPremiere": "In preview",
+    "privee": "Private presentation",
+    "devoilee": "New collection"
+  },
+  "dates": {
+    "avantPremiere": "Preview",
+    "privee": "Private presentation",
+    "devoilement": "Unveiling",
+    "valeur": "{jour} at {heure}",
+    "fuseau": "Paris time."
+  },
+  "collection": {
+    "titre": "The collection",
+    "image": "Image from the {collection} collection"
+  },
+  "acces": {
+    "inscription": {
+      "titre": "Receive the preview",
+      "texte": "Subscribers to the Maison’s letter receive a personal link by email. From {avantPremiere}, it opens the collection to them before anyone else: they order its pieces before the unveiling, and each one is made for them, to order, by French artisans. Leave your address to receive this link.",
+      "texteEnCours": "The preview is open until {devoilement}. Leave your address: a personal link reaches you straight away by email, and you can order its pieces before the unveiling to all. Each one is made for you, to order, by French artisans.",
+      "champ": "Email address",
+      "bouton": "Receive my link",
+      "envoi": "One moment…",
+      "merci": "Noted. Your personal link has just been sent by email. Open it on the phone or computer you will order from.",
+      "mention": "Your address is used only to send you this link and to write to you about this preview."
+    },
+    "privee": {
+      "titre": "Enter the private presentation",
+      "texte": "This collection is first shown to a few people. The Maison has given you the password: it opens the presentation in this browser, with its images and its pieces.",
+      "champ": "Private presentation password",
+      "bouton": "Enter",
+      "envoi": "Checking…",
+      "ouverte": {
+        "titre": "The private presentation is open to you",
+        "texte": "From this browser, its pieces can be ordered now, before the unveiling to all on {devoilement}. Each one is made for you, to order, by French artisans."
+      }
+    },
+    "pret": {
+      "titre": "Your access is ready",
+      "texte": "It is saved in this browser. The pieces below can be ordered here from {avantPremiere}, before the unveiling to all on {devoilement}."
+    },
+    "ouvert": {
+      "titre": "Your preview is open",
+      "texte": "From this browser, the pieces below can be ordered now, before the unveiling to all on {devoilement}. Each one is made for you, to order, by French artisans."
+    },
+    "devoilee": {
+      "titre": "The collection is unveiled",
+      "texte": "Its pieces can be ordered in the shop. Each one is made to order by French artisans, once your order is placed.",
+      "label": "Order a piece",
+      "href": "/boutique"
+    }
+  },
+  "pieces": {
+    "titre": "Pieces in the collection"
+  },
+  "lienInvalide": "This link is no longer valid. Leave your address again: a new link will reach you straight away.",
+  "erreurs": {
+    "email": "Please enter a complete email address, for example firstname@example.com.",
+    "verification": "The anti-robot check did not go through. Please try again.",
+    "limite": "Several attempts in a short time: please try again in a few minutes.",
+    "close": "This preview is no longer accepting sign-ups. The pieces of the collection can be ordered in the shop.",
+    "motDePasse": "Please enter the password given by the Maison.",
+    "refuse": "This password does not open this private presentation.",
+    "generale": "The request did not go through. Please try again."
+  },
+  "porte": {
+    "annonce": "This piece belongs to the next collection, {collection}. Subscribers to the Maison’s letter can order it in preview from {avantPremiere}, then everyone from {devoilement}.",
+    "avantPremiere": "This piece can currently be ordered in preview, with the personal link sent to subscribers to the Maison’s letter. It opens to all on {devoilement}.",
+    "privee": "This piece belongs to the private presentation of the {collection} collection. It can be ordered with the password given by the Maison, then opens to all on {devoilement}.",
+    "lienAvantPremiere": "Receive the preview",
+    "lienPrivee": "Enter the private presentation"
+  },
+  "refus": {
+    "annonce": "The {collection} collection is not open yet. Subscribers to the Maison’s letter can order it in preview from {avantPremiere}.",
+    "avantPremiere": "The {collection} collection can be ordered in preview until {devoilement}, with the personal link sent by email to subscribers to the letter.",
+    "privee": "The {collection} collection can be ordered with the private presentation password until {devoilement}."
+  },
+  "emails": {
+    "inscription": {
+      "objet": "The {collection} collection, your link to the preview",
+      "preheader": "Your personal link to order the {collection} collection before anyone else.",
+      "titre": "Your preview",
+      "paragraphes": [
+        "Hello,",
+        "You are signed up for the preview of the {collection} collection. It opens to you from {avantPremiere}, before the unveiling to all on {devoilement}.",
+        "This link is personal. Open it on the phone or computer you will order from: it keeps your access there.",
+        "Each piece is made to order by French artisans, once your order is placed."
+      ],
+      "bouton": "Open my preview",
+      "signature": "With our full attention,\nMaison Awrea Paris"
+    },
+    "lettre": {
+      "objet": "The {collection} collection, in preview",
+      "preheader": "Your personal link to order the {collection} collection before anyone else.",
+      "titre": "{collection}",
+      "paragraphes": [
+        "Hello,",
+        "A new collection is being prepared in the atelier: {collection}. It will be unveiled to all on {devoilement}.",
+        "As a subscriber to the Maison’s letter, you see it before anyone else. From {avantPremiere}, this personal link lets you order its pieces in preview. Open it on the phone or computer you will order from.",
+        "Each piece is made to order by French artisans, once your order is placed."
+      ],
+      "bouton": "See the collection in preview",
+      "signature": "With our full attention,\nMaison Awrea Paris",
+      "note": "You are receiving this email because you subscribe to the Maison’s letter. To stop receiving it, one click is enough: {desinscription}"
+    }
+  },
+  "atelier": {
+    "titre": "Previews",
+    "chapeau": "Announce the next collection on the “Coming soon” page: its name, its unveiling date, a text and images. Subscribers to the letter order it in preview, before it opens to all. A private presentation remains reserved, until the unveiling, for the people who have the password.",
+    "liste": {
+      "titre": "Announced collections",
+      "vide": "No collection announced. The “Coming soon” page invites visitors to subscribe to the Maison’s letter.",
+      "colonnes": {
+        "collection": "Collection",
+        "etat": "Status",
+        "avantPremiere": "Preview",
+        "devoilement": "Unveiling",
+        "inscrites": "Signed up on the page",
+        "actions": "Actions"
+      },
+      "etats": {
+        "bientot": "Announced",
+        "anticipe": "Preview in progress",
+        "ouvert": "Unveiled"
+      },
+      "privee": "Private presentation",
+      "lettrePrevue": "Letter to subscribers scheduled",
+      "lettreUne": "One letter sent to subscribers",
+      "lettres": "{n} letters sent to subscribers",
+      "aucune": "None",
+      "voir": "See the page",
+      "modifier": "Edit"
+    },
+    "formulaire": {
+      "nouveau": "Announce a collection",
+      "modifier": "Edit “{collection}”",
+      "nom": "Collection name",
+      "adresse": "Page address (lowercase letters, numbers and hyphens)",
+      "texte": "Presentation text",
+      "texteAide": "A blank line separates two paragraphs.",
+      "images": "Images (one address per line, for example /media/img/odessa-1)",
+      "imagesAide": "Without an image, the photographs of the chosen pieces are shown.",
+      "avantPremiere": "Subscribers’ preview (Paris time)",
+      "presentation": "Private presentation (Paris time)",
+      "devoilement": "Unveiling to all (Paris time)",
+      "pieces": "Pieces in the collection",
+      "piecesAide": "They leave the shop until the unveiling and can be ordered in preview.",
+      "lettre": "Write to subscribers to the Maison’s letter: each one receives her personal link to the preview, only once for this collection",
+      "privee": "Private presentation: until the unveiling, the collection is reserved for the people who have the password",
+      "motDePasse": "Private presentation password",
+      "nouveauMotDePasse": "New password (leave empty to keep the current one)",
+      "creer": "Announce the collection",
+      "enregistrer": "Save the changes",
+      "envoi": "Saving…",
+      "fait": "The preview has been saved."
+    },
+    "erreurs": {
+      "dates": "The preview must come before the unveiling.",
+      "motDePasse": "Choose the private presentation password.",
+      "donnees": "Check the fields: some information is missing or not valid.",
+      "generale": "The save did not go through. Please try again."
+    }
+  }
+}

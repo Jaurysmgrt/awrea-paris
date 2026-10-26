@@ -6,8 +6,10 @@
 import { useEffect, useId, useState } from "react";
 import { fill } from "@/lib/edition/fill";
 import { Turnstile } from "@/components/security/Turnstile";
+import { useLocale } from "@/components/providers/LocaleProvider";
+import { INTL_LOCALE, type Locale } from "@/lib/i18n/routing";
 
-type TypeId = "essayage" | "visio" | "sur-mesure";
+type TypeId = "visio" | "sur-mesure";
 
 export interface BookingTexts {
   types: Record<TypeId, { titre: string; texte: string; duree: string }>;
@@ -21,11 +23,17 @@ export interface BookingTexts {
   erreur: string;
 }
 
-const dayLabel = (day: string) => new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long" }).format(new Date(`${day}T12:00:00Z`));
-const hourLabel = (t: string) => t.replace(":", " h ");
+/** Jour et heure de Paris dans la langue de la page : « jeudi 16 octobre », « 14 h 30 » ; « Thursday 16 October », « 2.30 pm ». */
+const dayLabel = (day: string, locale: Locale) => new Intl.DateTimeFormat(INTL_LOCALE[locale], { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long" }).format(new Date(`${day}T12:00:00Z`));
+const hourLabel = (t: string, locale: Locale) => {
+  if (locale !== "en") return t.replace(":", " h ");
+  const [h, m] = t.split(":").map(Number);
+  return `${h % 12 || 12}${m ? `.${String(m).padStart(2, "0")}` : ""}\u00a0${h < 12 ? "am" : "pm"}`;
+};
 
 export function BookingForm({ t, initialType }: { t: BookingTexts; initialType?: TypeId }) {
   const id = useId();
+  const locale = useLocale();
   const [type, setType] = useState<TypeId | null>(initialType ?? null);
   const [days, setDays] = useState<string[] | null>(null);
   const [day, setDay] = useState<string | null>(null);
@@ -143,7 +151,7 @@ export function BookingForm({ t, initialType }: { t: BookingTexts; initialType?:
                     setTime(null);
                   }}
                 >
-                  {dayLabel(d)}
+                  {dayLabel(d, locale)}
                 </button>
               ))}
             </div>
@@ -162,7 +170,7 @@ export function BookingForm({ t, initialType }: { t: BookingTexts; initialType?:
             <div className="booking__chips" role="group">
               {slots.map((s) => (
                 <button key={s} type="button" className="chip" aria-pressed={time === s} onClick={() => setTime(s)}>
-                  {hourLabel(s)}
+                  {hourLabel(s, locale)}
                 </button>
               ))}
             </div>

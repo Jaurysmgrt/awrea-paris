@@ -10,6 +10,7 @@ import { formatDate, formatPrice } from "@/lib/format";
 import { useWishlist } from "@/components/commerce/WishlistProvider";
 import { useConsent } from "@/components/consent/ConsentProvider";
 import { useTexts } from "@/components/content/Texts";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { OrderStages, type SuiviTexts } from "@/components/commerce/OrderStages";
 import { accountCopy as t } from "@/content/fr/account";
 import { shop } from "@/content/settings";
@@ -43,6 +44,7 @@ function Saved({ message }: { message: string | null }) {
 // ------------------------------------------------------------------ commandes
 export function OrdersPanel({ orders }: { orders: AccountOrder[] }) {
   const stages = useTexts<SuiviTexts>("suivi-commande").frise;
+  const locale = useLocale();
   const catalogue = useTexts<CatalogueTexts>("catalogue");
   if (!orders.length) {
     return (
@@ -62,13 +64,14 @@ export function OrdersPanel({ orders }: { orders: AccountOrder[] }) {
           <li key={o.id} className="order">
             <div className="order__head">
               <h3 className="t-h4">{t.orders.title(o.number)}</h3>
-              <span className="t-label t-soft">{formatDate(o.createdAt)}</span>
+              <span className="t-label t-soft">{formatDate(o.createdAt, locale)}</span>
             </div>
             <OrderStages
               timeline={o.timeline}
               t={stages}
               delai={o.timeline.leadTime ? delaiText(catalogue, o.timeline.leadTime) : null}
               label={t.orders.stages(o.number)}
+              locale={locale}
             />
             <ul className="order__lines">
               {o.lines.map((l, i) => (
@@ -81,7 +84,7 @@ export function OrdersPanel({ orders }: { orders: AccountOrder[] }) {
               ))}
             </ul>
             <p className="price">
-              {t.orders.total} {formatPrice(o.total)}
+              {t.orders.total} {formatPrice(o.total, locale)}
             </p>
             {o.trackingUrl ? (
               <a href={o.trackingUrl} target="_blank" rel="noopener noreferrer" className="link">
@@ -107,6 +110,7 @@ export function OrdersPanel({ orders }: { orders: AccountOrder[] }) {
 // ------------------------------------------------------------------ certificats
 export function CertificatesPanel({ certificates }: { certificates: PublicCertificate[] }) {
   const tc = useTexts<CertificatTexts>("certificat");
+  const locale = useLocale();
   return (
     <div className="stack-l">
       <p className="t-body">{certificates.length ? t.certificates.intro : t.certificates.empty}</p>
@@ -117,7 +121,7 @@ export function CertificatesPanel({ certificates }: { certificates: PublicCertif
               <div className="stack-s">
                 <h3 className="t-h4">{c.productTitle}</h3>
                 <p className="t-label t-soft">
-                  {[c.creation ? fill(tc.creation, { numero: c.creation }) : null, c.size ? t.orders.size(c.size) : null, formatDate(c.madeOn)].filter(Boolean).join(" · ")}
+                  {[c.creation ? fill(tc.creation, { numero: c.creation }) : null, c.size ? t.orders.size(c.size) : null, formatDate(c.madeOn, locale)].filter(Boolean).join(" · ")}
                 </p>
               </div>
               <p className="t-label certificates__serial">{c.serial}</p>

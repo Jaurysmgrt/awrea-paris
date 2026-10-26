@@ -1,12 +1,14 @@
 "use client";
 /** « Suivre une commande » : numéro et e-mail de la commande, sans compte. Textes du document « suivi-commande ». */
 import { useRouter } from "next/navigation";
+import { useLocalize } from "@/components/providers/LocaleProvider";
 import { useState } from "react";
 import { Turnstile } from "@/components/security/Turnstile";
 import type { SuiviTexts } from "@/components/commerce/OrderStages";
 
 export function TrackForm({ t }: { t: SuiviTexts["formulaire"] }) {
   const router = useRouter();
+  const localize = useLocalize();
   const [state, setState] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState("");
   return (
@@ -27,7 +29,7 @@ export function TrackForm({ t }: { t: SuiviTexts["formulaire"] }) {
           setError(j.error ?? t.erreur);
           return;
         }
-        router.push(j.link);
+        router.push(localize(j.link));
       }}
     >
       <div className="form__row">

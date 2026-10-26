@@ -1,0 +1,69 @@
+{
+  "nom": "Order ready",
+  "quand": "When the designer moves the order to the “Ready” step: the piece is finished and about to leave.",
+  "famille": "service",
+  "sujet": "Your piece is ready",
+  "preheader": "Finished, it is waiting for its tissue paper.",
+  "variables": {
+    "prenom": {
+      "description": "The client’s first name",
+      "exemple": "Camille"
+    },
+    "commande": {
+      "description": "The order number",
+      "exemple": "AW-1042"
+    },
+    "suivi": {
+      "description": "The order tracking link (no account needed)",
+      "exemple": "https://www.awreaparis.com/suivi/AW-1042"
+    },
+    "retrait": {
+      "description": "Filled in when the client collects her piece from the atelier",
+      "exemple": ""
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-cmdpret01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-cmdpret02",
+      "type": "titre",
+      "titre": "Your piece is ready"
+    },
+    {
+      "id": "b-cmdpret03",
+      "type": "texte",
+      "texte": "Dear {prenom},\n\nYour piece is finished. The designer has checked it seam by seam, and it is now waiting for its tissue paper and its certificate of authenticity."
+    },
+    {
+      "id": "b-cmdpret04",
+      "type": "texte",
+      "texte": "We will write to you on the day it leaves, with the carrier’s tracking number.",
+      "sauf": "retrait"
+    },
+    {
+      "id": "b-cmdpret05",
+      "type": "texte",
+      "texte": "It is waiting for you at the atelier. We will write to you to choose the day together.",
+      "si": "retrait"
+    },
+    {
+      "id": "b-cmdpret06",
+      "type": "texte",
+      "texte": "You can follow your order {commande} here: {suivi}"
+    },
+    {
+      "id": "b-cmdpret07",
+      "type": "signature",
+      "texte": "Until very soon,\nThe Awrea Paris atelier"
+    },
+    {
+      "id": "b-cmdpret08",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

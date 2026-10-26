@@ -14,6 +14,7 @@
  */
 import { useId, useRef, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { useLocalize } from "@/components/providers/LocaleProvider";
 import Link from "@/components/ui/Link";
 import { fill } from "@/lib/edition/fill";
 import type { FilterGroup } from "./piece-filters";
@@ -33,6 +34,7 @@ type Values = Record<string, string>;
 
 export function CollectionFilters({ action, groups, count, texts, children }: { action: string; groups: FilterGroup[]; count: number; texts: FilterTexts; children: ReactNode }) {
   const router = useRouter();
+  const localize = useLocalize();
   const [pending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -72,8 +74,8 @@ export function CollectionFilters({ action, groups, count, texts, children }: { 
     setChosen(next);
     const { path, url } = destination(next);
     startTransition(() => {
-      if (path === action) router.replace(url, { scroll: false });
-      else router.push(url);
+      if (path === action) router.replace(localize(url), { scroll: false });
+      else router.push(localize(url));
     });
   };
 
@@ -95,7 +97,7 @@ export function CollectionFilters({ action, groups, count, texts, children }: { 
         ) : null}
       </div>
 
-      <form id={panelId} className={s.panel} data-open={open} action={action} method="get" aria-labelledby={titleId} onSubmit={(e) => e.preventDefault()}>
+      <form id={panelId} className={s.panel} data-open={open} action={localize(action)} method="get" aria-labelledby={titleId} onSubmit={(e) => e.preventDefault()}>
         <h2 id={titleId} className={s.title}>
           {texts.titre}
         </h2>

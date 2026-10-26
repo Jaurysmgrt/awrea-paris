@@ -1,0 +1,23 @@
+{
+  "nom": "Appointment confirmation",
+  "quand": "As soon as a client books an appointment, with the invitation for her calendar.",
+  "famille": "service",
+  "sujet": "Your appointment, {quand}",
+  "preheader": "{rendezvous}. The invitation for your calendar is attached.",
+  "variables": {
+    "prenom": { "description": "The client’s first name", "exemple": "Camille" },
+    "quand": { "description": "The day and time of the appointment", "exemple": "Thursday 16 October at 2.30 pm" },
+    "rendezvous": { "description": "The appointment", "exemple": "Video call with the designer" },
+    "visio": { "description": "The video call link, for a remote appointment", "exemple": "" },
+    "annulation": { "description": "The link to cancel", "exemple": "https://www.awreaparis.com/rendez-vous/annuler" }
+  },
+  "blocs": [
+    { "id": "b-crdv0entete", "type": "entete", "fond": "noir" },
+    { "id": "b-crdv0titre", "type": "titre", "titre": "Noted" },
+    { "id": "b-crdv0texte", "type": "texte", "texte": "Dear {prenom},\n\n{rendezvous}, {quand}. The invitation for your calendar is attached to this email." },
+    { "id": "b-crdv0visio", "type": "texte", "texte": "The appointment takes place by video call, from your phone or your computer, with nothing to install: {visio}", "si": "visio" },
+    { "id": "b-crdv0annul", "type": "texte", "texte": "Unable to come? You can cancel here, and the time will go to another client: {annulation}" },
+    { "id": "b-crdv0signe", "type": "signature", "texte": "See you soon,\nThe Awrea Paris atelier" },
+    { "id": "b-crdv0pied", "type": "pied", "note": "" }
+  ]
+}

@@ -7,6 +7,7 @@ import { verify } from "@/lib/auth/session";
 import { getOrder, statusLabel } from "@/lib/commerce/orders";
 import { formatPrice } from "@/lib/format";
 import { getDoc } from "@/lib/edition/read";
+import { getLocale } from "@/lib/i18n/server";
 import { delaiText, fill, type CatalogueTexts, type CommerceTexts } from "@/lib/commerce/texts";
 import { timelineOf } from "@/lib/store/order-stages";
 import { OrderStages, type SuiviTexts } from "@/components/commerce/OrderStages";
@@ -16,7 +17,7 @@ import { certificatesOfOrder } from "@/lib/certificates";
 import { orderAccessToken, orderLink } from "@/lib/commerce/order-access";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = (await getDoc<CommerceTexts>("commerce", "fr", { plain: true })).confirmation;
+  const t = (await getDoc<CommerceTexts>("commerce", { plain: true })).confirmation;
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/commande/confirmation", noindex: true });
 }
 export const dynamic = "force-dynamic";
@@ -27,6 +28,7 @@ export default async function ConfirmationPage({
   searchParams: Promise<{ n?: string; t?: string; a?: string }>;
 }) {
   const sp = await searchParams;
+  const locale = await getLocale();
   const token = verify<{ n: string }>(sp.t);
   const order = token && token.n === sp.n ? await getOrder(token.n) : null;
   const first = order?.name.split(" ")[0];
@@ -74,23 +76,23 @@ export default async function ConfirmationPage({
                     <li key={i} className="confirmation__line">
                       <span className="t-body">{l.title}</span>
                       <span className="t-label t-soft">{fill(t.taille, { taille: l.size })}</span>
-                      <span className="price">{formatPrice(l.unitPrice)}</span>
+                      <span className="price">{formatPrice(l.unitPrice, locale)}</span>
                     </li>
                   ))}
                 </ul>
                 <dl className="totals">
                   <div>
                     <dt>{fill(t.livraison, { mode: order.shipping.method })}</dt>
-                    <dd>{order.shipping.price ? formatPrice(order.shipping.price) : t.offerte}</dd>
+                    <dd>{order.shipping.price ? formatPrice(order.shipping.price, locale) : t.offerte}</dd>
                   </div>
                   <div className="totals__total">
                     <dt>{t.total}</dt>
-                    <dd>{formatPrice(order.total)}</dd>
+                    <dd>{formatPrice(order.total, locale)}</dd>
                   </div>
                 </dl>
                 {suite ? (
                   <div className="stack-s">
-                    <OrderStages timeline={suite.timeline} t={suivi.frise} delai={suite.timeline.leadTime ? delaiText(catalogue, suite.timeline.leadTime) : null} />
+                    <OrderStages timeline={suite.timeline} t={suivi.frise} delai={suite.timeline.leadTime ? delaiText(catalogue, suite.timeline.leadTime) : null} locale={locale} />
                     <p className="t-note">{suivi.confirmation.suite}</p>
                   </div>
                 ) : null}

@@ -17,7 +17,7 @@ const description = (teaser: string) => {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const drop = await getDrop((await params).slug);
   if (!drop) return {};
-  const t = await getDoc<AvantPremieresTexts>("avant-premieres", "fr", { plain: true });
+  const t = await getDoc<AvantPremieresTexts>("avant-premieres", { plain: true });
   // une présentation privée n'est jamais indexée, et son texte ne paraît pas dans les aperçus
   return pageMetadata({
     title: `${drop.title} | Awrea Paris`,

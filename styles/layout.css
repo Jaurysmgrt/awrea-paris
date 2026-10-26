@@ -168,8 +168,11 @@
     display: none;
   }
   @media (min-width: 48rem) {
+    /* la colonne du sélecteur de langue garde sa largeur : sur tablette, la navigation se décale
+       plutôt que de passer sous « FR · EN » */
     .site-header__inner {
-      grid-template-areas: "mark nav .";
+      grid-template-columns: minmax(0, 1fr) auto minmax(max-content, 1fr);
+      grid-template-areas: "mark nav lang";
     }
     .site-header__menu,
     .site-header__cart {
@@ -256,6 +259,43 @@
   }
   .site-nav__sub .link {
     width: 100%;
+  }
+
+  /* sélecteur de langue « FR · EN » (components/layout/LanguageSwitch.tsx) : discret, à droite de
+     la navigation (tablette et ordinateur), en bas du menu (téléphone). La langue en cours est
+     soulignée d'un filet, comme la page en cours ; l'autre est un lien. */
+  .lang-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-3xs);
+    white-space: nowrap;
+  }
+  .lang-switch__sep {
+    color: var(--fg-soft);
+  }
+  span.lang-switch__item {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--spacing-touch);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: var(--text-step-0);
+    letter-spacing: var(--tracking-snug);
+    line-height: var(--leading-label);
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 100% var(--border-width-hair);
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+  }
+  .site-header__lang {
+    display: none;
+  }
+  @media (min-width: 48rem) {
+    .site-header__lang {
+      display: inline-flex;
+      grid-area: lang;
+      justify-self: end;
+    }
   }
 
   /* ============================================================== MENU
@@ -370,7 +410,8 @@
   .site-menu__sub .link {
     min-height: var(--spacing-touch);
   }
-  .site-menu__prefs {
+  .site-menu__prefs,
+  .site-menu__lang {
     align-self: end;
   }
 

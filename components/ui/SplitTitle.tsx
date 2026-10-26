@@ -12,9 +12,11 @@ type Props = {
   as?: "h1" | "h2" | "p";
   className?: string;
   id?: string;
+  /** langue du titre quand elle diffère de celle de la page (texte resté en français sous /en) */
+  lang?: string;
 };
 
-export function SplitTitle({ text, as: Tag = "h1", className = "", id }: Props) {
+export function SplitTitle({ text, as: Tag = "h1", className = "", id, lang }: Props) {
   let i = 0;
   // mode Édition : la marque invisible reste d'un seul tenant, à la fin du titre animé, pour que
   // l'éditeur retrouve le texte d'un clic sur n'importe quelle lettre
@@ -22,7 +24,7 @@ export function SplitTitle({ text, as: Tag = "h1", className = "", id }: Props) 
   const mark = clean !== text && text.startsWith(clean) ? text.slice(clean.length) : "";
   const words = clean.split(" ");
   return (
-    <Tag id={id} className={`split ${className}`}>
+    <Tag id={id} className={`split ${className}`} lang={lang}>
       <span className="sr-only">{text}</span>
       <span aria-hidden="true">
         {words.map((word, w) => (

@@ -1,0 +1,20 @@
+{
+  "nom": "Appointment cancelled by the atelier",
+  "quand": "To the client, when the atelier cancels her appointment.",
+  "famille": "service",
+  "sujet": "Your appointment on {quand}",
+  "preheader": "We need to move it. Please choose another time.",
+  "variables": {
+    "prenom": { "description": "The client’s first name", "exemple": "Camille" },
+    "quand": { "description": "The day and time of the appointment", "exemple": "Thursday 16 October at 2.30 pm" },
+    "rendezvous": { "description": "The appointment", "exemple": "Video call with the designer" }
+  },
+  "blocs": [
+    { "id": "b-ardv0entete", "type": "entete", "fond": "noir" },
+    { "id": "b-ardv0titre", "type": "titre", "titre": "Another time" },
+    { "id": "b-ardv0texte", "type": "texte", "texte": "Dear {prenom},\n\nWe will not be able to welcome you on {quand} for your appointment ({rendezvous}). Please accept our apologies. Choose another time, and it will be kept for you." },
+    { "id": "b-ardv0bouton", "type": "bouton", "lien": { "label": "Choose another time", "href": "/rendez-vous" } },
+    { "id": "b-ardv0signe", "type": "signature", "texte": "See you soon,\nThe Awrea Paris atelier" },
+    { "id": "b-ardv0pied", "type": "pied", "note": "" }
+  ]
+}

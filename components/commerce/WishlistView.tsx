@@ -4,6 +4,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import type { Product } from "@/lib/commerce/types";
 import { useWishlist } from "./WishlistProvider";
 import { QuickAdd } from "./QuickAdd";
+import { useLocale } from "@/components/providers/LocaleProvider";
 
 const noop = () => () => {};
 
@@ -12,6 +13,7 @@ export type WishlistViewTexts = { chargement: string; vide: string; videLien: { 
 
 export function WishlistView({ texts }: { texts: WishlistViewTexts }) {
   const { handles } = useWishlist();
+  const locale = useLocale();
   // la liste n'existe que dans le navigateur : « Chargement… » tant que la page s'hydrate
   const hydrated = useSyncExternalStore(noop, () => true, () => false);
   const key = handles.join(",");
@@ -20,7 +22,8 @@ export function WishlistView({ texts }: { texts: WishlistViewTexts }) {
   useEffect(() => {
     if (!key) return;
     let alive = true;
-    fetch(`/api/products?handles=${key}`)
+    // fiches dans la langue de la page
+    fetch(`/api/products?handles=${key}&langue=${locale}`)
       .then((r) => r.json())
       .then((j: { products: Product[] }) => {
         if (!alive) return;
@@ -31,7 +34,7 @@ export function WishlistView({ texts }: { texts: WishlistViewTexts }) {
     return () => {
       alive = false;
     };
-  }, [key]);
+  }, [key, locale]);
 
   // une pièce retirée disparaît aussitôt ; une pièce ajoutée apparaît dès que sa fiche arrive
   const products = !hydrated ? null : !key ? [] : fetched ? fetched.products.filter((p) => handles.includes(p.handle)) : null;

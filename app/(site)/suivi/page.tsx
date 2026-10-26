@@ -12,7 +12,7 @@ import type { SuiviTexts } from "@/components/commerce/OrderStages";
  * (étapes de la confection, facture, retours). Textes : document « suivi-commande ».
  */
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<SuiviTexts>("suivi-commande", "fr", { plain: true });
+  const t = await getDoc<SuiviTexts>("suivi-commande", { plain: true });
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/suivi" });
 }
 

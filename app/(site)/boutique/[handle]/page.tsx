@@ -3,6 +3,7 @@ import Link from "@/components/ui/Link";
 import { getAllProducts, getCollection, getProduct, getProductsByHandles } from "@/lib/commerce";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { productSchema } from "@/lib/seo/schema";
+import { getLocale } from "@/lib/i18n/server";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Section } from "@/components/ui/Section";
@@ -62,7 +63,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
 
   return (
     <>
-      <JsonLd data={productSchema(product, tPlain.delai)} />
+      <JsonLd data={productSchema(product, tPlain.delai, await getLocale())} />
       <ViewTracker handle={product.handle} title={product.title} price={product.price} collection={product.collection} />
       <Section theme="ivory" className="product">
         <div className="container product__grid">

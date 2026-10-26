@@ -76,7 +76,7 @@ test("facture, suivi sans compte, étapes de la confection, expédition, livrais
   // une étape ne se saute pas
   expect((await page.request.post(`${ATELIER}/api/commandes/${number}`, { data: { etape: "ready" } })).status()).toBe(409);
 
-  // retour en libre-service : remboursement, étiquette aussitôt
+  // retour en libre-service : remboursement, bordereau aussitôt (envoi à la charge de la cliente)
   await page.goto(follow);
   await expect(page.getByRole("list", { name: "Étapes de la commande" }).locator('[aria-current="step"]')).toContainText("Livrée");
   await page.getByRole("checkbox", { name: /Le top Kira/ }).check();
@@ -84,7 +84,7 @@ test("facture, suivi sans compte, étapes de la confection, expédition, livrais
   await page.getByLabel(/Je renvoie la pièce non portée/).check();
   await page.getByRole("button", { name: "Demander le retour" }).click();
   await expect(page.getByText(/R-\d{4}-\d{4} · Retour demandé/)).toBeVisible();
-  const labelHref = await page.getByRole("link", { name: "Étiquette de retour (PDF)" }).getAttribute("href");
+  const labelHref = await page.getByRole("link", { name: "Bordereau de retour (PDF)" }).getAttribute("href");
   const label = await page.request.get(labelHref!);
   expect((await label.body()).subarray(0, 5).toString("latin1")).toBe("%PDF-");
   await expect.poll(() => outbox().some((m) => m.to === email && /Votre retour R-/.test(m.subject))).toBeTruthy();

@@ -172,7 +172,7 @@
     line-height: var(--leading-text);
   }
   /* petits téléphones : le chapeau prend la taille du texte courant pour garder assez de
-     caractères par ligne et une justification sans trous */
+     caractères par ligne */
   @media (max-width: 29.99rem) {
     .t-lead {
       font-size: var(--text-step-0);
@@ -228,7 +228,9 @@
   .t-left {
     text-align: left;
   }
+  /* texte centré : même mesure de lecture que le texte courant (60 à 70 caractères) */
   p.t-center {
+    max-width: var(--measure);
     text-align: center;
     hyphens: manual;
     margin-inline: auto;
@@ -247,7 +249,7 @@
     line-height: var(--leading-label);
   }
 
-  /* texte courant : Cormorant Garamond, justifié, sur la mesure de lecture */
+  /* texte courant : Cormorant Garamond, aligné à gauche, sur la mesure de lecture */
   .prose > * + * {
     margin-top: var(--space-paragraph);
   }
@@ -802,20 +804,12 @@
   .media__caption > .visuel-provisoire {
     margin-top: 0;
   }
-  /* adresse web ou e-mail dans un texte (LegalText) : elle se coupe à n'importe quel caractère pour
-     remplir la ligne (sinon, sur téléphone, les rares espaces de la ligne s'étirent), jamais par la
-     césure, pour ne pas y ajouter de trait d'union */
+  /* adresse web ou e-mail dans un texte (LegalText) : elle se coupe à n'importe quel caractère
+     plutôt que de déborder sur téléphone, jamais par la césure, pour ne pas y ajouter de trait
+     d'union */
   .adresse-web {
     hyphens: manual;
     word-break: break-all;
-  }
-  /* sur téléphone, un paragraphe qui contient une adresse se compose en fer à gauche : la ligne qui
-     commence par la fin de l'adresse n'a souvent qu'une espace, que la justification étirerait
-     (dernier recours de components/typography/Justification.tsx, appliqué d'avance) */
-  @media (max-width: 47.99rem) {
-    p:has(> .adresse-web) {
-      text-align: left;
-    }
   }
   /* emplacement vide élégant : la photographie de la Maison n'est pas encore là (jamais d'image
      inventée) ; un fil fin et le monogramme en filigrane tiennent sa place */

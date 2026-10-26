@@ -7,7 +7,7 @@
   "variables": {
     "nom": { "description": "Le nom de la cliente", "exemple": "Camille Martin" },
     "quand": { "description": "Le jour et l’heure du rendez-vous", "exemple": "jeudi 16 octobre à 14 h 30" },
-    "rendezvous": { "description": "Le rendez-vous", "exemple": "Essayage à l’atelier" },
+    "rendezvous": { "description": "Le rendez-vous", "exemple": "Appel vidéo avec la créatrice" },
     "coordonnees": { "description": "L’e-mail et le téléphone de la cliente", "exemple": "camille@exemple.fr" },
     "message": { "description": "Le mot de la cliente", "exemple": "J’aimerais voir la robe Odessa et parler de ma taille." }
   },

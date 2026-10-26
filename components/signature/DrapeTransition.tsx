@@ -6,12 +6,16 @@
  * Rendu par un shader OGL léger ; repli en fondu CSS si WebGL est indisponible ;
  * navigation immédiate si l'utilisateur préfère réduire les animations.
  *
- * Tous les liens internes du site en profitent : un écouteur global intercepte les clics.
+ * Tous les liens internes du site en profitent : un écouteur global intercepte les clics. Sous /en,
+ * une adresse sans préfixe de langue y est ramenée (lib/i18n/routing.ts) : la visiteuse reste dans
+ * sa langue. Le sélecteur de langue (data-no-transition) recharge la page.
  */
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { loadGsap, prefersReducedMotion, dur, EASE } from "@/lib/motion";
 import { palette, rgb01 } from "@/styles/tokens";
+import { useLocale } from "@/components/providers/LocaleProvider";
+import { localizePath, stripLocale } from "@/lib/i18n/routing";
 
 type Ctx = { navigate: (href: string) => void };
 const TransitionContext = createContext<Ctx>({ navigate: () => {} });
@@ -112,6 +116,7 @@ async function createGL(canvas: HTMLCanvasElement): Promise<GLState | null> {
 export function DrapeTransition({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const locale = useLocale();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fallbackRef = useRef<HTMLDivElement>(null);
   const markRef = useRef<HTMLDivElement>(null);
@@ -175,6 +180,7 @@ export function DrapeTransition({ children }: { children: React.ReactNode }) {
   const navigate = useCallback(
     async (href: string) => {
       const url = new URL(href, window.location.href);
+      url.pathname = localizePath(url.pathname, locale);
       if (busy.current) return;
       if (prefersReducedMotion()) {
         router.push(url.pathname + url.search + url.hash);
@@ -197,12 +203,12 @@ export function DrapeTransition({ children }: { children: React.ReactNode }) {
       await reveal();
       busy.current = false;
     },
-    [cover, reveal, router],
+    [cover, reveal, router, locale],
   );
 
   // la nouvelle page est rendue : on lève le tissu
   useEffect(() => {
-    if (pending.current && pending.current.path === pathname) {
+    if (pending.current && stripLocale(pending.current.path) === stripLocale(pathname)) {
       pending.current.resolve();
       pending.current = null;
     }

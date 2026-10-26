@@ -54,8 +54,8 @@ base, compilation et parcours Playwright doivent être verts.
 - Grille de 8 px : tous les espacements sont des multiples de 8 ; interlignage 1,6 du texte courant ;
   distances identiques partout (`--space-title`, `--space-paragraph`, `--space-block`,
   `--space-section`). Jamais de valeur en dur : passer par les tokens (`npm run audit:tokens`).
-- Paragraphes justifiés (règle de `styles/base.css`), césure française, 60 à 70 caractères par ligne,
-  espaces réguliers (`components/typography/Justification.tsx`, contrôlés par
+- Paragraphes alignés à gauche, jamais justifiés (règle de `styles/base.css`, choix de la créatrice
+  du 25/10/2026 : aucun trou entre les mots), 60 à 70 caractères par ligne (contrôlés par
   `tests/e2e/homogeneite.spec.ts`). Titres, boutons, prix et navigation jamais justifiés.
 - Luxe discret : un message et un appel à l'action par section, beaucoup de blanc, aucune
   bannière promotionnelle, aucun prix barré, cinq entrées de menu au plus.

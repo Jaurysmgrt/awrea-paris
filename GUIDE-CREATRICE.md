@@ -330,7 +330,10 @@ livraison, une invitation à donner son avis.
 Les étapes se suivent dans l’ordre : aucune ne peut être sautée. Si un e-mail ne part pas, l’étape
 reste enregistrée et l’Atelier vous le dit.
 
-Avec la boutique Shopify, la confirmation de commande que reçoit la cliente est celle de Shopify.
+Avec la boutique Shopify, c’est Shopify qui envoie la confirmation de commande (il ne permet pas de
+la couper). Pour que la cliente reçoive l’e-mail du site, et lui seul, collez le texte de **Commande
+reçue** dans Shopify : Atelier › **E-mails** › **Commande reçue** › **Pour Shopify**, puis Shopify ›
+**Paramètres** › **Notifications** › **Confirmation de commande** › **Modifier le code**.
 Une commande expédiée reste **Expédiée** tant que Shopify n’a pas enregistré la livraison du colis :
 l’Atelier n’a pas de bouton pour la passer à la main en **Livrée**.
 
@@ -369,7 +372,9 @@ commande annulée n’est pas redonné.
 
 ### Les retours et les échanges
 
-Vos clientes demandent leur retour ou leur échange de taille en ligne, et reçoivent leur étiquette.
+Vos clientes demandent leur retour ou leur échange de taille en ligne, et reçoivent aussitôt un
+bordereau avec l’adresse de l’atelier. Comme le prévoit l’article 7 de vos CGV, l’envoi du colis
+reste à leur charge.
 
 1. Atelier › **Retours**. Chaque demande montre la pièce, la taille, le motif et ce que la cliente
    souhaite.
@@ -473,8 +478,9 @@ télécharge le gabarit à importer (`ACTIVATION.md`, étape 14). Sur les e-mail
 
 Les e-mails des étapes de commande sont dans la famille **Service** : **Commande reçue**, **Commande
 en confection**, **Commande prête** et **Commande expédiée**. Sous chaque aperçu, une phrase dit
-quand il part. Avec la boutique Shopify, la confirmation de commande est celle de Shopify :
-**Commande reçue** ne part plus. Les e-mails qui suivent la livraison (« Votre pièce est arrivée »,
+quand il part. Avec la boutique Shopify, **Commande reçue** passe par Shopify : son bouton
+**Pour Shopify** donne le texte à coller dans la confirmation de commande de Shopify (chapitre 8).
+Les e-mails qui suivent la livraison (« Votre pièce est arrivée »,
 l’entretien, la demande d’avis) ne sont pas dans la liste : pour l’instant, leur texte ne se modifie
 pas depuis l’Atelier.
 
@@ -482,8 +488,9 @@ pas depuis l’Atelier.
 
 ## 13. Les rendez-vous
 
-Vos clientes réservent elles-mêmes sur la page **Prendre rendez-vous** du site : un essayage, un
-appel vidéo avec vous ou un premier rendez-vous sur mesure, dans les moments que vous ouvrez.
+Vos clientes réservent elles-mêmes sur la page **Prendre rendez-vous** du site un appel vidéo avec
+vous, ou un premier rendez-vous sur mesure, lui aussi en vidéo, dans les moments que vous ouvrez.
+Le lien de l’appel part avec la confirmation, sans rien à installer.
 
 1. Atelier › **Rendez-vous**. **À venir** liste les rendez-vous, avec la cliente et l’heure.
    **Annuler** libère le moment : la cliente est prévenue et invitée à en choisir un autre.

@@ -11,7 +11,7 @@ type Avis = typeof import("@/content/site/fr/avis.json");
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<Avis>("avis", "fr", { plain: true });
+  const t = await getDoc<Avis>("avis", { plain: true });
   return { title: { absolute: t.seo.title }, description: t.seo.description, robots: { index: false, follow: false } };
 }
 

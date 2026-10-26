@@ -18,7 +18,7 @@ import styles from "./la-maison.module.css";
 type LaMaison = typeof import("@/content/site/fr/la-maison.json");
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<LaMaison>("la-maison", "fr", { plain: true });
+  const t = await getDoc<LaMaison>("la-maison", { plain: true });
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/la-maison", image: t.portrait.src });
 }
 

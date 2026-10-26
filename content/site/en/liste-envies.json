@@ -1,0 +1,28 @@
+{
+  "seo": {
+    "title": "Wish list | Awrea Paris",
+    "description": "The Awrea Paris pieces you have kept for later."
+  },
+  "titre": "Wish list",
+  "chargement": "Loading…",
+  "vide": "Your wish list is empty. Touch the “Keep” diamond on a piece to find it here again.",
+  "videLien": {
+    "label": "See the pieces",
+    "href": "/boutique"
+  },
+  "partagee": {
+    "seo": {
+      "title": "A wish list | Awrea Paris",
+      "description": "A selection of Awrea Paris pieces, shared with you."
+    },
+    "titre": "A wish list",
+    "titreAvecPrenom": "{prenom}’s wish list",
+    "fil": "Shared wish list",
+    "chapeau": "A selection of Awrea Paris pieces, shared with you. Each one is made to order by French artisans. To give one as a gift, the bag offers gift wrapping with a handwritten note, and the prices can be left off the delivery note.",
+    "vide": "This list is empty for now.",
+    "lien": {
+      "label": "See the whole collection",
+      "href": "/collections/hypnotic-lace"
+    }
+  }
+}

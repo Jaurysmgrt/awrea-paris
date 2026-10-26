@@ -27,11 +27,11 @@ const materialsOf = (p: Product) => p.materials.map((m) => `${m.percent} % ${m.n
 
 export async function buildLlms(full: boolean): Promise<string> {
   const [products, collections, articles, notes, t] = await Promise.all([
-    getPublicProducts(),
-    getCollections(),
+    getPublicProducts("fr"),
+    getCollections("fr"),
     getArticles(),
     kv.get<{ notes: string[]; updatedAt: string }>("ai:llms-notes"),
-    getDoc<CatalogueTexts>("catalogue", undefined, { plain: true }),
+    getDoc<CatalogueTexts>("catalogue", "fr", { plain: true }),
   ]);
   const current = collections.find((c) => c.current);
   const L: string[] = [];

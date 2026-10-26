@@ -37,7 +37,7 @@
 | Langage des maquettes étendu à tout le site | **En cours** : primitives dans `styles/components.css` et `DESIGN.md` (`.btn`, `.field`, `.badge`, `.rule--center`, `.media--card`, `PageHeader`) ; pages refaites lot par lot |
 | En-tête et pied de page des maquettes | **En cours** (lot en-tête et pied de page) |
 | Épuré et luxueux | **Fait** : règles appliquées ; plus aucun compte à rebours ni rareté (**En cours** sur les avant-premières) |
-| Justification régulière | **Fait** : équilibreur par paragraphe, mesure de 24,5 em (65 caractères de Cormorant), contrôle automatique |
+| Alignement du texte | **Fait** : paragraphes alignés à gauche, sans trous (choix du 25/10), mesure de 24,5 em (65 caractères de Cormorant), contrôle automatique |
 | Homogénéité (8 px, 1,6, marges) | **Fait** : contrôle automatique ; une durée et une courbe pour toutes les animations |
 | Responsive | **Fait** de 360 à 1920 px, barre d'achat fixe sur mobile ; **À faire** : 320 et 2560 px |
 

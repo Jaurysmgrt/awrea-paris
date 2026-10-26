@@ -34,21 +34,25 @@ export async function submitReturn(order: Order, items: ReturnItem[], comment?: 
   r.labelPending = Boolean(pending);
   await saveReturn(r);
   const pdf = await returnLabelPdf(r, order);
+  // bordereau : envoi à la charge de la cliente (article 7 des CGV, `shop.returnLabelPrepaid`)
+  const bordereau = Boolean(label?.carrier.startsWith("Bordereau"));
   const list = items.map((i) => `${i.title} en taille ${i.size}, ${i.wish === "echange" ? `pour un échange contre la taille ${i.exchangeSize}` : "pour un remboursement"}`);
   await sendEmail({
     to: order.email,
     subject: `Votre retour ${r.id}`,
     tag: "retour",
-    attachments: pdf ? [{ filename: `etiquette-${r.id}.pdf`, content: pdf }] : undefined,
+    attachments: pdf ? [{ filename: `${bordereau ? "bordereau" : "etiquette"}-${r.id}.pdf`, content: pdf }] : undefined,
     ...brandEmail({
-      preheader: pending ? "Votre demande est enregistrée ; l’étiquette suit." : "Votre étiquette de retour est jointe.",
+      preheader: pending ? "Votre demande est enregistrée ; l’étiquette suit." : bordereau ? "Votre bordereau de retour est joint." : "Votre étiquette de retour est jointe.",
       title: "Votre retour",
       paragraphs: [
         `Bonjour ${first(r)},`,
         `Votre demande de retour ${r.id} pour la commande ${order.number} est enregistrée : ${list.join(" ; ")}.`,
         pending
           ? "L’atelier vous envoie l’étiquette de retour par e-mail dans la journée."
-          : "Imprimez l’étiquette jointe, collez-la sur le colis avec la pièce non portée, ses étiquettes et son certificat, puis déposez-le en bureau de poste.",
+          : bordereau
+            ? "Imprimez le bordereau joint et collez-le sur le colis avec la pièce non portée, ses étiquettes et son certificat. Confiez-le ensuite au transporteur de votre choix, avec un suivi : l’envoi reste à votre charge."
+            : "Imprimez l’étiquette jointe, collez-la sur le colis avec la pièce non portée, ses étiquettes et son certificat, puis déposez-le en bureau de poste.",
         "Nous vous écrirons dès que l’atelier l’aura reçu.",
       ],
       cta: { label: "Suivre mon retour", href: orderLink(order) },
@@ -65,7 +69,7 @@ export async function submitReturn(order: Order, items: ReturnItem[], comment?: 
       paragraphs: [
         `${r.name} (${order.email}) retourne : ${items.map((i) => `${i.title} en taille ${i.size}, motif « ${reasonLabel[i.reason]} », ${i.wish === "echange" ? `échange en ${i.exchangeSize}` : "remboursement"}`).join(" ; ")}.`,
         ...(r.comment ? [`Son mot : « ${r.comment} »`] : []),
-        pending ? "L’étiquette prépayée n’a pas pu être obtenue automatiquement : déposez-la dans l’Atelier, rubrique Retours." : "L’étiquette lui a été envoyée.",
+        pending ? "L’étiquette prépayée n’a pas pu être obtenue automatiquement : déposez-la dans l’Atelier, rubrique Retours." : bordereau ? "Le bordereau de retour lui a été envoyé ; l’envoi est à sa charge." : "L’étiquette lui a été envoyée.",
       ],
       cta: { label: "Ouvrir les retours", href: "atelier:/retours" },
     }),

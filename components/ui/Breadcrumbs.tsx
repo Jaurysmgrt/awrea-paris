@@ -1,12 +1,19 @@
 import Link from "@/components/ui/Link";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbSchema } from "@/lib/seo/schema";
+import { getDoc } from "@/lib/edition/read";
+import { getLocale } from "@/lib/i18n/server";
+import { stegaClean } from "@/lib/edition/stega";
 
-/** Fil d'Ariane visible + BreadcrumbList Schema.org */
-export function Breadcrumbs({ items }: { items: { name: string; path: string }[] }) {
-  const all = [{ name: "Accueil", path: "/" }, ...items];
+type SiteTexts = typeof import("@/content/site/fr/site.json");
+
+/** Fil d'Ariane visible + BreadcrumbList Schema.org, dans la langue de la page (document « site »). */
+export async function Breadcrumbs({ items }: { items: { name: string; path: string }[] }) {
+  const [locale, site] = await Promise.all([getLocale(), getDoc<SiteTexts>("site")]);
+  const t = site.filAriane;
+  const all = [{ name: t.accueil, path: "/" }, ...items];
   return (
-    <nav aria-label="Fil d’Ariane">
+    <nav aria-label={t.nom}>
       <ol className="breadcrumb">
         {all.map((it, i) => (
           <li key={it.path}>
@@ -20,7 +27,7 @@ export function Breadcrumbs({ items }: { items: { name: string; path: string }[]
           </li>
         ))}
       </ol>
-      <JsonLd data={breadcrumbSchema(all)} />
+      <JsonLd data={breadcrumbSchema(all.map((it) => ({ ...it, name: stegaClean(it.name) })), locale)} />
     </nav>
   );
 }

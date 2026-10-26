@@ -18,7 +18,7 @@ import styles from "./atelier.module.css";
 type Atelier = typeof import("@/content/site/fr/atelier.json");
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<Atelier>("atelier", "fr", { plain: true });
+  const t = await getDoc<Atelier>("atelier", { plain: true });
   // visuel provisoire jamais envoyé aux réseaux (mention « visuel provisoire » absente des aperçus)
   const image = t.chapitres[0]?.image;
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/atelier", image: image && !image.provisoire ? image.src : undefined });

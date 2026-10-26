@@ -17,7 +17,7 @@ import styles from "./guide-des-tailles.module.css";
 type GuideDesTailles = typeof import("@/content/site/fr/guide-des-tailles.json");
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<GuideDesTailles>("guide-des-tailles", "fr", { plain: true });
+  const t = await getDoc<GuideDesTailles>("guide-des-tailles", { plain: true });
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/guide-des-tailles" });
 }
 

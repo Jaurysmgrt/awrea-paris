@@ -7,6 +7,7 @@
  */
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLocalize } from "@/components/providers/LocaleProvider";
 import Link from "@/components/ui/Link";
 import { groupByKind, search, type SearchEntry } from "@/lib/search/match";
 import { useTexts } from "@/components/content/Texts";
@@ -20,6 +21,7 @@ type SiteTexts = typeof import("@/content/site/fr/site.json");
 
 export default function SearchOverlay({ open, onClose }: Props) {
   const router = useRouter();
+  const localize = useLocalize();
   const t = useTexts<SiteTexts>("site").recherche;
   const [entries, setEntries] = useState<SearchEntry[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -79,14 +81,14 @@ export default function SearchOverlay({ open, onClose }: Props) {
         <div className="search__bar">
           <form
             role="search"
-            action="/recherche"
+            action={localize("/recherche")}
             className="search__form"
             onSubmit={(e) => {
               e.preventDefault();
               const value = q.trim();
               if (!value) return;
               onClose();
-              router.push(`/recherche?q=${encodeURIComponent(value)}`);
+              router.push(localize(`/recherche?q=${encodeURIComponent(value)}`));
             }}
           >
             <label htmlFor="search-q" className="t-label search__label">

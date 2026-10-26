@@ -260,15 +260,14 @@ pastille « Nouveau », photos des cartes aux angles arrondis. Primitives et cla
   à l'interlettrage mesuré (0,08 em).
 - **Aucune calligraphie.** Prix au format « 70,00 € », en chiffres alignés.
 
-### Justification
+### Alignement du texte
 
-- Paragraphes **justifiés** aux deux bords, `hyphens: auto` avec `lang="fr"`, `text-wrap: pretty`.
-- **60 à 70 caractères par ligne** (`--measure`), jamais de colonne trop étroite.
-- Espacement des mots et des lettres **fixe** : les espaces entre les mots ne dépassent jamais
-  1,6 fois leur largeur naturelle (contrôlé automatiquement, `tests/e2e/homogeneite.spec.ts`).
-- Sur très petit écran, si un trou apparaît : élargir la colonne ou réduire légèrement le texte,
-  jamais laisser des espaces irréguliers.
-- **Jamais justifiés** : titres, boutons, prix, navigation, étiquettes.
+- Paragraphes **alignés à gauche** (fer à gauche), jamais justifiés : la justification creusait des
+  trous entre les mots sur téléphone (choix de la créatrice du 25/10/2026). `text-wrap: pretty`
+  évite les mots seuls en fin de paragraphe ; aucune césure automatique.
+- **60 à 70 caractères par ligne** (`--measure`), jamais de colonne trop étroite (contrôle
+  automatique : 75 au plus, `tests/e2e/homogeneite.spec.ts`).
+- Titres et chapeaux des maquettes centrés quand la page le demande (classe `t-center`).
 
 ### Espacements
 
@@ -389,3 +388,4 @@ du site et de l'Atelier pour la créatrice : `GUIDE-CREATRICE.md`.
 | 13/10/2026 | Qualité (chef de projet) | Justification : espaces au plus 2 fois l'espace naturel (2,5 sur les plus petits téléphones) ; un paragraphe visible dès l'ouverture garde son nombre de lignes (aucun décalage), avec une tolérance de 0,6 ; ces chapeaux sont revus à la rédaction |
 | 15/10/2026 | Direction | Ressources officielles de la Maison : elles priment sur toute consigne antérieure. Polices Fraunces 72pt Italic et Cormorant Garamond, logo officiel en PNG, langage des maquettes étendu à tout le site, textes officiels repris mot pour mot (`DECISIONS.md`) |
 | 15/10/2026 | Direction | Modèle de la Maison : pièces créées sur demande par des artisans français, sans stock ; délais de fabrication, cinq étapes de commande, numéro de création ; collection « Hypnotic Lace » et ses sept pièces ; plus de séries numérotées, de liste d'attente ni d'urgence (`DECISIONS.md`) |
+| 25/10/2026 | Créatrice | Texte aligné à gauche partout, plus aucun paragraphe justifié ; mode Nuit et animations apaisées toujours automatiques selon le réglage de l’appareil |

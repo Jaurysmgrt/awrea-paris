@@ -13,7 +13,7 @@ const docOf = (slug: string) => `evenement-${slugOf(slug)}`;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const c = await findDoc<ModeleContent>(docOf(slug), "fr", { plain: true });
+  const c = await findDoc<ModeleContent>(docOf(slug), { plain: true });
   if (!c) return {};
   return pageMetadata({ title: c.seo.title, description: c.seo.description, path: `/evenements/${slugOf(slug)}` });
 }

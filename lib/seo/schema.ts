@@ -10,6 +10,7 @@ import type { Product } from "@/lib/commerce/types";
 import type { FaqItem } from "@/content/fr/faq";
 import { absolute, siteDefaults, siteUrl } from "@/lib/seo/metadata";
 import { imageAt } from "@/lib/media";
+import { localizePath, type Locale } from "@/lib/i18n/routing";
 
 const orgId = `${siteUrl}/#organisation`;
 
@@ -65,11 +66,14 @@ export function websiteSchema() {
   };
 }
 
-export function breadcrumbSchema(items: { name: string; path: string }[]) {
+/** Adresse absolue d'une page dans la langue de la page (anglais : préfixe /en). */
+const pageUrl = (path: string, locale: Locale) => absolute(localizePath(path, locale));
+
+export function breadcrumbSchema(items: { name: string; path: string }[], locale: Locale = "fr") {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, name: it.name, item: absolute(it.path) })),
+    itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, name: it.name, item: pageUrl(it.path, locale) })),
   };
 }
 
@@ -79,8 +83,8 @@ export function breadcrumbSchema(items: { name: string; path: string }[]) {
  * `delai` : modèles du document « catalogue » (sans marques d'édition), pour écrire le délai comme
  * la fiche l'affiche.
  */
-export function productSchema(p: Product, delai?: LeadTimeTemplates) {
-  const url = absolute(`/boutique/${p.handle}`);
+export function productSchema(p: Product, delai?: LeadTimeTemplates, locale: Locale = "fr") {
+  const url = pageUrl(`/boutique/${p.handle}`, locale);
   const material = p.materials.map((m) => `${m.name} ${m.percent} %`).join(", ");
   // visuels provisoires (images générées en attendant les prises de vue) : jamais transmis aux
   // moteurs, qui ne montrent pas la mention « visuel provisoire » (même règle que lib/feeds.ts)
@@ -157,17 +161,17 @@ export function articleSchema(a: { title: string; description: string; path: str
   };
 }
 
-export function collectionSchema(c: { title: string; description: string; path: string; items: { name: string; path: string }[] }) {
+export function collectionSchema(c: { title: string; description: string; path: string; items: { name: string; path: string }[] }, locale: Locale = "fr") {
   return {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: c.title,
     description: c.description,
-    url: absolute(c.path),
+    url: pageUrl(c.path, locale),
     isPartOf: { "@id": `${siteUrl}/#site` },
     mainEntity: {
       "@type": "ItemList",
-      itemListElement: c.items.map((it, i) => ({ "@type": "ListItem", position: i + 1, url: absolute(it.path), name: it.name })),
+      itemListElement: c.items.map((it, i) => ({ "@type": "ListItem", position: i + 1, url: pageUrl(it.path, locale), name: it.name })),
     },
   };
 }

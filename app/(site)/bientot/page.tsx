@@ -10,7 +10,7 @@ import { getDoc } from "@/lib/edition/read";
 import { pageMetadata } from "@/lib/seo/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<AvantPremieresTexts>("avant-premieres", "fr", { plain: true });
+  const t = await getDoc<AvantPremieresTexts>("avant-premieres", { plain: true });
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/bientot" });
 }
 export const dynamic = "force-dynamic";

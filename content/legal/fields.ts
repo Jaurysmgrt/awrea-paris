@@ -87,7 +87,7 @@ export const legalFields = {
   },
   tva: {
     short: "n° de TVA",
-    label: "numéro de TVA intracommunautaire, ou la mention « TVA non applicable, art. 293 B du CGI » si la micro-entreprise est en franchise de TVA (les CGV officielles annoncent des prix « HT et TTC »)",
+    label: "numéro de TVA intracommunautaire (la créatrice a confirmé le 25/10/2026 que la Maison facture la TVA : prix TTC, TVA à 20 % détaillée sur les factures)",
     value: "",
     source: "Espace professionnel impots.gouv.fr",
     pages: ["mentions-legales"],
@@ -115,7 +115,7 @@ export const legalFields = {
   },
   mediateur: {
     short: "médiateur de la consommation",
-    label: "médiateur de la consommation : nom, adresse postale et site internet (adhésion obligatoire, articles L612-1 et suivants du Code de la consommation ; ni les CGV ni les mentions officielles n’en nomment)",
+    label: "médiateur de la consommation : nom, adresse postale et site internet (adhésion obligatoire, articles L612-1 et suivants du Code de la consommation ; ni les CGV ni les mentions officielles n’en nomment ; aucune adhésion au 25/10/2026 : démarche à faire avant la mise en ligne)",
     value: "",
     source: "Convention signée avec un médiateur référencé par la CECMC (liste sur economie.gouv.fr)",
     pages: ["mentions-legales"],

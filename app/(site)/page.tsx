@@ -27,7 +27,7 @@ type Accueil = typeof import("@/content/site/fr/accueil.json");
 export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<Accueil>("accueil", "fr", { plain: true });
+  const t = await getDoc<Accueil>("accueil", { plain: true });
   // visuel provisoire jamais envoyé aux réseaux (mention « visuel provisoire » absente des aperçus)
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/", image: t.maison.image.provisoire ? undefined : t.maison.image.src });
 }

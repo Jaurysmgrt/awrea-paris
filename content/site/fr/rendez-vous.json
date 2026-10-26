@@ -1,24 +1,19 @@
 {
   "seo": {
-    "title": "Prendre rendez-vous à l’atelier | Awrea Paris",
-    "description": "Un essayage à l’atelier, un appel vidéo avec la créatrice ou un premier rendez-vous sur mesure : choisissez votre jour et votre heure."
+    "title": "Prendre rendez-vous avec la créatrice | Awrea Paris",
+    "description": "Un appel vidéo avec la créatrice, pour une question de taille ou un premier rendez-vous sur mesure : choisissez votre jour et votre heure."
   },
   "titre": "Prendre rendez-vous",
-  "chapeau": "Avant de commander une pièce, parlez-en avec la créatrice : à l’atelier, en appel vidéo, ou pour un premier rendez-vous sur mesure. Choisissez le jour et l’heure, ils vous sont réservés.",
+  "chapeau": "Avant de commander une pièce, parlez-en avec la créatrice en appel vidéo, depuis chez vous : une question de taille, un premier projet sur mesure. Choisissez le jour et l’heure, ils vous sont réservés.",
   "types": {
-    "essayage": {
-      "titre": "Essayage à l’atelier",
-      "texte": "Essayer, toucher la dentelle, trouver votre taille avec la créatrice. Votre pièce est ensuite créée sur demande, dans cette taille.",
-      "duree": "Une heure"
-    },
     "visio": {
       "titre": "Appel vidéo avec la créatrice",
-      "texte": "Pour parler d’une pièce, d’une taille ou d’un projet, où que vous soyez.",
+      "texte": "Pour parler d’une pièce, d’une taille ou d’un projet, depuis votre téléphone ou votre ordinateur.",
       "duree": "Trente minutes"
     },
     "sur-mesure": {
       "titre": "Premier rendez-vous sur mesure",
-      "texte": "Mesures, matières et premières idées pour votre pièce.",
+      "texte": "Vos envies, les matières et les premières idées de votre pièce. La créatrice vous guide pour prendre vos mesures.",
       "duree": "Une heure et demie"
     }
   },
@@ -34,7 +29,7 @@
     "nom": "Nom",
     "email": "E-mail",
     "telephone": "Téléphone (facultatif)",
-    "message": "Ce que vous aimeriez voir ou essayer (facultatif)",
+    "message": "Ce dont vous aimeriez parler (facultatif)",
     "accord": "J’accepte que mes coordonnées servent à ce rendez-vous, et à rien d’autre."
   },
   "bouton": "Réserver ce moment",
@@ -47,7 +42,7 @@
   "annulation": {
     "seo": {
       "title": "Annuler un rendez-vous | Awrea Paris",
-      "description": "Annuler un rendez-vous à l’atelier Awrea Paris."
+      "description": "Annuler un rendez-vous avec la créatrice d’Awrea Paris."
     },
     "titre": "Annuler le rendez-vous",
     "texte": "{rendezvous}, {quand}. Si vous annulez, le moment revient à une autre cliente.",

@@ -1,0 +1,40 @@
+{
+  "seo": {
+    "title": "Size guide | Awrea Paris",
+    "description": "The Awrea Paris size guide: bust, waist and hip measurements in centimetres, how to take your measurements and help in finding your size."
+  },
+  "titre": "Size guide",
+  "chapeau": "Each piece is made in the size you choose. Your measurements, taken against the skin, lead you to the right one.",
+  "tableau": {
+    "titre": "The Maison’s sizes",
+    "legende": "Body measurements, in centimetres",
+    "aConfirmer": "Table to be confirmed by the Maison: these measurements may still change before the first deliveries."
+  },
+  "mesures": {
+    "titre": "Taking your measurements",
+    "conseil": "Standing, in your underwear, with the tape measure lying flat against the skin, without pulling it tight.",
+    "liste": [
+      {
+        "titre": "Bust",
+        "texte": "Pass the tape measure around the fullest part of the bust, keeping it level."
+      },
+      {
+        "titre": "Waist",
+        "texte": "Measure at the hollow of the waist, where the torso is narrowest."
+      },
+      {
+        "titre": "Hips",
+        "texte": "Measure around the widest part of the hips, with your feet together."
+      }
+    ]
+  },
+  "trouver": {
+    "surtitre": "Between two sizes",
+    "titre": "Find my size",
+    "texte": "On the page of each piece, “Find my size” compares your three measurements with this table and with the cut of the piece, then suggests a size. For advice in person, the designer will see you by appointment.",
+    "cta": {
+      "label": "Find my size on a piece",
+      "href": "/boutique"
+    }
+  }
+}

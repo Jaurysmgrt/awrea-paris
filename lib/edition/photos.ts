@@ -1,7 +1,9 @@
 /**
  * Photos du site, pour la médiathèque de l'Atelier (Pages › Photos) et le filtre « Photos
- * provisoires à remplacer » de l'éditeur : celles des documents de contenu (brouillon compris, dans
- * chaque langue) et celles du catalogue (pièces et collections), chacune avec la page où elle paraît.
+ * provisoires à remplacer » de l'éditeur : celles des documents de contenu (brouillon compris) et
+ * celles du catalogue (pièces et collections), chacune avec la page où elle paraît. Les photos des
+ * documents sont celles de la version française : la version anglaise les reprend (seule leur
+ * description se traduit, lib/edition/merge.ts).
  *
  * Les photos des documents se remplacent sur la page, en mode Édition ; celles des pièces et des
  * collections viennent du catalogue (Shopify, métachamp `awrea.visuels_provisoires`).
@@ -10,7 +12,7 @@ import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { getAllProducts, getCollections } from "@/lib/commerce";
-import { LOCALES } from "./config";
+import { DEFAULT_LOCALE, LOCALES } from "./config";
 import { listDocuments, type DocInfo } from "./documents";
 import { contentDir, draftOf, isDocId, publishedDoc } from "./store";
 import { imagesIn, provisionalIn, type SitePhoto } from "./provisoires";
@@ -31,7 +33,7 @@ async function contentPhotos(): Promise<SitePhoto[]> {
   const docs = await allDocuments();
   const perDoc = await Promise.all(
     docs.flatMap((d) =>
-      LOCALES.map(async (locale) => {
+      [DEFAULT_LOCALE].map(async (locale) => {
         const [published, draft] = await Promise.all([publishedDoc(d.id, locale).catch(() => null), draftOf(d.id, locale)]);
         const current = draft?.content ?? published;
         if (current === null || current === undefined) return [];

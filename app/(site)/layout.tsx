@@ -14,8 +14,12 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { Trackers } from "@/components/analytics/Trackers";
 import { Suspense } from "react";
 import { organizationSchema, websiteSchema } from "@/lib/seo/schema";
+import { getDoc } from "@/lib/edition/read";
 
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
+type SiteTexts = typeof import("@/content/site/fr/site.json");
+
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  const site = await getDoc<SiteTexts>("site");
   return (
     <ConsentProvider>
       <CartProvider>
@@ -23,7 +27,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           <SmoothScroll>
             <DrapeTransition>
               <a href="#contenu" className="skip-link">
-                Aller au contenu
+                {site.evitement}
               </a>
               <Header />
               <main id="contenu" tabIndex={-1}>

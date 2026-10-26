@@ -1,5 +1,6 @@
 /**
- * Rendez-vous : essayage à l'atelier, appel vidéo avec la créatrice, premier rendez-vous sur mesure.
+ * Rendez-vous, tous en appel vidéo (décision de la créatrice du 25/10/2026, aucune adresse publiée) :
+ * appel vidéo avec la créatrice, premier rendez-vous sur mesure.
  *
  * - Créneaux calculés à l'heure de Paris à partir des disponibilités réglées dans l'Atelier
  *   (jours, heures, fermetures), du préavis minimal et des rendez-vous déjà pris.
@@ -16,12 +17,11 @@ import { kv } from "@/lib/store";
 import { sessionSecret } from "@/lib/auth/session";
 import { providerOf } from "@/lib/config/providers";
 
-export type AppointmentType = "essayage" | "visio" | "sur-mesure";
+export type AppointmentType = "visio" | "sur-mesure";
 
 export const APPOINTMENT_TYPES: Record<AppointmentType, { label: string; minutes: number; note: string; video: boolean }> = {
-  essayage: { label: "Essayage à l’atelier", minutes: 60, note: "Essayer, toucher la dentelle, trouver votre taille avec la créatrice. Votre pièce est ensuite créée sur demande, dans cette taille.", video: false },
   visio: { label: "Appel vidéo avec la créatrice", minutes: 30, note: "Pour parler d’une pièce, d’une taille ou d’un projet, où que vous soyez.", video: true },
-  "sur-mesure": { label: "Premier rendez-vous sur mesure", minutes: 90, note: "Mesures, matières et premiers croquis de votre pièce.", video: false },
+  "sur-mesure": { label: "Premier rendez-vous sur mesure", minutes: 90, note: "En appel vidéo : vos envies, les matières et les premières idées de votre pièce. La créatrice vous guide pour prendre vos mesures.", video: true },
 };
 
 export interface Availability {

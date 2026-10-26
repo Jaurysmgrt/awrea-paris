@@ -4,6 +4,8 @@ import Link from "@/components/ui/Link";
 import { getDoc } from "@/lib/edition/read";
 import { getAllProducts } from "@/lib/commerce";
 import { faqGroups, faqVars, type FaqDoc } from "@/content/fr/faq";
+import { getLocale } from "@/lib/i18n/server";
+import type { CatalogueTexts } from "@/lib/commerce/texts";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { faqSchema } from "@/lib/seo/schema";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -16,7 +18,7 @@ import { Section } from "@/components/ui/Section";
  * offerte des réglages ({seuil}) ; les réponses suivent les conditions générales de vente officielles.
  */
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<FaqDoc>("faq", "fr", { plain: true });
+  const t = await getDoc<FaqDoc>("faq", { plain: true });
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/faq" });
 }
 
@@ -50,8 +52,9 @@ function Answer({ text }: { text: string }) {
 }
 
 export default async function FaqPage() {
-  const [t, plain, products] = await Promise.all([getDoc<FaqDoc>("faq"), getDoc<FaqDoc>("faq", "fr", { plain: true }), getAllProducts().catch(() => [])]);
-  const vars = faqVars(products);
+  const [t, plain, products, catalogue, locale] = await Promise.all([getDoc<FaqDoc>("faq"), getDoc<FaqDoc>("faq", { plain: true }), getAllProducts().catch(() => []), getDoc<CatalogueTexts>("catalogue", { plain: true }), getLocale()]);
+  // délais et prix écrits comme dans la langue de la page (« 2 à 3 semaines », « 2 to 3 weeks »)
+  const vars = faqVars(products, { delai: catalogue.delai, locale });
   const groups = faqGroups(t, vars, { links: true });
   // données structurées : texte brut, sans lien ni repère « à compléter »
   const schemaItems = faqGroups(plain, vars, { withoutToComplete: true }).flatMap((g) => g.items);

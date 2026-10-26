@@ -1,0 +1,66 @@
+{
+  "principal": [
+    { "label": "Home", "href": "/" },
+    {
+      "label": "Made to order",
+      "sousMenu": [
+        { "label": "Ordering a piece", "href": "/sur-commande" },
+        { "label": "The atelier", "href": "/atelier" },
+        { "label": "Book an appointment", "href": "/rendez-vous" }
+      ]
+    },
+    {
+      "label": "Collections",
+      "sousMenu": [
+        { "label": "Hypnotic Lace", "href": "/collections/hypnotic-lace" },
+        { "label": "All pieces", "href": "/boutique" },
+        { "label": "Search for a piece", "href": "/recherche", "type": "recherche" }
+      ]
+    },
+    { "label": "Contact", "href": "/contact" },
+    {
+      "label": "My bag",
+      "type": "panier",
+      "sousMenu": [
+        { "label": "My bag", "type": "panier" },
+        { "label": "My account", "href": "/compte" },
+        { "label": "My wish list", "href": "/liste-envies", "type": "envies" }
+      ]
+    }
+  ],
+  "pied": [
+    {
+      "titre": "The brand",
+      "liens": [
+        { "label": "Contact", "href": "/contact" },
+        { "label": "About", "href": "/la-maison" }
+      ]
+    },
+    {
+      "titre": "Client services",
+      "liens": [
+        { "label": "Size guide", "href": "/guide-des-tailles" },
+        { "label": "Delivery & returns", "href": "/livraison-retours" },
+        { "label": "Track my order", "href": "/suivi" }
+      ]
+    },
+    {
+      "titre": "Legal",
+      "liens": [
+        { "label": "Legal notice", "href": "/mentions-legales" },
+        { "label": "Terms of sale", "href": "/cgv" },
+        { "label": "Privacy", "href": "/confidentialite" },
+        { "label": "Manage cookies", "type": "cookies" }
+      ]
+    },
+    {
+      "titre": "Follow us",
+      "liens": [{ "label": "Instagram", "href": "https://www.instagram.com/awrea.paris", "type": "instagram" }]
+    }
+  ],
+  "langues": {
+    "titre": "Site language",
+    "fr": { "court": "FR", "nom": "Français" },
+    "en": { "court": "EN", "nom": "English" }
+  }
+}

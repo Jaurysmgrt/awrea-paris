@@ -1,0 +1,134 @@
+{
+  "seo": {
+    "title": "Legal notice | Awrea Paris",
+    "description": "Who publishes the Awrea Paris website, where it is hosted, what protects its creations and how your data are processed."
+  },
+  "titre": "Legal notice",
+  "chapeau": "This English translation is given for information. Only the French version of the legal notice is legally binding.",
+  "misAJour": "2026-10-19",
+  "preambule": {
+    "officiel": true,
+    "blocs": [
+      {
+        "texte": "In accordance with the provisions of Articles 6-III and 19 of Law No. 2004-575 of 21 June 2004 on Confidence in the Digital Economy, known as the L.C.E.N., we bring the following information to the attention of the users and visitors of this site."
+      },
+      {
+        "texte": "The website www.awreaparis.com is managed by Léane Soubrier, trading under the business name Awrea Paris, a sole proprietorship registered in France."
+      },
+      {
+        "texte": "Awrea Paris being a registered trademark any reproduction, even partial, is strictly prohibited."
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "entreprise",
+      "titre": "Legal information about the business",
+      "officiel": true,
+      "blocs": [
+        {
+          "intertitre": "Identity",
+          "id": "identite"
+        },
+        {
+          "lignes": [
+            "Company: Awrea Paris",
+            "Name of the owner & designer: Léane Soubrier",
+            "Email address: awrea.contact@gmail.com",
+            "Postal address: 46 rue Paul Déroulède, 78290 Croissy-sur-Seine",
+            "Telephone: 06 99 55 74 43",
+            "Legal form: Individual entrepreneur",
+            "SIREN number: 100 222 926",
+            "SIRET number: 10022292600014",
+            "Corporate name: Auto-entrepreneur (Micro-enterprise)",
+            "Activity category: Manufacturing industry & crafts, Textile, leather & clothing industry",
+            "Date activity began: 01/04/2026",
+            "Municipality: Yvelines",
+            "Country: France"
+          ]
+        },
+        {
+          "intertitre": "Hosting",
+          "id": "hebergement"
+        },
+        {
+          "texte": "The Site is hosted by the company Wix Online Platform Limited, located at 1 Grant’s Row, Dublin 2 D02HX96, Ireland, (telephone or email contact: (+1) 415 358 0857)."
+        },
+        {
+          "intertitre": "Intellectual property",
+          "id": "propriete-intellectuelle"
+        },
+        {
+          "texte": "All the content present on the site, including, without limitation, the graphics, images, texts, videos, animations, sounds, logos, gifs and icons as well as their layout, is the exclusive property of the company, with the exception of the trademarks, logos or content belonging to other partner companies or authors. Any reproduction, distribution, modification, adaptation, retransmission or publication, even partial, of these various elements is strictly prohibited without the express written consent of Awrea Paris. Such representation or reproduction, by any means whatsoever, constitutes an infringement punishable under Articles L.335-2 et seq. of the Intellectual Property Code. Failure to comply with this prohibition constitutes an infringement that may give rise to the civil and criminal liability of the infringer. In addition, the owners of the copied Content could bring legal action against you."
+        },
+        {
+          "texte": "The company Awrea Paris has been registered in the national register of businesses (RNE) since 05/02/2026."
+        },
+        {
+          "texte": "Any use whatsoever of the logo of this site is prohibited without the authorisation of the company Awrea Paris."
+        },
+        {
+          "intertitre": "Personal data",
+          "id": "donnees-personnelles"
+        },
+        {
+          "texte": "When the site is visited, connection data are collected and used solely for statistical and security purposes. The data transmitted via the form or by electronic means are collected for statistical and correspondence purposes. In accordance with Law No. 78-17 of 6 January 1978 on information technology, files and freedoms, you have a right of access, modification, rectification and objection to the processing of the data concerning you, by contacting us by email at awrea.contact@gmail.com. The processing of your personal data is governed by our Privacy Charter, available from the section “Personal Data Protection Charter”, in accordance with the General Data Protection Regulation 2016/679 of 27 April 2016 (“GDPR”)."
+        }
+      ]
+    },
+    {
+      "id": "publication",
+      "titre": "Publication director",
+      "blocs": [
+        {
+          "texte": "The publication director of the site is {{directricePublication}}."
+        }
+      ]
+    },
+    {
+      "id": "tva",
+      "titre": "VAT",
+      "blocs": [
+        {
+          "texte": "The business’s position with regard to VAT: {{tva}}."
+        }
+      ]
+    },
+    {
+      "id": "mediation",
+      "titre": "Consumer mediation",
+      "blocs": [
+        {
+          "texte": "In the event of a dispute, after a written complaint sent to the Maison, you may refer the matter free of charge to the consumer mediator on which it depends, {{mediateur}}."
+        }
+      ]
+    },
+    {
+      "id": "credits",
+      "titre": "Credits",
+      "blocs": [
+        {
+          "texte": "The photographs of the pieces are, for now, provisional generated images, used until the photo shoots of the collection. Each one carries the mention “provisional image”. The portrait of the designer and the photographs of the Maison are the work of {{creditsPhotos}}."
+        }
+      ]
+    },
+    {
+      "id": "signalement",
+      "titre": "Report content",
+      "blocs": [
+        {
+          "texte": "To report unlawful content or an infringement of your rights, write to {{email}}, giving the address of the page and the nature of the content."
+        }
+      ]
+    },
+    {
+      "id": "autres-textes",
+      "titre": "The other texts of the site",
+      "blocs": [
+        {
+          "texte": "Purchases are governed by the [terms and conditions of sale](/cgv). Use of the site and of the account follows the [terms and conditions of use](/cgu). Your data are processed according to the [privacy policy](/confidentialite) and the [cookie policy](/cookies). The creations and images are protected under the conditions set out on the page [Intellectual property](/propriete-intellectuelle)."
+        }
+      ]
+    }
+  ]
+}

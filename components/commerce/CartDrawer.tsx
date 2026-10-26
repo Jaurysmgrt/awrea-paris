@@ -5,6 +5,7 @@ import { useCart } from "./CartProvider";
 import { Media } from "@/components/ui/Media";
 import { Icon } from "@/components/ui/Icon";
 import { useTexts } from "@/components/content/Texts";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { formatPrice } from "@/lib/format";
 import { shop } from "@/content/settings";
 import { TermsCheckbox } from "@/components/account/TermsCheckbox";
@@ -25,6 +26,7 @@ type Suggestion = { handle: string; title: string; tagline: string; price: numbe
  */
 export function CartDrawer() {
   const t = useTexts<CommerceTexts>("commerce").panier;
+  const locale = useLocale();
   const tc = useTexts<CatalogueTexts>("catalogue");
   const { cart, isOpen, close, dispatch, busy, error } = useCart();
   const ref = useRef<HTMLDialogElement>(null);
@@ -106,7 +108,7 @@ export function CartDrawer() {
           <>
             <div className="drawer__body">
               <div className="drawer__shipping">
-                <p className="t-note">{remaining > 0 ? fill(t.livraisonSeuil, { seuil: formatPrice(cart?.freeShippingThreshold ?? shop.freeShippingThreshold) }) : t.livraisonOfferte}</p>
+                <p className="t-note">{remaining > 0 ? fill(t.livraisonSeuil, { seuil: formatPrice(cart?.freeShippingThreshold ?? shop.freeShippingThreshold, locale) }) : t.livraisonOfferte}</p>
                 <div className="drawer__progress" aria-hidden="true">
                   <span style={{ transform: `scaleX(${progress})` }} />
                 </div>
@@ -123,7 +125,7 @@ export function CartDrawer() {
                         <Link href={`/boutique/${l.productHandle}`} onClick={close} className="t-body cart-line__title">
                           {l.title}
                         </Link>
-                        <span className="price">{formatPrice(l.unitPrice * l.quantity)}</span>
+                        <span className="price">{formatPrice(l.unitPrice * l.quantity, locale)}</span>
                       </div>
                       <p className="t-label t-soft cart-line__meta">{fill(t.taille, { taille: l.size })}</p>
                       <p className="t-note t-left cart-line__lead">{fill(t.delaiLigne, { delai: delaiText(tc, l.leadTime) })}</p>
@@ -150,7 +152,7 @@ export function CartDrawer() {
               <div className="drawer__gift">
                 <label className="check">
                   <input type="checkbox" checked={cart?.gift.wrap ?? false} onChange={(e) => dispatch({ type: "gift", wrap: e.target.checked, message })} />
-                  <span>{fill(t.cadeau, { prix: formatPrice(shop.giftWrapPrice) })}</span>
+                  <span>{fill(t.cadeau, { prix: formatPrice(shop.giftWrapPrice, locale) })}</span>
                 </label>
                 {cart?.gift.wrap ? (
                   <div className="field">
@@ -206,7 +208,7 @@ export function CartDrawer() {
                           <Media image={s.image} ratio="portrait" sizes="5rem" decorative />
                           <span className="suggest__text">
                             <span className="t-body">{s.title}</span>
-                            <span className="price">{formatPrice(s.price)}</span>
+                            <span className="price">{formatPrice(s.price, locale)}</span>
                             <ProvisionalNote image={s.image} />
                           </span>
                         </Link>
@@ -234,24 +236,24 @@ export function CartDrawer() {
               <dl className="totals">
                 <div>
                   <dt>{t.sousTotal}</dt>
-                  <dd>{formatPrice(cart!.subtotal)}</dd>
+                  <dd>{formatPrice(cart!.subtotal, locale)}</dd>
                 </div>
                 {cart?.discount ? (
                   <div>
                     <dt>{cart.discount.label}</dt>
-                    <dd>− {formatPrice(cart.discount.amount)}</dd>
+                    <dd>− {formatPrice(cart.discount.amount, locale)}</dd>
                   </div>
                 ) : null}
                 {cart?.gift.wrap ? (
                   <div>
                     <dt>{t.emballage}</dt>
-                    <dd>{formatPrice(cart.giftWrapPrice)}</dd>
+                    <dd>{formatPrice(cart.giftWrapPrice, locale)}</dd>
                   </div>
                 ) : null}
                 {cart?.giftCard ? (
                   <div>
                     <dt>{t.carteCadeau}</dt>
-                    <dd>− {formatPrice(cart.giftCard.amount)}</dd>
+                    <dd>− {formatPrice(cart.giftCard.amount, locale)}</dd>
                   </div>
                 ) : null}
                 <div>
@@ -260,7 +262,7 @@ export function CartDrawer() {
                 </div>
                 <div className="totals__total">
                   <dt>{t.total}</dt>
-                  <dd>{formatPrice(cart!.total)}</dd>
+                  <dd>{formatPrice(cart!.total, locale)}</dd>
                 </div>
               </dl>
               {longest ? <p className="t-note t-left">{fill(t.surDemande, { delai: delaiText(tc, longest) })}</p> : null}

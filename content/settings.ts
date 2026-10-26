@@ -8,6 +8,13 @@ export const shop = {
   freeShippingThreshold: 25000,
   giftWrapPrice: 1000,
   returnDays: 14,
+  /**
+   * Frais de retour : à la charge de la cliente, comme le prévoit l'article 7 des CGV officielles
+   * (décision de la créatrice du 25/10/2026). Elle reçoit un bordereau avec l'adresse de l'atelier.
+   * Passer à true pour offrir l'étiquette Colissimo prépayée depuis la France (LABELS_PROVIDER),
+   * après avoir modifié l'article 7.
+   */
+  returnLabelPrepaid: false,
   dispatchDays: "2 à 5 jours ouvrés",
   /**
    * Livraison en France métropolitaine seulement, comme le prévoit l'article 5 des CGV officielles

@@ -3,6 +3,7 @@ import { getCollections, getPublicProducts } from "@/lib/commerce";
 import { getDoc } from "@/lib/edition/read";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { collectionSchema } from "@/lib/seo/schema";
+import { getLocale } from "@/lib/i18n/server";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
@@ -15,7 +16,7 @@ import { hasFilterParams, type SearchParams } from "@/components/commerce/piece-
  * document « boutique ».
  */
 export async function generateMetadata({ searchParams }: { searchParams: Promise<SearchParams> }): Promise<Metadata> {
-  const [t, sp] = await Promise.all([getDoc<BoutiqueTexts>("boutique", "fr", { plain: true }), searchParams]);
+  const [t, sp] = await Promise.all([getDoc<BoutiqueTexts>("boutique", { plain: true }), searchParams]);
   // les vues filtrées ne sont pas indexées : la page canonique reste /boutique
   return pageMetadata({ ...t.seo, path: "/boutique", noindex: hasFilterParams(sp) });
 }
@@ -23,7 +24,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 export default async function BoutiquePage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const [t, tPlain, sp, products, collections] = await Promise.all([
     getDoc<BoutiqueTexts>("boutique"),
-    getDoc<BoutiqueTexts>("boutique", "fr", { plain: true }),
+    getDoc<BoutiqueTexts>("boutique", { plain: true }),
     searchParams,
     getPublicProducts(),
     getCollections(),
@@ -31,7 +32,7 @@ export default async function BoutiquePage({ searchParams }: { searchParams: Pro
 
   return (
     <>
-      <JsonLd data={collectionSchema({ title: tPlain.titre, description: tPlain.seo.description, path: "/boutique", items: products.map((p) => ({ name: p.title, path: `/boutique/${p.handle}` })) })} />
+      <JsonLd data={collectionSchema({ title: tPlain.titre, description: tPlain.seo.description, path: "/boutique", items: products.map((p) => ({ name: p.title, path: `/boutique/${p.handle}` })) }, await getLocale())} />
       <PageHeader title={t.titre} lead={t.chapeau} crumbs={[{ name: t.titre, path: "/boutique" }]} />
       <Section theme="ivory" className="section section--flush-top" aria-label={t.piecesTitre}>
         <div className="container">

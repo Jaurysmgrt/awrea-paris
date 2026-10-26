@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { accessSeconds, getDrop, grantDropAccess, verifyAccessLinkToken } from "@/lib/drops";
+import { getLocale } from "@/lib/i18n/server";
+import { localizePath } from "@/lib/i18n/routing";
 
 /**
  * Lien personnel de l'e-mail d'avant-première (inscription sur la page ou lettre de la Maison) :
@@ -9,7 +11,7 @@ import { accessSeconds, getDrop, grantDropAccess, verifyAccessLinkToken } from "
 export async function GET(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const token = verifyAccessLinkToken(new URL(req.url).searchParams.get("t"));
-  const target = new URL(`/bientot/${encodeURIComponent(slug)}`, req.url);
+  const target = new URL(localizePath(`/bientot/${encodeURIComponent(slug)}`, await getLocale()), req.url);
   const drop = token?.d === slug ? await getDrop(slug) : null;
   if (drop && !drop.privateSale) await grantDropAccess(slug, "anticipe", accessSeconds(drop));
   else target.searchParams.set("acces", "invalide");

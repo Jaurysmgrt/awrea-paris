@@ -1,0 +1,39 @@
+{
+  "lanceur": {
+    "ouvrir": "A question?",
+    "fermer": "Close"
+  },
+  "titre": "The Awrea assistant",
+  "sousTitre": "Sizes · making times · delivery · tracking",
+  "fermer": "Close the assistant",
+  "accueil": "Hello, and welcome to Awrea Paris. I can tell you about a piece, its size, its making time, delivery or your order.",
+  "suggestionsLabel": "Suggestions",
+  "suggestions": [
+    "Which size should I choose?",
+    "How long will my piece take?",
+    "Track my order",
+    "Speak to the designer"
+  ],
+  "outils": {
+    "search_pieces": "Looking through the pieces…",
+    "get_piece": "Opening the page of the piece…",
+    "size_guide": "Checking the size guide…",
+    "shipping_options": "Looking at delivery options…",
+    "track_order": "Looking for your order…",
+    "handoff_to_atelier": "Passing your message to the designer…",
+    "attente": "One moment…"
+  },
+  "vous": "You:",
+  "assistante": "Assistant:",
+  "ecrit": "The assistant is writing",
+  "transmis": "Your message is in the designer’s hands. She will write to you at {email}.",
+  "champ": "Your question",
+  "placeholder": "Write your question…",
+  "envoyer": "Send",
+  "pied": "An artificial intelligence assistant: its answers may contain mistakes.",
+  "ecrire": "Write to the Maison",
+  "erreurs": {
+    "indisponible": "I cannot answer you just now. You can write to the Maison directly.",
+    "connexion": "The connection was interrupted. Please try again."
+  }
+}

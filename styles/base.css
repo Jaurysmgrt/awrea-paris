@@ -110,18 +110,15 @@
     hyphens: manual;
   }
 
-  /* Paragraphes de texte : justifiés aux deux bords, avec des espaces aussi réguliers qu'en fer
-     à gauche. La césure française (lang="fr") coupe les mots longs, text-wrap: pretty équilibre
-     les lignes et évite les mots isolés, la mesure est tenue à 60–70 caractères ; espacement des
-     mots et des lettres fixe. Jamais les étiquettes, titres, prix, boutons ni la navigation.
-     Contrôlé page par page sur trois formats d'écran (tests/e2e/homogeneite.spec.ts). */
-  p:where(:not(.t-label, .t-nav, .eyebrow, .price, .t-h1, .t-h2, .t-h3, .t-h4, .t-display, .t-giant, .t-center, .t-left, .badge)) {
+  /* Paragraphes de texte : alignés à gauche (fer à gauche), jamais justifiés, pour qu'aucun trou
+     ne se creuse entre les mots, sur téléphone comme sur ordinateur. Pas de césure : les mots
+     restent entiers ; text-wrap: pretty équilibre les lignes et évite les mots isolés, la mesure
+     est tenue à 60–70 caractères ; espacement des mots et des lettres fixe. Les textes centrés
+     (.t-center) le restent. Contrôlé page par page (tests/e2e/homogeneite.spec.ts). */
+  p:where(:not(.t-label, .t-nav, .eyebrow, .price, .t-h1, .t-h2, .t-h3, .t-h4, .t-display, .t-giant, .t-center, .badge)) {
     max-width: var(--measure);
-    text-align: justify;
-    text-justify: inter-word;
-    hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphenate-limit-chars: 5 2 2;
+    text-align: left;
+    hyphens: manual;
     overflow-wrap: break-word;
     text-wrap: pretty;
     word-spacing: 0;

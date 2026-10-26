@@ -24,7 +24,7 @@ export function WithdrawalForm() {
         <p className="t-label">Rétractation enregistrée</p>
         <p>
           Votre demande de rétractation a bien été reçue le {new Date(ack.at).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" })} (référence {ack.reference}). Un
-          accusé de réception vient de vous être envoyé par e-mail ; l’atelier vous adresse ensuite l’étiquette de retour.
+          accusé de réception vient de vous être envoyé par e-mail ; l’atelier vous adresse ensuite le bordereau de retour.
         </p>
       </div>
     );

@@ -11,8 +11,8 @@ import { UnsubscribeButton } from "@/components/marketing/UnsubscribeButton";
 type Lettres = typeof import("@/content/site/fr/lettres.json");
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<Lettres>("lettres", "fr", { plain: true });
-  return { ...pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/lettres/desinscription" }), robots: { index: false, follow: false } };
+  const t = await getDoc<Lettres>("lettres", { plain: true });
+  return { ...(await pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/lettres/desinscription" })), robots: { index: false, follow: false } };
 }
 
 export default async function DesinscriptionPage({ searchParams }: { searchParams: Promise<{ jeton?: string }> }) {

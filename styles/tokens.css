@@ -9,7 +9,7 @@
  * les bijoux, jamais dans l'interface.
  * Polices officielles : Fraunces 72pt Italic (titres, très grands, en italique) et Cormorant
  * Garamond 400 (textes, navigation, boutons, formulaires). Grille de 8 px : chaque espacement est
- * un multiple de 8. Texte courant : 20 px sur 32 px (interlignage 1,6), justifié, 60 à 70
+ * un multiple de 8. Texte courant : 20 px sur 32 px (interlignage 1,6), aligné à gauche, 60 à 70
  * caractères par ligne ; jamais de texte sous 16 px (Cormorant a un petit œil).
  * Langage des maquettes : filets noirs très fins, champs soulignés, boutons et pastilles noirs en
  * pilule, photos des cartes aux angles arrondis.
@@ -222,9 +222,8 @@
 /* ------------------------------------------------------------ PALIERS
    Grand téléphone (480 px), tablette (768 px), portable (1024 px), ordinateur (1440 px) : tailles
    et grands espacements par paliers, toujours sur la grille de 8 px. Le texte courant garde ses
-   20 px partout (le petit œil de Cormorant ne supporte pas moins) : sur les petits téléphones, la
-   césure française tient la justification, et un paragraphe rebelle passe en fer à gauche
-   (components/typography/Justification.tsx). */
+   20 px partout (le petit œil de Cormorant ne supporte pas moins), aligné à gauche : aucun trou
+   entre les mots, même sur les petits téléphones. */
 @media (min-width: 30rem) {
   :root {
     --spacing-gutter: 1.5rem;

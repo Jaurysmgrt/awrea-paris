@@ -1,0 +1,19 @@
+{
+  "nom": "The Maison’s letter",
+  "quand": "Template for the letter sent to subscribers. Each letter goes out once you have approved it in Validations.",
+  "famille": "lettre",
+  "sujet": "[Write the subject line]",
+  "preheader": "[Write the preview line]",
+  "variables": {
+    "prenom": { "description": "The client’s first name", "exemple": "Camille" }
+  },
+  "blocs": [
+    { "id": "b-lettre0entete", "type": "entete", "fond": "noir" },
+    { "id": "b-lettre0image", "type": "image", "image": { "src": "", "alt": "[Describe the photograph]", "width": 1200, "height": 1500 }, "lien": null },
+    { "id": "b-lettre0titre", "type": "titre", "titre": "[Write the title]" },
+    { "id": "b-lettre0texte", "type": "texte", "texte": "[Write the letter]" },
+    { "id": "b-lettre0bouton", "type": "bouton", "lien": { "label": "See the collection", "href": "/collections/hypnotic-lace" } },
+    { "id": "b-lettre0signe", "type": "signature", "texte": "[Write the signature]" },
+    { "id": "b-lettre0pied", "type": "pied", "note": "" }
+  ]
+}

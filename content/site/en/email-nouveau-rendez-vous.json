@@ -1,0 +1,22 @@
+{
+  "nom": "New appointment (for the atelier)",
+  "quand": "To the atelier, as soon as a client books.",
+  "famille": "service",
+  "sujet": "Appointment with {nom}, {quand}",
+  "preheader": "{rendezvous}.",
+  "variables": {
+    "nom": { "description": "The client’s name", "exemple": "Camille Martin" },
+    "quand": { "description": "The day and time of the appointment", "exemple": "Thursday 16 October at 2.30 pm" },
+    "rendezvous": { "description": "The appointment", "exemple": "Video call with the designer" },
+    "coordonnees": { "description": "The client’s email address and phone number", "exemple": "camille@example.com" },
+    "message": { "description": "The client’s note", "exemple": "I would like to see the Odessa dress and talk about my size." }
+  },
+  "blocs": [
+    { "id": "b-nrdv0entete", "type": "entete", "fond": "clair" },
+    { "id": "b-nrdv0titre", "type": "titre", "titre": "New appointment" },
+    { "id": "b-nrdv0texte", "type": "texte", "texte": "{rendezvous}, {quand}, with {nom}.\n\n{coordonnees}" },
+    { "id": "b-nrdv0mot", "type": "texte", "texte": "Her note: {message}", "si": "message" },
+    { "id": "b-nrdv0bouton", "type": "bouton", "lien": { "label": "See the diary", "href": "atelier:/rendez-vous" } },
+    { "id": "b-nrdv0pied", "type": "pied", "note": "" }
+  ]
+}

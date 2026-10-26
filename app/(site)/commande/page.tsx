@@ -10,7 +10,7 @@ import { readCart } from "@/lib/commerce/cart";
 import { shopifyEnabled } from "@/lib/shopify/storefront";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = (await getDoc<CommerceTexts>("commerce", "fr", { plain: true })).commande.page;
+  const t = (await getDoc<CommerceTexts>("commerce", { plain: true })).commande.page;
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/commande", noindex: true });
 }
 export const dynamic = "force-dynamic";

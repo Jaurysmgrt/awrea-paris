@@ -110,10 +110,10 @@ function item(p: Product, v: Variant, target: FeedTarget, collectionTitle: strin
 
 export async function buildFeed(target: FeedTarget): Promise<string> {
   const [products, collections, t, b] = await Promise.all([
-    getPublicProducts(),
-    getCollections(),
-    getDoc<CatalogueTexts>("catalogue", undefined, { plain: true }),
-    getDoc<{ categories: Categories }>("boutique", undefined, { plain: true }),
+    getPublicProducts("fr"),
+    getCollections("fr"),
+    getDoc<CatalogueTexts>("catalogue", "fr", { plain: true }),
+    getDoc<{ categories: Categories }>("boutique", "fr", { plain: true }),
   ]);
   const titles = new Map(collections.map((c) => [c.handle, c.title]));
   const items = products

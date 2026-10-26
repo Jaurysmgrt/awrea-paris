@@ -13,7 +13,7 @@ Règles :
 - Majuscules accentuées (À, É, Ê, Ç). Siècles en petites capitales romaines, dates sans zéro inutile
   (« 3 novembre »), heures « 18 h 30 », prix « 690 € », jamais « 690,00 € ».
 - Aucun tiret de ponctuation ; les traits d'union restent dans les mots composés.
-- Titres, boutons, prix et navigation jamais justifiés ; paragraphes justifiés avec césure.
+- Aucun texte justifié : paragraphes alignés à gauche, sans césure automatique.
 
 Outils : `npm run audit:ecriture -- --fix` applique les corrections sûres ; relancez ensuite
 `npm run audit:ecriture` : zéro erreur. Vérifiez que les tests Playwright qui citent ces textes

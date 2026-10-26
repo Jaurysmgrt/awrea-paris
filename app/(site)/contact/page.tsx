@@ -16,7 +16,7 @@ import styles from "./contact.module.css";
 type Contact = typeof import("@/content/site/fr/contact.json");
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getDoc<Contact>("contact", "fr", { plain: true });
+  const t = await getDoc<Contact>("contact", { plain: true });
   // visuel provisoire jamais envoyé aux réseaux (mention « visuel provisoire » absente des aperçus)
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/contact", image: t.image.provisoire ? undefined : t.image.src });
 }

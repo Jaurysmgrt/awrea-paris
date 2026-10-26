@@ -21,7 +21,7 @@ const Body = z.object({
 
 /**
  * Rétractation en ligne : la demande est horodatée, un accusé de réception est envoyé aussitôt
- * sur support durable (e-mail) et l'atelier est prévenu pour envoyer l'étiquette de retour.
+ * sur support durable (e-mail) et l'atelier est prévenu pour envoyer le bordereau de retour.
  */
 export async function POST(req: Request) {
   const limited = await rateLimit(req, "retractation", { limit: 5, windowSeconds: 3600 });
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     paragraphs: [
       `Bonjour ${d.name.split(" ")[0]},`,
       `Nous accusons réception de votre décision de vous rétracter, transmise le ${when} (heure de Paris), pour la commande ${d.order}${d.pieces ? ` (pièces concernées : ${d.pieces})` : ""}.`,
-      "L’atelier vous adresse l’étiquette de retour. Merci de renvoyer la pièce dans les quatorze jours, non portée, avec ses étiquettes et son certificat. Le remboursement interviendra au plus tard quatorze jours après votre demande, sur le moyen de paiement utilisé, et peut être différé jusqu’à la réception de la pièce ou la preuve de son expédition.",
+      "L’atelier vous adresse le bordereau de retour, avec son adresse ; l’envoi du colis reste à votre charge. Merci de renvoyer la pièce dans les quatorze jours, non portée, avec ses étiquettes et son certificat. Le remboursement interviendra au plus tard quatorze jours après votre demande, sur le moyen de paiement utilisé, et peut être différé jusqu’à la réception de la pièce ou la preuve de son expédition.",
     ],
     signature: "Avec toute notre attention, l’atelier Awrea Paris.",
     footnote: `Référence ${reference} · à conserver comme preuve de votre demande.`,
