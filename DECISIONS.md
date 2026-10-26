@@ -141,3 +141,4 @@ arrêtées par le chef de projet pendant leur intégration.
 | 25/10 | Rendez-vous en appel vidéo seulement : l'essayage à l'atelier n'est plus proposé, le premier rendez-vous sur mesure se fait aussi en vidéo | Aucune adresse d'atelier à publier. |
 | 25/10 | La Maison facture la TVA : prix TTC, TVA à 20 % sur les factures (déjà le fonctionnement par défaut) ; numéro de TVA à compléter | Réponse de la créatrice. |
 | 25/10 | Version anglaise en anglais britannique ; photos provisoires gardées pour la mise en ligne ; logo en PNG officiels en attendant le fichier vectoriel | Réponses de la créatrice. |
+| 26/10 | Le site reste privé jusqu'à ce qu'il soit fini : aucune mise en ligne, le domaine `awreaparis.com` (enregistré chez Wix) reste non relié ; la créatrice le voit par les aperçus privés. Publication (Vercel, puis DNS chez Wix) une fois le site terminé | « Pour l'instant je veux le garder pour moi », « et le publier quand il est fini ». |
