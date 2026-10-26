@@ -10,8 +10,9 @@
  *    comme le recommande @supabase/ssr.
  *  - Langues (lib/i18n/routing.ts) : /en/… est réécrit vers la même page, et la langue est
  *    transmise aux pages dans l'en-tête interne LOCALE_HEADER (posé sur chaque requête : une
- *    valeur envoyée par le navigateur est écrasée). L'Atelier et l'API n'existent qu'en français :
- *    sous /en, ils répondent 404 comme toute adresse inconnue.
+ *    valeur envoyée par le navigateur est écrasée). L'Atelier, l'API et les fichiers (plan du site,
+ *    llms.txt, images) n'existent qu'en un exemplaire : sous /en, ils répondent 404 comme toute
+ *    adresse inconnue.
  */
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
@@ -20,7 +21,7 @@ import { contentSecurityPolicy, cspEnabled, cspMode, newNonce } from "@/lib/secu
 import { countRefusal } from "@/lib/security/rate-limit";
 import { providerOf } from "@/lib/config/providers";
 import { atelierBase, isInternalAtelierPath, toInternal } from "@/lib/admin/path";
-import { DEFAULT_LOCALE, LOCALE_HEADER, splitLocale, type Locale } from "@/lib/i18n/routing";
+import { DEFAULT_LOCALE, LOCALE_HEADER, isLocalizable, splitLocale, type Locale } from "@/lib/i18n/routing";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY;
@@ -158,7 +159,7 @@ export async function proxy(request: NextRequest) {
     target.pathname = path;
   }
   let response: NextResponse;
-  if (translated && (path === "/api" || path.startsWith("/api/") || isInternalAtelierPath(path) || (base && toInternal(path, base)))) response = notFound(request, nonce, locale);
+  if (translated && (!isLocalizable(path) || isInternalAtelierPath(path) || (base && toInternal(path, base)))) response = notFound(request, nonce, locale);
   else if (base && toInternal(pathname, base)) response = await protectAtelier(request, base, nonce);
   else if (isInternalAtelierPath(pathname)) response = notFound(request, nonce);
   else if (path.startsWith("/compte") || pathname.startsWith("/api/account")) response = await refreshCustomerSession(request, nonce, locale, target);

@@ -18,6 +18,7 @@ export function PageHeader({
   theme = "ivory",
   giant = false,
   align = "center",
+  lang,
   children,
 }: {
   title: string;
@@ -27,15 +28,25 @@ export function PageHeader({
   theme?: "ink" | "ivory" | "paper" | "pearl";
   giant?: boolean;
   align?: "center" | "left";
+  /** langue du titre et du chapeau quand elle diffère de celle de la page (texte resté en français sous /en) */
+  lang?: string;
   children?: React.ReactNode;
 }) {
   return (
     <Section theme={theme} as="header" className="page-header">
       <div className={`container page-head page-head--${align}`}>
         <Breadcrumbs items={crumbs} />
-        {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
-        <SplitTitle text={title} className={`page-head__title ${giant ? "t-giant" : "t-display"}`} />
-        {lead ? <p className="t-lead page-head__lead">{lead}</p> : null}
+        {eyebrow ? (
+          <p className="eyebrow" lang={lang}>
+            {eyebrow}
+          </p>
+        ) : null}
+        <SplitTitle text={title} className={`page-head__title ${giant ? "t-giant" : "t-display"}`} lang={lang} />
+        {lead ? (
+          <p className="t-lead page-head__lead" lang={lang}>
+            {lead}
+          </p>
+        ) : null}
         {children}
       </div>
     </Section>

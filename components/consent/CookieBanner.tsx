@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "@/components/ui/Link";
 import { cookieCategories } from "@/content/fr/cookies";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import type { ConsentChoices } from "@/lib/consent";
 
 type Props = {
@@ -26,13 +27,15 @@ export function CookieBanner({ details, current, onDetails, onAcceptAll, onRefus
     setDraft(current);
   }
   const listRef = useRef<HTMLUListElement>(null);
+  // bandeau écrit en français (content/fr/cookies.ts) : signalé comme tel sous /en
+  const lang = useLocale() !== "fr" ? "fr" : undefined;
   // à l'ouverture du détail, le focus va à la première catégorie modifiable
   useEffect(() => {
     if (details) listRef.current?.querySelector<HTMLInputElement>("input:not([disabled])")?.focus({ preventScroll: true });
   }, [details]);
 
   return (
-    <section className="consent" data-details={details} aria-labelledby="consent-title">
+    <section className="consent" data-details={details} aria-labelledby="consent-title" lang={lang}>
       <div className="consent__inner container">
         <div className="consent__intro">
           <h2 id="consent-title" className="t-label consent__title">

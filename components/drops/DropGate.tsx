@@ -10,6 +10,7 @@
 import { getDoc } from "@/lib/edition/read";
 import { fill } from "@/lib/edition/fill";
 import { dropVars } from "@/lib/drops";
+import { getLocale } from "@/lib/i18n/server";
 import type { AvantPremieresTexts } from "./regles";
 import { DropGateClient, type DropInfo } from "./DropGateClient";
 
@@ -17,8 +18,8 @@ export type { DropInfo };
 
 export async function DropGate({ drop, children }: { drop: DropInfo | null; children: React.ReactNode }) {
   if (!drop) return <>{children}</>;
-  const t = await getDoc<AvantPremieresTexts>("avant-premieres");
-  const vars = dropVars(t, drop);
+  const [t, locale] = await Promise.all([getDoc<AvantPremieresTexts>("avant-premieres"), getLocale()]);
+  const vars = dropVars(t, drop, locale);
   return (
     <DropGateClient
       drop={drop}

@@ -19,6 +19,7 @@ import { fill } from "@/lib/edition/fill";
 import { getProductsByHandles } from "@/lib/commerce";
 import type { Image, Product } from "@/lib/commerce/types";
 import { dropDateText, dropImages, dropPhase, dropVars, readDropAccess, type Drop } from "@/lib/drops";
+import { getLocale } from "@/lib/i18n/server";
 import { capitalized, paragraphsOf, type AvantPremieresTexts } from "./regles";
 import { DropSignupForm } from "./DropSignupForm";
 import { PrivatePresentationForm } from "./PrivatePresentationForm";
@@ -38,11 +39,11 @@ function collectionImages(drop: Drop, products: Product[], alt: string): Image[]
 
 /** `onBientot` : la collection est montrée à l'adresse « /bientot » (fil d'Ariane sans second niveau). */
 export async function DropView({ drop, notice, onBientot = false }: { drop: Drop; notice?: "lienInvalide" | null; onBientot?: boolean }) {
-  const t = await getDoc<AvantPremieresTexts>("avant-premieres");
+  const [t, locale] = await Promise.all([getDoc<AvantPremieresTexts>("avant-premieres"), getLocale()]);
   const [access, products] = await Promise.all([readDropAccess(), drop.products.length ? getProductsByHandles(drop.products, { includeUpcoming: true }) : Promise.resolve([])]);
   const phase = dropPhase(drop);
   const mine = access[drop.slug];
-  const vars = dropVars(t, drop);
+  const vars = dropVars(t, drop, locale);
   const privee = drop.privateSale && phase !== "ouvert";
   // une présentation privée ne se montre qu'avec le mot de passe
   const revealed = !privee || mine === "prive";
@@ -52,10 +53,10 @@ export async function DropView({ drop, notice, onBientot = false }: { drop: Drop
   const etat = phase === "ouvert" ? t.etat.devoilee : drop.privateSale ? t.etat.privee : phase === "anticipe" ? t.etat.avantPremiere : t.etat.annonce;
   const dates =
     phase === "ouvert"
-      ? [{ label: t.dates.devoilement, value: dropDateText(t, drop.publicAt) }]
+      ? [{ label: t.dates.devoilement, value: dropDateText(t, drop.publicAt, locale) }]
       : [
-          { label: drop.privateSale ? t.dates.privee : t.dates.avantPremiere, value: dropDateText(t, drop.earlyAccessAt) },
-          { label: t.dates.devoilement, value: dropDateText(t, drop.publicAt) },
+          { label: drop.privateSale ? t.dates.privee : t.dates.avantPremiere, value: dropDateText(t, drop.earlyAccessAt, locale) },
+          { label: t.dates.devoilement, value: dropDateText(t, drop.publicAt, locale) },
         ];
 
   /** L'accès : ce que la visiteuse peut faire maintenant, selon le temps et son accès. */

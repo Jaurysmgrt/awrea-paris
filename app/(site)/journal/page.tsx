@@ -22,6 +22,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function JournalPage() {
   const locale = await getLocale();
+  // articles écrits en français (content/fr/journal.ts) : signalés comme tels sous /en
+  const fr = locale !== "fr" ? "fr" : undefined;
   const [t, articles] = await Promise.all([getDoc<Journal>("journal"), getArticles()]);
   const [first, ...rest] = articles;
   return (
@@ -41,12 +43,14 @@ export default async function JournalPage() {
                 <p className="t-label t-soft">
                   {first.category} · <time dateTime={first.date}>{formatDate(first.date, locale)}</time>
                 </p>
-                <h2 className="t-h2">
+                <h2 className="t-h2" lang={fr}>
                   <Link href={`/journal/${first.slug}`} className="link-plain">
                     {first.title}
                   </Link>
                 </h2>
-                <p className="t-body">{first.excerpt}</p>
+                <p className="t-body" lang={fr}>
+                  {first.excerpt}
+                </p>
                 <Link href={`/journal/${first.slug}`} className="link">
                   {fill(t.lire, { minutes: first.readingMinutes })}
                 </Link>
@@ -69,12 +73,14 @@ export default async function JournalPage() {
                     <p className="t-label t-soft">
                       {a.category} · <time dateTime={a.date}>{formatDate(a.date, locale)}</time>
                     </p>
-                    <h2 className="t-h3">
+                    <h2 className="t-h3" lang={fr}>
                       <Link href={`/journal/${a.slug}`} className="link-plain">
                         {a.title}
                       </Link>
                     </h2>
-                    <p className="t-body">{a.excerpt}</p>
+                    <p className="t-body" lang={fr}>
+                      {a.excerpt}
+                    </p>
                   </article>
                 </li>
               ))}

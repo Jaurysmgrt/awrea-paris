@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
 import { AccountApp } from "@/components/account/AccountApp";
 import { TextsRoot } from "@/components/content/TextsRoot";
+import { getLocale } from "@/lib/i18n/server";
 
 type Compte = typeof import("@/content/site/fr/compte.json");
 
@@ -14,12 +15,13 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ComptePage() {
-  const t = await getDoc<Compte>("compte");
+  const [t, locale] = await Promise.all([getDoc<Compte>("compte"), getLocale()]);
   return (
     <>
       <PageHeader title={t.titre} crumbs={[{ name: t.titre, path: "/compte" }]} />
       <Section theme="ivory" className="section section--flush-top">
-        <div className="container account-container">
+        {/* espace cliente écrit en français (content/fr/account.ts) : signalé comme tel sous /en */}
+        <div className="container account-container" lang={locale !== "fr" ? "fr" : undefined}>
           {/* frise de la confection et numéro de création : textes des documents d'Édition */}
           <TextsRoot ids={["suivi-commande", "certificat"]}>
             <AccountApp />

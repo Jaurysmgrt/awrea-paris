@@ -12,10 +12,11 @@
 import doc from "@/content/site/fr/faq.json";
 import { identity } from "@/content/brand/identity";
 import { shop } from "@/content/settings";
-import { DEFAULT_LEAD_TIME, leadTimeText } from "@/lib/commerce/availability";
+import { DEFAULT_LEAD_TIME, leadTimeText, type LeadTimeTemplates } from "@/lib/commerce/availability";
 import type { Category, LeadTime, Product } from "@/lib/commerce/types";
 import { formatPrice } from "@/lib/format";
 import { fill } from "@/lib/edition/fill";
+import type { Locale } from "@/lib/i18n/routing";
 
 export type FaqDoc = typeof doc;
 
@@ -38,12 +39,16 @@ const family = (products: Pick<Product, "category" | "leadTime">[], categories: 
   return { min: Math.min(...source.map((t) => t.min)), max: Math.max(...source.map((t) => t.max)) };
 };
 
-/** Valeurs des repères, d'après le catalogue (sans catalogue : les délais par défaut). */
-export function faqVars(products: Pick<Product, "category" | "leadTime">[] = []): FaqVars {
+/**
+ * Valeurs des repères, d'après le catalogue (sans catalogue : les délais par défaut). Version
+ * anglaise de la page : `delai`, les modèles du document « catalogue » de la langue (« 2 to 3
+ * weeks »), et `locale` pour le prix.
+ */
+export function faqVars(products: Pick<Product, "category" | "leadTime">[] = [], opts: { delai?: LeadTimeTemplates; locale?: Locale } = {}): FaqVars {
   return {
-    hauts: leadTimeText(family(products, ["body", "top"])),
-    robes: leadTimeText(family(products, ["robe"])),
-    seuil: formatPrice(shop.freeShippingThreshold),
+    hauts: leadTimeText(family(products, ["body", "top"]), opts.delai),
+    robes: leadTimeText(family(products, ["robe"]), opts.delai),
+    seuil: formatPrice(shop.freeShippingThreshold, opts.locale),
     email: identity.email,
   };
 }

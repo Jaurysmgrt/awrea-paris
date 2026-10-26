@@ -29,6 +29,9 @@ export async function legalDocMetadata(doc: string, path: string) {
   return pageMetadata({ title: d.seo.title, description: d.seo.description, path });
 }
 
+/** Adresses des pages légales écrites dans le code (en français seulement). */
+const LEGAL_CODE_PATHS = new Set(Object.values(legalPages).map((p) => `/${p.slug}`));
+
 /** Vue d'une page légale écrite dans le code. */
 export const legalPageView = (slug: LegalSlug): LegalPageView => fromPage(legalPages[slug]);
 
@@ -209,9 +212,12 @@ export async function LegalView(props: { page: LegalPageView } | { slug: LegalSl
   const t = await getDoc<JuridiqueTexts>("juridique");
   const locale = await getLocale();
   const official = (yes: boolean) => (yes ? { "data-officiel": "" } : {});
+  // pages écrites dans le code (content/fr/legal.ts) : en français seulement, signalées comme
+  // telles sous /en (lecteurs d'écran, césure)
+  const lang = locale !== "fr" && LEGAL_CODE_PATHS.has(page.path) ? "fr" : undefined;
   return (
     <>
-      <PageHeader title={page.title} lead={page.lead ? <LegalText text={page.lead} /> : undefined} crumbs={[{ name: page.title, path: page.path }]} />
+      <PageHeader title={page.title} lead={page.lead ? <LegalText text={page.lead} /> : undefined} crumbs={[{ name: page.title, path: page.path }]} lang={lang} />
       <Section theme="ivory" className="section section--flush-top">
         <div className="container legal">
           <p className="legal__updated t-label">
@@ -221,7 +227,7 @@ export async function LegalView(props: { page: LegalPageView } | { slug: LegalSl
           {page.sections.length > 2 ? (
             <nav className="legal__toc" aria-label={t.sommaire}>
               <p className="t-label">{t.sommaire}</p>
-              <ol>
+              <ol lang={lang}>
                 {page.sections.map((s) => (
                   <li key={s.id} {...official(s.official)}>
                     <a href={`#${s.id}`} className="link-plain">
@@ -232,7 +238,7 @@ export async function LegalView(props: { page: LegalPageView } | { slug: LegalSl
               </ol>
             </nav>
           ) : null}
-          <div className="prose legal__body">
+          <div className="prose legal__body" lang={lang}>
             {page.preamble ? (
               <div className="legal__section" {...official(page.preamble.official)}>
                 {page.preamble.blocks.map((b, i) => (

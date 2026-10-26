@@ -30,6 +30,7 @@ import { readDoc } from "@/lib/edition/store";
 import { fill } from "@/lib/edition/fill";
 import { accessAllows, imagesOf, parisDate, phaseOf, type DropAccess, type DropPhase } from "@/components/drops/regles";
 import type { Product } from "@/lib/commerce/types";
+import type { Locale } from "@/lib/i18n/routing";
 
 export type { DropAccess, DropPhase };
 
@@ -218,14 +219,17 @@ export function canBuy(d: Drop | null, access: AccessCookie, at = now()): { ok: 
 
 type DatesTexts = { dates: { valeur: string } };
 
-/** Une date de l'avant-première, écrite comme dans les textes (« jeudi 5 novembre à 18 h »). */
-export function dropDateText(t: DatesTexts, iso: string): string {
-  return fill(t.dates.valeur, parisDate(iso));
+/**
+ * Une date de l'avant-première, écrite comme dans les textes (« jeudi 5 novembre à 18 h » ; sous
+ * /en, « Thursday 5 November at 6 pm »).
+ */
+export function dropDateText(t: DatesTexts, iso: string, locale: Locale = "fr"): string {
+  return fill(t.dates.valeur, parisDate(iso, Date.now(), locale));
 }
 
 /** Repères communs des textes d'une avant-première : {collection}, {avantPremiere}, {devoilement}. */
-export function dropVars(t: DatesTexts, d: Pick<Drop, "title" | "earlyAccessAt" | "publicAt">): Record<string, string> {
-  return { collection: d.title, avantPremiere: dropDateText(t, d.earlyAccessAt), devoilement: dropDateText(t, d.publicAt) };
+export function dropVars(t: DatesTexts, d: Pick<Drop, "title" | "earlyAccessAt" | "publicAt">, locale: Locale = "fr"): Record<string, string> {
+  return { collection: d.title, avantPremiere: dropDateText(t, d.earlyAccessAt, locale), devoilement: dropDateText(t, d.publicAt, locale) };
 }
 
 /** Pièces visibles en boutique : sans les pièces d'une collection pas encore dévoilée. */

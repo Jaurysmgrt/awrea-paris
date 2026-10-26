@@ -305,4 +305,12 @@
   photos provisoires gardées pour la mise en ligne ; licence commerciale de la police du logo
   achetée ; logo vectoriel à venir ; vidéos des coulisses tournées par elle (à confirmer sur les
   fichiers en place).
-- **Version anglaise** en cours : adresses `/en`, sélecteur FR · EN, textes et fiches traduits.
+- **Version anglaise** (équipe International et architecte, comptes rendus dans `docs/equipes/`) :
+  adresses `/en` (réécrites par `proxy.ts`, l'Atelier et l'API restent hors de `/en`), sélecteur
+  « FR · EN » dans l'en-tête et le menu, `<html lang>`, hreflang et plan du site dans les deux
+  langues, prix et dates britanniques, recherche anglaise. 42 documents et les sept fiches traduits
+  en anglais britannique, textes officiels phrase par phrase, « seule la version française fait
+  foi » en tête des CGV et des mentions légales. Restent en français sous `/en` : les textes écrits
+  en TypeScript (CGU, confidentialité, cookies, livraison et retours, rétractation, Journal, FAQ,
+  espace cliente, bandeau cookies), les e-mails et l'assistante. À arbitrer : indexer ou non ces
+  pages restées en français sous `/en`.
