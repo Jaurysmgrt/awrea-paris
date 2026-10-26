@@ -1,0 +1,39 @@
+{
+  "lanceur": {
+    "ouvrir": "Une question ?",
+    "fermer": "Fermer"
+  },
+  "titre": "L’assistante Awrea",
+  "sousTitre": "Tailles · délais · livraison · suivi",
+  "fermer": "Fermer l’assistante",
+  "accueil": "Bonjour, et bienvenue chez Awrea Paris. Je peux vous parler d’une pièce, de sa taille, de son délai de fabrication, de la livraison ou de votre commande.",
+  "suggestionsLabel": "Suggestions",
+  "suggestions": [
+    "Quelle taille choisir ?",
+    "Combien de temps pour ma pièce ?",
+    "Suivre ma commande",
+    "Parler à la créatrice"
+  ],
+  "outils": {
+    "search_pieces": "Je parcours les pièces…",
+    "get_piece": "J’ouvre la fiche de la pièce…",
+    "size_guide": "Je consulte le guide des tailles…",
+    "shipping_options": "Je regarde la livraison…",
+    "track_order": "Je cherche votre commande…",
+    "handoff_to_atelier": "Je transmets votre message à la créatrice…",
+    "attente": "Un instant…"
+  },
+  "vous": "Vous :",
+  "assistante": "Assistante :",
+  "ecrit": "L’assistante écrit",
+  "transmis": "Votre message est entre les mains de la créatrice. Elle vous écrira à {email}.",
+  "champ": "Votre question",
+  "placeholder": "Écrivez votre question…",
+  "envoyer": "Envoyer",
+  "pied": "Assistante d’intelligence artificielle : ses réponses peuvent comporter des erreurs.",
+  "ecrire": "Écrire à la Maison",
+  "erreurs": {
+    "indisponible": "Je n’arrive pas à vous répondre pour l’instant. Vous pouvez écrire directement à la Maison.",
+    "connexion": "La connexion a été interrompue. Merci de réessayer."
+  }
+}

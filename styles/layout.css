@@ -1,0 +1,1050 @@
+/* En-tête, menu, pied de page, bandeau cookies, panier latéral. */
+
+@layer components {
+  html.is-locked {
+    overflow: hidden;
+  }
+
+  /* ============================================================ LOGO
+     Fichier officiel en masque (components/brand/Logo.tsx) : le dessin prend la couleur du texte.
+     Les proportions du fichier (--logo-ratio : 708 / 293 pour le logo entier, 380 / 325 pour le
+     monogramme) tiennent le dessin : le conteneur fixe la hauteur (en-tête : 100 % ; ailleurs
+     --logo-h, par exemple --size-logo, pour que « PARIS » reste lisible) ou, pour le cachet de
+     l'enveloppe, la largeur ; l'autre dimension suit, sans jamais déformer. */
+  .logo-mask {
+    display: block;
+    aspect-ratio: var(--logo-ratio);
+    height: var(--logo-h, 100%);
+    width: auto;
+    max-width: 100%;
+    background-color: currentColor;
+    mask-image: var(--logo-src);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-image: var(--logo-src);
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    forced-color-adjust: none;
+  }
+  /* contraste forcé (Windows) : le masque garde la couleur du texte du système */
+  @media (forced-colors: active) {
+    .logo-mask {
+      background-color: CanvasText;
+    }
+  }
+  /* repli si le fichier manque : le nom en toutes lettres, dans la police des titres */
+  .logo-mask--nom {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-style: var(--font-style-display);
+    font-size: var(--text-step-2);
+    line-height: var(--lh-step-2);
+    white-space: nowrap;
+  }
+
+  /* =========================================================== EN-TÊTE
+     Maquette EN-TÊTE DU SITE : le logo entier centré, la navigation centrée dessous, en Cormorant
+     (Accueil souligné quand la page est active, chevrons fins des menus déroulants).
+     L'en-tête est collant : il défile jusqu'à ce que seule sa bande de navigation reste visible
+     (top négatif de la hauteur de la partie haute), puis devient compact (data-compact, posé par
+     components/layout/Menu.tsx) : le monogramme apparaît à gauche, la même navigation au centre,
+     sur un aplat plein souligné d'un filet (jamais de verre dépoli). Sa marge basse négative
+     (--header-h) garde le rythme des pages, qui réservent --header-h en haut : leur contenu
+     commence toujours sous la navigation. Téléphone : une seule bande, bouton Menu à gauche, logo
+     au centre, panier à droite. */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    height: var(--header-h);
+    margin-bottom: calc(-1 * var(--header-h));
+    color: var(--fg);
+    transition: color var(--dur) var(--ease);
+  }
+  @media (min-width: 48rem) {
+    .site-header {
+      --site-header-logo: var(--size-logo-l); /* 80 px */
+      --site-header-top: calc(var(--spacing-m) + var(--site-header-logo) + var(--spacing-xs));
+      height: calc(var(--site-header-top) + var(--header-h));
+      top: calc(-1 * var(--site-header-top));
+    }
+  }
+  @media (min-width: 64rem) {
+    .site-header {
+      --site-header-logo: calc(var(--size-logo) * 2); /* 96 px */
+    }
+  }
+  @media (min-width: 90rem) {
+    .site-header {
+      --site-header-logo: calc(var(--size-logo) * 2 + var(--spacing-xs)); /* 112 px */
+    }
+  }
+
+  /* partie haute (tablette et ordinateur) : le logo entier */
+  .site-header__top {
+    display: none;
+  }
+  @media (min-width: 48rem) {
+    .site-header__top {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      height: var(--site-header-top);
+      padding-top: var(--spacing-m);
+      padding-bottom: var(--spacing-xs);
+    }
+  }
+  .site-header__logo {
+    display: inline-block;
+    height: var(--site-header-logo);
+    color: inherit;
+  }
+
+  /* bande de navigation : la seule partie visible une fois l'en-tête compact */
+  .site-header__band {
+    height: var(--header-h);
+    border-bottom: var(--border-width-hair) solid transparent;
+    transition:
+      background-color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+  .site-header[data-compact="true"] .site-header__band {
+    background-color: var(--bg);
+    border-bottom-color: var(--line);
+  }
+  .site-header__inner {
+    height: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-areas: "menu mark cart";
+    align-items: center;
+    gap: var(--spacing-s);
+  }
+  .site-header__menu {
+    grid-area: menu;
+    justify-self: start;
+  }
+  .site-header__cart {
+    grid-area: cart;
+    justify-self: end;
+  }
+  .site-header__burger {
+    width: var(--spacing-m);
+    height: var(--spacing-2xs);
+    border-top: var(--border-width-hair) solid currentColor;
+    border-bottom: var(--border-width-hair) solid currentColor;
+  }
+  .site-header button.link,
+  .site-header a.link {
+    min-height: var(--spacing-touch);
+    white-space: nowrap;
+  }
+  .site-header__count {
+    align-self: flex-start;
+    font-size: var(--text-step--2);
+    line-height: var(--leading-label);
+    font-variant-numeric: lining-nums;
+  }
+
+  /* logo de la bande : entier sur téléphone, monogramme une fois compact */
+  .site-header__mark {
+    grid-area: mark;
+    display: block;
+    height: var(--size-logo);
+    color: inherit;
+  }
+  .site-header__mark-mini,
+  .site-header[data-compact="true"] .site-header__mark-full {
+    display: none;
+  }
+  .site-header[data-compact="true"] .site-header__mark-mini {
+    display: block;
+  }
+
+  /* navigation (tablette et ordinateur) */
+  .site-nav {
+    display: none;
+  }
+  @media (min-width: 48rem) {
+    /* la colonne du sélecteur de langue garde sa largeur : sur tablette, la navigation se décale
+       plutôt que de passer sous « FR · EN » */
+    .site-header__inner {
+      grid-template-columns: minmax(0, 1fr) auto minmax(max-content, 1fr);
+      grid-template-areas: "mark nav lang";
+    }
+    .site-header__menu,
+    .site-header__cart {
+      display: none;
+    }
+    .site-nav {
+      display: block;
+      grid-area: nav;
+    }
+    /* le monogramme n'apparaît qu'une fois le logo entier sorti de l'écran */
+    .site-header__mark {
+      justify-self: start;
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity var(--dur) var(--ease),
+        visibility 0s linear var(--dur);
+    }
+    .site-header[data-compact="true"] .site-header__mark {
+      opacity: 1;
+      visibility: visible;
+      transition:
+        opacity var(--dur) var(--ease),
+        visibility 0s;
+    }
+  }
+  .site-nav__list {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-m);
+  }
+  @media (min-width: 64rem) {
+    .site-nav__list {
+      gap: calc(var(--spacing-m) + var(--spacing-3xs)); /* 32 px, l'écart de la maquette */
+    }
+  }
+  .site-nav__item {
+    position: relative;
+  }
+  /* une sous-page en cours : l'entrée qui la contient reste soulignée */
+  .site-nav__trigger[data-current="true"] {
+    background-size: 100% var(--border-width-hair);
+    background-position: 0 100%;
+  }
+  .chevron {
+    flex: none;
+    width: var(--spacing-xs);
+    height: var(--spacing-xs);
+    transition: rotate var(--dur) var(--ease);
+  }
+  [aria-expanded="true"] > .chevron {
+    rotate: 180deg;
+  }
+  /* menu déroulant : un panneau droit au filet fin, centré sous son entrée ; collé à l'entrée
+     (aucun vide entre les deux) pour que le survol passe de l'un à l'autre sans le refermer */
+  .site-nav__sub {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: max-content;
+    display: grid;
+    padding: var(--spacing-xs) var(--spacing-m);
+    background: var(--bg);
+    color: var(--fg);
+    border: var(--border-width-hair) solid var(--line);
+    translate: -50% 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(calc(-1 * var(--spacing-3xs)));
+    transition:
+      opacity var(--dur) var(--ease),
+      transform var(--dur) var(--ease),
+      visibility 0s linear var(--dur);
+  }
+  .site-nav__sub[data-open="true"] {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity var(--dur) var(--ease),
+      transform var(--dur) var(--ease),
+      visibility 0s;
+  }
+  .site-nav__sub .link {
+    width: 100%;
+  }
+
+  /* sélecteur de langue « FR · EN » (components/layout/LanguageSwitch.tsx) : discret, à droite de
+     la navigation (tablette et ordinateur), en bas du menu (téléphone). La langue en cours est
+     soulignée d'un filet, comme la page en cours ; l'autre est un lien. */
+  .lang-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-3xs);
+    white-space: nowrap;
+  }
+  .lang-switch__sep {
+    color: var(--fg-soft);
+  }
+  span.lang-switch__item {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--spacing-touch);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: var(--text-step-0);
+    letter-spacing: var(--tracking-snug);
+    line-height: var(--leading-label);
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 100% var(--border-width-hair);
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+  }
+  .site-header__lang {
+    display: none;
+  }
+  @media (min-width: 48rem) {
+    .site-header__lang {
+      display: inline-flex;
+      grid-area: lang;
+      justify-self: end;
+    }
+  }
+
+  /* ============================================================== MENU
+     Menu plein écran du téléphone : dialogue modal natif sur le fond de la page (blanc cassé, noir
+     en mode Nuit), entrées séparées de filets fins, sous-entrées dépliées sur place. Il descend
+     comme un rideau ; les animations apaisées le font apparaître sans mouvement (--dur). */
+  .site-menu {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--bg);
+    color: var(--fg);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    clip-path: inset(0 0 100% 0);
+    transition:
+      clip-path var(--dur) var(--ease),
+      overlay var(--dur) allow-discrete,
+      display var(--dur) allow-discrete;
+  }
+  .site-menu[open] {
+    clip-path: inset(0 0 0 0);
+  }
+  @starting-style {
+    .site-menu[open] {
+      clip-path: inset(0 0 100% 0);
+    }
+  }
+  .site-menu::backdrop {
+    background: transparent;
+  }
+  .site-menu__inner {
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: var(--spacing-l);
+    padding-bottom: var(--spacing-l);
+  }
+  .site-menu__bar {
+    height: var(--header-h);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--spacing-s);
+  }
+  .site-menu__close {
+    justify-self: start;
+    min-height: var(--spacing-touch);
+  }
+  .site-menu__close svg {
+    width: var(--spacing-m);
+    height: var(--spacing-m);
+  }
+  .site-menu__logo {
+    --logo-h: var(--size-logo);
+  }
+  .site-menu__list {
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .site-menu__list > li {
+    border-bottom: var(--border-width-hair) solid var(--line);
+    transition:
+      opacity var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
+    transition-delay: calc(var(--i, 0) * var(--dur-stagger));
+  }
+  @starting-style {
+    .site-menu[open] .site-menu__list > li {
+      opacity: 0;
+      transform: translateY(var(--spacing-xs));
+    }
+  }
+  .site-menu__entry {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-xs);
+    min-height: var(--spacing-touch);
+    padding-block: var(--spacing-xs);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step-2);
+    line-height: var(--lh-step-2);
+    letter-spacing: var(--tracking-snug);
+    text-align: left;
+    color: inherit;
+  }
+  .site-menu__entry[aria-current="page"] {
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+    text-underline-offset: 0.2em;
+  }
+  .site-menu__entry .chevron {
+    width: var(--spacing-m);
+    height: var(--spacing-m);
+  }
+  .site-menu__sub {
+    display: grid;
+    padding-bottom: var(--spacing-xs);
+  }
+  .site-menu__sub[hidden] {
+    display: none;
+  }
+  .site-menu__sub .link {
+    min-height: var(--spacing-touch);
+  }
+  .site-menu__prefs,
+  .site-menu__lang {
+    align-self: end;
+  }
+
+  /* ======================================================= RECHERCHE
+     Plein écran, fond blanc cassé (noir en mode Nuit) ; un très grand champ en Fraunces posé sur
+     un filet, des résultats qui s'écrivent à chaque lettre. */
+  .search {
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--z-header) + 3);
+    background: var(--bg);
+    color: var(--fg);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    clip-path: inset(0 0 100% 0);
+    visibility: hidden;
+    transition:
+      clip-path var(--dur) var(--ease),
+      visibility 0s linear var(--dur);
+  }
+  .search[data-open="true"] {
+    clip-path: inset(0 0 0 0);
+    visibility: visible;
+    transition:
+      clip-path var(--dur) var(--ease),
+      visibility 0s;
+  }
+  @starting-style {
+    .search[data-open="true"] {
+      clip-path: inset(0 0 100% 0);
+    }
+  }
+  .search__inner {
+    display: grid;
+    align-content: start;
+    gap: var(--spacing-xl);
+    min-height: 100%;
+    padding-block: var(--spacing-m) var(--spacing-2xl);
+  }
+  .search__bar {
+    position: relative;
+  }
+  /* « Fermer » se range sur la ligne du libellé : le champ garde toute la largeur */
+  .search__close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-height: var(--spacing-touch);
+  }
+  .search__form {
+    display: grid;
+    gap: var(--spacing-2xs);
+  }
+  .search__label {
+    display: flex;
+    align-items: center;
+    min-height: var(--spacing-touch);
+    color: var(--accent);
+  }
+  .search__input {
+    width: 100%;
+    min-width: 0;
+    padding: 0 0 var(--spacing-2xs);
+    border: 0;
+    border-bottom: var(--border-width-hair) solid var(--fg);
+    border-radius: 0;
+    background: transparent;
+    color: var(--fg);
+    font-family: var(--font-display);
+    font-style: var(--font-style-display);
+    font-size: var(--text-step-3);
+    line-height: var(--lh-step-3);
+    letter-spacing: var(--tracking-display);
+    appearance: none;
+  }
+  @media (min-width: 48rem) {
+    .search__input {
+      font-size: var(--text-step-5);
+    }
+  }
+  .search__input::placeholder {
+    color: color-mix(in oklab, var(--fg) 30%, transparent);
+  }
+  .search__input::-webkit-search-cancel-button {
+    appearance: none;
+  }
+  .search__input:focus-visible {
+    outline: none;
+    border-bottom-color: var(--accent);
+  }
+  .search__suggest {
+    display: grid;
+    gap: var(--spacing-s);
+  }
+  .search__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2xs);
+  }
+  .search__empty {
+    max-width: var(--container-prose);
+  }
+  .search__results {
+    display: grid;
+    gap: var(--spacing-xl);
+  }
+  .search__group {
+    display: grid;
+    align-content: start;
+    gap: var(--spacing-s);
+  }
+  .search__group-title span {
+    margin-left: var(--spacing-2xs);
+  }
+  .search__pieces,
+  .search__skeleton {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-l) var(--spacing-s);
+  }
+  @media (min-width: 64rem) {
+    .search__pieces,
+    .search__skeleton {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      column-gap: var(--spacing-m);
+    }
+    .search__results {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--spacing-xl);
+    }
+    .search__group--piece {
+      grid-column: 1 / -1;
+    }
+  }
+  .search__piece {
+    display: grid;
+    gap: var(--spacing-3xs);
+  }
+  .search__piece .media {
+    margin-bottom: var(--spacing-2xs);
+  }
+  .search__piece-title,
+  .search__row-title {
+    font-family: var(--font-display);
+    font-style: var(--font-style-display);
+    font-size: var(--text-step-1);
+    line-height: var(--lh-step-1);
+  }
+  .search__price {
+    margin-top: var(--spacing-3xs);
+  }
+  .search__list li + li {
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .search__row {
+    display: grid;
+    gap: var(--spacing-3xs);
+    padding-block: var(--spacing-s);
+  }
+  @media (hover: hover) {
+    .search__piece-title,
+    .search__row-title {
+      transition: color var(--dur) var(--ease);
+    }
+    .search__piece:hover .search__piece-title,
+    .search__row:hover .search__row-title {
+      color: var(--accent);
+    }
+  }
+
+  .search-page__form {
+    display: grid;
+    gap: var(--spacing-2xs);
+    max-width: var(--container-text);
+  }
+  .search-page__form .search__input {
+    font-size: var(--text-step-3);
+  }
+
+  /* ======================================================== PIED DE PAGE
+     Maquette BAS DE PAGE : la lettre en version compacte, un filet noir centré, quatre colonnes
+     centrées aux intitulés en capitales espacées et aux liens soulignés, Instagram dans une
+     pastille noire (blanc cassé en mode Nuit), « © Awrea Paris 2026 » centré dessous. Deux
+     colonnes sur téléphone, quatre dès la tablette. */
+  .site-footer {
+    padding-block: var(--spacing-2xl) var(--spacing-l);
+  }
+  .site-footer__inner {
+    display: grid;
+    gap: var(--spacing-xl);
+  }
+  .site-footer__news {
+    width: 100%;
+    max-width: var(--container-prose);
+    margin-inline: auto;
+  }
+  /* une page qui porte déjà la lettre en entier (accueil, Bientôt…) : pas de seconde lettre au pied */
+  body:has(main :is(.newsletter:not(.newsletter--compact), .newsletter__merci)) .site-footer__news {
+    display: none;
+  }
+  .site-footer__cols {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-l) var(--spacing-s);
+    text-align: center;
+  }
+  @media (min-width: 48rem) {
+    .site-footer__cols {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .site-footer__col {
+    display: grid;
+    align-content: start;
+    justify-items: center;
+    gap: var(--spacing-xs);
+  }
+  .site-footer__links {
+    display: grid;
+    justify-items: center;
+  }
+  .site-footer__link {
+    min-height: var(--spacing-touch);
+    text-align: center;
+  }
+  .site-footer__social {
+    display: inline-grid;
+    place-items: center;
+    width: var(--spacing-touch);
+    height: var(--spacing-touch);
+    border: var(--border-width-hair) solid var(--fg);
+    border-radius: var(--radius-full);
+    background: var(--fg);
+    color: var(--bg);
+    transition:
+      background-color var(--dur) var(--ease),
+      color var(--dur) var(--ease);
+  }
+  @media (hover: hover) {
+    .site-footer__social:hover {
+      background: var(--bg);
+      color: var(--fg);
+    }
+  }
+  .site-footer__social:focus-visible {
+    outline: var(--border-width-focus) solid var(--fg);
+    outline-offset: var(--spacing-3xs);
+  }
+  .site-footer__social-icon {
+    width: var(--spacing-m);
+    height: var(--spacing-m);
+  }
+
+  /* ============================================ RÉGLAGES D'AFFICHAGE */
+  .display-prefs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-3xs) var(--spacing-s);
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+  .display-prefs__legend {
+    float: left; /* une légende en ligne, à côté des choix */
+    margin-right: var(--spacing-2xs);
+    color: var(--fg-soft);
+  }
+  .display-prefs .segmented__item {
+    padding-inline: var(--spacing-xs);
+  }
+
+  /* ============================================================ NEWSLETTER
+     Maquette NEWSLETTER : « Suivez-nous », le grand titre en Fraunces italique, champs soulignés
+     d'un filet (.field), case de consentement (.check), bouton noir en pilule pleine largeur.
+     Version compacte (pied de page) : l'e-mail et le consentement, le bouton centré. */
+  .newsletter-block {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-title);
+    width: 100%;
+    max-width: var(--container-prose);
+    margin-inline: auto;
+  }
+  .newsletter-block__title {
+    text-align: center;
+  }
+  .newsletter-block .newsletter {
+    width: 100%;
+    margin-top: var(--spacing-xs);
+  }
+  .newsletter {
+    display: grid;
+    gap: var(--spacing-m);
+    text-align: left;
+  }
+  .newsletter__fields {
+    display: grid;
+    gap: var(--spacing-m);
+  }
+  .newsletter__consent {
+    display: grid;
+    gap: var(--spacing-2xs);
+  }
+  .newsletter--compact {
+    max-width: var(--container-text);
+    margin-inline: auto;
+  }
+  .newsletter--compact .newsletter__submit {
+    justify-self: center;
+  }
+
+  /* ========================================================= COOKIES
+     Un filet fin, du papier ivoire, une typographie fine ; un fondu discret au bas de l’écran,
+     jamais de fenêtre bloquante. */
+  html[data-consent="set"] .consent {
+    display: none;
+  }
+  .consent {
+    --bg: var(--color-ivory);
+    --fg: var(--color-ink);
+    --fg-soft: var(--color-ink-soft);
+    --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: var(--z-cookie);
+    max-height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--bg);
+    color: var(--fg);
+    border-top: var(--border-width-hair) solid var(--accent);
+    padding-block: var(--spacing-s) calc(var(--spacing-s) + env(safe-area-inset-bottom));
+    animation: consent-in var(--dur) var(--ease) var(--dur) both;
+  }
+  /* mode nuit : le même bandeau, noir et or */
+  html[data-mode="dark"] .consent {
+    --bg: var(--color-night);
+    --fg: var(--color-ivory);
+    --fg-soft: var(--color-ivory-soft);
+    --line: color-mix(in oklab, var(--color-ivory) 20%, transparent);
+  }
+  @keyframes consent-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--spacing-2xs));
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .consent__inner {
+    display: grid;
+    gap: var(--spacing-s);
+  }
+  .consent__intro {
+    display: grid;
+    gap: var(--spacing-3xs);
+  }
+  .consent__title {
+    color: var(--accent);
+  }
+  .consent__text {
+    max-width: var(--container-prose);
+  }
+  .consent__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+    gap: var(--spacing-2xs) var(--spacing-xs);
+  }
+  .consent__btn {
+    min-height: var(--spacing-touch);
+    padding-inline: var(--spacing-s);
+  }
+  .consent__more,
+  .consent__save {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+  .consent__save {
+    justify-self: stretch;
+  }
+  .consent__choices {
+    border: 0;
+    border-top: var(--border-width-hair) solid var(--line);
+    padding-top: var(--spacing-s);
+  }
+  .consent__list {
+    display: grid;
+    gap: var(--spacing-s);
+  }
+  .consent__row {
+    display: grid;
+    align-content: start;
+    gap: var(--spacing-3xs);
+  }
+  .consent__desc {
+    color: var(--fg-soft);
+  }
+  @media (min-width: 64rem) {
+    .consent__inner {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      column-gap: var(--spacing-xl);
+    }
+    .consent__intro {
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: baseline;
+      column-gap: var(--spacing-m);
+    }
+    .consent__actions {
+      grid-template-columns: repeat(2, minmax(var(--container-label), 1fr)) auto;
+    }
+    .consent__more,
+    .consent__save {
+      grid-column: auto;
+    }
+    .consent__choices {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    .consent[data-details="true"] .consent__actions {
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(3, minmax(var(--container-label), auto));
+      justify-content: end;
+    }
+    .consent__list {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      column-gap: var(--spacing-l);
+    }
+  }
+  /* l'assistante s'efface tant que le bandeau est présent */
+  body:has(.consent) .assistant-launcher {
+    visibility: hidden;
+  }
+  html[data-consent="set"] body .assistant-launcher {
+    visibility: visible;
+  }
+  /* et pendant que le menu ou la recherche occupent tout l'écran */
+  html.is-locked body .assistant-launcher {
+    visibility: hidden;
+  }
+
+  /* interrupteur (catégories de cookies, préférences) : un filet et un losange qui glisse
+     et se dore, dans l'esprit du bouton « Garder » */
+  .switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    min-height: var(--spacing-touch);
+    cursor: pointer;
+  }
+  .switch input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
+  }
+  .switch__track {
+    position: relative;
+    flex: none;
+    width: var(--spacing-l);
+    height: var(--spacing-s);
+  }
+  .switch__track::before {
+    content: "";
+    position: absolute;
+    inset: 50% 0 auto 0;
+    border-top: var(--border-width-hair) solid var(--fg);
+    transition: border-color var(--dur) var(--ease);
+  }
+  .switch__track::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: var(--spacing-xs);
+    height: var(--spacing-xs);
+    border: var(--border-width-hair) solid var(--fg);
+    background: var(--bg);
+    transform: translateY(-50%) rotate(45deg) scale(0.8);
+    transition:
+      transform var(--dur) var(--ease),
+      background-color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+  .switch input:checked + .switch__track::before {
+    border-color: var(--accent);
+  }
+  .switch input:checked + .switch__track::after {
+    background: var(--accent);
+    border-color: var(--accent);
+    transform: translate(calc(var(--spacing-l) - var(--spacing-xs)), -50%) rotate(45deg) scale(0.8);
+  }
+  .switch input:focus-visible + .switch__track {
+    outline: var(--border-width-hair) solid var(--fg);
+    outline-offset: var(--spacing-2xs);
+  }
+  .switch input:disabled + .switch__track {
+    opacity: 0.55;
+  }
+  .switch:has(input:disabled) {
+    cursor: default;
+  }
+
+  /* ===================================================== PANIER LATÉRAL */
+  .drawer {
+    position: fixed;
+    inset: 0 0 0 auto;
+    margin: 0;
+    width: min(100%, var(--container-panel));
+    max-width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-left: var(--border-width-hair) solid var(--line);
+    padding: 0;
+    color: var(--fg);
+    background: var(--bg);
+    transform: translateX(100%);
+    transition:
+      transform var(--dur) var(--ease),
+      overlay var(--dur) allow-discrete,
+      display var(--dur) allow-discrete;
+  }
+  .drawer[open] {
+    transform: none;
+  }
+  @starting-style {
+    .drawer[open] {
+      transform: translateX(100%);
+    }
+  }
+  .drawer::backdrop {
+    background: color-mix(in oklab, var(--color-ink) 55%, transparent);
+    opacity: 0;
+    transition:
+      opacity var(--dur) var(--ease),
+      overlay var(--dur) allow-discrete,
+      display var(--dur) allow-discrete;
+  }
+  .drawer[open]::backdrop {
+    opacity: 1;
+  }
+  @starting-style {
+    .drawer[open]::backdrop {
+      opacity: 0;
+    }
+  }
+  .drawer__panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .drawer__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-xs) var(--spacing-m);
+    border-bottom: var(--border-width-hair) solid var(--line);
+    min-height: var(--header-h);
+  }
+  .drawer__body {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--spacing-m);
+    display: grid;
+    align-content: start;
+    gap: var(--spacing-l);
+  }
+  .drawer__empty {
+    padding: var(--spacing-xl) var(--spacing-m);
+  }
+  .drawer__progress {
+    margin-top: var(--spacing-2xs);
+    height: var(--border-width-hair);
+    background: var(--line);
+  }
+  .drawer__suggest {
+    display: grid;
+    gap: var(--spacing-xs);
+    padding-block: var(--spacing-m);
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .drawer__suggest-list {
+    display: grid;
+    gap: var(--spacing-xs);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .suggest__link {
+    display: grid;
+    grid-template-columns: var(--spacing-2xl) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--spacing-s);
+    color: inherit;
+    text-decoration: none;
+  }
+  .suggest__text {
+    display: grid;
+    gap: var(--spacing-3xs);
+  }
+  .drawer__progress span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transform-origin: 0 50%;
+    transition: transform var(--dur) var(--ease);
+  }
+  .drawer__lines {
+    display: grid;
+    gap: var(--spacing-m);
+  }
+  .drawer__gift {
+    display: grid;
+    gap: var(--spacing-s);
+  }
+  .drawer__foot {
+    padding: var(--spacing-m);
+    border-top: var(--border-width-hair) solid var(--line);
+    display: grid;
+    gap: var(--spacing-s);
+  }
+  .drawer__pay {
+    letter-spacing: var(--tracking-snug);
+  }
+}

@@ -1,0 +1,104 @@
+/*
+ * Mise en page éditoriale des pages de la Maison (accueil, La Maison, L’Atelier, la commande sur
+ * demande, guide des tailles, contact) : têtes de section, deux colonnes photo et texte, grandes
+ * photos à la légende discrète, citations des textes officiels de la créatrice.
+ * Tokens du design system seulement : grille de 8 px, rythme vertical commun (--space-title,
+ * --space-paragraph, --space-block), rôles de couleur qui suivent le mode Nuit. Aucune animation
+ * propre : les apparitions restent celles du site, coupées par les animations apaisées.
+ */
+
+/* tête de section : surtitre, puis titre, puis chapeau */
+.tete > * + * {
+  margin-top: var(--spacing-m);
+}
+
+/* bloc centré (titres compris : les classes de titre posent le fer à gauche) */
+.centre {
+  text-align: center;
+}
+.centre :is(h1, h2, h3) {
+  text-align: center;
+  margin-inline: auto;
+}
+.centre > p,
+.centre > .tete > p {
+  margin-inline: auto;
+}
+
+/* espace entre une tête de section et ce qui la suit */
+.apresTete {
+  margin-top: var(--space-block);
+}
+
+/* deux colonnes : la photo et le texte ; une seule sous 768 px, la photo d’abord */
+.split {
+  display: grid;
+  gap: var(--space-block) var(--spacing-gutter);
+  align-items: center;
+}
+@media (min-width: 48rem) {
+  .split {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  }
+  /* la photo (premier élément) passe à droite, le texte à gauche */
+  .flip {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  }
+  .flip > :first-child {
+    order: 2;
+  }
+}
+
+/* colonne de texte : paragraphes à une ligne d’intervalle, le titre à sa distance */
+.texte > * + * {
+  margin-top: var(--space-paragraph);
+}
+.texte > :is(h2, h3) + *,
+.texte > .tete + * {
+  margin-top: var(--space-title);
+}
+
+/* l’appel à l’action d’une section, après son texte */
+.action {
+  margin-top: var(--space-block);
+}
+.texte > .action {
+  margin-top: var(--space-block);
+}
+
+/* lignes de fin d’un texte officiel, centrées, sans intervalle entre elles */
+.chute {
+  margin-top: var(--space-block);
+}
+.chute > p + p {
+  margin-top: 0;
+}
+
+/* grande photo et sa légende discrète (crédit, mention « visuel provisoire ») */
+.visuel {
+  margin: 0;
+}
+.legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--spacing-s);
+  margin-top: var(--spacing-2xs);
+  text-align: left;
+}
+
+/* citation d’un texte officiel : le chapeau de la colonne ; tant que la colonne est étroite
+   (tablette), il prend la taille du texte courant pour garder assez de mots par ligne */
+.citation {
+  margin: 0;
+}
+@media (max-width: 63.99rem) {
+  .citation > p {
+    font-size: var(--text-step-0);
+  }
+}
+
+/* formulaire dans un bloc centré : ses champs et ses notes restent au fer à gauche */
+.formulaire {
+  margin-top: var(--space-block);
+  text-align: left;
+}

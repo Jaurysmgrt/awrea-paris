@@ -1,0 +1,16 @@
+{
+  "seo": {
+    "title": "Outfits, complete looks | Awrea Paris",
+    "description": "Awrea Paris outfits: complete looks put together by the designer with pieces from the Hypnotic Lace collection, made to order by French artisans."
+  },
+  "titre": "Outfits",
+  "chapeau": "Each outfit is put together by the designer. You can order it whole, in a single step, or piece by piece, in your size.",
+  "silhouette": "Silhouette {numero}",
+  "vide": {
+    "texte": "An outfit is best shown worn, from head to toe. The first ones will appear here with the photo shoots of the Hypnotic Lace collection. Until then, its seven pieces can be ordered one by one.",
+    "lien": {
+      "label": "See the seven pieces",
+      "href": "/collections/hypnotic-lace"
+    }
+  }
+}

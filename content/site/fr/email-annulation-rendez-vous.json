@@ -1,0 +1,20 @@
+{
+  "nom": "Rendez-vous annulé par l’atelier",
+  "quand": "À la cliente, quand l’atelier annule son rendez-vous.",
+  "famille": "service",
+  "sujet": "Votre rendez-vous du {quand}",
+  "preheader": "Nous devons le déplacer. Choisissez un autre moment.",
+  "variables": {
+    "prenom": { "description": "Le prénom de la cliente", "exemple": "Camille" },
+    "quand": { "description": "Le jour et l’heure du rendez-vous", "exemple": "jeudi 16 octobre à 14 h 30" },
+    "rendezvous": { "description": "Le rendez-vous", "exemple": "Appel vidéo avec la créatrice" }
+  },
+  "blocs": [
+    { "id": "b-ardv0entete", "type": "entete", "fond": "noir" },
+    { "id": "b-ardv0titre", "type": "titre", "titre": "Un autre moment" },
+    { "id": "b-ardv0texte", "type": "texte", "texte": "Bonjour {prenom},\n\nNous ne pourrons pas vous recevoir {quand} pour votre rendez-vous ({rendezvous}). Toutes nos excuses. Choisissez un autre moment, il vous sera réservé." },
+    { "id": "b-ardv0bouton", "type": "bouton", "lien": { "label": "Choisir un autre moment", "href": "/rendez-vous" } },
+    { "id": "b-ardv0signe", "type": "signature", "texte": "À bientôt,\nL’atelier Awrea Paris" },
+    { "id": "b-ardv0pied", "type": "pied", "note": "" }
+  ]
+}

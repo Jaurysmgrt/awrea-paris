@@ -1,0 +1,37 @@
+# Contrôle de sécurité hebdomadaire (en plus du contrôle quotidien de l'agent de maintenance) :
+# clés secrètes, vulnérabilités de toutes les dépendances, en-têtes et certificat du site en ligne.
+name: Sécurité
+
+on:
+  schedule:
+    - cron: "41 4 * * 1" # chaque lundi, vers 6 h à Paris
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  controle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SITE_URL: ${{ vars.SITE_URL || 'https://www.awreaparis.com' }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node scripts/secret-scan.mjs
+      - name: Vulnérabilités (toutes dépendances, pour information)
+        run: npm audit || true
+      - name: Site en ligne (TLS, HTTPS, en-têtes, journal)
+        run: node scripts/security-check.mjs "$SITE_URL" --json rapport-securite.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rapport-securite
+          path: rapport-securite.json
+          retention-days: 90

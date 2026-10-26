@@ -1,0 +1,46 @@
+{
+  "surtitre": "In the atelier",
+  "videoLabel": "In the atelier: {legende}",
+  "lien": {
+    "label": "Step into the atelier",
+    "href": "/atelier"
+  },
+  "moments": {
+    "mesures": {
+      "video": {
+        "src": "/media/video/atelier-1.mp4",
+        "poster": "/media/video/atelier-1.webp"
+      },
+      "legende": "Pins and tape measure",
+      "titre": "Nothing is sewn in advance",
+      "texte": "Your piece does not exist before you order it. It is made to order, in the size you have chosen, and nothing lies waiting in stock."
+    },
+    "dentelle": {
+      "video": {
+        "src": "/media/video/atelier-2.mp4",
+        "poster": "/media/video/atelier-2.webp"
+      },
+      "legende": "A lace motif",
+      "titre": "Lace first",
+      "texte": "In Hypnotic Lace, black lace takes the waist, the bust or the shoulder. On some pieces, gold mingles with it."
+    },
+    "point": {
+      "video": {
+        "src": "/media/video/atelier-3.mp4",
+        "poster": "/media/video/atelier-3.webp"
+      },
+      "legende": "Needle and thread",
+      "titre": "French hands",
+      "texte": "Our pieces are made by French artisans. The Maison takes care of their working conditions and of the recognition their craft deserves."
+    },
+    "finitions": {
+      "video": {
+        "src": "/media/video/atelier-4.mp4",
+        "poster": "/media/video/atelier-4.webp"
+      },
+      "legende": "Finishing",
+      "titre": "One last look",
+      "texte": "Once finished, the piece receives its creation number, written on its certificate of authenticity. Then it is on its way to you."
+    }
+  }
+}

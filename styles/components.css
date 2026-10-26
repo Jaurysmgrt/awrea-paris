@@ -1,0 +1,1045 @@
+/*
+ * Composants du design system. Chaque élément du site s'appuie sur ces classes :
+ * mêmes boutons, mêmes liens, mêmes champs, mêmes médias, partout.
+ */
+
+@layer components {
+  /* =========================================================== MISE EN PAGE */
+  .container {
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--spacing-gutter);
+  }
+
+  .container-text {
+    width: 100%;
+    max-width: calc(var(--container-text) + 2 * var(--spacing-gutter));
+    margin-inline: auto;
+    padding-inline: var(--spacing-gutter);
+  }
+
+  .container-prose {
+    width: 100%;
+    max-width: calc(var(--container-prose) + 2 * var(--spacing-gutter));
+    margin-inline: auto;
+    padding-inline: var(--spacing-gutter);
+  }
+
+  .grid-12 {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--spacing-gutter);
+  }
+
+  /* Sections : chacune déclare son thème. Quand la bascule au scroll est active,
+     le fond devient celui de la scène globale (transition douce). */
+  .scene {
+    position: relative;
+    background-color: var(--bg);
+    color: var(--fg);
+    transition:
+      background-color var(--dur) var(--ease),
+      color var(--dur) var(--ease);
+  }
+  /* Seules les sections de page suivent la scène (jamais les tiroirs, modales, panneaux) */
+  html.scene-live :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
+    background-color: transparent;
+    /* le fond visible est celui de la scène (porté par <body>) : badges, puces et boutons
+       qui s'appuient sur --bg le reprennent, pour rester lisibles */
+    --bg: inherit;
+  }
+  html.scene-live[data-scene="ink"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
+    --fg: var(--color-ivory);
+    --fg-soft: var(--color-ivory-soft);
+    --line: color-mix(in oklab, var(--color-ivory) 24%, transparent);
+    --accent: var(--color-ivory);
+    color: var(--fg);
+  }
+  html.scene-live[data-scene="ivory"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]),
+  html.scene-live[data-scene="pearl"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
+    --fg: var(--color-ink);
+    --fg-soft: var(--color-ink-soft);
+    --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
+    --accent: var(--color-ink);
+    color: var(--fg);
+  }
+
+  html[data-mode="dark"].scene-live[data-scene="ivory"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]),
+  html[data-mode="dark"].scene-live[data-scene="pearl"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
+    --fg: var(--color-ivory);
+    --fg-soft: var(--color-ivory-soft);
+    --line: color-mix(in oklab, var(--color-ivory) 20%, transparent);
+    --accent: var(--color-ivory);
+  }
+
+  .scene[data-theme="paper"] {
+    background-color: var(--color-ivory);
+    background-image: url("/media/texture/paper.webp");
+    background-size: var(--size-paper-tile);
+  }
+  /* papier de nuit : le grain reste, la feuille devient noire */
+  html[data-mode="dark"] .scene[data-theme="paper"] {
+    background-color: var(--color-night);
+    background-blend-mode: multiply;
+  }
+
+  .section {
+    padding-block: var(--spacing-2xl);
+  }
+  .section--tall {
+    padding-block: var(--spacing-3xl);
+  }
+  .section--flush-top {
+    padding-top: 0;
+  }
+
+  .page-top {
+    padding-top: calc(var(--header-h) + var(--spacing-xl));
+  }
+
+  .stack-s > * + * {
+    margin-top: var(--spacing-xs);
+  }
+  .stack > * + * {
+    margin-top: var(--spacing-s);
+  }
+  .stack-m > * + * {
+    margin-top: var(--spacing-m);
+  }
+  .stack-l > * + * {
+    margin-top: var(--spacing-l);
+  }
+
+  /* ============================================================ TYPOGRAPHIE
+     Deux polices officielles : Fraunces 72pt Italic (titres, très grands, en italique,
+     interlignage serré) et Cormorant Garamond 400 (textes, navigation, boutons, formulaires ;
+     20 px sur 32 px, jamais sous 16 px). Interlignages sur la grille de 8 px. */
+  .t-display,
+  .t-giant,
+  .t-h1,
+  .t-h2,
+  .t-h3,
+  .t-h4 {
+    font-family: var(--font-display);
+    font-style: var(--font-style-display);
+    font-weight: var(--font-weight-regular);
+    letter-spacing: var(--tracking-display);
+    text-align: left;
+    hyphens: manual;
+  }
+  .t-display {
+    font-size: var(--text-step-5);
+    line-height: var(--lh-step-5);
+  }
+  .t-h1 {
+    font-size: var(--text-step-4);
+    line-height: var(--lh-step-4);
+  }
+  .t-h2 {
+    font-size: var(--text-step-3);
+    line-height: var(--lh-step-3);
+  }
+  .t-h3 {
+    font-size: var(--text-step-2);
+    line-height: var(--lh-step-2);
+    letter-spacing: 0;
+  }
+  /* petits titres : 25 px, le plancher de Fraunces (dessinée pour le grand format, elle paraît
+     trop noire à côté de Cormorant en dessous) */
+  .t-h4 {
+    font-size: var(--text-step-1);
+    line-height: var(--lh-step-1);
+    letter-spacing: 0;
+  }
+  /* titres géants : les pages éditoriales, où le titre devient une affiche */
+  .t-giant {
+    font-size: var(--text-step-6);
+    line-height: var(--lh-step-6);
+  }
+
+  /* titre découpé (components/ui/SplitTitle.tsx) : affiché d'un bloc, sans effet d'écriture */
+  .split__word {
+    white-space: nowrap;
+  }
+
+  /* chapeau : 25 px sur 40 px */
+  .t-lead {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step-1);
+    line-height: var(--leading-text);
+  }
+  /* petits téléphones : le chapeau prend la taille du texte courant pour garder assez de
+     caractères par ligne */
+  @media (max-width: 29.99rem) {
+    .t-lead {
+      font-size: var(--text-step-0);
+    }
+  }
+  .t-body {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step-0);
+    line-height: var(--leading-text);
+  }
+  /* étiquettes en capitales à l'interlettrage mesuré (intitulés du pied de page, surtitres,
+     en-têtes de tableau) : 16 px, le minimum */
+  .t-label {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step--2);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    line-height: var(--leading-label);
+  }
+  .t-label--wide {
+    letter-spacing: var(--tracking-wide);
+  }
+  /* navigation, liens et boutons des maquettes : bas de casse, 20 px, à peine espacés */
+  .t-nav {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step-0);
+    letter-spacing: var(--tracking-snug);
+    line-height: var(--leading-label);
+  }
+  .t-note {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step--1);
+    line-height: var(--leading-note);
+    color: var(--fg-soft);
+  }
+  .t-soft {
+    color: var(--fg-soft);
+  }
+  .t-accent {
+    color: var(--accent);
+  }
+  .t-center {
+    text-align: center;
+  }
+  .t-left {
+    text-align: left;
+  }
+  /* texte centré : même mesure de lecture que le texte courant (60 à 70 caractères) */
+  p.t-center {
+    max-width: var(--measure);
+    text-align: center;
+    hyphens: manual;
+    margin-inline: auto;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step--2);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    line-height: var(--leading-label);
+  }
+
+  /* texte courant : Cormorant Garamond, aligné à gauche, sur la mesure de lecture */
+  .prose > * + * {
+    margin-top: var(--space-paragraph);
+  }
+  .prose h2 {
+    font-size: var(--text-step-3);
+    line-height: var(--lh-step-3);
+    margin-top: var(--space-block);
+  }
+  .prose h3 {
+    font-size: var(--text-step-2);
+    line-height: var(--lh-step-2);
+    margin-top: var(--space-block);
+  }
+  .prose :is(h2, h3) + * {
+    margin-top: var(--space-title);
+  }
+  .prose ul,
+  .prose ol {
+    padding-left: var(--spacing-m);
+  }
+  .prose li + li {
+    margin-top: var(--spacing-2xs);
+  }
+  .prose ul li {
+    list-style: none;
+    position: relative;
+  }
+  .prose ul li::before {
+    content: "";
+    position: absolute;
+    left: calc(-1 * var(--spacing-m));
+    top: calc(var(--leading-text) * 0.5em);
+    width: var(--spacing-xs);
+    height: var(--border-width-hair);
+    background: var(--accent);
+  }
+  .prose a {
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+    text-underline-offset: 0.2em;
+  }
+  .prose strong {
+    font-weight: var(--font-weight-regular);
+  }
+
+  /* ============================================================== FILETS
+     Filets très fins. .rule : séparateur discret ; .rule--ink : filet noir des maquettes (blanc
+     cassé en mode Nuit et sur fond noir) ; .rule--center : filet noir centré, sur la moitié de la
+     page en ordinateur (pied de page, ouverture d'une section). */
+  .rule {
+    border: 0;
+    height: var(--border-width-hair);
+    background: var(--line);
+  }
+  .rule--ink,
+  .rule--center {
+    background: var(--fg);
+  }
+  .rule--center {
+    width: min(100%, var(--container-prose));
+    margin-inline: auto;
+  }
+  .ornament {
+    display: block;
+    width: var(--spacing-xl);
+    height: var(--border-width-hair);
+    margin-inline: auto;
+    background: var(--accent);
+  }
+
+  /* ============================================================== BOUTONS
+     Langage des maquettes : bouton noir plein aux bords entièrement arrondis (pilule), texte
+     blanc cassé en bas de casse ; en mode Nuit et sur fond noir, il s'inverse (blanc cassé, texte
+     noir). Au survol, un aplat de la couleur du fond monte et le bouton devient un filet.
+     .btn--outline : action secondaire, filet noir en pilule. .btn--link : lien souligné.
+     .btn--solid est l'ancien nom du bouton plein, gardé tel quel. Avant les ressources officielles,
+     .btn seul était l'action secondaire au filet : là où deux actions se côtoient, la seconde passe
+     en .btn--outline (un seul bouton plein par groupe). */
+  .btn {
+    --btn-fg: var(--bg); /* texte */
+    --btn-bg: var(--fg); /* fond */
+    --btn-edge: var(--fg); /* filet */
+    --btn-hover-bg: var(--bg); /* aplat qui monte au survol */
+    --btn-on: var(--fg); /* texte au survol */
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    min-height: var(--spacing-touch);
+    padding: var(--spacing-2xs) var(--spacing-l);
+    border: var(--border-width-hair) solid var(--btn-edge);
+    border-radius: var(--radius-pill);
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step-0);
+    letter-spacing: var(--tracking-snug);
+    text-align: center;
+    line-height: var(--leading-label);
+    overflow: hidden;
+    cursor: pointer;
+    /* attraction magnétique (components/motion/Magnetic.tsx) : retour en douceur */
+    translate: var(--mx, 0) var(--my, 0);
+    transition:
+      color var(--dur) var(--ease),
+      translate var(--dur) var(--ease);
+  }
+  .btn[data-magnet="on"] {
+    transition:
+      color var(--dur) var(--ease),
+      translate var(--dur) var(--ease);
+  }
+  .btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--btn-hover-bg);
+    transform: scaleY(0);
+    transform-origin: 50% 100%;
+    transition: transform var(--dur) var(--ease);
+  }
+  @media (hover: hover) {
+    .btn:hover {
+      color: var(--btn-on);
+    }
+    .btn:hover::before {
+      transform: scaleY(1);
+      transform-origin: 50% 0%;
+    }
+  }
+  /* anneau de focus : un filet qui suit la pilule, décollé d'un cran (visible sur tous les fonds) */
+  .btn:focus-visible {
+    outline: var(--border-width-focus) solid var(--fg);
+    outline-offset: var(--spacing-3xs);
+  }
+  /* action secondaire : filet noir en pilule, fond transparent ; au survol il se remplit */
+  .btn--outline {
+    --btn-fg: var(--fg);
+    --btn-bg: transparent;
+    --btn-hover-bg: var(--fg);
+    --btn-on: var(--bg);
+  }
+  /* lien souligné d'un filet : même famille que les boutons, sans pilule */
+  .btn--link {
+    --btn-fg: var(--fg);
+    --btn-bg: transparent;
+    --btn-edge: transparent;
+    --btn-on: var(--fg);
+    padding-inline: 0;
+    border-radius: 0;
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+    text-underline-offset: 0.2em;
+  }
+  .btn--link::before {
+    display: none;
+  }
+  .btn--link:focus-visible {
+    border-radius: var(--radius-soft);
+  }
+  .btn--block {
+    display: flex;
+    width: 100%;
+  }
+  .btn[disabled],
+  .btn[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .btn[disabled]::before,
+  .btn[aria-disabled="true"]::before {
+    display: none;
+  }
+
+  /* bouton icône (fermer, menu, quantité) */
+  .icon-btn {
+    display: inline-grid;
+    place-items: center;
+    min-width: var(--spacing-touch);
+    min-height: var(--spacing-touch);
+    border-radius: var(--radius-pill);
+    color: inherit;
+  }
+  .icon-btn svg {
+    width: var(--spacing-m);
+    height: var(--spacing-m);
+  }
+
+  /* ================================================================ LIENS
+     Navigation et liens des maquettes : Cormorant en bas de casse, soulignés d'un filet très fin
+     (le lien de la page en cours reste souligné ; .link--quiet ne se souligne qu'au survol). */
+  .link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2xs);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step-0);
+    letter-spacing: var(--tracking-snug);
+    line-height: var(--leading-label);
+    padding-block: var(--spacing-2xs);
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 100% var(--border-width-hair);
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size var(--dur) var(--ease);
+  }
+  @media (hover: hover) {
+    .link:hover {
+      background-size: 0% var(--border-width-hair);
+      background-position: 100% 100%;
+    }
+  }
+  .link--quiet {
+    background-size: 0% var(--border-width-hair);
+    background-position: 100% 100%;
+  }
+  @media (hover: hover) {
+    .link--quiet:hover {
+      background-size: 100% var(--border-width-hair);
+      background-position: 0 100%;
+    }
+  }
+  .link[aria-current="page"] {
+    background-size: 100% var(--border-width-hair);
+  }
+
+  .text-link {
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+    text-underline-offset: 0.2em;
+  }
+
+  /* =============================================================== CHAMPS
+     Langage des maquettes : champ sans cadre, étiquette au-dessus (bas de casse, « Prénom * »),
+     un simple filet dessous. Le filet se lit à 3:1 au moins sur tous les fonds (WCAG 1.4.11) ;
+     au focus il devient noir et double d'épaisseur, sans décaler la mise en page (WCAG 2.4.7) ;
+     en erreur aussi, avec un message écrit sous le champ (jamais la couleur seule). */
+  .field {
+    display: grid;
+    gap: var(--spacing-2xs);
+  }
+  .field__label {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step--1);
+    line-height: var(--leading-label);
+    letter-spacing: var(--tracking-text);
+    color: var(--fg);
+  }
+  .field__input {
+    width: 100%;
+    min-height: var(--spacing-touch);
+    padding: var(--spacing-2xs) 0;
+    background: transparent;
+    border: 0;
+    border-bottom: var(--border-width-hair) solid var(--fg-soft);
+    border-radius: 0;
+    box-shadow: none;
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: var(--text-step-0);
+    line-height: var(--leading-label);
+    color: var(--fg);
+    transition:
+      border-color var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease);
+    appearance: none;
+  }
+  .field__input::placeholder {
+    color: var(--fg-soft);
+    opacity: 1;
+  }
+  .field__input:hover {
+    border-bottom-color: var(--fg);
+  }
+  /* le contour transparent ne se voit pas, sauf en contraste forcé (Windows), où l'ombre et la
+     couleur du filet disparaissent : il y devient l'anneau de focus du champ */
+  .field__input:focus,
+  .field__input:focus-visible {
+    outline: var(--border-width-focus) solid transparent;
+    outline-offset: 0;
+    border-bottom-color: var(--fg);
+    box-shadow: 0 var(--border-width-hair) 0 0 var(--fg);
+  }
+  @media (forced-colors: active) {
+    .field__input:focus,
+    .field__input:focus-visible {
+      outline-color: Highlight;
+    }
+  }
+  .field__input[aria-invalid="true"] {
+    border-bottom-color: var(--fg);
+    border-bottom-style: dashed;
+  }
+  .field__input[aria-invalid="true"]:focus {
+    border-bottom-style: solid;
+  }
+  .field__input:disabled {
+    border-bottom-style: dotted;
+    color: var(--fg-soft);
+    cursor: not-allowed;
+  }
+  textarea.field__input {
+    min-height: calc(var(--spacing-line) * 3 + var(--spacing-xs));
+    resize: vertical;
+    line-height: var(--leading-text);
+  }
+  select.field__input {
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+      linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position:
+      calc(100% - var(--spacing-xs)) 55%,
+      calc(100% - var(--spacing-2xs)) 55%;
+    background-size: var(--spacing-3xs) var(--spacing-3xs);
+    background-repeat: no-repeat;
+    padding-right: var(--spacing-l);
+  }
+  .field__hint {
+    font-size: var(--text-step--1);
+    line-height: var(--leading-note);
+    color: var(--fg-soft);
+  }
+  .field__error {
+    font-size: var(--text-step--1);
+    line-height: var(--leading-note);
+    color: var(--fg);
+    border-left: var(--border-width-focus) solid var(--fg);
+    padding-left: var(--spacing-2xs);
+  }
+  /* deux champs côte à côte (Prénom, Nom), un seul sous 768 px */
+  .field-row {
+    display: grid;
+    gap: var(--spacing-m) var(--spacing-l);
+  }
+  @media (min-width: 48rem) {
+    .field-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* cases et boutons radio : carrés et losanges, au fil */
+  .check {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+    cursor: pointer;
+    min-height: var(--spacing-touch);
+    padding-block: var(--spacing-2xs);
+  }
+  /* la case occupe la hauteur d'une ligne (24 px) : alignée sur la première ligne du libellé,
+     sans décalage hors de la grille ; le carré au fil (16 px) est dessiné au centre */
+  .check input {
+    appearance: none;
+    flex: none;
+    width: var(--spacing-m);
+    height: var(--spacing-m);
+    margin: 0;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+  .check input::before,
+  .check input::after {
+    content: "";
+    grid-area: 1 / 1;
+  }
+  .check input::before {
+    width: var(--spacing-s);
+    height: var(--spacing-s);
+    border: var(--border-width-hair) solid var(--fg);
+  }
+  .check input:focus-visible {
+    outline: var(--border-width-focus) solid var(--fg);
+    outline-offset: 0;
+  }
+  .check input::after {
+    width: calc(var(--spacing-s) * 0.5);
+    height: calc(var(--spacing-s) * 0.5);
+    background: var(--fg);
+    transform: scale(0);
+    transition: transform var(--dur) var(--ease);
+  }
+  .check input[type="radio"]::before {
+    transform: rotate(45deg) scale(0.85);
+  }
+  .check input[type="radio"]::after {
+    rotate: 45deg;
+  }
+  .check input:checked::after {
+    transform: scale(1);
+  }
+
+  /* options (tailles, filtres) : pilules au filet, pleines quand elles sont choisies */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--spacing-touch);
+    min-height: var(--spacing-touch);
+    padding: var(--spacing-2xs) var(--spacing-s);
+    border: var(--border-width-hair) solid var(--fg-soft);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step--1);
+    letter-spacing: var(--tracking-snug);
+    line-height: var(--leading-label);
+    cursor: pointer;
+    /* couleur explicite (et non héritée) : la puce ne relance pas sa transition
+       à chaque image quand la scène bascule */
+    color: var(--fg);
+    transition:
+      border-color var(--dur) var(--ease),
+      background-color var(--dur) var(--ease),
+      color var(--dur) var(--ease);
+  }
+  .chip:hover {
+    border-color: var(--fg);
+  }
+  .chip[aria-pressed="true"],
+  .chip[aria-current="true"],
+  .chip[aria-checked="true"],
+  .chip:has(input:checked) {
+    background: var(--fg);
+    color: var(--bg);
+    border-color: var(--fg);
+  }
+  .chip[data-unavailable="true"] {
+    color: var(--fg-soft);
+    text-decoration: line-through;
+    text-decoration-thickness: var(--border-width-hair);
+  }
+  .chip[data-preorder="true"]::after {
+    content: "";
+    width: var(--spacing-3xs);
+    height: var(--spacing-3xs);
+    margin-left: var(--spacing-3xs);
+    background: var(--accent);
+    transform: rotate(45deg) translateY(-0.4em);
+  }
+  .chip input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .chip:has(input:focus-visible) {
+    outline: var(--border-width-focus) solid var(--fg);
+    outline-offset: var(--spacing-3xs);
+  }
+
+  /* ============================================== CHOIX SEGMENTÉ (radios)
+     Libellés en bas de casse, un filet noir sous le choix actif. Fonctionne avec des boutons
+     role="radio" (aria-checked) ou de vrais <input type="radio"> masqués. */
+  .segmented {
+    display: inline-grid;
+    grid-auto-flow: column;
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .segmented__item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--spacing-touch);
+    padding-inline: var(--spacing-s);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step--1);
+    line-height: var(--leading-label);
+    letter-spacing: var(--tracking-snug);
+    color: var(--fg-soft);
+    border-bottom: var(--border-width-hair) solid transparent;
+    margin-bottom: calc(-1 * var(--border-width-hair));
+    cursor: pointer;
+    transition:
+      color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+  .segmented__item[aria-checked="true"],
+  .segmented__item:has(input:checked) {
+    color: var(--fg);
+    border-bottom-color: var(--accent);
+  }
+  .segmented__item:has(input:focus-visible) {
+    outline: var(--border-width-hair) solid var(--fg);
+    outline-offset: calc(-1 * var(--spacing-3xs));
+  }
+  @media (hover: hover) {
+    .segmented__item:hover {
+      color: var(--fg);
+    }
+  }
+
+  /* =============================================================== MÉDIAS */
+  .media {
+    position: relative;
+    overflow: hidden;
+    background: var(--media-bg);
+  }
+  .media > img,
+  .media > video,
+  .media > picture > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .media--portrait {
+    aspect-ratio: 2 / 3;
+  }
+  .media--tall {
+    aspect-ratio: 3 / 4;
+  }
+  .media--look {
+    aspect-ratio: 4 / 5;
+  }
+  .media--landscape {
+    aspect-ratio: 3 / 2;
+  }
+  .media--wide {
+    aspect-ratio: 16 / 9;
+  }
+  /* photos des cartes (pièces, collections) : angles arrondis, comme sur les maquettes ;
+     .media--soft pour les vignettes */
+  .media--card {
+    border-radius: var(--radius-card);
+  }
+  .media--soft {
+    border-radius: var(--radius-soft);
+  }
+  .media__caption {
+    margin-top: var(--spacing-2xs);
+  }
+  /* mention « visuel provisoire » (ProvisionalNote, avec .t-note : 18 px, texte secondaire) :
+     petite note discrète sous la photo, sur sa propre ligne, jamais en surimpression */
+  .visuel-provisoire {
+    display: block;
+    margin-top: var(--spacing-3xs);
+    font-style: normal;
+    letter-spacing: var(--tracking-text);
+  }
+  .media__caption > .visuel-provisoire {
+    margin-top: 0;
+  }
+  /* adresse web ou e-mail dans un texte (LegalText) : elle se coupe à n'importe quel caractère
+     plutôt que de déborder sur téléphone, jamais par la césure, pour ne pas y ajouter de trait
+     d'union */
+  .adresse-web {
+    hyphens: manual;
+    word-break: break-all;
+  }
+  /* emplacement vide élégant : la photographie de la Maison n'est pas encore là (jamais d'image
+     inventée) ; un fil fin et le monogramme en filigrane tiennent sa place */
+  .media--vide {
+    display: grid;
+    place-items: center;
+    background: var(--media-bg);
+    outline: var(--border-width-hair) solid var(--line);
+    outline-offset: calc(var(--spacing-xs) * -1);
+  }
+  .media--vide::after {
+    content: "";
+    width: var(--spacing-xl);
+    aspect-ratio: 1;
+    background: var(--line);
+    mask: url("/brand/awrea-aw.png") center / contain no-repeat;
+  }
+
+  .reveal-img[data-pending] img,
+  .reveal-img[data-pending] video {
+    transform: scale(1.06);
+  }
+  .reveal-img[data-shown] img,
+  .reveal-img[data-shown] video {
+    transition: transform var(--dur) var(--ease);
+  }
+
+  /* ===================================================== SQUELETTES
+     Pendant un chargement, des aplats ivoire à peine nacrés tiennent la place exacte du
+     contenu : rien ne saute, rien ne paraît figé. */
+  .skeleton {
+    display: block;
+    background: linear-gradient(
+        100deg,
+        transparent 30%,
+        color-mix(in oklab, var(--bg) 60%, var(--color-ivory)) 50%,
+        transparent 70%
+      )
+      0 0 / 300% 100%,
+      color-mix(in oklab, var(--fg) 7%, var(--bg));
+    animation: skeleton-sheen calc(var(--dur-breath) * 2) var(--ease) infinite;
+  }
+  .skeleton--media {
+    aspect-ratio: 4 / 5;
+  }
+  .skeleton--line {
+    height: 0.9em;
+    margin-top: var(--spacing-2xs);
+  }
+  .skeleton--short {
+    width: 40%;
+  }
+  @keyframes skeleton-sheen {
+    from {
+      background-position: 100% 0, 0 0;
+    }
+    to {
+      background-position: -50% 0, 0 0;
+    }
+  }
+
+  /* ========================================================= ÉLÉMENTS DIVERS */
+  /* prix au format « 70,00 € », chiffres alignés (Cormorant a par défaut des chiffres
+     elzéviriens, gardés pour le texte courant) */
+  .price {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step-0);
+    letter-spacing: var(--tracking-text);
+    white-space: nowrap;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  /* pastille des maquettes (« Nouveau ») : noire, en pilule, texte blanc cassé ; en mode Nuit
+     et sur fond noir, elle s'inverse. .badge--outline : filet seul (états de l'Atelier). */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2xs);
+    padding: 0 var(--spacing-xs);
+    border: var(--border-width-hair) solid var(--fg);
+    border-radius: var(--radius-pill);
+    background: var(--fg);
+    color: var(--bg);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step--2);
+    letter-spacing: var(--tracking-snug);
+    line-height: var(--spacing-line);
+    white-space: nowrap;
+  }
+  .badge--outline {
+    background: transparent;
+    color: var(--fg);
+  }
+
+  .notice {
+    border-top: var(--border-width-hair) solid var(--line);
+    border-bottom: var(--border-width-hair) solid var(--line);
+    padding-block: var(--spacing-s);
+  }
+
+  .breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2xs);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step--2);
+    line-height: var(--leading-label);
+    letter-spacing: var(--tracking-snug);
+    color: var(--fg-soft);
+  }
+  .breadcrumb li + li::before {
+    content: "/";
+    margin-right: var(--spacing-2xs);
+  }
+  .breadcrumb [aria-current] {
+    color: var(--fg);
+  }
+
+  /* panneau dépliant (FAQ, matières, guide des tailles, filtres) : comme les filtres de la
+     maquette, intitulé en bas de casse, filet fin dessous, « + » fermé et « − » ouvert */
+  .disclosure {
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .disclosure > summary {
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-s);
+    min-height: var(--spacing-touch);
+    padding-block: var(--spacing-s);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step-0);
+    line-height: var(--leading-label);
+    letter-spacing: var(--tracking-snug);
+  }
+  .disclosure > summary::-webkit-details-marker {
+    display: none;
+  }
+  .disclosure > summary::after {
+    content: "";
+    flex: none;
+    width: var(--spacing-xs);
+    height: var(--spacing-xs);
+    background:
+      linear-gradient(currentColor, currentColor) center / 100% var(--border-width-hair) no-repeat,
+      linear-gradient(currentColor, currentColor) center / var(--border-width-hair) 100% no-repeat;
+    transition: background-size var(--dur) var(--ease);
+  }
+  .disclosure[open] > summary::after {
+    background-size:
+      100% var(--border-width-hair),
+      var(--border-width-hair) 0;
+  }
+  .disclosure__body {
+    padding-bottom: var(--spacing-m);
+  }
+  /* questions de la FAQ : petits titres en Fraunces (25 px sur 32 px, souvent sur plusieurs lignes) */
+  .disclosure--question > summary {
+    font-family: var(--font-display);
+    font-style: var(--font-style-display);
+    font-size: var(--text-step-1);
+    line-height: var(--lh-step-1);
+    letter-spacing: 0;
+    text-transform: none;
+    text-align: left;
+  }
+
+  /* tableau (guide des tailles, admin) */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step--1);
+    line-height: var(--leading-note);
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  .table th,
+  .table td {
+    padding: var(--spacing-2xs) var(--spacing-xs);
+    border-bottom: var(--border-width-hair) solid var(--line);
+    text-align: left;
+  }
+  .table th {
+    font-size: var(--text-step--2);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    font-weight: var(--font-weight-regular);
+  }
+  /* précisions sous un intitulé de ligne (e-mail, référence) : jamais en capitales */
+  .table th .t-note {
+    text-transform: none;
+    letter-spacing: var(--tracking-text);
+  }
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* apparition au scroll (pilotée par components/motion/RevealObserver) : seuls les éléments
+     sous l'écran au chargement sont mis en attente, le reste s'affiche tout de suite */
+  [data-reveal][data-pending] {
+    opacity: 0;
+    transform: translateY(var(--spacing-m));
+  }
+  [data-reveal][data-shown] {
+    transition:
+      opacity var(--dur) var(--ease),
+      transform var(--dur) var(--ease);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal][data-pending] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+html[data-motion="reduce"] [data-reveal][data-pending] {
+  opacity: 1 !important;
+  transform: none !important;
+}

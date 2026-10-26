@@ -1,0 +1,260 @@
+/* Base : réinitialisations, typographie courante, accessibilité. */
+
+@layer base {
+  html {
+    accent-color: var(--color-ink);
+    background: var(--color-ivory);
+    color: var(--fg);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* une seule face par police : le navigateur n'invente ni gras ni italique (Cormorant n'a pas
+       d'italique ; l'italique des titres est la vraie face de Fraunces) */
+    font-synthesis: none;
+    scroll-padding-top: var(--header-h);
+  }
+
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-stopped {
+    overflow: clip;
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-step-0);
+    line-height: var(--leading-text);
+    letter-spacing: var(--tracking-text);
+    word-spacing: 0;
+    font-kerning: normal;
+    overflow-x: clip;
+    transition:
+      background-color var(--dur) var(--ease),
+      color var(--dur) var(--ease);
+  }
+
+  /* La scène (fond global) prend la couleur de la section au centre de l'écran */
+  html[data-scene="ink"] body {
+    --bg: var(--color-ink);
+    --fg: var(--color-ivory);
+    --fg-soft: var(--color-ivory-soft);
+    --line: color-mix(in oklab, var(--color-ivory) 24%, transparent);
+    --accent: var(--color-ivory);
+  }
+  html[data-scene="pearl"] body {
+    --bg: var(--color-pearl);
+  }
+  /* mode nuit : la scène globale reste dans les noirs */
+  html[data-mode="dark"] {
+    background: var(--color-ink);
+  }
+  html[data-mode="dark"] body,
+  html[data-mode="dark"][data-scene="ivory"] body,
+  html[data-mode="dark"][data-scene="pearl"] body {
+    --bg: var(--color-night);
+    --fg: var(--color-ivory);
+    --fg-soft: var(--color-ivory-soft);
+    --line: color-mix(in oklab, var(--color-ivory) 20%, transparent);
+    --accent: var(--color-ivory);
+  }
+  html[data-mode="dark"][data-scene="ink"] body {
+    --bg: var(--color-ink);
+  }
+  /* Avant l'hydratation, la scène suit déjà la première section : l'en-tête reste lisible
+     sur une ouverture noire, sans attendre le JavaScript. */
+  html:not([data-scene]):has(:is(main > .scene, main > article > .scene):first-child[data-theme="ink"]) body {
+    --bg: var(--color-ink);
+    --fg: var(--color-ivory);
+    --fg-soft: var(--color-ivory-soft);
+    --line: color-mix(in oklab, var(--color-ivory) 24%, transparent);
+    --accent: var(--color-ivory);
+  }
+  /* Première activation de la scène (et changement de page) : bascule instantanée,
+     les sections hors écran n'ont pas à jouer de transition. */
+  html.scene-instant :is(body, .scene, .site-header, .site-footer) {
+    transition: none !important;
+  }
+
+  ::selection {
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  /* titres : Fraunces 72pt Italic, la police officielle des titres, toujours en italique, et jamais
+     sous 25 px (dessinée pour le grand format, elle paraît trop noire plus petite) : un titre sans
+     classe de taille prend au moins celle des petits titres ; les étiquettes (h2.t-label…) posent
+     leur police, leur taille et le style droit */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-style: var(--font-style-display);
+    font-weight: var(--font-weight-regular);
+    font-size: max(1em, var(--text-step-1));
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+    text-align: left;
+    hyphens: manual;
+  }
+
+  /* Paragraphes de texte : alignés à gauche (fer à gauche), jamais justifiés, pour qu'aucun trou
+     ne se creuse entre les mots, sur téléphone comme sur ordinateur. Pas de césure : les mots
+     restent entiers ; text-wrap: pretty équilibre les lignes et évite les mots isolés, la mesure
+     est tenue à 60–70 caractères ; espacement des mots et des lettres fixe. Les textes centrés
+     (.t-center) le restent. Contrôlé page par page (tests/e2e/homogeneite.spec.ts). */
+  p:where(:not(.t-label, .t-nav, .eyebrow, .price, .t-h1, .t-h2, .t-h3, .t-h4, .t-display, .t-giant, .t-center, .badge)) {
+    max-width: var(--measure);
+    text-align: left;
+    hyphens: manual;
+    overflow-wrap: break-word;
+    text-wrap: pretty;
+    word-spacing: 0;
+  }
+  /* paragraphe dans un bloc centré : la colonne de lecture reste au centre */
+  :where(.t-center) > p {
+    margin-inline: auto;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* deux polices officielles ; l'italique n'existe que pour les titres (Fraunces) : les éléments
+     que le navigateur penche ou passe en chasse fixe gardent la typographie du texte courant */
+  address,
+  cite,
+  dfn,
+  em,
+  i,
+  var {
+    font-style: normal;
+  }
+  em,
+  i {
+    font-weight: var(--font-weight-regular);
+  }
+  /* Cormorant a un petit œil : les petites tailles du navigateur ne descendent jamais sous 16 px */
+  small,
+  sub,
+  sup {
+    font-size: max(var(--text-step--2), 0.8em); /* token-ok : relatif au texte, plancher du design system */
+  }
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: inherit;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: var(--border-width-hair) solid currentColor;
+    outline-offset: var(--spacing-3xs);
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+@layer utilities {
+  .sr-only {
+    position: absolute;
+    width: 1px; /* token-ok : motif sr-only standard */
+    height: 1px; /* token-ok */
+    padding: 0;
+    margin: -1px; /* token-ok */
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .skip-link {
+    position: fixed;
+    top: var(--spacing-s);
+    left: var(--spacing-s);
+    z-index: var(--z-cookie);
+    transform: translateY(-200%);
+    background: var(--color-ink);
+    color: var(--color-ivory);
+    padding: var(--spacing-2xs) var(--spacing-m);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: var(--text-step-0);
+    line-height: var(--leading-label);
+    letter-spacing: var(--tracking-snug);
+    transition: transform var(--dur) var(--ease);
+  }
+  .skip-link:focus {
+    transform: none;
+  }
+}
+
+/* Animations apaisées. Les animations gardent une durée infime (leur évènement de fin sert à
+   LaceReveal) ; les transitions sont supprimées : une durée infime appliquée à tous les éléments
+   ferait transiter toutes leurs propriétés, et une mesure faite juste après un changement (la
+   justification régulière, par exemple) lirait encore l'ancienne valeur. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important; /* token-ok : neutralisation */
+    animation-iteration-count: 1 !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* passage Jour ↔ Nuit : un seul fondu, lent et soyeux (lib/prefs.ts) */
+html.mode-switch::view-transition-old(root),
+html.mode-switch::view-transition-new(root) {
+  animation-duration: var(--dur);
+  animation-timing-function: var(--ease);
+}
+html[data-motion="reduce"] *,
+html[data-motion="reduce"] *::before,
+html[data-motion="reduce"] *::after {
+  animation-duration: 0.01ms !important; /* token-ok : neutralisation */
+  animation-iteration-count: 1 !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}

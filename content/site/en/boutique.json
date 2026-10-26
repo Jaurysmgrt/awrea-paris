@@ -1,0 +1,63 @@
+{
+  "seo": {
+    "title": "Shop lace dresses, bodysuits and tops | Awrea Paris",
+    "description": "The Awrea Paris shop: lace dresses, bodysuits and tops, with draping and gilding. Each piece is made to order, without stock, by French artisans."
+  },
+  "titre": "All pieces",
+  "chapeau": "Each piece is made to order, in your size, by French artisans. Its page gives its making time.",
+  "piecesTitre": "The pieces",
+  "vide": {
+    "texte": "No piece matches this selection.",
+    "lien": "See all the pieces"
+  },
+  "categories": {
+    "robe": "Dresses",
+    "body": "Bodysuits",
+    "top": "Tops",
+    "jupe": "Skirts",
+    "accessoire": "Accessories"
+  },
+  "filtres": {
+    "titre": "Filter by",
+    "bouton": "Filter",
+    "boutonActifs": "Filter, {n} selected",
+    "fermer": "See the pieces",
+    "effacer": "Clear filters",
+    "appliquer": "Show the pieces",
+    "groupes": {
+      "categorie": "Category",
+      "prix": "Price",
+      "taille": "Size",
+      "collection": "Collection"
+    },
+    "tout": {
+      "categorie": "All",
+      "prix": "All prices",
+      "taille": "All sizes",
+      "collection": "All collections"
+    },
+    "prix": [
+      {
+        "id": "moins-de-100",
+        "label": "Under €100",
+        "max": 100
+      },
+      {
+        "id": "100-a-200",
+        "label": "€100 to €200",
+        "min": 100,
+        "max": 200
+      },
+      {
+        "id": "200-et-plus",
+        "label": "€200 and over",
+        "min": 200
+      }
+    ],
+    "resultats": {
+      "aucune": "No pieces",
+      "une": "1 piece",
+      "plusieurs": "{n} pieces"
+    }
+  }
+}

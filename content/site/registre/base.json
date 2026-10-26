@@ -1,0 +1,87 @@
+{
+  "site": {
+    "label": "Textes de l’interface (en-tête, menu, pied de page, lettre de la Maison, recherche, cookies)",
+    "kind": "textes",
+    "chemin": "/"
+  },
+  "commerce": {
+    "label": "Textes du panier, de la commande et de sa confirmation",
+    "kind": "textes",
+    "chemin": "/boutique"
+  },
+  "catalogue": {
+    "label": "Textes des pièces (carte, tailles, envies)",
+    "kind": "textes",
+    "chemin": "/boutique"
+  },
+  "navigation": {
+    "label": "Entrées du menu et liens du pied de page",
+    "kind": "textes",
+    "chemin": "/"
+  },
+  "accueil": {
+    "label": "Accueil",
+    "kind": "page",
+    "chemin": "/"
+  },
+  "la-maison": {
+    "label": "La Maison",
+    "kind": "page",
+    "chemin": "/la-maison"
+  },
+  "atelier": {
+    "label": "L’Atelier",
+    "kind": "page",
+    "chemin": "/atelier"
+  },
+  "contact": {
+    "label": "Contact",
+    "kind": "page",
+    "chemin": "/contact"
+  },
+  "outfits": {
+    "label": "Outfits",
+    "kind": "page",
+    "chemin": "/outfits"
+  },
+  "boutique": {
+    "label": "Boutique",
+    "kind": "page",
+    "chemin": "/boutique"
+  },
+  "collections": {
+    "label": "Collections",
+    "kind": "page",
+    "chemin": "/collections"
+  },
+  "journal": {
+    "label": "Journal",
+    "kind": "page",
+    "chemin": "/journal"
+  },
+  "presse": {
+    "label": "Presse",
+    "kind": "page",
+    "chemin": "/presse"
+  },
+  "liste-envies": {
+    "label": "Liste d’envies",
+    "kind": "page",
+    "chemin": "/liste-envies"
+  },
+  "compte": {
+    "label": "Mon compte",
+    "kind": "page",
+    "chemin": "/compte"
+  },
+  "faq": {
+    "label": "Questions fréquentes",
+    "kind": "page",
+    "chemin": "/faq"
+  },
+  "coulisses": {
+    "label": "Coulisses de l’atelier (vidéos et légendes)",
+    "kind": "textes",
+    "chemin": "/commande/confirmation"
+  }
+}

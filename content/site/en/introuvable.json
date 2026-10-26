@@ -1,0 +1,13 @@
+{
+  "surtitre": "Error 404",
+  "titre": "A thread has gone astray",
+  "texte": "The page you are looking for does not exist, or no longer does. The Hypnotic Lace collection, however, is still here.",
+  "collection": {
+    "label": "See the collection",
+    "href": "/collections/hypnotic-lace"
+  },
+  "accueil": {
+    "label": "Back to the home page",
+    "href": "/"
+  }
+}

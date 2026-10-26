@@ -1,0 +1,66 @@
+{
+  "principal": [
+    { "label": "Accueil", "href": "/" },
+    {
+      "label": "Sur commande",
+      "sousMenu": [
+        { "label": "La commande sur demande", "href": "/sur-commande" },
+        { "label": "L’atelier", "href": "/atelier" },
+        { "label": "Prendre rendez-vous", "href": "/rendez-vous" }
+      ]
+    },
+    {
+      "label": "Collections",
+      "sousMenu": [
+        { "label": "Hypnotic Lace", "href": "/collections/hypnotic-lace" },
+        { "label": "Toutes les pièces", "href": "/boutique" },
+        { "label": "Rechercher une pièce", "href": "/recherche", "type": "recherche" }
+      ]
+    },
+    { "label": "Contact", "href": "/contact" },
+    {
+      "label": "Mon Panier",
+      "type": "panier",
+      "sousMenu": [
+        { "label": "Mon panier", "type": "panier" },
+        { "label": "Mon compte", "href": "/compte" },
+        { "label": "Mes envies", "href": "/liste-envies", "type": "envies" }
+      ]
+    }
+  ],
+  "pied": [
+    {
+      "titre": "La marque",
+      "liens": [
+        { "label": "Contact", "href": "/contact" },
+        { "label": "À propos", "href": "/la-maison" }
+      ]
+    },
+    {
+      "titre": "Service client",
+      "liens": [
+        { "label": "Guide des tailles", "href": "/guide-des-tailles" },
+        { "label": "Livraison & retours", "href": "/livraison-retours" },
+        { "label": "Suivre ma commande", "href": "/suivi" }
+      ]
+    },
+    {
+      "titre": "Légal",
+      "liens": [
+        { "label": "Mentions légales", "href": "/mentions-legales" },
+        { "label": "CGV", "href": "/cgv" },
+        { "label": "Confidentialité", "href": "/confidentialite" },
+        { "label": "Gérer les cookies", "type": "cookies" }
+      ]
+    },
+    {
+      "titre": "Nous suivre",
+      "liens": [{ "label": "Instagram", "href": "https://www.instagram.com/awrea.paris", "type": "instagram" }]
+    }
+  ],
+  "langues": {
+    "titre": "Langue du site",
+    "fr": { "court": "FR", "nom": "Français" },
+    "en": { "court": "EN", "nom": "English" }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "nom": "Order dispatched",
+  "quand": "When the designer moves the order to the “Dispatched” step, with the carrier’s tracking number if it is known.",
+  "famille": "service",
+  "sujet": "Your piece is on its way",
+  "preheader": "It has left the atelier, folded in its tissue paper.",
+  "variables": {
+    "prenom": {
+      "description": "The client’s first name",
+      "exemple": "Camille"
+    },
+    "commande": {
+      "description": "The order number",
+      "exemple": "AW-1042"
+    },
+    "suivi": {
+      "description": "The order tracking link (no account needed)",
+      "exemple": "https://www.awreaparis.com/suivi/AW-1042"
+    },
+    "transporteur": {
+      "description": "The carrier",
+      "exemple": "Colissimo"
+    },
+    "numeroSuivi": {
+      "description": "The carrier’s tracking number, when it is known",
+      "exemple": "6A12345678901"
+    },
+    "lienColis": {
+      "description": "The link to track the parcel on the carrier’s website",
+      "exemple": "https://www.laposte.fr/outils/suivre-vos-envois?code=6A12345678901"
+    },
+    "relais": {
+      "description": "The pick-up point chosen, if there is one",
+      "exemple": ""
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-cmdexpe01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-cmdexpe02",
+      "type": "titre",
+      "titre": "Your piece is on its way"
+    },
+    {
+      "id": "b-cmdexpe03",
+      "type": "texte",
+      "texte": "Dear {prenom},\n\nYour piece has left the atelier, folded in its tissue paper, with its certificate of authenticity."
+    },
+    {
+      "id": "b-cmdexpe04",
+      "type": "texte",
+      "texte": "It is travelling with {transporteur}, tracking number {numeroSuivi}: {lienColis}",
+      "si": "numeroSuivi"
+    },
+    {
+      "id": "b-cmdexpe05",
+      "type": "texte",
+      "texte": "The carrier’s tracking number will reach you as soon as the parcel is collected.",
+      "sauf": "numeroSuivi"
+    },
+    {
+      "id": "b-cmdexpe06",
+      "type": "texte",
+      "texte": "It will be waiting for you at the pick-up point {relais}.",
+      "si": "relais"
+    },
+    {
+      "id": "b-cmdexpe07",
+      "type": "texte",
+      "texte": "Your order {commande}, its invoice and its certificate: {suivi}"
+    },
+    {
+      "id": "b-cmdexpe08",
+      "type": "signature",
+      "texte": "Until very soon,\nThe Awrea Paris atelier"
+    },
+    {
+      "id": "b-cmdexpe09",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

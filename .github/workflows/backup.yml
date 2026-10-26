@@ -1,0 +1,142 @@
+# Sauvegarde quotidienne chiffrée, avec test de restauration.
+#
+# Chaque nuit :
+#  1. export de la base clientes (Supabase : schéma public au format pg_dump, comptes du schéma
+#     auth en SQL) et du stockage technique (Upstash) ;
+#  2. chiffrement AES-256 (gpg, phrase secrète BACKUP_PASSPHRASE) — rien n'est conservé en clair ;
+#  3. TEST DE RESTAURATION : la sauvegarde chiffrée est déchiffrée et restaurée dans un PostgreSQL
+#     vierge, puis contrôlée (tables présentes, sécurité par ligne active, données lisibles) ;
+#  4. conservation 30 jours dans les artefacts du dépôt et, si configurée, copie hors site
+#     (Cloudflare R2 ou tout stockage compatible S3).
+# Un échec envoie automatiquement un e-mail de GitHub au propriétaire du dépôt.
+#
+# Secrets à créer (Settings → Secrets and variables → Actions) : BACKUP_PASSPHRASE (obligatoire),
+# SUPABASE_DB_URL (chaîne de connexion directe, rôle postgres), KV_REST_API_URL, KV_REST_API_TOKEN,
+# et pour la copie hors site : BACKUP_S3_BUCKET, BACKUP_S3_ENDPOINT, AWS_ACCESS_KEY_ID,
+# AWS_SECRET_ACCESS_KEY. Procédure complète de restauration : SECURITE.md.
+name: Sauvegarde chiffrée
+
+on:
+  schedule:
+    - cron: "17 1 * * *" # chaque nuit, vers 3 h à Paris
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      restore:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: restauration
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      KV_REST_API_URL: ${{ secrets.KV_REST_API_URL }}
+      KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_TOKEN }}
+      BACKUP_S3_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
+      RESTORE_URL: postgres://postgres:restauration@localhost:5432/postgres
+      PG: docker run --rm --network host -v ${{ github.workspace }}/sauvegarde:/sauvegarde -v ${{ github.workspace }}/supabase:/supabase postgres:17
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Vérifier la configuration
+        run: |
+          if [ -z "$BACKUP_PASSPHRASE" ]; then echo "::error::Le secret BACKUP_PASSPHRASE est requis (sauvegardes chiffrées)."; exit 1; fi
+          if [ -z "$SUPABASE_DB_URL" ] && [ -z "$KV_REST_API_URL" ]; then echo "::notice::Aucune base configurée : rien à sauvegarder pour l'instant."; fi
+          mkdir -p sauvegarde
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Exporter la base clientes (Supabase)
+        if: env.SUPABASE_DB_URL != ''
+        run: |
+          $PG pg_dump "$SUPABASE_DB_URL" --format=custom --no-owner --no-privileges --schema=public --file=/sauvegarde/base-public.dump
+          $PG pg_dump "$SUPABASE_DB_URL" --data-only --column-inserts --table=auth.users --table=auth.identities --file=/sauvegarde/base-auth.sql
+          sudo chown -R "$(id -u)" sauvegarde
+
+      - name: Exporter le stockage technique (Upstash)
+        if: env.KV_REST_API_URL != ''
+        run: node scripts/backup-kv.mjs sauvegarde/stockage.json
+
+      - name: Chiffrer (AES-256)
+        run: |
+          shopt -s nullglob
+          for f in sauvegarde/*; do
+            gpg --batch --yes --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" --symmetric --cipher-algo AES256 --output "$f.gpg" "$f"
+            shred -u "$f"
+          done
+          (cd sauvegarde && sha256sum *.gpg > SHA256SUMS 2>/dev/null || true)
+          ls -la sauvegarde
+
+      - name: Tester la restauration
+        run: |
+          shopt -s nullglob
+          mkdir -p restauration
+          for f in sauvegarde/*.gpg; do
+            gpg --batch --yes --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" --decrypt --output "restauration/$(basename "${f%.gpg}")" "$f"
+          done
+          if [ -f restauration/base-public.dump ]; then
+            mv restauration/base-public.dump sauvegarde/test.dump
+            $PG psql "$RESTORE_URL" -v ON_ERROR_STOP=1 -q -f /supabase/restore/prelude.sql
+            $PG pg_restore --no-owner --no-privileges --section=pre-data -d "$RESTORE_URL" /sauvegarde/test.dump
+            $PG pg_restore --no-owner --no-privileges --section=data --disable-triggers -d "$RESTORE_URL" /sauvegarde/test.dump
+            # les comptes (schéma auth) sont simulés : une ligne par cliente pour les clés étrangères
+            $PG psql "$RESTORE_URL" -v ON_ERROR_STOP=1 -q -c "insert into auth.users (id) select id from public.customers on conflict do nothing"
+            $PG pg_restore --no-owner --no-privileges --section=post-data -d "$RESTORE_URL" /sauvegarde/test.dump
+            $PG psql "$RESTORE_URL" -v ON_ERROR_STOP=1 -f /supabase/restore/checks.sql
+            shred -u sauvegarde/test.dump
+          fi
+          if [ -f restauration/base-auth.sql ]; then
+            test -s restauration/base-auth.sql && grep -q "INSERT INTO auth.users\|SET statement_timeout" restauration/base-auth.sql && echo "Comptes : export lisible."
+          fi
+          if [ -f restauration/stockage.json ]; then
+            node scripts/restore-kv.mjs restauration/stockage.json
+          fi
+          shred -u restauration/* 2>/dev/null || true
+          echo "Restauration vérifiée."
+
+      - name: Conserver 30 jours
+        uses: actions/upload-artifact@v4
+        with:
+          name: sauvegarde-${{ github.run_id }}
+          path: sauvegarde/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Copie hors site (facultative)
+        env:
+          BACKUP_S3_ENDPOINT: ${{ secrets.BACKUP_S3_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        if: env.BACKUP_S3_BUCKET != ''
+        run: aws s3 cp sauvegarde/ "s3://$BACKUP_S3_BUCKET/$(date -u +%Y-%m-%d)/" --recursive --endpoint-url "$BACKUP_S3_ENDPOINT"
+
+      # compte rendu dans l'Atelier (rôle « Sauvegarde ») : réussite, test de restauration, copie hors site
+      - name: Prévenir l'Atelier
+        if: always()
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://www.awreaparis.com' }}
+          OK: ${{ job.status == 'success' }}
+          HORS_SITE: ${{ env.BACKUP_S3_BUCKET != '' }}
+          LIEN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -n "$CRON_SECRET" ] || { echo "CRON_SECRET absent : compte rendu non déposé."; exit 0; }
+          curl -fsS -X POST "$SITE_URL/api/cron/sauvegarde" \
+            -H "Authorization: Bearer $CRON_SECRET" -H "Content-Type: application/json" \
+            -d "{\"ok\": $OK, \"restauration\": $OK, \"horsSite\": $HORS_SITE, \"lien\": \"$LIEN\"}" || echo "Atelier injoignable : compte rendu non déposé."

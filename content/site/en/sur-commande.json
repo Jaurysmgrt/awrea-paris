@@ -1,0 +1,84 @@
+{
+  "seo": {
+    "title": "Made to order | Awrea Paris",
+    "description": "At Awrea Paris, each piece is made for you after you order, in your size, by French artisans. The steps, the making times and the tracking."
+  },
+  "titre": "Made to order",
+  "chapeau": "When you choose an Awrea piece, it does not exist yet. It is made for you, in your size, by French artisans.",
+  "etapes": {
+    "surtitre": "The steps",
+    "titre": "From your choice to your door",
+    "choix": {
+      "titre": "Your piece, your size",
+      "texte": "You choose the piece and its size, with the help of the size guide. Payment is made online, when you order."
+    },
+    "statuts": {
+      "paid": {
+        "titre": "Order received",
+        "texte": "An email confirms your order and gives you its number. The atelier receives it at the same moment as you."
+      },
+      "in_production": {
+        "titre": "In the making",
+        "texte": "French artisans cut and assemble your piece, in the size you have chosen."
+      },
+      "ready": {
+        "titre": "Ready",
+        "texte": "The piece is finished. It is being prepared for dispatch."
+      },
+      "shipped": {
+        "titre": "Dispatched",
+        "texte": "It is handed to the carrier, and its tracking appears with your order."
+      },
+      "delivered": {
+        "titre": "Delivered",
+        "texte": "It arrives at your home. Its certificate of authenticity bears its creation number."
+      }
+    }
+  },
+  "delais": {
+    "surtitre": "Making times",
+    "titre": "The time it takes",
+    "texte": "The making time runs from your order, before dispatch. The page of each piece shows its own.",
+    "groupes": {
+      "hauts": "Bodysuits and tops",
+      "robes": "Dresses"
+    },
+    "valeur": "Made in {delai}",
+    "note": "Cancellation, delivery and returns follow our terms and conditions of sale.",
+    "cta": {
+      "label": "Read the delivery terms",
+      "href": "/livraison-retours"
+    }
+  },
+  "suivi": {
+    "surtitre": "Tracking",
+    "titre": "Follow your piece",
+    "texte": "Each step appears with its date in your account. Without an account, the order number and your email address are enough to follow it.",
+    "cta": {
+      "label": "Track my order",
+      "href": "/suivi"
+    }
+  },
+  "rendezVous": {
+    "surtitre": "Before you order",
+    "titre": "Talk about your piece",
+    "texte": "A question of size, material or silhouette: the designer will answer you in person, by appointment.",
+    "cta": {
+      "label": "Book an appointment",
+      "href": "/rendez-vous"
+    }
+  },
+  "ethique": {
+    "surtitre": "Ethics",
+    "titre": "Making what is desired",
+    "citation": {
+      "officiel": true,
+      "texte": "This choice lies at the heart of our vision: to produce only what is desired, with awareness and respect for the environment."
+    },
+    "texte": "Making after the order gives the artisans time to do things well, and produces nothing that would end up forgotten.",
+    "cta": {
+      "label": "Step into the atelier",
+      "href": "/atelier"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "nom": "Confirmation de rendez-vous",
+  "quand": "Dès qu’une cliente réserve un rendez-vous, avec l’invitation pour son agenda.",
+  "famille": "service",
+  "sujet": "Votre rendez-vous, {quand}",
+  "preheader": "{rendezvous}. L’invitation pour votre agenda est jointe.",
+  "variables": {
+    "prenom": { "description": "Le prénom de la cliente", "exemple": "Camille" },
+    "quand": { "description": "Le jour et l’heure du rendez-vous", "exemple": "jeudi 16 octobre à 14 h 30" },
+    "rendezvous": { "description": "Le rendez-vous", "exemple": "Appel vidéo avec la créatrice" },
+    "visio": { "description": "Le lien de l’appel vidéo, pour un rendez-vous à distance", "exemple": "" },
+    "annulation": { "description": "Le lien pour annuler", "exemple": "https://www.awreaparis.com/rendez-vous/annuler" }
+  },
+  "blocs": [
+    { "id": "b-crdv0entete", "type": "entete", "fond": "noir" },
+    { "id": "b-crdv0titre", "type": "titre", "titre": "C’est noté" },
+    { "id": "b-crdv0texte", "type": "texte", "texte": "Bonjour {prenom},\n\n{rendezvous}, {quand}. L’invitation pour votre agenda est jointe à cet e-mail." },
+    { "id": "b-crdv0visio", "type": "texte", "texte": "Le rendez-vous se fait en appel vidéo, depuis votre téléphone ou votre ordinateur, sans rien installer : {visio}", "si": "visio" },
+    { "id": "b-crdv0annul", "type": "texte", "texte": "Un empêchement ? Vous pouvez annuler ici, la place servira à une autre cliente : {annulation}" },
+    { "id": "b-crdv0signe", "type": "signature", "texte": "À bientôt,\nL’atelier Awrea Paris" },
+    { "id": "b-crdv0pied", "type": "pied", "note": "" }
+  ]
+}

@@ -1,0 +1,193 @@
+import Link from "@/components/ui/Link";
+import { getProposals } from "@/lib/agents/perform";
+import { currentAgentId, getLog } from "@/lib/agents/log";
+import { getRuns } from "@/lib/agents/run";
+import { AGENTS } from "@/lib/agents/registry";
+import { ROLES } from "@/lib/agents/roles";
+import { confectionAlerts } from "@/lib/agents/confection";
+import { getAllProducts } from "@/lib/commerce";
+import { getOrders } from "@/lib/commerce/orders";
+import { withStages } from "@/lib/store/order-stages";
+import { listInbox } from "@/lib/inbox";
+import { kv } from "@/lib/store";
+import { formatPrice } from "@/lib/format";
+import type { AuditReport } from "@/lib/agents/seo-audit";
+import { ProposalCard } from "@/components/admin/ProposalCard";
+import { LogList } from "@/components/admin/LogList";
+import { ActionButton } from "@/components/admin/ActionButton";
+import { When } from "@/components/admin/Status";
+import { withRegistryNames } from "@/components/admin/agent-names";
+import { maintenanceLabels, maintenanceReports } from "@/lib/maintenance";
+import { atelierHref, atelierApi } from "@/lib/admin/path";
+
+export default async function GestionHome() {
+  const [proposals, log, runs, orders, inbox, audits, [maintenance], products] = await Promise.all([
+    getProposals(),
+    getLog(12),
+    getRuns(60),
+    getOrders().then(withStages),
+    listInbox(500),
+    kv.list<AuditReport>("seo:audits", 1),
+    maintenanceReports(1),
+    getAllProducts().catch(() => []),
+  ]);
+  // composant serveur dynamique : rendu une seule fois par requête, l'heure courante est voulue
+  // eslint-disable-next-line react-hooks/purity
+  const since = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const week = orders.filter((o) => new Date(o.createdAt).getTime() >= since && !["refunded", "pending"].includes(o.status));
+  const revenue = week.reduce((s, o) => s + o.total, 0);
+  const pending = proposals.filter((p) => p.status === "pending");
+  const toAnswer = inbox.filter((m) => ["new", "drafted", "escalated"].includes(m.status));
+  // chaque pièce est créée sur demande : on suit les confections, jamais un stock
+  const making = orders.filter((o) => o.status === "paid" || o.status === "in_production");
+  const late = confectionAlerts(making, products).filter((a) => a.kind === "en-retard").length;
+  const names = withRegistryNames([...AGENTS, ...ROLES]);
+  const greeting = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Paris" }).format(new Date());
+
+  return (
+    <div className="admin-page stack-l">
+      <header className="admin-page__head">
+        <p className="eyebrow">{greeting}</p>
+        <h1 className="t-h1">Bonjour.</h1>
+        <p className="t-lead">Voici l’atelier en un coup d’œil : ce que les agents ont fait, et ce qui attend votre décision.</p>
+      </header>
+
+      <dl className="kpis">
+        <div>
+          <dt className="t-label">Ventes · 7 jours</dt>
+          <dd className="kpis__value">{formatPrice(revenue)}</dd>
+          <dd className="t-note">{week.length} commande(s)</dd>
+        </div>
+        <div>
+          <dt className="t-label">À valider</dt>
+          <dd className="kpis__value">{pending.length}</dd>
+          <dd className="t-note">
+            <Link href={atelierHref("/validations")} className="text-link">
+              Voir les propositions
+            </Link>
+          </dd>
+        </div>
+        <div>
+          <dt className="t-label">En confection</dt>
+          <dd className="kpis__value">{making.length}</dd>
+          <dd className="t-note">
+            <Link href={atelierHref("/commandes")} className="text-link">
+              {late ? `Dont ${late} en retard` : "Toutes dans les délais"}
+            </Link>
+          </dd>
+        </div>
+        <div>
+          <dt className="t-label">Messages à traiter</dt>
+          <dd className="kpis__value">{toAnswer.length}</dd>
+          <dd className="t-note">
+            <Link href={atelierHref("/messages")} className="text-link">
+              Ouvrir la boîte
+            </Link>
+          </dd>
+        </div>
+        <div>
+          <dt className="t-label">Santé SEO</dt>
+          <dd className="kpis__value">{audits[0] ? `${audits[0].score}/100` : "·"}</dd>
+          <dd className="t-note">{audits[0] ? `${audits[0].issues.length} point(s) relevé(s)` : "Aucun audit encore"}</dd>
+        </div>
+      </dl>
+
+      <section className="panel" aria-labelledby="todo-title">
+        <h2 id="todo-title" className="t-h3">
+          À valider
+        </h2>
+        {pending.length ? (
+          <div className="stack-m">
+            {pending.slice(0, 4).map((p) => (
+              <ProposalCard key={p.id} p={p} />
+            ))}
+          </div>
+        ) : (
+          <p className="t-note">Rien n’attend votre décision. Les agents s’occupent du quotidien.</p>
+        )}
+      </section>
+
+      <section className="panel" aria-labelledby="maint-title">
+        <h2 id="maint-title" className="t-h3">
+          Maintenance du site
+        </h2>
+        {maintenance ? (
+          <div className="stack-s">
+            <p>
+              <span className={`status status--${maintenance.status === "ok" || maintenance.status === "corrige" ? "done" : "failed"}`}>{maintenanceLabels[maintenance.status]}</span>{" "}
+              <span className="t-note">
+                <When iso={maintenance.date} />
+              </span>
+            </p>
+            <p className="t-body">{maintenance.summary}</p>
+            {maintenance.details.length ? (
+              <ul className="stack-s t-note">
+                {maintenance.details.slice(0, 8).map((d) => (
+                  <li key={d}>{d}</li>
+                ))}
+              </ul>
+            ) : null}
+            {maintenance.link ? (
+              <a href={maintenance.link} className="text-link" target="_blank" rel="noopener noreferrer">
+                Voir le détail sur GitHub
+              </a>
+            ) : null}
+          </div>
+        ) : (
+          <p className="t-note">L’agent de maintenance passe chaque nuit : vérifications, corrections testées, déploiement seulement si tout est vert.</p>
+        )}
+      </section>
+
+      <section className="panel" aria-labelledby="team-title">
+        <h2 id="team-title" className="t-h3">
+          L’équipe
+        </h2>
+        <ul className="team">
+          {AGENTS.map((a) => {
+            // un passage enregistré sous un ancien identifiant (« commandes-stock ») compte pour l'agent actuel
+            const last = runs.find((r) => currentAgentId(r.agent) === a.id);
+            return (
+              <li key={a.id} className="team__agent">
+                <h3 className="t-h4">{a.name}</h3>
+                <p className="t-body">{a.mission}</p>
+                <p className="t-note">{a.autonomy}</p>
+                <p className="t-label t-soft">{a.schedule}</p>
+                <p className="t-note team__last">
+                  {last ? (
+                    <>
+                      Dernier passage le <When iso={last.startedAt} />. {last.summary}
+                    </>
+                  ) : (
+                    "Pas encore de passage."
+                  )}
+                </p>
+                {a.id === "catalogue" ? (
+                  <>
+                    <ActionButton endpoint={atelierApi(`/agents/${a.id}`)} label="Faire le bilan" busyLabel="Bilan en cours…" />
+                    <Link href={atelierHref("/catalogue")} className="btn btn--outline">
+                      Nouvelle fiche
+                    </Link>
+                  </>
+                ) : (
+                  <ActionButton endpoint={atelierApi(`/agents/${a.id}`)} label="Lancer maintenant" busyLabel="L’agent travaille…" />
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      <section className="panel" aria-labelledby="log-title">
+        <div className="panel__head">
+          <h2 id="log-title" className="t-h3">
+            Dernières actions
+          </h2>
+          <Link href={atelierHref("/journal")} className="link">
+            Tout le journal
+          </Link>
+        </div>
+        <LogList items={log} names={names} />
+      </section>
+    </div>
+  );
+}

@@ -1,0 +1,73 @@
+{
+  "seo": {
+    "title": "Contact | Awrea Paris",
+    "description": "Écrire à Awrea Paris : une question sur une pièce, une taille ou une commande. La Maison vous répond par e-mail."
+  },
+  "titre": "Contact",
+  "image": {
+    "src": "/media/img/contact-sacs",
+    "alt": "Sacs en papier blanc de la Maison, anses en ruban blanc, logo Awrea Paris en noir",
+    "width": 1404,
+    "height": 952,
+    "provisoire": true
+  },
+  "coordonnees": {
+    "titre": "Écrire ou appeler la Maison",
+    "emailLabel": "E-mail",
+    "email": "awrea.contact@gmail.com",
+    "telephoneLabel": "Téléphone",
+    "telephone": "06 99 55 74 43",
+    "telephoneLien": "+33699557443",
+    "instagramLabel": "Instagram",
+    "instagram": "@awrea.paris",
+    "instagramLien": "https://www.instagram.com/awrea.paris",
+    "rendezVous": "Pour parler d’une pièce de vive voix, la créatrice vous reçoit sur rendez-vous.",
+    "rendezVousLien": {
+      "label": "Prendre rendez-vous",
+      "href": "/rendez-vous"
+    }
+  },
+  "formulaire": {
+    "titre": "Votre message",
+    "champs": {
+      "prenom": "Prénom",
+      "nom": "Nom",
+      "courriel": "E-mail",
+      "adresse": "Adresse",
+      "telephone": "Téléphone",
+      "message": "Informations complémentaires"
+    },
+    "obligatoires": "Les champs marqués d’un astérisque sont obligatoires.",
+    "manquants": {
+      "prenom": "Indiquez votre prénom.",
+      "courriel": "Indiquez une adresse e-mail complète, par exemple prenom@exemple.fr."
+    },
+    "confidentialite": "Vos coordonnées servent seulement à vous répondre.",
+    "confidentialiteLien": {
+      "label": "Lire notre politique de confidentialité",
+      "href": "/confidentialite"
+    },
+    "robot": "Ne pas remplir ce champ",
+    "bouton": "Envoyer mon message",
+    "envoi": "Envoi…",
+    "erreur": "Le message n’est pas parti. Réessayez dans un instant, ou écrivez directement à {email}."
+  },
+  "reponses": {
+    "invalide": "Vérifiez le formulaire : votre prénom et une adresse e-mail complète sont nécessaires.",
+    "robot": "La vérification anti-robot n’a pas abouti. Réessayez dans un instant.",
+    "merci": "Merci {prenom}. Votre message est bien arrivé, la Maison vous répond par e-mail.",
+    "tropDeDemandes": "Beaucoup de messages en peu de temps. Réessayez dans quelques minutes."
+  },
+  "boite": {
+    "objet": "Message du site",
+    "sansMessage": "Aucun message écrit, seulement les coordonnées."
+  },
+  "accuse": {
+    "objet": "Votre message à Awrea Paris",
+    "apercu": "Votre message est bien arrivé à la Maison.",
+    "titre": "Merci pour votre message",
+    "bonjour": "Bonjour {prenom},",
+    "texte": "Votre message est bien arrivé à la Maison. Nous vous répondons par e-mail, à cette adresse.",
+    "signature": "Avec toute notre attention,\nAwrea Paris"
+  }
+}

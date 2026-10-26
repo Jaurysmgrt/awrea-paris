@@ -1,0 +1,21 @@
+node_modules
+.next
+out
+.data
+.media-tmp
+.env
+.env.*
+!.env.example
+.vercel
+test-results
+playwright-report
+tests/screens
+next-env.d.ts
+*.tsbuildinfo
+__pycache__/
+.tmp-trace/
+/maintenance/
+
+# police du logo (Croisan) : licence « Personal Use », jamais publiée dans ce dépôt public
+ressources-awrea/TYPO/POLICE LOGO.otf
+ressources-awrea/TYPO/web/

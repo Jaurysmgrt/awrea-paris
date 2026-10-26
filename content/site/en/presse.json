@@ -1,0 +1,18 @@
+{
+  "seo": {
+    "title": "Press, contact and press kit | Awrea Paris",
+    "description": "Awrea Paris for the press: the Maison’s contact for journalists, stylists and requests for an interview with the designer."
+  },
+  "titre": "Press",
+  "chapeau": "Journalists, stylists, requests for an interview with the designer: the Maison answers every request by email.",
+  "parutions": "Coverage",
+  "articles": [],
+  "contact": {
+    "titre": "Press contact",
+    "texte": "For an interview with the designer or a question about the Hypnotic Lace collection, write to the Maison and tell us the publication and the date it will appear."
+  },
+  "kit": {
+    "titre": "Press kit",
+    "texte": "The Maison’s logo and the Awrea Paris presentation text are sent on request, to the same address."
+  }
+}

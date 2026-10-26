@@ -1,0 +1,7 @@
+{
+  "acces-prive": {
+    "label": "Page d’attente (site privé)",
+    "kind": "textes",
+    "chemin": "/acces-prive"
+  }
+}

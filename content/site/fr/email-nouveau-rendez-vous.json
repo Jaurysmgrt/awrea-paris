@@ -1,0 +1,22 @@
+{
+  "nom": "Nouveau rendez-vous (pour l’atelier)",
+  "quand": "À l’atelier, dès qu’une cliente réserve.",
+  "famille": "service",
+  "sujet": "Rendez-vous : {nom}, {quand}",
+  "preheader": "{rendezvous}.",
+  "variables": {
+    "nom": { "description": "Le nom de la cliente", "exemple": "Camille Martin" },
+    "quand": { "description": "Le jour et l’heure du rendez-vous", "exemple": "jeudi 16 octobre à 14 h 30" },
+    "rendezvous": { "description": "Le rendez-vous", "exemple": "Appel vidéo avec la créatrice" },
+    "coordonnees": { "description": "L’e-mail et le téléphone de la cliente", "exemple": "camille@exemple.fr" },
+    "message": { "description": "Le mot de la cliente", "exemple": "J’aimerais voir la robe Odessa et parler de ma taille." }
+  },
+  "blocs": [
+    { "id": "b-nrdv0entete", "type": "entete", "fond": "clair" },
+    { "id": "b-nrdv0titre", "type": "titre", "titre": "Nouveau rendez-vous" },
+    { "id": "b-nrdv0texte", "type": "texte", "texte": "{rendezvous}, {quand}, avec {nom}.\n\n{coordonnees}" },
+    { "id": "b-nrdv0mot", "type": "texte", "texte": "Son mot : {message}", "si": "message" },
+    { "id": "b-nrdv0bouton", "type": "bouton", "lien": { "label": "Voir l’agenda", "href": "atelier:/rendez-vous" } },
+    { "id": "b-nrdv0pied", "type": "pied", "note": "" }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "nom": "Lettre de la Maison",
+  "quand": "Modèle de la lettre envoyée aux inscrites. Chaque lettre part après votre accord dans les Validations.",
+  "famille": "lettre",
+  "sujet": "[Écrire l’objet]",
+  "preheader": "[Écrire la ligne d’aperçu]",
+  "variables": {
+    "prenom": { "description": "Le prénom de la cliente", "exemple": "Camille" }
+  },
+  "blocs": [
+    { "id": "b-lettre0entete", "type": "entete", "fond": "noir" },
+    { "id": "b-lettre0image", "type": "image", "image": { "src": "", "alt": "[Décrire la photographie]", "width": 1200, "height": 1500 }, "lien": null },
+    { "id": "b-lettre0titre", "type": "titre", "titre": "[Écrire le titre]" },
+    { "id": "b-lettre0texte", "type": "texte", "texte": "[Écrire la lettre]" },
+    { "id": "b-lettre0bouton", "type": "bouton", "lien": { "label": "Voir la collection", "href": "/collections/hypnotic-lace" } },
+    { "id": "b-lettre0signe", "type": "signature", "texte": "[Écrire la signature]" },
+    { "id": "b-lettre0pied", "type": "pied", "note": "" }
+  ]
+}

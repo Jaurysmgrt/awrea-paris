@@ -1,0 +1,26 @@
+{
+  "misAJour": "Updated on {date}",
+  "version": "version {version}",
+  "sommaire": "Contents",
+  "cookies": {
+    "nom": "Name",
+    "fournisseur": "Provider",
+    "finalite": "Purpose",
+    "duree": "Duration",
+    "nature": "Type"
+  },
+  "modeleRetractation": {
+    "titre": "Model withdrawal form",
+    "consigne": "(Complete and return this form only if you wish to withdraw from the contract.)",
+    "destinataire": "To {{raisonSociale}}, {{nomCommercial}}, {{siege}}, {{email}}:",
+    "lignes": [
+      "I/We (*) hereby give notice that I/We (*) withdraw from my/our (*) contract of sale of the following goods (*)/for the provision of the following service (*):",
+      "Ordered on (*)/received on (*):",
+      "Name of consumer(s):",
+      "Address of consumer(s):",
+      "Signature of consumer(s) (only if this form is notified on paper):",
+      "Date:"
+    ],
+    "note": "(*) Delete as appropriate."
+  }
+}

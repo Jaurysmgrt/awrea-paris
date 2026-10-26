@@ -1,0 +1,198 @@
+/**
+ * Éditeur visuel « Édition » : une page créée depuis un modèle reste invisible du public tant
+ * qu'elle n'est pas publiée ; un texte se change sur la page ; « Publier » la met en ligne ;
+ * l'historique la ramène à la version précédente. Le fichier créé par la publication (mode
+ * « fichiers ») est effacé à la fin.
+ *
+ * Photos provisoires : pastille « Provisoire » sur la photo de la page Contact, filtre « Photos
+ * provisoires à remplacer » (médiathèque de l'Atelier et barre d'édition), remplacement par un
+ * envoi (la nouvelle photo n'est plus provisoire, sauf case cochée). Le brouillon et les fichiers
+ * déposés sont effacés à la fin ; le public ne voit jamais le brouillon.
+ */
+import { expect, test } from "@playwright/test";
+import fs from "node:fs";
+import path from "node:path";
+import { adminLogin, ATELIER } from "./admin-auth";
+
+const slug = `essai-${Date.now().toString(36)}`;
+const mediaDir = path.join(__dirname, "..", "..", "public", "media", "edition");
+const file = path.join(__dirname, "..", "..", "content", "site", "fr", `evenement-${slug}.json`);
+
+test.describe("Éditeur visuel", () => {
+  test.describe.configure({ mode: "serial" });
+  test.afterAll(() => fs.rmSync(file, { force: true }));
+
+  test("invisible du public, sans session de l'Atelier", async ({ request }) => {
+    // sans session, l'API de l'éditeur n'existe pas, et le mode Édition ne s'ouvre pas
+    expect((await request.get(`${ATELIER}/api/edition/entrer?chemin=/`)).status()).toBe(404);
+    expect((await request.post(`${ATELIER}/api/edition/publier`, { data: { docs: ["accueil"] } })).status()).toBe(404);
+    expect((await request.get("/gestion/api/edition/entrer")).status()).toBe(404);
+  });
+
+  test("page d’événement : brouillon, modification sur place, publication, retour en arrière", async ({ page, browser }) => {
+    test.setTimeout(180_000);
+    await adminLogin(page);
+
+    await page.goto(`${ATELIER}/pages`);
+    await page.getByLabel("Page d’événement").check();
+    await page.getByLabel("Titre").fill("Essai du pop-up");
+    await page.getByLabel("Adresse").fill(slug);
+    await page.getByRole("button", { name: "Créer la page en brouillon" }).click();
+    await expect(page).toHaveURL(new RegExp(`/evenements/${slug}$`));
+
+    const guide = page.getByRole("dialog", { name: "Guide de l’édition" });
+    const dock = page.getByRole("region", { name: "Édition de la page" });
+    await expect(dock.or(guide).first()).toBeVisible();
+    if (await guide.isVisible()) await guide.getByRole("button", { name: "Passer le guide" }).click();
+    await expect(dock).toBeVisible();
+    await expect(dock.getByRole("status")).toContainText("pas encore en ligne");
+
+    // le public ne voit rien tant que la page n'est pas publiée
+    const visitor = await browser.newContext();
+    const pub = await visitor.newPage();
+    expect((await pub.goto(`/evenements/${slug}`))?.status()).toBe(404);
+
+    // un clic sur le titre ouvre son panneau
+    await page.locator("h1 [aria-hidden='true']").click();
+    const panel = page.getByRole("dialog", { name: /Modifier/ });
+    await expect(panel).toBeVisible();
+    await panel.getByRole("textbox", { name: "Titre" }).fill("Pop-up de la rue Charlot");
+    await panel.getByRole("button", { name: "Enregistrer" }).click();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Pop-up de la rue Charlot");
+
+    // tant qu'un texte reste entre crochets, la page ne part pas
+    await dock.getByRole("button", { name: "Publier" }).click();
+    await expect(dock.getByRole("alert")).toContainText("texte(s) à écrire");
+  });
+
+  test("publication puis retour à la version précédente (par l'API de l'éditeur)", async ({ page, browser }) => {
+    test.setTimeout(180_000);
+    await adminLogin(page);
+    const api = (p: string) => `${ATELIER}/api/edition${p}`;
+    const doc = `evenement-${slug}`;
+    const read = async () => (await (await page.request.get(`${api("/documents")}?ids=${doc}`)).json()).docs[doc].locales.fr;
+
+    // remplir les textes à écrire, comme le ferait la créatrice
+    const draft = (await read()).draft as Record<string, unknown>;
+    const fill = async (p: string, value: string) => expect((await page.request.post(api("/brouillon"), { data: { doc, locale: "fr", path: p, value } })).ok()).toBeTruthy();
+    for (const [p, v] of Object.entries({ chapeau: "Deux jours pour essayer les pièces de la saison.", date: "Samedi et dimanche, de 11 h à 19 h", lieu: "Rue Charlot, Paris", "seo.description": "Le pop-up de la Maison, rue Charlot." })) await fill(p, v);
+    const sections = draft.sections as Record<string, unknown>[];
+    for (let i = sections.length - 1; i >= 0; i--) await page.request.post(api("/blocs"), { data: { doc, path: "sections", op: "supprimer", index: i } });
+    expect((await page.request.post(api("/publier"), { data: { docs: [doc] } })).ok()).toBeTruthy();
+
+    const visitor = await browser.newContext();
+    const pub = await visitor.newPage();
+    await pub.goto(`/evenements/${slug}`);
+    await expect(pub.getByRole("heading", { level: 1 })).toContainText("Pop-up de la rue Charlot");
+    await expect(pub.getByText("Rue Charlot, Paris")).toBeVisible();
+
+    // deuxième version, puis retour à la première en un clic
+    await fill("lieu", "Rue de Turenne, Paris");
+    expect((await page.request.post(api("/publier"), { data: { docs: [doc] } })).ok()).toBeTruthy();
+    await pub.reload();
+    await expect(pub.getByText("Rue de Turenne, Paris")).toBeVisible();
+    const versions = (await (await page.request.get(`${api("/historique")}?doc=${doc}&locale=fr`)).json()).versions as { id: string }[];
+    expect(versions.length).toBeGreaterThanOrEqual(2);
+    expect((await page.request.post(api("/historique"), { data: { doc, locale: "fr", version: versions[1].id } })).ok()).toBeTruthy();
+    await pub.reload();
+    await expect(pub.getByText("Rue Charlot, Paris")).toBeVisible();
+
+    // suppression de la page : elle disparaît du site, de la liste et de l'historique
+    expect((await page.request.post(api("/pages/supprimer"), { data: { id: doc } })).ok()).toBeTruthy();
+    expect((await pub.goto(`/evenements/${slug}`))?.status()).toBe(404);
+    expect(fs.existsSync(file)).toBeFalsy();
+    // une page du site, elle, ne se supprime pas
+    expect((await page.request.post(api("/pages/supprimer"), { data: { id: "accueil" } })).status()).toBe(400);
+    await visitor.close();
+  });
+
+  test("photos provisoires : pastille, filtre, remplacement par un envoi", async ({ page, browser }) => {
+    test.setTimeout(180_000);
+    await adminLogin(page);
+    const api = (p: string) => `${ATELIER}/api/edition${p}`;
+    const read = async () => (await (await page.request.get(`${api("/documents")}?ids=contact`)).json()).docs.contact.locales.fr as { draft: { image: { src: string; provisoire?: boolean } } | null };
+    const abandon = () => page.request.post(api("/brouillon"), { data: { doc: "contact", locale: "fr", abandon: true } });
+    const uploaded: string[] = [];
+    await abandon();
+
+    try {
+      // médiathèque de l'Atelier : le filtre liste les visuels d'attente, chacun avec sa page
+      await page.goto(`${ATELIER}/pages/photos?filtre=provisoires`);
+      await expect(page.getByRole("heading", { level: 1, name: "Photos" })).toBeVisible();
+      await expect(page.getByRole("link", { name: /Photos provisoires à remplacer/ })).toHaveAttribute("aria-current", "page");
+      const contactCard = page.locator("li").filter({ has: page.locator("img[src*='contact-sacs']") });
+      await expect(contactCard.first()).toContainText("Provisoire");
+      await expect(contactCard.first()).toContainText("/contact");
+      await expect(contactCard.first().getByRole("link", { name: /Remplacer sur la page/ })).toBeVisible();
+      // le portrait de la créatrice est une photo officielle : jamais dans ce filtre
+      await expect(page.locator("img[src*='creatrice-portrait']")).toHaveCount(0);
+
+      // mode Édition sur la page Contact : la photo porte la pastille
+      await page.goto(`${ATELIER}/api/edition/entrer?chemin=/contact`);
+      const guide = page.getByRole("dialog", { name: "Guide de l’édition" });
+      const dock = page.getByRole("region", { name: "Édition de la page" });
+      await expect(dock.or(guide).first()).toBeVisible();
+      if (await guide.isVisible()) await guide.getByRole("button", { name: "Passer le guide" }).click();
+      const photo = page.locator("[data-ed-img='contact|fr|image']");
+      await expect(photo).toHaveAttribute("data-ed-provisoire", "Provisoire");
+
+      // filtre de la barre d'édition : la photo de cette page se remplace d'un clic
+      await dock.getByRole("button", { name: /Photos provisoires/ }).click();
+      const list = page.getByRole("dialog", { name: "Photos provisoires à remplacer" });
+      const here = list.getByRole("region", { name: /Sur cette page/ });
+      await expect(here.locator("img[src*='contact-sacs']")).toBeVisible();
+      await expect(list.getByRole("region", { name: /Ailleurs sur le site/ })).toContainText("/");
+      await here.getByRole("button", { name: /^Remplacer/ }).first().click();
+
+      // panneau de la photo : pastille et case cochée, puis envoi d'une nouvelle photo
+      const panel = page.getByRole("dialog", { name: "Modifier la photo" });
+      await expect(panel.getByText("Provisoire", { exact: true })).toBeVisible();
+      const box = panel.getByRole("checkbox", { name: "Photo provisoire" });
+      await expect(box).toBeChecked();
+      await panel.locator("input[type=file]").setInputFiles(path.join(__dirname, "fixture-piece.jpg"));
+      await expect(box).not.toBeChecked({ timeout: 30_000 });
+      await expect(panel.getByRole("status")).toContainText("n’est plus marquée provisoire");
+      await expect(panel.getByText("Provisoire", { exact: true })).toHaveCount(0);
+      await panel.getByRole("textbox", { name: /Description pour les personnes/ }).fill("Sacs en papier blanc de la Maison, photo d’essai");
+      await panel.getByRole("button", { name: "Enregistrer" }).click();
+      await expect(dock.getByRole("alert")).toContainText("Photo enregistrée en brouillon");
+
+      // le brouillon garde la nouvelle photo, sans marqueur ; la pastille quitte la page
+      const draft = (await read()).draft!;
+      expect(draft.image.src).toMatch(/\/media\/edition\/|\/api\/media\//);
+      expect(draft.image.provisoire).toBeUndefined();
+      uploaded.push(draft.image.src);
+      await expect(photo).not.toHaveAttribute("data-ed-provisoire");
+
+      // le public ne voit jamais le brouillon : le visuel d'attente et sa mention restent en ligne
+      const visitor = await browser.newContext();
+      const pub = await visitor.newPage();
+      await pub.goto("/contact");
+      await expect(pub.locator("img[src*='contact-sacs']").first()).toBeVisible();
+      await expect(pub.getByText("Visuel provisoire").first()).toBeVisible();
+      await visitor.close();
+
+      // la case se coche à la main : la photo redevient un visuel d'attente
+      await photo.click();
+      await expect(panel.getByRole("checkbox", { name: "Photo provisoire" })).not.toBeChecked();
+      await panel.getByRole("checkbox", { name: "Photo provisoire" }).check();
+      await panel.getByRole("button", { name: "Enregistrer" }).click();
+      await expect(dock.getByRole("alert")).toContainText("Photo enregistrée en brouillon");
+      expect((await read()).draft!.image.provisoire).toBe(true);
+      await expect(photo).toHaveAttribute("data-ed-provisoire", "Provisoire");
+
+      // décochée de nouveau : dans la médiathèque, la photo en ligne attend la publication
+      expect((await page.request.post(api("/brouillon"), { data: { doc: "contact", locale: "fr", path: "image", image: { src: draft.image.src, alt: "Sacs en papier blanc de la Maison, photo d’essai", width: 1200, height: 900, provisoire: false } } })).ok()).toBeTruthy();
+      expect((await read()).draft!.image.provisoire).toBeUndefined();
+      await page.goto(`${ATELIER}/pages/photos?filtre=provisoires`);
+      await expect(page.locator("li").filter({ has: page.locator("img[src*='contact-sacs']") }).first()).toContainText("Remplacée dans le brouillon");
+    } finally {
+      await abandon();
+      for (const src of uploaded) {
+        const id = src.split("/").pop() ?? "";
+        if (!/^[0-9]{8}-[0-9a-f]{10}$/.test(id)) continue;
+        for (const f of fs.existsSync(mediaDir) ? fs.readdirSync(mediaDir) : []) if (f.startsWith(id)) fs.rmSync(path.join(mediaDir, f), { force: true });
+      }
+    }
+  });
+});

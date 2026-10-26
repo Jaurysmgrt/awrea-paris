@@ -1,0 +1,84 @@
+{
+  "entete": {
+    "accueil": "Awrea Paris, page d’accueil",
+    "navigation": "Navigation principale",
+    "menu": "Menu",
+    "panierCourt": "Panier",
+    "compteur": "{libelle} : {nombre}",
+    "pieces": {
+      "une": "{n} pièce",
+      "plusieurs": "{n} pièces"
+    }
+  },
+  "menu": {
+    "titre": "Menu",
+    "fermer": "Fermer"
+  },
+  "pied": {
+    "navigation": "Pied de page",
+    "copyright": "© Awrea Paris 2026",
+    "lienExterne": "{libelle}, dans un nouvel onglet"
+  },
+  "lettre": {
+    "surtitre": "Suivez-nous",
+    "titre": "Soyez informé avant tout le monde",
+    "champs": {
+      "nom": "Nom",
+      "prenom": "Prénom",
+      "email": "E-mail",
+      "telephone": "Téléphone"
+    },
+    "obligatoire": "*",
+    "aideTelephone": "Facultatif.",
+    "consentement": "Oui je souhaite m’inscrire à la Newsletter",
+    "mention": "Vos coordonnées servent seulement à vous écrire. Chaque lettre contient un lien pour vous désinscrire en un clic.",
+    "confidentialite": {
+      "label": "Lire la politique de confidentialité",
+      "href": "/confidentialite"
+    },
+    "bouton": "M’inscrire",
+    "envoi": "Un instant…",
+    "merci": "Merci. Un premier e-mail de la Maison est en route vers votre adresse.",
+    "erreurs": {
+      "nom": "Indiquez votre nom.",
+      "prenom": "Indiquez votre prénom.",
+      "email": "Indiquez une adresse e-mail complète, par exemple prenom@exemple.fr.",
+      "telephone": "Ce numéro semble incomplet. Corrigez-le ou laissez le champ vide.",
+      "consentement": "Cochez la case pour recevoir la lettre de la Maison.",
+      "verification": "La vérification anti-robot n’a pas abouti. Merci de réessayer.",
+      "limite": "Plusieurs essais en peu de temps : merci de réessayer dans quelques minutes.",
+      "generale": "Votre inscription n’a pas pu être enregistrée. Merci de réessayer."
+    }
+  },
+  "recherche": {
+    "nom": "Recherche",
+    "label": "Rechercher",
+    "champ": "Une pièce, une matière…",
+    "fermer": "Fermer",
+    "pistes": "Pistes",
+    "suggestions": [
+      "Dentelle",
+      "Drapé",
+      "Dorure",
+      "Robe",
+      "Body",
+      "Hypnotic Lace"
+    ],
+    "unResultat": "1 résultat",
+    "resultats": "{n} résultats",
+    "aucunResultat": "Aucun résultat",
+    "indisponible": "La recherche ne répond pas pour l’instant. Toutes les pièces restent visibles dans la boutique.",
+    "aucun": "Rien ne répond encore à « {q} ».",
+    "essayez": "Essayez une matière, une forme ou le nom de la collection.",
+    "toutes": {
+      "label": "Voir toutes les pièces",
+      "href": "/boutique"
+    },
+    "voirTout": "Voir les {n} résultats"
+  },
+  "evitement": "Aller au contenu",
+  "filAriane": {
+    "nom": "Fil d’Ariane",
+    "accueil": "Accueil"
+  }
+}

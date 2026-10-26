@@ -1,0 +1,67 @@
+{
+  "nom": "Order in the making",
+  "quand": "When the designer moves the order to the “In the making” step in the Atelier.",
+  "famille": "service",
+  "sujet": "Your piece is in the making",
+  "preheader": "The lace is laid out on the cutting table.",
+  "variables": {
+    "prenom": {
+      "description": "The client’s first name",
+      "exemple": "Camille"
+    },
+    "commande": {
+      "description": "The order number",
+      "exemple": "AW-1042"
+    },
+    "suivi": {
+      "description": "The order tracking link (no account needed)",
+      "exemple": "https://www.awreaparis.com/suivi/AW-1042"
+    },
+    "debut": {
+      "description": "The earliest expected day for the making to be finished",
+      "exemple": "2 November 2026"
+    },
+    "fin": {
+      "description": "The latest expected day for the making to be finished",
+      "exemple": "9 November 2026"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-cmdconf01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-cmdconf02",
+      "type": "titre",
+      "titre": "Your piece is in the making"
+    },
+    {
+      "id": "b-cmdconf03",
+      "type": "texte",
+      "texte": "Dear {prenom},\n\nThe lace is laid out on the table, and the first cuts of your piece have begun. Our artisans are assembling it in your size, stitch by stitch."
+    },
+    {
+      "id": "b-cmdconf04",
+      "type": "texte",
+      "texte": "It should be ready between {debut} and {fin}. We will write to you as soon as it is.",
+      "si": "debut"
+    },
+    {
+      "id": "b-cmdconf05",
+      "type": "texte",
+      "texte": "You can follow your order {commande} here: {suivi}"
+    },
+    {
+      "id": "b-cmdconf06",
+      "type": "signature",
+      "texte": "Until very soon,\nThe Awrea Paris atelier"
+    },
+    {
+      "id": "b-cmdconf07",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}
