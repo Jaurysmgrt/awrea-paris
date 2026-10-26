@@ -1,11 +1,15 @@
 /**
  * Traductions : la version anglaise complète la française (une clé absente reste en français) ; les
  * listes de blocs suivent la structure française et chaque bloc traduit s'y retrouve par son id.
- * Module pur.
+ * Les photos et les vidéos sont les mêmes dans toutes les langues : seule leur description (alt) se
+ * traduit. Module pur.
  */
 import { getAt, setAt, type Path } from "@/lib/edition/paths";
 
 export const isBlockLike = (x: unknown): x is { id: string } => Boolean(x && typeof x === "object" && typeof (x as { id?: unknown }).id === "string");
+
+/** Photo ({ src, alt, width, height }) ou vidéo ({ src, poster }) d'un document. */
+const isMedia = (x: unknown): x is Record<string, unknown> => Boolean(x && typeof x === "object" && !Array.isArray(x) && typeof (x as { src?: unknown }).src === "string");
 
 /**
  * Complète une traduction incomplète avec le français (une clé absente reste en français). Les
@@ -13,6 +17,11 @@ export const isBlockLike = (x: unknown): x is { id: string } => Boolean(x && typ
  */
 export function withFallback(primary: unknown, fallback: unknown): unknown {
   if (primary === undefined || primary === null) return fallback;
+  // le fichier vient toujours du français (une photo remplacée l'est dans toutes les langues)
+  if (isMedia(fallback) && primary && typeof primary === "object" && !Array.isArray(primary)) {
+    const alt = (primary as { alt?: unknown }).alt;
+    return typeof alt === "string" && alt.trim() ? { ...fallback, alt } : fallback;
+  }
   if (Array.isArray(fallback)) {
     if (!Array.isArray(primary)) return fallback;
     if (fallback.length && fallback.every(isBlockLike) && primary.every(isBlockLike)) {

@@ -228,7 +228,9 @@
   .t-left {
     text-align: left;
   }
+  /* texte centré : même mesure de lecture que le texte courant (60 à 70 caractères) */
   p.t-center {
+    max-width: var(--measure);
     text-align: center;
     hyphens: manual;
     margin-inline: auto;

@@ -45,13 +45,18 @@ for (const vp of VIEWPORTS) {
           // texte aligné à gauche (styles/base.css) : aucun paragraphe de texte justifié
           const prose = Array.from(document.querySelectorAll("main .prose p, main p.t-body")).filter((p) => p.tagName === "P");
           const justified = prose.filter((p) => getComputedStyle(p).textAlign === "justify").length;
-          return { overflow: de.scrollWidth - de.clientWidth, offenders, h1: document.querySelectorAll("h1").length, imgsNoAlt, badJustify, justified, lang: de.lang };
+          // en-tête : la navigation ne passe jamais sous le sélecteur de langue « FR · EN »
+          const nav = document.querySelector(".site-nav__list")?.getBoundingClientRect();
+          const langue = document.querySelector(".site-header__lang")?.getBoundingClientRect();
+          const headerOverlap = nav && langue && nav.width > 0 && langue.width > 0 ? Math.max(0, Math.round(nav.right - langue.left)) : 0;
+          return { overflow: de.scrollWidth - de.clientWidth, offenders, h1: document.querySelectorAll("h1").length, imgsNoAlt, badJustify, justified, headerOverlap, lang: de.lang };
         });
         expect(r.overflow, `Débordement horizontal : ${r.offenders.join(", ")}`).toBeLessThanOrEqual(1);
         expect(r.h1, "Une seule balise H1").toBe(1);
         expect(r.imgsNoAlt, "Images sans attribut alt").toBe(0);
         expect(r.badJustify, "Titres, boutons, prix ou navigation justifiés").toBe(0);
         expect(r.justified, "Paragraphes de texte justifiés (trous entre les mots)").toBe(0);
+        expect(r.headerOverlap, "Navigation sous le sélecteur de langue").toBe(0);
         expect(r.lang).toBe("fr");
         expect(errors, errors.join("\n")).toHaveLength(0);
       });

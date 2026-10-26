@@ -168,7 +168,10 @@
     display: none;
   }
   @media (min-width: 48rem) {
+    /* la colonne du sélecteur de langue garde sa largeur : sur tablette, la navigation se décale
+       plutôt que de passer sous « FR · EN » */
     .site-header__inner {
+      grid-template-columns: minmax(0, 1fr) auto minmax(max-content, 1fr);
       grid-template-areas: "mark nav lang";
     }
     .site-header__menu,

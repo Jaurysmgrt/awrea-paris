@@ -80,3 +80,16 @@ test("nom de pièce anglais au milieu d'une phrase : l'article perd sa capitale"
   assert.equal(fill("Done. {piece} is in your bag.", { piece: "The Aura bodysuit" }), "Done. The Aura bodysuit is in your bag.");
   assert.equal(fill("Voir {piece}", { piece: "Le body Aura" }), "Voir Le body Aura");
 });
+
+test("photos et vidéos : le fichier vient toujours du français, seule la description se traduit", async () => {
+  const { withFallback } = await import("@/lib/edition/merge");
+  const fr = { image: { src: "/media/img/nouvelle", alt: "Les sacs de la Maison", width: 1600, height: 2400 }, video: { src: "/media/video/atelier-1.mp4", poster: "/media/video/atelier-1.webp" }, titre: "Contact" };
+  const en = { image: { src: "/media/img/ancienne", alt: "The Maison’s bags", width: 800, height: 1200, provisoire: true }, video: { src: "/media/video/autre.mp4", poster: "/x.webp" }, titre: "Contact us" };
+  assert.deepEqual(withFallback(en, fr), {
+    image: { src: "/media/img/nouvelle", alt: "The Maison’s bags", width: 1600, height: 2400 },
+    video: { src: "/media/video/atelier-1.mp4", poster: "/media/video/atelier-1.webp" },
+    titre: "Contact us",
+  });
+  // description anglaise vide : celle du français
+  assert.deepEqual(withFallback({ image: { ...en.image, alt: " " } }, { image: fr.image }), { image: fr.image });
+});
