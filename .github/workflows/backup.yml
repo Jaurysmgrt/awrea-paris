@@ -57,7 +57,7 @@ jobs:
           if [ -z "$SUPABASE_DB_URL" ] && [ -z "$KV_REST_API_URL" ]; then echo "::notice::Aucune base configurée : rien à sauvegarder pour l'instant."; fi
           mkdir -p sauvegarde
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
 
