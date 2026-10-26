@@ -123,8 +123,9 @@ Le menu de gauche réunit tout. Voici à quoi sert chaque entrée.
 5. Le panneau compte les caractères et signale ce qui peut s’améliorer (un tiret, une formule toute
    faite, une apostrophe droite). Il propose, vous gardez le dernier mot : **Corriger la
    typographie** applique la correction, **Garder tel quel** garde votre texte.
-6. Sous votre texte, la case **Version anglaise** reçoit la traduction. Laissée vide, le français
-   s’affiche à la place.
+6. Sous votre texte, la case **Version anglaise** reçoit la traduction, celle que lisent les
+   visiteuses de la version anglaise du site (les adresses qui commencent par /en, et le choix
+   **FR · EN** en haut des pages). Laissée vide, le français s’affiche à la place.
 7. **Enregistrer**. Votre texte part en brouillon : vos clientes ne voient rien tant que vous
    n’avez pas appuyé sur **Publier** (partie 4).
 
@@ -208,6 +209,9 @@ Le but est de les remplacer toutes, une à une, dès que vos photos existent.
    **Photos provisoires à remplacer** (aussi depuis Atelier › **Pages**).
 3. Remplacez la photo comme ci-dessus. Une photo que vous envoyez n’est plus provisoire : la
    mention disparaît du site à la publication.
+
+Une photo est la même dans les deux langues : remplacez-la une fois, sur la page française, et la
+version anglaise du site la montre aussi. Seule sa description a une version anglaise.
 4. La case **photo provisoire** reste à votre main : cochez-la si la nouvelle photo est elle aussi
    provisoire, décochez-la si une photo déjà en place est en fait définitive.
 
