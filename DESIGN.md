@@ -72,6 +72,16 @@ tailles multiples de 5 px gardent l'interlignage 1,6 sur la grille de 8 px.
   des pages `.prose`) justifiés sur tablette et ordinateur, avec césure automatique et dernière ligne
   au fer à gauche ; alignés à gauche sur téléphone (choix de la créatrice du 27/10/2026). Chapeaux,
   notes, textes centrés et lignes courtes (`.t-left`) jamais justifiés.
+- Justification sans trou (`components/ui/Justification.tsx`, `lib/typo/cesure.ts`) : sur tablette
+  et ordinateur, après l'affichage, les mots de 7 lettres et plus reçoivent leurs coupures possibles
+  (motifs de césure du paquet `hyphen`, français ou anglais britannique, trois lettres au moins de
+  chaque côté, jamais une majuscule, une adresse, un lien ou un chiffre) ; puis chaque paragraphe
+  essaie de très légères variations d'interlettrage (±0,015 em) et d'espace entre les mots (−0,04 em)
+  et garde celle dont le plus grand espace est le plus petit. Une colonne de moins de 50 caractères
+  par ligne, ou un paragraphe dont un espace dépasse encore 2 fois l'espace normal, passe au fer à
+  gauche (`data-justif="gauche"`). Rien sur téléphone ni dans l'Édition. Mesure du 27/10 sur
+  15 pages et 3 largeurs : plus grand espace médian 1,18 fois l'espace normal (1,68 avant), 90 %
+  sous 1,5 (3,02 avant), aucun au-delà de 2 (11,6 avant).
 - Interlettrage : titres `-0,01 em` ; navigation, liens et boutons en bas de casse `0,02 em`
   (`--tracking-snug`) ; capitales `0,08 em` (`--tracking-label`).
 - Chiffres : Cormorant a des chiffres elzéviriens, gardés dans le texte ; les prix et les tableaux
@@ -126,7 +136,8 @@ et les animations apaisées par la durée unique (`--dur`).
   ordinateur, seulement les familles `fraunces` et `cormorant`, l'italique réservé aux titres en
   Fraunces, aucun texte sous 16 px, interlignage 1,6 des paragraphes en Cormorant (notes de 18 px
   sur 32 px), grille de 8 px, paragraphes alignés à gauche sur téléphone, justifiés au-delà
-  seulement avec césure et 45 caractères par ligne au moins, 75 caractères par ligne au plus, et
+  seulement sans espace de plus de 2 fois l'espace normal et avec 50 caractères par ligne au moins,
+  75 caractères par ligne au plus, et
   chaque texte aligné sur le bord de son titre (2 px près).
 
 ## Propositions de design antérieures

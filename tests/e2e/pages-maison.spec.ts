@@ -12,8 +12,9 @@ import atelier from "../../content/site/fr/atelier.json";
 import surCommande from "../../content/site/fr/sur-commande.json";
 import { shop } from "../../content/settings";
 
-/** Texte comparable : espaces insécables et retours à la ligne ramenés à une espace simple. */
-const plain = (s: string) => s.replace(/[\s  ]+/g, " ").trim();
+/** Texte comparable : espaces insécables et retours à la ligne ramenés à une espace simple, coupures
+ * de mots posées par la justification (U+00AD, components/ui/Justification.tsx) retirées. */
+const plain = (s: string) => s.replace(/\u00ad/g, "").replace(/[\s\u00a0\u202f]+/g, " ").trim();
 
 /** Tout le texte des éléments marqués comme textes officiels de la créatrice. */
 async function officialText(page: Page) {

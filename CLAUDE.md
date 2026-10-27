@@ -56,7 +56,9 @@ base, compilation et parcours Playwright doivent être verts.
   distances identiques partout (`--space-title`, `--space-paragraph`, `--space-block`,
   `--space-section`). Jamais de valeur en dur : passer par les tokens (`npm run audit:tokens`).
 - Corps de texte justifiés avec césure sur tablette et ordinateur, alignés à gauche sur téléphone
-  (règle de `styles/base.css`, choix de la créatrice du 27/10/2026) ; jamais de trou entre les mots,
+  (règle de `styles/base.css`, choix de la créatrice du 27/10/2026) ; jamais de trou entre les mots
+  (`components/ui/Justification.tsx` : césure française et anglaise, réglage fin de l'interlettrage,
+  fer à gauche pour une colonne de moins de 50 caractères ou un espace de plus de 2 fois l'espace normal),
   60 à 70 caractères par ligne, textes alignés sur le bord de leur titre (contrôlés par
   `tests/e2e/homogeneite.spec.ts`). Titres, chapeaux, notes, boutons, prix et navigation jamais
   justifiés.

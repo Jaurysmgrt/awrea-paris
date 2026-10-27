@@ -155,4 +155,4 @@ arrêtées par le chef de projet pendant leur intégration.
 | 27/10 | Fondu blanc entre les pages, plus de pan de tissu noir ; plus aucun motif de dentelle dessiné sur les fonds noirs, le halo reste | Cahier des modifications ; la dentelle vit dans les photos. |
 | 27/10 | Dans l'éditeur, les mots entre accolades se retirent, sauf ceux qui portent un lien ou un code utile à la cliente ; longueurs élargies | Le garde-fou bloquait l'enregistrement du paragraphe de la créatrice. |
 | 27/10 | Les modifications faites dans l'Édition sont reportées sur chaque nouvelle version du site au lieu de la masquer | Une page publiée gardait le document entier et cachait les nouveautés du code. |
-
+| 27/10 | Justification sans trou : césure posée par le site, réglage fin de l'interlettrage par paragraphe, fer à gauche pour une colonne de moins de 50 caractères ou un espace de plus de 2 fois l'espace normal | Retour de la créatrice : « Je vois des espaces dans les textes, essaye de les enlever en restant justifié. » Mesuré avant et après. |

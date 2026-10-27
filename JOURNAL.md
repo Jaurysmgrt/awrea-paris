@@ -360,4 +360,10 @@ seulement, son paragraphe « savoir-faire » mis en place, « Toutes les collect
   texte commence au bord de son titre.
 - **À signaler** : les mentions légales officielles nomment Wix comme hébergeur ; le site sera
   hébergé par Vercel (à corriger par la créatrice avant l'ouverture, `LEGAL-A-COMPLETER.md`).
-
+- **Justification sans trou** (retour de la créatrice : « je vois des espaces ») : mesure des espaces
+  ligne par ligne sur 15 pages et 3 largeurs. Sans césure, le plus grand espace d'une ligne valait
+  en moyenne 1,68 fois l'espace normal, 3 fois ou plus sur une ligne sur dix, jusqu'à 11,6 fois. Le
+  site pose désormais lui-même les coupures des mots (motifs français et anglais, `hyphen`), puis
+  règle chaque paragraphe par un interlettrage invisible ; colonnes étroites et paragraphes
+  impossibles à justifier sans trou au fer à gauche. Résultat : médiane 1,18, 90 % sous 1,5, aucun
+  espace au-delà de 2. Le testeur homogénéité mesure maintenant ces espaces lui-même.

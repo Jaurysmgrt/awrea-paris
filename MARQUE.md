@@ -268,6 +268,11 @@ pastille « Nouveau », photos des cartes aux angles arrondis. Primitives et cla
   gauche ; **alignés à gauche sur téléphone**, où les lignes courtes creuseraient des trous entre les
   mots (choix de la créatrice du 27/10/2026, après l'alignement à gauche partout du 25/10). Les
   chapeaux, les notes, les textes centrés et les lignes courtes (coordonnées) restent alignés.
+- **Aucun trou entre les mots** (demande de la créatrice du 27/10/2026) : le site coupe lui-même les
+  mots longs selon la césure française (trois lettres au moins de chaque côté, jamais un nom propre,
+  une adresse ou un lien) et règle, paragraphe par paragraphe, un interlettrage invisible à l'œil
+  pour répartir les mots ; une colonne trop étroite (moins de 50 caractères par ligne) ou un
+  paragraphe où un espace dépasserait 2 fois l'espace normal reste au fer à gauche.
 - Chaque texte commence au même bord que son titre (contrôle automatique, à 2 px près).
 - **60 à 70 caractères par ligne** (`--measure`), jamais de colonne trop étroite (contrôle
   automatique : 75 au plus, `tests/e2e/homogeneite.spec.ts`).

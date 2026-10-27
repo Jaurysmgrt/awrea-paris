@@ -24,7 +24,7 @@ test.describe("Pages légales", () => {
         await first.click();
         await expect(page.locator(href!)).toBeInViewport();
       }
-      const text = await page.locator("main").innerText();
+      const text = (await page.locator("main").innerText()).replace(/\u00ad/g, "");
       // aucune accolade de gabarit ne doit apparaître à l'écran
       expect(text).not.toMatch(/\{\{|\}\}/);
       // création sur demande : aucune notion de rareté, de précommande ni de série numérotée

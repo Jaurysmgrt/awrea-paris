@@ -14,12 +14,13 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { Trackers } from "@/components/analytics/Trackers";
 import { Suspense } from "react";
 import { organizationSchema, websiteSchema } from "@/lib/seo/schema";
-import { getDoc } from "@/lib/edition/read";
+import { getDoc, isEditing } from "@/lib/edition/read";
+import { Justification } from "@/components/ui/Justification";
 
 type SiteTexts = typeof import("@/content/site/fr/site.json");
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const site = await getDoc<SiteTexts>("site");
+  const [site, editing] = await Promise.all([getDoc<SiteTexts>("site"), isEditing()]);
   return (
     <ConsentProvider>
       <CartProvider>
@@ -39,6 +40,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
               <ThemeShift />
               <RevealObserver />
               <Magnetic />
+              <Justification active={!editing} />
               <Suspense fallback={null}>
                 <Trackers />
               </Suspense>

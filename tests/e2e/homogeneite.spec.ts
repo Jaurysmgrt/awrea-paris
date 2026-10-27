@@ -41,6 +41,8 @@ for (const size of SIZES) {
         await page.goto(path, { waitUntil: "load" });
         await page.evaluate(() => document.fonts.ready);
         await page.waitForFunction(() => document.documentElement.dataset.hydrated === "1", null, { timeout: 30_000 });
+        // césure et réglage des paragraphes justifiés terminés (components/ui/Justification.tsx)
+        await page.waitForFunction(() => document.documentElement.dataset.justification === "1", null, { timeout: 30_000 });
         const a = await page.evaluate(auditInPage);
         report[`${size.name} ${path}`] = a;
         if (REPORT) return;
@@ -51,7 +53,7 @@ for (const size of SIZES) {
         expect(a.spacing, "espacements hors de la grille de 8 px").toEqual([]);
         expect(a.leading, "interlignage du texte courant différent de 1,6, ou hors de la grille de 8 px").toEqual([]);
         // corps de texte justifiés sur tablette et ordinateur, alignés à gauche sur téléphone ;
-        // justifiés seulement avec césure et assez de caractères par ligne (aucun trou entre les mots)
+        // justifiés seulement sans trou : aucun espace au-delà de 2 fois l'espace normal, 50 caractères par ligne au moins
         if (size.width < 768) expect(a.justified, "paragraphes justifiés sur téléphone").toEqual([]);
         expect(a.gappy, "paragraphes justifiés trop étroits ou sans césure").toEqual([]);
         expect(a.wide, "paragraphes de plus de 75 caractères par ligne").toEqual([]);

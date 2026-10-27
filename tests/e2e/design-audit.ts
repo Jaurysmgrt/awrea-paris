@@ -18,7 +18,7 @@ export interface DesignAudit {
   leading: string[];
   /** paragraphes justifiés (alignés à gauche sur téléphone, justifiés au-delà) */
   justified: string[];
-  /** paragraphes justifiés sans césure, ou trop étroits (moins de 45 caractères par ligne) */
+  /** paragraphes justifiés dont un espace dépasse 2 fois l'espace normal, ou trop étroits (moins de 50 caractères par ligne) */
   gappy: string[];
   /** paragraphes de plusieurs lignes plus larges que 75 caractères */
   wide: string[];
@@ -120,8 +120,9 @@ export function auditInPage(): DesignAudit {
   for (const p of Array.from(document.querySelectorAll("p"))) {
     if (skip(p) || !shown(p) || !ownText(p)) continue;
     const cs = getComputedStyle(p);
-    // capacité de la colonne en caractères : largeur / chasse moyenne du texte du paragraphe
-    const text = p.textContent ?? "";
+    // capacité de la colonne en caractères : largeur / chasse moyenne du texte du paragraphe (sans
+    // les coupures invisibles posées par la justification)
+    const text = (p.textContent ?? "").replace(/\u00ad/g, "");
     ctx.font = `${cs.fontStyle === "normal" ? "" : `${cs.fontStyle} `}${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
     const advance = ctx.measureText(text).width / Math.max(1, text.length);
     const lines = Math.round(p.getBoundingClientRect().height / parseFloat(cs.lineHeight));
@@ -129,7 +130,34 @@ export function auditInPage(): DesignAudit {
     if (lines > 1 && chars > 75) wide.push(`${describe(p)} ${chars} caractères`);
     if (cs.textAlign === "justify") {
       justified.push(describe(p));
-      if (lines > 1 && (chars < 45 || cs.hyphens !== "auto")) gappy.push(`${describe(p)} ${chars} caractères, césure ${cs.hyphens}`);
+      if (lines > 1) {
+        // plus grand espace entre deux mots d'une même ligne (dernière ligne exclue), en espaces normaux
+        const space = ctx.measureText(" ").width || 1;
+        const rows: { y: number; boxes: [number, number][] }[] = [];
+        const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) {
+          const node = walker.currentNode as Text;
+          for (const m of node.data.matchAll(/[^\s\u00a0\u202f]+/g)) {
+            const range = document.createRange();
+            range.setStart(node, m.index);
+            range.setEnd(node, m.index + m[0].length);
+            for (const r of Array.from(range.getClientRects())) {
+              if (!r.width) continue;
+              const y = r.top + r.height / 2;
+              let row = rows.find((x) => Math.abs(x.y - y) < r.height / 3);
+              if (!row) rows.push((row = { y, boxes: [] }));
+              row.boxes.push([r.left, r.right]);
+            }
+          }
+        }
+        rows.sort((a, b) => a.y - b.y);
+        let widest = 0;
+        for (const row of rows.slice(0, -1)) {
+          const boxes = row.boxes.sort((a, b) => a[0] - b[0]);
+          for (let i = 1; i < boxes.length; i++) widest = Math.max(widest, (boxes[i][0] - boxes[i - 1][1]) / space);
+        }
+        if (chars < 50 || widest > 2.05) gappy.push(`${describe(p)} ${chars} caractères, espace de ${widest.toFixed(2)} fois l'espace normal`);
+      }
     }
   }
 

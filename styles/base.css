@@ -133,13 +133,16 @@
   /* Corps de texte justifiés sur tablette et ordinateur (choix de la créatrice du 27/10), avec
      césure et dernière ligne au fer à gauche : seulement les paragraphes de lecture (.t-body, textes
      des pages .prose), jamais les chapeaux, les notes, les textes centrés ni ceux alignés exprès à
-     gauche (.t-left : coordonnées, lignes courtes). Sur téléphone, ils restent alignés à gauche. */
+     gauche (.t-left : coordonnées, lignes courtes). Sur téléphone, ils restent alignés à gauche.
+     Les coupures des mots longs sont posées par components/ui/Justification.tsx, qui passe au fer à
+     gauche le rare paragraphe où un espace resterait trop large (data-justif="gauche"). */
   @media (min-width: 48rem) {
-    :is(p.t-body, .prose p):where(:not(.t-center, .t-left, .t-note, .t-lead, .t-label)) {
+    :is(p.t-body, .prose p):where(:not(.t-center, .t-left, .t-note, .t-lead, .t-label, [data-justif="gauche"])) {
       text-align: justify;
       text-align-last: left;
+      -webkit-hyphens: auto;
       hyphens: auto;
-      hyphenate-limit-chars: 6 3 3;
+      hyphenate-limit-chars: 7 3 3;
     }
   }
   /* paragraphe dans un bloc centré : la colonne de lecture reste au centre */
