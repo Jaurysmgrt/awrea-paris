@@ -10,7 +10,10 @@ async function addPiece(page: import("@playwright/test").Page, handle: string) {
   await page.goto(`/boutique/${handle}`);
   await page.locator(".product-form .chip").first().click();
   await page.locator(".product-form__actions").getByRole("button", { name: "Ajouter au panier" }).click();
-  await expect(page.locator("dialog.drawer")).toBeVisible();
+  const drawer = page.locator("dialog.drawer");
+  await expect(drawer).toBeVisible();
+  // le panier glisse depuis la droite : mesurer une fois l'animation finie
+  await drawer.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
 }
 
 for (const size of [
