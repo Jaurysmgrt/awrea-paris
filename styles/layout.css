@@ -114,6 +114,22 @@
     background-color: var(--bg);
     border-bottom-color: var(--line);
   }
+  /* la bande suit le fond de la scène, qui glisse (ThemeShift, styles/base.css) */
+  html.scene-live .site-header[data-compact="true"] .site-header__band {
+    background-color: var(--color-ivory);
+  }
+  html.scene-live[data-fond="ink"] .site-header[data-compact="true"] .site-header__band {
+    background-color: var(--color-ink);
+  }
+  html.scene-live[data-fond="pearl"] .site-header[data-compact="true"] .site-header__band {
+    background-color: var(--color-pearl);
+  }
+  html[data-mode="dark"].scene-live .site-header[data-compact="true"] .site-header__band {
+    background-color: var(--color-night);
+  }
+  html[data-mode="dark"].scene-live[data-fond="ink"] .site-header[data-compact="true"] .site-header__band {
+    background-color: var(--color-ink);
+  }
   .site-header__inner {
     height: 100%;
     display: grid;

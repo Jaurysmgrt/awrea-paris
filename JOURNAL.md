@@ -367,3 +367,27 @@ seulement, son paragraphe « savoir-faire » mis en place, « Toutes les collect
   règle chaque paragraphe par un interlettrage invisible ; colonnes étroites et paragraphes
   impossibles à justifier sans trou au fer à gauche. Résultat : médiane 1,18, 90 % sous 1,5, aucun
   espace au-delà de 2. Le testeur homogénéité mesure maintenant ces espaces lui-même.
+
+## Fluidité du site (27/10)
+
+Retour de la créatrice : « ça manque de fluidité ». Mesure sur la version de production (Chromium,
+processeur ralenti quatre fois pour représenter un téléphone ou un ordinateur modeste), puis cause
+par cause, en coupant chaque effet suspect.
+
+- **Défilement** : la vraie cause était l'alternance noir et ivoire. À chaque passage, les couleurs de
+  plusieurs centaines d'éléments (textes, filets, boutons) étaient animées une à une, image après
+  image. Désormais seul le fond glisse (`data-fond`, sur `<body>` et la bande de l'en-tête), et les
+  textes basculent d'un coup quand le fond est à mi-chemin (`data-scene`), ce qui les garde lisibles
+  avant comme après. Le halo de lumière est dessiné une fois puis déplacé par `transform`, sans être
+  repeint. L'en-tête ne mesure plus sa hauteur à chaque mouvement de la molette. Accueil : 95 % des
+  images en moins de 33 ms (67 ms avant), saccades divisées par trois. La Maison : 17 ms (67 ms
+  avant).
+- **Justification** : les essais d'interlettrage se font sur une copie invisible du paragraphe, par
+  tranches de 8 ms au plus. Un contrôle final sur le vrai paragraphe garantit toujours qu'aucun
+  espace ne dépasse deux fois l'espace normal. Plus long blocage au chargement des CGV : 0,37 s au
+  lieu de 5,9 s.
+- **Changement de page** : la page suivante est demandée dès le clic, pendant que le voile blanc se
+  pose. Les pages sont rendues à chaque visite (CSP à nonce) et ne peuvent pas être préchargées.
+  Nouvelle page visible en 0,6 à 0,7 s au lieu de 0,9 à 1,2 s.
+- **À vitesse normale** : aucune tâche longue, défilement à 60 images par seconde, nouvelle page
+  visible en 0,35 à 0,4 s. Le défilement doux (Lenis) n'était pas en cause.

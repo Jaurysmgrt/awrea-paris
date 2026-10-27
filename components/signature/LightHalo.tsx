@@ -4,6 +4,8 @@
  * Sur les sections noires, le curseur diffuse un halo blanc très doux, sans motif dessiné (la
  * fausse dentelle éclairée est retirée, cahier des modifications du 27/10). Au tactile, la
  * lumière suit le doigt puis dérive lentement d'elle-même.
+ * Le halo est dessiné une fois puis déplacé (transform) : le processeur graphique s'en charge, rien
+ * n'est repeint à chaque image et le défilement reste fluide.
  */
 import { useEffect, useRef } from "react";
 import { isTouch, prefersReducedMotion } from "@/lib/motion";
@@ -32,14 +34,25 @@ export function LightHalo({ className, intensity = 1, active = true }: { classNa
     let lastTouch = 0;
     const t0 = performance.now();
 
+    const halo = el.firstElementChild as HTMLElement | null;
+    // tailles lues une fois, puis à chaque redimensionnement : aucune mesure pendant l'animation
+    let w = host.clientWidth;
+    let h = host.clientHeight;
+    let side = halo?.offsetWidth ?? 0;
     const set = () => {
-      el.style.setProperty("--mx", `${(pos.x * 100).toFixed(2)}%`);
-      el.style.setProperty("--my", `${(pos.y * 100).toFixed(2)}%`);
+      if (halo) halo.style.transform = `translate3d(${(pos.x * w - side / 2).toFixed(1)}px, ${(pos.y * h - side / 2).toFixed(1)}px, 0)`;
     };
+    const ro = new ResizeObserver(() => {
+      w = host.clientWidth;
+      h = host.clientHeight;
+      side = halo?.offsetWidth ?? 0;
+      set();
+    });
+    ro.observe(host);
     set();
     if (reduced) {
       turnOn(true);
-      return;
+      return () => ro.disconnect();
     }
 
     const loop = (now: number) => {
@@ -86,6 +99,7 @@ export function LightHalo({ className, intensity = 1, active = true }: { classNa
     host.addEventListener("pointerleave", onLeave);
     return () => {
       io.disconnect();
+      ro.disconnect();
       cancelAnimationFrame(raf);
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerdown", onMove);
