@@ -9,7 +9,7 @@ Mission :
 - Proposer une direction pour la page d'accueil et la fiche produit où la dentelle structure tout :
   grille ajourée, motifs répétés comme trame, transitions et révélations d'images en ajours, filets
   noirs très fins.
-- Respecter strictement la palette, les deux familles, le texte aligné à gauche, la grille de 8 px et les règles
+- Respecter strictement la palette, les deux familles, l'alignement du texte (justifié sur ordinateur, à gauche sur téléphone), la grille de 8 px et les règles
   épurées de `MARQUE.md` ; éviter tout ce qui figure dans `docs/equipes/design/liste-noire.md`.
 - Construire la proposition en code dans votre dossier de laboratoire (route dédiée), sans toucher au reste
   du site, puis la capturer (ordinateur 1440 px et mobile 390 px) et la décrire en une page.

@@ -6,7 +6,7 @@
  */
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { fixTypography, type WritingIssue } from "@/lib/writing/rules";
-import { guardValue, ruleFor, writingFor } from "@/lib/edition/guard";
+import { guardValue, isEssentialPlaceholder, ruleFor, writingFor } from "@/lib/edition/guard";
 import { stegaClean } from "@/lib/edition/stega";
 import { formatPath, parsePath } from "@/lib/edition/paths";
 import { isProvisional, TEXTES_PROVISOIRES as P } from "@/lib/edition/provisoires";
@@ -115,6 +115,7 @@ export function FieldPanel({ target, docs, api, onClose, onSaved }: { target: Fi
     return () => document.removeEventListener("keydown", onKey, true);
   });
 
+  const essentiels = [...new Set(raw.match(/\{[a-zA-Z]\w*\}/g) ?? [])].filter(isEssentialPlaceholder);
   const count = value.length;
   const near = count > rule.max * 0.9;
   const fixable = issues.some((i) => i.autofix);
@@ -147,7 +148,12 @@ export function FieldPanel({ target, docs, api, onClose, onSaved }: { target: Fi
           }}
         />
       )}
-      {/\{[a-zA-Z]/.test(raw) ? <p className={s.hint}>Les mots entre accolades, comme {raw.match(/\{[a-zA-Z]\w*\}/)?.[0]}, sont remplacés automatiquement : gardez-les.</p> : null}
+      {/\{[a-zA-Z]/.test(raw) ? (
+        <p className={s.hint}>
+          Les mots entre accolades, comme {raw.match(/\{[a-zA-Z]\w*\}/)?.[0]}, sont remplacés automatiquement (un délai, un prix, un prénom). Vous pouvez les retirer
+          {essentiels.length ? `, sauf ${essentiels.join(", ")} : la cliente en a besoin.` : "."}
+        </p>
+      ) : null}
 
       {issues.length ? (
         <div className={s.issues} role="status">

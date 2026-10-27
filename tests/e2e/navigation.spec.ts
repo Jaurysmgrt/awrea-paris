@@ -38,11 +38,11 @@ test.describe("En-tête de la maquette : logo centré, navigation centrée desso
     await page.keyboard.press("Enter");
     await expect(surCommande).toHaveAttribute("aria-expanded", "true");
     const sous = nav.locator(`[id="${await surCommande.getAttribute("aria-controls")}"]`);
-    await expect(sous.getByRole("link", { name: "La commande sur demande" })).toHaveAttribute("href", "/sur-commande");
-    await expect(sous.getByRole("link", { name: "L’atelier" })).toHaveAttribute("href", "/atelier");
+    await expect(sous.getByRole("link", { name: "La pièce à la demande" })).toHaveAttribute("href", "/sur-commande");
+    await expect(sous.getByRole("link", { name: "Le détail du savoir-faire" })).toHaveAttribute("href", "/atelier");
     await expect(sous.getByRole("link", { name: "Prendre rendez-vous" })).toHaveAttribute("href", "/rendez-vous");
     await page.keyboard.press("Tab");
-    await expect(sous.getByRole("link", { name: "La commande sur demande" })).toBeFocused();
+    await expect(sous.getByRole("link", { name: "La pièce à la demande" })).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(surCommande).toHaveAttribute("aria-expanded", "false");
     await expect(surCommande).toBeFocused();
@@ -55,7 +55,7 @@ test.describe("En-tête de la maquette : logo centré, navigation centrée desso
     await expect(collections).toHaveAttribute("aria-expanded", "true");
     const sousCollections = nav.locator(`[id="${await collections.getAttribute("aria-controls")}"]`);
     await expect(sousCollections.getByRole("link", { name: "Hypnotic Lace" })).toHaveAttribute("href", "/collections/hypnotic-lace");
-    await expect(sousCollections.getByRole("link", { name: "Toutes les pièces" })).toHaveAttribute("href", "/boutique");
+    await expect(sousCollections.getByRole("link", { name: "Toutes les collections" })).toHaveAttribute("href", "/collections");
     for (let i = 0; i < 4; i++) await page.keyboard.press("Tab");
     await expect(nav.getByRole("link", { name: "Contact" })).toBeFocused();
     await expect(collections).toHaveAttribute("aria-expanded", "false");

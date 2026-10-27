@@ -2,7 +2,7 @@
 
 Site e-commerce de luxe d'Awrea Paris (prêt-à-porter féminin créé sur demande par des artisans
 français, sans stock ; collection « Hypnotic Lace ») : Next.js 16
-(App Router, Turbopack, `proxy.ts`), TypeScript, Tailwind v4 (tokens CSS), GSAP, Lenis, OGL,
+(App Router, Turbopack, `proxy.ts`), TypeScript, Tailwind v4 (tokens CSS), GSAP, Lenis,
 Shopify headless, Supabase, Claude. Lire aussi `AGENTS.md` (Next.js 16 diffère de vos souvenirs :
 consulter `node_modules/next/dist/docs/` avant d'écrire du code Next).
 
@@ -41,8 +41,9 @@ base, compilation et parcours Playwright doivent être verts.
 - Palette unique : noir `#0A0A0A`, blanc cassé `#F7F6F3`, gris pierre `#E4E2DD`, gris taupe `#8C8780`
   (textes secondaires ; `--color-taupe-deep` pour les petits textes sur fond clair). La dorure fait
   partie de l'identité dans les mots, les photos et les bijoux, **jamais comme couleur de l'interface**.
-- Polices officielles : Fraunces 72pt Italic 400 pour tous les titres (très grands, en italique) et
-  Cormorant Garamond 400 pour les textes, la navigation, les boutons et les formulaires (texte courant
+- Polices officielles : Fraunces pour les titres, en Fraunces 120pt Light droite (300) pour les
+  grands titres de 28 px et plus (choix de la créatrice du 27/10) et en Fraunces 72pt Italic 400 pour
+  les petits titres de 25 px, et Cormorant Garamond 400 pour les textes, la navigation, les boutons et les formulaires (texte courant
   20 px sur 32 px, jamais sous 16 px). Aucune autre police ; la police du logo (Croisan, licence
   personnelle) n'est jamais chargée : le logo vient des fichiers officiels (`content/brand/assets.ts`).
   Ni faux italique ni faux gras.
@@ -54,9 +55,11 @@ base, compilation et parcours Playwright doivent être verts.
 - Grille de 8 px : tous les espacements sont des multiples de 8 ; interlignage 1,6 du texte courant ;
   distances identiques partout (`--space-title`, `--space-paragraph`, `--space-block`,
   `--space-section`). Jamais de valeur en dur : passer par les tokens (`npm run audit:tokens`).
-- Paragraphes alignés à gauche, jamais justifiés (règle de `styles/base.css`, choix de la créatrice
-  du 25/10/2026 : aucun trou entre les mots), 60 à 70 caractères par ligne (contrôlés par
-  `tests/e2e/homogeneite.spec.ts`). Titres, boutons, prix et navigation jamais justifiés.
+- Corps de texte justifiés avec césure sur tablette et ordinateur, alignés à gauche sur téléphone
+  (règle de `styles/base.css`, choix de la créatrice du 27/10/2026) ; jamais de trou entre les mots,
+  60 à 70 caractères par ligne, textes alignés sur le bord de leur titre (contrôlés par
+  `tests/e2e/homogeneite.spec.ts`). Titres, chapeaux, notes, boutons, prix et navigation jamais
+  justifiés.
 - Luxe discret : un message et un appel à l'action par section, beaucoup de blanc, aucune
   bannière promotionnelle, aucun prix barré, cinq entrées de menu au plus.
 - Vocabulaire de maison de couture : « pièce », « la Maison », « l'atelier », « la créatrice ».

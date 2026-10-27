@@ -143,6 +143,7 @@
 }
 .dockTitle {
   font-family: var(--font-display);
+  font-style: var(--font-style-display);
   font-size: var(--text-step-1);
   line-height: var(--lh-step-1);
 }
@@ -294,7 +295,8 @@
 .sheetTitle {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: var(--font-weight-regular);
+  font-style: var(--font-style-title);
+  font-weight: var(--font-weight-title);
   font-size: var(--text-step-3);
   line-height: var(--lh-step-3);
   letter-spacing: var(--tracking-display);
@@ -563,6 +565,7 @@
 }
 .blockLabel {
   font-family: var(--font-display);
+  font-style: var(--font-style-display);
   font-size: var(--text-step-1);
   line-height: var(--lh-step-1);
 }

@@ -29,7 +29,7 @@ async function open(page: Page, path: string) {
 test.describe("Pages de la Maison", () => {
   test("accueil : présentation et collection officielles, sélection de pièces, création sur demande", async ({ page }) => {
     await open(page, "/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName("Des pièces qui subliment la silhouette");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(accueil.maison.texte.titre);
     const official = await officialText(page);
     const t = accueil.maison.texte;
     for (const part of [t.accroche, t.paragraphe, ...t.chute]) expect(official).toContain(plain(part));

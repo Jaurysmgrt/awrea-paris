@@ -26,7 +26,7 @@ export async function GET(req: Request) {
             }),
           ),
         );
-        return [id, { info, locales, programme: programme.filter((p) => p.doc === id).map(({ content: _c, ...p }) => p) }];
+        return [id, { info, locales, programme: programme.filter((p) => p.doc === id).map(({ content: _c, base: _b, ...p }) => p) }];
       }),
     ),
   );

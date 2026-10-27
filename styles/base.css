@@ -91,10 +91,10 @@
     color: var(--bg);
   }
 
-  /* titres : Fraunces 72pt Italic, la police officielle des titres, toujours en italique, et jamais
-     sous 25 px (dessinée pour le grand format, elle paraît trop noire plus petite) : un titre sans
-     classe de taille prend au moins celle des petits titres ; les étiquettes (h2.t-label…) posent
-     leur police, leur taille et le style droit */
+  /* titres : Fraunces, jamais sous 25 px (dessinée pour le grand format) ; un titre sans classe de
+     taille prend au moins celle des petits titres. Grands titres (h1 à h3) en Fraunces 120pt Light,
+     droite ; petits titres (h4) en Fraunces 72pt Italic. Les étiquettes (h2.t-label…) posent leur
+     police, leur taille et le style droit. */
   h1,
   h2,
   h3,
@@ -109,12 +109,19 @@
     text-align: left;
     hyphens: manual;
   }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-style: var(--font-style-title);
+    font-weight: var(--font-weight-title);
+  }
 
-  /* Paragraphes de texte : alignés à gauche (fer à gauche), jamais justifiés, pour qu'aucun trou
-     ne se creuse entre les mots, sur téléphone comme sur ordinateur. Pas de césure : les mots
-     restent entiers ; text-wrap: pretty équilibre les lignes et évite les mots isolés, la mesure
-     est tenue à 60–70 caractères ; espacement des mots et des lettres fixe. Les textes centrés
-     (.t-center) le restent. Contrôlé page par page (tests/e2e/homogeneite.spec.ts). */
+  /* Paragraphes de texte : alignés à gauche (fer à gauche) sur téléphone, pour qu'aucun trou ne se
+     creuse entre les mots ; text-wrap: pretty équilibre les lignes et évite les mots isolés, la
+     mesure est tenue à 60–70 caractères ; espacement des mots et des lettres fixe. Les textes
+     centrés (.t-center) le restent. Sur tablette et ordinateur, les corps de texte sont justifiés
+     (règle suivante). Contrôlé page par page (tests/e2e/homogeneite.spec.ts). */
   p:where(:not(.t-label, .t-nav, .eyebrow, .price, .t-h1, .t-h2, .t-h3, .t-h4, .t-display, .t-giant, .t-center, .badge)) {
     max-width: var(--measure);
     text-align: left;
@@ -122,6 +129,18 @@
     overflow-wrap: break-word;
     text-wrap: pretty;
     word-spacing: 0;
+  }
+  /* Corps de texte justifiés sur tablette et ordinateur (choix de la créatrice du 27/10), avec
+     césure et dernière ligne au fer à gauche : seulement les paragraphes de lecture (.t-body, textes
+     des pages .prose), jamais les chapeaux, les notes, les textes centrés ni ceux alignés exprès à
+     gauche (.t-left : coordonnées, lignes courtes). Sur téléphone, ils restent alignés à gauche. */
+  @media (min-width: 48rem) {
+    :is(p.t-body, .prose p):where(:not(.t-center, .t-left, .t-note, .t-lead, .t-label)) {
+      text-align: justify;
+      text-align-last: left;
+      hyphens: auto;
+      hyphenate-limit-chars: 6 3 3;
+    }
   }
   /* paragraphe dans un bloc centré : la colonne de lecture reste au centre */
   :where(.t-center) > p {
@@ -230,8 +249,8 @@
   }
 }
 
-/* Animations apaisées. Les animations gardent une durée infime (leur évènement de fin sert à
-   LaceReveal) ; les transitions sont supprimées : une durée infime appliquée à tous les éléments
+/* Animations apaisées. Les animations gardent une durée infime (leur évènement de fin peut servir
+   à un composant) ; les transitions sont supprimées : une durée infime appliquée à tous les éléments
    ferait transiter toutes leurs propriétés, et une mesure faite juste après un changement (la
    justification régulière, par exemple) lirait encore l'ancienne valeur. */
 @media (prefers-reduced-motion: reduce) {

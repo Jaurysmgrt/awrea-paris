@@ -22,6 +22,8 @@ type CartCtx = {
   busy: boolean;
   error: string | null;
   announce: string;
+  /** dernier ajout (variante et instant) : le panier amène cette pièce à l'écran, une fois */
+  lastAdded: { variantId: string; at: number } | null;
   open: () => void;
   close: () => void;
   dispatch: (action: CartAction, opts?: { openAfter?: boolean; announce?: string }) => Promise<boolean>;
@@ -41,6 +43,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [announce, setAnnounce] = useState("");
+  const [lastAdded, setLastAdded] = useState<CartCtx["lastAdded"]>(null);
   const erreur = useTexts<CommerceTexts>("commerce").panier.erreur;
 
   useEffect(() => {
@@ -61,6 +64,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (action.type === "add" || action.type === "addMany") {
         haptic();
         const ids = action.type === "add" ? [action.variantId] : action.variantIds;
+        setLastAdded(ids.length ? { variantId: ids[ids.length - 1], at: Date.now() } : null);
         for (const l of (json.cart as Cart).lines.filter((x) => ids.includes(x.variantId))) {
           track({ name: "add_to_cart", handle: l.productHandle, title: l.title, price: l.unitPrice, size: l.size });
         }
@@ -78,8 +82,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [erreur]);
 
   const value = useMemo(
-    () => ({ cart, isOpen, busy, error, announce, open: () => setOpen(true), close: () => setOpen(false), dispatch }),
-    [cart, isOpen, busy, error, announce, dispatch],
+    () => ({ cart, isOpen, busy, error, announce, lastAdded, open: () => setOpen(true), close: () => setOpen(false), dispatch }),
+    [cart, isOpen, busy, error, announce, lastAdded, dispatch],
   );
 
   return (

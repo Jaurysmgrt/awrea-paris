@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import { BLOCKS, blockDef, type Block, type FieldDef, type Lien } from "@/lib/edition/blocks";
 import { stegaClean } from "@/lib/edition/stega";
+import { BOUTON_MAX } from "@/lib/edition/guard";
 import { call, postJson } from "./client";
 import s from "./edition.module.css";
 
@@ -191,9 +192,9 @@ function BlockSettings({ target, api, onClose, onSaved }: { target: Hover; api: 
               <fieldset key={f.key} className={s.fieldset}>
                 <legend className={s.label}>{f.label}</legend>
                 <label className={s.hint} htmlFor={`${f.key}-label`}>
-                  Texte du bouton (32 caractères au plus)
+                  Texte du bouton ({BOUTON_MAX} caractères au plus)
                 </label>
-                <input id={`${f.key}-label`} name={`${f.key}-label`} className={s.input} maxLength={32} defaultValue={l ? stegaClean(l.label) : ""} />
+                <input id={`${f.key}-label`} name={`${f.key}-label`} className={s.input} maxLength={BOUTON_MAX} defaultValue={l ? stegaClean(l.label) : ""} />
                 <label className={s.hint} htmlFor={`${f.key}-href`}>
                   Adresse de la page (par exemple /boutique ou /rendez-vous)
                 </label>

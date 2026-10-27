@@ -6,8 +6,8 @@
   "maison": {
     "texte": {
       "officiel": true,
-      "titre": "Pieces that exalt the silhouette",
-      "accroche": "Awrea Paris celebrates the meeting of contrasts.",
+      "titre": "The essence of femininity, revealed in the evening",
+      "accroche": "An evening wardrobe of one-of-a-kind pieces, between delicate lace and sculptural draping.",
       "paragraphe": "The delicacy of lace converses with the strength of jewellery, in a subtle balance between sensuality and character. Each piece is made to order, far from the logic of mass production. This choice lies at the heart of our vision: to produce only what is desired, with awareness and respect for the environment. There is no stock, only creations designed for the person who wears them. Our designs come to life in the hands of French artisans, guardians of a precious savoir-faire. We give essential attention to working conditions and to the recognition of these crafts, convinced that the beauty of a piece is also born of the ethics that accompany it.",
       "chute": [
         "To wear Awrea is to choose an exceptional piece, designed to stand the test of time.",
@@ -22,7 +22,7 @@
       "provisoire": true
     },
     "cta": {
-      "label": "Read the story of the Maison",
+      "label": "About Awrea Paris",
       "href": "/la-maison"
     }
   },
@@ -45,13 +45,13 @@
       "provisoire": true
     },
     "cta": {
-      "label": "See the Hypnotic Lace collection",
+      "label": "View the collection",
       "href": "/collections/hypnotic-lace"
     }
   },
   "selection": {
     "surtitre": "Hypnotic Lace",
-    "titre": "Pieces in the collection",
+    "titre": "Discover the new pieces",
     "pieces": ["body-aura", "robe-odessa", "robe-aria"],
     "cta": {
       "label": "All pieces",
@@ -60,8 +60,8 @@
   },
   "surDemande": {
     "surtitre": "Made to order",
-    "titre": "Your piece begins with your order",
-    "texte": "Nothing waits on a shelf. You choose the piece and your size, then French artisans make it for you: allow {hauts} for a bodysuit or a top, {robes} for a dress. In this way, the Maison makes only what is desired.",
+    "titre": "French craftsmanship in the service of the exceptional",
+    "texte": "Awrea Paris imagines evening creations made to order by French artisans. The delicacy of lace, the fluidity of draping and the refinement of every detail give rise to singular pieces, designed to reveal the full femininity of the woman who wears them.",
     "image": {
       "src": "/media/img/sienna-detail",
       "alt": "The Sienna dress up close, black and gold lace at the high neck, the waist gathered to a point",
@@ -70,13 +70,13 @@
       "provisoire": true
     },
     "cta": {
-      "label": "The steps of an order",
+      "label": "Discover the making",
       "href": "/sur-commande"
     }
   },
   "lettre": {
     "surtitre": "The Maison’s letter",
-    "titre": "News from the atelier",
+    "titre": "The exceptional, unveiled first",
     "texte": "The pieces to come, the collections in preparation and the Maison’s dates, by email."
   }
 }

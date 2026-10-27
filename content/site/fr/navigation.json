@@ -4,8 +4,8 @@
     {
       "label": "Sur commande",
       "sousMenu": [
-        { "label": "La commande sur demande", "href": "/sur-commande" },
-        { "label": "L’atelier", "href": "/atelier" },
+        { "label": "La pièce à la demande", "href": "/sur-commande" },
+        { "label": "Le détail du savoir-faire", "href": "/atelier" },
         { "label": "Prendre rendez-vous", "href": "/rendez-vous" }
       ]
     },
@@ -13,7 +13,7 @@
       "label": "Collections",
       "sousMenu": [
         { "label": "Hypnotic Lace", "href": "/collections/hypnotic-lace" },
-        { "label": "Toutes les pièces", "href": "/boutique" },
+        { "label": "Toutes les collections", "href": "/collections" },
         { "label": "Rechercher une pièce", "href": "/recherche", "type": "recherche" }
       ]
     },

@@ -1,14 +1,17 @@
 /**
- * Pied de page (maquette BAS DE PAGE) : la lettre de la Maison en version compacte, un filet fin
- * centré, quatre colonnes aux intitulés en capitales (La marque, Service client, Légal, Nous
- * suivre ; Instagram dans une pastille noire), « © Awrea Paris 2026 » centré dessous. Le mode
- * sombre et les animations apaisées suivent le réglage de l'appareil (lib/prefs.ts).
+ * Pied de page (maquette BAS DE PAGE) : la lettre de la Maison en version compacte, le logo
+ * simplifié « AW » puis un filet fin centré, quatre colonnes aux intitulés en capitales (La marque,
+ * Service client, Légal, Nous suivre ; Instagram dans une pastille noire), « © Awrea Paris 2026 »
+ * centré dessous. Liens sans soulignement, un filet n'apparaît qu'au survol (cahier des
+ * modifications du 27/10). Le mode sombre et les animations apaisées suivent le réglage de
+ * l'appareil (lib/prefs.ts).
  * Liens : document « navigation » (partie « pied ») ; libellés : document « site » (partie « pied »).
  */
 import Link from "@/components/ui/Link";
 import { getDoc } from "@/lib/edition/read";
 import { fill } from "@/lib/edition/fill";
 import { NewsletterBlock } from "@/components/ui/NewsletterForm";
+import { Logo } from "@/components/brand/Logo";
 import { CookiesButton, type NavigationDoc, type NavLink } from "./Menu";
 
 type SiteTexts = typeof import("@/content/site/fr/site.json");
@@ -29,7 +32,7 @@ export async function Footer() {
   const t = site.pied;
 
   const lien = (l: NavLink) => {
-    if (l.type === "cookies") return <CookiesButton label={l.label} className="link site-footer__link" />;
+    if (l.type === "cookies") return <CookiesButton label={l.label} className="link link--quiet site-footer__link" />;
     if (!l.href) return null;
     if (l.type === "instagram") {
       return (
@@ -40,13 +43,13 @@ export async function Footer() {
     }
     if (/^https?:/.test(l.href)) {
       return (
-        <a href={l.href} className="link site-footer__link" target="_blank" rel="noopener noreferrer" aria-label={fill(t.lienExterne, { libelle: l.label })}>
+        <a href={l.href} className="link link--quiet site-footer__link" target="_blank" rel="noopener noreferrer" aria-label={fill(t.lienExterne, { libelle: l.label })}>
           {l.label}
         </a>
       );
     }
     return (
-      <Link href={l.href} className="link site-footer__link">
+      <Link href={l.href} className="link link--quiet site-footer__link">
         {l.label}
       </Link>
     );
@@ -59,7 +62,10 @@ export async function Footer() {
           <NewsletterBlock source="footer" compact titleId="pied-lettre-titre" />
         </section>
 
-        <hr className="rule rule--center site-footer__rule" />
+        <div className="site-footer__mark">
+          <Logo variant="monogram" decorative className="site-footer__logo" />
+          <hr className="rule rule--center site-footer__rule" />
+        </div>
 
         <nav className="site-footer__cols" aria-label={t.navigation}>
           {nav.pied.map((col, i) => (

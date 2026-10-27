@@ -5,6 +5,12 @@
  * Base : content/site/<langue>/<document>.json (dans Git). Mode `fichiers` : la publication réécrit
  * ce fichier. Mode `stockage` : la version publiée vit dans le stockage technique et prime sur la
  * base, puis est recopiée dans Git si la recopie est branchée (lib/edition/github.ts).
+ *
+ * Quand la base change (nouvelle version du site), la version publiée et le brouillon ne la
+ * masquent pas : seules les modifications de la créatrice (différences avec la base sur laquelle
+ * elle a travaillé, gardée avec chaque version) sont reportées sur la nouvelle base (rebase,
+ * lib/edition/merge.ts). Pour une version publiée avant ce report, la base de départ est la
+ * « Version d'origine » de l'historique.
  * Les brouillons ne sont jamais lus par le site public : seulement en mode Édition (lib/edition/read.ts).
  */
 import "server-only";
@@ -14,7 +20,7 @@ import { revalidateTag } from "next/cache";
 import { kv } from "@/lib/store";
 import { DEFAULT_LOCALE, editionStorage, type Locale } from "./config";
 import { changedPaths, getAt, setAt, type Path } from "./paths";
-import { localize, withFallback } from "./merge";
+import { localize, rebase, withFallback } from "./merge";
 import { removeFromGit, syncToGit } from "./github";
 import { LOCALES } from "./config";
 
@@ -22,6 +28,8 @@ export interface Draft {
   content: unknown;
   updatedAt: string;
   by: string;
+  /** base du dépôt sur laquelle le brouillon a été commencé (pour le report sur une nouvelle base) */
+  base?: unknown;
 }
 
 export interface Version {
@@ -41,6 +49,8 @@ export interface Scheduled {
   at: string;
   by: string;
   content: unknown;
+  /** base du dépôt du brouillon programmé */
+  base?: unknown;
   createdAt: string;
 }
 
@@ -90,17 +100,28 @@ async function writeBase(doc: string, locale: Locale, content: unknown) {
 }
 
 // ------------------------------------------------------------------ lecture
-/** Version publiée (sans repli sur une autre langue). */
+/** Base de départ d'une version enregistrée sans la sienne : la « Version d'origine » de l'historique. */
+async function originalBase(doc: string, locale: Locale): Promise<unknown> {
+  return (await historyOf(doc, locale)).find((v) => v.id === "v-depot")?.content;
+}
+
+/** Version publiée (sans repli sur une autre langue), reportée sur la base du dépôt d'aujourd'hui. */
 export async function publishedDoc(doc: string, locale: Locale): Promise<unknown | null> {
   if (editionStorage() === "stockage") {
-    const stored = await kv.get<{ content: unknown }>(publishedKey(doc, locale)).catch(() => null);
-    if (stored) return stored.content;
+    const stored = await kv.get<{ content: unknown; base?: unknown }>(publishedKey(doc, locale)).catch(() => null);
+    if (stored) return rebase(stored.content, stored.base ?? (await originalBase(doc, locale)), await baseDoc(doc, locale));
   }
   return baseDoc(doc, locale);
 }
 
+/** Brouillon, reporté sur la base du dépôt d'aujourd'hui (sa base devient celle-ci). */
 export async function draftOf(doc: string, locale: Locale): Promise<Draft | null> {
-  return kv.get<Draft>(draftKey(doc, locale)).catch(() => null);
+  const draft = await kv.get<Draft>(draftKey(doc, locale)).catch(() => null);
+  if (!draft) return null;
+  const base = draft.base ?? (await originalBase(doc, locale));
+  if (base === undefined) return draft;
+  const current = await baseDoc(doc, locale);
+  return { ...draft, content: rebase(draft.content, base, current), base: current ?? base };
 }
 
 /** Contenu à afficher : publié (site public), ou brouillon s'il existe (mode Édition). */
@@ -113,7 +134,10 @@ export async function readDoc(doc: string, locale: Locale, opts: { draft?: boole
 
 // ------------------------------------------------------------------ brouillons
 export async function saveDraftContent(doc: string, locale: Locale, content: unknown, by: string): Promise<Draft> {
-  const draft: Draft = { content, updatedAt: new Date().toISOString(), by };
+  // le contenu vient du brouillon reporté (ou de la version publiée, reportée) : sa base est celle d'aujourd'hui
+  const existing = await kv.get<Draft>(draftKey(doc, locale)).catch(() => null);
+  const base = existing && existing.base === undefined && (await originalBase(doc, locale)) === undefined ? undefined : await baseDoc(doc, locale);
+  const draft: Draft = { content, updatedAt: new Date().toISOString(), by, ...(base === undefined || base === null ? {} : { base }) };
   await kv.set(draftKey(doc, locale), draft);
   return draft;
 }
@@ -150,8 +174,11 @@ export async function historyOf(doc: string, locale: Locale): Promise<Version[]>
   return (await kv.get<Version[]>(historyKey(doc, locale)).catch(() => null)) ?? [];
 }
 
-/** Publie un contenu : la version en ligne part dans l'historique, la nouvelle la remplace. */
-export async function publishContent(doc: string, locale: Locale, content: unknown, by: string, note?: string): Promise<Version> {
+/**
+ * Publie un contenu : la version en ligne part dans l'historique, la nouvelle la remplace. `base` :
+ * la base du dépôt sur laquelle le contenu a été préparé (par défaut, celle d'aujourd'hui).
+ */
+export async function publishContent(doc: string, locale: Locale, content: unknown, by: string, note?: string, base?: unknown): Promise<Version> {
   const previous = await publishedDoc(doc, locale);
   const now = new Date().toISOString();
   const version: Version = { id: `v-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`, at: now, by, changed: changedPaths(previous, content), note, content };
@@ -160,7 +187,7 @@ export async function publishContent(doc: string, locale: Locale, content: unkno
   const seeded = history.length || previous === null ? history : [{ id: "v-depot", at: "", by: "dépôt", changed: [], note: "Version d’origine", content: previous }];
   await kv.set(historyKey(doc, locale), [version, ...seeded].slice(0, HISTORY_MAX));
   if (editionStorage() === "fichiers") await writeBase(doc, locale, content);
-  else await kv.set(publishedKey(doc, locale), { content, at: now, by, versionId: version.id });
+  else await kv.set(publishedKey(doc, locale), { content, at: now, by, versionId: version.id, base: base ?? (await baseDoc(doc, locale)) });
   refresh(doc);
   void syncToGit(doc, locale, content, `Édition : ${doc} (${locale}) publié par ${by}`).catch((e) => console.error("[édition] recopie Git", e));
   return version;
@@ -170,7 +197,7 @@ export async function publishContent(doc: string, locale: Locale, content: unkno
 export async function publishDraft(doc: string, locale: Locale, by: string): Promise<Version | null> {
   const draft = await draftOf(doc, locale);
   if (!draft) return null;
-  const version = await publishContent(doc, locale, draft.content, by);
+  const version = await publishContent(doc, locale, draft.content, by, undefined, draft.base);
   await discardDraft(doc, locale);
   return version;
 }
@@ -191,7 +218,7 @@ export async function scheduled(): Promise<Scheduled[]> {
 export async function scheduleDraft(doc: string, locale: Locale, at: Date, by: string): Promise<Scheduled | null> {
   const draft = await draftOf(doc, locale);
   if (!draft) return null;
-  const item: Scheduled = { id: `p-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`, doc, locale, at: at.toISOString(), by, content: draft.content, createdAt: new Date().toISOString() };
+  const item: Scheduled = { id: `p-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`, doc, locale, at: at.toISOString(), by, content: draft.content, base: draft.base, createdAt: new Date().toISOString() };
   await kv.set(SCHEDULE_KEY, [...(await scheduled()).filter((s) => !(s.doc === doc && s.locale === locale)), item]);
   return item;
 }
@@ -207,9 +234,11 @@ export async function runScheduled(now = new Date()): Promise<Scheduled[]> {
   if (!due.length) return [];
   await kv.set(SCHEDULE_KEY, all.filter((s) => !due.includes(s)));
   for (const s of due) {
-    await publishContent(s.doc, s.locale, s.content, s.by, "Publication programmée");
+    // contenu programmé avant une nouvelle version du site : reporté sur la base d'aujourd'hui
+    const content = s.base === undefined ? s.content : rebase(s.content, s.base, await baseDoc(s.doc, s.locale));
+    await publishContent(s.doc, s.locale, content, s.by, "Publication programmée");
     const draft = await draftOf(s.doc, s.locale);
-    if (draft && JSON.stringify(draft.content) === JSON.stringify(s.content)) await discardDraft(s.doc, s.locale);
+    if (draft && JSON.stringify(draft.content) === JSON.stringify(content)) await discardDraft(s.doc, s.locale);
   }
   return due;
 }

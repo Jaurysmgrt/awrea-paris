@@ -16,16 +16,18 @@ CONTACT, NEWSLETTER), étendu à toutes les pages.
 
 | Rôle | Police | Fichier du site | Token CSS |
 | --- | --- | --- | --- |
-| Titres (h1 à h4, `.t-h1` à `.t-giant`, `.t-display`), 25 px au moins | Fraunces 72pt Italic, 400, en italique | `styles/fonts/fraunces-72pt-italic-latin.woff2` | `--font-display`, `--font-style-display` |
+| Grands titres (h1 à h3, `.t-h3` à `.t-giant`, `.t-display`), 28 px et plus | Fraunces 120pt Light, 300, droite (choix de la créatrice du 27/10/2026) | `styles/fonts/fraunces-120pt-light-latin.woff2` | `--font-display`, `--font-style-title`, `--font-weight-title` |
+| Petits titres (h4, `.t-h4`, questions de la FAQ, lettres, signatures), 25 px | Fraunces 72pt Italic, 400, en italique | `styles/fonts/fraunces-72pt-italic-latin.woff2` | `--font-display`, `--font-style-display` |
 | Textes, navigation, boutons, formulaires, prix | Cormorant Garamond Regular, 400 | `styles/fonts/cormorant-garamond-latin-400.woff2` | `--font-body` (ancien nom gardé : `--font-sans`) |
 
 - Chargées par `next/font/local` (`app/fonts.ts`) : les familles s'appellent `fraunces` et
   `cormorant` dans le CSS ; aucun appel extérieur. Licences OFL jointes.
-- Une seule face par police : `font-synthesis: none` (`styles/base.css`) interdit au navigateur
-  d'inventer un gras ou un italique. L'italique n'existe que pour les titres ; une règle qui pose
+- Deux faces de Fraunces dans une seule famille (le style et la graisse choisissent la face), une
+  face de Cormorant : `font-synthesis: none` (`styles/base.css`) interdit au navigateur d'inventer un
+  gras ou un italique. Une règle qui pose `--font-style-title`, `--font-weight-title` ou
   `--font-style-display` doit aussi poser `--font-display`, et une règle qui pose `--font-body`
   remet `font-style: normal` : sans cela, un titre composé en étiquette (`<h2 class="t-label">`)
-  garderait l'italique de base des titres (vérifié par `npm run audit:tokens`).
+  garderait le style des titres (vérifié par `npm run audit:tokens`).
 - Fraunces 72pt est dessinée pour le grand format : à côté de Cormorant, elle paraît trop noire
   sous 25 px. Elle n'est jamais employée plus petit (24 px dans les e-mails, 18 points dans les
   PDF) : en dessous, Cormorant. Les noms de pièces dans les cartes, les lignes du panier et des
@@ -66,9 +68,10 @@ tailles multiples de 5 px gardent l'interlignage 1,6 sur la grille de 8 px.
   du design system utilisent les `--lh-step-*` de leur palier.
 
 - Mesure : `--measure: 24.5em`, soit 65 caractères de Cormorant (chasse moyenne d'un texte
-  français : 0,378 em) ; `--container-text: 31rem` (496 px). Paragraphes alignés à gauche, jamais
-  justifiés (choix de la créatrice du 25/10/2026 : la justification creusait des trous entre les
-  mots sur téléphone), sans césure automatique.
+  français : 0,378 em) ; `--container-text: 31rem` (496 px). Corps de texte (`p.t-body`, textes
+  des pages `.prose`) justifiés sur tablette et ordinateur, avec césure automatique et dernière ligne
+  au fer à gauche ; alignés à gauche sur téléphone (choix de la créatrice du 27/10/2026). Chapeaux,
+  notes, textes centrés et lignes courtes (`.t-left`) jamais justifiés.
 - Interlettrage : titres `-0,01 em` ; navigation, liens et boutons en bas de casse `0,02 em`
   (`--tracking-snug`) ; capitales `0,08 em` (`--tracking-label`).
 - Chiffres : Cormorant a des chiffres elzéviriens, gardés dans le texte ; les prix et les tableaux
@@ -88,11 +91,16 @@ l'interface.
 | Champs « Prénom * », « E-mail * » | `.field`, `.field__label`, `.field__input`, `.field-row` | sans cadre, étiquette au-dessus en bas de casse, un filet dessous (taupe foncé, 3:1 au moins) ; focus : filet noir doublé, sans décalage, et un contour transparent qui devient l'anneau de focus en contraste forcé ; erreur : filet en tirets et message `.field__error` écrit sous le champ ; `.field-row` met deux champs côte à côte dès 768 px |
 | Case « Je souhaite m'inscrire » | `.check` | carré au filet, anneau de focus de 2 px |
 | Pastille « Nouveau » | `.badge` | noire en pilule, texte blanc cassé 16 px ; `.badge--outline` filet seul |
-| Filet du pied de page | `.rule--center` | filet noir centré (blanc cassé en mode Nuit) ; `.rule--ink` pleine largeur ; `.rule` séparateur discret |
+| Filet du pied de page | `.rule--center` | filet noir centré (blanc cassé en mode Nuit), précédé du logo simplifié « AW » (monogramme officiel, `.site-footer__mark`, 27/10/2026) ; `.rule--ink` pleine largeur ; `.rule` séparateur discret |
+| Liens du pied de page | `.link.link--quiet` | sans soulignement, un filet n'apparaît qu'au survol (27/10/2026) |
+| Envies sur les photos | `WishlistButton`, `.wish__mark` | petit cœur au fil en haut à droite de la photo, plein une fois gardé (le cœur remplace le losange le 27/10/2026) |
+| Panier latéral | `CartDrawer`, `.drawer`, `.cart-line` | photo, nom et prix ; taille et « Retirer » sur une ligne ; délai ; « Quantité » écrit en clair devant − 1 + ; détail des montants dans la zone qui défile, le pied ne garde que le total et « Commander » ; la pièce ajoutée est amenée à l'écran |
+| Fondu entre les pages | `PageTransition`, `.page-fade` | voile blanc cassé (noir de la nuit en mode Nuit) : couvre en 0,35 × `--dur`, s'efface en 0,6 × `--dur` ; navigation immédiate en animations apaisées |
+| Sommaire des pages légales | `LegalView`, `.legal__toc` | deux niveaux (rubriques numérotées quand les titres ne le sont pas, intertitres en retrait) ; à gauche du texte et toujours visible sur ordinateur, au-dessus sur téléphone |
 | Cartes de la page collection | `.media--card`, `.product-card__media` | photo aux angles arrondis (16 px) ; `.media--soft` pour les vignettes (8 px) |
 | Carte « Le body Aura, 70,00 € » | `components/commerce/ProductCard.tsx`, `.product-card__body` | sous la photo, au fer à gauche : la pastille « Nouveau », le nom en Cormorant 20 px (`.t-body`), le prix à la ligne, puis le délai de fabrication (`.product-card__lead`) |
 | Mention « visuel provisoire » | `ProvisionalNote`, `.visuel-provisoire` | note de 18 px en texte secondaire, sur sa ligne, juste sous la photo provisoire, jamais en surimpression ; `Media` l'ajoute avec la prop `provisoire` |
-| Titres « Contact », « Collection Hypnotic Lace » | `PageHeader` (`.page-head--center`) | très grand titre en Fraunces italique, centré ; `align="left"` quand une photo ou un formulaire l'accompagne ; `giant` pour les pages éditoriales |
+| Titres « Contact », « Collection Hypnotic Lace » | `PageHeader` (`.page-head--center`) | très grand titre en Fraunces 120pt Light, centré ; `align="left"` quand une photo ou un formulaire l'accompagne ; `giant` pour les pages éditoriales |
 | Filtres « Catégorie + », « Prix + » | `.disclosure` | intitulé en bas de casse, filet fin dessous, « + » fermé, « − » ouvert ; `.disclosure--question` (FAQ) : question en Fraunces 25 / 32 px |
 | Navigation « Accueil », « Collections ⌄ » | `.link`, `.t-nav` | Cormorant 20 px en bas de casse ; la page en cours reste soulignée, `.link--quiet` ne se souligne qu'au survol |
 | En-tête du site | `components/layout/Header.tsx`, `Menu.tsx` (`HeaderBar`) | collant : le logo entier centré au-dessus des cinq entrées centrées, puis, au défilement, une bande compacte avec le monogramme et la même navigation ; navigation visible dès 768 px, menu plein écran (`<dialog>`) sur téléphone ; entrées dans `content/site/fr/navigation.json` |
@@ -117,8 +125,9 @@ et les animations apaisées par la durée unique (`--dur`).
 - `tests/e2e/homogeneite.spec.ts` (avec `tests/e2e/design-audit.ts`) : sur téléphone, tablette et
   ordinateur, seulement les familles `fraunces` et `cormorant`, l'italique réservé aux titres en
   Fraunces, aucun texte sous 16 px, interlignage 1,6 des paragraphes en Cormorant (notes de 18 px
-  sur 32 px), grille de 8 px, paragraphes alignés à gauche (aucun justifié) et 75 caractères par
-  ligne au plus.
+  sur 32 px), grille de 8 px, paragraphes alignés à gauche sur téléphone, justifiés au-delà
+  seulement avec césure et 45 caractères par ligne au moins, 75 caractères par ligne au plus, et
+  chaque texte aligné sur le bord de son titre (2 px près).
 
 ## Propositions de design antérieures
 

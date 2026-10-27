@@ -9,8 +9,8 @@
  * Vérifie aussi que styles/tokens.ts (miroir pour e-mails, WebGL, métadonnées) correspond au CSS,
  * et qu'il n'existe qu'une durée (--dur) et une courbe (--ease) pour toutes les animations.
  *
- * Ressources officielles (RESSOURCES.md, DESIGN.md) : deux polices seulement, Fraunces 72pt Italic
- * (titres) et Cormorant Garamond (textes) ; l'italique est réservé aux règles qui posent la police
+ * Ressources officielles (RESSOURCES.md, DESIGN.md) : deux polices seulement, Fraunces (grands
+ * titres en 120pt Light droite, petits titres en 72pt Italic) et Cormorant Garamond (textes) ; l'italique est réservé aux règles qui posent la police
  * des titres, et toute règle qui pose la police des textes remet le style droit (les titres h1 à h4
  * sont en italique par défaut) ; Fraunces jamais sous 25 px ; aucune police retirée (Instrument
  * Serif, Inter Tight, General Sans) ni la police du logo (licence personnelle), ni dans le code, ni
@@ -77,7 +77,8 @@ for (const f of fs.readdirSync(cssDir).filter((f) => f.endsWith(".css") && f !==
     const display = /font-family:\s*var\(--font-display\)/.test(body);
     // italique : seulement dans une règle qui pose aussi la police des titres (Fraunces n'existe
     // qu'en italique ; Cormorant n'a pas de face italique, le navigateur l'imiterait)
-    if (/font-style:\s*var\(--font-style-display\)/.test(body) && !display) report(file, line, "italique hors de la police des titres", selector);
+    if (/font-style:\s*var\(--font-style-(display|title)\)/.test(body) && !display) report(file, line, "style des titres hors de la police des titres", selector);
+    if (/font-weight:\s*var\(--font-weight-title\)/.test(body) && !display) report(file, line, "graisse des titres hors de la police des titres", selector);
     // police des textes : style droit explicite, sinon un titre (h2.t-label…) garde l'italique de base
     if (/font-family:\s*var\(--font-(body|sans)\)/.test(body) && !/font-style:\s*normal/.test(body)) report(file, line, "police des textes sans « font-style: normal » (italique hérité des titres)", selector);
     // Fraunces 72pt est dessinée pour le grand format : jamais sous 25 px (--text-step-1)

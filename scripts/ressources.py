@@ -76,6 +76,9 @@ def woff2(src: Path, dest: Path, unicodes: str | None = UNICODES) -> None:
 def fonts() -> None:
     print("Polices")
     woff2(RES / "TYPO" / "POLICE TITRES.ttf", FONTS_OUT / "fraunces-72pt-italic-latin.woff2")
+    # grands titres (cahier des modifications du 27/10) : Fraunces 120pt Light, face droite tirée de
+    # la police variable Fraunces (Google Fonts, SIL OFL) à opsz 120 et wght 300
+    woff2(RES / "TYPO" / "POLICE GRANDS TITRES.ttf", FONTS_OUT / "fraunces-120pt-light-latin.woff2")
     woff2(RES / "TYPO" / "POLICE TEXTES.ttf", FONTS_OUT / "cormorant-garamond-latin-400.woff2")
     # mêmes fichiers pour les e-mails (URL publique) et TTF complets pour les factures et étiquettes PDF
     PUBLIC_FONTS.mkdir(parents=True, exist_ok=True)

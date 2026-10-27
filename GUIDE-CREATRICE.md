@@ -137,7 +137,8 @@ Le menu de gauche réunit tout. Voici à quoi sert chaque entrée.
    n’avez pas appuyé sur **Publier** (partie 4).
 
 Les mots entre accolades, comme {prenom} ou {delai}, sont remplacés automatiquement au moment de
-l’affichage : gardez-les tels quels.
+l’affichage. Vous pouvez les retirer si votre texte n’en a pas besoin, sauf ceux qui portent un lien
+ou un code utile à votre cliente (comme {lien} ou {visio}) : le panneau vous le dit.
 
 Les textes officiels que vous avez écrits (À propos, texte de la collection, présentation de la
 Maison, conditions générales de vente, mentions légales) sont repris mot pour mot. Le panneau n’y
@@ -163,6 +164,10 @@ prévues sont listées dans Atelier › **Pages**, sous **Publications programm�
 elle revient sur le site, et celle d’aujourd’hui reste dans l’historique. Rien ne se perd.
 
 **Plus** › **Effacer les modifications** jette le brouillon : la page en ligne ne change pas.
+
+Quand le site reçoit une nouvelle version (une page refaite, un texte ajouté par l’équipe), vos
+modifications publiées et vos brouillons restent les vôtres : seules vos modifications sont
+reportées sur la nouvelle version, et ce que l’équipe a changé ailleurs dans la page apparaît.
 
 **Plus** › **Aide** relance le petit guide de l’édition. **Plus** › **Retour à l’Atelier** ou
 **Quitter l’édition** pour sortir.
@@ -479,7 +484,9 @@ Tous les e-mails envoyés à vos clientes se modifient comme une page : confirm
 5. Le brouillon s’enregistre tout seul. Rien ne part avant **Publier** : les prochains envois partent
    avec cette version. **Historique** pour revenir à une version précédente.
 
-Les mots entre accolades ({prenom}, {numero}…) sont remplacés à l’envoi : gardez les accolades.
+Les mots entre accolades ({prenom}, {numero}…) sont remplacés à l’envoi. Vous pouvez en retirer un, sauf
+ceux qui portent un lien ou un code dont votre cliente a besoin ({visio}, {suivi}, {lien}…) : le
+panneau vous le dit.
 
 **Textes communs**, en bas de la page E-mails : la devise, la ligne sous la devise, les mentions de
 la Maison, le lien de désinscription, repris en bas de chaque e-mail.

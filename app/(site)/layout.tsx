@@ -2,7 +2,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsentProvider } from "@/components/consent/ConsentProvider";
 import { SmoothScroll } from "@/components/providers/SmoothScroll";
-import { DrapeTransition } from "@/components/signature/DrapeTransition";
+import { PageTransition } from "@/components/signature/PageTransition";
 import { ThemeShift } from "@/components/signature/ThemeShift";
 import { RevealObserver } from "@/components/motion/RevealObserver";
 import { Magnetic } from "@/components/motion/Magnetic";
@@ -25,7 +25,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <CartProvider>
         <WishlistProvider>
           <SmoothScroll>
-            <DrapeTransition>
+            <PageTransition>
               <a href="#contenu" className="skip-link">
                 {site.evitement}
               </a>
@@ -43,7 +43,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
                 <Trackers />
               </Suspense>
               <JsonLd data={[organizationSchema(), websiteSchema()]} />
-            </DrapeTransition>
+            </PageTransition>
           </SmoothScroll>
         </WishlistProvider>
       </CartProvider>

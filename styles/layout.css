@@ -481,7 +481,8 @@
     background: transparent;
     color: var(--fg);
     font-family: var(--font-display);
-    font-style: var(--font-style-display);
+    font-style: var(--font-style-title);
+    font-weight: var(--font-weight-title);
     font-size: var(--text-step-3);
     line-height: var(--lh-step-3);
     letter-spacing: var(--tracking-display);
@@ -611,6 +612,20 @@
   /* une page qui porte déjà la lettre en entier (accueil, Bientôt…) : pas de seconde lettre au pied */
   body:has(main :is(.newsletter:not(.newsletter--compact), .newsletter__merci)) .site-footer__news {
     display: none;
+  }
+  /* logo simplifié « AW » centré juste au-dessus du filet, à la même distance que le filet des
+     colonnes (cahier des modifications du 27/10) */
+  .site-footer__mark {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-paragraph);
+  }
+  .site-footer__logo {
+    --logo-h: var(--size-logo);
+  }
+  .site-footer__mark .site-footer__rule {
+    width: min(100%, var(--container-prose));
+    margin: 0;
   }
   .site-footer__cols {
     display: grid;
@@ -1038,11 +1053,19 @@
     display: grid;
     gap: var(--spacing-s);
   }
-  .drawer__foot {
-    padding: var(--spacing-m);
-    border-top: var(--border-width-hair) solid var(--line);
+  /* détail des montants, note de fabrication et moyens de paiement : dans la zone qui défile */
+  .drawer__summary {
     display: grid;
     gap: var(--spacing-s);
+    padding-top: var(--spacing-m);
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  /* pied compact : le total et « Commander » seulement, pour laisser la place aux pièces */
+  .drawer__foot {
+    padding: var(--spacing-s) var(--spacing-m);
+    border-top: var(--border-width-hair) solid var(--line);
+    display: grid;
+    gap: var(--spacing-xs);
   }
   .drawer__pay {
     letter-spacing: var(--tracking-snug);

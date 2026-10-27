@@ -6,8 +6,8 @@
   "maison": {
     "texte": {
       "officiel": true,
-      "titre": "Des pièces qui subliment la silhouette",
-      "accroche": "Awrea Paris célèbre la rencontre des contrastes.",
+      "titre": "L’essence de la féminité, révélée le soir",
+      "accroche": "Vestiaire du soir en pièce unique, entre dentelle délicate et drapés sculpturaux.",
       "paragraphe": "La délicatesse de la dentelle dialogue avec la force du bijou, dans un équilibre subtil entre sensualité et caractère. Chaque pièce est créée sur demande, loin des logiques de production de masse. Ce choix est au cœur de notre vision : produire uniquement ce qui est désiré, avec conscience et respect de l’environnement. Il n’y a pas de stock, seulement des créations pensées pour la personne qui les porte. Nos modèles prennent vie entre les mains d’artisans français, gardiens d’un savoir-faire précieux. Nous accordons une attention essentielle aux conditions de travail et à la valorisation de ces métiers, convaincus que la beauté d’une pièce naît aussi de l’éthique qui l’accompagne.",
       "chute": [
         "Porter Awrea, c’est choisir une pièce d’exception, conçue pour traverser le temps.",
@@ -22,7 +22,7 @@
       "provisoire": true
     },
     "cta": {
-      "label": "Lire l’histoire de la Maison",
+      "label": "À propos d’Awrea Paris",
       "href": "/la-maison"
     }
   },
@@ -45,13 +45,13 @@
       "provisoire": true
     },
     "cta": {
-      "label": "Voir la collection Hypnotic Lace",
+      "label": "Voir la collection",
       "href": "/collections/hypnotic-lace"
     }
   },
   "selection": {
     "surtitre": "Hypnotic Lace",
-    "titre": "Les pièces de la collection",
+    "titre": "Découvrir les nouvelles pièces",
     "pieces": ["body-aura", "robe-odessa", "robe-aria"],
     "cta": {
       "label": "Toutes les pièces",
@@ -60,8 +60,8 @@
   },
   "surDemande": {
     "surtitre": "Sur commande",
-    "titre": "Votre pièce commence avec votre commande",
-    "texte": "Rien n’attend sur une étagère. Vous choisissez la pièce et votre taille, puis des artisans français la confectionnent pour vous : comptez {hauts} pour un body ou un top, {robes} pour une robe. La Maison ne fabrique ainsi que ce qui est désiré.",
+    "titre": "Le savoir-faire français au service de l’exception",
+    "texte": "Awrea Paris imagine des créations du soir confectionnées à la commande par des artisans français. La délicatesse de la dentelle, la fluidité des drapés et le raffinement des détails donnent naissance à des pièces singulières, pensées pour révéler toute la féminité de celle qui les porte.",
     "image": {
       "src": "/media/img/sienna-detail",
       "alt": "La robe Sienna de près, dentelle noire et or au col montant, taille froncée en pointe",
@@ -70,13 +70,13 @@
       "provisoire": true
     },
     "cta": {
-      "label": "Les étapes d’une commande",
+      "label": "Découvrir la confection",
       "href": "/sur-commande"
     }
   },
   "lettre": {
     "surtitre": "La lettre de la Maison",
-    "titre": "Recevoir les nouvelles de l’atelier",
+    "titre": "L’exception se dévoile en avant-première",
     "texte": "Les pièces qui arrivent, les collections qui se préparent et les rendez-vous de la Maison, par e-mail."
   }
 }

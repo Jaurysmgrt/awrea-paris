@@ -20,15 +20,20 @@ import { ProvisionalNote } from "./ProvisionalNote";
 type Suggestion = { handle: string; title: string; tagline: string; price: number; image: Image };
 
 /**
- * Panier latéral : lignes (avec le délai de fabrication de chaque pièce créée sur demande et la
- * mention « visuel provisoire » des images générées), suggestions, livraison offerte, cadeau,
- * codes, accès au paiement.
+ * Panier latéral : lignes (photo, taille, « Retirer », délai de fabrication de chaque pièce créée
+ * sur demande, mention « visuel provisoire » des images générées, quantité écrite en clair),
+ * suggestions, livraison offerte, cadeau, codes, détail des montants, accès au paiement.
+ *
+ * Le pied ne garde que le total et « Commander » : même sur un petit écran, la pièce ajoutée, sa
+ * quantité et ses actions restent visibles (cahier des modifications du 27/10). La zone des lignes
+ * défile à la molette malgré le défilement doux du site (data-lenis-prevent), et la pièce qui vient
+ * d'être ajoutée est amenée à l'écran.
  */
 export function CartDrawer() {
   const t = useTexts<CommerceTexts>("commerce").panier;
   const locale = useLocale();
   const tc = useTexts<CatalogueTexts>("catalogue");
-  const { cart, isOpen, close, dispatch, busy, error } = useCart();
+  const { cart, isOpen, close, dispatch, busy, error, lastAdded } = useCart();
   const ref = useRef<HTMLDialogElement>(null);
   const [codesOpen, setCodesOpen] = useState(false);
   const giftMessage = cart?.gift.message ?? "";
@@ -68,6 +73,17 @@ export function CartDrawer() {
     }
   }, [isOpen]);
 
+  // la pièce ajoutée à l'instant : visible tout de suite, même au bas d'un long panier (une fois
+  // par ajout : un code ou l'emballage cadeau ne ramènent pas le panier vers elle)
+  const shownAdd = useRef(0);
+  useEffect(() => {
+    if (!isOpen || !lastAdded || lastAdded.at === shownAdd.current) return;
+    const line = ref.current?.querySelector(`[data-variant="${CSS.escape(lastAdded.variantId)}"]`);
+    if (!line) return;
+    shownAdd.current = lastAdded.at;
+    line.scrollIntoView({ block: "nearest" });
+  }, [isOpen, lastAdded, cart]);
+
   const lines = cart?.lines ?? [];
   const remaining = cart ? Math.max(0, cart.freeShippingThreshold - (cart.subtotal - (cart.discount?.amount ?? 0))) : shop.freeShippingThreshold;
   const progress = cart ? Math.min(1, (cart.subtotal - (cart.discount?.amount ?? 0)) / cart.freeShippingThreshold) : 0;
@@ -106,7 +122,7 @@ export function CartDrawer() {
           </div>
         ) : (
           <>
-            <div className="drawer__body">
+            <div className="drawer__body" data-lenis-prevent>
               <div className="drawer__shipping">
                 <p className="t-note">{remaining > 0 ? fill(t.livraisonSeuil, { seuil: formatPrice(cart?.freeShippingThreshold ?? shop.freeShippingThreshold, locale) }) : t.livraisonOfferte}</p>
                 <div className="drawer__progress" aria-hidden="true">
@@ -116,7 +132,7 @@ export function CartDrawer() {
 
               <ul className="drawer__lines">
                 {lines.map((l) => (
-                  <li key={l.id} className="cart-line">
+                  <li key={l.id} className="cart-line" data-variant={l.variantId}>
                     <Link href={`/boutique/${l.productHandle}`} onClick={close} className="cart-line__media" tabIndex={-1} aria-hidden="true">
                       <Media image={l.image} ratio="portrait" sizes="6rem" decorative />
                     </Link>
@@ -127,10 +143,18 @@ export function CartDrawer() {
                         </Link>
                         <span className="price">{formatPrice(l.unitPrice * l.quantity, locale)}</span>
                       </div>
-                      <p className="t-label t-soft cart-line__meta">{fill(t.taille, { taille: l.size })}</p>
+                      <div className="cart-line__row">
+                        <p className="t-label t-soft cart-line__meta">{fill(t.taille, { taille: l.size })}</p>
+                        <button type="button" className="link link--quiet" disabled={busy} onClick={() => dispatch({ type: "remove", lineId: l.id }, { announce: fill(t.retiree, { piece: l.title }) })}>
+                          {t.retirer}
+                        </button>
+                      </div>
                       <p className="t-note t-left cart-line__lead">{fill(t.delaiLigne, { delai: delaiText(tc, l.leadTime) })}</p>
                       <ProvisionalNote image={l.image} />
-                      <div className="cart-line__actions">
+                      <div className="cart-line__qty">
+                        <span className="t-label t-soft" aria-hidden="true">
+                          {t.quantiteLibelle}
+                        </span>
                         <div className="qty" role="group" aria-label={fill(t.quantite, { piece: l.title })}>
                           <button type="button" className="icon-btn" disabled={busy} onClick={() => dispatch({ type: "update", lineId: l.id, quantity: l.quantity - 1 })} aria-label={t.moins}>
                             <Icon name="minus" />
@@ -140,9 +164,6 @@ export function CartDrawer() {
                             <Icon name="plus" />
                           </button>
                         </div>
-                        <button type="button" className="link link--quiet" disabled={busy} onClick={() => dispatch({ type: "remove", lineId: l.id }, { announce: fill(t.retiree, { piece: l.title }) })}>
-                          {t.retirer}
-                        </button>
                       </div>
                     </div>
                   </li>
@@ -225,6 +246,39 @@ export function CartDrawer() {
                   <CodeForm label={t.carteCadeau} t={t} current={cart?.giftCard?.code} onSubmit={(code) => dispatch({ type: "giftCard", code })} busy={busy} />
                 </div>
               </details>
+
+              <section className="drawer__summary" aria-label={t.detail}>
+                <dl className="totals">
+                  <div>
+                    <dt>{t.sousTotal}</dt>
+                    <dd>{formatPrice(cart!.subtotal, locale)}</dd>
+                  </div>
+                  {cart?.discount ? (
+                    <div>
+                      <dt>{cart.discount.label}</dt>
+                      <dd>− {formatPrice(cart.discount.amount, locale)}</dd>
+                    </div>
+                  ) : null}
+                  {cart?.gift.wrap ? (
+                    <div>
+                      <dt>{t.emballage}</dt>
+                      <dd>{formatPrice(cart.giftWrapPrice, locale)}</dd>
+                    </div>
+                  ) : null}
+                  {cart?.giftCard ? (
+                    <div>
+                      <dt>{t.carteCadeau}</dt>
+                      <dd>− {formatPrice(cart.giftCard.amount, locale)}</dd>
+                    </div>
+                  ) : null}
+                  <div>
+                    <dt>{t.livraison}</dt>
+                    <dd>{cart?.shippingEstimate === 0 ? t.offerte : t.calculee}</dd>
+                  </div>
+                </dl>
+                {longest ? <p className="t-note t-left">{fill(t.surDemande, { delai: delaiText(tc, longest) })}</p> : null}
+                <p className="t-label t-soft drawer__pay">{t.moyens}</p>
+              </section>
             </div>
 
             <footer className="drawer__foot">
@@ -233,39 +287,12 @@ export function CartDrawer() {
                   {error}
                 </p>
               ) : null}
-              <dl className="totals">
-                <div>
-                  <dt>{t.sousTotal}</dt>
-                  <dd>{formatPrice(cart!.subtotal, locale)}</dd>
-                </div>
-                {cart?.discount ? (
-                  <div>
-                    <dt>{cart.discount.label}</dt>
-                    <dd>− {formatPrice(cart.discount.amount, locale)}</dd>
-                  </div>
-                ) : null}
-                {cart?.gift.wrap ? (
-                  <div>
-                    <dt>{t.emballage}</dt>
-                    <dd>{formatPrice(cart.giftWrapPrice, locale)}</dd>
-                  </div>
-                ) : null}
-                {cart?.giftCard ? (
-                  <div>
-                    <dt>{t.carteCadeau}</dt>
-                    <dd>− {formatPrice(cart.giftCard.amount, locale)}</dd>
-                  </div>
-                ) : null}
-                <div>
-                  <dt>{t.livraison}</dt>
-                  <dd>{cart?.shippingEstimate === 0 ? t.offerte : t.calculee}</dd>
-                </div>
+              <dl className="totals drawer__total">
                 <div className="totals__total">
                   <dt>{t.total}</dt>
                   <dd>{formatPrice(cart!.total, locale)}</dd>
                 </div>
               </dl>
-              {longest ? <p className="t-note t-left">{fill(t.surDemande, { delai: delaiText(tc, longest) })}</p> : null}
               {cart?.mode === "shopify" ? (
                 <form
                   className="stack"
@@ -289,7 +316,6 @@ export function CartDrawer() {
                   {t.commander}
                 </Link>
               )}
-              <p className="t-label t-soft t-center drawer__pay">{t.moyens}</p>
             </footer>
           </>
         )}

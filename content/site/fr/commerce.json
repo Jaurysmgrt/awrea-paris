@@ -10,6 +10,8 @@
     "taille": "Taille {taille}",
     "delaiLigne": "Créée pour vous en {delai}.",
     "quantite": "Quantité, {piece}",
+    "quantiteLibelle": "Quantité",
+    "detail": "Détail de la commande",
     "moins": "Retirer une pièce",
     "plus": "Ajouter une pièce",
     "retirer": "Retirer",

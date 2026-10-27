@@ -5,7 +5,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { changedPaths, getAt, isSafePath, listOp, parsePath, setAt } from "@/lib/edition/paths";
 import { hasStega, stegaClean, stegaEncodeDeep, stegaSources } from "@/lib/edition/stega";
-import { localize, withFallback } from "@/lib/edition/merge";
+import { diffPaths, localize, rebase, withFallback } from "@/lib/edition/merge";
 import { guardValue, ruleFor } from "@/lib/edition/guard";
 import { createBlock, duplicateBlock, todos } from "@/lib/edition/blocks";
 import { fill } from "@/lib/edition/fill";
@@ -48,10 +48,33 @@ test("traductions : repli sur le français, blocs retrouvés par leur id", () =>
   assert.equal((getAt(content, ["sections", 1, "id"]) as string), "a");
 });
 
+test("report sur une nouvelle version du site : les textes de la créatrice restent, les nouveautés du code apparaissent", () => {
+  const base = { titre: "Ancien titre", bouton: { label: "Lire", href: "/la-maison" }, sections: [{ id: "a", texte: "Un" }], image: { src: "/a", width: 10 } };
+  // la créatrice a changé le bouton dans l'Édition
+  const edited = { ...base, bouton: { label: "À propos", href: "/la-maison" } };
+  // le code change le titre, une section et la largeur d'une image
+  const next = { ...base, titre: "Nouveau titre", sections: [{ id: "a", texte: "Un, revu" }], image: { src: "/a", width: 20 } };
+  assert.deepEqual(rebase(edited, base, next), { ...next, bouton: { label: "À propos", href: "/la-maison" } });
+  // même champ changé des deux côtés : le choix de la créatrice l'emporte
+  assert.equal((rebase({ ...base, titre: "Son titre" }, base, next) as typeof base).titre, "Son titre");
+  // une liste dont elle a changé la longueur reste la sienne
+  const sienne = { ...base, sections: [{ id: "a", texte: "Un" }, { id: "b", texte: "Deux" }] };
+  assert.deepEqual((rebase(sienne, base, next) as typeof base).sections, sienne.sections);
+  // base inconnue (version d'avant le report) ou inchangée : rien ne bouge
+  assert.equal(rebase(edited, undefined, next), edited);
+  assert.equal(rebase(edited, base, base), edited);
+  assert.deepEqual(diffPaths(base, edited), [["bouton", "label"]]);
+});
+
 test("garde-fous : longueurs, repères à garder, texte alternatif obligatoire", () => {
   assert.equal(ruleFor("hero.cta.label").role, "bouton");
-  assert.match(guardValue("hero.cta.label", "Voir", "x".repeat(40)) ?? "", /32 caractères au plus/);
-  assert.match(guardValue("livraison.note", "Offerte dès {seuil}", "Offerte") ?? "", /Gardez \{seuil\}/);
+  assert.match(guardValue("hero.cta.label", "Voir", "x".repeat(48)) ?? "", /40 caractères au plus/);
+  // un délai ou un montant se retire librement ; un lien dont la cliente a besoin, jamais
+  assert.equal(guardValue("livraison.note", "Offerte dès {seuil}", "Offerte"), null);
+  assert.equal(guardValue("surDemande.texte", "Comptez {hauts} ou {robes}.", "Awrea Paris imagine des créations du soir."), null);
+  assert.match(guardValue("rappel.texte", "Le lien : {visio}", "Le lien") ?? "", /Gardez \{visio\}/);
+  assert.match(guardValue("bloc.texte", "Texte", "Texte {inconnu}") ?? "", /n’est pas reconnu/);
+  assert.equal(guardValue("titre", "Un titre", "Le savoir-faire français au service de l’exception"), null);
   assert.match(guardValue("image.alt", "Robe", "") ?? "", /ne peut pas rester vide/);
   assert.equal(guardValue("titre", "Un titre", "Un autre titre"), null);
   assert.equal(fill("Offerte dès {seuil}", { seuil: "250 €" }), "Offerte dès 250 €");

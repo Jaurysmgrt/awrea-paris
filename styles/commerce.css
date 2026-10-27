@@ -95,6 +95,7 @@
     fill: transparent;
     stroke: currentColor;
     stroke-width: 1;
+    stroke-linejoin: round;
     transition:
       fill var(--dur) var(--ease),
       stroke var(--dur) var(--ease),
@@ -106,7 +107,6 @@
   .wish[aria-pressed="true"] .wish__mark {
     fill: var(--accent);
     stroke: var(--accent);
-    transform: rotate(90deg);
   }
 
   /* ===================================================== GRILLE ÉDITORIALE
@@ -255,11 +255,19 @@
   .cart-line__lead {
     margin: 0;
   }
-  .cart-line__actions {
+  /* la taille, et « Retirer » sur la même ligne, à droite */
+  .cart-line__row {
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
+    gap: var(--spacing-xs);
+  }
+  /* « Quantité » écrit en clair devant le sélecteur */
+  .cart-line__qty {
+    display: flex;
     align-items: center;
     gap: var(--spacing-xs);
+    margin-top: var(--spacing-2xs);
   }
   .qty {
     display: inline-flex;
@@ -274,6 +282,7 @@
   .qty span {
     min-width: var(--spacing-m);
     text-align: center;
+    font-size: var(--text-step-0);
   }
   .qty .icon-btn svg {
     width: var(--spacing-s);
@@ -316,6 +325,12 @@
     border-top: var(--border-width-hair) solid var(--line);
     text-transform: uppercase;
     letter-spacing: var(--tracking-label);
+  }
+  /* pied du panier : le total seul, sans second filet sous celui du pied */
+  .drawer__total .totals__total {
+    padding-top: 0;
+    margin-top: 0;
+    border-top: 0;
   }
 
   /* ======================================================= TROUVER MA TAILLE */

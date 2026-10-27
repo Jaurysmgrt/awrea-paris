@@ -318,3 +318,46 @@
   mode `SITE_PRIVE=1` : page d'attente « Bientôt » (français et anglais) pour les visiteuses, rien
   d'indexable, tout le site pour la créatrice connectée à l'Atelier ; tests unitaires et parcours
   dédiés. Le domaine `awreaparis.com`, enregistré chez Wix, reste non relié.
+
+## Cahier des modifications de la créatrice (27/10)
+
+Cahier de cinq pages, appliqué dans l'ordre qu'il conseille ; trois arbitrages demandés à la
+créatrice (grands titres en Fraunces 120 Light droite, corps de texte justifiés sur ordinateur
+seulement, son paragraphe « savoir-faire » mis en place, « Toutes les collections » vers
+`/collections`).
+
+- **Éditeur** : les mots entre accolades (délais, prix, prénom) se retirent librement, sauf un lien
+  ou un code utile à la cliente ; c'est ce qui bloquait le paragraphe de la section sur demande.
+  Longueurs élargies (titres 120, boutons 40, petites lignes 80).
+- **Report des modifications de l'Édition** : une page publiée ou un brouillon ne masque plus les
+  nouveautés livrées par le code ; seules les modifications de la créatrice sont reportées sur la
+  nouvelle version (`rebase`, `lib/edition/merge.ts`), y compris pour une page publiée avant ce
+  report (base de départ : la « Version d'origine » de l'historique). Vérifié par un test unitaire
+  et une simulation sur le stockage.
+- **Panier** : le pied ne gardait de place que pour le total, la note et le paiement ; sur téléphone
+  ou un ordinateur portable, la photo était coupée, la quantité et « Retirer » cachés, et la molette
+  ne faisait pas défiler le panier (Lenis arrêté bloquait la molette dans les fenêtres). Pied
+  réduit au total et à « Commander », « Quantité » écrit en clair, « Retirer » à droite de la
+  taille, pièce ajoutée amenée à l'écran, `prevent` de Lenis pour toutes les fenêtres `<dialog>`.
+  Vérifié à 1280 × 700, iPhone 13 et iPhone SE.
+- **Mentions légales** (et toutes les pages légales) : sommaire à deux niveaux, numéroté quand les
+  titres ne le sont pas, à gauche du texte et toujours visible sur ordinateur ; ancres données à
+  chaque intertitre ; contenu inchangé.
+- **Identité visuelle** : fausse dentelle éclairée retirée des fonds noirs (texture, composant
+  `LaceReveal`, génération dans `build-media.py`), halo gardé ; fondu blanc entre les pages à la
+  place du pan de tissu noir (OGL retiré du projet) ; grands titres en Fraunces 120pt Light droite
+  (face statique tirée de la police variable Fraunces, OFL, 20 Ko), petits titres inchangés ; corps
+  de texte justifiés avec césure sur tablette et ordinateur, à gauche sur téléphone ; cœur au lieu
+  du losange pour les envies ; logo « AW » avant le filet du pied de page ; liens du pied sans
+  soulignement.
+- **Textes** : titre et sous-titre de l'accueil, boutons « À propos d'Awrea Paris », « Voir la
+  collection », « Découvrir la confection », titres « Découvrir les nouvelles pièces », « Le
+  savoir-faire français au service de l'exception » et « L'exception se dévoile en avant-première »,
+  menu « La pièce à la demande », « Le détail du savoir-faire », « Toutes les collections » ; en
+  anglais britannique aussi.
+- **Contrôles** : le testeur homogénéité vérifie désormais qu'aucun paragraphe n'est justifié sur
+  téléphone, qu'un paragraphe justifié a sa césure et au moins 45 caractères par ligne, et que chaque
+  texte commence au bord de son titre.
+- **À signaler** : les mentions légales officielles nomment Wix comme hébergeur ; le site sera
+  hébergé par Vercel (à corriger par la créatrice avant l'ouverture, `LEGAL-A-COMPLETER.md`).
+

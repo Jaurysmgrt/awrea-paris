@@ -27,7 +27,6 @@ TMP = ROOT / ".media-tmp"
 INK = (11, 11, 11)
 IVORY = (244, 241, 235)
 PEARL = (217, 214, 208)
-GOLD = (184, 149, 90)
 
 WIDTHS = [480, 960, 1600]
 
@@ -137,113 +136,10 @@ def ellipse_poly(cx, cy, rx, ry, angle, n=40):
     return pts
 
 
-def draw_lace(size=512, scale=2, color=(255, 255, 255), seed=7):
-    """Tuile raccordable : tulle hexagonal + rosaces + rinceaux feuillus. Alpha = fil."""
-    random.seed(seed)
-    S = size * scale
-    img = Image.new("L", (S, S), 0)
-    d = ImageDraw.Draw(img)
-    lw = max(1, int(1.1 * scale))
-
-    def tiled(fn):
-        for ox in (-S, 0, S):
-            for oy in (-S, 0, S):
-                fn(ox, oy)
-
-    # tulle hexagonal
-    cell = 18 * scale
-    hgt = cell * math.sqrt(3) / 2
-    rows = int(S / hgt) + 2
-    cols = int(S / cell) + 2
-
-    def tulle(ox, oy):
-        for r in range(-1, rows):
-            for c in range(-1, cols):
-                x = c * cell + (cell / 2 if r % 2 else 0) + ox
-                y = r * hgt + oy
-                hexagon = [(x + cell / 2 * math.cos(math.pi / 3 * k + math.pi / 6),
-                            y + cell / 2 * math.sin(math.pi / 3 * k + math.pi / 6)) for k in range(7)]
-                d.line(hexagon, fill=70, width=max(1, scale // 2))
-
-    tulle(0, 0)
-
-    def rosette(cx, cy, r, petals, ox, oy):
-        cx += ox
-        cy += oy
-        # coeur
-        d.ellipse((cx - r * 0.22, cy - r * 0.22, cx + r * 0.22, cy + r * 0.22), outline=255, width=lw * 2)
-        d.ellipse((cx - r * 0.1, cy - r * 0.1, cx + r * 0.1, cy + r * 0.1), fill=230)
-        # pétales doubles
-        for k in range(petals):
-            a = 2 * math.pi * k / petals
-            px, py = cx + math.cos(a) * r * 0.55, cy + math.sin(a) * r * 0.55
-            d.polygon(ellipse_poly(px, py, r * 0.33, r * 0.16, a), outline=255, width=lw * 2)
-            d.line([(cx + math.cos(a) * r * 0.26, cy + math.sin(a) * r * 0.26),
-                    (cx + math.cos(a) * r * 0.82, cy + math.sin(a) * r * 0.82)], fill=200, width=lw)
-            # hachures du pétale (effet brodé)
-            for j in range(1, 4):
-                t = 0.35 + j * 0.12
-                qx, qy = cx + math.cos(a) * r * t, cy + math.sin(a) * r * t
-                nx, ny = -math.sin(a) * r * 0.08, math.cos(a) * r * 0.08
-                d.line([(qx - nx, qy - ny), (qx + nx, qy + ny)], fill=170, width=lw)
-        # couronne de picots
-        for k in range(petals * 3):
-            a = 2 * math.pi * k / (petals * 3) + math.pi / (petals * 3)
-            px, py = cx + math.cos(a) * r * 1.0, cy + math.sin(a) * r * 1.0
-            pr = r * 0.035
-            d.ellipse((px - pr, py - pr, px + pr, py + pr), fill=230)
-        d.ellipse((cx - r * 0.92, cy - r * 0.92, cx + r * 0.92, cy + r * 0.92), outline=150, width=lw)
-
-    def sprig(x0, y0, x1, y1, bend, ox, oy):
-        pts = []
-        mx, my = (x0 + x1) / 2, (y0 + y1) / 2
-        nx, ny = -(y1 - y0), (x1 - x0)
-        ln = math.hypot(nx, ny) or 1
-        cxp, cyp = mx + nx / ln * bend, my + ny / ln * bend
-        for i in range(41):
-            t = i / 40
-            x = (1 - t) ** 2 * x0 + 2 * (1 - t) * t * cxp + t * t * x1
-            y = (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cyp + t * t * y1
-            pts.append((x + ox, y + oy))
-        d.line(pts, fill=230, width=lw * 2)
-        for i in range(4, 38, 5):
-            (xa, ya), (xb, yb) = pts[i], pts[i + 1]
-            a = math.atan2(yb - ya, xb - xa)
-            side = 1 if (i // 5) % 2 else -1
-            la = a + side * 0.9
-            lx, ly = xa + math.cos(la) * 11 * scale, ya + math.sin(la) * 11 * scale
-            d.polygon(ellipse_poly(lx, ly, 9 * scale, 3.6 * scale, la), outline=255, width=lw)
-
-    R = S * 0.17
-    elements = [
-        lambda ox, oy: rosette(0, 0, R, 8, ox, oy),
-        lambda ox, oy: rosette(S / 2, S / 2, R * 1.08, 10, ox, oy),
-        lambda ox, oy: rosette(S / 2, 0, R * 0.5, 6, ox, oy),
-        lambda ox, oy: rosette(0, S / 2, R * 0.5, 6, ox, oy),
-        lambda ox, oy: sprig(R * 0.9, R * 0.6, S / 2 - R * 0.9, S / 2 - R * 0.6, S * 0.06, ox, oy),
-        lambda ox, oy: sprig(S - R * 0.9, R * 0.6, S / 2 + R * 0.9, S / 2 - R * 0.6, -S * 0.06, ox, oy),
-        lambda ox, oy: sprig(R * 0.9, S - R * 0.6, S / 2 - R * 0.9, S / 2 + R * 0.6, -S * 0.06, ox, oy),
-        lambda ox, oy: sprig(S - R * 0.9, S - R * 0.6, S / 2 + R * 0.9, S / 2 + R * 0.6, S * 0.06, ox, oy),
-    ]
-    for el in elements:
-        tiled(el)
-
-    img = img.filter(ImageFilter.GaussianBlur(scale * 0.35)).resize((size, size), Image.LANCZOS)
-    rgba = Image.new("RGBA", (size, size), color + (0,))
-    rgba.putalpha(img)
-    return rgba
-
-
 def build_textures():
     (OUT / "texture").mkdir(parents=True, exist_ok=True)
-    # dentelle dorée révélée par la lumière (sections noires)
-    # alpha_quality réduit : la couche alpha pèse l'essentiel du fichier, sans perte visible
-    draw_lace(512, color=GOLD).save(OUT / "texture" / "lace-gold.webp", "WEBP", quality=80, method=6, alpha_quality=60)
-    # voile de la vidéo d'accueil : noir profond, ajouré là où passent les fils de la dentelle
-    threads = draw_lace(512, scale=2, color=INK).getchannel("A")
-    veil = Image.new("RGBA", threads.size, INK + (255,))
-    veil.putalpha(ImageOps.invert(threads))
-    veil.save(OUT / "texture" / "lace-veil.webp", "WEBP", quality=80, method=6, alpha_quality=55)
+    # plus de dentelle dessinée sur les fonds noirs (cahier des modifications du 27/10) : la vraie
+    # dentelle vit dans les photos des pièces
 
     # papier : grain fin + fibres, ton ivoire (sections « lettre »)
     random.seed(3)

@@ -1,8 +1,9 @@
 "use client";
 /**
  * SIGNATURE 1 — Le halo de lumière.
- * Sur les sections noires, le curseur diffuse un halo blanc très doux qui révèle la dentelle
- * cachée dans le fond. Au tactile, la lumière suit le doigt puis dérive lentement d'elle-même.
+ * Sur les sections noires, le curseur diffuse un halo blanc très doux, sans motif dessiné (la
+ * fausse dentelle éclairée est retirée, cahier des modifications du 27/10). Au tactile, la
+ * lumière suit le doigt puis dérive lentement d'elle-même.
  */
 import { useEffect, useRef } from "react";
 import { isTouch, prefersReducedMotion } from "@/lib/motion";
@@ -18,10 +19,8 @@ export function LightHalo({ className, intensity = 1, active = true }: { classNa
       el.dataset.on = "false";
       return;
     }
-    // la texture de dentelle n'est téléchargée qu'à la première apparition de la lumière
     const turnOn = (on: boolean) => {
       el.dataset.on = on ? "true" : "false";
-      if (on) el.dataset.armed = "true";
     };
     const reduced = prefersReducedMotion();
     const touch = isTouch();
@@ -82,22 +81,11 @@ export function LightHalo({ className, intensity = 1, active = true }: { classNa
       kick();
     });
     io.observe(host);
-    // texture chargée un peu avant que la section n'entre à l'écran
-    const armIo = new IntersectionObserver(
-      ([e]) => {
-        if (!e.isIntersecting) return;
-        el.dataset.armed = "true";
-        armIo.disconnect();
-      },
-      { rootMargin: "100% 0px" },
-    );
-    armIo.observe(host);
     host.addEventListener("pointermove", onMove, { passive: true });
     host.addEventListener("pointerdown", onMove, { passive: true });
     host.addEventListener("pointerleave", onLeave);
     return () => {
       io.disconnect();
-      armIo.disconnect();
       cancelAnimationFrame(raf);
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerdown", onMove);
@@ -107,7 +95,6 @@ export function LightHalo({ className, intensity = 1, active = true }: { classNa
 
   return (
     <div ref={ref} className={`light-halo ${className ?? ""}`} style={{ "--gl-intensity": intensity } as React.CSSProperties} aria-hidden="true">
-      <div className="light-halo__lace" />
       <div className="light-halo__halo" />
     </div>
   );

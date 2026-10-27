@@ -10,6 +10,8 @@
     "taille": "Size {taille}",
     "delaiLigne": "Made for you in {delai}.",
     "quantite": "Quantity, {piece}",
+    "quantiteLibelle": "Quantity",
+    "detail": "Order details",
     "moins": "Remove one piece",
     "plus": "Add one piece",
     "retirer": "Remove",
