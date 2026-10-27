@@ -394,3 +394,6 @@ par cause, en coupant chaque effet suspect.
   Nouvelle page visible en 0,6 à 0,7 s au lieu de 0,9 à 1,2 s.
 - **À vitesse normale** : aucune tâche longue, défilement à 60 images par seconde, nouvelle page
   visible en 0,35 à 0,4 s. Le défilement doux (Lenis) n'était pas en cause.
+- **Clic perdu pendant le fondu** (révélé par un parcours de la CI) : un clic sur un lien pendant
+  que le voile se retirait était ignoré, et la page ne changeait pas. Il ouvre désormais la page
+  demandée. Un parcours le vérifie (`navigation.spec.ts`).

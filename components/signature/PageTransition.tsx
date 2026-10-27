@@ -51,7 +51,13 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
     async (href: string) => {
       const url = new URL(href, window.location.href);
       url.pathname = localizePath(url.pathname, locale);
-      if (busy.current) return;
+      // un clic pendant un fondu n'est jamais perdu : la page demandée s'ouvre sous le voile en
+      // cours, qui se retire quand elle est affichée
+      if (busy.current) {
+        if (pending.current) pending.current.path = url.pathname;
+        router.push(url.pathname + url.search + url.hash);
+        return;
+      }
       if (prefersReducedMotion()) {
         router.push(url.pathname + url.search + url.hash);
         return;
