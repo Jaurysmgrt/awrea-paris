@@ -367,3 +367,6 @@ seulement, son paragraphe « savoir-faire » mis en place, « Toutes les collect
   règle chaque paragraphe par un interlettrage invisible ; colonnes étroites et paragraphes
   impossibles à justifier sans trou au fer à gauche. Résultat : médiane 1,18, 90 % sous 1,5, aucun
   espace au-delà de 2. Le testeur homogénéité mesure maintenant ces espaces lui-même.
+
+## Maintenance quotidienne
+- 2026-10-27 — 3 contrôle(s) en échec que l'agent n'a pas pu corriger seul : votre attention est requise. (Sécurité du site en ligne (TLS, HTTPS, en-têtes, vulnérabilités, intrusions) ; Parcours du site en ligne (sans rien modifier) ; Textes des agents et de l'assistante (à relire dans l'Atelier)) — https://github.com/Jaurysmgrt/awrea-paris/actions/runs/40476141196
