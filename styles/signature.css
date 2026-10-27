@@ -16,17 +16,6 @@
   .light-halo[data-on="true"] {
     opacity: var(--gl-intensity, 1);
   }
-  .light-halo__lace {
-    position: absolute;
-    inset: 0;
-    background-size: var(--size-lace-tile);
-    opacity: 0.32;
-    mask-image: radial-gradient(circle var(--gl-radius) at var(--mx) var(--my), var(--color-ink) 0%, color-mix(in oklab, var(--color-ink) 45%, transparent) 45%, transparent 100%);
-    -webkit-mask-image: radial-gradient(circle var(--gl-radius) at var(--mx) var(--my), var(--color-ink) 0%, color-mix(in oklab, var(--color-ink) 45%, transparent) 45%, transparent 100%);
-  }
-  .light-halo[data-armed] .light-halo__lace {
-    background-image: url("/media/texture/lace-light.webp");
-  }
   .light-halo__halo {
     position: absolute;
     inset: 0;
@@ -37,115 +26,31 @@
     position: relative;
   }
 
-  /* ============================================ 2. RÉVÉLATION EN DENTELLE */
-  .lace-reveal {
-    position: relative;
-    min-height: 100svh;
-    display: grid;
-    overflow: hidden;
-    background: var(--color-ink);
-  }
-  .lace-reveal__media,
-  .lace-reveal__veil {
-    position: absolute;
-    inset: 0;
-  }
-  .lace-reveal__media .video,
-  .lace-reveal__media video {
-    width: 100%;
-    height: 100%;
-  }
-  .lace-reveal__media video {
-    object-fit: cover;
-  }
-  /* Voile noir ajouré : la vidéo n'apparaît d'abord qu'à travers les fils de la dentelle,
-     puis le voile s'agrandit et s'efface. Animé seulement en transform et opacity :
-     le GPU s'en charge, sans travail du processeur principal (fluide sur mobile). */
-  .lace-reveal__lace {
-    position: absolute;
-    inset: -25%;
-    z-index: 1;
-    pointer-events: none;
-    background-color: var(--color-ink);
-    background-image: url("/media/texture/lace-veil.webp");
-    background-size: var(--size-lace-start);
-    background-position: center;
-    transform-origin: 50% 45%;
-    will-change: transform, opacity;
-    animation:
-      lace-veil-grow calc(var(--dur) * 4) var(--ease) calc(var(--dur) / 2) both,
-      lace-veil-fade calc(var(--dur) * 2) var(--ease) calc(var(--dur) * 2) both;
-  }
-  .lace-reveal[data-state="open"] .lace-reveal__lace {
-    display: none;
-  }
-  @keyframes lace-veil-grow {
-    from {
-      transform: scale(1);
-    }
-    to {
-      transform: scale(24);
-    }
-  }
-  @keyframes lace-veil-fade {
-    from {
-      opacity: 1;
-    }
-    to {
-      opacity: 0;
-    }
-  }
-  .lace-reveal__veil {
-    z-index: 1;
-    background: linear-gradient(to bottom, color-mix(in oklab, var(--color-ink) 45%, transparent), color-mix(in oklab, var(--color-ink) 10%, transparent) 35%, color-mix(in oklab, var(--color-ink) 60%, transparent));
-    pointer-events: none;
-  }
-  .lace-reveal .video__toggle {
-    position: absolute;
-    right: var(--spacing-gutter);
-    bottom: var(--spacing-m);
-    z-index: 2;
-    color: var(--color-ivory);
-  }
-
-  /* =========================================== 3. TRANSITION DRAPÉE */
-  .drape {
+  /* =========================================== 3. FONDU ENTRE LES PAGES
+     Un voile blanc cassé (le noir de la nuit en mode Nuit) couvre la page puis s'efface : court
+     à l'aller, un peu plus lent au retour (cahier des modifications du 27/10). */
+  .page-fade {
     position: fixed;
     inset: 0;
     z-index: var(--z-transition);
-    pointer-events: none;
+    background: var(--color-ivory);
+    opacity: 0;
     visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity calc(var(--dur) * 0.6) var(--ease),
+      visibility 0s linear calc(var(--dur) * 0.6);
   }
-  .drape[data-active="true"] {
+  .page-fade[data-state="cover"] {
+    opacity: 1;
     visibility: visible;
     pointer-events: auto;
+    transition:
+      opacity calc(var(--dur) * 0.35) var(--ease),
+      visibility 0s;
   }
-  .drape__canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-  .drape__fallback {
-    position: absolute;
-    inset: 0;
-    background: var(--color-ink);
-    opacity: 0;
-    visibility: hidden;
-  }
-  .drape__mark {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    color: var(--color-ivory);
-    opacity: 0;
-    visibility: hidden;
-  }
-  .drape__thread {
-    width: var(--size-mark);
-    height: var(--border-width-hair);
-    background: var(--accent);
+  html[data-mode="dark"] .page-fade {
+    background: var(--color-night);
   }
 
   /* ================================================ 5. CERTIFICAT */
@@ -189,7 +94,8 @@
     align-items: baseline;
     gap: var(--spacing-2xs);
     font-family: var(--font-display);
-    font-style: var(--font-style-display);
+    font-style: var(--font-style-title);
+    font-weight: var(--font-weight-title);
     line-height: var(--lh-step-4);
     text-align: center;
   }

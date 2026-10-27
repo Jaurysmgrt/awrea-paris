@@ -161,8 +161,11 @@
   --dur-breath: calc(var(--dur) * 3); /* respirations ambiantes (points du shop the look, défilement) */
   --dur-stagger: calc(var(--dur) / 12); /* décalage entre éléments d’une même apparition */
 
-  /* titres : la police officielle n'existe qu'en italique, les titres s'affichent en italique.
-     Seules les règles qui posent aussi --font-display s'en servent (npm run audit:tokens). */
+  /* grands titres (28 px et plus) : Fraunces 120pt Light, droite et fine (cahier des modifications
+     du 27/10) ; petits titres (25 px) : Fraunces 72pt Italic, la face d'origine. Seules les règles
+     qui posent aussi --font-display s'en servent (npm run audit:tokens). */
+  --font-style-title: normal;
+  --font-weight-title: 300;
   --font-style-display: italic;
 
   /* interlignages des titres en Fraunces (multiples de 8 px, serrés : taille + 8 px environ),
@@ -203,11 +206,9 @@
 
   /* tailles propres aux interactions signature */
   --size-halo: clamp(9rem, 6rem + 14vw, 22rem);
-  --size-lace-tile: clamp(14rem, 10rem + 14vw, 26rem);
   --size-loupe: clamp(8rem, 6rem + 10vw, 14rem);
   --size-mark: clamp(5rem, 4rem + 4vw, 8rem);
   --size-paper-tile: 384px;
-  --size-lace-start: 220px;
   --z-base: 1;
   --z-sticky: 20;
   --z-header: 40;

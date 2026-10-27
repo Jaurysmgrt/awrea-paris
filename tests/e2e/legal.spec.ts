@@ -16,12 +16,15 @@ test.describe("Pages légales", () => {
       await expect(page.locator(".legal__updated")).toContainText("Mise à jour le");
       const toc = page.getByRole("navigation", { name: "Sommaire" });
       if (await toc.count()) {
+        // chaque lien du sommaire (rubriques et intertitres) mène à une section de la page
+        const hrefs = await toc.getByRole("link").evaluateAll((links) => links.map((a) => a.getAttribute("href") ?? ""));
+        for (const h of hrefs) expect(await page.locator(`[id="${h.slice(1)}"]`).count(), h).toBe(1);
         const first = toc.getByRole("link").first();
         const href = await first.getAttribute("href");
         await first.click();
         await expect(page.locator(href!)).toBeInViewport();
       }
-      const text = await page.locator("main").innerText();
+      const text = (await page.locator("main").innerText()).replace(/\u00ad/g, "");
       // aucune accolade de gabarit ne doit apparaître à l'écran
       expect(text).not.toMatch(/\{\{|\}\}/);
       // création sur demande : aucune notion de rareté, de précommande ni de série numérotée
@@ -67,6 +70,10 @@ test.describe("Pages légales", () => {
     await expect(entreprise).toContainText("100 222 926");
     await expect(entreprise).toContainText("46 rue Paul Déroulède, 78290 Croissy-sur-Seine");
     await expect(page.locator("main .legal__body > [data-officiel]").first()).toContainText("loi n° 2004-575", { ignoreCase: true });
+    // sommaire à deux niveaux : les intertitres du texte officiel y sont repris
+    const toc = page.getByRole("navigation", { name: "Sommaire" });
+    await expect(toc.getByRole("link", { name: "Hébergement" })).toHaveAttribute("href", "#hebergement");
+    await expect(toc.getByRole("link", { name: "Données personnelles" })).toHaveAttribute("href", "#donnees-personnelles");
     // compléments demandés par la loi, absents du texte officiel : jamais inventés
     for (const id of ["publication", "mediation"]) {
       await expect(page.locator(`#${id} mark.todo`)).toBeVisible();

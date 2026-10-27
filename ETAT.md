@@ -31,13 +31,13 @@
 
 | Point | État |
 | --- | --- |
-| Palette, dorure absente de l'interface | **Fait** : tokens, CSS, e-mails, signatures (halo blanc, fil blanc du drapé), texture de dentelle neutre |
-| Polices officielles : Fraunces 72pt Italic (titres) et Cormorant Garamond (textes) | **Fait** : WOFF2 servis par le site (`styles/fonts`, `next/font/local`), licences OFL ; anciennes polices retirées et refusées par `npm run audit:tokens` ; Croisan jamais chargée |
+| Palette, dorure absente de l'interface | **Fait** : tokens, CSS, e-mails, signatures (halo blanc, fondu blanc entre les pages) ; plus de texture de dentelle sur les fonds (27/10) |
+| Polices officielles : Fraunces 120pt Light (grands titres, 27/10), Fraunces 72pt Italic (petits titres) et Cormorant Garamond (textes) | **Fait** : WOFF2 servis par le site (`styles/fonts`, `next/font/local`), licences OFL ; anciennes polices retirées et refusées par `npm run audit:tokens` ; Croisan jamais chargée |
 | Logo officiel | **Fait** : PNG à fond transparent dans `public/brand/` (`awrea-logo.png`, `awrea-logo-blanc.png`, `awrea-monogramme.png`, `awrea-aw.png`), déclarés dans `content/brand/assets.ts`, affichés en masque par `components/brand/Logo.tsx` ; icônes `app/icon.png` et `app/apple-icon.png`. **À faire** : SVG à fournir par la Maison ; anciens fichiers SVG provisoires retirés par le nettoyage technique (**En cours**) |
 | Langage des maquettes étendu à tout le site | **En cours** : primitives dans `styles/components.css` et `DESIGN.md` (`.btn`, `.field`, `.badge`, `.rule--center`, `.media--card`, `PageHeader`) ; pages refaites lot par lot |
 | En-tête et pied de page des maquettes | **En cours** (lot en-tête et pied de page) |
 | Épuré et luxueux | **Fait** : règles appliquées ; plus aucun compte à rebours ni rareté (**En cours** sur les avant-premières) |
-| Alignement du texte | **Fait** : paragraphes alignés à gauche, sans trous (choix du 25/10), mesure de 24,5 em (65 caractères de Cormorant), contrôle automatique |
+| Alignement du texte | **Fait** : corps de texte justifiés avec césure sur tablette et ordinateur, alignés à gauche sur téléphone (choix du 27/10), textes alignés sur leur titre, mesure de 24,5 em (65 caractères de Cormorant), contrôle automatique |
 | Homogénéité (8 px, 1,6, marges) | **Fait** : contrôle automatique ; une durée et une courbe pour toutes les animations |
 | Responsive | **Fait** de 360 à 1920 px, barre d'achat fixe sur mobile ; **À faire** : 320 et 2560 px |
 
@@ -55,9 +55,9 @@
 | # | Interaction | État |
 | --- | --- | --- |
 | 1 | Écran d'ouverture (monogramme officiel) | **À faire** |
-| 2 | Halo de lumière blanche | **Fait** |
-| 3 | Révélation en dentelle de la vidéo d'accueil | **Retiré** de l'accueil refait sur les maquettes (composant `LaceReveal` gardé) |
-| 4 | Transitions drapées ; transition grille → fiche (View Transitions) | **Fait** pour le drapé ; **À faire** pour View Transitions |
+| 2 | Halo de lumière blanche | **Fait**, sans dentelle dessinée (27/10) |
+| 3 | Révélation en dentelle de la vidéo d'accueil | **Retiré** (composant supprimé le 27/10 : plus de fausse dentelle sur les fonds noirs) |
+| 4 | Transitions entre les pages ; transition grille → fiche (View Transitions) | **Fait** : fondu blanc à la place du drapé (27/10) ; **À faire** pour View Transitions |
 | 5 | Lettre de la créatrice au défilement | **À faire** : composant `HandwrittenLetter` gardé, plus affiché ; texte de la lettre à fournir |
 | 6 | Numéro de création (« Création n° 0001 ») | **En cours** (remplace les numéros d'édition) ; pièces restantes **Retiré** |
 | 7 | Loupe dentelle | **Fait** |
@@ -73,7 +73,7 @@
 
 | Point | État |
 | --- | --- |
-| Next.js, TS, Tailwind, GSAP, Lenis, OGL | **Fait** |
+| Next.js, TS, Tailwind, GSAP, Lenis | **Fait** (OGL retiré avec la transition drapée, 27/10) |
 | Shopify / Supabase / Claude derrière adaptateurs | **Fait** |
 | Sentry | **Fait** : envoi sans bibliothèque, repli local |
 | Klaviyo / Brevo | **Fait** (`lib/marketing/provider`) |

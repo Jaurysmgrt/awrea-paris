@@ -1,7 +1,12 @@
 /**
- * Garde-fous de l'éditeur : ce qui protège la mise en page (longueurs, repères à garder, texte
+ * Garde-fous de l'éditeur : ce qui protège la mise en page (longueurs, liens à garder, texte
  * alternatif obligatoire) bloque l'enregistrement ; le contrôle d'écriture (tirets, formulations)
  * ne fait que signaler, avec une suggestion. Module pur, partagé par l'éditeur et le serveur.
+ *
+ * Longueurs larges (cahier des modifications du 27/10) : elles empêchent seulement un texte de
+ * casser la mise en page, jamais une formulation de la créatrice. Les mots entre accolades se
+ * retirent librement (un délai, un prénom), sauf ceux qui portent un lien ou un code dont la cliente
+ * a besoin (ESSENTIELS).
  */
 import { checkText, type WritingIssue } from "@/lib/writing/rules";
 
@@ -16,6 +21,9 @@ export interface FieldRule {
   label: string;
 }
 
+/** Longueur d'un texte de bouton (le formulaire des blocs l'applique aussi). */
+export const BOUTON_MAX = 40;
+
 const last = (path: string) => path.split(".").filter((s) => !/^\d+$/.test(s)).pop() ?? "";
 const parent = (path: string) => path.split(".").filter((s) => !/^\d+$/.test(s)).slice(-2, -1)[0] ?? "";
 
@@ -27,11 +35,11 @@ export function ruleFor(path: string): FieldRule {
   if (key === "preheader") return { max: 110, multiline: false, required: true, label: "Ligne d’aperçu (sous l’objet dans la boîte de réception)" };
   if (up === "seo" && key === "title") return { max: 65, role: "titre", multiline: false, required: true, label: "Titre pour les moteurs de recherche" };
   if (up === "seo" && key === "description") return { max: 165, multiline: false, required: true, label: "Description pour les moteurs de recherche" };
-  if (/^(cta|bouton|button|cta2|lien)$/.test(up) && /^(label|libelle|texte|text)$/.test(key)) return { max: 32, role: "bouton", multiline: false, required: true, label: "Texte du bouton" };
-  if (/^(bouton|button|cta|submit|envoyer)$/.test(key)) return { max: 32, role: "bouton", multiline: false, required: true, label: "Texte du bouton" };
+  if (/^(cta|bouton|button|cta2|lien)$/.test(up) && /^(label|libelle|texte|text)$/.test(key)) return { max: BOUTON_MAX, role: "bouton", multiline: false, required: true, label: "Texte du bouton" };
+  if (/^(bouton|button|cta|submit|envoyer)$/.test(key)) return { max: BOUTON_MAX, role: "bouton", multiline: false, required: true, label: "Texte du bouton" };
   if (key === "alt") return { max: 180, multiline: false, required: true, label: "Description de l’image (pour les personnes qui ne la voient pas)" };
-  if (/^(h1|titre|title|heading|nom|name|titrepage)$/.test(key)) return { max: 90, role: "titre", multiline: false, required: true, label: "Titre" };
-  if (/^(eyebrow|surtitre|kicker|label|etiquette|legende|caption)$/.test(key)) return { max: 60, multiline: false, required: false, label: key === "caption" || key === "legende" ? "Légende" : "Petite ligne au-dessus du titre" };
+  if (/^(h1|titre|title|heading|nom|name|titrepage)$/.test(key)) return { max: 120, role: "titre", multiline: false, required: true, label: "Titre" };
+  if (/^(eyebrow|surtitre|kicker|label|etiquette|legende|caption)$/.test(key)) return { max: 80, multiline: false, required: false, label: key === "caption" || key === "legende" ? "Légende" : "Petite ligne au-dessus du titre" };
   if (/^(lead|chapeau|accroche|tagline|intro)$/.test(key)) return { max: 320, role: "texte", multiline: true, required: false, label: "Chapeau" };
   if (/^(citation|quote)$/.test(key)) return { max: 400, role: "texte", multiline: true, required: true, label: "Citation" };
   if (/^(text|texte|body|corps|paragraphe|paragraphes|paragraphs|lines|lignes|note|a|r)$/.test(key)) return { max: 2400, role: "texte", multiline: true, required: false, label: "Texte" };
@@ -40,6 +48,10 @@ export function ruleFor(path: string): FieldRule {
 }
 
 const placeholders = (s: string) => [...new Set(s.match(/\{[a-zA-Z][\w]*\}/g) ?? [])].sort();
+
+/** Mots entre accolades qui portent un lien ou un code utile à la cliente : jamais retirés. */
+const ESSENTIELS = /^\{(lien\w*|url|visio|annulation|suivi|code)\}$/;
+export const isEssentialPlaceholder = (p: string) => ESSENTIELS.test(p);
 
 /** Vérification bloquante : la mise en page et le code doivent continuer de fonctionner. */
 export function guardValue(path: string, previous: string | undefined, next: string): string | null {
@@ -51,9 +63,9 @@ export function guardValue(path: string, previous: string | undefined, next: str
   if (previous !== undefined) {
     const before = placeholders(previous);
     const after = placeholders(value);
-    const missing = before.filter((p) => !after.includes(p));
+    const missing = before.filter((p) => !after.includes(p) && isEssentialPlaceholder(p));
     const unknown = after.filter((p) => !before.includes(p));
-    if (missing.length) return `Gardez ${missing.join(", ")} dans le texte : la valeur s’y insère automatiquement.`;
+    if (missing.length) return `Gardez ${missing.join(", ")} dans le texte : le lien ou le code de la cliente s’y insère automatiquement.`;
     if (unknown.length) return `${unknown.join(", ")} n’est pas reconnu ici. Retirez les accolades.`;
   }
   return null;

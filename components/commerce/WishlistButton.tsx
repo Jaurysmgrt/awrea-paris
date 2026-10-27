@@ -4,8 +4,8 @@ import { fill, type CatalogueTexts } from "@/lib/commerce/texts";
 import { useWishlist } from "./WishlistProvider";
 
 /**
- * Bouton « Garder » : un losange au fil, qui se remplit à la couleur du texte. Textes du document
- * « catalogue »,
+ * Bouton « Garder » : un petit cœur au fil, qui se remplit à la couleur du texte (cahier des
+ * modifications du 27/10 : le cœur remplace le losange). Textes du document « catalogue »,
  * tournés pour suivre un titre à article (« Le body Aura », « La robe Odessa ») sans accord.
  */
 export function WishlistButton({ handle, title, variant = "text" }: { handle: string; title: string; variant?: "text" | "icon" }) {
@@ -25,7 +25,7 @@ export function WishlistButton({ handle, title, variant = "text" }: { handle: st
       }}
     >
       <svg viewBox="0 0 16 16" aria-hidden="true" className="wish__mark">
-        <path d="M8 1.5 14 8l-6 6.5L2 8z" />
+        <path d="M8 13.5S2.25 10 2.25 5.9c0-1.85 1.35-3.15 3-3.15 1.2 0 2.2.65 2.75 1.65.55-1 1.55-1.65 2.75-1.65 1.65 0 3 1.3 3 3.15C13.75 10 8 13.5 8 13.5z" />
       </svg>
       {variant === "text" ? (
         <>

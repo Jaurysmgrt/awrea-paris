@@ -3,8 +3,9 @@
  * familles de polices (les deux polices officielles, Fraunces et Cormorant Garamond), italiques
  * (seulement les titres en Fraunces), textes sous 16 px, couleurs saturées (aucune dorure dans
  * l'interface), espacements sur la grille de 8 px, interlignage 1,6 du texte courant (et notes sur
- * la grille), paragraphes alignés à gauche (aucun paragraphe justifié, donc aucun trou entre les
- * mots) et mesure des paragraphes (75 caractères par ligne au plus).
+ * la grille), paragraphes justifiés seulement sur tablette et ordinateur, avec césure et assez de
+ * caractères par ligne pour qu'aucun trou ne se creuse entre les mots, et mesure des paragraphes
+ * (75 caractères par ligne au plus).
  */
 export interface DesignAudit {
   families: string[];
@@ -15,10 +16,14 @@ export interface DesignAudit {
   saturated: string[];
   spacing: string[];
   leading: string[];
-  /** paragraphes justifiés (le texte est aligné à gauche partout) */
+  /** paragraphes justifiés (alignés à gauche sur téléphone, justifiés au-delà) */
   justified: string[];
+  /** paragraphes justifiés dont un espace dépasse 2 fois l'espace normal, ou trop étroits (moins de 50 caractères par ligne) */
+  gappy: string[];
   /** paragraphes de plusieurs lignes plus larges que 75 caractères */
   wide: string[];
+  /** titres alignés à gauche dont le texte qui suit ne commence pas au même bord (à 2 px près) */
+  misaligned: string[];
 }
 
 /** Exécutée dans la page. */
@@ -71,7 +76,7 @@ export function auditInPage(): DesignAudit {
     const cs = getComputedStyle(el);
     if (ownText(el)) {
       families.add(cs.fontFamily.split(",")[0].replace(/["']/g, "").trim());
-      // l'italique appartient aux titres : Fraunces 72pt Italic est la seule face des titres
+      // l'italique appartient aux titres en Fraunces (petits titres en Fraunces 72pt Italic)
       if ((cs.fontStyle === "italic" || cs.fontStyle.startsWith("oblique")) && !/fraunces/i.test(cs.fontFamily)) italics.add(describe(el));
       const size = parseFloat(cs.fontSize);
       if (size > 0 && size < 15.9) small.add(`${describe(el)} ${cs.fontSize}`);
@@ -110,18 +115,64 @@ export function auditInPage(): DesignAudit {
 
   // ------------------------------------------------- alignement à gauche et mesure
   const justified: string[] = [];
+  const gappy: string[] = [];
   const wide: string[] = [];
   for (const p of Array.from(document.querySelectorAll("p"))) {
     if (skip(p) || !shown(p) || !ownText(p)) continue;
     const cs = getComputedStyle(p);
-    if (cs.textAlign === "justify") justified.push(describe(p));
-    // capacité de la colonne en caractères : largeur / chasse moyenne du texte du paragraphe
-    const text = p.textContent ?? "";
+    // capacité de la colonne en caractères : largeur / chasse moyenne du texte du paragraphe (sans
+    // les coupures invisibles posées par la justification)
+    const text = (p.textContent ?? "").replace(/\u00ad/g, "");
     ctx.font = `${cs.fontStyle === "normal" ? "" : `${cs.fontStyle} `}${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
     const advance = ctx.measureText(text).width / Math.max(1, text.length);
     const lines = Math.round(p.getBoundingClientRect().height / parseFloat(cs.lineHeight));
     const chars = Math.round(p.getBoundingClientRect().width / advance);
     if (lines > 1 && chars > 75) wide.push(`${describe(p)} ${chars} caractères`);
+    if (cs.textAlign === "justify") {
+      justified.push(describe(p));
+      if (lines > 1) {
+        // plus grand espace entre deux mots d'une même ligne (dernière ligne exclue), en espaces normaux
+        const space = ctx.measureText(" ").width || 1;
+        const rows: { y: number; boxes: [number, number][] }[] = [];
+        const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) {
+          const node = walker.currentNode as Text;
+          for (const m of node.data.matchAll(/[^\s\u00a0\u202f]+/g)) {
+            const range = document.createRange();
+            range.setStart(node, m.index);
+            range.setEnd(node, m.index + m[0].length);
+            for (const r of Array.from(range.getClientRects())) {
+              if (!r.width) continue;
+              const y = r.top + r.height / 2;
+              let row = rows.find((x) => Math.abs(x.y - y) < r.height / 3);
+              if (!row) rows.push((row = { y, boxes: [] }));
+              row.boxes.push([r.left, r.right]);
+            }
+          }
+        }
+        rows.sort((a, b) => a.y - b.y);
+        let widest = 0;
+        for (const row of rows.slice(0, -1)) {
+          const boxes = row.boxes.sort((a, b) => a[0] - b[0]);
+          for (let i = 1; i < boxes.length; i++) widest = Math.max(widest, (boxes[i][0] - boxes[i - 1][1]) / space);
+        }
+        if (chars < 50 || widest > 2.05) gappy.push(`${describe(p)} ${chars} caractères, espace de ${widest.toFixed(2)} fois l'espace normal`);
+      }
+    }
+  }
+
+  // ------------------------------------------------- textes alignés sur leur titre
+  // un titre aligné à gauche et le premier paragraphe qui le suit dans le même bloc commencent au
+  // même bord, à 2 px près (cahier des modifications du 27/10)
+  const misaligned: string[] = [];
+  for (const h of Array.from(document.querySelectorAll("h1, h2, h3"))) {
+    if (skip(h) || !shown(h) || !/^(left|start)$/.test(getComputedStyle(h).textAlign)) continue;
+    let p: Element | null = null;
+    let n = h.nextElementSibling;
+    for (let i = 0; n && i < 3 && !p; i++, n = n.nextElementSibling) p = n.matches("p") ? n : n.querySelector(":scope > p");
+    if (!p || skip(p) || !shown(p) || /^(center|right|end)$/.test(getComputedStyle(p).textAlign)) continue;
+    const dx = Math.abs(p.getBoundingClientRect().left - h.getBoundingClientRect().left);
+    if (dx > 2) misaligned.push(`${describe(h)} / ${describe(p)} ${Math.round(dx)} px`);
   }
 
   return {
@@ -132,6 +183,8 @@ export function auditInPage(): DesignAudit {
     spacing: Array.from(spacing),
     leading: Array.from(leading),
     justified,
+    gappy,
     wide,
+    misaligned,
   };
 }

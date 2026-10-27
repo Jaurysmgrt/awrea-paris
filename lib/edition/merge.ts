@@ -66,3 +66,33 @@ export function localize(fr: unknown, own: unknown, at: Path): { content: unknow
   return { content, path: out };
 }
 
+
+/** Chemins des valeurs qui diffèrent entre deux versions, au plus près des feuilles ; une liste qui
+ * change de longueur ou dont les blocs changent d'ordre est prise en entier. */
+export function diffPaths(a: unknown, b: unknown, base: Path = []): Path[] {
+  if (JSON.stringify(a) === JSON.stringify(b)) return [];
+  if (!a || !b || typeof a !== "object" || typeof b !== "object" || Array.isArray(a) !== Array.isArray(b)) return [base];
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) return [base];
+    const sameBlocks = a.every((x, i) => isBlockLike(x) === isBlockLike(b[i]) && (!isBlockLike(x) || x.id === (b[i] as { id: string }).id));
+    if (!sameBlocks) return [base];
+    return a.flatMap((x, i) => diffPaths(x, b[i], [...base, i]));
+  }
+  const left = a as Record<string, unknown>;
+  const right = b as Record<string, unknown>;
+  return [...new Set([...Object.keys(left), ...Object.keys(right)])].flatMap((k) => diffPaths(left[k], right[k], [...base, k]));
+}
+
+/**
+ * Report des modifications de la créatrice sur une nouvelle version du dépôt : ce qu'elle a changé
+ * dans l'Édition (différences entre `base`, la version du dépôt sur laquelle elle a travaillé, et
+ * `edited`) s'applique à `next`, la version du dépôt d'aujourd'hui. Ses textes restent les siens, et
+ * ce que le code a changé ailleurs dans le document apparaît au lieu d'être masqué.
+ */
+export function rebase(edited: unknown, base: unknown, next: unknown): unknown {
+  if (base === undefined || base === null || next === undefined || next === null) return edited;
+  if (JSON.stringify(base) === JSON.stringify(next)) return edited;
+  let out: unknown = structuredClone(next);
+  for (const p of diffPaths(base, edited)) out = setAt(out, p, getAt(edited, p));
+  return out;
+}

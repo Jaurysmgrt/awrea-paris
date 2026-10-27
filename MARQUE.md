@@ -242,10 +242,12 @@ pastille « Nouveau », photos des cartes aux angles arrondis. Primitives et cla
 
 - Polices **officielles de la Maison** (`ressources-awrea/TYPO`, `RESSOURCES.md`), **servies par le
   site** (WOFF2 dans `styles/fonts`, licence libre OFL) : aucun appel à Google Fonts.
-- **Fraunces 72pt Italic** (400) : tous les titres, en très grand format, interlignage serré,
-  **en italique** (c'est la seule face fournie : l'italique est permis pour les titres). Dessinée
-  pour le grand format, elle n'est **jamais employée sous 25 px** : les noms de pièces des cartes et
-  des lignes de commande se composent en Cormorant, comme sur la maquette PAGE PRODUIT.
+- **Fraunces 120pt Light** (300), **droite** : les grands titres (28 px et plus), en très grand
+  format, interlignage serré (choix de la créatrice du 27/10/2026 : la police variable Fraunces,
+  licence OFL, figée à la taille optique 120 et à la graisse 300).
+- **Fraunces 72pt Italic** (400), **en italique** : les petits titres de 25 px (questions de la
+  FAQ, lettres, signatures). Fraunces n'est **jamais employée sous 25 px** : les noms de pièces des
+  cartes et des lignes de commande se composent en Cormorant, comme sur la maquette PAGE PRODUIT.
 - **Cormorant Garamond** (400) : textes courants, navigation, boutons, formulaires, prix. Pas de
   faux italique ni de faux gras (aucune face fournie) : l'emphase passe par l'échelle, la police
   des titres ou le soulignement.
@@ -262,9 +264,16 @@ pastille « Nouveau », photos des cartes aux angles arrondis. Primitives et cla
 
 ### Alignement du texte
 
-- Paragraphes **alignés à gauche** (fer à gauche), jamais justifiés : la justification creusait des
-  trous entre les mots sur téléphone (choix de la créatrice du 25/10/2026). `text-wrap: pretty`
-  évite les mots seuls en fin de paragraphe ; aucune césure automatique.
+- Corps de texte **justifiés sur tablette et ordinateur**, avec césure et dernière ligne au fer à
+  gauche ; **alignés à gauche sur téléphone**, où les lignes courtes creuseraient des trous entre les
+  mots (choix de la créatrice du 27/10/2026, après l'alignement à gauche partout du 25/10). Les
+  chapeaux, les notes, les textes centrés et les lignes courtes (coordonnées) restent alignés.
+- **Aucun trou entre les mots** (demande de la créatrice du 27/10/2026) : le site coupe lui-même les
+  mots longs selon la césure française (trois lettres au moins de chaque côté, jamais un nom propre,
+  une adresse ou un lien) et règle, paragraphe par paragraphe, un interlettrage invisible à l'œil
+  pour répartir les mots ; une colonne trop étroite (moins de 50 caractères par ligne) ou un
+  paragraphe où un espace dépasserait 2 fois l'espace normal reste au fer à gauche.
+- Chaque texte commence au même bord que son titre (contrôle automatique, à 2 px près).
 - **60 à 70 caractères par ligne** (`--measure`), jamais de colonne trop étroite (contrôle
   automatique : 75 au plus, `tests/e2e/homogeneite.spec.ts`).
 - Titres et chapeaux des maquettes centrés quand la page le demande (classe `t-center`).
@@ -320,15 +329,17 @@ pastille « Nouveau », photos des cartes aux angles arrondis. Primitives et cla
 
 ### Interactions signature (adaptées)
 
-- **Halo de lumière** : un halo blanc très doux suit le curseur sur les sections noires et révèle la
-  dentelle cachée dans le fond (`LightHalo`).
-- **Transition drapée** : un pan de tissu noir ourlé d'un fil blanc très fin.
+- **Halo de lumière** : un halo blanc très doux suit le curseur sur les sections noires, sans motif
+  dessiné (`LightHalo` ; la fausse dentelle éclairée est retirée le 27/10/2026).
+- **Fondu blanc** entre les pages, court et discret (`PageTransition`, à la place du pan de tissu
+  noir le 27/10/2026).
 - **Loupe dentelle** sur les photos de détail des pièces.
 - Liens soulignés d'un filet noir très fin ; survols par inversion noir / blanc cassé.
 
 ### Touches que seule Awrea peut avoir
 
-- **Motif de dentelle** comme élément graphique discret : séparateurs, fonds, masques d'images.
+- **La dentelle dans les photos, jamais dessinée** : plus aucun motif de fausse dentelle sur les
+  fonds (choix de la créatrice du 27/10/2026), la vraie dentelle des pièces suffit.
 - **Croquis et annotations de la créatrice** sur les fiches et les collections, dès que ses vrais
   croquis scannés sont fournis (rien n'est dessiné à sa place).
 - **Monogramme officiel** en signature : en-tête compact, certificat, icônes.
@@ -389,3 +400,4 @@ du site et de l'Atelier pour la créatrice : `GUIDE-CREATRICE.md`.
 | 15/10/2026 | Direction | Ressources officielles de la Maison : elles priment sur toute consigne antérieure. Polices Fraunces 72pt Italic et Cormorant Garamond, logo officiel en PNG, langage des maquettes étendu à tout le site, textes officiels repris mot pour mot (`DECISIONS.md`) |
 | 15/10/2026 | Direction | Modèle de la Maison : pièces créées sur demande par des artisans français, sans stock ; délais de fabrication, cinq étapes de commande, numéro de création ; collection « Hypnotic Lace » et ses sept pièces ; plus de séries numérotées, de liste d'attente ni d'urgence (`DECISIONS.md`) |
 | 25/10/2026 | Créatrice | Texte aligné à gauche partout, plus aucun paragraphe justifié ; mode Nuit et animations apaisées toujours automatiques selon le réglage de l’appareil |
+| 27/10/2026 | Créatrice | Cahier des modifications : grands titres en Fraunces 120pt Light droite, corps de texte justifiés sur tablette et ordinateur (à gauche sur téléphone), fondu blanc entre les pages, plus de fausse dentelle sur les fonds noirs, cœur pour les envies, logo AW au pied de page, liens du pied sans soulignement, nouveaux textes de l’accueil et du menu |

@@ -97,7 +97,8 @@
 .cardTitle {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: var(--font-weight-regular);
+  font-style: var(--font-style-title);
+  font-weight: var(--font-weight-title);
   font-size: var(--text-step-2);
   line-height: var(--lh-step-2);
 }
@@ -182,6 +183,7 @@
   color: var(--fg);
   font: inherit;
   font-family: var(--font-display);
+  font-style: var(--font-style-display);
   font-size: var(--text-step-1);
   text-align: left;
   cursor: pointer;
@@ -261,6 +263,7 @@
 }
 .libLabel {
   font-family: var(--font-display);
+  font-style: var(--font-style-display);
   font-size: var(--text-step-1);
 }
 

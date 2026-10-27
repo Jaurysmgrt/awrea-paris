@@ -112,9 +112,10 @@
   }
 
   /* ============================================================ TYPOGRAPHIE
-     Deux polices officielles : Fraunces 72pt Italic (titres, très grands, en italique,
-     interlignage serré) et Cormorant Garamond 400 (textes, navigation, boutons, formulaires ;
-     20 px sur 32 px, jamais sous 16 px). Interlignages sur la grille de 8 px. */
+     Deux polices officielles : Fraunces (titres, très grands, interlignage serré : Fraunces 120pt
+     Light droite pour les grands titres, Fraunces 72pt Italic pour les petits titres de 25 px) et
+     Cormorant Garamond 400 (textes, navigation, boutons, formulaires ; 20 px sur 32 px, jamais
+     sous 16 px). Interlignages sur la grille de 8 px. */
   .t-display,
   .t-giant,
   .t-h1,
@@ -122,8 +123,8 @@
   .t-h3,
   .t-h4 {
     font-family: var(--font-display);
-    font-style: var(--font-style-display);
-    font-weight: var(--font-weight-regular);
+    font-style: var(--font-style-title);
+    font-weight: var(--font-weight-title);
     letter-spacing: var(--tracking-display);
     text-align: left;
     hyphens: manual;
@@ -148,6 +149,9 @@
   /* petits titres : 25 px, le plancher de Fraunces (dessinée pour le grand format, elle paraît
      trop noire à côté de Cormorant en dessous) */
   .t-h4 {
+    font-family: var(--font-display);
+    font-style: var(--font-style-display);
+    font-weight: var(--font-weight-regular);
     font-size: var(--text-step-1);
     line-height: var(--lh-step-1);
     letter-spacing: 0;

@@ -42,7 +42,8 @@ for (const vp of VIEWPORTS) {
           }
           const imgsNoAlt = Array.from(document.querySelectorAll("img")).filter((i) => !i.hasAttribute("alt")).length;
           const badJustify = Array.from(document.querySelectorAll("main h1, main h2, main h3, main .btn, main .price, main nav a")).filter((el) => getComputedStyle(el).textAlign === "justify").length;
-          // texte aligné à gauche (styles/base.css) : aucun paragraphe de texte justifié
+          // téléphone : texte au fer à gauche (styles/base.css) ; au-delà, la justification est
+          // contrôlée espace par espace par tests/e2e/homogeneite.spec.ts
           const prose = Array.from(document.querySelectorAll("main .prose p, main p.t-body")).filter((p) => p.tagName === "P");
           const justified = prose.filter((p) => getComputedStyle(p).textAlign === "justify").length;
           // en-tête : la navigation ne passe jamais sous le sélecteur de langue « FR · EN »
@@ -55,7 +56,7 @@ for (const vp of VIEWPORTS) {
         expect(r.h1, "Une seule balise H1").toBe(1);
         expect(r.imgsNoAlt, "Images sans attribut alt").toBe(0);
         expect(r.badJustify, "Titres, boutons, prix ou navigation justifiés").toBe(0);
-        expect(r.justified, "Paragraphes de texte justifiés (trous entre les mots)").toBe(0);
+        if (vp.width < 768) expect(r.justified, "Paragraphes justifiés sur téléphone").toBe(0);
         expect(r.headerOverlap, "Navigation sous le sélecteur de langue").toBe(0);
         expect(r.lang).toBe("fr");
         expect(errors, errors.join("\n")).toHaveLength(0);

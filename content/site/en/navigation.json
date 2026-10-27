@@ -4,8 +4,8 @@
     {
       "label": "Made to order",
       "sousMenu": [
-        { "label": "Ordering a piece", "href": "/sur-commande" },
-        { "label": "The atelier", "href": "/atelier" },
+        { "label": "Your piece, made to order", "href": "/sur-commande" },
+        { "label": "The craftsmanship in detail", "href": "/atelier" },
         { "label": "Book an appointment", "href": "/rendez-vous" }
       ]
     },
@@ -13,7 +13,7 @@
       "label": "Collections",
       "sousMenu": [
         { "label": "Hypnotic Lace", "href": "/collections/hypnotic-lace" },
-        { "label": "All pieces", "href": "/boutique" },
+        { "label": "All collections", "href": "/collections" },
         { "label": "Search for a piece", "href": "/recherche", "type": "recherche" }
       ]
     },

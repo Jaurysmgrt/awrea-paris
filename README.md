@@ -5,7 +5,7 @@ français, sans stock. Collection en cours : « Hypnotic Lace », sept pièces. 
 ses agents de gestion et le tableau de bord privé « Atelier », où la créatrice modifie le site sans
 toucher au code (éditeur « Édition »).
 
-Next.js 16 · TypeScript · Tailwind CSS v4 · GSAP · Lenis · OGL · Shopify (headless) · Supabase ·
+Next.js 16 · TypeScript · Tailwind CSS v4 · GSAP · Lenis · Shopify (headless) · Supabase ·
 Claude · Vercel.
 
 Sans aucune clé, tout fonctionne en **mode démonstration** : catalogue local des sept pièces, tunnel

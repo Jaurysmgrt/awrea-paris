@@ -2,7 +2,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ConsentProvider } from "@/components/consent/ConsentProvider";
 import { SmoothScroll } from "@/components/providers/SmoothScroll";
-import { DrapeTransition } from "@/components/signature/DrapeTransition";
+import { PageTransition } from "@/components/signature/PageTransition";
 import { ThemeShift } from "@/components/signature/ThemeShift";
 import { RevealObserver } from "@/components/motion/RevealObserver";
 import { Magnetic } from "@/components/motion/Magnetic";
@@ -14,18 +14,19 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { Trackers } from "@/components/analytics/Trackers";
 import { Suspense } from "react";
 import { organizationSchema, websiteSchema } from "@/lib/seo/schema";
-import { getDoc } from "@/lib/edition/read";
+import { getDoc, isEditing } from "@/lib/edition/read";
+import { Justification } from "@/components/ui/Justification";
 
 type SiteTexts = typeof import("@/content/site/fr/site.json");
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const site = await getDoc<SiteTexts>("site");
+  const [site, editing] = await Promise.all([getDoc<SiteTexts>("site"), isEditing()]);
   return (
     <ConsentProvider>
       <CartProvider>
         <WishlistProvider>
           <SmoothScroll>
-            <DrapeTransition>
+            <PageTransition>
               <a href="#contenu" className="skip-link">
                 {site.evitement}
               </a>
@@ -39,11 +40,12 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
               <ThemeShift />
               <RevealObserver />
               <Magnetic />
+              <Justification active={!editing} />
               <Suspense fallback={null}>
                 <Trackers />
               </Suspense>
               <JsonLd data={[organizationSchema(), websiteSchema()]} />
-            </DrapeTransition>
+            </PageTransition>
           </SmoothScroll>
         </WishlistProvider>
       </CartProvider>

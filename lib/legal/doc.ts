@@ -127,6 +127,54 @@ export function fromPage(p: LegalPage): LegalPageView {
   };
 }
 
+// ------------------------------------------------------------------ sommaire
+/** Texte lisible d'un intertitre : sans lien ni mise en valeur (conventions de LegalText). */
+export const plainText = (s: string) => s.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/\*\*/g, "");
+
+/** Ancre tirée d'un intertitre : minuscules, sans accents ni ponctuation. */
+export const slugify = (s: string) =>
+  plainText(s)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 60);
+
+export interface TocEntry {
+  id: string;
+  title: string;
+  official: boolean;
+  /** intertitres de la section (deuxième niveau du sommaire) */
+  subs: { id: string; title: string }[];
+}
+
+/**
+ * Sommaire à deux niveaux (rubriques, puis leurs intertitres) : chaque intertitre reçoit une ancre
+ * s'il n'en a pas, unique dans la page, pour que tous les liens du sommaire mènent à leur section.
+ */
+export function withToc(view: LegalPageView): { view: LegalPageView; toc: TocEntry[] } {
+  const used = new Set(view.sections.map((s) => s.id));
+  const sections = view.sections.map((s) => ({
+    ...s,
+    blocks: s.blocks.map((b) => {
+      if (typeof b !== "object" || !("h3" in b) || b.id) return b;
+      const base = slugify(b.h3) || "rubrique";
+      let id = base;
+      for (let n = 2; used.has(id); n++) id = `${base}-${n}`;
+      used.add(id);
+      return { ...b, id };
+    }),
+  }));
+  const toc = sections.map((s) => ({
+    id: s.id,
+    title: s.title,
+    official: s.official,
+    subs: s.blocks.flatMap((b) => (typeof b === "object" && "h3" in b && b.id ? [{ id: b.id, title: plainText(b.h3) }] : [])),
+  }));
+  return { view: { ...view, sections }, toc };
+}
+
 /** Ancres d'une page (sections et intertitres), pour vérifier les liens « /cgv#… ». */
 export function anchorsOf(view: LegalPageView): string[] {
   const ids: string[] = [];

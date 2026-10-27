@@ -143,3 +143,16 @@ arrêtées par le chef de projet pendant leur intégration.
 | 25/10 | Version anglaise en anglais britannique ; photos provisoires gardées pour la mise en ligne ; logo en PNG officiels en attendant le fichier vectoriel | Réponses de la créatrice. |
 | 26/10 | Le site reste privé jusqu'à ce qu'il soit fini : aucune mise en ligne, le domaine `awreaparis.com` (enregistré chez Wix) reste non relié ; la créatrice le voit par les aperçus privés. Publication (Vercel, puis DNS chez Wix) une fois le site terminé | « Pour l'instant je veux le garder pour moi », « et le publier quand il est fini ». |
 | 26/10 | Mode « site privé » (`SITE_PRIVE=1`) : le site peut être mis en ligne pour que la créatrice essaie l'Atelier, tandis qu'une visiteuse ne voit qu'une page « Bientôt » et que rien n'est indexé | « Je veux voir l'Atelier par moi-même » tout en gardant le site pour elle ; la protection ne dépend pas des options de l'hébergeur. |
+
+## Cahier des modifications de la créatrice (27/10)
+
+| Date | Décision | Justification |
+| --- | --- | --- |
+| 27/10 | Grands titres (28 px et plus) en Fraunces 120pt Light, droite ; petits titres (25 px) toujours en Fraunces 72pt Italic | Cahier des modifications : « Fraunces 120 Light » pour les grands titres ; la version droite choisie par la créatrice sur un aperçu des trois options. |
+| 27/10 | Corps de texte justifiés avec césure sur tablette et ordinateur, alignés à gauche sur téléphone | Le cahier demande de justifier « lorsque cela est adapté » et de garder une lecture confortable sur mobile ; remplace l'alignement à gauche partout du 25/10. |
+| 27/10 | Le paragraphe de la section sur demande devient le texte de la créatrice ; les délais restent sur les fiches et la page Sur commande | Choix de la créatrice. |
+| 27/10 | « Toutes les collections » mène à la page des collections (`/collections`) | Choix de la créatrice. |
+| 27/10 | Fondu blanc entre les pages, plus de pan de tissu noir ; plus aucun motif de dentelle dessiné sur les fonds noirs, le halo reste | Cahier des modifications ; la dentelle vit dans les photos. |
+| 27/10 | Dans l'éditeur, les mots entre accolades se retirent, sauf ceux qui portent un lien ou un code utile à la cliente ; longueurs élargies | Le garde-fou bloquait l'enregistrement du paragraphe de la créatrice. |
+| 27/10 | Les modifications faites dans l'Édition sont reportées sur chaque nouvelle version du site au lieu de la masquer | Une page publiée gardait le document entier et cachait les nouveautés du code. |
+| 27/10 | Justification sans trou : césure posée par le site, réglage fin de l'interlettrage par paragraphe, fer à gauche pour une colonne de moins de 50 caractères ou un espace de plus de 2 fois l'espace normal | Retour de la créatrice : « Je vois des espaces dans les textes, essaye de les enlever en restant justifié. » Mesuré avant et après. |

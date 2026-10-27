@@ -151,7 +151,8 @@
   }
   .kpis__value {
     font-family: var(--font-display);
-    font-style: var(--font-style-display);
+    font-style: var(--font-style-title);
+    font-weight: var(--font-weight-title);
     font-size: var(--text-step-3);
     line-height: var(--lh-step-3);
   }

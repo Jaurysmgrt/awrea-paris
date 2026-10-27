@@ -4,7 +4,7 @@ import { cookieCategories, cookieInventory } from "@/content/fr/cookies";
 import { getDoc } from "@/lib/edition/read";
 import { getLocale } from "@/lib/i18n/server";
 import { fill } from "@/lib/edition/fill";
-import { fromPage, type LegalBlock, type LegalDocContent, type LegalPageView } from "@/lib/legal/doc";
+import { fromPage, withToc, type LegalBlock, type LegalDocContent, type LegalPageView } from "@/lib/legal/doc";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { formatDate } from "@/lib/format";
 import { LegalText } from "@/components/legal/LegalText";
@@ -203,12 +203,16 @@ function Block({ block, t }: { block: LegalBlock; t: JuridiqueTexts }) {
 
 /**
  * Pages légales et pratiques : même gabarit partout. Date de mise à jour et version en tête,
- * sommaire cliquable, texte aligné à gauche, repères « À COMPLÉTER » bien visibles.
+ * sommaire cliquable à deux niveaux (rubriques et intertitres, numérotés quand les titres ne le
+ * sont pas déjà, comme les articles des CGV), posé à gauche du texte et toujours visible sur
+ * ordinateur, au-dessus du texte sur téléphone ; repères « À COMPLÉTER » bien visibles.
  * Les textes officiels de la créatrice (CGV, mentions légales) sont rendus avec data-officiel :
  * repris mot pour mot, seule leur typographie est contrôlée (scripts/controle-ecriture.ts).
  */
 export async function LegalView(props: { page: LegalPageView } | { slug: LegalSlug }) {
-  const page = "page" in props ? props.page : legalPageView(props.slug);
+  const { view: page, toc } = withToc("page" in props ? props.page : legalPageView(props.slug));
+  // titres déjà numérotés (« ARTICLE 1 – … », « 1. Objet ») : le sommaire ne les numérote pas une seconde fois
+  const numbered = !page.sections.some((s) => /^\s*((article|art\.)\s*)?\d+\b/i.test(s.title));
   const t = await getDoc<JuridiqueTexts>("juridique");
   const locale = await getLocale();
   const official = (yes: boolean) => (yes ? { "data-officiel": "" } : {});
@@ -220,40 +224,53 @@ export async function LegalView(props: { page: LegalPageView } | { slug: LegalSl
       <PageHeader title={page.title} lead={page.lead ? <LegalText text={page.lead} /> : undefined} crumbs={[{ name: page.title, path: page.path }]} lang={lang} />
       <Section theme="ivory" className="section section--flush-top">
         <div className="container legal">
-          <p className="legal__updated t-label">
-            {fill(t.misAJour, { date: formatDate(page.updated, locale) })}
-            {page.version ? ` · ${fill(t.version, { version: page.version })}` : ""}
-          </p>
-          {page.sections.length > 2 ? (
-            <nav className="legal__toc" aria-label={t.sommaire}>
-              <p className="t-label">{t.sommaire}</p>
-              <ol lang={lang}>
-                {page.sections.map((s) => (
-                  <li key={s.id} {...official(s.official)}>
-                    <a href={`#${s.id}`} className="link-plain">
-                      {s.title}
-                    </a>
-                  </li>
-                ))}
-              </ol>
-            </nav>
-          ) : null}
-          <div className="prose legal__body" lang={lang}>
-            {page.preamble ? (
-              <div className="legal__section" {...official(page.preamble.official)}>
-                {page.preamble.blocks.map((b, i) => (
-                  <Block key={i} block={b} t={t} />
-                ))}
-              </div>
+          <div className="legal__layout">
+            <p className="legal__updated t-label">
+              {fill(t.misAJour, { date: formatDate(page.updated, locale) })}
+              {page.version ? ` · ${fill(t.version, { version: page.version })}` : ""}
+            </p>
+            {page.sections.length > 2 ? (
+              <nav className="legal__toc" aria-label={t.sommaire}>
+                <p className="t-label">{t.sommaire}</p>
+                <ol lang={lang} className={numbered ? "legal__toc-list legal__toc-list--numbered" : "legal__toc-list"}>
+                  {toc.map((s) => (
+                    <li key={s.id} {...official(s.official)}>
+                      <a href={`#${s.id}`} className="link-plain">
+                        {s.title}
+                      </a>
+                      {s.subs.length > 1 ? (
+                        <ol>
+                          {s.subs.map((x) => (
+                            <li key={x.id}>
+                              <a href={`#${x.id}`} className="link-plain">
+                                {x.title}
+                              </a>
+                            </li>
+                          ))}
+                        </ol>
+                      ) : null}
+                    </li>
+                  ))}
+                </ol>
+              </nav>
             ) : null}
-            {page.sections.map((s) => (
-              <section key={s.id} id={s.id} aria-labelledby={`${s.id}-titre`} className="legal__section" {...official(s.official)}>
-                <h2 id={`${s.id}-titre`}>{s.title}</h2>
-                {s.blocks.map((b, i) => (
-                  <Block key={i} block={b} t={t} />
-                ))}
-              </section>
-            ))}
+            <div className="prose legal__body" lang={lang}>
+              {page.preamble ? (
+                <div className="legal__section" {...official(page.preamble.official)}>
+                  {page.preamble.blocks.map((b, i) => (
+                    <Block key={i} block={b} t={t} />
+                  ))}
+                </div>
+              ) : null}
+              {page.sections.map((s) => (
+                <section key={s.id} id={s.id} aria-labelledby={`${s.id}-titre`} className="legal__section" {...official(s.official)}>
+                  <h2 id={`${s.id}-titre`}>{s.title}</h2>
+                  {s.blocks.map((b, i) => (
+                    <Block key={i} block={b} t={t} />
+                  ))}
+                </section>
+              ))}
+            </div>
           </div>
         </div>
       </Section>

@@ -672,7 +672,8 @@
   .step__num {
     display: block;
     font-family: var(--font-display);
-    font-style: var(--font-style-display);
+    font-style: var(--font-style-title);
+    font-weight: var(--font-weight-title);
     font-size: var(--text-step-5);
     line-height: var(--lh-step-5);
     color: var(--accent);
@@ -977,6 +978,13 @@
   .legal__updated {
     color: var(--fg-soft);
   }
+  /* sommaire à deux niveaux : au-dessus du texte sur téléphone, à sa gauche et toujours visible
+     sur ordinateur (cahier des modifications du 27/10) */
+  .legal__layout {
+    display: grid;
+    gap: var(--spacing-l);
+    align-items: start;
+  }
   .legal__toc {
     display: grid;
     gap: var(--spacing-xs);
@@ -984,17 +992,69 @@
     border-top: var(--border-width-hair) solid var(--line);
     border-bottom: var(--border-width-hair) solid var(--line);
   }
-  .legal__toc ol {
-    column-gap: var(--spacing-xl);
-  }
-  @media (min-width: 48rem) {
-    .legal__toc ol {
-      columns: 2;
+  @media (min-width: 64rem) {
+    /* le sommaire à gauche, la date puis le texte à droite ; l'ensemble centré sous le titre */
+    .legal__layout:has(> .legal__toc) {
+      grid-template-columns: minmax(0, var(--container-sidebar)) minmax(0, var(--container-prose));
+      grid-template-areas:
+        "toc date"
+        "toc body";
+      justify-content: center;
+      column-gap: var(--spacing-2xl);
+    }
+    .legal__layout:has(> .legal__toc) > .legal__updated {
+      grid-area: date;
+    }
+    .legal__layout:has(> .legal__toc) > .legal__body {
+      grid-area: body;
+    }
+    .legal__toc {
+      grid-area: toc;
+      position: sticky;
+      top: calc(var(--header-h) + var(--spacing-s));
+      max-height: calc(100dvh - var(--header-h) - var(--spacing-l));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      border-bottom: 0;
     }
   }
-  .legal__toc li {
-    break-inside: avoid;
-    padding-block: var(--spacing-3xs);
+  .legal__toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .legal__toc-list {
+    display: grid;
+    gap: var(--spacing-2xs);
+    counter-reset: rubrique;
+  }
+  .legal__toc-list > li {
+    counter-increment: rubrique;
+  }
+  /* numéro de la rubrique, dans la marge, aligné sur la première ligne du titre */
+  .legal__toc-list--numbered > li {
+    display: grid;
+    grid-template-columns: var(--spacing-m) minmax(0, 1fr);
+  }
+  .legal__toc-list--numbered > li::before {
+    content: counter(rubrique) ".";
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: var(--text-step--1);
+    line-height: var(--leading-note);
+    color: var(--fg-soft);
+    font-variant-numeric: lining-nums;
+  }
+  .legal__toc-list--numbered > li > ol {
+    grid-column: 2;
+  }
+  /* intertitres de la rubrique : en retrait, plus discrets */
+  .legal__toc-list ol {
+    display: grid;
+    gap: var(--spacing-3xs);
+    margin-top: var(--spacing-3xs);
+    padding-left: var(--spacing-s);
+    border-left: var(--border-width-hair) solid var(--line);
   }
   .legal__toc a {
     font-family: var(--font-body);
@@ -1003,12 +1063,24 @@
     font-size: var(--text-step--1);
     line-height: var(--leading-note);
     letter-spacing: var(--tracking-snug);
+    text-wrap: pretty;
+  }
+  .legal__toc-list ol a {
+    color: var(--fg-soft);
+  }
+  .legal__toc a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+    text-underline-offset: 0.2em;
   }
   .legal__body {
     max-width: var(--container-prose);
   }
   .legal__section {
     scroll-margin-top: calc(var(--header-h) + var(--spacing-s));
+  }
+  .legal__section + .legal__section {
+    margin-top: var(--space-block);
   }
   .legal__section > * + * {
     margin-top: var(--spacing-s);
