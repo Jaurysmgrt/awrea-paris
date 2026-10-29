@@ -369,5 +369,6 @@ seulement, son paragraphe « savoir-faire » mis en place, « Toutes les collect
   espace au-delà de 2. Le testeur homogénéité mesure maintenant ces espaces lui-même.
 
 ## Maintenance quotidienne
+- 2026-10-29 — 3 contrôle(s) en échec que l'agent n'a pas pu corriger seul : votre attention est requise. (Sécurité du site en ligne (TLS, HTTPS, en-têtes, vulnérabilités, intrusions) ; Parcours du site en ligne (sans rien modifier) ; Textes des agents et de l'assistante (à relire dans l'Atelier)) — https://github.com/Jaurysmgrt/awrea-paris/actions/runs/40851642913
 - 2026-10-28 — 3 contrôle(s) en échec que l'agent n'a pas pu corriger seul : votre attention est requise. (Sécurité du site en ligne (TLS, HTTPS, en-têtes, vulnérabilités, intrusions) ; Parcours du site en ligne (sans rien modifier) ; Textes des agents et de l'assistante (à relire dans l'Atelier)) — https://github.com/Jaurysmgrt/awrea-paris/actions/runs/40664546084
 - 2026-10-27 — 3 contrôle(s) en échec que l'agent n'a pas pu corriger seul : votre attention est requise. (Sécurité du site en ligne (TLS, HTTPS, en-têtes, vulnérabilités, intrusions) ; Parcours du site en ligne (sans rien modifier) ; Textes des agents et de l'assistante (à relire dans l'Atelier)) — https://github.com/Jaurysmgrt/awrea-paris/actions/runs/40476141196
