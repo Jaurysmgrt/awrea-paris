@@ -51,20 +51,29 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
     async (href: string) => {
       const url = new URL(href, window.location.href);
       url.pathname = localizePath(url.pathname, locale);
-      if (busy.current) return;
+      // un clic pendant un fondu n'est jamais perdu : la page demandée s'ouvre sous le voile en
+      // cours, qui se retire quand elle est affichée
+      if (busy.current) {
+        if (pending.current) pending.current.path = url.pathname;
+        router.push(url.pathname + url.search + url.hash);
+        return;
+      }
       if (prefersReducedMotion()) {
         router.push(url.pathname + url.search + url.hash);
         return;
       }
       busy.current = true;
-      router.prefetch(url.pathname + url.search);
-      await fade("cover");
-      await new Promise<void>((resolve) => {
+      // la page suivante est demandée dès le clic, pendant que le voile se pose : l'attente du
+      // serveur ne s'ajoute plus au fondu (les pages, rendues à chaque visite, ne sont pas
+      // préchargées). Le voile couvre vite (courbe rapide au départ) : la page change dessous.
+      const shown = new Promise<void>((resolve) => {
         pending.current = { path: url.pathname, resolve };
-        router.push(url.pathname + url.search + url.hash, { scroll: false });
         // sécurité : on découvre la page même si la route ne change pas
         window.setTimeout(resolve, 4000);
       });
+      const covered = fade("cover");
+      router.push(url.pathname + url.search + url.hash, { scroll: false });
+      await Promise.all([covered, shown]);
       const lenis = (window as unknown as { __lenis?: { scrollTo: (y: number, o: object) => void } }).__lenis;
       if (url.hash) document.querySelector(url.hash)?.scrollIntoView();
       else if (lenis) lenis.scrollTo(0, { immediate: true, force: true });
