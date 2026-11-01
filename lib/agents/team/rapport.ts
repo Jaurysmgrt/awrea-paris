@@ -55,7 +55,7 @@ export async function runRapportAgent(trigger: AgentRun["trigger"] = "cron"): Pr
       "En confection": making.length,
       "Confections en retard": late.length,
       "Actions des agents": weekLog.filter((a) => a.status === "done").length,
-      "Validations en attente": pending.length,
+      "Propositions à valider": pending.length,
     };
 
     const facts = `Semaine du ${new Date(since).toLocaleDateString("fr-FR")} au ${new Date().toLocaleDateString("fr-FR")}
@@ -86,7 +86,7 @@ Actions des agents : ${weekLog.filter((a) => a.status === "done").length} réal
           `${abandoned.length} panier(s) abandonné(s), pour ${formatPrice(abandoned.reduce((s, a) => s + a.value, 0))}. ${msgs.length} message(s) de clientes reçus ; les questions courantes ont reçu une réponse automatique.`,
           `${making.length} commande(s) en confection${late.length ? `, dont ${late.length} en retard sur le délai annoncé` : ", toutes dans les délais annoncés"}. ${review.prices + review.leadTimes ? `${review.prices} prix et ${review.leadTimes} délai(s) restent provisoires.` : "Tous les prix et les délais sont confirmés."}`,
           `Les agents ont mené ${weekLog.filter((a) => a.status === "done").length} action(s) ; ${pending.length} validation(s) vous attendent dans le tableau de bord.`,
-          `Trois recommandations :\n1. ${top ? `Mettre ${top.title} en avant dans la prochaine lettre.` : "Préparer la prochaine lettre."}\n2. ${late.length ? `Prendre des nouvelles de la commande ${late[0].number} auprès de l’artisan et valider le message préparé pour la cliente.` : review.prices + review.leadTimes ? "Confirmer les prix et les délais encore provisoires, dans les Validations." : review.incomplete ? "Donner les compositions et les conseils d’entretien qui manquent aux fiches." : "Préparer la prochaine lettre autour des pièces les plus vues."}\n3. ${pending.length ? "Traiter les validations en attente." : "Proposer des essayages à l’atelier aux clientes hésitantes."}`,
+          `Trois recommandations :\n1. ${top ? `Mettre ${top.title} en avant dans la prochaine lettre.` : "Préparer la prochaine lettre."}\n2. ${late.length ? `Prendre des nouvelles de la commande ${late[0].number} auprès de l’artisan et valider le message préparé pour la cliente.` : review.prices + review.leadTimes ? "Confirmer les prix et les délais encore provisoires, dans « À valider »." : review.incomplete ? "Donner les compositions et les conseils d’entretien qui manquent aux fiches." : "Préparer la prochaine lettre autour des pièces les plus vues."}\n3. ${pending.length ? "Traiter les validations en attente." : "Proposer des essayages à l’atelier aux clientes hésitantes."}`,
         ].join("\n\n"),
       };
     }

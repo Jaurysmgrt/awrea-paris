@@ -4,9 +4,15 @@
  * - aucun traceur non nécessaire avant un choix explicite ;
  * - « Refuser » aussi simple et visible qu'« Accepter », choix par catégorie ;
  * - choix mémorisé 13 mois puis redemandé, modifiable à tout moment (« Gérer mes cookies ») ;
- * - chaque choix est enregistré côté serveur comme preuve (/api/consent).
+ * - chaque choix est enregistré côté serveur comme preuve (/api/consent) ;
+ * - choix obligatoire (choix de la créatrice du 01/11) : tant qu'aucun choix n'est fait, un voile
+ *   couvre la page, qui ne défile plus et ne reçoit plus le clavier ; Refuser, Accepter et Choisir
+ *   restent aussi simples l'un que l'autre. Les pages à lire avant de choisir (LIRE_AVANT) ne sont
+ *   pas voilées.
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { usePathname } from "next/navigation";
+import { stripLocale } from "@/lib/i18n/routing";
 import {
   ALL_CHOICES,
   CONSENT_COOKIE,
@@ -24,6 +30,30 @@ import {
 } from "@/lib/consent";
 import { cookieInventory } from "@/content/fr/cookies";
 import { CookieBanner } from "./CookieBanner";
+
+/** Pages à pouvoir lire avant de choisir : jamais voilées. */
+const LIRE_AVANT = new Set(["/cookies", "/confidentialite", "/mentions-legales"]);
+
+type LenisLike = { stop: () => void; start: () => void };
+const lenis = () => (window as unknown as { __lenis?: LenisLike }).__lenis;
+
+/**
+ * Le reste de la page devient inerte (ni clic, ni clavier, ni lecteur d'écran) : à chaque niveau,
+ * depuis le bandeau jusqu'à <body>, les éléments voisins. Renvoie de quoi tout rétablir.
+ */
+function inertAround(keep: Element[]): () => void {
+  const changed: Element[] = [];
+  let node: Element | null = keep[0] ?? null;
+  while (node && node.parentElement && node !== document.body) {
+    for (const sibling of Array.from(node.parentElement.children)) {
+      if (keep.some((k) => sibling === k || sibling.contains(k)) || sibling.hasAttribute("inert") || sibling.tagName === "SCRIPT") continue;
+      sibling.setAttribute("inert", "");
+      changed.push(sibling);
+    }
+    node = node.parentElement;
+  }
+  return () => changed.forEach((el) => el.removeAttribute("inert"));
+}
 
 type Ctx = {
   /** null tant qu'aucun choix valide n'existe */
@@ -77,6 +107,25 @@ export function ConsentProvider({ children }: { children: React.ReactNode }) {
   const [reopened, setReopened] = useState(false);
   const [details, setDetails] = useState(false);
   const open = reopened || !consent;
+  const pathname = usePathname();
+  const blocking = !consent && !LIRE_AVANT.has(stripLocale(pathname));
+
+  // choix obligatoire : la page ne défile plus et ne reçoit plus le clavier tant qu'il n'est pas fait
+  useEffect(() => {
+    if (!blocking) return;
+    const root = document.documentElement;
+    root.classList.add("consent-bloque");
+    lenis()?.stop();
+    const banner = document.querySelector<HTMLElement>(".consent");
+    const veil = document.querySelector(".consent-veil");
+    const restore = banner ? inertAround([banner, veil].filter((e): e is Element => Boolean(e))) : () => {};
+    banner?.focus({ preventScroll: true });
+    return () => {
+      restore();
+      root.classList.remove("consent-bloque");
+      lenis()?.start();
+    };
+  }, [blocking]);
 
   useEffect(() => {
     // choix expiré (13 mois) ou nouvelle politique : le bandeau redevient visible
@@ -125,8 +174,10 @@ export function ConsentProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ConsentContext.Provider value={value}>
+      {blocking ? <div className="consent-veil" aria-hidden="true" /> : null}
       {open ? (
         <CookieBanner
+          blocking={blocking}
           details={details}
           current={consent ?? NO_CHOICE}
           onDetails={() => setDetails(true)}

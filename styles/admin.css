@@ -31,7 +31,7 @@
       height: 100dvh;
       overflow-y: auto;
       padding: var(--spacing-l) var(--spacing-m);
-      grid-template-rows: auto auto 1fr auto auto;
+      grid-template-rows: auto auto 1fr auto;
     }
   }
   /* logo entier : la hauteur est fixée (« PARIS » reste lisible), la largeur suit */
@@ -41,37 +41,127 @@
     color: var(--color-ivory);
   }
   .admin__title {
-    color: var(--accent);
-    font-size: var(--text-step-3);
-    line-height: 1;
+    color: var(--fg-soft);
+  }
+  /* bas de la colonne : le site, puis l'état des services en mots simples */
+  .admin__foot {
+    display: grid;
+    gap: var(--spacing-s);
+    justify-items: start;
+  }
+  .admin__site {
+    background: var(--color-ivory);
+    color: var(--color-ink);
+    border-color: var(--color-ivory);
   }
   .admin__modes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-2xs);
-    color: var(--color-ivory-soft);
+    display: grid;
+    gap: var(--spacing-3xs);
+    color: var(--fg-soft);
+    font-size: var(--text-step--2);
+  }
+  /* téléphone : le logo à gauche, « Menu » à droite ; le reste vit dans le menu */
+  .admin-nav__site {
+    display: none;
+  }
+  @media (max-width: 63.99rem) {
+    .admin__side {
+      position: relative;
+      gap: var(--spacing-s);
+    }
+    .admin__title,
+    .admin__foot {
+      display: none;
+    }
+    .admin-nav__toggle {
+      position: absolute;
+      top: var(--spacing-m);
+      right: var(--spacing-gutter);
+    }
+    .admin-nav__site {
+      display: inline-flex;
+      justify-self: start;
+    }
+  }
+  /* le texte de l'Atelier se lit au fer à gauche : la justification est réservée au site */
+  .admin :is(p.t-body, .prose p) {
+    text-align: left;
+    hyphens: manual;
+  }
+  /* titres de page plus sobres : le contenu reste à portée de vue (le « Bonjour. » de l'accueil
+     garde sa grandeur) */
+  .admin-page__head:not(.admin-page__head--accueil) :is(h1, .t-h1) {
+    font-size: var(--text-step-3);
+    line-height: var(--lh-step-3);
   }
   .admin__main {
     padding: var(--spacing-l) var(--spacing-gutter) var(--spacing-2xl);
     min-width: 0;
   }
 
+  /* menu (retour de la créatrice du 01/11 : « on s'y perd ») : groupes en mots simples, entrées en
+     romain et non en capitales, l'entrée en cours en pastille ivoire ; sur téléphone, replié
+     derrière « Menu » ; « Coulisses » replié partout */
   .admin-nav {
     min-width: 0;
+    display: grid;
+    gap: var(--spacing-s);
   }
-  .admin-nav ul {
-    display: flex;
-    gap: var(--spacing-2xs);
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding-bottom: var(--spacing-2xs);
+  .admin-nav__toggle {
+    justify-self: start;
+    min-height: var(--spacing-touch);
+    padding-inline: var(--spacing-m);
+    border: var(--border-width-hair) solid var(--line);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--fg);
+    font: inherit;
+  }
+  .admin-nav__groupes {
+    display: none;
+    gap: var(--spacing-m);
+  }
+  .admin-nav[data-open="true"] .admin-nav__groupes {
+    display: grid;
   }
   @media (min-width: 64rem) {
-    .admin-nav ul {
-      display: grid;
-      gap: 0;
-      overflow: visible;
+    .admin-nav__toggle {
+      display: none;
     }
+    .admin-nav__groupes {
+      display: grid;
+    }
+  }
+  .admin-nav__groupe {
+    display: grid;
+    gap: var(--spacing-3xs);
+  }
+  .admin-nav__groupe ul {
+    display: grid;
+  }
+  .admin-nav__titre {
+    padding-inline: var(--spacing-xs);
+    color: var(--fg-soft);
+    font-size: var(--text-step--2);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+  summary.admin-nav__titre {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: var(--spacing-touch);
+    cursor: pointer;
+    list-style: none;
+  }
+  summary.admin-nav__titre::-webkit-details-marker {
+    display: none;
+  }
+  summary.admin-nav__titre::after {
+    content: "+";
+  }
+  .admin-nav__coulisses[open] summary.admin-nav__titre::after {
+    content: "−";
   }
   .admin-nav__link {
     display: flex;
@@ -79,33 +169,39 @@
     align-items: center;
     gap: var(--spacing-s);
     min-height: var(--spacing-touch);
-    padding: var(--spacing-2xs) var(--spacing-xs);
+    padding: var(--spacing-3xs) var(--spacing-xs);
+    border-radius: var(--radius-pill);
     font-family: var(--font-body);
     font-style: normal;
     font-weight: var(--font-weight-regular);
-    font-size: var(--text-step--2);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
+    font-size: var(--text-step-0);
     white-space: nowrap;
-    border-left: var(--border-width-hair) solid transparent;
     transition:
-      border-color var(--dur) var(--ease),
+      background-color var(--dur) var(--ease),
       color var(--dur) var(--ease);
   }
-  .admin-nav__link:hover,
+  .admin-nav__link:hover {
+    background: color-mix(in oklab, var(--color-ivory) 10%, transparent);
+  }
   .admin-nav__link[aria-current="page"] {
-    border-left-color: var(--accent);
-    color: var(--accent);
+    background: var(--color-ivory);
+    color: var(--color-ink);
   }
   .admin-nav__count {
     min-width: var(--spacing-m);
-    padding: 0 var(--spacing-3xs);
-    background: var(--accent);
+    padding: 0 var(--spacing-2xs);
+    border-radius: var(--radius-pill);
+    background: var(--color-ivory);
     color: var(--color-ink);
+    font-size: var(--text-step--2);
     text-align: center;
   }
+  .admin-nav__link[aria-current="page"] .admin-nav__count {
+    background: var(--color-ink);
+    color: var(--color-ivory);
+  }
   .admin-nav__logout {
-    margin-top: var(--spacing-s);
+    justify-self: start;
   }
 
   .admin-page {
@@ -131,6 +227,74 @@
     justify-content: space-between;
     align-items: baseline;
     gap: var(--spacing-s);
+  }
+
+  /* accueil : ce qui attend aujourd'hui, dans l'ordre où le faire */
+  .a-faire {
+    display: grid;
+    border-top: var(--border-width-hair) solid var(--line);
+    counter-reset: a-faire;
+  }
+  .a-faire > li {
+    counter-increment: a-faire;
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .a-faire__item {
+    position: relative;
+    display: grid;
+    gap: var(--spacing-3xs);
+    padding: var(--spacing-s) 0 var(--spacing-s) var(--spacing-xl);
+    text-decoration: none;
+  }
+  .a-faire__item::before {
+    content: counter(a-faire);
+    position: absolute;
+    left: 0;
+    top: var(--spacing-s);
+    font-family: var(--font-display);
+    font-style: var(--font-style-title);
+    font-weight: var(--font-weight-title);
+    font-size: var(--text-step-3);
+    line-height: var(--lh-step-3);
+  }
+  .a-faire__titre {
+    font-size: var(--text-step-1);
+    line-height: var(--lh-step-1);
+  }
+  .a-faire__item:hover .a-faire__titre,
+  .a-faire__item:focus-visible .a-faire__titre {
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+    text-underline-offset: var(--spacing-3xs);
+  }
+  .gestes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+  /* les pièces en photo : l'Atelier ressemble à la Maison */
+  .pieces {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--size-piece-thumb), 1fr));
+    gap: var(--spacing-m) var(--spacing-s);
+  }
+  .pieces__item {
+    display: grid;
+    gap: var(--spacing-2xs);
+    text-decoration: none;
+  }
+  .pieces__photo {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: var(--radius-card);
+    background: var(--media-bg);
+  }
+  .pieces__item:hover .pieces__nom {
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+    text-underline-offset: var(--spacing-3xs);
   }
 
   .kpis {

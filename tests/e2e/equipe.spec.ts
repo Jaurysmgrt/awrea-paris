@@ -37,7 +37,8 @@ test("Équipe : chaque rôle passe, rend un résumé, et apparaît dans l'Atelie
   // modèle « sur demande » : les rôles parlent d'avant-premières et de confection, jamais de stock
   await expect(page.getByRole("heading", { name: "Avant-premières", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Confection", exact: true })).toBeVisible();
-  await expect(page.locator(".team")).not.toContainText(/liste d’attente|précommande|rupture/i);
+  // les agents principaux et les rôles : aucune trace de stock dans l'une ou l'autre liste
+  for (const team of await page.locator(".team").all()) await expect(team).not.toContainText(/liste d’attente|précommande|rupture/i);
 });
 
 test("Agents : Commandes et confection, bilan du catalogue, propositions à valider", async ({ page }) => {
@@ -55,9 +56,11 @@ test("Agents : Commandes et confection, bilan du catalogue, propositions à vali
   expect(legacy.ok()).toBeTruthy();
   expect((await legacy.json()).run.agent).toBe("commandes-confection");
 
+  // l'accueil parle de la journée ; les agents sont dans les coulisses (Équipe)
   await page.goto(ATELIER);
-  await expect(page.getByRole("heading", { name: "Commandes et confection", exact: true })).toBeVisible();
   await expect(page.locator(".kpis").getByText("En confection", { exact: true })).toBeVisible();
+  await page.goto(`${ATELIER}/equipe`);
+  await expect(page.getByRole("heading", { name: "Commandes et confection", exact: true })).toBeVisible();
 
   // prix et délais provisoires, message de retard préparé : rien ne part sans la créatrice
   await page.goto(`${ATELIER}/validations`);

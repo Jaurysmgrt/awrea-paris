@@ -13,6 +13,7 @@ import { expect, test } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
 import { adminLogin, ATELIER } from "./admin-auth";
+import { acceptCookies } from "./helpers";
 
 const slug = `essai-${Date.now().toString(36)}`;
 const mediaDir = path.join(__dirname, "..", "..", "public", "media", "edition");
@@ -32,6 +33,7 @@ test.describe("Éditeur visuel", () => {
   test("page d’événement : brouillon, modification sur place, publication, retour en arrière", async ({ page, browser }) => {
     test.setTimeout(180_000);
     await adminLogin(page);
+    await acceptCookies(page);
 
     await page.goto(`${ATELIER}/pages`);
     await page.getByLabel("Page d’événement").check();
@@ -68,6 +70,7 @@ test.describe("Éditeur visuel", () => {
   test("publication puis retour à la version précédente (par l'API de l'éditeur)", async ({ page, browser }) => {
     test.setTimeout(180_000);
     await adminLogin(page);
+    await acceptCookies(page);
     const api = (p: string) => `${ATELIER}/api/edition${p}`;
     const doc = `evenement-${slug}`;
     const read = async () => (await (await page.request.get(`${api("/documents")}?ids=${doc}`)).json()).docs[doc].locales.fr;
@@ -109,6 +112,7 @@ test.describe("Éditeur visuel", () => {
   test("photos provisoires : pastille, filtre, remplacement par un envoi", async ({ page, browser }) => {
     test.setTimeout(180_000);
     await adminLogin(page);
+    await acceptCookies(page);
     const api = (p: string) => `${ATELIER}/api/edition${p}`;
     const read = async () => (await (await page.request.get(`${api("/documents")}?ids=contact`)).json()).docs.contact.locales.fr as { draft: { image: { src: string; provisoire?: boolean } } | null };
     const abandon = () => page.request.post(api("/brouillon"), { data: { doc: "contact", locale: "fr", abandon: true } });

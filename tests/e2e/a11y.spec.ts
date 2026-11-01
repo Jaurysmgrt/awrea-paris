@@ -17,10 +17,14 @@ test.describe("Accessibilité WCAG 2.1 AA (axe-core)", () => {
     });
   }
 
-  test("bandeau cookies : refuser aussi simple qu’accepter, preuve enregistrée", async ({ page }) => {
+  test("bandeau cookies : choix obligatoire, refuser aussi simple qu’accepter, preuve enregistrée", async ({ page }) => {
     await page.goto("/");
-    const banner = page.getByRole("region", { name: "Cookies" });
+    // tant qu'aucun choix n'est fait : une fenêtre, la page voilée, immobile et hors d'atteinte du clavier
+    const banner = page.getByRole("dialog", { name: "Cookies" });
     await expect(banner).toBeVisible();
+    await expect(page.locator(".consent-veil")).toBeVisible();
+    await expect(page.locator("main")).toHaveAttribute("inert", "");
+    await expect(page.locator("html")).toHaveClass(/consent-bloque/);
     const refuse = banner.getByRole("button", { name: "Refuser", exact: true });
     const accept = banner.getByRole("button", { name: "Accepter", exact: true });
     await expect(refuse).toBeVisible();
@@ -33,6 +37,8 @@ test.describe("Accessibilité WCAG 2.1 AA (axe-core)", () => {
     const proof = page.waitForRequest((req) => req.url().endsWith("/api/consent") && req.method() === "POST");
     await refuse.click();
     await expect(banner).toBeHidden();
+    await expect(page.locator(".consent-veil")).toHaveCount(0);
+    await expect(page.locator("main")).not.toHaveAttribute("inert", "");
     expect((await proof).postDataJSON()).toMatchObject({ analytics: false, personalization: false, advertising: false, source: "banner" });
     const consent = (await page.context().cookies()).find((c) => c.name === "awrea_consent");
     expect(consent!.value).toMatch(/^2\.[A-Za-z0-9_-]+\.000\.\d+\./);
@@ -40,9 +46,16 @@ test.describe("Accessibilité WCAG 2.1 AA (axe-core)", () => {
     expect(consent!.expires * 1000 - Date.now()).toBeLessThanOrEqual(396 * 24 * 3600 * 1000);
   });
 
+  test("cookies : la politique cookies se lit avant de choisir, sans voile", async ({ page }) => {
+    await page.goto("/cookies");
+    await expect(page.getByRole("region", { name: "Cookies" })).toBeVisible();
+    await expect(page.locator(".consent-veil")).toHaveCount(0);
+    await expect(page.locator("main")).not.toHaveAttribute("inert", "");
+  });
+
   test("cookies : choix par catégorie et « Gérer les cookies »", async ({ page }) => {
     await page.goto("/la-maison");
-    const banner = page.getByRole("region", { name: "Cookies" });
+    const banner = page.getByRole("dialog", { name: "Cookies" });
     await banner.getByRole("button", { name: "Choisir" }).click();
     await expect(banner.getByRole("switch")).toHaveCount(4);
     await expect(banner.getByRole("switch", { name: "Nécessaires" })).toBeDisabled();
@@ -51,12 +64,14 @@ test.describe("Accessibilité WCAG 2.1 AA (axe-core)", () => {
     await expect(banner).toBeHidden();
     let consent = (await page.context().cookies()).find((c) => c.name === "awrea_consent");
     expect(consent!.value).toMatch(/\.100\./);
-    // rouvrir depuis le pied de page (colonne LÉGAL, « Gérer les cookies »)
+    // rouvrir depuis le pied de page (colonne LÉGAL, « Gérer les cookies ») : un choix existe, pas de voile
     await page.locator("footer").getByRole("button", { name: "Gérer les cookies" }).click();
-    await expect(banner).toBeVisible();
-    await expect(banner.getByRole("switch", { name: "Mesure d’audience" })).toBeChecked();
-    await banner.getByRole("switch", { name: "Personnalisation" }).check();
-    await banner.getByRole("button", { name: "Enregistrer mes choix" }).click();
+    const reglages = page.getByRole("region", { name: "Cookies" });
+    await expect(reglages).toBeVisible();
+    await expect(page.locator(".consent-veil")).toHaveCount(0);
+    await expect(reglages.getByRole("switch", { name: "Mesure d’audience" })).toBeChecked();
+    await reglages.getByRole("switch", { name: "Personnalisation" }).check();
+    await reglages.getByRole("button", { name: "Enregistrer mes choix" }).click();
     consent = (await page.context().cookies()).find((c) => c.name === "awrea_consent");
     expect(consent!.value).toMatch(/\.110\./);
   });

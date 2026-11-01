@@ -117,6 +117,7 @@
   --container-label: 8rem;
   --container-sidebar: 17rem;
   --container-sidebar-min: 14rem;
+  --size-piece-thumb: 10rem; /* vignettes des pièces dans l'Atelier */
   --container-thumb-l: 6rem;
   --container-thumb-m: 5.5rem;
   --container-thumb-s: 4.5rem;
@@ -215,6 +216,7 @@
   --z-drawer: 60;
   --z-assistant: 70;
   --z-transition: 90;
+  --z-cookie-veil: 94; /* voile du choix des cookies, sous le bandeau */
   --z-cookie: 95;
   --z-edition: 99; /* outils de l'éditeur visuel, au-dessus de tout (mode Édition seulement) */
   --z-edition-panel: 100; /* panneau et fenêtres ouverts de l'éditeur, au-dessus de sa barre */

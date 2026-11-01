@@ -72,7 +72,7 @@ export default async function CataloguePage() {
             </tbody>
           </table>
         </div>
-        <p className="t-note">Vos changements s’affichent aussitôt sur le site. Un changement de prix ou une suppression demandés par un agent attendent votre accord dans les Validations.</p>
+        <p className="t-note">Vos changements s’affichent aussitôt sur le site. Un changement de prix ou une suppression demandés par un agent attendent votre accord dans « À valider ».</p>
       </section>
 
       <section className="panel" aria-labelledby="new-title">
