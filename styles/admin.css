@@ -357,6 +357,33 @@
     color: var(--fg-soft);
   }
 
+  /* tableau des commandes (capture de la créatrice du 01/11 : dix colonnes débordaient, les pièces
+     passaient un mot par ligne, « En attente » paraissait barré) : six colonnes alignées en haut, la
+     date, la fin prévue et le suivi en note sous la valeur, les étapes sur plusieurs lignes au besoin */
+  .table--commandes :is(th, td) {
+    vertical-align: top;
+  }
+  .table--commandes :is(.table__date, .table__detail) {
+    display: block;
+  }
+  .table--commandes .table__date,
+  .table--commandes .table__nombre {
+    white-space: nowrap;
+  }
+  .table--commandes .table__mail {
+    overflow-wrap: anywhere;
+  }
+  .table--commandes .status {
+    white-space: normal;
+    line-height: var(--leading-label);
+    margin-block-end: var(--spacing-3xs);
+  }
+  .table__gestes {
+    display: grid;
+    justify-items: start;
+    gap: var(--spacing-2xs);
+  }
+
   .proposal,
   .message {
     display: grid;

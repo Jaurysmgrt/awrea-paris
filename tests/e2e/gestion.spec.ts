@@ -83,8 +83,15 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
     // une commande reçue montre sa fin de confection prévue et le geste suivant
     const received = page.getByRole("row", { name: /AW-1040/ });
     await expect(received).toContainText("Commande reçue");
-    await expect(received.getByRole("cell").nth(5)).toContainText(/\d{4}/);
+    await expect(received.getByRole("cell").nth(3)).toContainText(/Fin prévue (le|du) .*\d{4}/);
     await expect(received.getByRole("button", { name: "Passer en confection" })).toBeVisible();
+    // capture de la créatrice (01/11) : le tableau tient dans l'écran d'un ordinateur portable, et
+    // une commande en attente ou en retard n'a pas l'air barrée
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const fits = await page.locator(".table--commandes").evaluate((t) => t.scrollWidth <= (t.closest(".table-scroll") as HTMLElement).clientWidth);
+    expect(fits).toBe(true);
+    const struck = await page.locator(".table--commandes .status").evaluateAll((els) => els.filter((e) => getComputedStyle(e).textDecorationLine.includes("line-through")).length);
+    expect(struck).toBe(0);
     // la fiche : la frise telle que la cliente la voit
     await page.goto(`${ATELIER}/commandes/AW-1036`);
     const stages = page.locator("#etapes");
