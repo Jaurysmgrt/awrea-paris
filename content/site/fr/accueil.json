@@ -4,32 +4,15 @@
     "description": "Awrea Paris : la dentelle, les drapés et l’éclat de la dorure. Les pièces de la collection Hypnotic Lace sont créées sur demande, sans stock, par des artisans français."
   },
   "ouverture": {
-    "photos": [
-      {
-        "id": "sienna",
-        "piece": "La robe Sienna",
-        "href": "/boutique/robe-sienna",
-        "image": {
-          "src": "/media/img/sienna-1",
-          "alt": "La robe Sienna portée, col montant, buste en dentelle noire et or, taille froncée en pointe et jupe longue en jersey noir",
-          "width": 1536,
-          "height": 2304,
-          "provisoire": true
-        }
-      },
-      {
-        "id": "kira",
-        "piece": "Le top Kira",
-        "href": "/boutique/top-kira",
-        "image": {
-          "src": "/media/img/kira-1",
-          "alt": "Le top Kira porté, noir, col en V, manches amples et taille en dentelle noire",
-          "width": 1024,
-          "height": 1536,
-          "provisoire": true
-        }
-      }
-    ]
+    "video": {
+      "src": "/media/video/hero-desktop.mp4",
+      "poster": "/media/video/hero-desktop.webp"
+    },
+    "videoMobile": {
+      "src": "/media/video/hero-mobile.mp4",
+      "poster": "/media/video/hero-mobile.webp"
+    },
+    "videoLabel": "Film d’ouverture : une femme de dos, en corset et dentelle noire, en noir et blanc"
   },
   "maison": {
     "texte": {
@@ -41,6 +24,12 @@
         "Porter Awrea, c’est choisir une pièce d’exception, conçue pour traverser le temps.",
         "Une création qui révèle le corps au lieu de le dissimuler, qui célèbre l’allure, la confiance et la liberté d’être soi."
       ]
+    },
+    "image": {
+      "src": "/media/img/creatrice-portrait",
+      "alt": "Portrait en noir et blanc de la créatrice d’Awrea Paris, assise, en haut de dentelle noire à manches longues, le regard tourné de côté",
+      "width": 657,
+      "height": 986
     },
     "cta": {
       "label": "À propos d’Awrea Paris",

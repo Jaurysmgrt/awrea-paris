@@ -223,9 +223,11 @@ suppression est définitive : la page disparaît du site et de l’historique.
    voit de la matière, la pose, le fond. Une proposition est faite, à corriger si besoin.
 5. **Enregistrer**, puis **Publier** (partie 4).
 
-Les deux grandes photos qui ouvrent l’accueil, juste sous le logo, se changent de la même façon. Le
-nom de la pièce, sous chaque photo, se modifie comme un texte ; un clic sur la photo mène à cette
-pièce.
+Le film qui ouvre l’accueil, en plein écran sous le logo, est pour l’instant une vidéo de
+démonstration. Envoyez votre vidéo (10 à 20 secondes, sans son) : elle sera allégée pour le
+téléphone et mise à sa place. Sa description pour les personnes qui ne voient pas l’écran se
+modifie comme un texte. Le portrait de l’histoire de la Maison, juste dessous, se change comme
+toutes les photos.
 
 ### Les photos provisoires
 

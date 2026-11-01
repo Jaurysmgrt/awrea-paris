@@ -51,10 +51,11 @@ test.describe("Pages de la Maison", () => {
     await expect(main.getByText(/Lace is more|Lumière d’or|numérotée|édition limitée|pièces restantes/i)).toHaveCount(0);
   });
 
-  // retour du 01/11 : « quand on arrive, je veux voir le logo, que ça donne envie ; trop de blanc en haut »
-  test("accueil : dès l'arrivée, le logo, le titre et une pièce en grand, sans grand blanc en haut", async ({ page }) => {
-    const [sienna] = accueil.ouverture.photos;
+  // réponses de la créatrice du 01/11 : un film plein écran dès le haut, le logo et le menu posés dessus
+  // en blanc, rien d'écrit sur l'image (inspiration Dior) ; plus d'aspect catalogue
+  test("accueil : dès l'arrivée, le film plein écran, le logo et le menu en blanc posés dessus", async ({ page }) => {
     const logo = page.getByRole("link", { name: "Awrea Paris, page d’accueil" });
+    const ivoire = "rgb(247, 246, 243)";
     for (const vp of [
       { width: 1440, height: 900 },
       { width: 1280, height: 720 },
@@ -62,26 +63,30 @@ test.describe("Pages de la Maison", () => {
     ]) {
       await page.setViewportSize(vp);
       await open(page, "/");
-      const phone = vp.width < 768;
-      // le logo entier, en grand, en haut de l'écran (téléphone compris), et un seul lien vers l'accueil
+      // le film part du haut de la page et remplit l'écran
+      const film = (await page.locator("main [data-film]").boundingBox())!;
+      expect(Math.abs(film.y)).toBeLessThan(1);
+      expect(film.height).toBeGreaterThanOrEqual(vp.height - 1);
+      await expect(page.locator("main [data-film] video")).toHaveAttribute("aria-label", accueil.ouverture.videoLabel);
+      // rien d'écrit sur le film : ni titre ni lien
+      await expect(page.locator("main [data-film]").getByRole("heading")).toHaveCount(0);
+      await expect(page.locator("main [data-film]").getByRole("link")).toHaveCount(0);
+      // le film se met en pause (WCAG 2.2.2)
+      await expect(page.locator("main [data-film]").getByRole("button", { name: /une femme de dos/ })).toBeVisible();
+      // le logo entier, en grand, en haut, et le menu, en blanc sur le film
       await expect(logo).toHaveCount(1);
       const l = (await logo.boundingBox())!;
       expect(l.y).toBeLessThan(vp.height * 0.1);
       expect(l.height).toBeGreaterThanOrEqual(80);
-      // la première pièce, en grand, commence juste sous la navigation et occupe l'écran
-      const photo = (await page.getByRole("img", { name: sienna.image.alt }).boundingBox())!;
-      expect(photo.y).toBeLessThan(phone ? 240 : 280);
-      expect(Math.min(photo.y + photo.height, vp.height) - photo.y).toBeGreaterThan(vp.height * 0.4);
-      // sur ordinateur, le titre est à l'écran avec elle
-      if (!phone) {
-        const h1 = (await page.locator("h1").boundingBox())!;
-        expect(h1.y + h1.height).toBeLessThan(vp.height);
-      }
+      await expect.poll(() => page.locator(".site-header").evaluate((el) => getComputedStyle(el).color)).toBe(ivoire);
+      // l'histoire de la Maison commence sous le film
+      const h1 = (await page.locator("h1").boundingBox())!;
+      expect(h1.y).toBeGreaterThan(vp.height - 1);
     }
-    // la photo entière mène à la pièce (le lien de son nom s'étend sur elle)
-    const p = (await page.getByRole("img", { name: sienna.image.alt }).boundingBox())!;
-    await page.mouse.click(p.x + p.width / 2, p.y + p.height / 2);
-    await expect(page).toHaveURL(new RegExp(`${sienna.href}$`));
+    // en quittant le film, l'en-tête devient la bande habituelle, à fond plein et texte noir
+    await page.evaluate(() => window.scrollTo(0, innerHeight * 1.2));
+    await expect(page.locator(".site-header")).toHaveAttribute("data-compact", "true");
+    await expect.poll(() => page.locator(".site-header").evaluate((el) => getComputedStyle(el).color)).not.toBe(ivoire);
   });
 
   test("accueil sur téléphone : le petit logo de la bande revient une fois le grand sorti de l'écran", async ({ page }) => {
@@ -98,6 +103,35 @@ test.describe("Pages de la Maison", () => {
     await page.goto("/contact");
     await expect(page.locator(".site-header")).toHaveAttribute("data-accueil", "false");
     expect((await logo.boundingBox())!.height).toBeLessThan(80);
+  });
+
+  // animations de l'accueil (01/11) : tout ce qui attend sous l'écran finit par apparaître
+  test("accueil : titres, blocs et photos apparaissent au défilement, et jamais en animations apaisées", async ({ page, browser }) => {
+    await open(page, "/");
+    const enAttente = page.locator("main [data-pending]");
+    expect(await enAttente.count()).toBeGreaterThan(0);
+    for (const id of ["accueil-collection", "accueil-pieces", "accueil-sur-demande", "accueil-lettre"]) {
+      const titre = page.locator(`#${id}`);
+      await titre.scrollIntoViewIfNeeded();
+      await expect(titre).toHaveAttribute("data-shown", "");
+      await expect.poll(() => titre.evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
+      await expect.poll(() => titre.evaluate((el) => getComputedStyle(el).clipPath)).toBe("none");
+    }
+    // en parcourant toute la page (un saut direct en bas laisse en attente ce qui n'a pas été vu)
+    const hauteur = await page.evaluate(() => document.documentElement.scrollHeight);
+    for (let y = 0; y <= hauteur; y += 400) {
+      await page.evaluate((v) => window.scrollTo(0, v), y);
+      await page.waitForTimeout(60);
+    }
+    await expect(enAttente).toHaveCount(0);
+
+    const calme = await browser.newContext({ reducedMotion: "reduce", locale: "fr-FR" });
+    const p = await calme.newPage();
+    await acceptCookies(p);
+    await p.goto("/");
+    await expect(p.locator("h1")).toHaveCount(1);
+    await expect(p.locator("main [data-pending]")).toHaveCount(0);
+    await calme.close();
   });
 
   test("La Maison : le texte À propos en entier, dans l'ordre, avec le portrait de la créatrice", async ({ page }) => {

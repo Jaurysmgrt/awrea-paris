@@ -4,106 +4,55 @@
  */
 
 /* ------------------------------------------------------------------ OUVERTURE
-   Retour du 01/11 : « quand on arrive, je veux voir le logo, que ça donne envie ; trop de blanc
-   en haut ». Le titre et deux pièces en grand commencent juste sous la navigation : sur
-   ordinateur, le titre à gauche et les deux photos à droite, la seconde décalée vers le bas ; sur
-   tablette, le titre au-dessus des deux photos ; sur téléphone, sous le grand logo, la première
-   photo d'abord, puis le titre. Les grandes photos restent droites (seules les cartes sont
-   arrondies). */
-.ouverture {
-  /* l'ouverture passe sous l'en-tête collant (--header-h), puis une marge courte */
-  padding-top: calc(var(--header-h) + var(--spacing-m));
-  padding-bottom: var(--space-section);
-}
-.scene {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-block);
-  /* jusqu'à 1 440 px de large dès l'ordinateur portable : à 1 280 px, la largeur commune des pages
-     (1 024 px) laisserait le titre sur quatre lignes et les photos trop petites */
-  max-width: var(--breakpoint-xl);
-}
-.tete > * + * {
-  margin-top: var(--spacing-m);
-}
-/* le titre de la Maison, très grand, en lignes équilibrées */
-.titre {
-  text-wrap: balance;
-}
-.accroche {
-  max-width: var(--measure);
-}
-
-.photos {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-m);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-/* téléphone : la première photo, en grand, avant le titre ; la seconde attend la tablette */
-@media (max-width: 47.99rem) {
-  .photos {
-    order: -1;
-  }
-  .photo + .photo {
-    display: none;
-  }
-}
-.photo {
+   Réponses de la créatrice du 01/11 (inspiration Dior) : un film plein écran dès le haut de la page,
+   le logo et le menu posés dessus en blanc (styles/layout.css, en-tête de l'accueil), rien d'écrit
+   sur l'image. Un voile sombre en haut garde le logo et le menu lisibles sur un film clair ; le
+   bouton pause du film reste en bas à gauche (WCAG 2.2.2). */
+.film {
   position: relative;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--color-ink);
 }
-/* la photo entière mène à la pièce : le lien du nom s'étend sur la photo */
-.legende {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0 var(--spacing-s);
-  margin-top: var(--spacing-2xs);
-}
-.lien {
-  position: static;
-}
-.lien::after {
-  content: "";
+.video {
   position: absolute;
   inset: 0;
 }
-.lien:focus-visible {
-  outline: none;
+.film::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--color-ink) 70%, transparent),
+    color-mix(in oklab, var(--color-ink) 52%, transparent) 20%,
+    color-mix(in oklab, var(--color-ink) 22%, transparent) 34%,
+    transparent 50%
+  );
+  pointer-events: none;
 }
-.lien:focus-visible::after {
-  outline: var(--border-width-hair) solid currentColor;
-  outline-offset: var(--spacing-3xs);
+/* en sortant de l'écran, le film s'assombrit un peu (ordinateur, Parallaxe.tsx : --sortie) */
+.film::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--color-ink);
+  opacity: 0;
+  pointer-events: none;
+}
+/* à gauche : la bulle « Une question ? » occupe le coin droit */
+.film :global(.video__toggle) {
+  z-index: 2;
+  right: auto;
+  left: var(--spacing-gutter);
+  bottom: var(--spacing-m);
 }
 
-/* tablette : le titre au-dessus, les deux photos côte à côte, la seconde décalée */
-@media (min-width: 48rem) {
-  .photos {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .photo + .photo {
-    margin-top: var(--spacing-xl);
-  }
-}
-/* ordinateur : le titre à gauche, centré sur la hauteur des photos, les photos à droite */
-@media (min-width: 64rem) {
-  .scene {
-    display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    align-items: center;
-    gap: var(--spacing-gutter);
-  }
-  .photo + .photo {
-    margin-top: var(--spacing-l);
-  }
-}
-
-/* ------------------------------------------------------------------ LA MAISON
-   Le texte de présentation seul, centré, comme sur la maquette TEASING MARQUE. */
-.maison {
-  padding-top: 0;
+/* le titre de la Maison, très grand, en lignes équilibrées */
+.titre {
+  text-wrap: balance;
 }
 
 /* sélection de pièces : une colonne sur téléphone, trois dès la tablette, comme les cartes de la
@@ -119,4 +68,106 @@
   .pieces {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+/* ================================================================== ANIMATIONS
+   Demande de la créatrice du 01/11 : fluides, haut de gamme, cohérentes, sans effet tape-à-l'œil ;
+   puis « immersives », allégées sur téléphone (pas de mouvement lié au défilement). Une seule durée (--dur) et une seule courbe (--ease) pour tout, des décalages en
+   --dur-stagger : le même souffle partout. Seuls la transparence, les déplacements, l'échelle et le
+   découpage sont animés (le processeur graphique s'en charge, fluide sur téléphone). Les animations
+   apaisées (réglage de l'appareil ou du site) ramènent --dur à 0,01 s : tout s'affiche aussitôt.
+
+   1. Ouverture : le film apparaît dans un fondu depuis le noir (VideoLazy) et se pose lentement
+      (légère réduction d'échelle) ; sur ordinateur, en quittant l'écran, il glisse plus lentement
+      que la page et s'assombrit d'un souffle : une sortie de scène, pas un effet. */
+@keyframes accueil-pose {
+  from {
+    scale: 1.06;
+  }
+  to {
+    scale: 1;
+  }
+}
+.film :global(.video) video {
+  animation: accueil-pose var(--dur-breath) var(--ease) backwards;
+}
+@media (min-width: 48rem) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html:not([data-motion="reduce"]) .film :global(.video) {
+    translate: 0 calc(var(--sortie, 0) * 30%);
+  }
+  html:not([data-motion="reduce"]) .film::after {
+    opacity: calc(var(--sortie, 0) * 0.45);
+  }
+}
+
+/* 2. Sections : les blocs de texte, les pièces et les boutons montent doucement à leur entrée dans
+      l'écran, l'un après l'autre (--i, posé dans la page), grâce à l'observateur commun du site
+      (components/motion/RevealObserver : data-pending, puis data-shown). */
+.anime :global([data-reveal][data-shown]) {
+  transition-delay: calc(var(--dur-stagger) * 2 * var(--i, 0));
+}
+
+/* 3. Titres : ils montent depuis une ligne invisible, d'un seul bloc (jamais mot à mot, retiré le
+      25/10 comme trop « IA ») ; le découpage s'ouvre de bas en haut pendant que le titre se pose.
+      En attente, le titre est seulement transparent : un élément entièrement découpé ne serait
+      jamais vu par l'observateur. Le découpage n'existe que le temps de l'animation. */
+@keyframes accueil-titre {
+  from {
+    opacity: 1;
+    clip-path: inset(100% 0 0 0);
+    translate: 0 var(--spacing-m);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(calc(-1 * var(--spacing-s)));
+    translate: 0 0;
+  }
+}
+.anime :global([data-reveal="titre"][data-pending]) {
+  transform: none;
+}
+.anime :global([data-reveal="titre"][data-shown]) {
+  transition: none;
+  animation: accueil-titre var(--dur) var(--ease) backwards;
+}
+
+/* 4. Photos des sections : elles se dévoilent de bas en haut à leur entrée dans l'écran, pendant
+      qu'elles se posent (.reveal-img, styles/components.css) ; cartes des pièces comprises. Le
+      découpage porte sur la photo, jamais sur l'élément observé. */
+@keyframes accueil-devoile {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+.masque[data-pending] :global(.media),
+.anime :global(.product-card__media[data-pending] img) {
+  clip-path: inset(100% 0 0 0);
+}
+.masque[data-shown] :global(.media),
+.anime :global(.product-card__media[data-shown] img) {
+  animation: accueil-devoile var(--dur) var(--ease) backwards;
+}
+
+/* 5. Parallaxe légère (components/home/Parallaxe.tsx) : la photo, agrandie de 10 %, glisse d'au plus
+      4 % de sa hauteur, plus lentement que la page. Ordinateur et tablette à la souris seulement. */
+@media (min-width: 48rem) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html:not([data-motion="reduce"]) .parallaxe :global(.media) > img {
+    scale: 1.1;
+    translate: 0 calc(var(--parallaxe, 0) * -4%);
+  }
+}
+
+/* 6. Micro-interactions : un bouton s'enfonce à peine quand on le presse (son fond monte déjà au
+      survol, .btn ; le filet des liens se tire de même, .link). */
+.anime :global(.btn) {
+  transition:
+    color var(--dur) var(--ease),
+    translate var(--dur) var(--ease),
+    scale calc(var(--dur) / 4) var(--ease);
+}
+.anime :global(.btn):active {
+  scale: 0.98;
 }

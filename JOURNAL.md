@@ -473,6 +473,29 @@ par cause, en coupant chaque effet suspect.
   l'écran. Parcours ajoutés : arrivée sur trois tailles d'écran, photo qui mène à la pièce, petit
   logo de la bande au défilement sur téléphone.
 
+## Animations de l'accueil (01/11)
+
+- **Demande de la créatrice** : des animations minimalistes, fluides et haut de gamme, sur l'accueil
+  seulement, sans toucher au design ni à la structure, rapides sur téléphone. La refonte de l'accueil
+  en grande image de campagne est mise de côté (branche `claude/accueil-campagne`, brouillon).
+- **Ouverture** (CSS seul, sans attendre le JavaScript) : chaque photo se dévoile de bas en haut sous
+  un rideau de la couleur du fond, puis se pose ; le titre, son chapeau et les légendes montent
+  ensuite, décalés de quelques centièmes de seconde.
+- **Sections** : blocs de texte, pièces et boutons montent l'un après l'autre à leur entrée dans
+  l'écran (observateur commun du site) ; les titres montent d'une ligne invisible d'un seul bloc,
+  jamais mot à mot ; les photos se dévoilent par découpage pendant qu'elles se posent.
+- **Parallaxe** : collection et création sur demande, 4 % au plus de la hauteur de la photo,
+  ordinateur et tablette à la souris seulement ; une lecture de position par photo visible et par
+  image. **Micro-interactions** : bouton qui s'enfonce de 2 % à la pression, photo de l'ouverture
+  qui s'approche d'un souffle au survol, en plus du fond qui monte dans les boutons et du filet sous
+  les liens.
+- **Réglages** : une seule durée (`--dur`) et une seule courbe (`--ease`), décalages en
+  `--dur-stagger` ; rien ne bouge en animations apaisées. Écueil évité : un élément entièrement
+  découpé n'est jamais vu par l'observateur de défilement ; les titres attendent donc transparents
+  et le découpage ne vit que le temps de l'animation.
+- **Mesures** : défilement de toute la page, processeur ralenti quatre fois, 95 % des images sous
+  17 ms ; animations apaisées : rien en attente au chargement ; téléphone : pas de parallaxe.
+
 ## Correctifs : logo de l'en-tête sous Safari, tableau des commandes (01/11)
 
 - **Logo invisible en haut de l'accueil** (capture de la créatrice, Safari sur ordinateur) : le
@@ -488,6 +511,26 @@ par cause, en coupant chaque effet suspect.
   sur la fiche de la commande. « En attente » et « En retard » prennent la pastille « à traiter »
   et ne sont plus barrés. Le tableau tient dans l'écran dès 1 180 px. Parcours : largeur du tableau
   à 1 440 px, aucune étape barrée.
+
+## Accueil refondu : film plein écran, histoire de la Maison, animations immersives (01/11)
+
+- **Retour de la créatrice** : « je serais pas parti sur ça, pose-moi des questions ». Ses réponses :
+  la page actuelle « fait catalogue » ; à l'arrivée, une vidéo plein écran, le logo et le menu posés
+  dessus en blanc, rien d'écrit ; ensuite l'histoire de la Maison, puis le reste, plus aéré ;
+  animations immersives, plus légères sur téléphone ; inspiration Dior. En attendant sa vidéo, la
+  vidéo de démonstration déjà présente (photos noir et blanc de l'ancien site).
+- **Film d'ouverture** : plein écran dès le haut de la page (`VideoLazy` : version téléphone, image
+  d'attente, pause hors écran, pas de lecture automatique en animations apaisées ou en économie de
+  données, bouton pause en bas à gauche, WCAG 2.2.2). L'en-tête de l'accueil ne prend plus de place
+  et reste blanc tant qu'il n'est pas compact ; un voile sombre en haut garde le logo et le menu
+  lisibles sur un film clair.
+- **Histoire de la Maison** : le titre officiel (h1), le chapeau, le portrait officiel de la
+  créatrice et le texte TEASING MARQUE, puis la chute et « À propos ». Les deux photos de pièces avec
+  leur nom (aspect catalogue) sont retirées de l'ouverture.
+- **Animations** : celles de la branche des animations, plus l'arrivée du film (il se pose
+  lentement) et sa sortie sur ordinateur (il glisse plus lentement que la page et s'assombrit).
+  Sur téléphone, aucun mouvement lié au défilement.
+- **À venir** : la vraie vidéo de la créatrice (10 à 20 s, sans son), allégée pour le téléphone.
 
 ## Défilement natif à la molette et au pavé tactile (01/11)
 

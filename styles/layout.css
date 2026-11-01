@@ -104,6 +104,15 @@
     --logo-h: var(--site-header-logo);
     color: inherit;
   }
+  /* accueil : l'en-tête est posé sur le film d'ouverture, qui commence tout en haut de la page
+     (réponses de la créatrice du 01/11 : « posés sur la vidéo, en blanc ») ; il ne prend plus de
+     place dans la page, et reste blanc tant qu'il n'est pas devenu la bande compacte */
+  .site-header[data-accueil="true"] {
+    margin-bottom: calc(-1 * (var(--site-header-top) + var(--header-h)));
+  }
+  .site-header[data-accueil="true"]:not([data-compact="true"]) {
+    color: var(--color-ivory);
+  }
   /* accueil sur téléphone : le logo entier en grand au-dessus de la bande, comme sur ordinateur
      (retour du 01/11 : « quand on arrive, je veux voir le logo ») ; la bande garde Menu et Panier,
      et son petit logo n'apparaît qu'une fois le grand sorti de l'écran */
