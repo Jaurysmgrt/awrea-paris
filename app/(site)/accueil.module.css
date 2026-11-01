@@ -182,8 +182,18 @@
 .tete > * + * {
   animation-delay: calc(var(--dur-stagger) * 4);
 }
+/* la légende apparaît sans bouger : un déplacement ferait d'elle le cadre du lien étendu sur la
+   photo, qui ne couvrirait plus que la légende le temps de l'animation */
+@keyframes accueil-parait {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 .legende {
-  animation: accueil-monte var(--dur) var(--ease) calc(var(--dur-stagger) * 6 + var(--retard)) backwards;
+  animation: accueil-parait var(--dur) var(--ease) calc(var(--dur-stagger) * 6 + var(--retard)) backwards;
 }
 
 /* 2. Sections : les blocs de texte, les pièces et les boutons montent doucement à leur entrée dans
