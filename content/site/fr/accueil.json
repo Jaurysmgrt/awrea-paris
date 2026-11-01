@@ -7,29 +7,42 @@
     "photos": [
       {
         "id": "sienna",
-        "piece": "La robe Sienna",
-        "href": "/boutique/robe-sienna",
         "image": {
           "src": "/media/img/sienna-1",
           "alt": "La robe Sienna portée, col montant, buste en dentelle noire et or, taille froncée en pointe et jupe longue en jersey noir",
           "width": 1536,
           "height": 2304,
+          "focal": { "x": 50, "y": 22 },
+          "provisoire": true
+        }
+      },
+      {
+        "id": "odessa",
+        "image": {
+          "src": "/media/img/odessa-1",
+          "alt": "La robe Odessa portée, bustier noir à bretelles et taille en dentelle noire florale",
+          "width": 1536,
+          "height": 2304,
+          "focal": { "x": 50, "y": 22 },
           "provisoire": true
         }
       },
       {
         "id": "kira",
-        "piece": "Le top Kira",
-        "href": "/boutique/top-kira",
         "image": {
           "src": "/media/img/kira-1",
           "alt": "Le top Kira porté, noir, col en V, manches amples et taille en dentelle noire",
           "width": 1024,
           "height": 1536,
+          "focal": { "x": 50, "y": 22 },
           "provisoire": true
         }
       }
-    ]
+    ],
+    "cta": {
+      "label": "Voir les pièces",
+      "href": "/boutique"
+    }
   },
   "maison": {
     "texte": {

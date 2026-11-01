@@ -4,106 +4,96 @@
  */
 
 /* ------------------------------------------------------------------ OUVERTURE
-   Retour du 01/11 : « quand on arrive, je veux voir le logo, que ça donne envie ; trop de blanc
-   en haut ». Le titre et deux pièces en grand commencent juste sous la navigation : sur
-   ordinateur, le titre à gauche et les deux photos à droite, la seconde décalée vers le bas ; sur
-   tablette, le titre au-dessus des deux photos ; sur téléphone, sous le grand logo, la première
-   photo d'abord, puis le titre. Les grandes photos restent droites (seules les cartes sont
-   arrondies). */
+   Retours du 01/11 : « quand on arrive, je veux voir le logo, que ça donne envie », puis « ça fait
+   pas page d'accueil de site ». Sous le logo et le menu, une grande image de campagne bord à bord
+   remplit le reste de l'écran : trois pièces côte à côte sur ordinateur (la première au centre),
+   deux sur tablette, une sur téléphone. Le titre et un bouton sont posés en bas de l'image, sur un
+   voile sombre qui garde le texte lisible quelle que soit la photo choisie dans l'éditeur. */
 .ouverture {
-  /* l'ouverture passe sous l'en-tête collant (--header-h), puis une marge courte */
-  padding-top: calc(var(--header-h) + var(--spacing-m));
-  padding-bottom: var(--space-section);
+  /* l'ouverture passe sous la bande de navigation collante (--header-h), sans marge de plus */
+  padding-top: var(--header-h);
 }
-.scene {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-block);
-  /* jusqu'à 1 440 px de large dès l'ordinateur portable : à 1 280 px, la largeur commune des pages
-     (1 024 px) laisserait le titre sur quatre lignes et les photos trop petites */
-  max-width: var(--breakpoint-xl);
+.campagne {
+  position: relative;
+  overflow: hidden;
+  /* le reste de l'écran sous l'en-tête (sur téléphone, le grand logo de l'accueil et la bande) */
+  height: calc(100svh - var(--header-h) - var(--spacing-m) - var(--size-logo-l) - var(--spacing-xs));
+  min-height: var(--size-hero-min);
+  background: var(--media-bg);
 }
-.tete > * + * {
-  margin-top: var(--spacing-m);
-}
-/* le titre de la Maison, très grand, en lignes équilibrées */
-.titre {
-  text-wrap: balance;
-}
-.accroche {
-  max-width: var(--measure);
+@media (min-width: 48rem) {
+  .campagne {
+    height: calc(100svh - var(--site-header-top) - var(--header-h));
+  }
 }
 
 .photos {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-m);
+  height: 100%;
   margin: 0;
   padding: 0;
   list-style: none;
 }
-/* téléphone : la première photo, en grand, avant le titre ; la seconde attend la tablette */
-@media (max-width: 47.99rem) {
-  .photos {
-    order: -1;
-  }
-  .photo + .photo {
-    display: none;
-  }
-}
 .photo {
-  position: relative;
+  height: 100%;
+  min-width: 0;
 }
-/* la photo entière mène à la pièce : le lien du nom s'étend sur la photo */
-.legende {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0 var(--spacing-s);
-  margin-top: var(--spacing-2xs);
+.media {
+  height: 100%;
 }
-.lien {
-  position: static;
+/* téléphone : la première photo seule ; tablette : les deux premières ; ordinateur : les trois, la
+   première au centre */
+.photo + .photo {
+  display: none;
 }
-.lien::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-.lien:focus-visible {
-  outline: none;
-}
-.lien:focus-visible::after {
-  outline: var(--border-width-hair) solid currentColor;
-  outline-offset: var(--spacing-3xs);
-}
-
-/* tablette : le titre au-dessus, les deux photos côte à côte, la seconde décalée */
 @media (min-width: 48rem) {
   .photos {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .photo + .photo {
-    margin-top: var(--spacing-xl);
+  .photo:nth-child(2) {
+    display: block;
+    order: -1;
   }
 }
-/* ordinateur : le titre à gauche, centré sur la hauteur des photos, les photos à droite */
 @media (min-width: 64rem) {
-  .scene {
-    display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    align-items: center;
-    gap: var(--spacing-gutter);
+  .photos {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .photo + .photo {
-    margin-top: var(--spacing-l);
+  .photo:nth-child(3) {
+    display: block;
   }
 }
 
-/* ------------------------------------------------------------------ LA MAISON
-   Le texte de présentation seul, centré, comme sur la maquette TEASING MARQUE. */
-.maison {
-  padding-top: 0;
+/* le voile et le texte posé dessus (data-theme="ink" : texte et bouton en blanc cassé) */
+.voile {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: var(--space-block);
+  color: var(--fg);
+  background: linear-gradient(to top, color-mix(in oklab, var(--color-ink) 64%, transparent), transparent 62%);
+}
+.texte {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-title);
+  text-align: center;
+}
+.titre {
+  margin-inline: auto;
+  text-align: center;
+  text-wrap: balance;
+}
+/* la mention « visuel provisoire », discrète, dans le coin */
+.provisoire {
+  position: absolute;
+  right: var(--spacing-gutter);
+  bottom: var(--spacing-s);
+  color: var(--fg-soft);
 }
 
 /* sélection de pièces : une colonne sur téléphone, trois dès la tablette, comme les cartes de la

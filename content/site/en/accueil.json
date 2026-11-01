@@ -7,19 +7,26 @@
     "photos": [
       {
         "id": "sienna",
-        "piece": "The Sienna dress",
         "image": {
           "alt": "The Sienna dress worn, high neck, bodice in black and gold lace, waist gathered to a point and a long black jersey skirt"
         }
       },
       {
+        "id": "odessa",
+        "image": {
+          "alt": "The Odessa dress worn, black bustier with straps and a waist in black floral lace"
+        }
+      },
+      {
         "id": "kira",
-        "piece": "The Kira top",
         "image": {
           "alt": "The Kira top worn, black, with a V neck, full sleeves and a waist in black lace"
         }
       }
-    ]
+    ],
+    "cta": {
+      "label": "See the pieces"
+    }
   },
   "maison": {
     "texte": {

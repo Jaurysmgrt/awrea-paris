@@ -18,11 +18,11 @@ import ed from "@/components/home/editorial.module.css";
 import styles from "./accueil.module.css";
 
 /**
- * Accueil : une ouverture (le titre et deux pièces en grand, sous le logo), la présentation de la
- * Maison (texte officiel TEASING MARQUE), la collection Hypnotic Lace (texte officiel TEXTE DE
- * COLLECTION), une sélection de pièces, la création sur demande et la lettre de la Maison. Un
- * message et un appel à l'action par section ; les textes officiels de la créatrice sont marqués
- * data-officiel (seule la typographie y est contrôlée).
+ * Accueil : une ouverture (grande image de campagne sous le logo, titre et bouton posés dessus), la
+ * présentation de la Maison (texte officiel TEASING MARQUE), la collection Hypnotic Lace (texte
+ * officiel TEXTE DE COLLECTION), une sélection de pièces, la création sur demande et la lettre de
+ * la Maison. Un message et un appel à l'action par section ; les textes officiels de la créatrice
+ * sont marqués data-officiel (seule la typographie y est contrôlée).
  * Textes : content/site/fr/accueil.json (éditeur visuel « Édition »).
  */
 type Accueil = typeof import("@/content/site/fr/accueil.json");
@@ -46,35 +46,38 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ------------------------------------------------ OUVERTURE : le titre et deux pièces en grand,
-          dès l'arrivée, juste sous le logo (retour du 01/11 : « voir le logo, que ça donne envie ») */}
+      {/* ------------------------------------------------ OUVERTURE : une grande image de campagne, bord
+          à bord, juste sous le logo et le menu, le titre et un bouton posés dessus (retour du 01/11 :
+          « ça fait pas page d'accueil de site ») */}
       <Section theme="ivory" className={styles.ouverture} labelledBy="accueil-titre">
-        <div className={`container ${styles.scene}`}>
-          <header className={styles.tete} data-officiel>
-            <SplitTitle id="accueil-titre" text={maison.texte.titre} className={`t-display ${styles.titre}`} />
-            <p className={`t-lead ${styles.accroche}`}>{maison.texte.accroche}</p>
-          </header>
+        <div className={styles.campagne}>
           <ul className={styles.photos}>
             {ouverture.photos.map((p, i) => (
               <li key={p.id} className={styles.photo}>
-                <Media image={p.image} ratio="portrait" priority={i === 0} sizes="(min-width: 64rem) 28vw, (min-width: 48rem) 46vw, 100vw" />
-                <p className={styles.legende}>
-                  <Link href={p.href} className={`link link--quiet ${styles.lien}`}>
-                    {p.piece}
-                  </Link>
-                  <ProvisionalNote image={p.image} />
-                </p>
+                <Media image={p.image} ratio="auto" priority={i === 0} className={styles.media} sizes="(min-width: 64rem) 34vw, (min-width: 48rem) 50vw, 100vw" />
               </li>
             ))}
           </ul>
+          <div className={styles.voile} data-theme="ink">
+            <div className={`container ${styles.texte}`}>
+              <div data-officiel>
+                <SplitTitle id="accueil-titre" text={maison.texte.titre} className={`t-display ${styles.titre}`} />
+              </div>
+              <Link href={ouverture.cta.href} className="btn">
+                {ouverture.cta.label}
+              </Link>
+            </div>
+            <ProvisionalNote image={ouverture.photos[0]?.image} className={styles.provisoire} />
+          </div>
         </div>
       </Section>
 
       {/* ------------------------------------------------ LA MAISON (TEASING MARQUE, officiel) : le
-          texte seul, centré, comme sur la maquette, après les photos de l'ouverture */}
-      <Section theme="ivory" className={`section ${styles.maison}`}>
+          chapeau puis le texte, centrés, comme sur la maquette */}
+      <Section theme="ivory" className="section">
         <div className={`container-text ${ed.centre}`}>
           <div className={ed.texte} data-officiel>
+            <p className="t-lead t-center">{maison.texte.accroche}</p>
             <p className="t-body">{maison.texte.paragraphe}</p>
           </div>
           <div className={ed.chute} data-officiel>
