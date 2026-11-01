@@ -21,6 +21,39 @@ export type { Locale };
 /** En-tête interne de la requête, posé par proxy.ts : la langue de la page demandée. */
 export const LOCALE_HEADER = "x-awrea-locale";
 
+/**
+ * Cookie de la langue de la visiteuse : posé dès sa première page, puis suivi à chaque page (le
+ * sélecteur FR · EN le met donc à jour). Tant qu'il est absent, proxy.ts choisit la langue d'après
+ * le navigateur (preferredLocale).
+ */
+export const LOCALE_COOKIE = "awrea_langue";
+/** Durée du cookie de langue : 13 mois, comme les autres préférences. */
+export const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 395;
+
+/**
+ * Langue préférée d'après les réglages du navigateur (en-tête Accept-Language) : la première de
+ * ses langues que le site propose ; l'anglais si aucune ne l'est (une visiteuse étrangère) ; null
+ * sans préférence exprimée (robots d'indexation) : la page demandée est alors servie telle quelle.
+ */
+export function preferredLocale(header: string | null | undefined): Locale | null {
+  if (!header) return null;
+  const tags = header
+    .split(",")
+    .map((part, i) => {
+      const [tag, ...params] = part.trim().split(";");
+      const q = params.map((p) => p.trim()).find((p) => p.startsWith("q="));
+      return { tag: tag.trim().toLowerCase(), q: q ? Number(q.slice(2)) : 1, i };
+    })
+    .filter((t) => t.tag && t.tag !== "*" && Number.isFinite(t.q) && t.q > 0)
+    .sort((a, b) => b.q - a.q || a.i - b.i);
+  if (!tags.length) return null;
+  for (const t of tags) {
+    const base = t.tag.split("-")[0];
+    if (isLocale(base)) return base;
+  }
+  return "en";
+}
+
 /** Attribut lang de <html>. */
 export const HTML_LANG: Record<Locale, string> = { fr: "fr", en: "en" };
 /** Étiquettes hreflang des versions de chaque page (alternates.languages, plan du site). */

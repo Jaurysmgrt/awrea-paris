@@ -161,8 +161,17 @@ l'Atelier ne voit que la page d'attente `/acces-prive`, sans en-tête, menu ni c
 publiques répondent 404 (sauf webhooks et tâches planifiées, authentifiés autrement) ; `robots.txt`
 ferme tout, le plan du site et `llms.txt` sont vides, et chaque réponse porte `X-Robots-Tag:
 noindex`. La créatrice connectée (session de l'Atelier, double authentification) voit tout le site.
-Contrôlé par `tests/e2e/site-prive.spec.ts` (serveur lancé avec `SITE_PRIVE=1`) et
-`tests/unit/site-prive.test.ts`.
+
+Lien privé (`SITE_PRIVE_CLE`, 24 caractères au moins, sinon inactif) : `…?cle=<clé>` ouvre le site
+dans ce navigateur. La clé est comparée en temps constant, retirée aussitôt de l'adresse (redirection
+sans référent ni cache) et remplacée par un cookie `awrea_apercu` signé (HMAC, `SESSION_SECRET`),
+`HttpOnly`, valable 30 jours, qui porte une empreinte de la clé et jamais la clé : changer
+`SITE_PRIVE_CLE` ferme tous les accès donnés. Ce cookie n'ouvre que les pages et l'API publiques du
+site : ni l'Atelier (adresse secrète, double authentification inchangées), ni l'Édition, ni les
+brouillons ; le site reste exclu des moteurs. Une clé fausse ne donne rien (la page d'attente).
+
+Contrôlé par `tests/e2e/site-prive.spec.ts` (serveur lancé avec `SITE_PRIVE=1` et `SITE_PRIVE_CLE`)
+et `tests/unit/site-prive.test.ts`.
 
 ## 5. Données
 

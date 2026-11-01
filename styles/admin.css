@@ -429,7 +429,12 @@
     width: 100%;
     height: auto;
   }
+  /* lien privé du site (Réglages) : un clic le sélectionne en entier, prêt à copier */
+  .lien-prive {
+    user-select: all;
+  }
   .totp-secret,
+  .lien-prive,
   .recovery-codes code {
     font-family: var(--font-body);
     font-style: normal;

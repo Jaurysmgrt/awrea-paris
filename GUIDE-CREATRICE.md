@@ -51,6 +51,22 @@ logo et un lien pour vous écrire. Vous, une fois entrée dans l’Atelier, voye
 le modifier, depuis le même navigateur. Le jour de l’ouverture, la personne qui s’occupe du site
 retire le réglage `SITE_PRIVE` (`ACTIVATION.md`, étape 2), et le site devient public.
 
+Pour voir le site sans passer par l’Atelier, il y a le **lien privé**. Vous le trouvez dans
+l’Atelier, **Réglages**, rubrique **Sécurité** : un clic le sélectionne, il ne reste qu’à le copier.
+Ouvert une fois, il donne accès à tout le site pendant 30 jours dans ce navigateur, sur ordinateur
+comme sur téléphone. Il n’ouvre ni l’Atelier ni l’Édition. Donnez-le seulement aux personnes de
+confiance ; s’il circule trop, la personne qui s’occupe du site change sa clé dans Vercel, et tous
+les accès déjà donnés se ferment.
+
+### Langue et mode Nuit
+
+À sa première visite, chaque personne voit le site dans la langue de son téléphone ou de son
+ordinateur : en anglais si ses réglages sont en anglais (ou dans une langue que le site ne parle
+pas), en français sinon. Ensuite, le choix fait avec « FR · EN » est retenu.
+
+En mode Nuit, le site est noir, et l’alternance s’inverse : les sections noires du mode Jour
+passent en blanc cassé, texte noir, puis la page redevient noire.
+
 ### La première fois
 
 1. Ouvrez l’adresse secrète de l’Atelier.

@@ -128,7 +128,7 @@
     background-color: var(--color-night);
   }
   html[data-mode="dark"].scene-live[data-fond="ink"] .site-header[data-compact="true"] .site-header__band {
-    background-color: var(--color-ink);
+    background-color: var(--color-ivory);
   }
   .site-header__inner {
     height: 100%;
@@ -762,11 +762,14 @@
   html[data-consent="set"] .consent {
     display: none;
   }
+  /* le bandeau porte toutes ses couleurs, accent compris : il ne suit jamais l'alternance de la
+     scène (sans quoi son titre passait blanc sur blanc au passage d'une section noire) */
   .consent {
     --bg: var(--color-ivory);
     --fg: var(--color-ink);
     --fg-soft: var(--color-ink-soft);
     --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
+    --accent: var(--color-ink);
     position: fixed;
     inset: auto 0 0 0;
     z-index: var(--z-cookie);
@@ -785,6 +788,7 @@
     --fg: var(--color-ivory);
     --fg-soft: var(--color-ivory-soft);
     --line: color-mix(in oklab, var(--color-ivory) 20%, transparent);
+    --accent: var(--color-ivory);
   }
   @keyframes consent-in {
     from {

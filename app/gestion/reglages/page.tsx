@@ -15,6 +15,8 @@ import { ACCOUNT_GUARD, emailKey, hasTotp, listAccounts, recoveryLeft } from "@/
 import { loginGuard } from "@/lib/security/rate-limit";
 import { atelierApi, atelierHref, atelierPathIsSecret } from "@/lib/admin/path";
 import { cspMode } from "@/lib/security/headers";
+import { headers } from "next/headers";
+import { PREVIEW_PARAM, previewKey, sitePrive } from "@/lib/security/private-site";
 import { securityDigest, securityEvents, type SecurityEventType } from "@/lib/security/audit";
 import { isSupabaseConfigured } from "@/lib/db/supabase";
 import { ActionButton } from "@/components/admin/ActionButton";
@@ -37,7 +39,18 @@ const EVENT_LABELS: Record<SecurityEventType, string> = {
 /** Ordre des catégories dans le tableau des délais par défaut. */
 const CATEGORIES: Category[] = ["body", "top", "robe", "jupe", "accessoire"];
 
+/** Lien privé du site (SITE_PRIVE_CLE), à l'adresse où l'Atelier est ouvert. */
+async function privateLink(): Promise<string | null> {
+  const key = previewKey();
+  if (!key) return null;
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? (host?.startsWith("localhost") ? "http" : "https");
+  return host ? `${proto}://${host}/?${PREVIEW_PARAM}=${encodeURIComponent(key)}` : null;
+}
+
 export default async function ReglagesPage() {
+  const lien = sitePrive() ? await privateLink() : null;
   const [events, digest, accounts, me, products, catalogue, boutique] = await Promise.all([
     securityEvents(30),
     securityDigest(24),
@@ -173,6 +186,24 @@ export default async function ReglagesPage() {
           </tbody>
         </table></div>
         <p className="t-note">La liste des adresses autorisées se règle dans Vercel (ATELIER_ACCOUNTS). Chaque connexion envoie un e-mail à la titulaire du compte.</p>
+        {sitePrive() ? (
+          <>
+            <h3 className="t-label">Lien privé du site</h3>
+            {lien ? (
+              <>
+                <p className="t-body">
+                  Ce lien ouvre directement tout le site, sans passer par l’Atelier, pendant 30 jours, dans le navigateur où il est ouvert. Il n’ouvre ni l’Atelier ni l’Édition, et les autres
+                  visiteuses voient toujours la page d’attente. Donnez-le seulement aux personnes de confiance. Pour le retirer à tout le monde, changez SITE_PRIVE_CLE dans Vercel.
+                </p>
+                <p className="t-note">
+                  <code className="lien-prive">{lien}</code>
+                </p>
+              </>
+            ) : (
+              <p className="t-note">Pour un lien privé, créez SITE_PRIVE_CLE dans Vercel (24 caractères au moins, tirés au hasard), puis redéployez.</p>
+            )}
+          </>
+        ) : null}
         <h3 className="t-label">Journal des connexions</h3>
         {events.length ? (
           <div className="table-scroll"><table className="table">

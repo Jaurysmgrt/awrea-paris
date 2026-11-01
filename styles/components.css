@@ -73,6 +73,14 @@
     --accent: var(--color-ivory);
   }
 
+  html[data-mode="dark"].scene-live[data-scene="ink"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
+    --fg: var(--color-ink);
+    --fg-soft: var(--color-ink-soft);
+    --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
+    --accent: var(--color-ink);
+    color: var(--fg);
+  }
+
   .scene[data-theme="paper"] {
     background-color: var(--color-ivory);
     background-image: url("/media/texture/paper.webp");

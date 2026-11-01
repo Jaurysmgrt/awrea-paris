@@ -53,7 +53,8 @@
   html[data-scene="pearl"] body {
     --bg: var(--color-pearl);
   }
-  /* mode nuit : la scène globale reste dans les noirs */
+  /* mode nuit : la scène globale reste dans les noirs ; une section noire du mode Jour la passe en
+     ivoire (l'alternance s'inverse, choix de la créatrice du 01/11) */
   html[data-mode="dark"] {
     background: var(--color-ink);
   }
@@ -67,7 +68,11 @@
     --accent: var(--color-ivory);
   }
   html[data-mode="dark"][data-scene="ink"] body {
-    --bg: var(--color-ink);
+    --bg: var(--color-ivory);
+    --fg: var(--color-ink);
+    --fg-soft: var(--color-ink-soft);
+    --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
+    --accent: var(--color-ink);
   }
   /* Avant l'hydratation, la scène suit déjà la première section : l'en-tête reste lisible
      sur une ouverture noire, sans attendre le JavaScript. */
@@ -77,6 +82,13 @@
     --fg-soft: var(--color-ivory-soft);
     --line: color-mix(in oklab, var(--color-ivory) 24%, transparent);
     --accent: var(--color-ivory);
+  }
+  html[data-mode="dark"]:not([data-scene]):has(:is(main > .scene, main > article > .scene):first-child[data-theme="ink"]) body {
+    --bg: var(--color-ivory);
+    --fg: var(--color-ink);
+    --fg-soft: var(--color-ink-soft);
+    --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
+    --accent: var(--color-ink);
   }
   /* Première activation de la scène (et changement de page) : bascule instantanée,
      les sections hors écran n'ont pas à jouer de transition. */
@@ -102,7 +114,7 @@
     background-color: var(--color-night);
   }
   html[data-mode="dark"].scene-live[data-fond="ink"] body {
-    background-color: var(--color-ink);
+    background-color: var(--color-ivory);
   }
 
   /* copie invisible où la justification essaie ses réglages (components/ui/Justification.tsx) :

@@ -320,6 +320,16 @@ html[data-mode="dark"] [data-theme="paper"] {
   --line: color-mix(in oklab, var(--color-ivory) 20%, transparent);
   --accent: var(--color-ivory);
 }
+/* L'alternance s'inverse en mode Nuit (choix de la créatrice du 01/11) : le site est noir, et les
+   sections noires du mode Jour passent en ivoire, texte noir. Sections de page seulement (l'Atelier
+   et les blocs de l'Édition gardent leur noir). */
+html[data-mode="dark"] :is(main > .scene, main > article > .scene)[data-theme="ink"] {
+  --bg: var(--color-ivory);
+  --fg: var(--color-ink);
+  --fg-soft: var(--color-ink-soft);
+  --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
+  --accent: var(--color-ink);
+}
 html[data-mode="dark"] [data-theme="pearl"] {
   --bg: var(--color-night-soft);
   --fg: var(--color-ivory);
