@@ -495,3 +495,19 @@ par cause, en coupant chaque effet suspect.
   et le découpage ne vit que le temps de l'animation.
 - **Mesures** : défilement de toute la page, processeur ralenti quatre fois, 95 % des images sous
   17 ms ; animations apaisées : rien en attente au chargement ; téléphone : pas de parallaxe.
+
+## Correctifs : logo de l'en-tête sous Safari, tableau des commandes (01/11)
+
+- **Logo invisible en haut de l'accueil** (capture de la créatrice, Safari sur ordinateur) : le
+  dessin du logo de l'en-tête prenait 100 % de la hauteur de son lien, de largeur automatique ;
+  Safari n'en déduit pas la largeur et le logo restait vide. Chaque logo de l'en-tête (grand logo,
+  logo de la bande, monogramme) reçoit désormais sa hauteur propre (`--logo-h`), comme ceux de
+  l'Atelier, du pied de page et de la page d'attente, qui s'affichaient bien. Parcours : chaque
+  dessin du logo de l'en-tête porte une hauteur propre.
+- **Tableau des commandes de l'Atelier** (capture) : dix colonnes, 1 547 px de large pour 1 040 px
+  d'écran utile, la fin coupée, les pièces un mot par ligne, l'étape « En attente » barrée comme
+  une proposition refusée. Six colonnes désormais (Commande et sa date, Cliente, Pièces, Total,
+  Étape avec la fin prévue et le suivi, À faire) ; facture, certificats et suivi détaillé restent
+  sur la fiche de la commande. « En attente » et « En retard » prennent la pastille « à traiter »
+  et ne sont plus barrés. Le tableau tient dans l'écran dès 1 180 px. Parcours : largeur du tableau
+  à 1 440 px, aucune étape barrée.
