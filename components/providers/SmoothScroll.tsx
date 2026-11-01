@@ -5,9 +5,15 @@ import { dur, easeFn, isTouch, prefersReducedMotion } from "@/lib/motion";
 type W = Window & { __lenis?: { destroy: () => void; on: (e: "scroll", cb: () => void) => void }; __scrollTrigger?: { update: () => void } };
 
 /**
- * Défilement doux (Lenis) sur ordinateur uniquement : au tactile, le défilement natif
- * reste le plus fluide et le plus économe. Coupé si « mouvement réduit ». Même durée et même
- * courbe que toutes les animations du site (lib/motion.ts).
+ * Défilement (Lenis) sur ordinateur uniquement : au tactile, le défilement natif reste le plus
+ * fluide et le plus économe. Coupé si « mouvement réduit ».
+ *
+ * La molette et le pavé tactile défilent nativement (`smoothWheel: false`, retour de la créatrice
+ * du 01/11 : « la fluidité est super lourde quand on scrolle ») : lissé sur 0,8 s, chaque geste
+ * arrivait en retard, et le pavé tactile d'un Mac, déjà amorti par le système, recevait une
+ * seconde inertie. Lenis garde les défilements commandés par le site (ancre, retour en haut après
+ * un changement de page), avec la durée et la courbe de toutes les animations (lib/motion.ts), et
+ * l'arrêt du défilement derrière les fenêtres et le choix des cookies.
  *
  * Les fenêtres (panier, recherche, menus en <dialog>) gardent leur propre défilement : sans
  * `prevent`, Lenis arrêté bloquerait la molette à l'intérieur (panier impossible à faire défiler
@@ -20,7 +26,7 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     let lenis: { destroy: () => void } | null = null;
     import("lenis").then(({ default: Lenis }) => {
       if (cancelled) return;
-      const l = new Lenis({ duration: dur(), easing: easeFn(), autoRaf: true, prevent: (node: HTMLElement) => node.nodeName === "DIALOG" });
+      const l = new Lenis({ smoothWheel: false, duration: dur(), easing: easeFn(), autoRaf: true, prevent: (node: HTMLElement) => node.nodeName === "DIALOG" });
       const w = window as W;
       if (w.__scrollTrigger) l.on("scroll", w.__scrollTrigger.update);
       w.__lenis = l;
