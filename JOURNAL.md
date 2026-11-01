@@ -556,3 +556,25 @@ par cause, en coupant chaque effet suspect.
   `lib/edition/store.ts`), et celle du français pour l'anglais. Même scénario après correctif :
   accueil, /en, La Maison, boutique, sur commande et contact répondent 200.
 - Vérifications : types, lint, tests unitaires (93), audit des tokens et contrôle d'écriture au vert.
+
+## Accueil, photos et fiche d'une pièce (01/11, soir)
+
+Retours de la créatrice après l'ouverture du site, puis ses réponses : « une pièce en grand », « fondu
+lent », « la fiche de la pièce ».
+
+- Accueil : l'histoire de la Maison montre la robe Sienna en grand (7 colonnes sur 12) à côté du texte
+  officiel, à la place du portrait ; la création sur demande passe au détail de dentelle du body Gaïa,
+  pour ne pas montrer deux fois la même pièce. Les deux sont des visuels provisoires (mention gardée).
+- Photos : fondu lent sur tout le site (`@keyframes fondu-lent`, `--dur-breath`, échelle 1,04 → 1),
+  à la place du dévoilement par découpage et de la parallaxe de l'accueil. Animation jouée une fois :
+  le zoom des cartes au survol garde sa vitesse. Mesuré : opacité 0, puis 0,30 à 300 ms, puis 1.
+- Film d'ouverture : sa sortie (il glisse plus lentement et s'assombrit) reste, l'animation que la
+  créatrice préfère ; `Parallaxe.tsx` devient `SortieFilm.tsx`, qui ne suit plus que le film.
+- Fiche d'une pièce : délai dit une seule fois sous le prix (« Créée sur demande pour vous, en … ») ;
+  retirés avant le bouton : le bloc « pièce créée sur demande, délai, certificat », le paragraphe
+  d'engagement, les deux liens et « Choisissez votre taille » ; la collection et « Nouveau » sur une
+  ligne ; rubriques fermées ; certificat et lien « Voir comment naît votre pièce » dans « Fabrication » ;
+  plus d'aide « Survolez l'image » sous la photo.
+- Tests adaptés (le délai sous le prix, le certificat dans « Fabrication », rubriques fermées, plus de
+  « délai de fabrication » ni de paragraphe d'engagement sur la fiche). Accueil, collection, fiche,
+  commande, Atelier et homogénéité : 118 réussis, 2 ignorés.

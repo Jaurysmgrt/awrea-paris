@@ -30,7 +30,7 @@ test.describe("Contrôle du site en ligne @prod", () => {
     await expect(page.locator("h1")).toBeVisible();
     await expect(page.locator(".product__price")).toBeVisible();
     // pièce créée sur demande : délai de fabrication annoncé, toutes les tailles commandables
-    await expect(page.locator(".product-form__made")).toContainText(/semaine/);
+    await expect(page.locator("[data-delai]")).toContainText(/semaine/);
     const size = page.locator(".product-form .chip").first();
     if (await size.count()) {
       await size.click();

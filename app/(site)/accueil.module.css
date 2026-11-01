@@ -32,7 +32,7 @@
   );
   pointer-events: none;
 }
-/* en sortant de l'écran, le film s'assombrit un peu (ordinateur, Parallaxe.tsx : --sortie) */
+/* en sortant de l'écran, le film s'assombrit un peu (ordinateur, SortieFilm.tsx : --sortie) */
 .film::after {
   content: "";
   position: absolute;
@@ -48,6 +48,14 @@
   right: auto;
   left: var(--spacing-gutter);
   bottom: var(--spacing-m);
+}
+
+/* l'histoire de la Maison : une pièce en grand à côté du texte, comme une page de magazine (choix de
+   la créatrice du 01/11, à la place de son portrait) ; la photo prend plus de place que le texte */
+@media (min-width: 48rem) {
+  .grande {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
 }
 
 /* le titre de la Maison, très grand, en lignes équilibrées */
@@ -72,14 +80,17 @@
 
 /* ================================================================== ANIMATIONS
    Demande de la créatrice du 01/11 : fluides, haut de gamme, cohérentes, sans effet tape-à-l'œil ;
-   puis « immersives », allégées sur téléphone (pas de mouvement lié au défilement). Une seule durée (--dur) et une seule courbe (--ease) pour tout, des décalages en
+   puis « immersives », allégées sur téléphone (pas de mouvement lié au défilement) ; le soir, « varie
+   les animations » et, pour les photos, « fondu lent ». Une seule durée (--dur) et une seule courbe
+   (--ease) pour tout, des décalages en
    --dur-stagger : le même souffle partout. Seuls la transparence, les déplacements, l'échelle et le
    découpage sont animés (le processeur graphique s'en charge, fluide sur téléphone). Les animations
    apaisées (réglage de l'appareil ou du site) ramènent --dur à 0,01 s : tout s'affiche aussitôt.
 
    1. Ouverture : le film apparaît dans un fondu depuis le noir (VideoLazy) et se pose lentement
       (légère réduction d'échelle) ; sur ordinateur, en quittant l'écran, il glisse plus lentement
-      que la page et s'assombrit d'un souffle : une sortie de scène, pas un effet. */
+      que la page et s'assombrit d'un souffle (SortieFilm.tsx) : une sortie de scène, pas un effet.
+      C'est l'animation que la créatrice préfère (« quand ça passe derrière ») : elle reste. */
 @keyframes accueil-pose {
   from {
     scale: 1.06;
@@ -131,36 +142,10 @@
   animation: accueil-titre var(--dur) var(--ease) backwards;
 }
 
-/* 4. Photos des sections : elles se dévoilent de bas en haut à leur entrée dans l'écran, pendant
-      qu'elles se posent (.reveal-img, styles/components.css) ; cartes des pièces comprises. Le
-      découpage porte sur la photo, jamais sur l'élément observé. */
-@keyframes accueil-devoile {
-  from {
-    clip-path: inset(100% 0 0 0);
-  }
-  to {
-    clip-path: inset(0);
-  }
-}
-.masque[data-pending] :global(.media),
-.anime :global(.product-card__media[data-pending] img) {
-  clip-path: inset(100% 0 0 0);
-}
-.masque[data-shown] :global(.media),
-.anime :global(.product-card__media[data-shown] img) {
-  animation: accueil-devoile var(--dur) var(--ease) backwards;
-}
+/* 4. Photos : le fondu lent commun au site (.reveal-img, styles/components.css), choisi par la
+      créatrice le 01/11 à la place du découpage et de la parallaxe (« ça défile bizarrement »). */
 
-/* 5. Parallaxe légère (components/home/Parallaxe.tsx) : la photo, agrandie de 10 %, glisse d'au plus
-      4 % de sa hauteur, plus lentement que la page. Ordinateur et tablette à la souris seulement. */
-@media (min-width: 48rem) and (hover: hover) and (prefers-reduced-motion: no-preference) {
-  html:not([data-motion="reduce"]) .parallaxe :global(.media) > img {
-    scale: 1.1;
-    translate: 0 calc(var(--parallaxe, 0) * -4%);
-  }
-}
-
-/* 6. Micro-interactions : un bouton s'enfonce à peine quand on le presse (son fond monte déjà au
+/* 5. Micro-interactions : un bouton s'enfonce à peine quand on le presse (son fond monte déjà au
       survol, .btn ; le filet des liens se tire de même, .link). */
 .anime :global(.btn) {
   transition:

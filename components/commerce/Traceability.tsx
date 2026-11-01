@@ -1,4 +1,5 @@
 import type { Product } from "@/lib/commerce/types";
+import Link from "@/components/ui/Link";
 import { getDoc } from "@/lib/edition/read";
 import { delaiText, fill, type CatalogueTexts } from "@/lib/commerce/texts";
 
@@ -6,9 +7,11 @@ import { delaiText, fill, type CatalogueTexts } from "@/lib/commerce/texts";
  * Fabrication de la pièce : créée sur demande après la commande, par des artisans français, rien
  * n'étant fabriqué d'avance, dans un délai annoncé. Quand la Maison les renseigne (métachamp Shopify
  * `awrea.traceability`), les étapes et l'origine des matières s'ajoutent ; une origine encore
- * inconnue est dite comme telle, jamais inventée.
+ * inconnue est dite comme telle, jamais inventée. Le certificat d'authenticité et le lien vers la
+ * commande sur demande y sont réunis (retour de la créatrice du 01/11 : la fiche en disait trop
+ * avant le bouton).
  */
-export async function Traceability({ product }: { product: Product }) {
+export async function Traceability({ product, lien }: { product: Product; lien?: string }) {
   const t = await getDoc<CatalogueTexts>("catalogue");
   const f = t.fabrication;
   const trace = product.trace;
@@ -17,6 +20,7 @@ export async function Traceability({ product }: { product: Product }) {
     { label: f.confection, value: f.confectionTexte },
     { label: f.delai, value: fill(f.delaiTexte, { delai: delaiText(t, product.leadTime) }) },
     { label: f.production, value: f.productionTexte },
+    { label: f.certificat, value: f.certificatTexte },
   ];
   return (
     <details className="disclosure">
@@ -61,6 +65,13 @@ export async function Traceability({ product }: { product: Product }) {
               ))}
             </ul>
           </div>
+        ) : null}
+        {lien ? (
+          <p>
+            <Link href="/sur-commande" className="link">
+              {lien}
+            </Link>
+          </p>
         ) : null}
       </div>
     </details>

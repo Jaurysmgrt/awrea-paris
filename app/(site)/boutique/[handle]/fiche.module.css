@@ -1,7 +1,7 @@
 /*
  * Fiche d'une pièce, langage de la maquette PAGE PRODUIT : photos aux angles arrondis, pastille
  * « Nouveau », nom de la pièce en Cormorant (« Le body Aura ») avec son prix et son délai juste
- * dessous, puis la commande sur demande et le guide des tailles. Tokens seulement.
+ * dessous, puis la taille et le bouton, et les rubriques fermées. Tokens seulement.
  */
 
 /* photos de la galerie aux angles arrondis, comme les cartes de la collection ; sur grand écran,
@@ -41,13 +41,13 @@
   margin: 0;
 }
 
-/* création sur demande : l'engagement de la Maison, puis les deux liens utiles avant de commander */
-.surDemande {
-  display: grid;
-  gap: var(--spacing-xs);
-}
-.liens {
+/* la collection et la pastille « Nouveau » sur une même ligne, au-dessus du nom */
+.surtitre {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 var(--spacing-m);
+  align-items: center;
+  gap: var(--spacing-xs) var(--spacing-s);
+}
+.surtitre > p {
+  margin: 0;
 }

@@ -26,7 +26,9 @@ import s from "./fiche.module.css";
  * Fiche d'une pièce, dans le langage de la maquette PAGE PRODUIT : photos aux angles arrondis
  * (avec la mention « visuel provisoire » des images générées), pastille « Nouveau », nom en
  * Cormorant (« Le body Aura »), prix « 70,00 € », délai de fabrication de la pièce créée sur
- * demande et lien vers la commande sur demande, guide des tailles. Aucune série, aucun stock.
+ * demande, dit une seule fois, la taille et le bouton ; le reste (la pièce, les matières, la
+ * fabrication et le certificat, la coupe, la livraison) dans des rubriques fermées (retour de la
+ * créatrice du 01/11 : « trop de texte, brouillon »). Aucune série, aucun stock.
  * Textes : documents « fiche-piece » (rubriques, liens) et « catalogue » (délai, sur demande).
  *
  * Livraison et retours : ce que disent les CGV officielles (livraison en France métropolitaine,
@@ -75,22 +77,27 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
             <div className="product__sticky stack-m">
               <Breadcrumbs items={[{ name: tf.filAriane, path: "/boutique" }, { name: product.title, path: `/boutique/${product.handle}` }]} />
               <header className={s.tete}>
-                {collection ? (
-                  <p className="eyebrow">
-                    <Link href={`/collections/${collection.handle}`} className="link-plain">
-                      {collection.title}
-                    </Link>
-                  </p>
-                ) : null}
-                {product.isNew ? (
-                  <div>
-                    <span className="badge">{t.nouveau}</span>
+                {collection || product.isNew ? (
+                  <div className={s.surtitre}>
+                    {collection ? (
+                      <p className="eyebrow">
+                        <Link href={`/collections/${collection.handle}`} className="link-plain">
+                          {collection.title}
+                        </Link>
+                      </p>
+                    ) : null}
+                    {product.isNew ? <span className="badge">{t.nouveau}</span> : null}
                   </div>
                 ) : null}
                 <div className={s.identite}>
                   <h1 className={s.nom}>{product.title}</h1>
                   <Price amount={product.price} className="product__price" />
-                  <p className={`t-note t-left ${s.delai}`}>{fill(t.surDemande.carte, { delai })}</p>
+                  {/* le délai de la pièce créée sur demande, dit une seule fois (retour du 01/11 : trop de
+                      texte) ; la fabrication, le certificat et l'engagement de la Maison sont dans la
+                      rubrique « Fabrication » */}
+                  <p className={`t-note t-left ${s.delai}`} data-delai>
+                    {fill(t.surDemande.fiche, { delai })}
+                  </p>
                 </div>
                 <p className="t-lead">{product.tagline}</p>
               </header>
@@ -99,20 +106,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                 <ProductForm product={product} stickyBar />
               </DropGate>
 
-              <div className={`notice ${s.surDemande}`}>
-                <p className="t-note t-left">{t.surDemande.ethique}</p>
-                <div className={s.liens}>
-                  <Link href="/sur-commande" className="link">
-                    {tf.surDemande.lien}
-                  </Link>
-                  <Link href="/guide-des-tailles" className="link">
-                    {tf.surDemande.guide}
-                  </Link>
-                </div>
-              </div>
-
               <div className="product__details">
-                <details className="disclosure" open>
+                <details className="disclosure">
                   <summary>{tf.sections.piece}</summary>
                   <div className="disclosure__body prose">
                     {product.description.map((d) => (
@@ -150,7 +145,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                     </ul>
                   </div>
                 </details>
-                <Traceability product={product} />
+                <Traceability product={product} lien={tf.surDemande.lien} />
                 <details className="disclosure">
                   <summary>{tf.sections.coupe}</summary>
                   <div className="disclosure__body prose">

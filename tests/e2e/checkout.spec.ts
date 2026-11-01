@@ -7,11 +7,11 @@ test.describe("Parcours d’achat complet (mode test)", () => {
     await page.goto("/boutique/body-aura");
     await expect(page.getByRole("heading", { level: 1, name: "Le body Aura" })).toBeVisible();
     await expect(page.getByText("70,00 €").first()).toBeVisible();
-    // pièce créée sur demande : délai de fabrication annoncé, certificat au numéro de création
-    const made = page.locator(".product-form__made");
-    await expect(made.getByText("Délai de fabrication")).toBeVisible();
-    await expect(made.getByText(/\d+ (à \d+ )?semaines?, puis expédition/)).toBeVisible();
-    await expect(page.getByText("Certificat d’authenticité").first()).toBeVisible();
+    // pièce créée sur demande : délai annoncé une seule fois sous le prix ; le certificat au numéro de
+    // création dans la rubrique « Fabrication » (fiche allégée, retour du 01/11)
+    await expect(page.locator("[data-delai]")).toHaveText(/^Créée sur demande pour vous, en \d+ (à \d+ )?semaines?\.$/);
+    await page.locator("summary", { hasText: "Fabrication" }).click();
+    await expect(page.getByText("un numéro de création unique, donné à votre commande")).toBeVisible();
 
     // taille obligatoire
     // les boutons principaux de la fiche (la barre d'achat du téléphone en reprend les libellés)
@@ -81,7 +81,7 @@ test.describe("Parcours d’achat complet (mode test)", () => {
     const chips = page.locator(".product-form .chip");
     expect(await chips.count()).toBeGreaterThan(1);
     await expect(page.locator(".product-form .chip input:disabled")).toHaveCount(0);
-    await expect(page.locator(".product-form__made")).toContainText(/créée sur demande/i);
+    await expect(page.locator("[data-delai]")).toContainText(/créée sur demande/i);
     await expect(page.locator("main").getByText(/épuisée|dernière pièce|liste d’attente|Précommander|N° \d+ \/ \d+/)).toHaveCount(0);
     // fabrication sur demande par des artisans français : plus d'atelier parisien « fait main »
     await expect(page.locator("main").getByText(/fait main à Paris/i)).toHaveCount(0);

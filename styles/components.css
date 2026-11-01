@@ -840,13 +840,27 @@
     mask: url("/brand/awrea-aw.png") center / contain no-repeat;
   }
 
+  /* photos : un fondu lent à leur entrée dans l'écran, la photo se posant à peine (léger dézoom).
+     Choix de la créatrice du 01/11 (« fondu lent ») : plus de découpage ni de parallaxe, le même
+     geste partout. Une animation jouée une fois, et non une transition, pour ne pas ralentir le
+     zoom des cartes au survol. */
+  @keyframes fondu-lent {
+    from {
+      opacity: 0;
+      transform: scale(1.04);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
   .reveal-img[data-pending] img,
   .reveal-img[data-pending] video {
-    transform: scale(1.06);
+    opacity: 0;
   }
   .reveal-img[data-shown] img,
   .reveal-img[data-shown] video {
-    transition: transform var(--dur) var(--ease);
+    animation: fondu-lent var(--dur-breath) var(--ease) backwards;
   }
 
   /* ===================================================== SQUELETTES

@@ -52,7 +52,7 @@ export function ProductGallery({ product }: { product: Product }) {
               <VideoLazy src={product.video.src} poster={product.video.poster} label={product.video.alt} className="media media--portrait" />
             ) : s.kind === "loupe" ? (
               <>
-                <LaceLoupe image={s.img} eager />
+                <LaceLoupe image={s.img} hint={false} eager />
                 <ProvisionalNote image={s.img} />
               </>
             ) : null}

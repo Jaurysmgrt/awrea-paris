@@ -11,7 +11,7 @@ import { NewsletterForm } from "@/components/ui/NewsletterForm";
 import { LightHalo } from "@/components/signature/LightHalo";
 import { ProductCard } from "@/components/commerce/ProductCard";
 import { Visuel } from "@/components/home/Visuel";
-import { Parallaxe } from "@/components/home/Parallaxe";
+import { SortieFilm } from "@/components/home/SortieFilm";
 import { VideoLazy } from "@/components/ui/VideoLazy";
 import { delaiDeFamille } from "@/components/home/delais";
 import ed from "@/components/home/editorial.module.css";
@@ -19,7 +19,7 @@ import styles from "./accueil.module.css";
 
 /**
  * Accueil : un film plein écran sous le logo et le menu, l'histoire de la Maison (texte officiel
- * TEASING MARQUE, portrait de la créatrice), la collection Hypnotic Lace (texte officiel TEXTE DE
+ * TEASING MARQUE, à côté d'une pièce en grand : choix de la créatrice du 01/11, sans son portrait), la collection Hypnotic Lace (texte officiel TEXTE DE
  * COLLECTION), une sélection de pièces, la création sur demande et la lettre de la Maison. Un
  * message et un appel à l'action par section ; les textes officiels de la créatrice sont marqués
  * data-officiel (seule la typographie y est contrôlée).
@@ -34,7 +34,7 @@ const rang = (i: number) => ({ "--i": i }) as React.CSSProperties;
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getDoc<Accueil>("accueil", { plain: true });
-  // le portrait officiel de la créatrice ; un visuel provisoire n'est jamais envoyé aux réseaux
+  // la pièce de l'histoire de la Maison ; un visuel provisoire n'est jamais envoyé aux réseaux
   const image = t.maison.image as { src: string; provisoire?: boolean };
   return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/", image: image.provisoire ? undefined : image.src });
 }
@@ -67,7 +67,7 @@ export default async function HomePage() {
       </Section>
 
       {/* ------------------------------------------------ L'HISTOIRE DE LA MAISON (TEASING MARQUE,
-          officiel) : le titre, le chapeau, le portrait de la créatrice et le texte de la Maison */}
+          officiel) : le titre, le chapeau, puis une pièce en grand à côté du texte de la Maison */}
       <Section theme="ivory" className={`section--tall ${styles.anime}`} labelledBy="accueil-titre">
         <div className="container">
           <header className={`${ed.tete} ${ed.centre}`} data-officiel>
@@ -78,8 +78,8 @@ export default async function HomePage() {
               {maison.texte.accroche}
             </p>
           </header>
-          <div className={`${ed.split} ${ed.apresTete}`}>
-            <Visuel image={maison.image} sizes="(min-width: 48rem) 45vw, 100vw" className={`reveal-img ${styles.masque} ${styles.parallaxe}`} />
+          <div className={`${ed.split} ${styles.grande} ${ed.apresTete}`}>
+            <Visuel image={maison.image} sizes="(min-width: 48rem) 55vw, 100vw" className="reveal-img" />
             <div className={ed.texte} data-officiel data-reveal style={rang(2)}>
               <p className="t-body">{maison.texte.paragraphe}</p>
             </div>
@@ -103,7 +103,7 @@ export default async function HomePage() {
       <Section theme="ink" className={`section--tall ${styles.anime}`} labelledBy="accueil-collection">
         <LightHalo intensity={0.8} />
         <div className={`container ${ed.split} ${ed.flip}`}>
-          <Visuel image={col.image} sizes="(min-width: 48rem) 45vw, 100vw" className={`reveal-img ${styles.masque} ${styles.parallaxe}`} />
+          <Visuel image={col.image} sizes="(min-width: 48rem) 45vw, 100vw" className="reveal-img" />
           <div className={ed.texte}>
             <div className={ed.tete}>
               <div className={ed.tete} data-officiel>
@@ -159,7 +159,7 @@ export default async function HomePage() {
       {/* ------------------------------------------------ CRÉATION SUR DEMANDE */}
       <Section theme="pearl" className={`section--tall ${styles.anime}`} labelledBy="accueil-sur-demande">
         <div className={`container ${ed.split}`}>
-          <Visuel image={surDemande.image} ratio="look" sizes="(min-width: 48rem) 45vw, 100vw" className={`reveal-img ${styles.masque} ${styles.parallaxe}`} />
+          <Visuel image={surDemande.image} ratio="look" sizes="(min-width: 48rem) 45vw, 100vw" className="reveal-img" />
           <div className={ed.texte}>
             <div className={ed.tete}>
               <h2 id="accueil-sur-demande" className="t-h2" data-reveal="titre">
@@ -194,7 +194,7 @@ export default async function HomePage() {
           </div>
         </div>
       </Section>
-      <Parallaxe selecteur={`.${styles.parallaxe}`} />
+      <SortieFilm />
     </>
   );
 }
