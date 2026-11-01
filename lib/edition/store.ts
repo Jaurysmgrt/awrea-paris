@@ -14,6 +14,7 @@
  * Les brouillons ne sont jamais lus par le site public : seulement en mode Édition (lib/edition/read.ts).
  */
 import "server-only";
+import { createHash } from "node:crypto";
 import { promises as fs, statSync } from "node:fs";
 import path from "node:path";
 import { revalidateTag } from "next/cache";
@@ -67,10 +68,10 @@ export const contentDir = () => path.join(process.cwd(), "content", "site");
 const fileOf = (doc: string, locale: Locale) => path.join(contentDir(), locale, `${doc}.json`);
 
 // ------------------------------------------------------------------ base (fichiers du dépôt)
-const fileCache = new Map<string, { mtime: number; data: unknown }>();
+const fileCache = new Map<string, { mtime: number; data: unknown; empreinte: string }>();
 
-/** Contenu du fichier du dépôt, relu dès qu'il change sur le disque. */
-export async function baseDoc(doc: string, locale: Locale): Promise<unknown | null> {
+/** Fichier du dépôt, relu dès qu'il change sur le disque, avec l'empreinte de son contenu. */
+async function baseFile(doc: string, locale: Locale): Promise<{ data: unknown; empreinte: string } | null> {
   if (!isDocId(doc)) return null;
   const file = fileOf(doc, locale);
   let mtime = 0;
@@ -80,14 +81,30 @@ export async function baseDoc(doc: string, locale: Locale): Promise<unknown | nu
     return null;
   }
   const hit = fileCache.get(file);
-  if (hit && hit.mtime === mtime) return hit.data;
+  if (hit && hit.mtime === mtime) return hit;
   try {
-    const data = JSON.parse(await fs.readFile(file, "utf8"));
-    fileCache.set(file, { mtime, data });
-    return data;
+    const raw = await fs.readFile(file, "utf8");
+    const entry = { mtime, data: JSON.parse(raw), empreinte: createHash("sha256").update(raw).digest("base64url").slice(0, 16) };
+    fileCache.set(file, entry);
+    return entry;
   } catch {
     return null;
   }
+}
+
+/** Contenu du fichier du dépôt, relu dès qu'il change sur le disque. */
+export async function baseDoc(doc: string, locale: Locale): Promise<unknown | null> {
+  return (await baseFile(doc, locale))?.data ?? null;
+}
+
+/**
+ * Empreinte de la version du dépôt d'un document (et du français, sa langue de repli) : elle change
+ * dès qu'une mise en ligne modifie le fichier. Sert de clé au cache des pages (lib/edition/read.ts).
+ */
+export async function baseVersion(doc: string, locale: Locale): Promise<string> {
+  const own = (await baseFile(doc, locale))?.empreinte ?? "aucune";
+  if (locale === DEFAULT_LOCALE) return own;
+  return `${own}.${(await baseFile(doc, DEFAULT_LOCALE))?.empreinte ?? "aucune"}`;
 }
 
 async function writeBase(doc: string, locale: Locale, content: unknown) {

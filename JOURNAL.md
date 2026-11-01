@@ -542,3 +542,17 @@ par cause, en coupant chaque effet suspect.
   et l'arrêt du défilement derrière les fenêtres et le choix des cookies.
 - **Mesure** (Chromium, molette de 400 px) : 90 % du déplacement atteint en 60 ms environ, contre
   près de 0,8 s auparavant.
+
+## Ouverture du site et panne de l'accueil (01/11)
+
+- La créatrice retire `SITE_PRIVE` dans Vercel : le site est ouvert, sans page « Bientôt ».
+- Aussitôt, l'accueil tombe en erreur (« This page couldn’t load »). Cause : le cache de données de
+  Vercel survit aux mises en ligne et sa clé (`unstable_cache`, `lib/edition/read.ts`) ne dépendait
+  que du document et de la langue. L'accueil refait (#21) relisait donc l'ancien document gardé par
+  la version précédente, sans `ouverture.video` ni `maison.image`.
+- Reproduit en local : ancienne version compilée et affichée en mode `stockage`, puis la version en
+  ligne sur le même cache : erreur 500 (`Cannot read properties of undefined (reading 'src')`).
+- Correctif : la clé du cache porte l'empreinte du fichier du dépôt (`baseVersion`,
+  `lib/edition/store.ts`), et celle du français pour l'anglais. Même scénario après correctif :
+  accueil, /en, La Maison, boutique, sur commande et contact répondent 200.
+- Vérifications : types, lint, tests unitaires (93), audit des tokens et contrôle d'écriture au vert.
