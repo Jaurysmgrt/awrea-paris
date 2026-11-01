@@ -100,6 +100,30 @@ test.describe("Pages de la Maison", () => {
     expect((await logo.boundingBox())!.height).toBeLessThan(80);
   });
 
+  // animations de l'accueil (01/11) : tout ce qui attend sous l'écran finit par apparaître
+  test("accueil : titres, blocs et photos apparaissent au défilement, et jamais en animations apaisées", async ({ page, browser }) => {
+    await open(page, "/");
+    const enAttente = page.locator("main [data-pending]");
+    expect(await enAttente.count()).toBeGreaterThan(0);
+    for (const id of ["accueil-collection", "accueil-pieces", "accueil-sur-demande", "accueil-lettre"]) {
+      const titre = page.locator(`#${id}`);
+      await titre.scrollIntoViewIfNeeded();
+      await expect(titre).toHaveAttribute("data-shown", "");
+      await expect.poll(() => titre.evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
+      await expect.poll(() => titre.evaluate((el) => getComputedStyle(el).clipPath)).toBe("none");
+    }
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await expect(enAttente).toHaveCount(0);
+
+    const calme = await browser.newContext({ reducedMotion: "reduce", locale: "fr-FR" });
+    const p = await calme.newPage();
+    await acceptCookies(p);
+    await p.goto("/");
+    await expect(p.locator("h1")).toHaveCount(1);
+    await expect(p.locator("main [data-pending]")).toHaveCount(0);
+    await calme.close();
+  });
+
   test("La Maison : le texte À propos en entier, dans l'ordre, avec le portrait de la créatrice", async ({ page }) => {
     await open(page, "/la-maison");
     await expect(page.getByRole("heading", { level: 1 })).toContainText(laMaison.apropos.titre[0]);

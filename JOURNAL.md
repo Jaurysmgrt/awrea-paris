@@ -472,3 +472,26 @@ par cause, en coupant chaque effet suspect.
   photos sont à l'écran dès l'arrivée ; sur téléphone, le grand logo et la robe Sienna remplissent
   l'écran. Parcours ajoutés : arrivée sur trois tailles d'écran, photo qui mène à la pièce, petit
   logo de la bande au défilement sur téléphone.
+
+## Animations de l'accueil (01/11)
+
+- **Demande de la créatrice** : des animations minimalistes, fluides et haut de gamme, sur l'accueil
+  seulement, sans toucher au design ni à la structure, rapides sur téléphone. La refonte de l'accueil
+  en grande image de campagne est mise de côté (branche `claude/accueil-campagne`, brouillon).
+- **Ouverture** (CSS seul, sans attendre le JavaScript) : chaque photo se dévoile de bas en haut sous
+  un rideau de la couleur du fond, puis se pose ; le titre, son chapeau et les légendes montent
+  ensuite, décalés de quelques centièmes de seconde.
+- **Sections** : blocs de texte, pièces et boutons montent l'un après l'autre à leur entrée dans
+  l'écran (observateur commun du site) ; les titres montent d'une ligne invisible d'un seul bloc,
+  jamais mot à mot ; les photos se dévoilent par découpage pendant qu'elles se posent.
+- **Parallaxe** : collection et création sur demande, 4 % au plus de la hauteur de la photo,
+  ordinateur et tablette à la souris seulement ; une lecture de position par photo visible et par
+  image. **Micro-interactions** : bouton qui s'enfonce de 2 % à la pression, photo de l'ouverture
+  qui s'approche d'un souffle au survol, en plus du fond qui monte dans les boutons et du filet sous
+  les liens.
+- **Réglages** : une seule durée (`--dur`) et une seule courbe (`--ease`), décalages en
+  `--dur-stagger` ; rien ne bouge en animations apaisées. Écueil évité : un élément entièrement
+  découpé n'est jamais vu par l'observateur de défilement ; les titres attendent donc transparents
+  et le découpage ne vit que le temps de l'animation.
+- **Mesures** : défilement de toute la page, processeur ralenti quatre fois, 95 % des images sous
+  17 ms ; animations apaisées : rien en attente au chargement ; téléphone : pas de parallaxe.

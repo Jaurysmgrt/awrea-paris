@@ -120,3 +120,148 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* ================================================================== ANIMATIONS
+   Demande de la créatrice du 01/11 : minimalistes, fluides, haut de gamme, discrètes mais
+   travaillées. Une seule durée (--dur) et une seule courbe (--ease) pour tout, des décalages en
+   --dur-stagger : le même souffle partout. Seuls la transparence, les déplacements, l'échelle et le
+   découpage sont animés (le processeur graphique s'en charge, fluide sur téléphone). Les animations
+   apaisées (réglage de l'appareil ou du site) ramènent --dur à 0,01 s : tout s'affiche aussitôt.
+
+   1. Ouverture : chaque photo se dévoile de bas en haut sous un rideau de la couleur du fond, puis
+      se pose (légère réduction d'échelle) ; le titre, son chapeau et les légendes montent ensuite.
+      En CSS seul, sans attendre le JavaScript. */
+@keyframes accueil-rideau {
+  from {
+    scale: 1 1;
+  }
+  to {
+    scale: 1 0;
+  }
+}
+@keyframes accueil-pose {
+  from {
+    scale: 1.06;
+  }
+  to {
+    scale: 1;
+  }
+}
+@keyframes accueil-monte {
+  from {
+    opacity: 0;
+    translate: 0 var(--spacing-m);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+.photo {
+  --retard: 0s;
+}
+.photo + .photo {
+  --retard: calc(var(--dur-stagger) * 3);
+}
+.photo :global(.media)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  transform-origin: 50% 0;
+  scale: 1 0;
+  pointer-events: none;
+  animation: accueil-rideau var(--dur) var(--ease) var(--retard) backwards;
+}
+.photo :global(.media) > img {
+  animation: accueil-pose var(--dur-breath) var(--ease) var(--retard) backwards;
+}
+.tete > * {
+  animation: accueil-monte var(--dur) var(--ease) calc(var(--dur-stagger) * 2) backwards;
+}
+.tete > * + * {
+  animation-delay: calc(var(--dur-stagger) * 4);
+}
+.legende {
+  animation: accueil-monte var(--dur) var(--ease) calc(var(--dur-stagger) * 6 + var(--retard)) backwards;
+}
+
+/* 2. Sections : les blocs de texte, les pièces et les boutons montent doucement à leur entrée dans
+      l'écran, l'un après l'autre (--i, posé dans la page), grâce à l'observateur commun du site
+      (components/motion/RevealObserver : data-pending, puis data-shown). */
+.anime :global([data-reveal][data-shown]) {
+  transition-delay: calc(var(--dur-stagger) * 2 * var(--i, 0));
+}
+
+/* 3. Titres : ils montent depuis une ligne invisible, d'un seul bloc (jamais mot à mot, retiré le
+      25/10 comme trop « IA ») ; le découpage s'ouvre de bas en haut pendant que le titre se pose.
+      En attente, le titre est seulement transparent : un élément entièrement découpé ne serait
+      jamais vu par l'observateur. Le découpage n'existe que le temps de l'animation. */
+@keyframes accueil-titre {
+  from {
+    opacity: 1;
+    clip-path: inset(100% 0 0 0);
+    translate: 0 var(--spacing-m);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(calc(-1 * var(--spacing-s)));
+    translate: 0 0;
+  }
+}
+.anime :global([data-reveal="titre"][data-pending]) {
+  transform: none;
+}
+.anime :global([data-reveal="titre"][data-shown]) {
+  transition: none;
+  animation: accueil-titre var(--dur) var(--ease) backwards;
+}
+
+/* 4. Photos des sections : elles se dévoilent de bas en haut à leur entrée dans l'écran, pendant
+      qu'elles se posent (.reveal-img, styles/components.css) ; cartes des pièces comprises. Le
+      découpage porte sur la photo, jamais sur l'élément observé. */
+@keyframes accueil-devoile {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+.masque[data-pending] :global(.media),
+.anime :global(.product-card__media[data-pending] img) {
+  clip-path: inset(100% 0 0 0);
+}
+.masque[data-shown] :global(.media),
+.anime :global(.product-card__media[data-shown] img) {
+  animation: accueil-devoile var(--dur) var(--ease) backwards;
+}
+
+/* 5. Parallaxe légère (components/home/Parallaxe.tsx) : la photo, agrandie de 10 %, glisse d'au plus
+      4 % de sa hauteur, plus lentement que la page. Ordinateur et tablette à la souris seulement. */
+@media (min-width: 48rem) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html:not([data-motion="reduce"]) .parallaxe :global(.media) > img {
+    scale: 1.1;
+    translate: 0 calc(var(--parallaxe, 0) * -4%);
+  }
+}
+
+/* 6. Micro-interactions : un bouton s'enfonce à peine quand on le presse, une photo de l'ouverture
+      s'approche d'un souffle au survol (son nom se souligne déjà, .link--quiet). */
+.anime :global(.btn) {
+  transition:
+    color var(--dur) var(--ease),
+    translate var(--dur) var(--ease),
+    scale calc(var(--dur) / 4) var(--ease);
+}
+.anime :global(.btn):active {
+  scale: 0.98;
+}
+@media (hover: hover) {
+  .photo :global(.media) > img {
+    transition: scale var(--dur) var(--ease);
+  }
+  .photo:hover :global(.media) > img {
+    scale: 1.03;
+  }
+}
