@@ -488,3 +488,14 @@ par cause, en coupant chaque effet suspect.
   sur la fiche de la commande. « En attente » et « En retard » prennent la pastille « à traiter »
   et ne sont plus barrés. Le tableau tient dans l'écran dès 1 180 px. Parcours : largeur du tableau
   à 1 440 px, aucune étape barrée.
+
+## Défilement natif à la molette et au pavé tactile (01/11)
+
+- **Retour de la créatrice** : « la fluidité du site est super lourde quand on scrolle ». Cause : le
+  défilement doux (Lenis) lissait chaque geste sur 0,8 s ; le pavé tactile d'un Mac, déjà amorti par
+  le système, recevait une seconde inertie, et la page arrivait en retard sous les doigts.
+- **Correction** : `smoothWheel: false`, la molette et le pavé tactile défilent nativement. Lenis
+  garde les défilements commandés par le site (ancres, retour en haut après un changement de page)
+  et l'arrêt du défilement derrière les fenêtres et le choix des cookies.
+- **Mesure** (Chromium, molette de 400 px) : 90 % du déplacement atteint en 60 ms environ, contre
+  près de 0,8 s auparavant.
