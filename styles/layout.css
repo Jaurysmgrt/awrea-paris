@@ -15,7 +15,11 @@
     display: block;
     aspect-ratio: var(--logo-ratio);
     height: var(--logo-h, 100%);
-    width: auto;
+    /* largeur tirée de la hauteur et des proportions du fichier : Safari ne la déduit pas seul d'un
+       élément vide dans un conteneur à largeur automatique, et le logo de l'en-tête y restait
+       invisible (place gardée, dessin absent). Sans --logo-h, la déclaration ne vaut pas et la
+       largeur reste automatique (cachet de l'enveloppe, pied de page) */
+    width: calc(var(--logo-h) * var(--logo-ratio));
     max-width: 100%;
     background-color: currentColor;
     mask-image: var(--logo-src);
