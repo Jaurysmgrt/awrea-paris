@@ -152,7 +152,7 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
   test("navigation et réglages au modèle sur demande : avant-premières, délais de fabrication, aucune trace de stock", async ({ page }) => {
     await login(page);
     await page.goto(`${ATELIER}/reglages`);
-    const nav = page.getByRole("navigation", { name: "Tableau de bord" });
+    const nav = page.getByRole("navigation", { name: "Menu de l’Atelier" });
     for (const name of ["Commandes", "Catalogue", "Certificats", "Avant-premières"]) await expect(nav.getByRole("link", { name, exact: true })).toBeVisible();
     await expect(nav.getByRole("link", { name: /Drops|Stock/i })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "Réglages", exact: true })).toHaveAttribute("aria-current", "page");

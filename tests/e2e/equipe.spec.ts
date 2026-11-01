@@ -37,7 +37,8 @@ test("Équipe : chaque rôle passe, rend un résumé, et apparaît dans l'Atelie
   // modèle « sur demande » : les rôles parlent d'avant-premières et de confection, jamais de stock
   await expect(page.getByRole("heading", { name: "Avant-premières", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Confection", exact: true })).toBeVisible();
-  await expect(page.locator(".team")).not.toContainText(/liste d’attente|précommande|rupture/i);
+  // les agents principaux et les rôles : aucune trace de stock dans l'une ou l'autre liste
+  for (const team of await page.locator(".team").all()) await expect(team).not.toContainText(/liste d’attente|précommande|rupture/i);
 });
 
 test("Agents : Commandes et confection, bilan du catalogue, propositions à valider", async ({ page }) => {
