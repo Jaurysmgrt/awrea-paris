@@ -556,3 +556,16 @@ par cause, en coupant chaque effet suspect.
   `lib/edition/store.ts`), et celle du français pour l'anglais. Même scénario après correctif :
   accueil, /en, La Maison, boutique, sur commande et contact répondent 200.
 - Vérifications : types, lint, tests unitaires (93), audit des tokens et contrôle d'écriture au vert.
+
+## Logo de l'en-tête encore absent sous Safari (01/11)
+
+- Capture de la créatrice après l'ouverture du site : le menu est posé sur le film, la place du logo
+  est gardée, mais le dessin n'apparaît pas. Le correctif du matin (hauteur `--logo-h` sur le dessin)
+  ne suffisait pas : Safari ne déduit pas la largeur d'un élément vide placé dans un conteneur à
+  largeur automatique.
+- `.logo-mask` reçoit maintenant sa largeur, tirée de la hauteur et des proportions du fichier
+  (`calc(var(--logo-h) * var(--logo-ratio))`). Sans `--logo-h`, la déclaration ne vaut pas et la
+  largeur reste automatique.
+- Mesuré sous Chrome sur l'accueil, La Maison, la boutique et la page d'attente, ordinateur et
+  téléphone : toutes les tailles de logo restent identiques au pixel près. Safari n'est pas
+  disponible ici : à confirmer sur l'ordinateur de la créatrice.
