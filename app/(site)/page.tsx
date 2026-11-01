@@ -11,15 +11,18 @@ import { NewsletterForm } from "@/components/ui/NewsletterForm";
 import { LightHalo } from "@/components/signature/LightHalo";
 import { ProductCard } from "@/components/commerce/ProductCard";
 import { Visuel } from "@/components/home/Visuel";
+import { Media } from "@/components/ui/Media";
+import { ProvisionalNote } from "@/components/commerce/ProvisionalNote";
 import { delaiDeFamille } from "@/components/home/delais";
 import ed from "@/components/home/editorial.module.css";
 import styles from "./accueil.module.css";
 
 /**
- * Accueil : la présentation de la Maison (texte officiel TEASING MARQUE), la collection Hypnotic
- * Lace (texte officiel TEXTE DE COLLECTION), une sélection de pièces, la création sur demande et
- * la lettre de la Maison. Un message et un appel à l'action par section ; les textes officiels de
- * la créatrice sont marqués data-officiel (seule la typographie y est contrôlée).
+ * Accueil : une ouverture (le titre et deux pièces en grand, sous le logo), la présentation de la
+ * Maison (texte officiel TEASING MARQUE), la collection Hypnotic Lace (texte officiel TEXTE DE
+ * COLLECTION), une sélection de pièces, la création sur demande et la lettre de la Maison. Un
+ * message et un appel à l'action par section ; les textes officiels de la créatrice sont marqués
+ * data-officiel (seule la typographie y est contrôlée).
  * Textes : content/site/fr/accueil.json (éditeur visuel « Édition »).
  */
 type Accueil = typeof import("@/content/site/fr/accueil.json");
@@ -29,7 +32,8 @@ export const revalidate = 300;
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getDoc<Accueil>("accueil", { plain: true });
   // visuel provisoire jamais envoyé aux réseaux (mention « visuel provisoire » absente des aperçus)
-  return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/", image: t.maison.image.provisoire ? undefined : t.maison.image.src });
+  const premiere = t.ouverture.photos[0]?.image;
+  return pageMetadata({ title: t.seo.title, description: t.seo.description, path: "/", image: !premiere || premiere.provisoire ? undefined : premiere.src });
 }
 
 export default async function HomePage() {
@@ -38,31 +42,49 @@ export default async function HomePage() {
   const choisies = (await getProductsByHandles(t.selection.pieces)).filter((p) => p.variants.length > 0);
   const selection = choisies.length ? choisies : pieces.filter((p) => !collection || p.collection === collection.handle).slice(0, 3);
   const delais = { hauts: delaiText(catalogue, delaiDeFamille(pieces, "hauts")), robes: delaiText(catalogue, delaiDeFamille(pieces, "robes")) };
-  const { maison, collection: col, surDemande, lettre } = t;
+  const { ouverture, maison, collection: col, surDemande, lettre } = t;
 
   return (
     <>
-      {/* ------------------------------------------------ LA MAISON (TEASING MARQUE, officiel) */}
-      <Section theme="ivory" className={`section ${styles.ouverture}`} labelledBy="accueil-titre">
-        <div className="container">
-          <header className={`${ed.tete} ${ed.centre}`} data-officiel>
+      {/* ------------------------------------------------ OUVERTURE : le titre et deux pièces en grand,
+          dès l'arrivée, juste sous le logo (retour du 01/11 : « voir le logo, que ça donne envie ») */}
+      <Section theme="ivory" className={styles.ouverture} labelledBy="accueil-titre">
+        <div className={`container ${styles.scene}`}>
+          <header className={styles.tete} data-officiel>
             <SplitTitle id="accueil-titre" text={maison.texte.titre} className={`t-display ${styles.titre}`} />
-            <p className="t-lead t-center">{maison.texte.accroche}</p>
+            <p className={`t-lead ${styles.accroche}`}>{maison.texte.accroche}</p>
           </header>
-          <div className={`${ed.split} ${ed.apresTete}`}>
-            <Visuel image={maison.image} priority sizes="(min-width: 48rem) 45vw, 100vw" />
-            <div className={ed.texte} data-officiel>
-              <p className="t-body">{maison.texte.paragraphe}</p>
-            </div>
+          <ul className={styles.photos}>
+            {ouverture.photos.map((p, i) => (
+              <li key={p.id} className={styles.photo}>
+                <Media image={p.image} ratio="portrait" priority={i === 0} sizes="(min-width: 64rem) 28vw, (min-width: 48rem) 46vw, 100vw" />
+                <p className={styles.legende}>
+                  <Link href={p.href} className={`link link--quiet ${styles.lien}`}>
+                    {p.piece}
+                  </Link>
+                  <ProvisionalNote image={p.image} />
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Section>
+
+      {/* ------------------------------------------------ LA MAISON (TEASING MARQUE, officiel) : le
+          texte seul, centré, comme sur la maquette, après les photos de l'ouverture */}
+      <Section theme="ivory" className={`section ${styles.maison}`}>
+        <div className={`container-text ${ed.centre}`}>
+          <div className={ed.texte} data-officiel>
+            <p className="t-body">{maison.texte.paragraphe}</p>
           </div>
-          <div className={`${ed.chute} ${ed.centre}`} data-officiel>
+          <div className={ed.chute} data-officiel>
             {maison.texte.chute.map((ligne) => (
               <p key={ligne} className="t-lead t-center">
                 {ligne}
               </p>
             ))}
           </div>
-          <div className={`${ed.action} ${ed.centre}`}>
+          <div className={ed.action}>
             <Link href={maison.cta.href} className="btn">
               {maison.cta.label}
             </Link>

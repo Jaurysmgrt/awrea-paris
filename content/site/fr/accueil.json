@@ -3,6 +3,34 @@
     "title": "Awrea Paris, prêt-à-porter féminin créé sur demande",
     "description": "Awrea Paris : la dentelle, les drapés et l’éclat de la dorure. Les pièces de la collection Hypnotic Lace sont créées sur demande, sans stock, par des artisans français."
   },
+  "ouverture": {
+    "photos": [
+      {
+        "id": "sienna",
+        "piece": "La robe Sienna",
+        "href": "/boutique/robe-sienna",
+        "image": {
+          "src": "/media/img/sienna-1",
+          "alt": "La robe Sienna portée, col montant, buste en dentelle noire et or, taille froncée en pointe et jupe longue en jersey noir",
+          "width": 1536,
+          "height": 2304,
+          "provisoire": true
+        }
+      },
+      {
+        "id": "kira",
+        "piece": "Le top Kira",
+        "href": "/boutique/top-kira",
+        "image": {
+          "src": "/media/img/kira-1",
+          "alt": "Le top Kira porté, noir, col en V, manches amples et taille en dentelle noire",
+          "width": 1024,
+          "height": 1536,
+          "provisoire": true
+        }
+      }
+    ]
+  },
   "maison": {
     "texte": {
       "officiel": true,
@@ -13,13 +41,6 @@
         "Porter Awrea, c’est choisir une pièce d’exception, conçue pour traverser le temps.",
         "Une création qui révèle le corps au lieu de le dissimuler, qui célèbre l’allure, la confiance et la liberté d’être soi."
       ]
-    },
-    "image": {
-      "src": "/media/img/aura-1",
-      "alt": "Le body Aura porté, dentelle noire pailletée d’or, drapé noir noué sur le buste et manches longues en dentelle",
-      "width": 1536,
-      "height": 2304,
-      "provisoire": true
     },
     "cta": {
       "label": "À propos d’Awrea Paris",

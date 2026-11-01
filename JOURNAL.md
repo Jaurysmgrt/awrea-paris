@@ -449,3 +449,26 @@ par cause, en coupant chaque effet suspect.
     simplement (« Paiement simulé », « Assistante simulée ») ; les titres de page sont plus sobres ;
     le texte de l'Atelier n'est plus justifié.
 
+
+## Accueil : une ouverture qui donne envie (01/11)
+
+- **Demande de la créatrice** : « quand on arrive, je veux voir le logo, que ça donne envie ; il y
+  a trop de blanc tout en haut ». Mesure avant : à 1 280 × 720, aucune photo à l'écran (la première
+  commençait à 656 px) ; à 1 440 × 900, le titre seul entre deux grands blancs (photo à 600 px) ;
+  sur téléphone, un logo de 48 px et la photo à 416 px.
+- **Ouverture** : le titre « L'essence de la féminité, révélée le soir », son chapeau et deux pièces
+  en grand (la robe Sienna, le top Kira) commencent 24 px sous la navigation. Ordinateur : le titre
+  à gauche, les deux photos à droite, la seconde décalée ; tablette : le titre au-dessus des
+  photos ; téléphone : la première photo d'abord, puis le titre. Chaque photo mène à sa pièce (le
+  nom de la pièce est le lien), avec la mention « visuel provisoire ». Les photos se changent dans
+  l'éditeur (document `accueil`, `ouverture.photos`).
+- **Logo sur téléphone** : sur l'accueil seulement, le logo entier en grand (80 px) au-dessus de la
+  bande Menu · Panier, comme sur ordinateur ; le petit logo de la bande revient une fois le grand
+  sorti de l'écran.
+- **La Maison** : le texte de présentation (officiel) passe seul, centré, sous l'ouverture, comme
+  sur la maquette TEASING MARQUE ; la photo du body Aura, qui l'accompagnait, reste dans la
+  sélection de pièces plus bas.
+- **Mesure après** : à 1 440 × 900 et 1 280 × 720, le logo, le titre, le chapeau et les deux
+  photos sont à l'écran dès l'arrivée ; sur téléphone, le grand logo et la robe Sienna remplissent
+  l'écran. Parcours ajoutés : arrivée sur trois tailles d'écran, photo qui mène à la pièce, petit
+  logo de la bande au défilement sur téléphone.

@@ -206,8 +206,9 @@ export function HeaderBar({ nav }: { nav: NavigationDoc }) {
   }, [openSearch]);
 
   // compact dès que la partie haute (logo entier) a défilé : seule la bande de navigation reste.
-  // La hauteur est mesurée une fois puis à chaque redimensionnement : la lire à chaque défilement
-  // forçait le navigateur à recalculer la page pendant le mouvement.
+  // La hauteur est mesurée à l'arrivée sur une page puis à chaque redimensionnement : la lire à
+  // chaque défilement forçait le navigateur à recalculer la page pendant le mouvement. Sur
+  // téléphone, seul l'accueil montre le logo entier (data-accueil) : la mesure change avec la page.
   useEffect(() => {
     let seuil = 0;
     const onScroll = () => setCompact(window.scrollY > seuil);
@@ -222,7 +223,7 @@ export function HeaderBar({ nav }: { nav: NavigationDoc }) {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", measure);
     };
-  }, []);
+  }, [pathname]);
 
   // menu déroulant ouvert : Échap le referme (le focus revient sur son bouton), un clic ailleurs aussi
   useEffect(() => {
@@ -248,8 +249,9 @@ export function HeaderBar({ nav }: { nav: NavigationDoc }) {
 
   return (
     <>
-      <header className="site-header" data-compact={compact}>
-        {/* partie haute (tablette et ordinateur) : le logo entier, centré ; inerte une fois compact */}
+      <header className="site-header" data-compact={compact} data-accueil={pathname === "/"}>
+        {/* partie haute (tablette et ordinateur, et l'accueil sur téléphone) : le logo entier, centré ;
+            inerte une fois compact */}
         <div ref={topRef} className="site-header__top" inert={compact}>
           <Link href="/" className="site-header__logo">
             <Logo decorative />

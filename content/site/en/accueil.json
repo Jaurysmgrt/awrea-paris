@@ -3,6 +3,24 @@
     "title": "Awrea Paris, women’s ready-to-wear made to order",
     "description": "Awrea Paris: lace, draping and the gleam of gilding. The pieces of the Hypnotic Lace collection are made to order, without stock, by French artisans."
   },
+  "ouverture": {
+    "photos": [
+      {
+        "id": "sienna",
+        "piece": "The Sienna dress",
+        "image": {
+          "alt": "The Sienna dress worn, high neck, bodice in black and gold lace, waist gathered to a point and a long black jersey skirt"
+        }
+      },
+      {
+        "id": "kira",
+        "piece": "The Kira top",
+        "image": {
+          "alt": "The Kira top worn, black, with a V neck, full sleeves and a waist in black lace"
+        }
+      }
+    ]
+  },
   "maison": {
     "texte": {
       "officiel": true,
@@ -13,13 +31,6 @@
         "To wear Awrea is to choose an exceptional piece, designed to stand the test of time.",
         "A creation that reveals the body instead of concealing it, that celebrates allure, confidence and the freedom to be oneself."
       ]
-    },
-    "image": {
-      "src": "/media/img/aura-1",
-      "alt": "The Aura bodysuit worn, black lace sequinned with gold, black draping knotted at the bust and long lace sleeves",
-      "width": 1536,
-      "height": 2304,
-      "provisoire": true
     },
     "cta": {
       "label": "About Awrea Paris",
