@@ -3,8 +3,6 @@
 @layer components {
   /* ============================================ 1. HALO DE LUMIÈRE */
   .light-halo {
-    --mx: 60%;
-    --my: 40%;
     --gl-radius: var(--size-halo);
     position: absolute;
     inset: 0;
@@ -16,11 +14,16 @@
   .light-halo[data-on="true"] {
     opacity: var(--gl-intensity, 1);
   }
+  /* dessiné une fois, déplacé par transform (LightHalo) : rien n'est repeint pendant le mouvement */
   .light-halo__halo {
     position: absolute;
-    inset: 0;
-    background: radial-gradient(circle calc(var(--gl-radius) * 1.3) at var(--mx) var(--my), color-mix(in oklab, var(--halo) 9%, transparent), transparent 70%);
+    top: 0;
+    left: 0;
+    width: calc(var(--gl-radius) * 2.6);
+    aspect-ratio: 1;
+    background: radial-gradient(circle closest-side, color-mix(in oklab, var(--halo) 9%, transparent), transparent 70%);
     mix-blend-mode: screen;
+    will-change: transform;
   }
   .scene:has(> .light-halo) > :not(.light-halo) {
     position: relative;

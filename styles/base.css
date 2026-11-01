@@ -39,9 +39,7 @@
     word-spacing: 0;
     font-kerning: normal;
     overflow-x: clip;
-    transition:
-      background-color var(--dur) var(--ease),
-      color var(--dur) var(--ease);
+    transition: background-color var(--dur) var(--ease);
   }
 
   /* La scène (fond global) prend la couleur de la section au centre de l'écran */
@@ -82,8 +80,55 @@
   }
   /* Première activation de la scène (et changement de page) : bascule instantanée,
      les sections hors écran n'ont pas à jouer de transition. */
-  html.scene-instant :is(body, .scene, .site-header, .site-footer) {
+  html.scene-instant :is(body, .scene, .site-header, .site-header__band, .site-footer) {
     transition: none !important;
+  }
+
+  /* La scène en mouvement (ThemeShift) : seul le fond glisse d'une couleur à l'autre (data-fond,
+     une seule couleur animée sur <body> et la bande de l'en-tête) ; les textes, filets et boutons
+     basculent d'un coup quand le fond est à mi-chemin (data-scene). Animer leurs couleurs
+     recalculait des centaines d'éléments à chaque image et faisait saccader le défilement. */
+  /* règles ciblées (pas de variable héritée) : changer de fond ne recalcule que ces deux éléments */
+  html.scene-live body {
+    background-color: var(--color-ivory);
+  }
+  html.scene-live[data-fond="ink"] body {
+    background-color: var(--color-ink);
+  }
+  html.scene-live[data-fond="pearl"] body {
+    background-color: var(--color-pearl);
+  }
+  html[data-mode="dark"].scene-live body {
+    background-color: var(--color-night);
+  }
+  html[data-mode="dark"].scene-live[data-fond="ink"] body {
+    background-color: var(--color-ink);
+  }
+
+  /* copie invisible où la justification essaie ses réglages (components/ui/Justification.tsx) :
+     hors de la page, mise en page isolée, jamais affichée */
+  .justif-mesure {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    block-size: 0;
+    overflow: hidden;
+    visibility: hidden;
+    pointer-events: none;
+    contain: layout style paint;
+  }
+  .justif-mesure > * {
+    box-sizing: content-box;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  /* au moment de la bascule, les couleurs changent sans transition ; les mouvements (apparitions,
+     menus, fenêtres) continuent */
+  html.scene-flip *:not(body, .site-header__band),
+  html.scene-flip *::before,
+  html.scene-flip *::after {
+    transition-property: opacity, transform, translate, rotate, scale, clip-path, visibility, overlay, display, background-size !important;
   }
 
   ::selection {

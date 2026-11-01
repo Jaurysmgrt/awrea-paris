@@ -106,6 +106,19 @@ test.describe("En-tête de la maquette : logo centré, navigation centrée desso
     expect(box.y + box.height).toBeLessThanOrEqual(96);
   });
 
+  test("fondu entre les pages : un clic pendant que le voile se retire n'est jamais perdu", async ({ page }) => {
+    await acceptCookies(page);
+    await page.goto("/");
+    await waitForHydration(page);
+    const nav = mainNav(page);
+    await nav.getByRole("link", { name: "Contact" }).click();
+    // la page suivante est affichée et le voile commence à se retirer : on clique aussitôt ailleurs
+    await page.waitForFunction(() => location.pathname === "/contact" && document.querySelector<HTMLElement>(".page-fade")?.dataset.state === "idle");
+    await nav.getByRole("link", { name: "Accueil" }).click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(nav.getByRole("link", { name: "Accueil" })).toHaveAttribute("aria-current", "page");
+  });
+
   test("« / » ouvre la recherche ; résultats instantanés, page complète avec Entrée", async ({ page }) => {
     await acceptCookies(page);
     await page.goto("/boutique");

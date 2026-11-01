@@ -11,6 +11,9 @@
  *     ligne), ou un paragraphe dont un espace dépasse encore MAX_GAP fois l'espace normal (une
  *     adresse e-mail ou un lien qu'on ne coupe pas), passe au fer à gauche plutôt que de garder un
  *     trou (data-justif="gauche"). Tout est refait quand la largeur de la fenêtre change.
+ * Les essais se font sur une copie invisible du paragraphe (.justif-mesure), par tranches de
+ * BUDGET millisecondes au plus : la page n'est jamais bloquée (le défilement et le fondu entre les
+ * pages restent fluides) et le texte visible ne bouge qu'une fois, au réglage retenu.
  * Rien sur téléphone (texte au fer à gauche, motifs de césure jamais téléchargés), rien dans
  * l'Édition (les textes modifiés ne doivent jamais recevoir de coupure invisible).
  */
@@ -26,6 +29,35 @@ export const MIN_CHARS = 50;
 const TRACKING = [0, -0.0025, 0.0025, -0.005, 0.005, -0.0075, 0.0075, -0.01, 0.01, -0.0125, 0.0125, -0.015, 0.015];
 const WORDS = [0, -0.04];
 const WIDE = "(min-width: 48rem)";
+/** Travail continu le plus long (ms) avant de rendre la main au navigateur. */
+const BUDGET = 8;
+/** Ce qui décide des coupures de ligne : recopié du paragraphe sur sa copie de mesure. */
+const TYPO = [
+  "font-family",
+  "font-size",
+  "font-weight",
+  "font-style",
+  "font-stretch",
+  "font-variant",
+  "font-feature-settings",
+  "font-variation-settings",
+  "font-optical-sizing",
+  "font-kerning",
+  "line-height",
+  "letter-spacing",
+  "word-spacing",
+  "text-transform",
+  "text-align",
+  "text-align-last",
+  "text-indent",
+  "hyphens",
+  "-webkit-hyphens",
+  "hyphenate-limit-chars",
+  "text-rendering",
+  "white-space",
+  "overflow-wrap",
+  "word-break",
+];
 
 const patterns = new Map<string, Promise<Hyphenate>>();
 function loadPatterns(lang: string): Promise<Hyphenate> {
@@ -83,6 +115,34 @@ function charsPerLine(p: HTMLElement): number {
 /** Paragraphes justifiés par la feuille de style (ou passés au fer à gauche par le garde-fou). */
 const paragraphs = () => Array.from(document.querySelectorAll<HTMLElement>("main p")).filter((p) => p.dataset.justif === "gauche" || getComputedStyle(p).textAlign === "justify");
 
+/** Rend la main au navigateur (une image peut s'afficher, un défilement se poursuivre). */
+const pause = () => new Promise<void>((resolve) => window.setTimeout(resolve, 0));
+
+const reset = (p: HTMLElement) => {
+  p.style.removeProperty("letter-spacing");
+  p.style.removeProperty("word-spacing");
+};
+const apply = (p: HTMLElement, tracking: number, words: number) => {
+  if (tracking) p.style.letterSpacing = `${tracking}em`;
+  else p.style.removeProperty("letter-spacing");
+  if (words) p.style.wordSpacing = `${words}em`;
+  else p.style.removeProperty("word-spacing");
+};
+
+/** Copie invisible du paragraphe, de même largeur et même typographie, pour essayer les réglages. */
+function measuringCopy(p: HTMLElement, box: HTMLElement): { copy: HTMLElement; letter: string; word: string } {
+  const cs = getComputedStyle(p);
+  const copy = p.cloneNode(true) as HTMLElement;
+  copy.removeAttribute("id");
+  copy.removeAttribute("style");
+  for (const prop of TYPO) copy.style.setProperty(prop, cs.getPropertyValue(prop));
+  const width = p.getBoundingClientRect().width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - parseFloat(cs.borderLeftWidth) - parseFloat(cs.borderRightWidth);
+  copy.style.width = `${width}px`;
+  copy.lang = p.closest<HTMLElement>("[lang]")?.lang ?? document.documentElement.lang;
+  box.replaceChildren(copy);
+  return { copy, letter: cs.letterSpacing, word: cs.wordSpacing };
+}
+
 export function Justification({ active }: { active: boolean }) {
   const pathname = usePathname();
   useEffect(() => {
@@ -90,62 +150,76 @@ export function Justification({ active }: { active: boolean }) {
     const wide = window.matchMedia(WIDE);
     let cancelled = false;
     let timer = 0;
+    let generation = 0;
 
-    const reset = (p: HTMLElement) => {
-      p.style.removeProperty("letter-spacing");
-      p.style.removeProperty("word-spacing");
-    };
-    const apply = (p: HTMLElement, tracking: number, words: number) => {
-      if (tracking) p.style.letterSpacing = `${tracking}em`;
-      else p.style.removeProperty("letter-spacing");
-      if (words) p.style.wordSpacing = `${words}em`;
-      else p.style.removeProperty("word-spacing");
-    };
-    // pour chaque paragraphe, le réglage qui donne les espaces les plus réguliers
-    const check = () => {
-      for (const p of paragraphs()) {
-        delete p.dataset.justif;
-        reset(p);
-        if (charsPerLine(p) < MIN_CHARS) {
-          p.dataset.justif = "gauche";
-          continue;
-        }
-        let best = { gap: widestGap(p), tracking: 0, words: 0 };
-        search: for (const words of WORDS) {
-          for (const tracking of TRACKING) {
-            if (best.gap <= 1.5) break search;
-            if (!tracking && !words) continue;
-            apply(p, tracking, words);
-            const gap = widestGap(p);
-            if (gap < best.gap - 0.05) best = { gap, tracking, words };
-          }
-        }
-        if (best.gap > MAX_GAP) {
-          reset(p);
-          p.dataset.justif = "gauche";
-        } else apply(p, best.tracking, best.words);
-      }
-    };
     // repère lu par les tests : la césure et la mesure sont faites
     const done = () => (document.documentElement.dataset.justification = "1");
     const run = async () => {
+      const mine = ++generation;
+      const alive = () => !cancelled && mine === generation;
       if (!wide.matches) return done();
       const hyphenate = await loadPatterns(document.documentElement.lang || "fr");
       await document.fonts.ready;
-      if (cancelled) return;
-      for (const p of paragraphs()) {
-        if (p.dataset.cesure) continue;
-        const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
-        const nodes: Text[] = [];
-        while (walker.nextNode()) nodes.push(walker.currentNode as Text);
-        for (const n of nodes) {
-          const next = hyphenateText(n.data, hyphenate);
-          if (next !== n.data) n.data = next;
+      if (!alive()) return;
+      let since = performance.now();
+      const breathe = async () => {
+        if (performance.now() - since > BUDGET) {
+          await pause();
+          since = performance.now();
         }
-        p.dataset.cesure = "1";
+        return alive();
+      };
+      const box = document.createElement("div");
+      box.className = "justif-mesure";
+      box.setAttribute("aria-hidden", "true");
+      document.body.append(box);
+      try {
+        for (const p of paragraphs()) {
+          if (!p.isConnected) continue;
+          if (!p.dataset.cesure) {
+            const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+            const nodes: Text[] = [];
+            while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+            for (const n of nodes) {
+              const next = hyphenateText(n.data, hyphenate);
+              if (next !== n.data) n.data = next;
+            }
+            p.dataset.cesure = "1";
+          }
+          // pour chaque paragraphe, le réglage qui donne les espaces les plus réguliers
+          delete p.dataset.justif;
+          reset(p);
+          if (charsPerLine(p) < MIN_CHARS) {
+            p.dataset.justif = "gauche";
+            if (!(await breathe())) return;
+            continue;
+          }
+          const { copy, letter, word } = measuringCopy(p, box);
+          let best = { gap: widestGap(copy), tracking: 0, words: 0 };
+          search: for (const words of WORDS) {
+            for (const tracking of TRACKING) {
+              if (best.gap <= 1.5) break search;
+              if (!tracking && !words) continue;
+              copy.style.letterSpacing = tracking ? `${tracking}em` : letter;
+              copy.style.wordSpacing = words ? `${words}em` : word;
+              const gap = widestGap(copy);
+              if (gap < best.gap - 0.05) best = { gap, tracking, words };
+              if (!(await breathe())) return;
+            }
+          }
+          if (!p.isConnected) continue;
+          apply(p, best.tracking, best.words);
+          // contrôle sur le vrai paragraphe : aucun trou ne passe, même si la copie différait
+          if (best.gap > MAX_GAP || widestGap(p) > MAX_GAP) {
+            reset(p);
+            p.dataset.justif = "gauche";
+          }
+          if (!(await breathe())) return;
+        }
+        done();
+      } finally {
+        box.remove();
       }
-      check();
-      done();
     };
     const later = () => {
       window.clearTimeout(timer);

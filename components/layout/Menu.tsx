@@ -205,18 +205,22 @@ export function HeaderBar({ nav }: { nav: NavigationDoc }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [openSearch]);
 
-  // compact dès que la partie haute (logo entier) a défilé : seule la bande de navigation reste
+  // compact dès que la partie haute (logo entier) a défilé : seule la bande de navigation reste.
+  // La hauteur est mesurée une fois puis à chaque redimensionnement : la lire à chaque défilement
+  // forçait le navigateur à recalculer la page pendant le mouvement.
   useEffect(() => {
-    const onScroll = () => {
-      const seuil = topRef.current?.offsetHeight || bandRef.current?.offsetHeight || 0;
-      setCompact(window.scrollY > seuil);
+    let seuil = 0;
+    const onScroll = () => setCompact(window.scrollY > seuil);
+    const measure = () => {
+      seuil = topRef.current?.offsetHeight || bandRef.current?.offsetHeight || 0;
+      onScroll();
     };
-    onScroll();
+    measure();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("resize", measure);
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", measure);
     };
   }, []);
 
