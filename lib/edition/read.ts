@@ -18,7 +18,7 @@ import { unstable_cache } from "next/cache";
 import { isAdmin } from "@/lib/auth/admin";
 import { editionStorage, isLocale, type Locale } from "./config";
 import { getLocale } from "@/lib/i18n/server";
-import { readDoc } from "./store";
+import { baseVersion, readDoc } from "./store";
 import { stegaEncodeDeep } from "./stega";
 
 /** Vrai seulement pour la créatrice connectée, en mode Édition. */
@@ -31,8 +31,14 @@ export const isEditing = cache(async (): Promise<boolean> => {
   return isAdmin();
 });
 
-const publishedCached = (doc: string, locale: Locale) =>
-  unstable_cache(async () => readDoc(doc, locale), ["edition", doc, locale], { tags: ["contenu", `contenu:${doc}`] })();
+/**
+ * Version publiée, gardée en cache jusqu'à la prochaine publication. Le cache de données de Vercel
+ * survit aux mises en ligne : sa clé porte donc l'empreinte du fichier du dépôt, pour qu'une
+ * nouvelle version du site ne relise jamais un document gardé par la précédente (le 01/11, l'accueil
+ * refait lisait encore l'ancien document, sans film, et la page tombait en erreur).
+ */
+const publishedCached = async (doc: string, locale: Locale) =>
+  unstable_cache(async () => readDoc(doc, locale), ["edition", doc, locale, await baseVersion(doc, locale)], { tags: ["contenu", `contenu:${doc}`] })();
 
 export interface DocOptions {
   /** sans les marques du mode Édition */
