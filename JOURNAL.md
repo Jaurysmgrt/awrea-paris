@@ -511,3 +511,23 @@ par cause, en coupant chaque effet suspect.
   sur la fiche de la commande. « En attente » et « En retard » prennent la pastille « à traiter »
   et ne sont plus barrés. Le tableau tient dans l'écran dès 1 180 px. Parcours : largeur du tableau
   à 1 440 px, aucune étape barrée.
+
+## Accueil refondu : film plein écran, histoire de la Maison, animations immersives (01/11)
+
+- **Retour de la créatrice** : « je serais pas parti sur ça, pose-moi des questions ». Ses réponses :
+  la page actuelle « fait catalogue » ; à l'arrivée, une vidéo plein écran, le logo et le menu posés
+  dessus en blanc, rien d'écrit ; ensuite l'histoire de la Maison, puis le reste, plus aéré ;
+  animations immersives, plus légères sur téléphone ; inspiration Dior. En attendant sa vidéo, la
+  vidéo de démonstration déjà présente (photos noir et blanc de l'ancien site).
+- **Film d'ouverture** : plein écran dès le haut de la page (`VideoLazy` : version téléphone, image
+  d'attente, pause hors écran, pas de lecture automatique en animations apaisées ou en économie de
+  données, bouton pause en bas à gauche, WCAG 2.2.2). L'en-tête de l'accueil ne prend plus de place
+  et reste blanc tant qu'il n'est pas compact ; un voile sombre en haut garde le logo et le menu
+  lisibles sur un film clair.
+- **Histoire de la Maison** : le titre officiel (h1), le chapeau, le portrait officiel de la
+  créatrice et le texte TEASING MARQUE, puis la chute et « À propos ». Les deux photos de pièces avec
+  leur nom (aspect catalogue) sont retirées de l'ouverture.
+- **Animations** : celles de la branche des animations, plus l'arrivée du film (il se pose
+  lentement) et sa sortie sur ordinateur (il glisse plus lentement que la page et s'assombrit).
+  Sur téléphone, aucun mouvement lié au défilement.
+- **À venir** : la vraie vidéo de la créatrice (10 à 20 s, sans son), allégée pour le téléphone.
