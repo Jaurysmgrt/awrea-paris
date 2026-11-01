@@ -41,17 +41,17 @@ export default async function GestionLayout({ children }: { children: React.Reac
         <Link href={atelierHref("/")} className="admin__logo" aria-label="Accueil de l’Atelier">
           <Logo />
         </Link>
-        <p className="t-h3 admin__title">Atelier</p>
+        <p className="t-label admin__title">Atelier</p>
         <AdminNav counts={counts} />
-        <div className="admin__modes">
-          <span className="badge">{commerceMode === "shopify" ? "Shopify" : "Démonstration"}</span>
-          <span className="badge">{aiEnabled ? "Claude actif" : "IA : démo"}</span>
-          {usingDemoPassword() ? <span className="badge">Mot de passe démo</span> : null}
-        </div>
-        <div>
-          <Link href="/" className="btn btn--link">
+        <div className="admin__foot">
+          <Link href="/" className="btn admin__site">
             Voir le site
           </Link>
+          <ul className="admin__modes" aria-label="État des services">
+            <li>{commerceMode === "shopify" ? "Paiement : Shopify" : "Paiement simulé"}</li>
+            <li>{aiEnabled ? "Assistante : Claude" : "Assistante simulée"}</li>
+            {usingDemoPassword() ? <li>Mot de passe d’essai</li> : null}
+          </ul>
         </div>
       </aside>
       <main className="admin__main scene" data-theme="ivory" id="contenu">

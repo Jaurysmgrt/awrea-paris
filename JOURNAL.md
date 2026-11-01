@@ -425,3 +425,26 @@ par cause, en coupant chaque effet suspect.
 - **Contrôles** : tests unitaires de la langue et du lien privé ; parcours pour l'arrivée en
   anglais, le mode Nuit inversé et le lien privé (serveur lancé en mode privé).
 
+## Cookies obligatoires et Atelier repensé (01/11)
+
+- **Choix des cookies obligatoire** (choix de la créatrice) : tant qu'aucun choix n'est fait, le
+  bandeau devient une fenêtre (`role="dialog"`, `aria-modal`). La page est couverte d'un voile
+  (`.consent-veil`) ; elle ne défile plus (Lenis arrêté, `overflow: hidden`) et devient inerte
+  (`inert` sur tout ce qui entoure le bandeau). Refuser, Accepter et Choisir gardent le même poids.
+  La politique cookies, la confidentialité et les mentions légales ne sont pas voilées : on peut les
+  lire avant de choisir. « Gérer les cookies » rouvre les réglages sans voile. Pas de « cookie
+  wall ».
+- **Atelier** (retour : trop austère, trop technique, on s'y perd) :
+  - **Menu** : rangé en six groupes en mots simples (Aujourd'hui ; Clientes ; Pièces ; Le site ;
+    Gestion ; Coulisses, replié), entrées en romain et non plus en capitales, l'entrée en cours en
+    pastille ivoire. Sur téléphone, il est replié derrière « Menu ».
+  - **Accueil « Aujourd'hui »** : ce qui attend, dans l'ordre où le faire (commandes en retard,
+    rendez-vous du jour, messages, commandes à mettre en confection, retours, propositions), quatre
+    chiffres, les gestes courants (modifier le site, ajouter une pièce, changer une photo, voir le
+    site) et les pièces en photo.
+  - **Coulisses** : les agents, la maintenance de nuit et les dernières actions passent dans
+    Coulisses › Équipe.
+  - **Mots et mise en page** : « Validations » devient « À valider » ; les pastilles d'état parlent
+    simplement (« Paiement simulé », « Assistante simulée ») ; les titres de page sont plus sobres ;
+    le texte de l'Atelier n'est plus justifié.
+

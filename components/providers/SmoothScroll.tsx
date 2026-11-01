@@ -25,6 +25,8 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       if (w.__scrollTrigger) l.on("scroll", w.__scrollTrigger.update);
       w.__lenis = l;
       lenis = l;
+      // choix des cookies encore à faire : la page reste immobile derrière le voile
+      if (document.documentElement.classList.contains("consent-bloque")) l.stop();
     });
     return () => {
       cancelled = true;

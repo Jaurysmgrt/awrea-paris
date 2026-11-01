@@ -1,7 +1,8 @@
 "use client";
 /**
  * Bandeau cookies : un filet noir très fin, du papier blanc cassé, une typographie fine.
- * Il apparaît en fondu au bas de l'écran sans jamais bloquer la page ;
+ * Il apparaît en fondu au bas de l'écran ; tant qu'aucun choix n'est fait, il est une fenêtre
+ * (blocking : voile sur la page, ConsentProvider) dont il faut sortir par un choix ;
  * « Refuser » et « Accepter » ont exactement le même poids visuel.
  */
 import { useEffect, useRef, useState } from "react";
@@ -11,6 +12,8 @@ import { useLocale } from "@/components/providers/LocaleProvider";
 import type { ConsentChoices } from "@/lib/consent";
 
 type Props = {
+  /** choix obligatoire : fenêtre au-dessus d'une page voilée */
+  blocking: boolean;
   details: boolean;
   current: ConsentChoices;
   onDetails: () => void;
@@ -19,7 +22,7 @@ type Props = {
   onSave: (choices: ConsentChoices) => void;
 };
 
-export function CookieBanner({ details, current, onDetails, onAcceptAll, onRefuseAll, onSave }: Props) {
+export function CookieBanner({ blocking, details, current, onDetails, onAcceptAll, onRefuseAll, onSave }: Props) {
   const [draft, setDraft] = useState<ConsentChoices>(current);
   const [synced, setSynced] = useState(current);
   if (current !== synced) {
@@ -35,7 +38,16 @@ export function CookieBanner({ details, current, onDetails, onAcceptAll, onRefus
   }, [details]);
 
   return (
-    <section className="consent" data-details={details} aria-labelledby="consent-title" lang={lang}>
+    <section
+      className="consent"
+      data-details={details}
+      role={blocking ? "dialog" : undefined}
+      aria-modal={blocking || undefined}
+      aria-labelledby="consent-title"
+      tabIndex={blocking ? -1 : undefined}
+      data-lenis-prevent=""
+      lang={lang}
+    >
       <div className="consent__inner container">
         <div className="consent__intro">
           <h2 id="consent-title" className="t-label consent__title">

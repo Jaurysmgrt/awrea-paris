@@ -106,33 +106,30 @@ Pour sortir : **Se déconnecter**, en bas du menu.
 
 ## 2. Se repérer dans l’Atelier
 
-Le menu de gauche réunit tout. Voici à quoi sert chaque entrée.
+Le menu de gauche est rangé comme une journée de la Maison (sur téléphone, il s’ouvre avec
+**Menu**). Un nombre à côté d’une entrée dit ce qui vous attend.
 
 | Entrée | Ce que vous y faites |
 | --- | --- |
-| **Vue d’ensemble** | Les ventes de la semaine et ce qui attend votre décision |
-| **Validations** | Accepter ou refuser ce que les agents proposent (argent, gestes définitifs) |
-| **Messages** | Les messages des clientes, avec une réponse préparée |
-| **Catalogue** | Prix, délai de fabrication, « provisoire » et « Nouveau » de chaque pièce ; une nouvelle pièce |
-| **Commandes** | Les commandes et leurs étapes, de « Commande reçue » à « Livrée » |
+| **Aujourd’hui** | Ce qui vous attend, dans l’ordre où le faire, quelques chiffres, vos pièces en photo et les gestes courants |
+| *Clientes* : **Commandes** | Les commandes et leurs étapes, de « Commande reçue » à « Livrée » |
 | **Rendez-vous** | Les rendez-vous à venir et vos disponibilités |
+| **Messages** | Les messages des clientes, avec une réponse préparée |
+| **Fichier clientes** | Les comptes des clientes |
 | **Retours** | Les retours et les échanges de taille |
-| **Factures** | Les factures, les avoirs et l’export du mois |
-| **Certificats** | Les certificats d’authenticité et leurs numéros de création |
-| **Avant-premières** | Annoncer une collection avant son dévoilement |
 | **Avis** | Les avis des clientes à publier ou non |
-| **Clientes** | Les comptes des clientes |
-| **Pages** | Toutes les pages du site, pour les modifier |
+| *Pièces* : **Catalogue** | Prix, délai de fabrication, « provisoire » et « Nouveau » de chaque pièce ; une nouvelle pièce |
+| **Avant-premières** | Annoncer une collection avant son dévoilement |
+| **Certificats** | Les certificats d’authenticité et leurs numéros de création |
+| *Le site* : **Pages** | Toutes les pages du site, pour les modifier |
 | **Photos** | Toutes les photos du site, avec la page où chacune paraît, et les photos provisoires à remplacer |
 | **E-mails** | Tous les e-mails envoyés aux clientes, pour les modifier |
-| **Contenus** | Les publications Instagram et les lettres préparées par l’agent Contenu |
-| **SEO & IA** | La visibilité du site sur Google et auprès des assistants |
-| **Rapports** | Les rapports des agents |
-| **Équipe** | Le passage du matin de chaque rôle |
-| **Journal des actions** | Tout ce que les agents ont fait, avec la date |
-| **Réglages** | Les services branchés, ceux qui manquent, les connexions à l’Atelier |
+| *Gestion* : **À valider** | Accepter ou refuser ce que les agents proposent (argent, gestes définitifs) |
+| **Factures** | Les factures, les avoirs et l’export du mois |
+| **Réglages** | Les services branchés, ceux qui manquent, le lien privé du site, les connexions à l’Atelier |
+| *Coulisses* (replié) | Équipe (les agents et leur dernier passage, la maintenance de nuit), Journal des actions, Rapports, Référencement, Contenus |
 
-![La Vue d’ensemble et son menu](docs/guide/03-vue-d-ensemble.png)
+![L’accueil « Aujourd’hui » et son menu](docs/guide/03-vue-d-ensemble.png)
 
 ## 3. Modifier un texte du site
 
@@ -302,13 +299,13 @@ entretien** : « [À COMPLÉTER : composition exacte des matières, communiq
 « [À COMPLÉTER : conseils d’entretien] ». Sous le bouton, un message dit combien de points restent à
 confirmer, et Atelier › **Journal des actions** les nomme.
 
-Pour faire le point plus tard : Atelier › **Vue d’ensemble**, rubrique **L’équipe**, agent
+Pour faire le point plus tard : Atelier › *Coulisses* › **Équipe**, rubrique **Les agents principaux**, agent
 Catalogue, **Faire le bilan**. Le Journal des actions liste alors, pièce par pièce, ce qui manque
 encore : composition, entretien, taille portée par le mannequin.
 
 Tant que l’assistante n’est pas branchée (`ACTIVATION.md`, étape 8), la fiche suit un modèle : les
 matières et l’entretien restent à compléter, même s’ils sont dans vos notes. Si une tournure du
-texte est à revoir, la fiche vous attend d’abord dans Atelier › **Validations**.
+texte est à revoir, la fiche vous attend d’abord dans Atelier › **À valider**.
 
 ![La page Catalogue](docs/guide/07-catalogue.png)
 
@@ -545,7 +542,7 @@ Des agents s’occupent chaque jour de la gestion courante : messages, commande
 retours, comptabilité, rendez-vous, sauvegarde… Ils préviennent et préparent. Tout ce qui touche à
 l’argent ou ne se défait pas vous est toujours demandé.
 
-1. Atelier › **Validations**. **En attente** liste les propositions : un changement de prix, un
+1. Atelier › **À valider**. **En attente** liste les propositions : un changement de prix, un
    remboursement, une annulation de commande, la suppression d’une pièce, une lettre à toute la
    liste. Chacune dit ce qui sera fait.
 2. **Valider** exécute la proposition. **Refuser** l’écarte.

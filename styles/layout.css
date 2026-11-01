@@ -757,10 +757,31 @@
   }
 
   /* ========================================================= COOKIES
-     Un filet fin, du papier ivoire, une typographie fine ; un fondu discret au bas de l’écran,
-     jamais de fenêtre bloquante. */
-  html[data-consent="set"] .consent {
+     Un filet fin, du papier ivoire, une typographie fine ; un fondu discret au bas de l’écran.
+     Choix obligatoire (choix de la créatrice du 01/11) : tant qu’aucun choix n’est fait, un voile
+     couvre la page, qui ne défile plus ; les pages à lire avant de choisir ne sont pas voilées
+     (ConsentProvider). */
+  html[data-consent="set"] :is(.consent, .consent-veil) {
     display: none;
+  }
+  .consent-veil {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-cookie-veil);
+    background: color-mix(in oklab, var(--color-ink) 45%, transparent);
+    animation: consent-veil-in var(--dur) var(--ease) var(--dur) both;
+  }
+  html.consent-bloque,
+  html:not([data-consent="set"]):has(.consent-veil) {
+    overflow: hidden;
+  }
+  .consent:focus {
+    outline: none;
+  }
+  @keyframes consent-veil-in {
+    from {
+      opacity: 0;
+    }
   }
   /* le bandeau porte toutes ses couleurs, accent compris : il ne suit jamais l'alternance de la
      scène (sans quoi son titre passait blanc sur blanc au passage d'une section noire) */

@@ -55,9 +55,11 @@ test("Agents : Commandes et confection, bilan du catalogue, propositions à vali
   expect(legacy.ok()).toBeTruthy();
   expect((await legacy.json()).run.agent).toBe("commandes-confection");
 
+  // l'accueil parle de la journée ; les agents sont dans les coulisses (Équipe)
   await page.goto(ATELIER);
-  await expect(page.getByRole("heading", { name: "Commandes et confection", exact: true })).toBeVisible();
   await expect(page.locator(".kpis").getByText("En confection", { exact: true })).toBeVisible();
+  await page.goto(`${ATELIER}/equipe`);
+  await expect(page.getByRole("heading", { name: "Commandes et confection", exact: true })).toBeVisible();
 
   // prix et délais provisoires, message de retard préparé : rien ne part sans la créatrice
   await page.goto(`${ATELIER}/validations`);
