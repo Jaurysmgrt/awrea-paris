@@ -51,6 +51,55 @@ test.describe("Pages de la Maison", () => {
     await expect(main.getByText(/Lace is more|Lumière d’or|numérotée|édition limitée|pièces restantes/i)).toHaveCount(0);
   });
 
+  // retour du 01/11 : « quand on arrive, je veux voir le logo, que ça donne envie ; trop de blanc en haut »
+  test("accueil : dès l'arrivée, le logo, le titre et une pièce en grand, sans grand blanc en haut", async ({ page }) => {
+    const [sienna] = accueil.ouverture.photos;
+    const logo = page.getByRole("link", { name: "Awrea Paris, page d’accueil" });
+    for (const vp of [
+      { width: 1440, height: 900 },
+      { width: 1280, height: 720 },
+      { width: 390, height: 664 },
+    ]) {
+      await page.setViewportSize(vp);
+      await open(page, "/");
+      const phone = vp.width < 768;
+      // le logo entier, en grand, en haut de l'écran (téléphone compris), et un seul lien vers l'accueil
+      await expect(logo).toHaveCount(1);
+      const l = (await logo.boundingBox())!;
+      expect(l.y).toBeLessThan(vp.height * 0.1);
+      expect(l.height).toBeGreaterThanOrEqual(80);
+      // la première pièce, en grand, commence juste sous la navigation et occupe l'écran
+      const photo = (await page.getByRole("img", { name: sienna.image.alt }).boundingBox())!;
+      expect(photo.y).toBeLessThan(phone ? 240 : 280);
+      expect(Math.min(photo.y + photo.height, vp.height) - photo.y).toBeGreaterThan(vp.height * 0.4);
+      // sur ordinateur, le titre est à l'écran avec elle
+      if (!phone) {
+        const h1 = (await page.locator("h1").boundingBox())!;
+        expect(h1.y + h1.height).toBeLessThan(vp.height);
+      }
+    }
+    // la photo entière mène à la pièce (le lien de son nom s'étend sur elle)
+    const p = (await page.getByRole("img", { name: sienna.image.alt }).boundingBox())!;
+    await page.mouse.click(p.x + p.width / 2, p.y + p.height / 2);
+    await expect(page).toHaveURL(new RegExp(`${sienna.href}$`));
+  });
+
+  test("accueil sur téléphone : le petit logo de la bande revient une fois le grand sorti de l'écran", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 664 });
+    await open(page, "/");
+    const logo = page.getByRole("link", { name: "Awrea Paris, page d’accueil" });
+    await expect(page.locator(".site-header")).toHaveAttribute("data-compact", "false");
+    await page.mouse.wheel(0, 600);
+    await expect(page.locator(".site-header")).toHaveAttribute("data-compact", "true");
+    // le grand logo, sorti de l'écran, devient inerte ; celui de la bande reste en haut
+    await expect(page.locator(".site-header__top")).toHaveAttribute("inert", "");
+    await expect(page.locator(".site-header__mark")).toBeInViewport();
+    // ailleurs, la bande seule, comme avant
+    await page.goto("/contact");
+    await expect(page.locator(".site-header")).toHaveAttribute("data-accueil", "false");
+    expect((await logo.boundingBox())!.height).toBeLessThan(80);
+  });
+
   test("La Maison : le texte À propos en entier, dans l'ordre, avec le portrait de la créatrice", async ({ page }) => {
     await open(page, "/la-maison");
     await expect(page.getByRole("heading", { level: 1 })).toContainText(laMaison.apropos.titre[0]);

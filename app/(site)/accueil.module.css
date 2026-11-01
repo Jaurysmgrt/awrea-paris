@@ -3,14 +3,107 @@
  * et du design system). Tokens seulement.
  */
 
-/* l’ouverture passe sous l’en-tête fixe du site, comme les en-têtes de page (.page-head) */
+/* ------------------------------------------------------------------ OUVERTURE
+   Retour du 01/11 : « quand on arrive, je veux voir le logo, que ça donne envie ; trop de blanc
+   en haut ». Le titre et deux pièces en grand commencent juste sous la navigation : sur
+   ordinateur, le titre à gauche et les deux photos à droite, la seconde décalée vers le bas ; sur
+   tablette, le titre au-dessus des deux photos ; sur téléphone, sous le grand logo, la première
+   photo d'abord, puis le titre. Les grandes photos restent droites (seules les cartes sont
+   arrondies). */
 .ouverture {
-  padding-top: calc(var(--header-h) + var(--spacing-xl));
+  /* l'ouverture passe sous l'en-tête collant (--header-h), puis une marge courte */
+  padding-top: calc(var(--header-h) + var(--spacing-m));
+  padding-bottom: var(--space-section);
 }
-
-/* le titre de la Maison, très grand, sur deux lignes équilibrées */
+.scene {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-block);
+  /* jusqu'à 1 440 px de large dès l'ordinateur portable : à 1 280 px, la largeur commune des pages
+     (1 024 px) laisserait le titre sur quatre lignes et les photos trop petites */
+  max-width: var(--breakpoint-xl);
+}
+.tete > * + * {
+  margin-top: var(--spacing-m);
+}
+/* le titre de la Maison, très grand, en lignes équilibrées */
 .titre {
   text-wrap: balance;
+}
+.accroche {
+  max-width: var(--measure);
+}
+
+.photos {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-m);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* téléphone : la première photo, en grand, avant le titre ; la seconde attend la tablette */
+@media (max-width: 47.99rem) {
+  .photos {
+    order: -1;
+  }
+  .photo + .photo {
+    display: none;
+  }
+}
+.photo {
+  position: relative;
+}
+/* la photo entière mène à la pièce : le lien du nom s'étend sur la photo */
+.legende {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--spacing-s);
+  margin-top: var(--spacing-2xs);
+}
+.lien {
+  position: static;
+}
+.lien::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.lien:focus-visible {
+  outline: none;
+}
+.lien:focus-visible::after {
+  outline: var(--border-width-hair) solid currentColor;
+  outline-offset: var(--spacing-3xs);
+}
+
+/* tablette : le titre au-dessus, les deux photos côte à côte, la seconde décalée */
+@media (min-width: 48rem) {
+  .photos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .photo + .photo {
+    margin-top: var(--spacing-xl);
+  }
+}
+/* ordinateur : le titre à gauche, centré sur la hauteur des photos, les photos à droite */
+@media (min-width: 64rem) {
+  .scene {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: center;
+    gap: var(--spacing-gutter);
+  }
+  .photo + .photo {
+    margin-top: var(--spacing-l);
+  }
+}
+
+/* ------------------------------------------------------------------ LA MAISON
+   Le texte de présentation seul, centré, comme sur la maquette TEASING MARQUE. */
+.maison {
+  padding-top: 0;
 }
 
 /* sélection de pièces : une colonne sur téléphone, trois dès la tablette, comme les cartes de la

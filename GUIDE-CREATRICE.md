@@ -223,6 +223,10 @@ suppression est définitive : la page disparaît du site et de l’historique.
    voit de la matière, la pose, le fond. Une proposition est faite, à corriger si besoin.
 5. **Enregistrer**, puis **Publier** (partie 4).
 
+Les deux grandes photos qui ouvrent l’accueil, juste sous le logo, se changent de la même façon. Le
+nom de la pièce, sous chaque photo, se modifie comme un texte ; un clic sur la photo mène à cette
+pièce.
+
 ### Les photos provisoires
 
 En attendant les vraies prises de vue, les pièces sont présentées avec des images générées. Elles

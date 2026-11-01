@@ -101,6 +101,28 @@
     height: var(--site-header-logo);
     color: inherit;
   }
+  /* accueil sur téléphone : le logo entier en grand au-dessus de la bande, comme sur ordinateur
+     (retour du 01/11 : « quand on arrive, je veux voir le logo ») ; la bande garde Menu et Panier,
+     et son petit logo n'apparaît qu'une fois le grand sorti de l'écran */
+  @media (max-width: 47.99rem) {
+    .site-header[data-accueil="true"] {
+      --site-header-logo: var(--size-logo-l); /* 80 px */
+      --site-header-top: calc(var(--spacing-m) + var(--site-header-logo) + var(--spacing-xs));
+      height: calc(var(--site-header-top) + var(--header-h));
+      top: calc(-1 * var(--site-header-top));
+    }
+    .site-header[data-accueil="true"] .site-header__top {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      height: var(--site-header-top);
+      padding-top: var(--spacing-m);
+      padding-bottom: var(--spacing-xs);
+    }
+    .site-header[data-accueil="true"]:not([data-compact="true"]) .site-header__mark {
+      visibility: hidden;
+    }
+  }
 
   /* bande de navigation : la seule partie visible une fois l'en-tête compact */
   .site-header__band {
