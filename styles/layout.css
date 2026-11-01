@@ -8,9 +8,9 @@
   /* ============================================================ LOGO
      Fichier officiel en masque (components/brand/Logo.tsx) : le dessin prend la couleur du texte.
      Les proportions du fichier (--logo-ratio : 708 / 293 pour le logo entier, 380 / 325 pour le
-     monogramme) tiennent le dessin : le conteneur fixe la hauteur (en-tête : 100 % ; ailleurs
-     --logo-h, par exemple --size-logo, pour que « PARIS » reste lisible) ou, pour le cachet de
-     l'enveloppe, la largeur ; l'autre dimension suit, sans jamais déformer. */
+     monogramme) tiennent le dessin : sa hauteur vient de --logo-h (--size-logo au moins, pour que
+     « PARIS » reste lisible ; jamais 100 % du parent, que Safari ne sait pas convertir en largeur)
+     ou, pour le cachet de l'enveloppe, de la largeur ; l'autre dimension suit, sans déformer. */
   .logo-mask {
     display: block;
     aspect-ratio: var(--logo-ratio);
@@ -99,6 +99,9 @@
   .site-header__logo {
     display: inline-block;
     height: var(--site-header-logo);
+    /* hauteur donnée au dessin lui-même : Safari ne déduit pas la largeur d'un masque de hauteur
+       100 % dans un conteneur à largeur automatique, et le logo y restait invisible */
+    --logo-h: var(--site-header-logo);
     color: inherit;
   }
   /* accueil sur téléphone : le logo entier en grand au-dessus de la bande, comme sur ordinateur
@@ -191,6 +194,7 @@
     grid-area: mark;
     display: block;
     height: var(--size-logo);
+    --logo-h: var(--size-logo);
     color: inherit;
   }
   .site-header__mark-mini,

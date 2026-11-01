@@ -23,7 +23,7 @@ function estimateText(t: OrderTimeline): string | null {
   if (!t.estimate) return null;
   const from = formatDate(t.estimate.from);
   const to = formatDate(t.estimate.to);
-  return from === to ? to : `${from} au ${to}`;
+  return from === to ? `le ${to}` : `du ${from} au ${to}`;
 }
 
 /** Geste suivant d'une commande depuis la liste ; l'expédition s'ouvre sur la fiche (suivi, confirmation). */
@@ -76,19 +76,18 @@ export default async function CommandesPage() {
       <section className="panel" aria-labelledby="orders-title">
         <h2 id="orders-title" className="t-h3">Dernières commandes</h2>
         <div className="table-scroll">
-          <table className="table">
+          {/* six colonnes qui tiennent dans l'écran (capture de la créatrice du 01/11 : dix colonnes
+              débordaient et écrasaient les pièces mot par mot) ; facture, certificats et suivi du
+              transporteur sont sur la fiche de chaque commande */}
+          <table className="table table--commandes">
             <thead>
               <tr>
                 <th scope="col">Commande</th>
-                <th scope="col">Date</th>
                 <th scope="col">Cliente</th>
                 <th scope="col">Pièces</th>
                 <th scope="col">Total</th>
                 <th scope="col">Étape</th>
-                <th scope="col">Fin de confection prévue</th>
-                <th scope="col">Étape suivante</th>
-                <th scope="col">Suivi</th>
-                <th scope="col">Certificats</th>
+                <th scope="col">À faire</th>
               </tr>
             </thead>
             <tbody>
@@ -101,22 +100,24 @@ export default async function CommandesPage() {
                       <Link href={atelierHref(`/commandes/${encodeURIComponent(o.number)}`)} className="text-link">
                         {o.number}
                       </Link>
+                      <span className="t-note table__date">
+                        <When iso={o.createdAt} />
+                      </span>
                     </th>
-                    <td><When iso={o.createdAt} /></td>
-                    <td>{o.name}<br /><span className="t-note">{o.email}</span></td>
+                    <td>{o.name}<br /><span className="t-note table__mail">{o.email.split("@")[0]}<wbr />@{o.email.split("@").slice(1).join("@")}</span></td>
                     <td>{o.lines.map((l) => `${l.title} (${l.size})`).join(", ")}{o.gift?.wrap ? <><br /><span className="t-note">Cadeau : « {o.gift.message} »</span></> : null}</td>
-                    <td>{formatPrice(o.total)}</td>
-                    <td><span className={`status status--${o.status === "blocked" ? "failed" : o.status === "delivered" || o.status === "shipped" ? "done" : "info"}`}>{statusLabel[o.status]}</span></td>
+                    <td className="table__nombre">{formatPrice(o.total)}</td>
                     <td>
-                      {estimate ?? <span className="t-note">Aucune</span>}
-                      {timeline.late ? <><br /><span className="status status--failed">En retard</span></> : null}
+                      <span className={`status status--${o.status === "blocked" ? "pending" : o.status === "delivered" || o.status === "shipped" ? "done" : "info"}`}>{statusLabel[o.status]}</span>
+                      {timeline.late ? <> <span className="status status--pending">En retard</span></> : null}
+                      <span className="t-note table__detail">{estimate ? `Fin prévue ${estimate}` : "Aucune fin prévue"}</span>
+                      {url ? <a href={url} className="text-link t-note" target="_blank" rel="noopener noreferrer">Suivi {o.shipping.carrier}</a> : null}
                     </td>
-                    <td><NextAction order={o} /></td>
-                    <td>{url ? <a href={url} className="text-link" target="_blank" rel="noopener noreferrer">{o.shipping.carrier}</a> : "Aucun"}</td>
                     <td>
-                      <Link href={atelierHref(`/certificats?commande=${encodeURIComponent(o.number)}`)} className="text-link">Préparer</Link>
-                      <br />
-                      <ActionButton endpoint={atelierApi("/avis/demande")} body={{ number: o.number }} label="Demander un avis" busyLabel="Envoi…" variant="quiet" />
+                      <div className="table__gestes">
+                        <NextAction order={o} />
+                        <ActionButton endpoint={atelierApi("/avis/demande")} body={{ number: o.number }} label="Demander un avis" busyLabel="Envoi…" variant="quiet" />
+                      </div>
                     </td>
                   </tr>
                 );

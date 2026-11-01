@@ -24,6 +24,12 @@ test.describe("En-tête de la maquette : logo centré, navigation centrée desso
     expect(Math.abs(list.x + list.width / 2 - width / 2)).toBeLessThan(2);
     expect(list.y).toBeGreaterThan(logo.y + logo.height - 1); // la navigation sous le logo
     await expect(page.getByRole("link", { name: "Awrea Paris, page d’accueil" })).toHaveCount(1);
+    // capture de la créatrice (01/11, Safari) : chaque dessin du logo de l'en-tête a sa propre
+    // hauteur (--logo-h), jamais 100 % de son parent, que Safari ne convertit pas en largeur
+    const heights = await page.locator(".site-header .logo-mask").evaluateAll((els) => els.map((e) => getComputedStyle(e).getPropertyValue("--logo-h").trim()));
+    expect(heights.length).toBeGreaterThan(0);
+    for (const h of heights) expect(h).not.toBe("");
+    expect(logo.width).toBeGreaterThan(logo.height * 2);
   });
 
   test("menus déroulants au clavier : Entrée ouvre, Tab parcourt, Échap referme et rend le focus", async ({ page }) => {
