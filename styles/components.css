@@ -32,8 +32,8 @@
     column-gap: var(--spacing-gutter);
   }
 
-  /* Sections : chacune déclare son thème. Quand la bascule au scroll est active,
-     le fond devient celui de la scène globale (transition douce). */
+  /* Sections : chacune déclare son thème et porte sa couleur (la transition ne joue qu'au passage
+     Jour ↔ Nuit) */
   .scene {
     position: relative;
     background-color: var(--bg);
@@ -41,44 +41,6 @@
     transition:
       background-color var(--dur) var(--ease),
       color var(--dur) var(--ease);
-  }
-  /* Seules les sections de page suivent la scène (jamais les tiroirs, modales, panneaux) */
-  html.scene-live :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
-    background-color: transparent;
-    /* le fond visible est celui de la scène (porté par <body>) : badges, puces et boutons
-       qui s'appuient sur --bg le reprennent, pour rester lisibles */
-    --bg: inherit;
-  }
-  html.scene-live[data-scene="ink"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
-    --fg: var(--color-ivory);
-    --fg-soft: var(--color-ivory-soft);
-    --line: color-mix(in oklab, var(--color-ivory) 24%, transparent);
-    --accent: var(--color-ivory);
-    color: var(--fg);
-  }
-  html.scene-live[data-scene="ivory"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]),
-  html.scene-live[data-scene="pearl"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
-    --fg: var(--color-ink);
-    --fg-soft: var(--color-ink-soft);
-    --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
-    --accent: var(--color-ink);
-    color: var(--fg);
-  }
-
-  html[data-mode="dark"].scene-live[data-scene="ivory"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]),
-  html[data-mode="dark"].scene-live[data-scene="pearl"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
-    --fg: var(--color-ivory);
-    --fg-soft: var(--color-ivory-soft);
-    --line: color-mix(in oklab, var(--color-ivory) 20%, transparent);
-    --accent: var(--color-ivory);
-  }
-
-  html[data-mode="dark"].scene-live[data-scene="ink"] :is(main > .scene, main > article > .scene, .site-footer):not([data-theme="paper"]) {
-    --fg: var(--color-ink);
-    --fg-soft: var(--color-ink-soft);
-    --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
-    --accent: var(--color-ink);
-    color: var(--fg);
   }
 
   .scene[data-theme="paper"] {
@@ -840,29 +802,6 @@
     mask: url("/brand/awrea-aw.png") center / contain no-repeat;
   }
 
-  /* photos : un fondu lent à leur entrée dans l'écran, la photo se posant à peine (léger dézoom).
-     Choix de la créatrice du 01/11 (« fondu lent ») : plus de découpage ni de parallaxe, le même
-     geste partout. Une animation jouée une fois, et non une transition, pour ne pas ralentir le
-     zoom des cartes au survol. */
-  @keyframes fondu-lent {
-    from {
-      opacity: 0;
-      transform: scale(1.04);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  .reveal-img[data-pending] img,
-  .reveal-img[data-pending] video {
-    opacity: 0;
-  }
-  .reveal-img[data-shown] img,
-  .reveal-img[data-shown] video {
-    animation: fondu-lent var(--dur-breath) var(--ease) backwards;
-  }
-
   /* ===================================================== SQUELETTES
      Pendant un chargement, des aplats ivoire à peine nacrés tiennent la place exacte du
      contenu : rien ne saute, rien ne paraît figé. */
@@ -1045,27 +984,5 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-
-  /* apparition au scroll (pilotée par components/motion/RevealObserver) : seuls les éléments
-     sous l'écran au chargement sont mis en attente, le reste s'affiche tout de suite */
-  [data-reveal][data-pending] {
-    opacity: 0;
-    transform: translateY(var(--spacing-m));
-  }
-  [data-reveal][data-shown] {
-    transition:
-      opacity var(--dur) var(--ease),
-      transform var(--dur) var(--ease);
-  }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  [data-reveal][data-pending] {
-    opacity: 1 !important;
-    transform: none !important;
-  }
-}
-html[data-motion="reduce"] [data-reveal][data-pending] {
-  opacity: 1 !important;
-  transform: none !important;
-}

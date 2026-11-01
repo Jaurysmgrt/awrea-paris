@@ -79,29 +79,11 @@
 }
 
 /* ================================================================== ANIMATIONS
-   Demande de la créatrice du 01/11 : fluides, haut de gamme, cohérentes, sans effet tape-à-l'œil ;
-   puis « immersives », allégées sur téléphone (pas de mouvement lié au défilement) ; le soir, « varie
-   les animations » et, pour les photos, « fondu lent ». Une seule durée (--dur) et une seule courbe
-   (--ease) pour tout, des décalages en
-   --dur-stagger : le même souffle partout. Seuls la transparence, les déplacements, l'échelle et le
-   découpage sont animés (le processeur graphique s'en charge, fluide sur téléphone). Les animations
-   apaisées (réglage de l'appareil ou du site) ramènent --dur à 0,01 s : tout s'affiche aussitôt.
-
-   1. Ouverture : le film apparaît dans un fondu depuis le noir (VideoLazy) et se pose lentement
-      (légère réduction d'échelle) ; sur ordinateur, en quittant l'écran, il glisse plus lentement
-      que la page et s'assombrit d'un souffle (SortieFilm.tsx) : une sortie de scène, pas un effet.
-      C'est l'animation que la créatrice préfère (« quand ça passe derrière ») : elle reste. */
-@keyframes accueil-pose {
-  from {
-    scale: 1.06;
-  }
-  to {
-    scale: 1;
-  }
-}
-.film :global(.video) video {
-  animation: accueil-pose var(--dur-breath) var(--ease) backwards;
-}
+   Au strict minimum (choix de la créatrice du 01/11 : « ça fait kitsch et vu et revu ») : plus rien
+   n'apparaît ni ne monte au défilement. Seule reste la sortie du film d'ouverture, l'animation
+   qu'elle préfère (« quand ça passe derrière ») : sur ordinateur, en quittant l'écran, il glisse
+   plus lentement que la page et s'assombrit d'un souffle pendant que la section suivante passe
+   par-dessus (SortieFilm.tsx : --sortie). Rien sur téléphone ni en animations apaisées. */
 @media (min-width: 48rem) and (hover: hover) and (prefers-reduced-motion: no-preference) {
   html:not([data-motion="reduce"]) .film :global(.video) {
     translate: 0 calc(var(--sortie, 0) * 30%);
@@ -109,50 +91,4 @@
   html:not([data-motion="reduce"]) .film::after {
     opacity: calc(var(--sortie, 0) * 0.45);
   }
-}
-
-/* 2. Sections : les blocs de texte, les pièces et les boutons montent doucement à leur entrée dans
-      l'écran, l'un après l'autre (--i, posé dans la page), grâce à l'observateur commun du site
-      (components/motion/RevealObserver : data-pending, puis data-shown). */
-.anime :global([data-reveal][data-shown]) {
-  transition-delay: calc(var(--dur-stagger) * 2 * var(--i, 0));
-}
-
-/* 3. Titres : ils montent depuis une ligne invisible, d'un seul bloc (jamais mot à mot, retiré le
-      25/10 comme trop « IA ») ; le découpage s'ouvre de bas en haut pendant que le titre se pose.
-      En attente, le titre est seulement transparent : un élément entièrement découpé ne serait
-      jamais vu par l'observateur. Le découpage n'existe que le temps de l'animation. */
-@keyframes accueil-titre {
-  from {
-    opacity: 1;
-    clip-path: inset(100% 0 0 0);
-    translate: 0 var(--spacing-m);
-  }
-  to {
-    opacity: 1;
-    clip-path: inset(calc(-1 * var(--spacing-s)));
-    translate: 0 0;
-  }
-}
-.anime :global([data-reveal="titre"][data-pending]) {
-  transform: none;
-}
-.anime :global([data-reveal="titre"][data-shown]) {
-  transition: none;
-  animation: accueil-titre var(--dur) var(--ease) backwards;
-}
-
-/* 4. Photos : le fondu lent commun au site (.reveal-img, styles/components.css), choisi par la
-      créatrice le 01/11 à la place du découpage et de la parallaxe (« ça défile bizarrement »). */
-
-/* 5. Micro-interactions : un bouton s'enfonce à peine quand on le presse (son fond monte déjà au
-      survol, .btn ; le filet des liens se tire de même, .link). */
-.anime :global(.btn) {
-  transition:
-    color var(--dur) var(--ease),
-    translate var(--dur) var(--ease),
-    scale calc(var(--dur) / 4) var(--ease);
-}
-.anime :global(.btn):active {
-  scale: 0.98;
 }

@@ -8,7 +8,6 @@ import type { OrderStage } from "@/lib/commerce/types";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
-import { LightHalo } from "@/components/signature/LightHalo";
 import { delaiDeFamille, type FamilleDelai } from "@/components/home/delais";
 import ed from "@/components/home/editorial.module.css";
 import styles from "./sur-commande.module.css";
@@ -124,7 +123,6 @@ export default async function SurCommandePage() {
 
       {/* ------------------------------------------------ L'ÉTHIQUE */}
       <Section theme="ink" className="section--tall" labelledBy="commande-ethique">
-        <LightHalo intensity={0.7} />
         <div className={`container-text ${ed.centre}`}>
           <div className={ed.tete}>
             <p className="eyebrow">{t.ethique.surtitre}</p>

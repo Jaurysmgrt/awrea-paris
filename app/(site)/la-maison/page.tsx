@@ -5,7 +5,6 @@ import { getDoc } from "@/lib/edition/read";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Section } from "@/components/ui/Section";
-import { LightHalo } from "@/components/signature/LightHalo";
 import { Visuel } from "@/components/home/Visuel";
 import ed from "@/components/home/editorial.module.css";
 import styles from "./la-maison.module.css";
@@ -56,7 +55,6 @@ export default async function MaisonPage() {
       </Section>
 
       <Section theme="ink" className="section--tall" labelledBy="maison-suite">
-        <LightHalo intensity={0.7} />
         <div className={`container-text ${ed.centre}`}>
           <div className={ed.tete}>
             <p className="eyebrow">{t.suite.surtitre}</p>

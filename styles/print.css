@@ -30,7 +30,6 @@
   .assistant-launcher,
   .assistant,
   .skip-link,
-  .light-halo,
   .no-print,
   .admin__side,
   .envelope,
@@ -50,10 +49,6 @@
   *::after {
     animation: none !important;
     transition: none !important;
-  }
-  [data-reveal][data-pending] {
-    opacity: 1 !important;
-    transform: none !important;
   }
   a {
     text-decoration: none;

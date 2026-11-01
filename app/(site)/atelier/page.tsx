@@ -4,7 +4,6 @@ import { getDoc } from "@/lib/edition/read";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
-import { LightHalo } from "@/components/signature/LightHalo";
 import { Visuel } from "@/components/home/Visuel";
 import ed from "@/components/home/editorial.module.css";
 import styles from "./atelier.module.css";
@@ -53,7 +52,6 @@ export default async function AtelierPage() {
       </Section>
 
       <Section theme="ink" className="section--tall" labelledBy="atelier-fin">
-        <LightHalo intensity={0.7} />
         <div className={`container-text ${ed.centre}`}>
           <div className={ed.tete}>
             <p className="eyebrow">{t.fin.surtitre}</p>

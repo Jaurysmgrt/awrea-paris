@@ -3,9 +3,6 @@ import { Footer } from "@/components/layout/Footer";
 import { ConsentProvider } from "@/components/consent/ConsentProvider";
 import { SmoothScroll } from "@/components/providers/SmoothScroll";
 import { PageTransition } from "@/components/signature/PageTransition";
-import { ThemeShift } from "@/components/signature/ThemeShift";
-import { RevealObserver } from "@/components/motion/RevealObserver";
-import { Magnetic } from "@/components/motion/Magnetic";
 import { CartProvider } from "@/components/commerce/CartProvider";
 import { CartDrawerLazy } from "@/components/commerce/CartDrawerLazy";
 import { WishlistProvider } from "@/components/commerce/WishlistProvider";
@@ -19,6 +16,12 @@ import { Justification } from "@/components/ui/Justification";
 
 type SiteTexts = typeof import("@/content/site/fr/site.json");
 
+/**
+ * Gabarit du site public. Animations au strict minimum (choix de la créatrice du 01/11 : « ça fait
+ * kitsch et vu et revu ») : plus d'apparitions au défilement, de fond qui glisse d'une couleur à
+ * l'autre ni de boutons attirés par le curseur. Restent le fondu blanc entre les pages
+ * (PageTransition), la sortie du film d'ouverture de l'accueil et des survols discrets.
+ */
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [site, editing] = await Promise.all([getDoc<SiteTexts>("site"), isEditing()]);
   return (
@@ -37,9 +40,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
               <Footer />
               <CartDrawerLazy />
               <Assistant />
-              <ThemeShift />
-              <RevealObserver />
-              <Magnetic />
               <Justification active={!editing} />
               <Suspense fallback={null}>
                 <Trackers />

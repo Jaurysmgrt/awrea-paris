@@ -591,3 +591,21 @@ lent », « la fiche de la pièce ».
 - Tests adaptés (le délai sous le prix, le certificat dans « Fabrication », rubriques fermées, plus de
   « délai de fabrication » ni de paragraphe d'engagement sur la fiche). Accueil, collection, fiche,
   commande, Atelier et homogénéité : 118 réussis, 2 ignorés.
+
+## Animations au strict minimum (01/11, soir)
+
+Retour de la créatrice : « j'aime pas les animations, ça fait kitsch et vu et revu ». Ses réponses :
+« le strict minimum », et garder le fondu blanc entre les pages.
+
+- Retirés : les apparitions au défilement (`RevealObserver`, `data-reveal`, `.reveal-img` ; le fondu
+  lent des photos, prévu une heure plus tôt, n'a jamais été publié), le fond qui glissait d'une couleur
+  à l'autre au défilement (`ThemeShift` : chaque section porte maintenant sa couleur, le mode Nuit
+  garde son alternance inversée), les boutons attirés par le curseur (`Magnetic`), le halo qui suivait
+  le curseur sur les sections noires (`LightHalo`), la pose du film à l'arrivée, les titres et blocs
+  qui montaient sur l'accueil, l'enveloppe qui s'ouvrait (elle est déjà ouverte) et les points qui
+  pulsaient sur les silhouettes.
+- Gardés : la sortie du film d'ouverture (il glisse plus lentement et s'assombrit en quittant l'écran,
+  ordinateur seulement), le fondu blanc entre les pages, les survols discrets (boutons, liens, photo des
+  pièces, loupe dentelle), le passage Jour ↔ Nuit.
+- Test de l'accueil réécrit : rien en attente ni marqué pour apparaître, titres opaques et immobiles,
+  section noire à sa couleur, sortie du film toujours active.

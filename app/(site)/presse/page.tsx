@@ -41,7 +41,7 @@ export default async function PressePage() {
             </h2>
             <ul className="press-list">
               {parutions.map((a) => (
-                <li key={a.title} className="press-item" data-reveal>
+                <li key={a.title} className="press-item">
                   <p className="t-label t-soft">
                     {a.outlet} · {formatMonth(a.date, locale)}
                   </p>

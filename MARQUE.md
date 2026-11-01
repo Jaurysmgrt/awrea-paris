@@ -326,11 +326,14 @@ pastille « Nouveau », photos des cartes aux angles arrondis. Primitives et cla
   séquences signature (qui enchaînent cette même durée). Contrôlé par `npm run audit:tokens`.
 - Toutes les animations sont coupées par « animations apaisées » quand l'appareil le demande
   (`prefers-reduced-motion`) et ne ralentissent jamais l'affichage.
+- **Au strict minimum** (choix de la créatrice du 01/11/2026 : « ça fait kitsch et vu et revu ») :
+  rien n'apparaît ni ne monte au défilement, aucun fond ne glisse d'une couleur à l'autre, aucun
+  bouton n'est attiré par le curseur, aucun halo ne le suit. Restent la sortie du film d'ouverture
+  de l'accueil, le fondu blanc entre les pages et des survols discrets (boutons, liens, photos des
+  pièces, loupe dentelle).
 
 ### Interactions signature (adaptées)
 
-- **Halo de lumière** : un halo blanc très doux suit le curseur sur les sections noires, sans motif
-  dessiné (`LightHalo` ; la fausse dentelle éclairée est retirée le 27/10/2026).
 - **Fondu blanc** entre les pages, court et discret (`PageTransition`, à la place du pan de tissu
   noir le 27/10/2026).
 - **Loupe dentelle** sur les photos de détail des pièces.
