@@ -59,7 +59,7 @@ export default async function GestionHome() {
 
   return (
     <div className="admin-page stack-l">
-      <header className="admin-page__head">
+      <header className="admin-page__head admin-page__head--accueil">
         <p className="eyebrow">{greeting}</p>
         <h1 className="t-h1">Bonjour.</h1>
         <p className="t-lead">{todo.length ? "Voici ce qui vous attend aujourd’hui, dans l’ordre." : "Rien ne presse aujourd’hui : tout est à jour."}</p>
@@ -70,12 +70,12 @@ export default async function GestionHome() {
           <h2 id="todo-title" className="t-h3">
             À faire
           </h2>
-          <ol className="todo">
+          <ol className="a-faire">
             {todo.map((t) => (
               <li key={t.titre}>
-                <Link href={atelierHref(t.href)} className="todo__item">
-                  <span className="todo__titre">{t.titre}</span>
-                  <span className="t-note todo__detail">{t.detail}</span>
+                <Link href={atelierHref(t.href)} className="a-faire__item">
+                  <span className="a-faire__titre">{t.titre}</span>
+                  <span className="t-note">{t.detail}</span>
                 </Link>
               </li>
             ))}

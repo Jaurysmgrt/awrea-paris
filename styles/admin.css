@@ -60,9 +60,27 @@
     color: var(--fg-soft);
     font-size: var(--text-step--2);
   }
+  /* téléphone : le logo à gauche, « Menu » à droite ; le reste vit dans le menu */
+  .admin-nav__site {
+    display: none;
+  }
   @media (max-width: 63.99rem) {
-    .admin__modes {
+    .admin__side {
+      position: relative;
+      gap: var(--spacing-s);
+    }
+    .admin__title,
+    .admin__foot {
       display: none;
+    }
+    .admin-nav__toggle {
+      position: absolute;
+      top: var(--spacing-m);
+      right: var(--spacing-gutter);
+    }
+    .admin-nav__site {
+      display: inline-flex;
+      justify-self: start;
     }
   }
   /* le texte de l'Atelier se lit au fer à gauche : la justification est réservée au site */
@@ -70,10 +88,11 @@
     text-align: left;
     hyphens: manual;
   }
-  /* titres de page plus sobres : le contenu reste à portée de vue */
-  .admin-page__head :is(h1, .t-h1) {
-    font-size: var(--text-step-4);
-    line-height: var(--lh-step-4);
+  /* titres de page plus sobres : le contenu reste à portée de vue (le « Bonjour. » de l'accueil
+     garde sa grandeur) */
+  .admin-page__head:not(.admin-page__head--accueil) :is(h1, .t-h1) {
+    font-size: var(--text-step-3);
+    line-height: var(--lh-step-3);
   }
   .admin__main {
     padding: var(--spacing-l) var(--spacing-gutter) var(--spacing-2xl);
@@ -211,24 +230,24 @@
   }
 
   /* accueil : ce qui attend aujourd'hui, dans l'ordre où le faire */
-  .todo {
+  .a-faire {
     display: grid;
     border-top: var(--border-width-hair) solid var(--line);
-    counter-reset: todo;
+    counter-reset: a-faire;
   }
-  .todo > li {
-    counter-increment: todo;
+  .a-faire > li {
+    counter-increment: a-faire;
     border-bottom: var(--border-width-hair) solid var(--line);
   }
-  .todo__item {
+  .a-faire__item {
     position: relative;
     display: grid;
     gap: var(--spacing-3xs);
     padding: var(--spacing-s) 0 var(--spacing-s) var(--spacing-xl);
     text-decoration: none;
   }
-  .todo__item::before {
-    content: counter(todo);
+  .a-faire__item::before {
+    content: counter(a-faire);
     position: absolute;
     left: 0;
     top: var(--spacing-s);
@@ -238,12 +257,12 @@
     font-size: var(--text-step-3);
     line-height: var(--lh-step-3);
   }
-  .todo__titre {
+  .a-faire__titre {
     font-size: var(--text-step-1);
     line-height: var(--lh-step-1);
   }
-  .todo__item:hover .todo__titre,
-  .todo__item:focus-visible .todo__titre {
+  .a-faire__item:hover .a-faire__titre,
+  .a-faire__item:focus-visible .a-faire__titre {
     text-decoration: underline;
     text-decoration-thickness: var(--border-width-hair);
     text-underline-offset: var(--spacing-3xs);

@@ -124,6 +124,10 @@ export function AdminNav({ counts }: { counts: Record<string, number> }) {
         >
           Se déconnecter
         </button>
+        {/* sur téléphone, le bas de la colonne est masqué : le site reste à portée depuis le menu */}
+        <Link href="/" className="btn btn--link admin-nav__site">
+          Voir le site
+        </Link>
       </div>
     </nav>
   );
