@@ -1,11 +1,12 @@
 /**
  * Site privé (SITE_PRIVE=1, lib/security/private-site.ts) : une visiteuse ne voit que la page
  * d'attente, en français comme en anglais ; les API publiques répondent 404 ; robots.txt ferme
- * tout ; la créatrice connectée à l'Atelier voit tout le site. Lancé seulement contre un serveur
- * démarré avec SITE_PRIVE=1 (et la même variable pour Playwright).
+ * tout ; la créatrice connectée à l'Atelier voit tout le site, comme la personne qui a ouvert le
+ * lien privé (SITE_PRIVE_CLE). Lancé seulement contre un serveur démarré avec SITE_PRIVE=1 (et les
+ * mêmes variables pour Playwright).
  */
 import { expect, test } from "@playwright/test";
-import { adminLogin } from "./admin-auth";
+import { ATELIER, adminLogin } from "./admin-auth";
 
 test.skip(process.env.SITE_PRIVE !== "1", "serveur démarré sans SITE_PRIVE=1");
 
@@ -31,3 +32,27 @@ test("créatrice connectée à l’Atelier : tout le site, en français et en an
   await page.goto("/en");
   await expect(page.getByRole("heading", { level: 1 })).not.toHaveText("Coming soon");
 });
+
+test("lien privé : la clé ouvre tout le site sans l'Atelier, puis disparaît de l'adresse", async ({ page }) => {
+  const key = process.env.SITE_PRIVE_CLE;
+  test.skip(!key, "serveur démarré sans SITE_PRIVE_CLE");
+  // une clé fausse ne donne rien
+  await page.goto("/?cle=une-cle-fausse-0123456789-abcdefgh");
+  expect(new URL(page.url()).search).toBe("");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Bientôt");
+  // la bonne clé : la page demandée, et la clé n'est plus dans l'adresse
+  await page.goto(`/la-maison?cle=${encodeURIComponent(key!)}`);
+  expect(new URL(page.url()).pathname).toBe("/la-maison");
+  expect(new URL(page.url()).search).toBe("");
+  await expect(page.getByRole("heading", { level: 1 })).not.toHaveText("Bientôt");
+  // ensuite, tout le site sans la clé, en français comme en anglais, toujours exclu des moteurs
+  await page.goto("/boutique/body-aura");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Aura");
+  const res = await page.goto("/en");
+  expect(res?.headers()["x-robots-tag"]).toContain("noindex");
+  await expect(page.getByRole("heading", { level: 1 })).not.toHaveText("Coming soon");
+  // l'Atelier reste fermé : sa page de connexion
+  await page.goto(ATELIER);
+  await expect(page).toHaveURL(new RegExp(`${ATELIER}/connexion`));
+});
+

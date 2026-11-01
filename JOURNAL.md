@@ -401,3 +401,27 @@ par cause, en coupant chaque effet suspect.
 - **Clic perdu pendant le fondu** (révélé par un parcours de la CI) : un clic sur un lien pendant
   que le voile se retirait était ignoré, et la page ne changeait pas. Il ouvre désormais la page
   demandée. Un parcours le vérifie (`navigation.spec.ts`).
+
+## Lien privé, langue et mode Nuit (01/11)
+
+- **Lien privé** : la créatrice ne veut plus passer par la page « Bientôt », sans ouvrir le site au
+  public. `SITE_PRIVE_CLE` (24 caractères au moins) : `…?cle=<clé>` ouvre tout le site pendant
+  30 jours dans ce navigateur. La clé est retirée aussitôt de l'adresse et remplacée par un cookie
+  signé qui porte son empreinte : changer la clé ferme tous les accès. Le lien n'ouvre ni l'Atelier
+  ni l'Édition, et le site reste exclu des moteurs. Il est affiché dans l'Atelier › Réglages ›
+  Sécurité. La créatrice proposait ses accès à l'Atelier : refusés, ils ne servent pas et les agents
+  ne gardent aucun mot de passe.
+- **Langue à la première arrivée** : `proxy.ts` lit les langues du navigateur (`preferredLocale`,
+  `lib/i18n/routing.ts`). Une visiteuse anglophone arrivée sur une adresse française est menée à
+  la même page sous /en ; ensuite la langue de chaque page est retenue (`awrea_langue`, 13 mois,
+  cookie nécessaire listé dans la politique cookies), et le sélecteur garde la main. Une adresse /en
+  donnée reste en anglais, et un robot sans langue annoncée reçoit la page demandée (aucun détour
+  pour l'indexation).
+- **Mode Nuit** : l'alternance s'inverse. Les sections noires du mode Jour passent la page en
+  ivoire, texte noir, puis elle redevient noire. Le halo, lumière blanche, n'y est pas affiché.
+- **Bandeau des cookies** : il prenait la couleur d'accent de la page, si bien que son titre passait
+  blanc sur blanc au passage d'une section noire, en mode Jour comme en mode Nuit. Il porte
+  désormais toutes ses couleurs.
+- **Contrôles** : tests unitaires de la langue et du lien privé ; parcours pour l'arrivée en
+  anglais, le mode Nuit inversé et le lien privé (serveur lancé en mode privé).
+

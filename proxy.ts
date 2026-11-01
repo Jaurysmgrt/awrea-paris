@@ -13,9 +13,12 @@
  *    valeur envoyée par le navigateur est écrasée). L'Atelier, l'API et les fichiers (plan du site,
  *    llms.txt, images) n'existent qu'en un exemplaire : sous /en, ils répondent 404 comme toute
  *    adresse inconnue.
- *  - Site privé (SITE_PRIVE=1, lib/security/private-site.ts) : sans session de l'Atelier, toute
- *    page du site montre la page d'attente et toute API répond 404 (sauf webhooks et tâches
- *    planifiées) ; aucune réponse n'est indexée.
+ *  - Première arrivée (pas encore de cookie de langue) : une visiteuse dont le navigateur préfère
+ *    l'anglais, arrivée sur une adresse française, est menée à la même page sous /en. Ensuite la
+ *    langue de chaque page est retenue (LOCALE_COOKIE) : le sélecteur FR · EN garde la main.
+ *  - Site privé (SITE_PRIVE=1, lib/security/private-site.ts) : sans session de l'Atelier ni accès
+ *    donné par le lien privé (SITE_PRIVE_CLE), toute page du site montre la page d'attente et toute
+ *    API répond 404 (sauf webhooks et tâches planifiées) ; aucune réponse n'est indexée.
  */
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
@@ -24,8 +27,10 @@ import { contentSecurityPolicy, cspEnabled, cspMode, newNonce } from "@/lib/secu
 import { countRefusal } from "@/lib/security/rate-limit";
 import { providerOf } from "@/lib/config/providers";
 import { atelierBase, isInternalAtelierPath, toInternal } from "@/lib/admin/path";
-import { DEFAULT_LOCALE, LOCALE_HEADER, isLocalizable, splitLocale, type Locale } from "@/lib/i18n/routing";
-import { PRIVATE_PAGE, openWhilePrivate, sitePrive } from "@/lib/security/private-site";
+import { DEFAULT_LOCALE, LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, LOCALE_HEADER, isLocalizable, localizePath, preferredLocale, splitLocale, type Locale } from "@/lib/i18n/routing";
+import { PREVIEW_COOKIE, PREVIEW_MAX_AGE, PREVIEW_PARAM, PRIVATE_PAGE, isPreviewKey, isPreviewToken, openWhilePrivate, previewToken, sitePrive } from "@/lib/security/private-site";
+
+const secureCookie = process.env.NODE_ENV === "production";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY;
@@ -105,6 +110,28 @@ function privateGate(request: NextRequest, path: string, nonce: string | null, l
   return response;
 }
 
+/**
+ * Lien privé : la clé ouvre le site dans ce navigateur (cookie signé), puis disparaît de l'adresse,
+ * de l'historique et des référents. Une clé fausse ne donne rien : la page d'attente reste.
+ */
+function grantPreview(request: NextRequest) {
+  const url = request.nextUrl.clone();
+  url.searchParams.delete(PREVIEW_PARAM);
+  const response = NextResponse.redirect(url);
+  const token = isPreviewKey(request.nextUrl.searchParams.get(PREVIEW_PARAM)) ? previewToken() : null;
+  if (token) response.cookies.set(PREVIEW_COOKIE, token, { httpOnly: true, sameSite: "lax", secure: secureCookie, path: "/", maxAge: PREVIEW_MAX_AGE });
+  response.headers.set("Cache-Control", "private, no-store");
+  response.headers.set("Referrer-Policy", "no-referrer");
+  response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  return response;
+}
+
+/** Accès au site privé : session de l'Atelier, ou accès donné par le lien privé. */
+async function canSeePrivateSite(request: NextRequest): Promise<boolean> {
+  if (isPreviewToken(request.cookies.get(PREVIEW_COOKIE)?.value)) return true;
+  return isAdminToken(request.cookies.get(ADMIN_COOKIE)?.value);
+}
+
 /** Pages de l'Atelier ouvertes sans session : connexion et lien « ce n'était pas moi ». */
 const OPEN_PAGES = ["/connexion", "/revoquer"];
 
@@ -176,13 +203,34 @@ export async function proxy(request: NextRequest) {
     target = request.nextUrl.clone();
     target.pathname = path;
   }
+  const atelier = Boolean(base && toInternal(pathname, base)) || isInternalAtelierPath(pathname);
+  if (sitePrive() && !atelier && request.nextUrl.searchParams.has(PREVIEW_PARAM)) return grantPreview(request);
+
+  // pages publiques : la langue du navigateur à la première arrivée, puis celle de chaque page
+  const publicPage = isDocument(request) && !atelier && isLocalizable(path);
+  const remembered = request.cookies.get(LOCALE_COOKIE)?.value;
+  if (publicPage && !remembered && !translated) {
+    const wanted = preferredLocale(request.headers.get("accept-language"));
+    if (wanted && wanted !== locale) {
+      const url = request.nextUrl.clone();
+      url.pathname = localizePath(path, wanted);
+      const redirect = NextResponse.redirect(url, 307);
+      redirect.cookies.set(LOCALE_COOKIE, wanted, { httpOnly: true, sameSite: "lax", secure: secureCookie, path: "/", maxAge: LOCALE_COOKIE_MAX_AGE });
+      redirect.headers.set("Cache-Control", "private, no-store");
+      redirect.headers.set("Vary", "Accept-Language, Cookie");
+      return redirect;
+    }
+  }
+
   let response: NextResponse;
   if (translated && (!isLocalizable(path) || isInternalAtelierPath(path) || (base && toInternal(path, base)))) response = notFound(request, nonce, locale);
   else if (base && toInternal(pathname, base)) response = await protectAtelier(request, base, nonce);
   else if (isInternalAtelierPath(pathname)) response = notFound(request, nonce);
-  else if (sitePrive() && !openWhilePrivate(path) && !(await isAdminToken(request.cookies.get(ADMIN_COOKIE)?.value))) response = privateGate(request, path, nonce, locale);
+  else if (sitePrive() && !openWhilePrivate(path) && !(await canSeePrivateSite(request))) response = privateGate(request, path, nonce, locale);
   else if (path.startsWith("/compte") || pathname.startsWith("/api/account")) response = await refreshCustomerSession(request, nonce, locale, target);
   else response = forward(request, nonce, locale, target);
+
+  if (publicPage && remembered !== locale) response.cookies.set(LOCALE_COOKIE, locale, { httpOnly: true, sameSite: "lax", secure: secureCookie, path: "/", maxAge: LOCALE_COOKIE_MAX_AGE });
 
   // site privé : aucune réponse n'est indexée, même pour la créatrice connectée
   if (sitePrive()) response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");

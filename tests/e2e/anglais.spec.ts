@@ -113,3 +113,40 @@ test.describe("Version anglaise (/en)", () => {
     });
   });
 });
+
+test.describe("Langue à la première arrivée : les réglages du navigateur", () => {
+  test.describe("navigateur en anglais", () => {
+    test.use({ locale: "en-GB" });
+
+    test("une adresse française s'ouvre en anglais ; ensuite, le sélecteur garde la main", async ({ page }) => {
+      await acceptCookies(page);
+      await page.goto("/la-maison");
+      await expect(page).toHaveURL(/\/en\/la-maison$/);
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      // la visiteuse choisit le français : il reste choisi, même en revenant à l'accueil
+      await waitForHydration(page);
+      await switcher(page).getByRole("link", { name: "Français" }).click();
+      await expect(page).toHaveURL(/\/la-maison$/);
+      expect(new URL(page.url()).pathname).toBe("/la-maison");
+      await page.goto("/");
+      expect(new URL(page.url()).pathname).toBe("/");
+      await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+    });
+  });
+
+  test("navigateur en français : le français ; une adresse anglaise donnée reste en anglais", async ({ page }) => {
+    await acceptCookies(page);
+    await page.goto("/");
+    expect(new URL(page.url()).pathname).toBe("/");
+    await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+    await page.context().clearCookies();
+    await page.goto("/en/boutique");
+    expect(new URL(page.url()).pathname).toBe("/en/boutique");
+  });
+
+  test("sans langue annoncée (robots d'indexation) : la page demandée, sans détour", async ({ request }) => {
+    const res = await request.get("/la-maison", { headers: { accept: "text/html", "accept-language": "" }, maxRedirects: 0 });
+    expect(res.status()).toBe(200);
+  });
+});
+

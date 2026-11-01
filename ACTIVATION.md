@@ -115,6 +115,7 @@ de mots de passe de votre gestionnaire, réglé sur 64 caractères, lettres et c
 | `ATELIER_EMAIL` | l'adresse de l'atelier (copies des demandes, rapports des agents) |
 | `SECURITY_ALERT_EMAIL` | une adresse qui reçoit une copie des alertes de connexion (facultatif) |
 | `SITE_PRIVE` | `1` tant que le site n'est pas ouvert au public (décision de la créatrice du 26/10/2026) : une visiteuse ne voit que la page « Bientôt », rien n'est indexé, et la créatrice connectée à l'Atelier voit tout le site. Pour l'ouvrir : supprimer la variable, puis **Redeploy** |
+| `SITE_PRIVE_CLE` | le lien privé (décision de la créatrice du 01/11/2026) : 32 caractères aléatoires. L'adresse `https://votre-site/?cle=` suivie de cette valeur ouvre tout le site, sans passer par l'Atelier, pendant 30 jours dans le navigateur où elle est ouverte ; les autres visiteuses voient toujours « Bientôt ». Le lien complet s'affiche dans l'Atelier › **Réglages** › **Sécurité**. Changer la valeur ferme d'un coup tous les accès déjà donnés |
 
 Gardez l'adresse secrète dans votre gestionnaire de mots de passe, avec le site. Elle n'apparaît nulle
 part sur le site : ni lien, ni moteur de recherche. L'ancienne adresse `/gestion` répond « page

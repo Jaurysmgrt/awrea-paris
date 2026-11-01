@@ -1,7 +1,7 @@
 /** Version anglaise du site (/en) : adresses, traductions des fiches, formats, noms de pièces. */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isLocalizable, localizeHref, localizePath, splitLocale, stripLocale, switchLocale } from "@/lib/i18n/routing";
+import { isLocalizable, localizeHref, localizePath, preferredLocale, splitLocale, stripLocale, switchLocale } from "@/lib/i18n/routing";
 import { translateCollection, translatePiece, translatePieces } from "@/lib/commerce/translations";
 import { formatDate, formatPrice } from "@/lib/format";
 import { fill } from "@/lib/edition/fill";
@@ -32,6 +32,24 @@ test("liens internes : préfixés sous /en, jamais l'API, l'Atelier, les fichier
   assert.equal(localizePath("/boutique", "fr"), "/boutique");
   assert.equal(isLocalizable("/cgv"), true);
   assert.deepEqual(localizeHref({ pathname: "/contact", query: { a: "1" } }, "en"), { pathname: "/en/contact", query: { a: "1" } });
+});
+
+test("langue à la première arrivée : la première langue du navigateur que le site propose", () => {
+  assert.equal(preferredLocale("fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7"), "fr");
+  assert.equal(preferredLocale("en-US,en;q=0.9"), "en");
+  assert.equal(preferredLocale("en-GB"), "en");
+  // une Suissesse alémanique qui lit aussi le français : le français
+  assert.equal(preferredLocale("de-CH,de;q=0.9,fr;q=0.8,en;q=0.7"), "fr");
+  // l'ordre des poids compte, pas l'ordre d'écriture
+  assert.equal(preferredLocale("en;q=0.5,fr;q=0.9"), "fr");
+  // aucune langue proposée : l'anglais, langue internationale du site
+  assert.equal(preferredLocale("de-DE,de;q=0.9"), "en");
+  assert.equal(preferredLocale("ja"), "en");
+  // aucune préférence (robots d'indexation) : la page demandée, telle quelle
+  assert.equal(preferredLocale(null), null);
+  assert.equal(preferredLocale(""), null);
+  assert.equal(preferredLocale("*"), null);
+  assert.equal(preferredLocale("fr;q=0"), null);
 });
 
 test("même page dans l'autre langue (sélecteur, hreflang)", () => {
