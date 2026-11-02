@@ -13,7 +13,7 @@ export const collections: Collection[] = [
     season: "",
     current: true,
     officiel: true,
-    lead: "La délicatesse, le pouvoir de l’or.",
+    lead: "Entre ombre et lumière, une élégance singulière.",
     intention: [
       "La délicatesse rencontre la force. L’élégance devient une signature. Une rencontre entre la finesse de la dentelle, la sensualité des drapés et l’éclat audacieux de la dorure.",
       "À travers des silhouettes sculpturales et des détails précieux, la collection « Hypnotic Lace » célèbre une féminité contrastée : délicate, sensuelle et affirmée.",

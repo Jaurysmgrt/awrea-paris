@@ -4,7 +4,15 @@
     "description": "A video call with the designer, for a question about size or a first made-to-measure appointment: choose your day and your time."
   },
   "titre": "Book an appointment",
-  "chapeau": "Before ordering a piece, talk it over with the designer by video call, from home: a question about size, a first made-to-measure project. Choose the day and the time, and they are kept for you.",
+  "accroche": {
+    "titre": "An exclusive piece, made at your request.",
+    "texte": "Each Awrea Paris creation is designed especially for you. Let us talk about your wishes, your size and the details that will make your piece a singular creation.",
+    "bouton": "Book an appointment",
+    "note": "A privileged exchange with the designer.",
+    "image": {
+      "alt": "Ivory lace laid on the atelier table, next to a pair of scissors, in soft light"
+    }
+  },
   "types": {
     "visio": {
       "titre": "Video call with the designer",

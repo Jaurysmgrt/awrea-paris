@@ -1,12 +1,13 @@
 {
   "seo": {
-    "title": "Made to order | Awrea Paris",
+    "title": "Made to order, the privilege of a unique piece | Awrea Paris",
     "description": "At Awrea Paris, each piece is made for you after you order, in your size, by French artisans. The steps, the making times and the tracking."
   },
-  "titre": "Made to order",
-  "chapeau": "When you choose an Awrea piece, it does not exist yet. It is made for you, in your size, by French artisans.",
+  "nom": "Made to order",
+  "titre": "The privilege of a unique piece.",
+  "chapeau": "Each AWREA creation is imagined to take shape the moment you choose it. Attentive making, carried out especially for you, where time, precision and craftsmanship make all the difference.",
   "etapes": {
-    "surtitre": "The steps",
+    "surtitre": "Your experience",
     "titre": "From your choice to your door",
     "choix": {
       "titre": "Your piece, your size",

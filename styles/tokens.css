@@ -123,6 +123,7 @@
   --container-thumb-s: 4.5rem;
   --container-sheet: 46rem;
   --container-sheet-desktop: 40rem;
+  --container-chapeau: 40.5rem; /* 648 px : chapeau centré sous son titre (environ 650 px) */
 
   /* ------------------------------------------------------------------ BORDS
      Langage des maquettes : boutons et pastilles en pilule, photos des cartes aux angles
@@ -321,8 +322,9 @@ html[data-mode="dark"] [data-theme="paper"] {
 }
 /* L'alternance s'inverse en mode Nuit (choix de la créatrice du 01/11) : le site est noir, et les
    sections noires du mode Jour passent en ivoire, texte noir. Sections de page seulement (l'Atelier
-   et les blocs de l'Édition gardent leur noir). */
-html[data-mode="dark"] :is(main > .scene, main > article > .scene)[data-theme="ink"] {
+   et les blocs de l'Édition gardent leur noir), sauf celles marquées data-nuit="noir", noires dans
+   les deux modes (page Rendez-vous, dossier du 02/11 : section noire, bouton ivoire). */
+html[data-mode="dark"] :is(main > .scene, main > article > .scene)[data-theme="ink"]:not([data-nuit="noir"]) {
   --bg: var(--color-ivory);
   --fg: var(--color-ink);
   --fg-soft: var(--color-ink-soft);

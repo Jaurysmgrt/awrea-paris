@@ -1,12 +1,13 @@
 {
   "seo": {
-    "title": "La commande sur demande | Awrea Paris",
+    "title": "À la demande, le privilège d’une pièce unique | Awrea Paris",
     "description": "Chez Awrea Paris, chaque pièce est créée pour vous après la commande, dans votre taille, par des artisans français. Les étapes, les délais de fabrication et le suivi."
   },
-  "titre": "La commande sur demande",
-  "chapeau": "Quand vous choisissez une pièce Awrea, elle n’existe pas encore. Elle est créée pour vous, dans votre taille, par des artisans français.",
+  "nom": "À la demande",
+  "titre": "Le privilège d’une pièce unique.",
+  "chapeau": "Chaque création AWREA est imaginée pour prendre forme au moment où vous la choisissez. Une confection attentive, réalisée spécialement pour vous, où le temps, la précision et le savoir-faire font toute la différence.",
   "etapes": {
-    "surtitre": "Les étapes",
+    "surtitre": "Votre expérience",
     "titre": "De votre choix à votre porte",
     "choix": {
       "titre": "Votre pièce, votre taille",

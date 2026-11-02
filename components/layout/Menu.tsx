@@ -3,7 +3,7 @@
  * Navigation du site, côté navigateur (maquette EN-TÊTE DU SITE).
  *
  * - HeaderBar : la barre de l'en-tête, rendue par Header.tsx qui lit le document « navigation ».
- *   Logo entier centré, puis les cinq entrées centrées en Cormorant : Accueil, Sur commande ⌄,
+ *   Logo entier centré, puis les cinq entrées centrées en Cormorant : Accueil, À la demande ⌄,
  *   Collections ⌄, Contact, Mon Panier ⌄. Les menus déroulants sont des boutons de divulgation
  *   (aria-expanded) : ouverture au clic, au clavier (Entrée, Espace), au survol en confort ;
  *   Échap, un clic ailleurs ou le focus qui s'en va les referment. Au défilement, l'en-tête
