@@ -126,7 +126,8 @@ test.describe("Éditeur visuel", () => {
       await page.goto(`${ATELIER}/pages/photos?filtre=provisoires`);
       await expect(page.getByRole("heading", { level: 1, name: "Photos" })).toBeVisible();
       await expect(page.getByRole("link", { name: /Photos provisoires à remplacer/ })).toHaveAttribute("aria-current", "page");
-      const contactCard = page.locator("li").filter({ has: page.locator("img[src*='contact-sacs']") });
+      // la même photo d'attente sert aussi à la frise d'« À la demande » : la carte de la page Contact
+      const contactCard = page.locator("li").filter({ has: page.locator("img[src*='contact-sacs']") }).filter({ hasText: "/contact" });
       await expect(contactCard.first()).toContainText("Provisoire");
       await expect(contactCard.first()).toContainText("/contact");
       await expect(contactCard.first().getByRole("link", { name: /Remplacer sur la page/ })).toBeVisible();
@@ -191,7 +192,7 @@ test.describe("Éditeur visuel", () => {
       expect((await page.request.post(api("/brouillon"), { data: { doc: "contact", locale: "fr", path: "image", image: { src: draft.image.src, alt: "Sacs en papier blanc de la Maison, photo d’essai", width: 1200, height: 900, provisoire: false } } })).ok()).toBeTruthy();
       expect((await read()).draft!.image.provisoire).toBeUndefined();
       await page.goto(`${ATELIER}/pages/photos?filtre=provisoires`);
-      await expect(page.locator("li").filter({ has: page.locator("img[src*='contact-sacs']") }).first()).toContainText("Remplacée dans le brouillon");
+      await expect(contactCard.first()).toContainText("Remplacée dans le brouillon");
     } finally {
       await abandon();
       for (const src of uploaded) {

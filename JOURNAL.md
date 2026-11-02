@@ -711,3 +711,23 @@ obligatoire, en un geste).
   appareil ».
 - Test de bout en bout avec l’authentificateur virtuel de Chromium : ajout, entrée d’un geste,
   alerte, réponse fabriquée refusée, retrait puis refus.
+
+## Page « Étapes de confection » : la frise (02/11)
+
+Brief de la créatrice (PDF, deux captures de référence), appliqué à la page « À la demande »
+(`/sur-commande`) seulement.
+
+- Haut de page : titre gardé, chapeau « Chaque création Awrea Paris… » mot pour mot ; « De votre
+  choix à votre porte » devient « Le parcours d’une création singulière », centré.
+- Frise (`app/(site)/sur-commande/Frise.tsx`, `frise.module.css`) : une ligne fine traverse la page,
+  six étapes réparties sur sept colonnes, alternativement au-dessus et au-dessous, chacune reliée
+  par un trait vertical et un petit cercle, avec sa photographie en noir et blanc (photos de
+  l’ancien site : robe de dentelle, dentelle et ciseaux, mains à l’ouvrage, aiguille, sacs Awrea,
+  robe noire). Textes du brief mot pour mot, marqués officiels. Sur tablette et téléphone :
+  chronologie verticale, la ligne sur le côté.
+- Animations de cette page seulement (demandées par le brief) : la ligne se dessine, chaque étape
+  vient en fondu avec un léger glissement ; rien en animations apaisées ni sans JavaScript.
+- Menu : l’entrée « La pièce à la demande » devient « Étapes de confection » (accès demandé par le
+  brief, « À la demande › Étapes de confection ») ; rien d’autre dans la navigation.
+- Tests : textes et photos de la frise, alternance et absence de chevauchement sur ordinateur,
+  empilement sur téléphone, animations apaisées ; homogénéité, responsive et accessibilité verts.

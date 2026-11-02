@@ -5,36 +5,102 @@
   },
   "nom": "Made to order",
   "titre": "The privilege of a unique piece.",
-  "chapeau": "Each AWREA creation is imagined to take shape the moment you choose it. Attentive making, carried out especially for you, where time, precision and craftsmanship make all the difference.",
+  "chapeau": "Each Awrea Paris creation is imagined to take shape the moment you choose it. Attentive making, carried out especially for you, where time, precision and craftsmanship make all the difference.",
   "etapes": {
     "surtitre": "Your experience",
-    "titre": "From your choice to your door",
-    "choix": {
-      "titre": "Your piece, your size",
-      "texte": "You choose the piece and its size, with the help of the size guide. Payment is made online, when you order."
-    },
-    "statuts": {
-      "paid": {
-        "titre": "Order received",
-        "texte": "An email confirms your order and gives you its number. The atelier receives it at the same moment as you."
+    "titre": "The journey of a singular creation",
+    "officiel": true,
+    "frise": [
+      {
+        "numero": "01",
+        "nom": "The order",
+        "titre": "The beginning of your creation.",
+        "texte": "You choose the model that suits you, along with the options offered for your piece. Your order marks the start of its making.",
+        "image": {
+          "src": "/media/img/editorial-2",
+          "alt": "A black lace dress seen from behind, its lacing in the light",
+          "width": 1200,
+          "height": 675,
+          "focal": {
+            "x": 50,
+            "y": 40
+          }
+        }
       },
-      "in_production": {
-        "titre": "In the making",
-        "texte": "French artisans cut and assemble your piece, in the size you have chosen."
+      {
+        "numero": "02",
+        "nom": "The preparation",
+        "titre": "Every detail finds its place.",
+        "texte": "Your order is passed on to prepare the making of your piece. Everything it needs is carefully gathered.",
+        "image": {
+          "src": "/media/img/atelier-5",
+          "alt": "Ivory lace and a pair of scissors on the atelier table",
+          "width": 1200,
+          "height": 1500,
+          "focal": {
+            "x": 55,
+            "y": 45
+          }
+        }
       },
-      "ready": {
-        "titre": "Ready",
-        "texte": "The piece is finished. It is being prepared for dispatch."
+      {
+        "numero": "03",
+        "nom": "The making",
+        "titre": "Craftsmanship in every gesture.",
+        "texte": "Your piece takes shape gesture by gesture, through the work of making. Each step is carried out with care and precision.",
+        "image": {
+          "src": "/media/img/atelier-4",
+          "alt": "A seamstress’s hands working white fabric on the atelier table",
+          "width": 1200,
+          "height": 800
+        }
       },
-      "shipped": {
-        "titre": "Dispatched",
-        "texte": "It is handed to the carrier, and its tracking appears with your order."
+      {
+        "numero": "04",
+        "nom": "The finishing",
+        "titre": "Exacting, down to the last detail.",
+        "texte": "The finishing touches are carefully completed, and the piece is closely checked before it leaves.",
+        "image": {
+          "src": "/media/img/atelier-6",
+          "alt": "A needle held between two fingers, close to white fabric",
+          "width": 1200,
+          "height": 1500,
+          "focal": {
+            "x": 50,
+            "y": 55
+          }
+        }
       },
-      "delivered": {
-        "titre": "Delivered",
-        "texte": "It arrives at your home. Its certificate of authenticity bears its creation number."
+      {
+        "numero": "05",
+        "nom": "The shipping",
+        "titre": "Your creation takes flight.",
+        "texte": "Your piece is prepared with care, to be shipped in its case and join its future owner.",
+        "image": {
+          "src": "/media/img/contact-sacs",
+          "alt": "White bags bearing the Awrea Paris logo, ready to leave",
+          "width": 1404,
+          "height": 952,
+          "provisoire": true
+        }
+      },
+      {
+        "numero": "06",
+        "nom": "The arrival",
+        "titre": "One piece, one story.",
+        "texte": "Your creation finally arrives in your hands. All that remains is to discover and enjoy a piece made at your request.",
+        "image": {
+          "src": "/media/img/look-2",
+          "alt": "A woman in a black dress, in a dark candlelit interior",
+          "width": 1200,
+          "height": 1500,
+          "focal": {
+            "x": 50,
+            "y": 35
+          }
+        }
       }
-    }
+    ]
   },
   "delais": {
     "surtitre": "Making times",

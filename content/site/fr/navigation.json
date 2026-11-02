@@ -4,7 +4,7 @@
     {
       "label": "À la demande",
       "sousMenu": [
-        { "label": "La pièce à la demande", "href": "/sur-commande" },
+        { "label": "Étapes de confection", "href": "/sur-commande" },
         { "label": "Le détail du savoir-faire", "href": "/atelier" },
         { "label": "Prendre rendez-vous", "href": "/rendez-vous" }
       ]
