@@ -6,8 +6,10 @@
  *  2. il compare chaque confection au délai annoncé à la commande et prévient la créatrice quand
  *     la date approche, quand elle est passée, ou quand une commande reçue tarde à entrer en
  *     confection (lib/agents/confection.ts) ;
- *  3. quand un retard se dessine, il prépare un message pour la cliente, qui ne part qu'avec la
- *     validation de la créatrice (lib/agents/policy.ts) ;
+ *  3. quand un retard se dessine, il prévient la cliente lui-même, une fois par commande, avec
+ *     l'e-mail « Retard de confection » de la Maison (autonomie « Prévenir une cliente d'un
+ *     retard », lib/agents/autonomie.ts) ; si la créatrice a coupé cette autonomie dans les
+ *     Réglages, le message lui est proposé et ne part qu'avec son accord ;
  *  4. il présente les prix et les délais encore provisoires, à confirmer par la créatrice.
  * Les contrôles sont déterministes ; Claude rédige seulement l'alerte de synthèse à l'atelier.
  * Les propositions déjà faites (messages, confirmations) sont lues dans les Validations : rien
@@ -24,8 +26,9 @@ import { withStages } from "@/lib/store/order-stages";
 import { formatPrice } from "@/lib/format";
 import { kv } from "@/lib/store";
 import { getProposals } from "../perform";
+import { envoisFaits } from "../autonomie";
 import { RunRecorder, type AgentRun } from "../run";
-import { alertLine, confectionAlerts, delayLooms, delayMessage, type ConfectionKind } from "../confection";
+import { alertLine, confectionAlerts, delayLooms, type ConfectionKind } from "../confection";
 
 const DAY = 86_400_000;
 /** une confirmation refusée est reproposée au plus tôt un mois après la décision */
@@ -55,7 +58,7 @@ export async function runCommandesConfectionAgent(trigger: AgentRun["trigger"] =
   const memory = await loadMemory();
   const findings: string[] = [];
   try {
-    const [products, orders, proposals] = await Promise.all([getAllProducts(), getOrders().then(withStages), getProposals()]);
+    const [products, orders, proposals, envois] = await Promise.all([getAllProducts(), getOrders().then(withStages), getProposals(), envoisFaits()]);
     const now = new Date();
 
     // 1. Commandes bloquées, paiements en attente
@@ -66,30 +69,33 @@ export async function runCommandesConfectionAgent(trigger: AgentRun["trigger"] =
       if (!reason) continue;
       await rec.act("flag_order", { orderId: o.id, reason }, { summary: `Commande ${o.number} à vérifier`, rationale: reason });
       memory.flagged.push(o.id);
-      findings.push(`Commande ${o.number} : ${reason}`);
+      findings.push(`Commande ${o.number} : ${reason}`);
     }
 
     // 2. Confections : la date annoncée approche, elle est passée, ou la confection tarde à commencer
     const alerts = confectionAlerts(orders, products, now);
-    // un seul message préparé par commande, quelle que soit la décision de la créatrice
-    const messaged = new Set(proposals.filter((p) => p.action === "send_client_message").map((p) => (p.params as { orderId: string }).orderId));
+    // un seul message par commande : déjà envoyé, ou déjà proposé (quelle que soit la décision de la créatrice)
+    const messaged = new Set([
+      ...proposals.filter((p) => p.action === "send_client_message" || p.action === "notify_delay").map((p) => (p.params as { orderId: string }).orderId),
+      ...Object.keys(envois).filter((k) => k.startsWith("sujet:retard:")).map((k) => k.slice("sujet:retard:".length)),
+    ]);
     for (const a of alerts) {
       // une alerte par situation nouvelle, pas une chaque matin pour la même commande
       if (memory.alerted[a.orderId] !== a.kind) {
         memory.alerted[a.orderId] = a.kind;
         findings.push(alertLine(a));
       }
-      // 3. un retard se dessine : un message pour la cliente, préparé, jamais envoyé sans la créatrice
+      // 3. un retard se dessine : la cliente est prévenue, une seule fois (e-mail « Retard de confection »)
       if (delayLooms(a) && !messaged.has(a.orderId)) {
-        const m = delayMessage(a);
-        await rec.act(
-          "send_client_message",
-          { orderId: a.orderId, subject: m.subject, body: m.body },
+        const out = await rec.act(
+          "notify_delay",
+          { orderId: a.orderId },
           {
             summary: `Prévenir ${a.name} d’un retard de confection (commande ${a.number})`,
-            rationale: `${alertLine(a)} Message préparé pour ${a.email}, envoyé seulement si vous le validez ; refusez-le pour écrire vous-même. Le voici : « ${m.body.replace(/\n+/g, " ")} » Article 5 des conditions générales de vente : sept jours après la date indicative de livraison, la cliente peut demander par écrit la résolution de la vente.`,
+            rationale: `${alertLine(a)} L’e-mail « Retard de confection » (modifiable dans l’Atelier › E-mails) part à l’adresse de la commande. Article 5 des conditions générales de vente : sept jours après la date indicative de livraison, la cliente peut demander par écrit la résolution de la vente.`,
           },
         );
+        if (out.status === "done") findings.push(`${a.name} a été prévenue du retard de sa commande ${a.number}.`);
       }
     }
     const watched = new Set(alerts.map((a) => a.orderId));
@@ -108,7 +114,7 @@ export async function runCommandesConfectionAgent(trigger: AgentRun["trigger"] =
         "confirm_piece_terms",
         { handle: p.handle, price: Boolean(p.priceProvisional), leadTime: Boolean(p.leadTimeProvisional) },
         {
-          summary: `${p.title} : confirmer ${what}`,
+          summary: `${p.title} : confirmer ${what}`,
           rationale: `${what.charAt(0).toUpperCase()}${what.slice(1)} ${both ? "sont encore marqués provisoires" : "est encore marqué provisoire"}. Validez si c’est juste. Pour changer une valeur, ouvrez la pièce dans l’onglet Catalogue.`,
         },
       );

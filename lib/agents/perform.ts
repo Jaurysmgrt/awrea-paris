@@ -1,11 +1,14 @@
 /**
  * Point de passage unique de toutes les actions des agents :
  * - action autonome → exécutée immédiatement et journalisée ;
- * - action sensible (argent, irréversible) → proposition à valider dans le tableau de bord.
+ * - action sensible (argent, irréversible) → proposition à valider dans le tableau de bord ;
+ * - action d'une autonomie que la créatrice a coupée (Réglages › Ce que les agents font seuls) →
+ *   proposition, elle aussi (lib/agents/autonomie.ts).
  */
 import { kv } from "@/lib/store";
 import { ACTION_SCHEMAS, EXECUTORS, type ActionParams, type ActionResult } from "./actions";
-import { isActionType, POLICY, requiresApproval, type ActionType } from "./policy";
+import { AUTONOMIE_DE, isActionType, POLICY, requiresApproval, type ActionType } from "./policy";
+import { AUTONOMIES, permise } from "./autonomie";
 import { logAction, type AgentId } from "./log";
 import { cleanTexts } from "@/lib/writing/agents";
 import { reportWriting } from "@/lib/writing/report";
@@ -50,7 +53,7 @@ export async function perform<T extends ActionType>(agent: AgentId, action: T, r
   meta = { ...meta };
   const parsed = ACTION_SCHEMAS[action].safeParse(rawParams);
   if (!parsed.success) {
-    const message = `Paramètres invalides pour « ${POLICY[action].label} » : ${parsed.error.issues.map((i) => `${i.path.join(".")} ${i.message}`).join(" ; ")}`;
+    const message = `Paramètres invalides pour « ${POLICY[action].label} » : ${parsed.error.issues.map((i) => `${i.path.join(".")} ${i.message}`).join(" ; ")}`;
     await logAction({ agent, kind: action, status: "failed", summary: meta.summary, detail: message });
     return { status: "failed", message };
   }
@@ -62,11 +65,15 @@ export async function perform<T extends ActionType>(agent: AgentId, action: T, r
   // une formulation interdite dans un texte qui part en ligne : la créatrice relit d'abord
   const mustReview = writing.length > 0 && PUBLISHES_TEXT.has(action);
   if (mustReview) {
-    const notes = writing.map((w) => `${w.message} (${w.path})`).join(" ; ");
+    const notes = writing.map((w) => `${w.message} (${w.path})`).join(" ; ");
     meta = { ...meta, rationale: `Texte à relire avant publication : ${notes}${meta.rationale ? `. ${meta.rationale}` : ""}` };
   }
 
-  if (requiresApproval(action) || mustReview) {
+  // autonomie coupée dans les Réglages : l'action attend la créatrice
+  const autonomie = AUTONOMIE_DE[action];
+  const coupee = autonomie ? !(await permise(autonomie)) : false;
+
+  if (requiresApproval(action) || mustReview || coupee) {
     const list = await getProposals();
     const duplicate = list.find((p) => p.status === "pending" && p.action === action && JSON.stringify(p.params) === JSON.stringify(params));
     if (duplicate) return { status: "proposed", message: "Une proposition identique attend déjà la validation de la créatrice.", proposalId: duplicate.id };
@@ -77,12 +84,12 @@ export async function perform<T extends ActionType>(agent: AgentId, action: T, r
       action,
       params,
       summary: meta.summary,
-      rationale: meta.rationale ?? "",
+      rationale: coupee && autonomie ? `${meta.rationale ? `${meta.rationale} ` : ""}Vous avez coupé « ${AUTONOMIES[autonomie].titre} » dans les Réglages : l’agent vous laisse décider.` : (meta.rationale ?? ""),
       status: "pending",
     };
     await saveProposals([proposal as Proposal, ...list]);
     await logAction({ agent, kind: action, status: "proposed", summary: meta.summary, detail: meta.rationale, proposalId: proposal.id });
-    return { status: "proposed", message: `Proposition enregistrée : elle attend la validation de la créatrice dans le tableau de bord (${POLICY[action].why}).`, proposalId: proposal.id };
+    return { status: "proposed", message: `Proposition enregistrée : elle attend la validation de la créatrice dans le tableau de bord (${POLICY[action].why ?? (coupee && autonomie ? `« ${AUTONOMIES[autonomie].titre} » est coupé dans les Réglages` : "texte à relire")})`, proposalId: proposal.id };
   }
 
   try {

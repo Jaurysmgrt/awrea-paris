@@ -1,5 +1,7 @@
 import Link from "@/components/ui/Link";
 import { POLICY } from "@/lib/agents/policy";
+import { AUTONOMIES, LISTE_AUTONOMIES, autonomies } from "@/lib/agents/autonomie";
+import { AutonomieSwitch } from "@/components/admin/AutonomieSwitch";
 import { AGENTS } from "@/lib/agents/registry";
 import { commerceMode, getAllProducts } from "@/lib/commerce";
 import { DEFAULT_LEAD_TIME } from "@/lib/commerce/availability";
@@ -51,7 +53,7 @@ async function privateLink(): Promise<string | null> {
 
 export default async function ReglagesPage() {
   const lien = sitePrive() ? await privateLink() : null;
-  const [events, digest, accounts, me, products, catalogue, boutique] = await Promise.all([
+  const [events, digest, accounts, me, products, catalogue, boutique, autonomes] = await Promise.all([
     securityEvents(30),
     securityDigest(24),
     listAccounts(),
@@ -59,6 +61,7 @@ export default async function ReglagesPage() {
     getAllProducts().catch(() => []),
     getDoc<CatalogueTexts>("catalogue", "fr", { plain: true }),
     getDoc<{ categories: Partial<Record<Category, string>> }>("boutique", "fr", { plain: true }),
+    autonomies(),
   ]);
   const toConfirm = [
     { label: "Délais de fabrication provisoires", pieces: products.filter((p) => p.leadTimeProvisional).map((p) => p.title) },
@@ -94,8 +97,26 @@ export default async function ReglagesPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Réglages</h1>
-        <p className="t-lead">Délais de fabrication, connexions, sécurité, règles d’autonomie des agents et calendrier.</p>
+        <p className="t-lead">Ce que les agents font seuls, délais, connexions et sécurité.</p>
       </header>
+      <section className="panel" aria-labelledby="autonomie-title">
+        <h2 id="autonomie-title" className="t-h3">Ce que les agents font seuls</h2>
+        <ul className="autonomies">
+          {LISTE_AUTONOMIES.map((a) => (
+            <li key={a} className="autonomie">
+              <div className="autonomie__texte">
+                <p className="t-h4">{AUTONOMIES[a].titre}</p>
+                <p className="t-note t-left">{AUTONOMIES[a].regle}</p>
+                <p className="t-label t-soft">{AUTONOMIES[a].agents}</p>
+              </div>
+              <AutonomieSwitch autonomie={a} titre={AUTONOMIES[a].titre} actif={autonomes[a]} />
+            </li>
+          ))}
+        </ul>
+        <p className="t-note t-left">
+          Toujours votre décision : {Object.values(POLICY).filter((x) => x.approval).map((x) => x.label.toLowerCase()).join(", ")}. Coupée, une autonomie redevient une proposition dans « À valider ».
+        </p>
+      </section>
       <section className="panel" aria-labelledby="delais-title">
         <h2 id="delais-title" className="t-h3">Délais de fabrication</h2>
         <p className="t-body">
@@ -221,18 +242,6 @@ export default async function ReglagesPage() {
           <ActionButton endpoint={atelierApi("/securite/sessions")} label="Déconnecter tous les appareils" confirm="Fermer toutes les sessions de l’Atelier, y compris celle-ci ?" />
           <ActionButton endpoint={atelierApi("/securite/totp")} label="Réinitialiser la double authentification" variant="quiet" confirm="Réinitialiser la double authentification ? Vous devrez scanner un nouveau QR code à la prochaine connexion." />
         </div>
-      </section>
-      <section className="panel" aria-labelledby="policy-title">
-        <h2 id="policy-title" className="t-h3">Règles d’autonomie</h2>
-        <p className="t-body">Les agents agissent seuls sur le quotidien. Seules les actions qui touchent à l’argent ou qui sont irréversibles vous sont soumises.</p>
-        <div className="table-scroll"><table className="table">
-          <thead><tr><th scope="col">Action</th><th scope="col">Décision</th></tr></thead>
-          <tbody>
-            {Object.entries(POLICY).map(([k, p]) => (
-              <tr key={k}><th scope="row">{p.label}</th><td>{p.approval ? <span className="status status--proposed">Votre validation · {p.why}</span> : <span className="status status--done">Autonome</span>}</td></tr>
-            ))}
-          </tbody>
-        </table></div>
       </section>
       <section className="panel" aria-labelledby="cal-title">
         <h2 id="cal-title" className="t-h3">Calendrier des agents</h2>

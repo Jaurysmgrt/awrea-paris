@@ -891,3 +891,85 @@
     pointer-events: none;
   }
 }
+
+/* Ce que les agents font seuls (Réglages) : une ligne par autonomie, la règle à gauche et
+   l'interrupteur à droite ; « Seul » plein, « Avec vous » au filet */
+@layer components {
+  .autonomies {
+    display: grid;
+    gap: 0;
+    padding: 0;
+    list-style: none;
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .autonomie {
+    display: grid;
+    gap: var(--spacing-s);
+    padding-block: var(--spacing-m);
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  @media (min-width: 48rem) {
+    .autonomie {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: var(--spacing-l);
+    }
+  }
+  .autonomie__texte {
+    display: grid;
+    gap: var(--spacing-2xs);
+    max-width: var(--container-text);
+  }
+  .autonomie-switch {
+    display: grid;
+    justify-items: start;
+    gap: var(--spacing-2xs);
+  }
+  .switch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    min-height: var(--spacing-touch);
+    cursor: pointer;
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: var(--text-step-0);
+    line-height: var(--leading-label);
+  }
+  .switch__track {
+    position: relative;
+    width: calc(var(--spacing-m) * 2);
+    height: var(--spacing-m);
+    border: var(--border-width-hair) solid var(--fg);
+    border-radius: var(--radius-pill);
+    transition: background-color var(--dur) var(--ease);
+  }
+  .switch__track::after {
+    content: "";
+    position: absolute;
+    inset-block: calc(var(--spacing-3xs) / 2);
+    inset-inline-start: calc(var(--spacing-3xs) / 2);
+    aspect-ratio: 1;
+    border-radius: var(--radius-pill);
+    background: var(--fg);
+    transition:
+      translate var(--dur) var(--ease),
+      background-color var(--dur) var(--ease);
+  }
+  .switch[aria-checked="true"] .switch__track {
+    background: var(--fg);
+  }
+  .switch[aria-checked="true"] .switch__track::after {
+    background: var(--bg);
+    translate: var(--spacing-m) 0;
+  }
+  .switch:focus-visible {
+    outline: var(--border-width-focus) solid var(--fg);
+    outline-offset: var(--spacing-3xs);
+  }
+  .switch[disabled] {
+    opacity: 0.6;
+    cursor: progress;
+  }
+}

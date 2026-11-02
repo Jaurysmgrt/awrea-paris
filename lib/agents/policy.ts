@@ -6,10 +6,16 @@
  * demandent une validation en un clic dans le tableau de bord Atelier.
  *
  * Modèle « sur demande » : chaque pièce est créée après la commande, sans stock. Aucune action ne
- * touche donc à un stock ni à une liste d'attente. Un message préparé pour une cliente (retard de
- * confection) part seulement après la validation de la créatrice, comme la confirmation d'un prix
- * ou d'un délai encore provisoire.
+ * touche donc à un stock ni à une liste d'attente.
+ *
+ * Autonomies choisies par la créatrice le 02/11 (lib/agents/autonomie.ts) : prévenir une cliente
+ * d'un retard, corriger le site sans en changer le sens, publier les avis vérifiés sans souci,
+ * relances et mots d'accueil. Chacune se coupe dans l'Atelier › Réglages : coupée, l'action
+ * redevient une proposition à valider. Ces actions ne portent aucun texte écrit par un agent : elles
+ * envoient les e-mails de la Maison (modifiables dans l'Atelier › E-mails) à l'adresse lue côté
+ * serveur (commande, retour, demande, fiche cliente), jamais à une adresse donnée par un agent.
  */
+import type { Autonomie } from "./autonomie-regles";
 
 export type ActionType =
   // autonomes
@@ -24,6 +30,11 @@ export type ActionType =
   | "update_ai_visibility"
   | "save_content_draft"
   | "send_report"
+  // autonomes dans les limites choisies par la créatrice (Réglages › Ce que les agents font seuls)
+  | "notify_delay"
+  | "publish_review"
+  | "correct_page"
+  | "send_relance"
   // validation requise
   | "refund_order"
   | "change_price"
@@ -51,6 +62,10 @@ export const POLICY: Record<ActionType, ActionPolicy> = {
   update_ai_visibility: { label: "Mettre à jour llms.txt et données structurées", approval: false },
   save_content_draft: { label: "Préparer posts et newsletters", approval: false },
   send_report: { label: "Envoyer le rapport hebdomadaire", approval: false },
+  notify_delay: { label: "Prévenir une cliente d’un retard de confection", approval: false },
+  publish_review: { label: "Publier un avis vérifié sans souci", approval: false },
+  correct_page: { label: "Corriger la typographie d’une page, ou la description d’une photo", approval: false },
+  send_relance: { label: "Relance ou mot d’accueil à une cliente", approval: false },
 
   refund_order: { label: "Rembourser une commande", approval: true, why: "Touche à l’argent" },
   change_price: { label: "Modifier un prix", approval: true, why: "Touche à l’argent" },
@@ -59,6 +74,14 @@ export const POLICY: Record<ActionType, ActionPolicy> = {
   send_newsletter_all: { label: "Envoyer une newsletter à toute la liste", approval: true, why: "Irréversible, toute la clientèle" },
   send_client_message: { label: "Envoyer à une cliente un message préparé par un agent", approval: true, why: "Irréversible, message à une cliente" },
   confirm_piece_terms: { label: "Confirmer un prix ou un délai provisoire", approval: true, why: "Touche à l’argent, engage la Maison auprès des clientes" },
+};
+
+/** Autonomie dont dépend chaque action : coupée dans les Réglages, l'action attend la créatrice. */
+export const AUTONOMIE_DE: Partial<Record<ActionType, Autonomie>> = {
+  notify_delay: "retards",
+  correct_page: "corrections",
+  publish_review: "avis",
+  send_relance: "relances",
 };
 
 /** Le type d'action est-il encore connu ? (les journaux gardent d'anciennes actions de stock, retirées) */

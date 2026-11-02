@@ -31,6 +31,16 @@ import { formatPrice, slugify } from "@/lib/format";
 import { JOURNAL_KEY } from "@/lib/content/journal";
 import type { Article } from "@/content/fr/journal";
 import type { ActionType } from "./policy";
+import { sendDocEmail } from "@/lib/email/documents";
+import { absolute } from "@/lib/seo/metadata";
+import { orderLink } from "@/lib/commerce/order-access";
+import { getReturn } from "@/lib/returns";
+import { listReviews, moderateReview } from "@/lib/reviews";
+import { listCustomerStats, updateProfile } from "@/lib/customers";
+import { draftOf, isDocId, publishContent, publishedDoc } from "@/lib/edition/store";
+import { editionStorage, isLocale } from "@/lib/edition/config";
+import { avisPublicable, envoiPermis, envoisFaits, noterEnvoi } from "./autonomie";
+import { corrigerContenu, resumerCorrections } from "./corrections";
 
 const atelierEmail = () => process.env.ATELIER_EMAIL ?? identity.email;
 
@@ -119,6 +129,12 @@ export const ACTION_SCHEMAS = {
   // le message part à l'adresse de la commande, jamais à une adresse fournie par un agent
   send_client_message: z.object({ orderId: z.string(), subject: z.string().min(3).max(120), body: z.string().min(20).max(4000) }),
   confirm_piece_terms: z.object({ handle: z.string(), price: z.boolean(), leadTime: z.boolean() }).refine((x) => x.price || x.leadTime, "Rien à confirmer"),
+  // autonomes dans les limites choisies par la créatrice : des identifiants seulement, aucun texte
+  // ni aucune adresse venus d'un agent ; l'e-mail est celui de la Maison, l'adresse est lue ici
+  notify_delay: z.object({ orderId: z.string().min(1).max(80) }),
+  publish_review: z.object({ reviewId: z.string().min(1).max(80) }),
+  correct_page: z.object({ doc: z.string().min(1).max(80), locale: z.string().min(2).max(5) }),
+  send_relance: z.object({ kind: z.enum(["retour", "sur-mesure", "cercle"]), id: z.string().min(1).max(120) }),
 } satisfies Record<ActionType, z.ZodType>;
 
 export type ActionParams<T extends ActionType> = z.infer<(typeof ACTION_SCHEMAS)[T]>;
@@ -381,7 +397,118 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
     const r = await updatePiece(handle, { ...(price ? { priceProvisional: false } : {}), ...(leadTime ? { leadTimeProvisional: false } : {}) });
     return { summary: r.summary, target: { type: "product", id: handle, label: r.title, href: `/boutique/${handle}` } };
   },
+
+  // un seul message par commande et par retard : l'e-mail « Retard de confection », à l'adresse de la commande
+  async notify_delay({ orderId }) {
+    const o = await getOrder(orderId);
+    if (!o) throw new Error("Commande introuvable");
+    const sujet = `retard:${o.id}`;
+    if ((await envoisFaits())[`sujet:${sujet}`]) throw new Error(`${o.name} a déjà été prévenue de ce retard.`);
+    await sendDocEmail("email-retard-confection", o.email, {
+      vars: { prenom: o.name.trim().split(/\s+/)[0] ?? "", commande: o.number, suivi: absolute(orderLink(o)) },
+      replyTo: atelierEmail(),
+      tag: "retard-confection",
+    });
+    await noterEnvoi(o.email, sujet);
+    return { summary: `${o.name} prévenue du retard de sa commande ${o.number}`, target: { type: "order", id: o.id, label: o.number, href: `atelier:/commandes/${o.number}` } };
+  },
+
+  // seul un avis sans souci est publié sans la créatrice : la règle est revérifiée ici
+  async publish_review({ reviewId }) {
+    const r = (await listReviews("pending")).find((x) => x.id === reviewId);
+    if (!r) throw new Error("Avis introuvable ou déjà lu.");
+    if (!avisPublicable(r)) throw new Error("Cet avis signale quelque chose ou porte une photo : il revient à la créatrice.");
+    if (!(await moderateReview(r.id, "approved"))) throw new Error("Avis introuvable.");
+    try {
+      revalidatePath(`/boutique/${r.productHandle}`);
+    } catch {
+      /* hors contexte de requête */
+    }
+    return { summary: `Avis de ${r.authorName} publié sur ${r.productHandle}`, target: { type: "review", id: r.id, label: r.authorName, href: "atelier:/avis" } };
+  },
+
+  // corrections sans changement de sens, publiées comme une version de la page (annulable dans l'historique)
+  async correct_page({ doc, locale }) {
+    if (!isDocId(doc) || !isLocale(locale)) throw new Error("Document inconnu.");
+    if (editionStorage() !== "stockage") throw new Error("Les corrections se font sur le site en ligne seulement.");
+    if (await draftOf(doc, locale)) throw new Error("La page est en cours de modification : elle n’est pas touchée.");
+    const live = await publishedDoc(doc, locale);
+    if (!live) throw new Error("Document introuvable.");
+    const descriptions = Object.fromEntries((await getAllProducts()).flatMap((p) => p.images.filter((i) => i.alt?.trim()).map((i) => [i.src, i.alt])));
+    const { value, corrections } = corrigerContenu(live, locale, descriptions);
+    if (!corrections.length) return { summary: `Rien à corriger sur « ${doc} »` };
+    const note = resumerCorrections(corrections);
+    await publishContent(doc, locale, value, "Gardien de l’éditeur", note);
+    return { summary: `« ${doc} » (${locale}) : ${note}`, target: { type: "page", id: doc, label: doc, href: "atelier:/pages" } };
+  },
+
+  // relances et mots d'accueil : au plus un e-mail par cliente et par semaine, un seul par sujet
+  async send_relance({ kind, id }) {
+    const cible = await destinataireRelance(kind, id);
+    const now = new Date();
+    if (!envoiPermis(await envoisFaits(), cible.email, `${kind}:${id}`, now)) throw new Error(`${cible.nom} a déjà reçu un e-mail cette semaine, ou celui-ci : rien n’est envoyé.`);
+    await sendDocEmail(cible.document, cible.email, { vars: cible.vars, replyTo: atelierEmail(), tag: `relance-${kind}` });
+    await noterEnvoi(cible.email, `${kind}:${id}`, now);
+    if (cible.apres) await cible.apres();
+    return { summary: `${cible.quoi} envoyé à ${cible.nom}`, target: cible.target };
+  },
 };
+
+interface Destinataire {
+  email: string;
+  nom: string;
+  quoi: string;
+  document: string;
+  vars: Record<string, string>;
+  target: NonNullable<ActionResult["target"]>;
+  apres: (() => Promise<void>) | null;
+}
+
+/** Destinataire d'une relance, toujours lu côté serveur (retour, message reçu, fiche cliente). */
+async function destinataireRelance(kind: "retour" | "sur-mesure" | "cercle", id: string): Promise<Destinataire> {
+  const prenom = (nom: string | null | undefined) => (nom ?? "").trim().split(/\s+/)[0] ?? "";
+  if (kind === "retour") {
+    const r = await getReturn(id);
+    if (!r || r.status !== "demande") throw new Error("Retour introuvable ou déjà reçu.");
+    const o = await getOrder(r.orderId);
+    return {
+      email: r.email,
+      nom: r.name,
+      quoi: `Rappel du retour ${r.id}`,
+      document: "email-relance-retour",
+      vars: { prenom: prenom(r.name), commande: r.orderNumber, retour: r.id, suivi: o ? absolute(orderLink(o)) : absolute("/suivi") },
+      target: { type: "return", id: r.id, label: r.id, href: "atelier:/retours" },
+      apres: null,
+    };
+  }
+  if (kind === "sur-mesure") {
+    const m = (await listInbox(500)).find((x) => x.id === id);
+    if (!m) throw new Error("Demande introuvable.");
+    return {
+      email: m.email,
+      nom: m.name,
+      quoi: "Accusé de la demande de sur mesure",
+      document: "email-accuse-sur-mesure",
+      vars: { prenom: prenom(m.name), rendezvous: absolute("/rendez-vous?type=sur-mesure") },
+      target: { type: "message", id: m.id, label: m.name, href: "atelier:/messages" },
+      apres: null,
+    };
+  }
+  const c = (await listCustomerStats()).find((x) => x.id === id);
+  if (!c) throw new Error("Cliente introuvable.");
+  if (c.cercleMember) throw new Error("Cette cliente est déjà dans le Cercle.");
+  return {
+    email: c.email,
+    nom: c.firstName ?? c.email,
+    quoi: "Mot de bienvenue du Cercle",
+    document: "email-bienvenue-cercle",
+    vars: { prenom: c.firstName ?? "" },
+    target: { type: "customer", id: c.id, label: c.firstName ?? c.email, href: "atelier:/clientes" },
+    apres: async () => {
+      await updateProfile({ id: c.id, email: c.email }, { cercleMember: true });
+    },
+  };
+}
 
 export async function allProductsBrief() {
   return (await getAllProducts()).map((p) => ({ handle: p.handle, title: p.title, price: p.price, collection: p.collection }));
