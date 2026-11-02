@@ -114,3 +114,23 @@ export async function preAuth(): Promise<{ email: string; stage: PreAuthStage } 
 export async function clearPreAuth() {
   (await cookies()).set(ADMIN_PRE_COOKIE, "", { path: loginPath(), maxAge: 0 });
 }
+
+/**
+ * Défi d'une clé d'accès (Face ID, empreinte) : signé, valable cinq minutes, rangé dans un cookie
+ * réservé aux routes de l'Atelier (lib/auth/passkeys.ts). `usage` : « connexion » ou « ajout ».
+ */
+export const PASSKEY_COOKIE = "awrea_admin_pk";
+const PASSKEY_MAX_AGE = 5 * 60;
+
+export async function setPasskeyChallenge(challenge: string, usage: "connexion" | "ajout") {
+  (await cookies()).set(PASSKEY_COOKIE, sign({ challenge, usage }, PASSKEY_MAX_AGE), { httpOnly: true, sameSite: "strict", secure: secure(), path: "/", maxAge: PASSKEY_MAX_AGE });
+}
+
+/** Défi en cours pour cet usage, effacé aussitôt lu (un défi ne sert qu'une fois). */
+export async function takePasskeyChallenge(usage: "connexion" | "ajout"): Promise<string | null> {
+  const jar = await cookies();
+  const p = verify<{ challenge: string; usage: string }>(jar.get(PASSKEY_COOKIE)?.value);
+  jar.set(PASSKEY_COOKIE, "", { path: "/", maxAge: 0 });
+  return p?.usage === usage ? p.challenge : null;
+}
+

@@ -2,6 +2,7 @@ import Link from "@/components/ui/Link";
 import { POLICY } from "@/lib/agents/policy";
 import { AUTONOMIES, LISTE_AUTONOMIES, autonomies } from "@/lib/agents/autonomie";
 import { AutonomieSwitch } from "@/components/admin/AutonomieSwitch";
+import { FaceIdManager } from "@/components/admin/FaceId";
 import { commerceMode, getAllProducts } from "@/lib/commerce";
 import { DEFAULT_LEAD_TIME } from "@/lib/commerce/availability";
 import { delaiText, type CatalogueTexts } from "@/lib/commerce/texts";
@@ -34,6 +35,9 @@ const EVENT_LABELS: Record<SecurityEventType, string> = {
   admin_password_set: "Mot de passe personnel choisi",
   admin_account_locked: "Compte bloqué une demi-heure, alerte envoyée",
   admin_revoked: "Sessions fermées par le lien « ce n’était pas moi »",
+  admin_passkey_added: "Face ID ou empreinte ajouté sur un appareil",
+  admin_passkey_removed: "Face ID ou empreinte retiré d’un appareil",
+  admin_passkey_fail: "Face ID ou empreinte refusé",
 };
 
 /** Ordre des catégories dans le tableau des délais par défaut. */
@@ -170,6 +174,11 @@ export default async function ReglagesPage() {
           </tbody>
         </table></div>
         </details>
+      </section>
+      <section className="panel" id="face-id" aria-labelledby="faceid-title">
+        <h2 id="faceid-title" className="t-h3">Face ID</h2>
+        <p className="t-note t-left">Les appareils qui ouvrent l’Atelier d’un geste, avec Face ID ou l’empreinte. Le mot de passe et le code restent possibles, en secours.</p>
+        <FaceIdManager cles={(accounts.find((a) => a.email === me)?.passkeys ?? []).map(({ id, label, createdAt, lastUsedAt }) => ({ id, label, createdAt, lastUsedAt }))} />
       </section>
       <section className="panel" aria-labelledby="sec-title">
         <h2 id="sec-title" className="t-h3">Sécurité</h2>

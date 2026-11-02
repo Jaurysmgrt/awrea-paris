@@ -30,7 +30,10 @@ export type SecurityEventType =
   | "admin_enrolled"
   | "admin_password_set"
   | "admin_account_locked"
-  | "admin_revoked";
+  | "admin_revoked"
+  | "admin_passkey_added"
+  | "admin_passkey_removed"
+  | "admin_passkey_fail";
 
 export interface SecurityEvent {
   at: string;
@@ -87,7 +90,7 @@ export async function recordAdminLogin(req: Request, ip: string, email: string):
   const n = fingerprint("network", `${email}|${ev.network}`);
   const firstEver = !Object.keys(known).some((k) => k.startsWith("device:"));
   const unusual = !firstEver && (!known[d] || !known[n]);
-  if (unusual) await logSecurityEvent("admin_login_unusual", req, ip, `${email} : ${!known[d] ? "appareil inconnu" : "réseau inconnu"}`);
+  if (unusual) await logSecurityEvent("admin_login_unusual", req, ip, `${email} : ${!known[d] ? "appareil inconnu" : "réseau inconnu"}`);
   known[d] = ev.at;
   known[n] = ev.at;
   await kv.set(KNOWN_KEY, known);
@@ -125,6 +128,24 @@ async function loginEmail(email: string, ev: SecurityEvent, unusual: boolean, re
     signature: "La sécurité du site Awrea Paris",
   });
   await sendEmail({ to: recipients(email).join(","), subject: unusual ? "Connexion inhabituelle à l’Atelier" : "Connexion à l’Atelier", html, text, tag: "securite" });
+}
+
+/** Face ID ou l'empreinte ajouté sur un appareil : la titulaire est prévenue, avec le lien « Ce n'était pas moi ». */
+export async function alertPasskeyAdded(email: string, req: Request, ip: string) {
+  const ev = await logSecurityEvent("admin_passkey_added", req, ip, email);
+  const link = await revokeLink(email);
+  const { html, text } = brandEmail({
+    preheader: "Face ID ou l’empreinte d’un appareil ouvre maintenant l’Atelier avec votre compte.",
+    title: "Face ID ajouté à l’Atelier",
+    paragraphs: [
+      `Le ${when(ev.at)}, Face ID ou l’empreinte de l’appareil ${ev.device} (réseau ${ev.network}${place(req)}) a été ajouté à votre compte ${email}. Cet appareil ouvre maintenant l’Atelier d’un geste.`,
+      "Si c’est bien vous, il n’y a rien à faire.",
+      "Si ce n’est pas vous, ouvrez le lien ci-dessous : toutes les sessions seront fermées et votre compte remis à zéro, clés comprises.",
+    ],
+    cta: { label: "Ce n’était pas moi", href: link },
+    signature: "La sécurité du site Awrea Paris",
+  });
+  await sendEmail({ to: recipients(email).join(","), subject: "Face ID ajouté à l’Atelier", html, text, tag: "securite" }).catch((e) => console.error("[sécurité] alerte d’ajout de clé non envoyée", e));
 }
 
 /** Compte bloqué après plusieurs échecs : la titulaire est prévenue. */
