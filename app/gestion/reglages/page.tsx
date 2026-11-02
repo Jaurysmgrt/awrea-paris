@@ -2,7 +2,6 @@ import Link from "@/components/ui/Link";
 import { POLICY } from "@/lib/agents/policy";
 import { AUTONOMIES, LISTE_AUTONOMIES, autonomies } from "@/lib/agents/autonomie";
 import { AutonomieSwitch } from "@/components/admin/AutonomieSwitch";
-import { AGENTS } from "@/lib/agents/registry";
 import { commerceMode, getAllProducts } from "@/lib/commerce";
 import { DEFAULT_LEAD_TIME } from "@/lib/commerce/availability";
 import { delaiText, type CatalogueTexts } from "@/lib/commerce/texts";
@@ -23,7 +22,6 @@ import { securityDigest, securityEvents, type SecurityEventType } from "@/lib/se
 import { isSupabaseConfigured } from "@/lib/db/supabase";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { When } from "@/components/admin/Status";
-import { agentName, withRegistryNames } from "@/components/admin/agent-names";
 
 const EVENT_LABELS: Record<SecurityEventType, string> = {
   admin_password_ok: "Mot de passe accepté",
@@ -68,7 +66,6 @@ export default async function ReglagesPage() {
     { label: "Prix provisoires", pieces: products.filter((p) => p.priceProvisional).map((p) => p.title) },
     { label: "Visuels provisoires", pieces: products.filter((p) => p.images.some((i) => i.provisoire)).map((p) => p.title) },
   ].filter((x) => x.pieces.length);
-  const agentNames = withRegistryNames(AGENTS);
   const locked = await Promise.all(accounts.map((a) => loginGuard.blocked("admin-compte", emailKey(a.email), ACCOUNT_GUARD)));
   const security = [
     { name: "Adresse secrète de l’Atelier", ok: atelierPathIsSecret(), hint: "ADMIN_PATH, de la forme /prive- suivie d’au moins douze lettres ou chiffres" },
@@ -162,6 +159,8 @@ export default async function ReglagesPage() {
       </section>
       <section className="panel" aria-labelledby="svc-title">
         <h2 id="svc-title" className="t-h3">Connexions</h2>
+        <details className="replie">
+          <summary className="t-label">{services.filter((x) => x.ok).length} service{services.filter((x) => x.ok).length > 1 ? "s" : ""} branché{services.filter((x) => x.ok).length > 1 ? "s" : ""} sur {services.length}</summary>
         <div className="table-scroll"><table className="table">
           <thead><tr><th scope="col">Service</th><th scope="col">État</th><th scope="col">Variables</th></tr></thead>
           <tbody>
@@ -170,6 +169,7 @@ export default async function ReglagesPage() {
             ))}
           </tbody>
         </table></div>
+        </details>
       </section>
       <section className="panel" aria-labelledby="sec-title">
         <h2 id="sec-title" className="t-h3">Sécurité</h2>
@@ -177,6 +177,8 @@ export default async function ReglagesPage() {
           Dernières 24 heures : {digest.adminLogins} connexion(s), {digest.adminFailures} échec(s), {digest.adminBlocked} blocage(s), {digest.unusualLogins} connexion(s)
           inhabituelle(s), {digest.csrfBlocked} requête(s) d’origine étrangère et {digest.rateLimited} excès de débit refusés.
         </p>
+        <details className="replie">
+          <summary className="t-label">Les protections du site</summary>
         <div className="table-scroll"><table className="table">
           <thead><tr><th scope="col">Protection</th><th scope="col">État</th><th scope="col">Réglage</th></tr></thead>
           <tbody>
@@ -185,6 +187,7 @@ export default async function ReglagesPage() {
             ))}
           </tbody>
         </table></div>
+        </details>
         <h3 className="t-label">Comptes autorisés</h3>
         <div className="table-scroll"><table className="table">
           <thead><tr><th scope="col">Adresse</th><th scope="col">État</th><th scope="col">Dernière connexion</th><th scope="col">Actions</th></tr></thead>
@@ -225,7 +228,8 @@ export default async function ReglagesPage() {
             )}
           </>
         ) : null}
-        <h3 className="t-label">Journal des connexions</h3>
+        <details className="replie">
+          <summary className="t-label">Journal des connexions</summary>
         {events.length ? (
           <div className="table-scroll"><table className="table">
             <thead><tr><th scope="col">Date</th><th scope="col">Évènement</th><th scope="col">Appareil</th><th scope="col">Réseau</th></tr></thead>
@@ -238,17 +242,11 @@ export default async function ReglagesPage() {
         ) : (
           <p className="t-note">Aucune connexion enregistrée pour l’instant.</p>
         )}
+        </details>
         <div className="proposal__actions">
           <ActionButton endpoint={atelierApi("/securite/sessions")} label="Déconnecter tous les appareils" confirm="Fermer toutes les sessions de l’Atelier, y compris celle-ci ?" />
           <ActionButton endpoint={atelierApi("/securite/totp")} label="Réinitialiser la double authentification" variant="quiet" confirm="Réinitialiser la double authentification ? Vous devrez scanner un nouveau QR code à la prochaine connexion." />
         </div>
-      </section>
-      <section className="panel" aria-labelledby="cal-title">
-        <h2 id="cal-title" className="t-h3">Calendrier des agents</h2>
-        <div className="table-scroll"><table className="table">
-          <thead><tr><th scope="col">Agent</th><th scope="col">Cadence</th></tr></thead>
-          <tbody>{AGENTS.map((a) => <tr key={a.id}><th scope="row">{agentName(a.id, agentNames)}</th><td>{a.schedule}</td></tr>)}</tbody>
-        </table></div>
       </section>
       {commerceMode === "demo" ? (
         <section className="panel" aria-labelledby="reset-title">

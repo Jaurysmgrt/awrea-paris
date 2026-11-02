@@ -36,12 +36,13 @@ export default async function LettrePage() {
           La lettre
         </h2>
         <div className="lettre">
-          <div className="email-gallery__frame">
-            <iframe title="Aperçu de la lettre" sandbox="" srcDoc={mail?.html ?? ""} loading="lazy" tabIndex={-1} />
-          </div>
+          <iframe className="lettre__apercu" title="Aperçu de la lettre" sandbox="" srcDoc={mail?.html ?? ""} loading="lazy" />
           <div className="stack-m">
             <p className="t-h4">{etat.sujet && !etat.sujet.startsWith("[") ? etat.sujet : "Sans objet pour l’instant"}</p>
-            <p className={etat.prete ? "status status--done" : "status status--proposed"}>{etat.prete ? "Prête à partir" : etat.raison}</p>
+            <p>
+              <span className={etat.prete ? "status status--done" : "status status--proposed"}>{etat.prete ? "Prête à partir" : "Pas encore prête"}</span>
+            </p>
+            {etat.raison ? <p className="t-note t-left">{etat.raison}</p> : null}
             <Link className="btn btn--outline" href={atelierHref(`/e-mails/${LETTRE_DOC}`)}>
               Écrire la lettre
             </Link>

@@ -1074,7 +1074,12 @@
     }
     .admin-nav__link {
       min-height: calc(var(--spacing-m) * 1.5);
+      padding-block: calc(var(--spacing-3xs) / 2);
       font-size: var(--text-step--1);
+      line-height: var(--leading-label);
+    }
+    .admin-nav__groupe {
+      gap: 0;
     }
     summary.admin-nav__titre {
       min-height: calc(var(--spacing-m) * 1.5);
@@ -1103,5 +1108,41 @@
   .nouvelle-page > summary:focus-visible {
     outline: var(--border-width-focus) solid var(--fg);
     outline-offset: var(--spacing-3xs);
+  }
+}
+
+/* La lettre : l'aperçu à taille réelle, qui défile dans son cadre */
+@layer components {
+  .lettre__apercu {
+    display: block;
+    width: 100%;
+    height: 70svh;
+    border: var(--border-width-hair) solid var(--line);
+    background: var(--media-bg);
+  }
+}
+
+/* Réglages : les parties techniques repliées (connexions, protections, journal des connexions) */
+@layer components {
+  .replie > summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--spacing-touch);
+    color: var(--fg-soft);
+    cursor: pointer;
+  }
+  .replie > summary::after {
+    content: " +";
+    white-space: pre;
+  }
+  .replie[open] > summary::after {
+    content: " −";
+  }
+  .replie > summary:focus-visible {
+    outline: var(--border-width-focus) solid var(--fg);
+    outline-offset: var(--spacing-3xs);
+  }
+  .replie[open] > summary {
+    color: var(--fg);
   }
 }
