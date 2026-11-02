@@ -4,7 +4,22 @@
     "description": "Un appel vidéo avec la créatrice, pour une question de taille ou un premier rendez-vous sur mesure : choisissez votre jour et votre heure."
   },
   "titre": "Prendre rendez-vous",
-  "chapeau": "Avant de commander une pièce, parlez-en avec la créatrice en appel vidéo, depuis chez vous : une question de taille, un premier projet sur mesure. Choisissez le jour et l’heure, ils vous sont réservés.",
+  "accroche": {
+    "titre": "Une pièce exclusive à votre demande.",
+    "texte": "Chaque création Awrea Paris est pensée spécialement pour vous. Échangeons autour de vos envies, de votre taille et des détails qui feront de votre pièce une création singulière.",
+    "bouton": "Prendre rendez-vous",
+    "note": "Un échange privilégié avec la créatrice.",
+    "image": {
+      "src": "/media/img/atelier-2",
+      "alt": "Une dentelle ivoire posée sur la table de l’atelier, à côté d’une paire de ciseaux, dans une lumière douce",
+      "width": 1200,
+      "height": 800,
+      "focal": {
+        "x": 62,
+        "y": 55
+      }
+    }
+  },
   "types": {
     "visio": {
       "titre": "Appel vidéo avec la créatrice",

@@ -60,6 +60,13 @@
   .page-head--center .page-head__lead {
     margin-inline: auto;
   }
+  /* chapeau centré sur l'axe du titre (page « À la demande », dossier de la créatrice du 02/11 :
+     « jamais aligné à gauche », environ 650 px de large), sur téléphone comme sur ordinateur */
+  .page-head__lead--centre {
+    max-width: var(--container-chapeau);
+    text-align: center;
+    text-wrap: pretty;
+  }
 
   /* ============================================================ OUVERTURE */
   .hero {
@@ -1462,14 +1469,11 @@
   .express__btn {
     --btn-fg: var(--fg);
     --btn-bg: transparent;
-    --btn-hover-bg: var(--fg);
-    --btn-on: var(--bg);
+    --btn-edge: var(--fg);
   }
   .express__btn[aria-pressed="true"] {
     --btn-fg: var(--bg);
     --btn-bg: var(--fg);
-    --btn-hover-bg: var(--bg);
-    --btn-on: var(--fg);
   }
   .combo {
     position: relative;
@@ -1637,25 +1641,24 @@ html[data-motion="reduce"] .hero__scroll::after {
   }
 }
 
-/* Prise de rendez-vous : trois rendez-vous côte à côte, puis les jours et les heures en pastilles */
+/* Prise de rendez-vous : le bouton capsule et sa phrase, puis la réservation qui s'ouvre à leur
+   place ; le rendez-vous, les jours et les heures en pastilles (plus de cartes, dossier du 02/11) */
 @layer components {
-  .booking__types {
+  .rdv-appel {
     display: grid;
-    gap: var(--space-block);
+    justify-items: center;
+    gap: var(--spacing-s);
   }
-  @media (min-width: 48rem) {
-    .booking__types {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+  .rdv-reservation:not([hidden]) {
+    max-width: var(--container-prose);
+    margin-inline: auto;
+    text-align: left;
   }
-  .booking__type {
-    padding: var(--spacing-m);
-    border: var(--border-width-hair) solid var(--line);
-    transition: border-color var(--dur) var(--ease);
+  .booking__choix .chip:has(input:focus-visible) {
+    outline: var(--border-width-hair) solid var(--fg);
+    outline-offset: var(--spacing-3xs);
   }
-  .booking__type:has(input:checked) {
-    border-color: var(--accent);
-  }
+  .booking__choix,
   .booking__chips {
     display: flex;
     flex-wrap: wrap;

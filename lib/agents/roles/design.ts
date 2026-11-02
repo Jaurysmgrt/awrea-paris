@@ -35,7 +35,7 @@ async function pagesARelire(): Promise<{ path: string; nom: string; fiche?: bool
     ...(collection ? [{ path: `/collections/${collection.handle}`, nom: `la collection ${collection.title}` }] : []),
     ...pieces.slice(0, 4).map((p) => ({ path: `/boutique/${p.handle}`, nom: `la fiche « ${p.title} »`, fiche: true })),
     { path: "/la-maison", nom: "La Maison" },
-    { path: "/sur-commande", nom: "la page Sur commande" },
+    { path: "/sur-commande", nom: "la page À la demande" },
     { path: "/guide-des-tailles", nom: "le guide des tailles" },
     { path: "/contact", nom: "la page Contact" },
     { path: "/en", nom: "l’accueil en anglais" },

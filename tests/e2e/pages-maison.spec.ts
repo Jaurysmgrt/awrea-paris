@@ -148,9 +148,16 @@ test.describe("Pages de la Maison", () => {
     await expect(page.locator("main").getByText(/numéro d’édition|fait main à Paris|atelier parisien/i)).toHaveCount(0);
   });
 
-  test("la commande sur demande : les étapes, les délais du catalogue, le suivi et le rendez-vous", async ({ page }) => {
+  test("à la demande : le chapeau centré, les étapes, les délais du catalogue, le suivi et le rendez-vous", async ({ page }) => {
     await open(page, "/sur-commande");
     await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(surCommande.titre);
+    // le chapeau, centré sur l'axe du titre, jamais au fer à gauche (dossier du 02/11), 650 px au plus
+    const chapeau = page.locator(".page-head__lead");
+    await expect(chapeau).toHaveCSS("text-align", "center");
+    const [titre, texte] = await Promise.all([page.getByRole("heading", { level: 1 }).boundingBox(), chapeau.boundingBox()]);
+    expect(Math.abs(titre!.x + titre!.width / 2 - (texte!.x + texte!.width / 2))).toBeLessThan(2);
+    expect(texte!.width).toBeLessThanOrEqual(650);
+    await expect(page.locator("main .eyebrow").first()).toHaveText(surCommande.etapes.surtitre);
     const etapes = page.locator("main ol li h3");
     await expect(etapes).toHaveText([surCommande.etapes.choix.titre, "Commande reçue", "En confection", "Prête", "Expédiée", "Livrée"]);
     await expect(page.locator("main dl dd")).toHaveCount(2);

@@ -14,7 +14,7 @@ import { auditInPage, type DesignAudit } from "./design-audit";
  */
 const PAGES = [
   "/", "/collections", "/collections/hypnotic-lace", "/boutique", "/boutique/robe-odessa", "/boutique/body-aura", "/outfits",
-  "/la-maison", "/atelier", "/sur-commande", "/guide-des-tailles", "/journal", "/journal/dentelle-drapes-et-dorure", "/presse", "/contact", "/faq", "/livraison-retours",
+  "/la-maison", "/atelier", "/sur-commande", "/rendez-vous", "/guide-des-tailles", "/journal", "/journal/dentelle-drapes-et-dorure", "/presse", "/contact", "/faq", "/livraison-retours",
   "/cgv", "/cgu", "/mentions-legales", "/propriete-intellectuelle", "/confidentialite", "/cookies", "/assistant-ia", "/retractation",
   "/compte", "/liste-envies", "/recherche", "/page-inexistante",
 ];

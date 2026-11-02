@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { acceptCookies } from "./helpers";
 
-const PAGES = ["/", "/boutique", "/boutique/robe-odessa", "/boutique/top-evina", "/collections/hypnotic-lace", "/outfits", "/la-maison", "/atelier", "/sur-commande", "/guide-des-tailles", "/journal/dentelle-drapes-et-dorure", "/contact", "/faq", "/commande", "/compte"];
+const PAGES = ["/", "/boutique", "/boutique/robe-odessa", "/boutique/top-evina", "/collections/hypnotic-lace", "/outfits", "/la-maison", "/atelier", "/sur-commande", "/rendez-vous", "/guide-des-tailles", "/journal/dentelle-drapes-et-dorure", "/contact", "/faq", "/commande", "/compte"];
 
 test.describe("Accessibilité WCAG 2.1 AA (axe-core)", () => {
   for (const path of PAGES) {
