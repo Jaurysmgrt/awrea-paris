@@ -973,3 +973,74 @@
     cursor: progress;
   }
 }
+
+/* Onglets d'une rubrique (E-mails) : le choix segmenté du design system, en liens */
+@layer components {
+  .onglets {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .onglets .segmented__item[aria-current="page"] {
+    color: var(--fg);
+    border-bottom-color: var(--accent);
+  }
+  .onglets .segmented__item:focus-visible {
+    outline: var(--border-width-hair) solid var(--fg);
+    outline-offset: calc(-1 * var(--spacing-3xs));
+  }
+  /* la lettre : l'aperçu à gauche, les gestes à droite */
+  .lettre {
+    display: grid;
+    gap: var(--spacing-l);
+  }
+  @media (min-width: 64rem) {
+    .lettre {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      align-items: start;
+    }
+  }
+  .lettre__actions {
+    display: grid;
+    gap: var(--spacing-m);
+    justify-items: start;
+  }
+}
+
+/* E-mails › Envoyés : une ligne par e-mail, le texte se déplie */
+@layer components {
+  .envoyes {
+    display: grid;
+    padding: 0;
+    list-style: none;
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .envoye {
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .envoye summary {
+    display: grid;
+    gap: var(--spacing-3xs);
+    padding-block: var(--spacing-s);
+    cursor: pointer;
+    list-style: none;
+  }
+  .envoye summary::-webkit-details-marker {
+    display: none;
+  }
+  .envoye summary:focus-visible {
+    outline: var(--border-width-focus) solid var(--fg);
+    outline-offset: var(--spacing-3xs);
+  }
+  .envoye__texte {
+    margin: 0 0 var(--spacing-s);
+    padding: var(--spacing-s);
+    background: var(--color-pearl);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: var(--text-step--1);
+    line-height: var(--leading-note);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}

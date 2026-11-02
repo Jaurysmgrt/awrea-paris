@@ -1,6 +1,6 @@
 {
   "nom": "The Maison’s letter",
-  "quand": "Template for the letter sent to subscribers. Each letter goes out once you have approved it in Validations.",
+  "quand": "Written and sent by you from the Atelier › E-mails › The letter, to every subscriber.",
   "famille": "lettre",
   "sujet": "[Write the subject line]",
   "preheader": "[Write the preview line]",

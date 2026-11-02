@@ -1,79 +1,111 @@
-import { emailIds, renderEmailDoc, emailDoc, emailCommon } from "@/lib/email/documents";
-import { EmailCommonForm } from "@/components/admin/EmailCommonForm";
-import { draftOf, historyOf } from "@/lib/edition/store";
-import { atelierHref } from "@/lib/admin/path";
-import { When } from "@/components/admin/Status";
 import Link from "@/components/ui/Link";
+import { kv } from "@/lib/store";
+import { atelierApi, atelierHref } from "@/lib/admin/path";
+import { renderEmailDoc } from "@/lib/email/documents";
+import { LETTRE_DOC, envoisLettre, etatLettre, inscrites } from "@/lib/email/lettre";
+import { EmailsTabs } from "@/components/admin/EmailsTabs";
+import { LettreActions } from "@/components/admin/LettreActions";
+import { ActionButton } from "@/components/admin/ActionButton";
+import { CopyButton } from "@/components/admin/CopyButton";
+import { When } from "@/components/admin/Status";
 
-const FAMILLES = [
-  { id: "commande", title: "Commandes", intro: "Envoyés par Shopify. Une fois modifiés ici, exportez-les vers les notifications Shopify." },
-  { id: "service", title: "Service", intro: "Envoyés par le site : chaque étape de la confection d’une commande, de « Commande reçue » à « Expédiée », puis les retours, les rendez-vous, le compte et les certificats." },
-  { id: "lettre", title: "Lettres", intro: "La lettre de la Maison et les messages qui suivent une inscription." },
-] as const;
+type Idee = { id: string; date: string; status: "draft" | "published" | "archived"; kind: "instagram" | "newsletter"; title: string; body: string; subject?: string; preheader?: string };
 
-/** Galerie des e-mails : chacun tel qu'il arrive, avec ses exemples, et son état. */
-export default async function EmailsPage() {
-  const [ids, commun] = await Promise.all([emailIds(), emailCommon("fr", true)]);
-  const list = (
-    await Promise.all(
-      ids.map(async ({ id, label }) => {
-        const doc = await emailDoc(id, "fr");
-        if (!doc) return null;
-        const vars = Object.fromEntries(Object.entries(doc.variables).map(([k, v]) => [k, v.exemple]));
-        const [mail, draft, history] = await Promise.all([renderEmailDoc(id, { vars }), draftOf(id, "fr"), historyOf(id, "fr")]);
-        return { id, label, doc, html: mail?.html ?? "", subject: mail?.subject ?? "", draft: Boolean(draft), publishedAt: history[0]?.at || null };
-      }),
-    )
-  ).filter((x) => x !== null);
-
+/**
+ * E-mails › La lettre (demande de la créatrice du 02/11) : la lettre telle qu'elle arrivera, la
+ * modifier, s'envoyer un essai, l'envoyer à toutes les inscrites ; les lettres déjà parties ; les
+ * idées de lettre préparées par l'agent Contenu (auparavant dans « Contenus »).
+ */
+export default async function LettrePage() {
+  const [etat, liste, envois, mail, idees] = await Promise.all([
+    etatLettre(),
+    inscrites(),
+    envoisLettre(),
+    renderEmailDoc(LETTRE_DOC, { vars: { prenom: "Camille" } }),
+    kv.list<Idee>("content:drafts", 200).then((l) => l.filter((d) => d.kind === "newsletter" && d.status !== "archived")),
+  ]);
   return (
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">E-mails</h1>
-        <p className="t-lead">Chaque e-mail se compose comme une page : des blocs dans l’allure de la Maison, des textes que vous écrivez, un aperçu dans chaque messagerie. Rien ne change avant « Publier ».</p>
+        <EmailsTabs actif="/e-mails" />
       </header>
-      {FAMILLES.map((f) => {
-        const items = list.filter((m) => m.doc.famille === f.id);
-        if (!items.length) return null;
-        return (
-          <section key={f.id} className="panel stack" aria-labelledby={`famille-${f.id}`}>
-            <h2 id={`famille-${f.id}`} className="t-h3">{f.title}</h2>
-            <p className="t-note">{f.intro}</p>
-            <ul className="email-gallery">
-              {items.map((m) => (
-                <li key={m.id} className="email-gallery__item stack">
-                  <div className="email-gallery__frame">
-                    <iframe title={`Aperçu : ${m.label}`} sandbox="" srcDoc={m.html} loading="lazy" tabIndex={-1} />
-                  </div>
-                  <h3 className="t-h4">{m.label}</h3>
-                  <p className="t-note t-left">{m.doc.quand}</p>
-                  <p className="t-label t-soft">
-                    {m.draft ? "Modifié, pas encore publié" : m.publishedAt ? <>Publié le <When iso={m.publishedAt} /></> : "Version d’origine"}
-                  </p>
-                  <Link className="btn btn--outline" href={atelierHref(`/e-mails/${m.id}`)}>
-                    Modifier l’e-mail
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        );
-      })}
-      {!list.length ? <p className="t-note">Aucun e-mail pour l’instant.</p> : null}
-      <section id="communs" className="panel stack" aria-labelledby="communs-titre">
-        <h2 id="communs-titre" className="t-h3">Textes communs</h2>
-        <p className="t-note">Repris en bas de chaque e-mail.</p>
-        <EmailCommonForm
-          fields={[
-            { key: "devise", label: "Devise", value: commun.devise },
-            { key: "lignePied", label: "Ligne sous la devise", value: commun.lignePied },
-            { key: "mentions", label: "Mentions (raison sociale, adresse)", value: commun.mentions },
-            { key: "desinscription", label: "Lien de désinscription des lettres", value: commun.desinscription },
-            { key: "voirPiece", label: "Lien sous une pièce", value: commun.voirPiece },
-            { key: "total", label: "Dernière ligne d’une commande", value: commun.total },
-          ]}
-        />
+
+      <section className="panel" aria-labelledby="lettre-titre">
+        <h2 id="lettre-titre" className="t-h3">
+          La lettre
+        </h2>
+        <div className="lettre">
+          <div className="email-gallery__frame">
+            <iframe title="Aperçu de la lettre" sandbox="" srcDoc={mail?.html ?? ""} loading="lazy" tabIndex={-1} />
+          </div>
+          <div className="stack-m">
+            <p className="t-h4">{etat.sujet && !etat.sujet.startsWith("[") ? etat.sujet : "Sans objet pour l’instant"}</p>
+            <p className={etat.prete ? "status status--done" : "status status--proposed"}>{etat.prete ? "Prête à partir" : etat.raison}</p>
+            <Link className="btn btn--outline" href={atelierHref(`/e-mails/${LETTRE_DOC}`)}>
+              Écrire la lettre
+            </Link>
+            <LettreActions nombre={liste.length} prete={etat.prete} />
+          </div>
+        </div>
       </section>
+
+      {envois.length ? (
+        <section className="panel" aria-labelledby="parties-titre">
+          <h2 id="parties-titre" className="t-h3">
+            Lettres parties
+          </h2>
+          <div className="table-scroll">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Objet</th>
+                  <th scope="col">Inscrites</th>
+                </tr>
+              </thead>
+              <tbody>
+                {envois.map((e) => (
+                  <tr key={`${e.at}-${e.versionId}`}>
+                    <td>
+                      <When iso={e.at} />
+                    </td>
+                    <th scope="row">{e.sujet}</th>
+                    <td>{e.nombre}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+
+      {idees.length ? (
+        <section className="panel" aria-labelledby="idees-titre">
+          <h2 id="idees-titre" className="t-h3">
+            Idées de l’agent Contenu
+          </h2>
+          <div className="stack-l">
+            {idees.map((l) => (
+              <article key={l.id} className="letter-draft stack">
+                <p className="t-label t-soft">
+                  <When iso={l.date} />
+                </p>
+                <h3 className="t-h4">{l.subject ?? l.title}</h3>
+                <div className="prose">
+                  {l.body.split(/\n{2,}/).map((t, i) => (
+                    <p key={i}>{t}</p>
+                  ))}
+                </div>
+                <div className="proposal__actions">
+                  <CopyButton text={l.body} label="Copier le texte" />
+                  <ActionButton endpoint={atelierApi(`/contenus/${l.id}`)} body={{ status: "archived" }} label="Archiver" variant="quiet" />
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }
