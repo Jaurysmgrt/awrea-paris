@@ -4,7 +4,7 @@
     {
       "label": "Made to order",
       "sousMenu": [
-        { "label": "Your piece, made to order", "href": "/sur-commande" },
+        { "label": "The making, step by step", "href": "/sur-commande" },
         { "label": "The craftsmanship in detail", "href": "/atelier" },
         { "label": "Book an appointment", "href": "/rendez-vous" }
       ]

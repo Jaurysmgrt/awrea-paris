@@ -4,26 +4,24 @@ import { getDoc } from "@/lib/edition/read";
 import { fill } from "@/lib/edition/fill";
 import { getProducts } from "@/lib/commerce";
 import { delaiText, type CatalogueTexts } from "@/lib/commerce/texts";
-import type { OrderStage } from "@/lib/commerce/types";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
 import { delaiDeFamille, type FamilleDelai } from "@/components/home/delais";
 import ed from "@/components/home/editorial.module.css";
 import styles from "./sur-commande.module.css";
+import { Frise } from "./Frise";
 
 /**
- * La commande sur demande : les étapes d'une commande (le choix, puis les cinq étapes de la frise :
- * « Commande reçue », « En confection », « Prête », « Expédiée », « Livrée »), les délais de
- * fabrication lus dans le catalogue, le suivi, le rendez-vous et l'éthique de production.
- * Cohérente avec les conditions générales de vente officielles (paiement en une fois à la
- * commande, confirmation par e-mail, suivi sur le site). Textes : content/site/fr/sur-commande.json.
+ * À la demande, les étapes de confection (brief de la créatrice du 02/11) : le titre et le chapeau,
+ * puis « Le parcours d'une création singulière » en frise (Frise.tsx : la commande, la préparation,
+ * la confection, les finitions, l'expédition, la réception), les délais de fabrication lus dans le
+ * catalogue, le suivi, le rendez-vous et l'éthique de production. Cohérente avec les conditions
+ * générales de vente officielles. Textes : content/site/fr/sur-commande.json.
  */
 type SurCommande = typeof import("@/content/site/fr/sur-commande.json");
 
 const FAMILLES: FamilleDelai[] = ["hauts", "robes"];
-/** Les cinq étapes de la frise d'une commande, dans l'ordre (OrderStage, lib/commerce/types.ts). */
-const ETAPES: readonly OrderStage[] = ["paid", "in_production", "ready", "shipped", "delivered"];
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getDoc<SurCommande>("sur-commande", { plain: true });
@@ -32,13 +30,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function SurCommandePage() {
   const [t, catalogue, pieces] = await Promise.all([getDoc<SurCommande>("sur-commande"), getDoc<CatalogueTexts>("catalogue"), getProducts()]);
-  const etapes = [t.etapes.choix, ...ETAPES.map((stage) => t.etapes.statuts[stage])];
 
   return (
     <>
       <PageHeader title={t.titre} lead={t.chapeau} leadCentre crumbs={[{ name: t.nom, path: "/sur-commande" }]} />
 
-      {/* ------------------------------------------------ LES ÉTAPES */}
+      {/* ------------------------------------------------ LES ÉTAPES DE CONFECTION, EN FRISE */}
       <Section theme="ivory" className="section section--flush-top" labelledBy="commande-etapes">
         <div className="container">
           <header className={`${ed.tete} ${ed.centre}`}>
@@ -47,14 +44,7 @@ export default async function SurCommandePage() {
               {t.etapes.titre}
             </h2>
           </header>
-          <ol className={`${styles.etapes} ${ed.apresTete}`}>
-            {etapes.map((e) => (
-              <li key={e.titre} className={styles.etape}>
-                <h3 className="t-h4">{e.titre}</h3>
-                <p className="t-body">{e.texte}</p>
-              </li>
-            ))}
-          </ol>
+          <Frise etapes={t.etapes.frise} />
         </div>
       </Section>
 

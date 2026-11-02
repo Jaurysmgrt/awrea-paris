@@ -44,11 +44,11 @@ test.describe("En-tête de la maquette : logo centré, navigation centrée desso
     await page.keyboard.press("Enter");
     await expect(surCommande).toHaveAttribute("aria-expanded", "true");
     const sous = nav.locator(`[id="${await surCommande.getAttribute("aria-controls")}"]`);
-    await expect(sous.getByRole("link", { name: "La pièce à la demande" })).toHaveAttribute("href", "/sur-commande");
+    await expect(sous.getByRole("link", { name: "Étapes de confection" })).toHaveAttribute("href", "/sur-commande");
     await expect(sous.getByRole("link", { name: "Le détail du savoir-faire" })).toHaveAttribute("href", "/atelier");
     await expect(sous.getByRole("link", { name: "Prendre rendez-vous" })).toHaveAttribute("href", "/rendez-vous");
     await page.keyboard.press("Tab");
-    await expect(sous.getByRole("link", { name: "La pièce à la demande" })).toBeFocused();
+    await expect(sous.getByRole("link", { name: "Étapes de confection" })).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(surCommande).toHaveAttribute("aria-expanded", "false");
     await expect(surCommande).toBeFocused();

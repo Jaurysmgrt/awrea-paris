@@ -148,7 +148,7 @@ test.describe("Pages de la Maison", () => {
     await expect(page.locator("main").getByText(/numéro d’édition|fait main à Paris|atelier parisien/i)).toHaveCount(0);
   });
 
-  test("à la demande : le chapeau centré, les étapes, les délais du catalogue, le suivi et le rendez-vous", async ({ page }) => {
+  test("à la demande : le chapeau centré, la frise des étapes de confection, les délais du catalogue, le suivi et le rendez-vous", async ({ page }) => {
     await open(page, "/sur-commande");
     await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(surCommande.titre);
     // le chapeau, centré sur l'axe du titre, jamais au fer à gauche (dossier du 02/11), 650 px au plus
@@ -158,8 +158,16 @@ test.describe("Pages de la Maison", () => {
     expect(Math.abs(titre!.x + titre!.width / 2 - (texte!.x + texte!.width / 2))).toBeLessThan(2);
     expect(texte!.width).toBeLessThanOrEqual(650);
     await expect(page.locator("main .eyebrow").first()).toHaveText(surCommande.etapes.surtitre);
-    const etapes = page.locator("main ol li h3");
-    await expect(etapes).toHaveText([surCommande.etapes.choix.titre, "Commande reçue", "En confection", "Prête", "Expédiée", "Livrée"]);
+    await expect(page.getByRole("heading", { level: 2, name: "Le parcours d’une création singulière" })).toBeVisible();
+    // la frise : six étapes, chacune son nom, sa phrase, son texte mot pour mot et sa photographie
+    const etapes = page.locator("#frise-etapes > li");
+    await expect(etapes).toHaveCount(6);
+    await expect(etapes.locator("h3")).toHaveText(surCommande.etapes.frise.map((e) => e.titre));
+    await expect(etapes.locator(".t-label")).toHaveText(surCommande.etapes.frise.map((e) => `${e.numero} ${e.nom}`));
+    for (const [i, e] of surCommande.etapes.frise.entries()) {
+      await expect(etapes.nth(i).locator("p.t-note")).toHaveText(e.texte);
+      await expect(etapes.nth(i).locator("img")).toHaveAttribute("alt", e.image.alt);
+    }
     await expect(page.locator("main dl dd")).toHaveCount(2);
     for (const dd of await page.locator("main dl dd").all()) await expect(dd).toHaveText(/\d+(\s| )(à(\s| )\d+(\s| ))?semaines?/);
     await expect(page.locator('main a[href="/suivi"]')).toBeVisible();
@@ -212,5 +220,39 @@ test.describe("Pages de la Maison", () => {
     // les coordonnées réelles de la Maison, à côté du formulaire
     await expect(page.locator('main a[href="mailto:awrea.contact@gmail.com"]')).toBeVisible();
     await expect(page.locator('main a[href="tel:+33699557443"]')).toBeVisible();
+  });
+});
+
+test.describe("frise des étapes de confection", () => {
+  test("ordinateur : une ligne horizontale, les étapes alternées au-dessus et au-dessous, sans chevauchement", async ({ page, isMobile }) => {
+    test.skip(isMobile, "frise horizontale sur ordinateur");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await open(page, "/sur-commande");
+    const etapes = page.locator("#frise-etapes > li");
+    await etapes.first().scrollIntoViewIfNeeded();
+    const boites = await etapes.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
+    // 1, 3, 5 au-dessus, 2, 4, 6 au-dessous ; de gauche à droite
+    for (const i of [0, 2, 4]) expect(boites[i].bottom).toBeLessThan(boites[1].top);
+    for (let i = 1; i < 6; i++) expect(boites[i].left).toBeGreaterThan(boites[i - 1].left);
+    // aucune étape ne chevauche sa voisine du même côté
+    for (const [a, b] of [[0, 2], [2, 4], [1, 3], [3, 5]]) expect(boites[a].right).toBeLessThanOrEqual(boites[b].left + 1);
+    // photographies en noir et blanc
+    await expect(etapes.first().locator("img")).toHaveCSS("filter", "grayscale(1)");
+  });
+
+  test("téléphone : chronologie verticale, étapes empilées, sans débordement", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await open(page, "/sur-commande");
+    const etapes = page.locator("#frise-etapes > li");
+    const boites = await etapes.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
+    for (let i = 1; i < 6; i++) expect(boites[i].top).toBeGreaterThanOrEqual(boites[i - 1].bottom);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  });
+
+  test("animations apaisées : tout est visible d'emblée", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page, "/sur-commande");
+    await expect(page.locator("#frise-etapes")).not.toHaveAttribute("data-anime", /.*/);
+    await expect(page.locator("#frise-etapes > li").last()).toHaveCSS("opacity", "1");
   });
 });

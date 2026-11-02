@@ -1,0 +1,199 @@
+/*
+ * Frise des étapes de confection (Frise.tsx). Tokens seulement. Téléphone et tablette : chronologie
+ * verticale, la ligne fine sur le côté, un cercle par étape. Ordinateur (64 rem et plus) : la ligne
+ * traverse la page, six étapes réparties sur sept colonnes, alternativement au-dessus (1, 3, 5) et
+ * au-dessous (2, 4, 6), chacune reliée à la ligne par un trait vertical et un petit cercle.
+ */
+.frise {
+  --point: var(--spacing-2xs);
+  --marge: var(--spacing-l);
+  position: relative;
+  display: grid;
+  gap: var(--space-block);
+  /* l'espace sous la tête de section, comme partout (editorial.module.css, apresTete) */
+  margin: var(--space-block) 0 0;
+  padding: 0 0 0 var(--marge);
+  list-style: none;
+}
+/* la ligne */
+.frise::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--point) / 2);
+  width: var(--border-width-hair);
+  background: var(--fg);
+  transform-origin: top center;
+}
+.etape {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-s);
+}
+/* le cercle de l'étape, sur la ligne */
+.etape::after {
+  content: "";
+  position: absolute;
+  top: var(--spacing-3xs);
+  left: calc(-1 * var(--marge));
+  width: var(--point);
+  height: var(--point);
+  border: var(--border-width-hair) solid var(--fg);
+  border-radius: var(--radius-pill);
+  background: var(--bg);
+}
+.texte {
+  display: grid;
+  gap: var(--spacing-2xs);
+  max-width: var(--container-text);
+}
+.numero {
+  color: var(--fg-soft);
+}
+.numero span {
+  margin-right: var(--spacing-2xs);
+  color: var(--fg);
+}
+.photo {
+  max-width: var(--container-text);
+}
+/* photographies en noir et blanc, quelle que soit la source */
+.photo img {
+  filter: grayscale(1);
+}
+
+@media (min-width: 64rem) {
+  .frise {
+    --axe: calc(var(--spacing-l) * 2);
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-rows: auto var(--axe) auto;
+    gap: 0;
+    padding: 0;
+  }
+  .frise::before {
+    position: static;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    align-self: center;
+    width: auto;
+    height: var(--border-width-hair);
+    transform-origin: left center;
+  }
+  .etape {
+    padding: 0 var(--spacing-m) 0 var(--spacing-s);
+  }
+  .etape:nth-child(1) {
+    grid-column: 1 / span 2;
+  }
+  .etape:nth-child(2) {
+    grid-column: 2 / span 2;
+  }
+  .etape:nth-child(3) {
+    grid-column: 3 / span 2;
+  }
+  .etape:nth-child(4) {
+    grid-column: 4 / span 2;
+  }
+  .etape:nth-child(5) {
+    grid-column: 5 / span 2;
+  }
+  .etape:nth-child(6) {
+    grid-column: 6 / span 2;
+  }
+  .etape[data-cote="haut"] {
+    grid-row: 1;
+    align-self: end;
+  }
+  .etape[data-cote="bas"] {
+    grid-row: 3;
+    align-self: start;
+  }
+  /* au-dessus de la ligne : la photographie d'abord, le texte près de la ligne */
+  .etape[data-cote="haut"] .photo {
+    order: -1;
+  }
+  .photo,
+  .texte {
+    max-width: none;
+  }
+  /* le trait qui relie l'étape à la ligne, au bord gauche du texte */
+  .etape::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: var(--border-width-hair);
+    height: calc(var(--axe) / 2);
+    background: var(--fg);
+  }
+  .etape[data-cote="haut"]::before {
+    top: 100%;
+  }
+  .etape[data-cote="bas"]::before {
+    bottom: 100%;
+  }
+  .etape::after {
+    left: calc(var(--point) / -2);
+  }
+  .etape[data-cote="haut"]::after {
+    top: calc(100% + var(--axe) / 2 - var(--point) / 2);
+  }
+  .etape[data-cote="bas"]::after {
+    top: auto;
+    bottom: calc(100% + var(--axe) / 2 - var(--point) / 2);
+  }
+}
+
+/* apparitions (FriseApparition.tsx) : la ligne se dessine, chaque étape vient en fondu */
+.frise[data-anime]::before {
+  transform: scaleY(0);
+  transition: transform calc(var(--dur) * 2) var(--ease);
+}
+.frise[data-anime][data-vu]::before {
+  transform: none;
+}
+@media (min-width: 64rem) {
+  .frise[data-anime]::before {
+    transform: scaleX(0);
+  }
+  .frise[data-anime][data-vu]::before {
+    transform: none;
+  }
+}
+.frise[data-anime] .etape {
+  opacity: 0;
+  translate: 0 var(--spacing-s);
+  transition:
+    opacity var(--dur) var(--ease),
+    translate var(--dur) var(--ease);
+}
+.frise[data-anime] .etape[data-vu] {
+  opacity: 1;
+  translate: none;
+}
+@media (min-width: 64rem) {
+  .frise[data-anime] .etape:nth-child(2) {
+    transition-delay: calc(var(--dur-stagger) * 2);
+  }
+  .frise[data-anime] .etape:nth-child(3) {
+    transition-delay: calc(var(--dur-stagger) * 4);
+  }
+  .frise[data-anime] .etape:nth-child(4) {
+    transition-delay: calc(var(--dur-stagger) * 6);
+  }
+  .frise[data-anime] .etape:nth-child(5) {
+    transition-delay: calc(var(--dur-stagger) * 8);
+  }
+  .frise[data-anime] .etape:nth-child(6) {
+    transition-delay: calc(var(--dur-stagger) * 10);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .frise[data-anime] .etape {
+    opacity: 1;
+    translate: none;
+  }
+  .frise[data-anime]::before {
+    transform: none;
+  }
+}

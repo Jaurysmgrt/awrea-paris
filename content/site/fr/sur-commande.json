@@ -5,36 +5,102 @@
   },
   "nom": "À la demande",
   "titre": "Le privilège d’une pièce unique.",
-  "chapeau": "Chaque création AWREA est imaginée pour prendre forme au moment où vous la choisissez. Une confection attentive, réalisée spécialement pour vous, où le temps, la précision et le savoir-faire font toute la différence.",
+  "chapeau": "Chaque création Awrea Paris est imaginée pour prendre forme au moment où vous la choisissez. Une confection attentive, réalisée spécialement pour vous, où le temps, la précision et le savoir-faire font toute la différence.",
   "etapes": {
     "surtitre": "Votre expérience",
-    "titre": "De votre choix à votre porte",
-    "choix": {
-      "titre": "Votre pièce, votre taille",
-      "texte": "Vous choisissez la pièce et sa taille, avec l’aide du guide des tailles. Le paiement se fait en ligne, au moment de la commande."
-    },
-    "statuts": {
-      "paid": {
-        "titre": "Commande reçue",
-        "texte": "Un e-mail vous confirme la commande et vous donne son numéro. L’atelier la reçoit en même temps que vous."
+    "titre": "Le parcours d’une création singulière",
+    "officiel": true,
+    "frise": [
+      {
+        "numero": "01",
+        "nom": "La commande",
+        "titre": "Le début de votre création.",
+        "texte": "Vous choisissez le modèle qui vous correspond ainsi que les caractéristiques proposées pour votre pièce. Votre commande marque le début de sa réalisation.",
+        "image": {
+          "src": "/media/img/editorial-2",
+          "alt": "Une robe de dentelle noire vue de dos, le laçage du dos en lumière",
+          "width": 1200,
+          "height": 675,
+          "focal": {
+            "x": 50,
+            "y": 40
+          }
+        }
       },
-      "in_production": {
-        "titre": "En confection",
-        "texte": "Des artisans français coupent et assemblent votre pièce, dans la taille que vous avez choisie."
+      {
+        "numero": "02",
+        "nom": "La préparation",
+        "titre": "Chaque détail prend sa place.",
+        "texte": "Votre commande est transmise pour préparer la réalisation de votre pièce. Les éléments nécessaires à sa confection sont soigneusement réunis.",
+        "image": {
+          "src": "/media/img/atelier-5",
+          "alt": "Une dentelle ivoire et une paire de ciseaux posées sur la table de l’atelier",
+          "width": 1200,
+          "height": 1500,
+          "focal": {
+            "x": 55,
+            "y": 45
+          }
+        }
       },
-      "ready": {
-        "titre": "Prête",
-        "texte": "La pièce est terminée. Elle est préparée pour l’envoi."
+      {
+        "numero": "03",
+        "nom": "La confection",
+        "titre": "Le savoir-faire au cœur du geste.",
+        "texte": "Votre pièce prend forme au fil des gestes et du travail de confection. Chaque étape est réalisée avec attention et précision.",
+        "image": {
+          "src": "/media/img/atelier-4",
+          "alt": "Les mains d’une couturière qui travaillent une étoffe blanche, sur la table de l’atelier",
+          "width": 1200,
+          "height": 800
+        }
       },
-      "shipped": {
-        "titre": "Expédiée",
-        "texte": "Elle est confiée au transporteur, et son suivi apparaît avec votre commande."
+      {
+        "numero": "04",
+        "nom": "Les finitions",
+        "titre": "L’exigence jusque dans le détail.",
+        "texte": "Les finitions sont soigneusement réalisées et la pièce fait l’objet d’une vérification attentive avant son départ.",
+        "image": {
+          "src": "/media/img/atelier-6",
+          "alt": "Une aiguille tenue entre deux doigts, au ras d’une étoffe blanche",
+          "width": 1200,
+          "height": 1500,
+          "focal": {
+            "x": 50,
+            "y": 55
+          }
+        }
       },
-      "delivered": {
-        "titre": "Livrée",
-        "texte": "Elle arrive chez vous. Son certificat d’authenticité porte son numéro de création."
+      {
+        "numero": "05",
+        "nom": "L’expédition",
+        "titre": "Votre création prend son envol.",
+        "texte": "Votre pièce est préparée avec soin pour être expédiée dans son écrin et rejoindre sa future propriétaire.",
+        "image": {
+          "src": "/media/img/contact-sacs",
+          "alt": "Des sacs blancs au logo Awrea Paris, prêts au départ",
+          "width": 1404,
+          "height": 952,
+          "provisoire": true
+        }
+      },
+      {
+        "numero": "06",
+        "nom": "La réception",
+        "titre": "Une pièce, une histoire.",
+        "texte": "Votre création arrive enfin entre vos mains. Il ne vous reste plus qu’à découvrir et apprécier une pièce réalisée à la demande.",
+        "image": {
+          "src": "/media/img/look-2",
+          "alt": "Une femme vêtue d’une robe noire, dans un intérieur sombre éclairé de bougies",
+          "width": 1200,
+          "height": 1500,
+          "focal": {
+            "x": 50,
+            "y": 35
+          }
+        }
       }
-    }
+    ]
   },
   "delais": {
     "surtitre": "Les délais",
