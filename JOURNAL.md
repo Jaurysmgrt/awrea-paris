@@ -692,3 +692,22 @@ usages des e-mails, et « trop de texte, pas assez agréable, trop de pages tec
   Réglages repliées, calendrier des agents retiré des Réglages (il est dans Équipe).
 - Tests : 5 tests unitaires (règles, corrections, tableur), parcours E-mails, Réglages, agent
   Commandes et confection ; parcours de l’Atelier verts en local.
+
+## Connexion à l’Atelier par Face ID ou l’empreinte (02/11)
+
+Demande de la créatrice : « est-ce qu’on peut pas faire une autre méthode plus simple pour se
+connecter ? ». Son choix, parmi trois : Face ID ou l’empreinte (la double authentification reste
+obligatoire, en un geste).
+
+- Clés d’accès WebAuthn (`@simplewebauthn/server` et `browser`, version 13.3, figées) :
+  `lib/auth/passkeys.ts`, routes `/api/login/passkey` (connexion) et `/api/securite/passkey`
+  (ajout, retrait, session ouverte). Vérification de l’utilisatrice exigée ; défi signé, cinq
+  minutes, à usage unique ; mêmes limites, blocage, journal et alerte que le mot de passe ; e-mail
+  d’alerte à chaque ajout.
+- Page de connexion : « Entrer avec Face ID ou l’empreinte » en premier, le mot de passe dessous.
+  Après le code (ou les codes de secours de la première fois), l’Atelier propose « Ajouter Face ID »
+  sur l’appareil ; « Plus tard » ne le redemande plus sur cet appareil.
+- Réglages › Face ID : les appareils, leur dernière entrée, « Retirer », « Ajouter Face ID sur cet
+  appareil ».
+- Test de bout en bout avec l’authentificateur virtuel de Chromium : ajout, entrée d’un geste,
+  alerte, réponse fabriquée refusée, retrait puis refus.

@@ -1146,3 +1146,28 @@
     color: var(--fg);
   }
 }
+
+/* Réglages › Face ID : un appareil par ligne, « Retirer » à droite */
+@layer components {
+  .faceid-cles {
+    display: grid;
+    padding: 0;
+    list-style: none;
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .faceid-cle {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--spacing-3xs) var(--spacing-m);
+    padding-block: var(--spacing-s);
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .faceid-cle > .t-note {
+    grid-column: 1;
+  }
+  .faceid-cle > .btn {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+}

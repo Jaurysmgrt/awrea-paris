@@ -131,6 +131,15 @@ demandent le plan Pro de Supabase).
   **double authentification obligatoire** (TOTP RFC 6238, fenêtre ±30 s, anti-rejeu, 8 codes de
   secours à usage unique). Le mot de passe d'installation (`ATELIER_PASSWORD`) ne sert qu'à la
   première connexion d'un compte. Turnstile sur le formulaire.
+- **Face ID ou l'empreinte** (clés d'accès WebAuthn, `lib/auth/passkeys.ts`, 02/11) : la double
+  authentification en un geste, l'appareil qui garde la clé privée (possession) et Face ID ou
+  l'empreinte qui la déverrouille (vérification de l'utilisatrice exigée à l'ajout et à chaque
+  connexion). Ajout seulement depuis une session ouverte (mot de passe et code), alerte par e-mail
+  avec « Ce n'était pas moi » ; clé publique seule conservée ; défi signé, cinq minutes, à usage
+  unique ; clé cherchée parmi les comptes autorisés seulement ; mêmes limites, blocage, journal et
+  alerte de connexion que le mot de passe. Résistant à l'hameçonnage : la clé est liée à l'adresse
+  du site. « Ce n'était pas moi » et la remise à zéro d'un compte effacent ses clés. Le mot de passe
+  et le code restent en secours.
 - **Blocage** : cinq échecs (mot de passe ou code) bloquent une adresse une demi-heure, même
   inconnue (rien ne révèle quels comptes existent), et préviennent la titulaire par e-mail ; huit
   échecs par quart d'heure bloquent l'adresse IP.

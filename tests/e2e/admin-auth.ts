@@ -55,7 +55,19 @@ async function freshCode(page: Page, secret: string): Promise<string> {
   return totpAt(secret, counter);
 }
 
-export async function adminLogin(page: Page) {
+/**
+ * `faceId` : après le code, l'Atelier propose d'ajouter Face ID sur l'appareil ; les autres tests ne
+ * la voient pas (l'appareil est marqué comme déjà sollicité), le test de Face ID choisit sa réponse.
+ */
+export async function adminLogin(page: Page, opts: { faceId?: "ajouter" | "plus-tard" } = {}) {
+  if (!opts.faceId)
+    await page.addInitScript(() => {
+      try {
+        localStorage.setItem("awrea-atelier-faceid", "1");
+      } catch {
+        /* rien */
+      }
+    });
   await page.goto(ATELIER);
   await expect(page).toHaveURL(new RegExp(`${ATELIER}/connexion`));
   await page.getByLabel("Adresse e-mail").fill(ATELIER_EMAIL);
@@ -86,6 +98,10 @@ export async function adminLogin(page: Page) {
     await page.getByRole("button", { name: "Activer et entrer" }).click();
     await expect(page.locator(".recovery-codes li")).toHaveCount(8);
     await page.getByRole("button", { name: /J’ai noté mes codes/ }).click();
+    if (opts.faceId) {
+      await expect(page.getByRole("heading", { name: "Entrer plus vite la prochaine fois" })).toBeVisible();
+      await page.getByRole("button", { name: opts.faceId === "ajouter" ? "Ajouter Face ID" : "Plus tard" }).click();
+    }
   } else {
     const secret = process.env.ATELIER_TOTP_SECRET ?? fs.readFileSync(SECRET_FILE, "utf8").trim();
     await totpField.fill(await freshCode(page, secret));
@@ -94,11 +110,16 @@ export async function adminLogin(page: Page) {
     // comme il se doit : on attend la période suivante, comme le ferait la créatrice
     const home = page.getByRole("heading", { level: 1, name: "Bonjour." });
     const refused = page.getByText("Code incorrect ou déjà utilisé.");
-    await expect(home.or(refused)).toBeVisible();
+    const offre = page.getByRole("heading", { name: "Entrer plus vite la prochaine fois" });
+    await expect(home.or(refused).or(offre)).toBeVisible();
     if (await refused.isVisible()) {
       lastCounter = Math.max(lastCounter, Math.floor(Date.now() / 30000));
       await totpField.fill(await freshCode(page, secret));
       await page.getByRole("button", { name: "Entrer" }).click();
+    }
+    if (opts.faceId) {
+      await expect(offre).toBeVisible();
+      await page.getByRole("button", { name: opts.faceId === "ajouter" ? "Ajouter Face ID" : "Plus tard" }).click();
     }
   }
   await expect(page.getByRole("heading", { level: 1, name: "Bonjour." })).toBeVisible();
