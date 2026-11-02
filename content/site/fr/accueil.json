@@ -26,10 +26,11 @@
       ]
     },
     "image": {
-      "src": "/media/img/creatrice-portrait",
-      "alt": "Portrait en noir et blanc de la créatrice d’Awrea Paris, assise, en haut de dentelle noire à manches longues, le regard tourné de côté",
-      "width": 657,
-      "height": 986
+      "src": "/media/img/sienna-1",
+      "alt": "La robe Sienna portée, col montant, buste en dentelle noire et or, taille froncée en pointe et jupe longue en jersey noir",
+      "width": 1536,
+      "height": 2304,
+      "provisoire": true
     },
     "cta": {
       "label": "À propos d’Awrea Paris",
@@ -73,10 +74,10 @@
     "titre": "Le savoir-faire français au service de l’exception",
     "texte": "Awrea Paris imagine des créations du soir confectionnées à la commande par des artisans français. La délicatesse de la dentelle, la fluidité des drapés et le raffinement des détails donnent naissance à des pièces singulières, pensées pour révéler toute la féminité de celle qui les porte.",
     "image": {
-      "src": "/media/img/sienna-detail",
-      "alt": "La robe Sienna de près, dentelle noire et or au col montant, taille froncée en pointe",
-      "width": 990,
-      "height": 1487,
+      "src": "/media/img/gaia-detail",
+      "alt": "Détail du body Gaïa : une bande de dentelle florale posée en biais",
+      "width": 1030,
+      "height": 1544,
       "provisoire": true
     },
     "cta": {

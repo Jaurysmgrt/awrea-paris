@@ -226,8 +226,8 @@ suppression est définitive : la page disparaît du site et de l’historique.
 Le film qui ouvre l’accueil, en plein écran sous le logo, est pour l’instant une vidéo de
 démonstration. Envoyez votre vidéo (10 à 20 secondes, sans son) : elle sera allégée pour le
 téléphone et mise à sa place. Sa description pour les personnes qui ne voient pas l’écran se
-modifie comme un texte. Le portrait de l’histoire de la Maison, juste dessous, se change comme
-toutes les photos.
+modifie comme un texte. La photo de l’histoire de la Maison, juste dessous (une pièce en grand, la
+robe Sienna pour l’instant), se change comme toutes les photos.
 
 ### Les photos provisoires
 

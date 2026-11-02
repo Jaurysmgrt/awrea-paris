@@ -21,7 +21,7 @@ export async function ProductCard({ product, sizes, priority, headingLevel = 3 }
   return (
     <article className="product-card">
       <Link href={`/boutique/${product.handle}`} className="product-card__link">
-        <div className="product-card__media reveal-img">
+        <div className="product-card__media">
           <Media image={first} sizes={sizes} priority={priority} className="product-card__img" />
           {second ? <Media image={second} sizes={sizes} className="product-card__img product-card__img--alt" decorative hoverOnly /> : null}
           {product.video ? <CardVideo src={product.video.src} /> : null}

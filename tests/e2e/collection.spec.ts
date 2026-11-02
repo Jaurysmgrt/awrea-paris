@@ -180,10 +180,19 @@ test.describe("Fiche d'une pièce", () => {
     const main = page.locator("main");
     await expect(main.locator(".product__price")).toHaveText(/^70,00\s€$/);
     await expect(main.locator(".badge", { hasText: catalogue.nouveau }).first()).toBeVisible();
-    await expect(main.getByText(/^Sur demande, \d+( à \d+)? semaines?$/).first()).toBeVisible();
-    await expect(page.locator(".product-form__made")).toContainText(catalogue.surDemande.delaiLabel);
-    await expect(main.getByRole("link", { name: fiche.surDemande.lien })).toHaveAttribute("href", "/sur-commande");
-    await expect(main.getByRole("link", { name: fiche.surDemande.guide })).toHaveAttribute("href", "/guide-des-tailles");
+    // fiche allégée (retour du 01/11 : « trop de texte, brouillon ») : le délai dit une seule fois sous
+    // le prix, puis la taille et le bouton ; tout le reste dans des rubriques fermées
+    await expect(main.locator("[data-delai]")).toHaveText(/^Créée sur demande pour vous, en \d+( à \d+)? semaines?\.$/);
+    await expect(main.getByText(/délai de fabrication/i)).toHaveCount(0);
+    await expect(main.getByText(catalogue.surDemande.ethique)).toHaveCount(0);
+    await expect(main.locator(".product__details details[open]")).toHaveCount(0);
+    const fabrication = main.locator("details", { has: page.locator("summary", { hasText: catalogue.fabrication.titre }) });
+    await fabrication.locator("summary").click();
+    await expect(fabrication.getByText(catalogue.fabrication.certificatTexte)).toBeVisible();
+    await expect(fabrication.getByRole("link", { name: fiche.surDemande.lien })).toHaveAttribute("href", "/sur-commande");
+    const coupe = main.locator("details", { has: page.locator("summary", { hasText: fiche.sections.coupe }) });
+    await coupe.locator("summary").click();
+    await expect(coupe.getByRole("link", { name: fiche.mesures.lien })).toHaveAttribute("href", "/guide-des-tailles");
     await expect(main.getByText(catalogue.visuelProvisoire).first()).toBeVisible();
 
     // photos aux angles arrondis, comme les cartes de la collection

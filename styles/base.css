@@ -42,79 +42,43 @@
     transition: background-color var(--dur) var(--ease);
   }
 
-  /* La scène (fond global) prend la couleur de la section au centre de l'écran */
-  html[data-scene="ink"] body {
+  /* Fond de la page : celui de la première section, pour que l'en-tête reste lisible sur une
+     ouverture noire ; ensuite, chaque section porte sa propre couleur, sans fondu au défilement
+     (animations au strict minimum, choix de la créatrice du 01/11 : le fond qui glissait d'une
+     couleur à l'autre est retiré). */
+  html:has(:is(main > .scene, main > article > .scene):first-child[data-theme="ink"]) body {
     --bg: var(--color-ink);
     --fg: var(--color-ivory);
     --fg-soft: var(--color-ivory-soft);
     --line: color-mix(in oklab, var(--color-ivory) 24%, transparent);
     --accent: var(--color-ivory);
   }
-  html[data-scene="pearl"] body {
+  html:has(:is(main > .scene, main > article > .scene):first-child[data-theme="pearl"]) body {
     --bg: var(--color-pearl);
   }
-  /* mode nuit : la scène globale reste dans les noirs ; une section noire du mode Jour la passe en
-     ivoire (l'alternance s'inverse, choix de la créatrice du 01/11) */
+  /* mode nuit : la page reste dans les noirs ; une section noire du mode Jour passe en ivoire
+     (l'alternance s'inverse, choix de la créatrice du 01/11) */
   html[data-mode="dark"] {
     background: var(--color-ink);
   }
-  html[data-mode="dark"] body,
-  html[data-mode="dark"][data-scene="ivory"] body,
-  html[data-mode="dark"][data-scene="pearl"] body {
+  html[data-mode="dark"] body {
     --bg: var(--color-night);
     --fg: var(--color-ivory);
     --fg-soft: var(--color-ivory-soft);
     --line: color-mix(in oklab, var(--color-ivory) 20%, transparent);
     --accent: var(--color-ivory);
   }
-  html[data-mode="dark"][data-scene="ink"] body {
+  html[data-mode="dark"]:has(:is(main > .scene, main > article > .scene):first-child[data-theme="ink"]) body {
     --bg: var(--color-ivory);
     --fg: var(--color-ink);
     --fg-soft: var(--color-ink-soft);
     --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
     --accent: var(--color-ink);
   }
-  /* Avant l'hydratation, la scène suit déjà la première section : l'en-tête reste lisible
-     sur une ouverture noire, sans attendre le JavaScript. */
-  html:not([data-scene]):has(:is(main > .scene, main > article > .scene):first-child[data-theme="ink"]) body {
-    --bg: var(--color-ink);
-    --fg: var(--color-ivory);
-    --fg-soft: var(--color-ivory-soft);
-    --line: color-mix(in oklab, var(--color-ivory) 24%, transparent);
-    --accent: var(--color-ivory);
-  }
-  html[data-mode="dark"]:not([data-scene]):has(:is(main > .scene, main > article > .scene):first-child[data-theme="ink"]) body {
-    --bg: var(--color-ivory);
-    --fg: var(--color-ink);
-    --fg-soft: var(--color-ink-soft);
-    --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
-    --accent: var(--color-ink);
-  }
-  /* Première activation de la scène (et changement de page) : bascule instantanée,
-     les sections hors écran n'ont pas à jouer de transition. */
+  /* passage Jour ↔ Nuit (lib/prefs.ts) : un seul fondu de la page entière, sans que chaque bloc ne
+     glisse à son rythme */
   html.scene-instant :is(body, .scene, .site-header, .site-header__band, .site-footer) {
     transition: none !important;
-  }
-
-  /* La scène en mouvement (ThemeShift) : seul le fond glisse d'une couleur à l'autre (data-fond,
-     une seule couleur animée sur <body> et la bande de l'en-tête) ; les textes, filets et boutons
-     basculent d'un coup quand le fond est à mi-chemin (data-scene). Animer leurs couleurs
-     recalculait des centaines d'éléments à chaque image et faisait saccader le défilement. */
-  /* règles ciblées (pas de variable héritée) : changer de fond ne recalcule que ces deux éléments */
-  html.scene-live body {
-    background-color: var(--color-ivory);
-  }
-  html.scene-live[data-fond="ink"] body {
-    background-color: var(--color-ink);
-  }
-  html.scene-live[data-fond="pearl"] body {
-    background-color: var(--color-pearl);
-  }
-  html[data-mode="dark"].scene-live body {
-    background-color: var(--color-night);
-  }
-  html[data-mode="dark"].scene-live[data-fond="ink"] body {
-    background-color: var(--color-ivory);
   }
 
   /* copie invisible où la justification essaie ses réglages (components/ui/Justification.tsx) :

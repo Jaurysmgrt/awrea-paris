@@ -569,3 +569,43 @@ par cause, en coupant chaque effet suspect.
 - Mesuré sous Chrome sur l'accueil, La Maison, la boutique et la page d'attente, ordinateur et
   téléphone : toutes les tailles de logo restent identiques au pixel près. Safari n'est pas
   disponible ici : à confirmer sur l'ordinateur de la créatrice.
+
+## Accueil, photos et fiche d'une pièce (01/11, soir)
+
+Retours de la créatrice après l'ouverture du site, puis ses réponses : « une pièce en grand », « fondu
+lent », « la fiche de la pièce ».
+
+- Accueil : l'histoire de la Maison montre la robe Sienna en grand (7 colonnes sur 12) à côté du texte
+  officiel, à la place du portrait ; la création sur demande passe au détail de dentelle du body Gaïa,
+  pour ne pas montrer deux fois la même pièce. Les deux sont des visuels provisoires (mention gardée).
+- Photos : fondu lent sur tout le site (`@keyframes fondu-lent`, `--dur-breath`, échelle 1,04 → 1),
+  à la place du dévoilement par découpage et de la parallaxe de l'accueil. Animation jouée une fois :
+  le zoom des cartes au survol garde sa vitesse. Mesuré : opacité 0, puis 0,30 à 300 ms, puis 1.
+- Film d'ouverture : sa sortie (il glisse plus lentement et s'assombrit) reste, l'animation que la
+  créatrice préfère ; `Parallaxe.tsx` devient `SortieFilm.tsx`, qui ne suit plus que le film.
+- Fiche d'une pièce : délai dit une seule fois sous le prix (« Créée sur demande pour vous, en … ») ;
+  retirés avant le bouton : le bloc « pièce créée sur demande, délai, certificat », le paragraphe
+  d'engagement, les deux liens et « Choisissez votre taille » ; la collection et « Nouveau » sur une
+  ligne ; rubriques fermées ; certificat et lien « Voir comment naît votre pièce » dans « Fabrication » ;
+  plus d'aide « Survolez l'image » sous la photo.
+- Tests adaptés (le délai sous le prix, le certificat dans « Fabrication », rubriques fermées, plus de
+  « délai de fabrication » ni de paragraphe d'engagement sur la fiche). Accueil, collection, fiche,
+  commande, Atelier et homogénéité : 118 réussis, 2 ignorés.
+
+## Animations au strict minimum (01/11, soir)
+
+Retour de la créatrice : « j'aime pas les animations, ça fait kitsch et vu et revu ». Ses réponses :
+« le strict minimum », et garder le fondu blanc entre les pages.
+
+- Retirés : les apparitions au défilement (`RevealObserver`, `data-reveal`, `.reveal-img` ; le fondu
+  lent des photos, prévu une heure plus tôt, n'a jamais été publié), le fond qui glissait d'une couleur
+  à l'autre au défilement (`ThemeShift` : chaque section porte maintenant sa couleur, le mode Nuit
+  garde son alternance inversée), les boutons attirés par le curseur (`Magnetic`), le halo qui suivait
+  le curseur sur les sections noires (`LightHalo`), la pose du film à l'arrivée, les titres et blocs
+  qui montaient sur l'accueil, l'enveloppe qui s'ouvrait (elle est déjà ouverte) et les points qui
+  pulsaient sur les silhouettes.
+- Gardés : la sortie du film d'ouverture (il glisse plus lentement et s'assombrit en quittant l'écran,
+  ordinateur seulement), le fondu blanc entre les pages, les survols discrets (boutons, liens, photo des
+  pièces, loupe dentelle), le passage Jour ↔ Nuit.
+- Test de l'accueil réécrit : rien en attente ni marqué pour apparaître, titres opaques et immobiles,
+  section noire à sa couleur, sortie du film toujours active.

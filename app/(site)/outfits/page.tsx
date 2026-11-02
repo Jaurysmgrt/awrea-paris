@@ -34,10 +34,10 @@ export default async function OutfitsPage() {
         withProducts.map(({ look, products }, i) => (
           <Section key={look.handle} theme={i % 2 ? "pearl" : "ivory"} className="section--tall" labelledBy={`look-${look.handle}`} id={look.handle}>
             <div className={`container grid-12 silhouette ${i % 2 ? "silhouette--flip" : ""}`}>
-              <div className="silhouette__stage" data-reveal>
+              <div className="silhouette__stage">
                 <ShopTheLook look={look} products={products} priority={i === 0} />
               </div>
-              <div className="silhouette__text stack-m" data-reveal>
+              <div className="silhouette__text stack-m">
                 <p className="eyebrow">{fill(t.silhouette, { numero: roman(i + 1) })}</p>
                 <h2 id={`look-${look.handle}`} className="t-h2">
                   {look.title}

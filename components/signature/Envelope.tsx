@@ -1,51 +1,14 @@
-"use client";
 /**
  * SIGNATURE 8 — L'enveloppe.
- * À la confirmation de commande, une enveloppe blanc cassé scellée d'un cachet noir « AW »
- * s'ouvre : le cachet cède, le rabat se soulève, la lettre de remerciement glisse vers vous.
+ * À la confirmation de commande, une enveloppe blanc cassé au cachet noir « AW », déjà ouverte : la
+ * lettre de remerciement est posée devant. Elle ne s'anime plus (animations au strict minimum,
+ * choix de la créatrice du 01/11).
  */
-import { useEffect, useRef } from "react";
-import { loadGsap, prefersReducedMotion, dur, EASE } from "@/lib/motion";
 import { Logo } from "@/components/brand/Logo";
 
 export function Envelope({ greeting, note, signature, reference }: { greeting: string; note: string; signature: string; reference?: string }) {
-  const root = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = root.current;
-    if (!el) return;
-    if (prefersReducedMotion()) {
-      el.dataset.state = "open";
-      return;
-    }
-    let tl: { kill: () => void } | null = null;
-    let cancelled = false;
-    loadGsap().then(({ gsap }) => {
-      if (cancelled) return;
-    const q = gsap.utils.selector(el);
-    // une même durée et une même courbe pour chaque geste, qui se chevauchent d'une demi-mesure
-    const d = dur();
-    const timeline = gsap.timeline({ delay: d / 2, defaults: { duration: d, ease: EASE }, onComplete: () => (el.dataset.state = "open") });
-    tl = timeline;
-    timeline
-      .set(el, { attr: { "data-state": "opening" } })
-      .to(q(".envelope__seal"), { scale: 0.6, autoAlpha: 0, rotate: -18 })
-      .to(q(".envelope__flap"), { rotateX: 180 }, `-=${d / 2}`)
-      .set(q(".envelope__flap"), { zIndex: 0 })
-      // la lettre sort de l'enveloppe…
-      .to(q(".envelope__letter"), { yPercent: -78 }, `-=${d / 4}`)
-      // …puis vient se poser devant, vers la lectrice
-      .set(q(".envelope__letter"), { zIndex: 5 })
-      .to(q(".envelope__letter"), { yPercent: -26, scale: 1.06 });
-    });
-    return () => {
-      cancelled = true;
-      tl?.kill();
-    };
-  }, []);
-
   return (
-    <div ref={root} className="envelope" data-state="closed" aria-hidden="true">
+    <div className="envelope" data-state="open" aria-hidden="true">
       <div className="envelope__body">
         <div className="envelope__back" />
         <div className="envelope__letter">

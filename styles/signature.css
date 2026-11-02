@@ -1,38 +1,6 @@
 /* Les interactions signature d'Awrea Paris. */
 
 @layer components {
-  /* ============================================ 1. HALO DE LUMIÈRE */
-  .light-halo {
-    --gl-radius: var(--size-halo);
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    overflow: hidden;
-    opacity: 0;
-    transition: opacity var(--dur) var(--ease);
-  }
-  .light-halo[data-on="true"] {
-    opacity: var(--gl-intensity, 1);
-  }
-  /* mode Nuit : les sections noires passent en ivoire, où une lumière blanche ne se verrait pas */
-  html[data-mode="dark"] .scene[data-theme="ink"] > .light-halo {
-    display: none;
-  }
-  /* dessiné une fois, déplacé par transform (LightHalo) : rien n'est repeint pendant le mouvement */
-  .light-halo__halo {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: calc(var(--gl-radius) * 2.6);
-    aspect-ratio: 1;
-    background: radial-gradient(circle closest-side, color-mix(in oklab, var(--halo) 9%, transparent), transparent 70%);
-    mix-blend-mode: screen;
-    will-change: transform;
-  }
-  .scene:has(> .light-halo) > :not(.light-halo) {
-    position: relative;
-  }
-
   /* =========================================== 3. FONDU ENTRE LES PAGES
      Un voile blanc cassé (le noir de la nuit en mode Nuit) couvre la page puis s'efface : court
      à l'aller, un peu plus lent au retour (cahier des modifications du 27/10). */
@@ -215,20 +183,9 @@
     width: var(--spacing-l);
     height: var(--spacing-l);
     border: var(--border-width-hair) solid var(--color-ivory);
-    animation: look-pulse var(--dur-breath) var(--ease) infinite;
   }
   .look__dot[aria-expanded="true"]::before {
     transform: scale(1.4);
-  }
-  @keyframes look-pulse {
-    0% {
-      transform: scale(0.5);
-      opacity: 0.9;
-    }
-    100% {
-      transform: scale(1.4);
-      opacity: 0;
-    }
   }
   .look__panel {
     position: absolute;

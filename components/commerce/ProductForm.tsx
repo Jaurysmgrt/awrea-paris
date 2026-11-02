@@ -63,18 +63,6 @@ export function ProductForm({ product, stickyBar = false }: { product: Product; 
 
   return (
     <div ref={formRef} className="product-form stack-m">
-      <div className="product-form__made stack-s">
-        <p className="t-body t-left">{t.surDemande.fiche}</p>
-        <dl className="product-form__lead">
-          <dt className="t-label">{t.surDemande.delaiLabel}</dt>
-          <dd className="t-body">{fill(t.surDemande.delaiValeur, { delai })}</dd>
-        </dl>
-        <dl className="product-form__lead">
-          <dt className="t-label">{t.certificat.titre}</dt>
-          <dd className="t-body">{t.certificat.numero}</dd>
-        </dl>
-      </div>
-
       <div className="product-form__sizes">
         <SizePicker
           product={product}
@@ -88,8 +76,10 @@ export function ProductForm({ product, stickyBar = false }: { product: Product; 
           {t.taille.trouver}
         </button>
       </div>
+      {/* vide tant qu'il n'y a rien à dire (retour du 01/11 : trop de texte sur la fiche) ; toujours
+          présent pour que les lecteurs d'écran annoncent la taille choisie ou l'oubli */}
       <p className="t-note t-left product-form__status" aria-live="polite">
-        {variant ? fill(t.taille.choisie, { taille: variant.size === "TU" ? t.taille.unique : variant.size, delai }) : showError ? t.taille.manquante : t.taille.choisir}
+        {variant ? fill(t.taille.choisie, { taille: variant.size === "TU" ? t.taille.unique : variant.size, delai }) : showError ? t.taille.manquante : null}
       </p>
 
       <div ref={actionsRef} className="product-form__actions">

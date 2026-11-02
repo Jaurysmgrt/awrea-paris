@@ -105,33 +105,24 @@ test.describe("Pages de la Maison", () => {
     expect((await logo.boundingBox())!.height).toBeLessThan(80);
   });
 
-  // animations de l'accueil (01/11) : tout ce qui attend sous l'écran finit par apparaître
-  test("accueil : titres, blocs et photos apparaissent au défilement, et jamais en animations apaisées", async ({ page, browser }) => {
+  // animations au strict minimum (01/11 : « kitsch, vu et revu ») : rien n'attend sous l'écran pour
+  // apparaître ; seule la sortie du film d'ouverture reste (ordinateur, à la souris)
+  test("accueil : rien n'apparaît ni ne monte au défilement, seule la sortie du film reste", async ({ page }) => {
     await open(page, "/");
-    const enAttente = page.locator("main [data-pending]");
-    expect(await enAttente.count()).toBeGreaterThan(0);
+    await expect(page.locator("[data-pending], [data-reveal], .reveal-img")).toHaveCount(0);
     for (const id of ["accueil-collection", "accueil-pieces", "accueil-sur-demande", "accueil-lettre"]) {
       const titre = page.locator(`#${id}`);
       await titre.scrollIntoViewIfNeeded();
-      await expect(titre).toHaveAttribute("data-shown", "");
-      await expect.poll(() => titre.evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
-      await expect.poll(() => titre.evaluate((el) => getComputedStyle(el).clipPath)).toBe("none");
+      await expect(titre).toHaveCSS("opacity", "1");
+      await expect(titre).toHaveCSS("transform", "none");
     }
-    // en parcourant toute la page (un saut direct en bas laisse en attente ce qui n'a pas été vu)
-    const hauteur = await page.evaluate(() => document.documentElement.scrollHeight);
-    for (let y = 0; y <= hauteur; y += 400) {
-      await page.evaluate((v) => window.scrollTo(0, v), y);
-      await page.waitForTimeout(60);
-    }
-    await expect(enAttente).toHaveCount(0);
-
-    const calme = await browser.newContext({ reducedMotion: "reduce", locale: "fr-FR" });
-    const p = await calme.newPage();
-    await acceptCookies(p);
-    await p.goto("/");
-    await expect(p.locator("h1")).toHaveCount(1);
-    await expect(p.locator("main [data-pending]")).toHaveCount(0);
-    await calme.close();
+    // plus de fond qui glisse d'une couleur à l'autre : chaque section garde la sienne
+    await expect(page.locator("html.scene-live")).toHaveCount(0);
+    await expect(page.locator("main section", { has: page.locator("#accueil-collection") })).toHaveCSS("background-color", "rgb(10, 10, 10)");
+    // la sortie du film : il s'assombrit en quittant l'écran
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.evaluate(() => window.scrollTo(0, Math.round(window.innerHeight / 2)));
+    await expect.poll(() => page.locator("[data-film]").evaluate((el) => Number(el.style.getPropertyValue("--sortie")))).toBeGreaterThan(0);
   });
 
   test("La Maison : le texte À propos en entier, dans l'ordre, avec le portrait de la créatrice", async ({ page }) => {

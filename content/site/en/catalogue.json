@@ -8,22 +8,19 @@
   },
   "surDemande": {
     "carte": "Made to order, {delai}",
-    "fiche": "A piece made to order for you, without stock, by French artisans.",
+    "fiche": "Made to order for you, in {delai}.",
     "delaiLabel": "Making time",
-    "delaiValeur": "{delai}, then dispatch",
     "livraison": "The piece is made to order: allow {delai} for the making before it is dispatched.",
     "ethique": "The Maison produces only what is desired, with care for the artisans who shape each piece and for the environment."
   },
   "certificat": {
     "titre": "Certificate of authenticity",
-    "numero": "A creation number",
     "texte": "When you order, each piece receives a unique creation number, written on its certificate of authenticity.",
     "pied": "Made to order by French artisans"
   },
   "taille": {
     "legende": "Size",
     "unique": "One size",
-    "choisir": "Choose your size.",
     "manquante": "Please choose a size.",
     "choisie": "Size {taille}: the piece is made for you in this size, in {delai}.",
     "trouver": "Find my size",
@@ -80,6 +77,8 @@
     "delaiTexte": "{delai} of making",
     "production": "Production",
     "productionTexte": "to order, nothing is made in advance",
+    "certificat": "Certificate",
+    "certificatTexte": "a unique creation number, given with your order",
     "etapes": "The steps",
     "matieres": "The materials",
     "origineInconnue": "[À COMPLÉTER : origine de la matière, communiquée par la Maison]"

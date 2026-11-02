@@ -1,7 +1,6 @@
 import Link from "@/components/ui/Link";
 import { getDoc } from "@/lib/edition/read";
 import { Section } from "@/components/ui/Section";
-import { LightHalo } from "@/components/signature/LightHalo";
 
 type Introuvable = typeof import("@/content/site/fr/introuvable.json");
 
@@ -10,7 +9,6 @@ export default async function NotFound() {
   const t = await getDoc<Introuvable>("introuvable");
   return (
     <Section theme="ink" className="not-found">
-      <LightHalo />
       <div className="container-text t-center stack-m not-found__inner">
         <p className="eyebrow">{t.surtitre}</p>
         <h1 className="t-giant">{t.titre}</h1>

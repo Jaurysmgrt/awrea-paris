@@ -450,21 +450,9 @@
   .product__details {
     border-top: var(--border-width-hair) solid var(--line);
   }
-  /* pièce créée sur demande : la phrase, puis le délai de fabrication (dl), entre deux filets fins */
-  .product-form__made {
-    padding-block: var(--spacing-s);
-    border-top: var(--border-width-hair) solid var(--line);
-    border-bottom: var(--border-width-hair) solid var(--line);
-  }
-  .product-form__lead {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--spacing-3xs) var(--spacing-s);
-    margin: 0;
-  }
-  .product-form__lead dd {
-    margin: 0;
+  /* message de la taille (choisie ou oubliée) : vide par défaut, il ne prend alors aucune place */
+  .product-form__status:empty {
+    margin-block-start: 0;
   }
   .product-form__sizes {
     display: flex;

@@ -195,8 +195,6 @@
   --line: color-mix(in oklab, var(--color-ink) 22%, transparent);
   --accent: var(--color-ink);
   --media-bg: var(--color-pearl);
-  /* halo de lumière : un blanc très doux qui révèle la dentelle */
-  --halo: var(--color-ivory);
 
   --header-h: var(--spacing-header);
 
@@ -206,7 +204,6 @@
   --size-logo-l: 5rem; /* 80 px de haut : page de connexion de l'Atelier */
 
   /* tailles propres aux interactions signature */
-  --size-halo: clamp(9rem, 6rem + 14vw, 22rem);
   --size-loupe: clamp(8rem, 6rem + 10vw, 14rem);
   --size-mark: clamp(5rem, 4rem + 4vw, 8rem);
   --size-paper-tile: 384px;

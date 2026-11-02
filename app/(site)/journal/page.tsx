@@ -32,10 +32,10 @@ export default async function JournalPage() {
       <Section theme="ivory" className="section section--flush-top" aria-label={t.articles}>
         <div className="container">
           {first ? (
-            <article className="journal-lead grid-12" data-reveal>
+            <article className="journal-lead grid-12">
               <div className="journal-lead__media">
                 <Link href={`/journal/${first.slug}`} tabIndex={-1} aria-hidden="true">
-                  <Media image={first.cover} ratio="wide" priority sizes="(min-width: 64rem) 60vw, 100vw" className="reveal-img" />
+                  <Media image={first.cover} ratio="wide" priority sizes="(min-width: 64rem) 60vw, 100vw" />
                 </Link>
                 <ProvisionalNote image={first.cover} />
               </div>
@@ -62,11 +62,11 @@ export default async function JournalPage() {
           {rest.length ? (
             <ul className="journal-list">
               {rest.map((a) => (
-                <li key={a.slug} data-reveal>
+                <li key={a.slug}>
                   <article className="journal-card stack">
                     <div>
                       <Link href={`/journal/${a.slug}`} tabIndex={-1} aria-hidden="true">
-                        <Media image={a.cover} ratio="landscape" sizes="(min-width: 64rem) 30vw, 100vw" className="reveal-img" />
+                        <Media image={a.cover} ratio="landscape" sizes="(min-width: 64rem) 30vw, 100vw" />
                       </Link>
                       <ProvisionalNote image={a.cover} />
                     </div>

@@ -50,7 +50,7 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
       await row.getByRole("button", { name: "Enregistrer" }).click();
       await expect(row.getByRole("status")).toContainText("C’est enregistré");
       await page.goto("/boutique/top-kira");
-      await expect(page.locator(".product-form__made")).toContainText("3 à 5 semaines");
+      await expect(page.locator("[data-delai]")).toContainText("3 à 5 semaines");
       // un délai incohérent est refusé
       await page.goto(`${ATELIER}/catalogue`);
       await min.fill("6");
