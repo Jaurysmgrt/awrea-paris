@@ -49,7 +49,7 @@ jobs:
       RESTORE_URL: postgres://postgres:restauration@localhost:5432/postgres
       PG: docker run --rm --network host -v ${{ github.workspace }}/sauvegarde:/sauvegarde -v ${{ github.workspace }}/supabase:/supabase postgres:17
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Vérifier la configuration
         run: |
