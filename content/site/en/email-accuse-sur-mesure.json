@@ -1,0 +1,49 @@
+{
+  "nom": "Made-to-measure request received",
+  "quand": "Sent by the Made to measure role the day after a request still waiting for an answer: the client knows it arrived and can book a video call.",
+  "famille": "service",
+  "sujet": "Your made-to-measure request",
+  "preheader": "The designer has received it.",
+  "variables": {
+    "prenom": {
+      "description": "The client’s first name",
+      "exemple": "Camille"
+    },
+    "rendezvous": {
+      "description": "The link to book a video call with the designer",
+      "exemple": "https://www.awreaparis.com/rendez-vous"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-sm01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "type": "titre",
+      "titre": "Your request has arrived",
+      "id": "b-sm02"
+    },
+    {
+      "type": "texte",
+      "texte": "Hello {prenom},\n\nYour made-to-measure request has reached the atelier. The designer is reading it carefully and will answer you personally.",
+      "id": "b-sm03"
+    },
+    {
+      "type": "texte",
+      "texte": "If you would rather talk it through, you can already book a video call with her: {rendezvous}",
+      "id": "b-sm04"
+    },
+    {
+      "type": "signature",
+      "texte": "See you very soon,\nThe Awrea Paris atelier",
+      "id": "b-sm05"
+    },
+    {
+      "id": "b-sm06",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

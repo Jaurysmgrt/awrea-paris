@@ -1,0 +1,45 @@
+{
+  "nom": "Welcome to the Circle",
+  "quand": "Sent by the Circle role when a loyal client enters the Circle: once only.",
+  "famille": "service",
+  "sujet": "Welcome to the Circle",
+  "preheader": "Thank you for your loyalty.",
+  "variables": {
+    "prenom": {
+      "description": "The client’s first name",
+      "exemple": "Camille"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-cercle01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "type": "titre",
+      "titre": "Welcome to the Circle",
+      "id": "b-cercle02"
+    },
+    {
+      "type": "texte",
+      "texte": "Hello {prenom},\n\nYou are one of the women who have worn Awrea Paris from the start, and the Maison wanted to tell you so: today you join the Circle.",
+      "id": "b-cercle03"
+    },
+    {
+      "type": "texte",
+      "texte": "You will discover the next pieces before anyone else, and the designer keeps a special attention for you.",
+      "id": "b-cercle04"
+    },
+    {
+      "type": "signature",
+      "texte": "With all our gratitude,\nThe designer",
+      "id": "b-cercle05"
+    },
+    {
+      "id": "b-cercle06",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

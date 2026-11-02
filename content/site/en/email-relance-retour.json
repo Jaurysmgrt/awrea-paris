@@ -1,0 +1,57 @@
+{
+  "nom": "Reminder of a return to send",
+  "quand": "Sent by the Returns role one week after a return request, if the parcel has not reached the atelier yet: once per return.",
+  "famille": "service",
+  "sujet": "Your return {retour}",
+  "preheader": "Your parcel has not reached the atelier yet.",
+  "variables": {
+    "prenom": {
+      "description": "The client’s first name",
+      "exemple": "Camille"
+    },
+    "retour": {
+      "description": "The return number",
+      "exemple": "R-1042-1"
+    },
+    "commande": {
+      "description": "The order number",
+      "exemple": "AW-1042"
+    },
+    "suivi": {
+      "description": "The order tracking link, where the label is",
+      "exemple": "https://www.awreaparis.com/suivi/AW-1042"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-relret01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "type": "titre",
+      "titre": "Your return",
+      "id": "b-relret02"
+    },
+    {
+      "type": "texte",
+      "texte": "Hello {prenom},\n\nYou asked us for a return on your order {commande}, and your parcel has not reached the atelier yet.",
+      "id": "b-relret03"
+    },
+    {
+      "type": "texte",
+      "texte": "Your return label is waiting in your order tracking: {suivi}\n\nIf you have changed your mind or something bothers you, simply reply to this message.",
+      "id": "b-relret04"
+    },
+    {
+      "type": "signature",
+      "texte": "With all our care,\nThe Awrea Paris atelier",
+      "id": "b-relret05"
+    },
+    {
+      "id": "b-relret06",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

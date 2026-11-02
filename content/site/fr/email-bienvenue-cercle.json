@@ -1,0 +1,45 @@
+{
+  "nom": "Bienvenue dans le Cercle",
+  "quand": "Envoyé par le rôle Cercle quand une cliente fidèle entre dans le Cercle : une seule fois.",
+  "famille": "service",
+  "sujet": "Bienvenue dans le Cercle",
+  "preheader": "Merci pour votre fidélité.",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la cliente",
+      "exemple": "Camille"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-cercle01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "type": "titre",
+      "titre": "Bienvenue dans le Cercle",
+      "id": "b-cercle02"
+    },
+    {
+      "type": "texte",
+      "texte": "Bonjour {prenom},\n\nVous faites partie des femmes qui portent Awrea Paris depuis le début, et la Maison tenait à vous le dire : vous entrez aujourd’hui dans le Cercle.",
+      "id": "b-cercle03"
+    },
+    {
+      "type": "texte",
+      "texte": "Vous découvrirez avant tout le monde les prochaines pièces, et la créatrice garde pour vous une attention particulière.",
+      "id": "b-cercle04"
+    },
+    {
+      "type": "signature",
+      "texte": "Avec toute notre gratitude,\nLa créatrice",
+      "id": "b-cercle05"
+    },
+    {
+      "id": "b-cercle06",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

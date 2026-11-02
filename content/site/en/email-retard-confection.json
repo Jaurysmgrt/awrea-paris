@@ -1,0 +1,53 @@
+{
+  "nom": "Making delay",
+  "quand": "Sent by the Orders and making agent when an order takes longer to make: one message per order and per delay.",
+  "famille": "service",
+  "sujet": "Your order {commande}",
+  "preheader": "Its making needs a little more time.",
+  "variables": {
+    "prenom": {
+      "description": "The client’s first name",
+      "exemple": "Camille"
+    },
+    "commande": {
+      "description": "The order number",
+      "exemple": "AW-1042"
+    },
+    "suivi": {
+      "description": "The order tracking link (no account needed)",
+      "exemple": "https://www.awreaparis.com/suivi/AW-1042"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-retard01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "type": "titre",
+      "titre": "A little more time",
+      "id": "b-retard02"
+    },
+    {
+      "type": "texte",
+      "texte": "Hello {prenom},\n\nYour order {commande} is in the hands of our artisans. Its making is taking a little longer than planned, and we would rather tell you now.",
+      "id": "b-retard03"
+    },
+    {
+      "type": "texte",
+      "texte": "We will write as soon as your piece is ready, with its shipping date. If you have a question, simply reply to this message.\n\nYou can follow your order here: {suivi}",
+      "id": "b-retard04"
+    },
+    {
+      "type": "signature",
+      "texte": "With all our care,\nThe Awrea Paris atelier",
+      "id": "b-retard05"
+    },
+    {
+      "id": "b-retard06",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

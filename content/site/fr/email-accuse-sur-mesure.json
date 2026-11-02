@@ -1,0 +1,49 @@
+{
+  "nom": "Demande de sur mesure reçue",
+  "quand": "Envoyé par le rôle Sur mesure le lendemain d’une demande restée sans réponse : la cliente sait que sa demande est arrivée et peut réserver un appel vidéo.",
+  "famille": "service",
+  "sujet": "Votre demande de sur mesure",
+  "preheader": "La créatrice l’a bien reçue.",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la cliente",
+      "exemple": "Camille"
+    },
+    "rendezvous": {
+      "description": "Le lien pour réserver un appel vidéo avec la créatrice",
+      "exemple": "https://www.awreaparis.com/rendez-vous"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-sm01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "type": "titre",
+      "titre": "Votre demande est arrivée",
+      "id": "b-sm02"
+    },
+    {
+      "type": "texte",
+      "texte": "Bonjour {prenom},\n\nVotre demande de sur mesure est bien arrivée à l’atelier. La créatrice la lit avec attention et vous répond personnellement.",
+      "id": "b-sm03"
+    },
+    {
+      "type": "texte",
+      "texte": "Si vous préférez en parler de vive voix, vous pouvez réserver dès maintenant un appel vidéo avec elle : {rendezvous}",
+      "id": "b-sm04"
+    },
+    {
+      "type": "signature",
+      "texte": "À très vite,\nL’atelier Awrea Paris",
+      "id": "b-sm05"
+    },
+    {
+      "id": "b-sm06",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}
