@@ -6,7 +6,7 @@
 import { expect, test } from "@playwright/test";
 import { adminLogin, ATELIER } from "./admin-auth";
 
-const ROLES = ["gardien-editeur", "avis", "retours", "logistique", "comptabilite", "rgpd", "cercle", "drops", "sur-mesure", "rendez-vous", "production", "presse", "instagram", "publicite", "accessibilite", "performance", "sauvegarde"];
+const ROLES = ["gardien-editeur", "avis", "retours", "logistique", "comptabilite", "rgpd", "cercle", "drops", "sur-mesure", "rendez-vous", "production", "presse", "instagram", "publicite", "accessibilite", "performance", "sauvegarde", "design"];
 
 test("Équipe : chaque rôle passe, rend un résumé, et apparaît dans l'Atelier", async ({ page, request }) => {
   test.setTimeout(240_000);
@@ -39,6 +39,32 @@ test("Équipe : chaque rôle passe, rend un résumé, et apparaît dans l'Atelie
   await expect(page.getByRole("heading", { name: "Confection", exact: true })).toBeVisible();
   // les agents principaux et les rôles : aucune trace de stock dans l'une ou l'autre liste
   for (const team of await page.locator(".team").all()) await expect(team).not.toContainText(/liste d’attente|précommande|rupture/i);
+});
+
+// retour de la créatrice du 01/11 : « quand je les lance, il se passe rien, on les voit pas travailler »
+test("Équipe : on voit l'agent travailler, étape par étape, puis son compte rendu", async ({ page }) => {
+  test.setTimeout(240_000);
+  await adminLogin(page);
+  await page.goto(`${ATELIER}/equipe`);
+  // le rôle Design relit les pages du site, une à une
+  const design = page.locator(".team__agent", { has: page.getByRole("heading", { name: "Design", exact: true }) });
+  await design.getByRole("button", { name: "Lancer maintenant" }).click();
+  await expect(design.getByRole("button", { name: "Design travaille…" })).toBeDisabled();
+  await expect(design.locator(".agent-run__fil")).toBeVisible();
+  const etapes = design.locator(".agent-run__etape");
+  await expect(etapes.first()).toContainText("Design se met au travail.");
+  await expect(design.getByText("Relit l’accueil.")).toBeVisible({ timeout: 60_000 });
+  await expect(design.getByText(/^Terminé en \d+ s\.$/)).toBeVisible({ timeout: 180_000 });
+  expect(await etapes.count()).toBeGreaterThan(5);
+  await expect(design.locator(".agent-run__fin")).toContainText(/pages relues/);
+  await expect(design.getByRole("button", { name: "Relancer" })).toBeEnabled();
+  // un agent principal : ses actions, puis ce qu'il a fait et ce qui vous attend
+  const rapport = page.locator(".team__agent", { has: page.getByRole("heading", { name: "Rapport", exact: true }) });
+  await rapport.getByRole("button", { name: "Lancer maintenant" }).click();
+  await expect(rapport.getByText(/^Terminé en \d+ s\.$/)).toBeVisible({ timeout: 120_000 });
+  await expect(rapport.locator(".agent-run__fin")).toContainText(/action/);
+  await rapport.getByRole("button", { name: "Fermer" }).click();
+  await expect(rapport.locator(".agent-run")).toHaveCount(0);
 });
 
 test("Agents : Commandes et confection, bilan du catalogue, propositions à valider", async ({ page }) => {

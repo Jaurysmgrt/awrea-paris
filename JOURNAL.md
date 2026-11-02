@@ -609,3 +609,29 @@ Retour de la créatrice : « j'aime pas les animations, ça fait kitsch et vu et
   pièces, loupe dentelle), le passage Jour ↔ Nuit.
 - Test de l'accueil réécrit : rien en attente ni marqué pour apparaître, titres opaques et immobiles,
   section noire à sa couleur, sortie du film toujours active.
+
+## Atelier : voir les agents travailler, et un rôle Design (02/11)
+
+Retour de la créatrice : « quand je les lance, il se passe rien, on les voit pas travailler » ; et « un
+agent de design qui regarde tous les jours s'il n'y a pas des problèmes, une récurrence, qui fait
+l'analyse lui-même, qui a un esprit critique ».
+
+- Cause du « rien » : sans clé d'IA, un passage dure une fraction de seconde ; le bouton affichait
+  « L'agent travaille… » le temps d'un éclair, puis seule une petite ligne grise changeait.
+- Suivi en direct (`lib/agents/progress.ts`) : pendant un passage lancé depuis l'Atelier, chaque
+  action inscrite au journal et chaque étape annoncée partent au fil de l'eau (une ligne JSON par
+  étape). Les tâches planifiées ne changent pas.
+- `AgentLauncher` (Atelier › Équipe, agents principaux et rôles) : un point qui respire et un fil qui
+  court sous le nom de l'agent, le temps passé, les étapes l'une après l'autre (au rythme de
+  0,45 s quand elles arrivent toutes ensemble), puis le compte rendu : actions faites, propositions,
+  relevés et Contrôle, lien vers « À valider ». Rien ne bouge en animations apaisées.
+- Rôle **Design** (`lib/agents/roles/design.ts`, contrôles dans `lib/design/controle.ts`), chaque
+  matin et à la demande. Il relit 12 pages comme une visiteuse : accueil, boutique, collection,
+  quatre fiches, La Maison, Sur commande, guide des tailles, Contact, accueil en anglais. Il relève :
+  page qui ne s'affiche plus, photo cassée ou sans description, titre principal en double, deux
+  boutons noirs dans une section, plus de 70 mots ou une phrase répétée avant le bouton d'une pièce.
+  Ce qui revient trois jours d'affilée monte d'un cran. Il finit par dire par quoi commencer. Le
+  Contrôle relit son passage, comme pour tous les rôles. Site privé : il entre avec le lien privé.
+- Tests : 8 tests unitaires (dont l'ancienne fiche, où il relève bien le délai répété), rôle Design
+  dans le passage de tous les rôles, et un parcours qui lance Design puis Rapport et suit leurs
+  étapes jusqu'au compte rendu.
