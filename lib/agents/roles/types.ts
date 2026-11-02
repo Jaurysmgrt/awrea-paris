@@ -21,7 +21,8 @@ export type RoleId =
   | "publicite"
   | "accessibilite"
   | "performance"
-  | "sauvegarde";
+  | "sauvegarde"
+  | "design";
 
 /** jour : 0 dimanche … 6 samedi (heure de Paris) ; mensuel : jour du mois */
 export type Cadence = { kind: "quotidien" } | { kind: "hebdomadaire"; jour: number } | { kind: "mensuel"; jour: number };
@@ -34,6 +35,11 @@ export interface Finding {
   lien?: string;
   /** objet concerné (numéro de commande, document…) pour éviter les doublons d'un jour à l'autre */
   cible?: string;
+}
+
+/** contexte d'un passage : adresse du site (pour relire ses pages), quand elle est connue */
+export interface RoleContext {
+  origin?: string;
 }
 
 export interface RoleOutcome {

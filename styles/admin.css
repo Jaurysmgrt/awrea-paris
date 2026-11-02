@@ -455,6 +455,129 @@
     padding-left: var(--spacing-2xs);
   }
 
+  /* agent au travail (components/admin/AgentLauncher.tsx, retour du 01/11 : « on les voit pas
+     travailler ») : un point qui respire et un fil qui court sous son nom, le temps qui passe, ses
+     étapes qui s'inscrivent l'une après l'autre, puis son compte rendu. Noir et blanc cassé seulement ;
+     en animations apaisées, rien ne bouge. */
+  .agent-run-wrap {
+    display: grid;
+    gap: var(--spacing-xs);
+    justify-items: start;
+    width: 100%;
+  }
+  .agent-run {
+    display: grid;
+    gap: var(--spacing-xs);
+    width: 100%;
+    padding: var(--spacing-s);
+    border: var(--border-width-hair) solid var(--line);
+  }
+  .agent-run__head {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin: 0;
+  }
+  .agent-run__signe {
+    flex: none;
+    width: var(--spacing-2xs);
+    height: var(--spacing-2xs);
+    border-radius: var(--radius-full);
+    background: var(--fg);
+    animation: agent-souffle var(--dur) var(--ease) infinite alternate;
+  }
+  .agent-run__fil {
+    position: relative;
+    height: var(--border-width-focus);
+    overflow: hidden;
+    background: var(--line);
+  }
+  .agent-run__fil::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 30%;
+    background: var(--fg);
+    animation: agent-fil calc(var(--dur) * 2) var(--ease) infinite;
+  }
+  .agent-run__etapes {
+    display: grid;
+    gap: var(--spacing-3xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .agent-run__etape {
+    display: grid;
+    grid-template-columns: var(--spacing-s) minmax(0, 1fr);
+    align-items: baseline;
+    font-size: var(--text-step--1);
+    animation: agent-etape var(--dur) var(--ease) backwards;
+  }
+  .agent-run__etape::before {
+    content: "";
+    width: var(--spacing-2xs);
+    height: var(--spacing-2xs);
+    border-radius: var(--radius-full);
+    background: var(--fg);
+  }
+  /* ce qui vous est proposé ou relevé : un rond vide ; une étape en cours : en gris */
+  .agent-run__etape:is([data-statut="proposed"], [data-statut="info"])::before {
+    background: transparent;
+    border: var(--border-width-hair) solid var(--fg);
+  }
+  .agent-run__etape[data-statut="en-cours"] {
+    color: var(--fg-soft);
+  }
+  .agent-run__etape[data-statut="failed"] {
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+  }
+  .agent-run__fin {
+    padding-top: var(--spacing-xs);
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .agent-run__fermer {
+    justify-self: start;
+  }
+  @keyframes agent-souffle {
+    from {
+      opacity: 0.25;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes agent-fil {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(340%);
+    }
+  }
+  @keyframes agent-etape {
+    from {
+      opacity: 0;
+      transform: translateY(var(--spacing-3xs));
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .agent-run__signe,
+    .agent-run__fil::after,
+    .agent-run__etape {
+      animation: none;
+    }
+  }
+  html[data-motion="reduce"] :is(.agent-run__signe, .agent-run__fil::after, .agent-run__etape) {
+    animation: none;
+  }
+
   .log {
     display: grid;
   }

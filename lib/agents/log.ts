@@ -3,6 +3,7 @@
  * et consultables dans le tableau de bord Atelier.
  */
 import { kv } from "@/lib/store";
+import { annoncer } from "./progress";
 import type { RoleId } from "./roles/types";
 
 /** agents de l'équipe d'origine, rôles de gestion quotidienne (lib/agents/roles) et actions du système */
@@ -29,6 +30,9 @@ export const LOG_KEY = "agents:log";
 export async function logAction(a: Omit<AgentAction, "id" | "date">): Promise<AgentAction> {
   const action: AgentAction = { id: `act-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`, date: new Date().toISOString(), ...a };
   await kv.push(LOG_KEY, action, 2000);
+  // passage suivi depuis l'Atelier : l'action apparaît aussitôt à l'écran (lib/agents/progress.ts) ;
+  // le bilan final du passage, lui, s'affiche dans le compte rendu
+  if (action.kind !== "passage") annoncer(action.summary, action.status);
   return action;
 }
 

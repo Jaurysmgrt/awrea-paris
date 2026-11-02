@@ -18,7 +18,9 @@ import { runAntiFraude, runComptabilite } from "./finance";
 import { runCercle, runPresse, runRgpd, runSurMesure } from "./relation";
 import { runDrops, runProduction } from "./creation";
 import { runAccessibilite, runInstagram, runPerformance, runPublicite } from "./visibilite";
-import type { Cadence, RoleId, RoleOutcome, RoleReport } from "./types";
+import { runDesign } from "./design";
+import { annoncer } from "@/lib/agents/progress";
+import type { Cadence, RoleContext, RoleId, RoleOutcome, RoleReport } from "./types";
 
 export interface RoleInfo {
   id: RoleId;
@@ -28,7 +30,7 @@ export interface RoleInfo {
   cadence: Cadence;
   /** quand il passe, en mots */
   schedule: string;
-  run?: (now: Date) => Promise<RoleOutcome>;
+  run?: (now: Date, ctx: RoleContext) => Promise<RoleOutcome>;
 }
 
 export const ROLES: RoleInfo[] = [
@@ -49,6 +51,7 @@ export const ROLES: RoleInfo[] = [
   { id: "publicite", name: "Publicité", mission: "Lit les résultats des campagnes et propose où mettre, ou ne plus mettre, l’argent.", autonomy: "Propose seulement : toute dépense passe par vous.", cadence: { kind: "hebdomadaire", jour: 1 }, schedule: "Chaque lundi", run: runPublicite },
   { id: "accessibilite", name: "Accessibilité", mission: "Relit le contrôle d’accessibilité de la nuit (contrastes, clavier, lecteurs d’écran) et dit ce qui a changé.", autonomy: "Prévient seulement.", cadence: { kind: "hebdomadaire", jour: 0 }, schedule: "Chaque dimanche", run: runAccessibilite },
   { id: "performance", name: "Performance", mission: "Suit la vitesse des pages et leur poids, et signale ce qui ralentit.", autonomy: "Prévient seulement.", cadence: { kind: "hebdomadaire", jour: 0 }, schedule: "Chaque dimanche", run: runPerformance },
+  { id: "design", name: "Design", mission: "Relit chaque matin les pages du site comme une directrice artistique exigeante : page qui ne s’affiche plus, photo cassée ou sans description, titre principal en double ou absent, deux boutons qui se disputent une section, trop de texte avant le bouton d’une pièce, phrase répétée, menu trop long. Retient ce qui revient d’un jour à l’autre et le fait monter d’un cran, puis dit par quoi commencer.", autonomy: "Prévient seulement : il ne modifie rien sur le site.", cadence: { kind: "quotidien" }, schedule: "Chaque matin", run: runDesign },
   { id: "sauvegarde", name: "Sauvegarde", mission: "Vérifie chaque jour que la sauvegarde de la nuit a eu lieu et qu’elle se relit.", autonomy: "Prévient seulement.", cadence: { kind: "quotidien" }, schedule: "Chaque matin", run: runSauvegarde },
 ];
 
@@ -56,15 +59,17 @@ export const roleInfo = (id: string) => ROLES.find((r) => r.id === id);
 
 const REPORT_KEY = (id: RoleId) => `roles:rapport:${id}`;
 
-export async function runRole(id: RoleId, trigger: RoleReport["trigger"], now = new Date()): Promise<RoleReport> {
+export async function runRole(id: RoleId, trigger: RoleReport["trigger"], now = new Date(), ctx: RoleContext = {}): Promise<RoleReport> {
   const info = roleInfo(id);
-  if (!info?.run) throw new Error(`Rôle en préparation : ${info?.name ?? id}`);
+  if (!info?.run) throw new Error(`Rôle en préparation : ${info?.name ?? id}`);
   const since = new Date(now.getTime() - 1000).toISOString();
   const report: RoleReport = { role: id, at: now.toISOString(), mode: aiEnabled ? "claude" : "demo", trigger, resume: "", findings: [], actions: { done: 0, proposed: 0, failed: 0 }, controle: [], erreurs: [] };
   try {
-    const out = await info.run(now);
+    const out = await info.run(now, ctx);
     report.resume = out.resume;
     report.findings = out.findings;
+    // passage suivi depuis l'Atelier : chaque relevé apparaît à l'écran (lib/agents/progress.ts)
+    for (const f of out.findings) annoncer(f.titre, f.gravite === "info" ? "info" : "proposed");
   } catch (e) {
     report.erreurs.push(e instanceof Error ? e.message : String(e));
     report.resume = "Le passage s’est arrêté sur une erreur.";
@@ -72,9 +77,11 @@ export async function runRole(id: RoleId, trigger: RoleReport["trigger"], now = 
   const [proposals, log] = await Promise.all([getProposals(), getLog(300)]);
   const mine = log.filter((a) => a.agent === id && a.date >= since);
   report.actions = { done: mine.filter((a) => a.status === "done").length, proposed: mine.filter((a) => a.status === "proposed").length, failed: mine.filter((a) => a.status === "failed").length };
+  annoncer("Le Contrôle relit le passage.");
   report.controle = controle(report, { since, role: id, proposals, log });
+  for (const c of report.controle) annoncer(`Contrôle : ${c.titre}`, "info");
   await kv.set(REPORT_KEY(id), report);
-  await logAction({ agent: id, kind: "passage", status: report.erreurs.length ? "failed" : "info", summary: `${info.name} : ${report.resume}`, detail: [...report.erreurs, ...report.controle.map((c) => `Contrôle : ${c.titre}`)].join("\n") || undefined });
+  await logAction({ agent: id, kind: "passage", status: report.erreurs.length ? "failed" : "info", summary: `${info.name} : ${report.resume}`, detail: [...report.erreurs, ...report.controle.map((c) => `Contrôle : ${c.titre}`)].join("\n") || undefined });
   return report;
 }
 
@@ -83,8 +90,8 @@ export async function lastReport(id: RoleId): Promise<RoleReport | null> {
 }
 
 /** Passage du matin : chaque rôle prêt dont c'est le jour. */
-export async function runDueRoles(now = new Date()): Promise<RoleReport[]> {
+export async function runDueRoles(now = new Date(), ctx: RoleContext = {}): Promise<RoleReport[]> {
   const out: RoleReport[] = [];
-  for (const r of ROLES) if (r.run && isDue(r.cadence, now)) out.push(await runRole(r.id, "cron", now));
+  for (const r of ROLES) if (r.run && isDue(r.cadence, now)) out.push(await runRole(r.id, "cron", now, ctx));
   return out;
 }

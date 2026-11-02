@@ -4,7 +4,7 @@ import { currentAgentId, getLog } from "@/lib/agents/log";
 import { getRuns } from "@/lib/agents/run";
 import { maintenanceLabels, maintenanceReports } from "@/lib/maintenance";
 import { atelierApi, atelierHref } from "@/lib/admin/path";
-import { ActionButton } from "@/components/admin/ActionButton";
+import { AgentLauncher } from "@/components/admin/AgentLauncher";
 import { LogList } from "@/components/admin/LogList";
 import { When } from "@/components/admin/Status";
 import { withRegistryNames } from "@/components/admin/agent-names";
@@ -52,13 +52,13 @@ export default async function EquipePage() {
                 </p>
                 {a.id === "catalogue" ? (
                   <>
-                    <ActionButton endpoint={atelierApi(`/agents/${a.id}`)} label="Faire le bilan" busyLabel="Bilan en cours…" />
+                    <AgentLauncher endpoint={atelierApi(`/agents/${a.id}`)} nom={a.name} label="Faire le bilan" />
                     <Link href={atelierHref("/catalogue")} className="btn btn--outline">
                       Nouvelle fiche
                     </Link>
                   </>
                 ) : (
-                  <ActionButton endpoint={atelierApi(`/agents/${a.id}`)} label="Lancer maintenant" busyLabel="L’agent travaille…" />
+                  <AgentLauncher endpoint={atelierApi(`/agents/${a.id}`)} nom={a.name} />
                 )}
               </li>
             );
@@ -149,7 +149,7 @@ export default async function EquipePage() {
                   ) : null}
                 </div>
               ) : null}
-              {r.run ? <ActionButton endpoint={atelierApi(`/equipe/${r.id}`)} label="Lancer maintenant" busyLabel="Passage en cours…" variant="quiet" /> : null}
+              {r.run ? <AgentLauncher endpoint={atelierApi(`/equipe/${r.id}`)} nom={r.name} variant="quiet" /> : null}
             </li>
           );
         })}

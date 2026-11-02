@@ -8,6 +8,6 @@ export const maxDuration = 300;
 
 export async function GET(req: Request) {
   if (!isCronAuthorized(req)) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-  const reports = await runDueRoles();
+  const reports = await runDueRoles(new Date(), { origin: new URL(req.url).origin });
   return NextResponse.json({ ok: true, roles: reports.map((r) => ({ role: r.role, resume: r.resume, controle: r.controle.length })) });
 }

@@ -558,6 +558,18 @@ Atelier › **Équipe** montre le passage du matin de chaque rôle : ce qu’il
 Le Contrôle relit chaque passage. Atelier › **Journal des actions** garde tout ce que les agents ont
 fait, avec la date.
 
+Vous pouvez aussi lancer un agent vous-même : **Lancer maintenant** sous son nom. Vous le voyez alors
+travailler. Un point respire et un fil court sous son nom, le temps passé s’affiche, et chaque étape
+s’inscrit à son tour : « Relit l’accueil », « Relit la boutique »… À la fin, il dit ce qu’il a fait,
+ce qu’il a relevé et ce qui attend votre accord, avec un lien vers **À valider**. **Fermer** range le
+compte rendu.
+
+Le rôle **Design** relit chaque matin les pages du site comme une directrice artistique exigeante. Il
+cherche une page qui ne s’affiche plus, une photo cassée ou sans description, un titre principal en
+double, deux boutons qui se disputent une section, trop de texte avant le bouton d’une pièce, une
+phrase répétée. Ce qui revient trois jours d’affilée monte d’un cran (« À regarder » devient
+« Urgent ») et il dit par quoi commencer. Il ne modifie rien : il vous prévient.
+
 Les agents n’ont jamais accès aux données bancaires ni aux mots de passe.
 
 ![Une proposition en attente avec ses boutons](docs/guide/14-validations.png)
