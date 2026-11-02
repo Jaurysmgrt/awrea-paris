@@ -294,25 +294,21 @@ test.describe("Pied de page de la maquette et lettre de la Maison", () => {
     await expect(page.locator("html")).toHaveAttribute("data-mode", "light");
   });
 
-  test("mode Nuit : l'alternance s'inverse, une section noire du mode Jour passe la page en ivoire", async ({ page }) => {
+  // depuis le 01/11 (animations au strict minimum), la page ne glisse plus d'une couleur à l'autre au
+  // défilement : c'est la section elle-même qui porte l'inversion
+  test("mode Nuit : l'alternance s'inverse, une section noire du mode Jour passe en ivoire", async ({ page }) => {
     await acceptCookies(page);
     await page.emulateMedia({ colorScheme: "dark" });
     await page.goto("/");
     await waitForHydration(page);
-    const fond = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    expect(await fond()).not.toBe("rgb(247, 246, 243)");
-    // la section de la collection (noire en mode Jour) au centre de l'écran
-    await page.evaluate(() => {
-      const section = document.getElementById("accueil-collection")!.closest("section")!;
-      const r = section.getBoundingClientRect();
-      const y = scrollY + r.top + r.height / 2 - innerHeight / 2;
-      const lenis = (window as unknown as { __lenis?: { scrollTo: (y: number, o: object) => void } }).__lenis;
-      if (lenis) lenis.scrollTo(y, { immediate: true });
-      else window.scrollTo(0, y);
-    });
-    await expect.poll(fond).toBe("rgb(247, 246, 243)");
-    // texte noir sur l'ivoire
+    expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).not.toBe("rgb(247, 246, 243)");
+    // la section de la collection (noire en mode Jour) : ivoire en mode Nuit, texte noir
+    const section = page.locator("main section", { has: page.locator("#accueil-collection") });
+    await section.scrollIntoViewIfNeeded();
+    await expect.poll(() => section.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe("rgb(247, 246, 243)");
     await expect.poll(() => page.locator("#accueil-collection").evaluate((el) => getComputedStyle(el).color)).toBe("rgb(10, 10, 10)");
+    // et la page autour reste dans les noirs
+    expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).not.toBe("rgb(247, 246, 243)");
   });
 
   test("animations apaisées quand l’appareil le demande", async ({ page }) => {
