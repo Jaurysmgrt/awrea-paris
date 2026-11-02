@@ -664,3 +664,31 @@ pages.
 - Tests : menu, chapeau centré et surtitre, page Rendez-vous (titre, bouton, réservation complète,
   ouverture directe, couleurs en mode Jour et Nuit), Rendez-vous ajoutée aux tests d'accessibilité,
   d'homogénéité et de responsive. Captures vérifiées à 1440 et 390 px, Jour et Nuit.
+
+## Atelier : agents qui agissent, e-mails réunis, Atelier plus calme (02/11)
+
+Demande de la créatrice : « retravaille la partie e-mailing, revois tout l’Atelier pour qu’on ne s’y
+perde pas et que ce soit agréable ; les agents font juste un retour, j’aimerais qu’ils règlent
+eux-mêmes les problèmes, avec bien sûr des règles ». Ses réponses : les quatre autonomies, les quatre
+usages des e-mails, et « trop de texte, pas assez agréable, trop de pages techniques ».
+
+- **Agents autonomes** (`lib/agents/autonomie.ts`, `autonomie-regles.ts`, `corrections.ts`) : quatre
+  actions nouvelles qui ne prennent que des identifiants : `notify_delay` (e-mail « Retard de
+  confection », une fois par commande), `publish_review` (avis vérifié sans photo, sans lien ni
+  coordonnées, sans mot de souci, revérifié au moment de publier), `correct_page` (typographie et
+  description d’une photo de pièce, jamais un bloc officiel ni une page en brouillon, publiée comme
+  une version annulable, sur le site en ligne seulement), `send_relance` (rappel de retour, accusé de
+  sur mesure, bienvenue du Cercle ; au plus un e-mail par cliente et par semaine).
+- Rôles branchés : Avis, Retours, Sur mesure, Cercle, Gardien de l’éditeur, et l’agent Commandes et
+  confection (le message de retard ne passe plus par « À valider »).
+- **Réglages › Ce que les agents font seuls** : un interrupteur par autonomie (route
+  `/api/gestion/autonomie`) ; coupée, l’action redevient une proposition ; le Contrôle signale une
+  action faite malgré tout.
+- **E-mails** en quatre onglets : La lettre (aperçu, écrire, essai, envoi gardé), Inscrites (et
+  tableur), Envoyés, Automatiques. Les idées de lettre de l’agent Contenu y passent ; « Contenus »
+  devient « Instagram ».
+- **Atelier plus calme** : introductions ramenées à une phrase, menu plus serré qui tient dans
+  l’écran, règles des agents repliées, « Créer une page » replié en bas, parties techniques des
+  Réglages repliées, calendrier des agents retiré des Réglages (il est dans Équipe).
+- Tests : 5 tests unitaires (règles, corrections, tableur), parcours E-mails, Réglages, agent
+  Commandes et confection ; parcours de l’Atelier verts en local.
