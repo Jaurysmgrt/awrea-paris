@@ -78,6 +78,9 @@ fautes évidentes (notées dans `DECISIONS.md`).
 >
 > À travers des silhouettes sculpturales et des détails précieux, la collection « Hypnotic Lace » célèbre une féminité contrastée : délicate, sensuelle et affirmée.
 
+Sur le site, le sous-titre est devenu « Entre ombre et lumière, une élégance singulière. » (dossier
+récapitulatif de la créatrice du 02/11) ; le titre et le reste du texte sont inchangés.
+
 **Teasing de la Maison** (`TEASING MARQUE.png`, accueil, décliné dans la page L'Atelier) :
 
 > Des pièces qui subliment la silhouette
@@ -310,8 +313,9 @@ pastille « Nouveau », photos des cartes aux angles arrondis. Primitives et cla
 
 ### Navigation et pied de page (maquettes EN-TÊTE DU SITE et BAS DE PAGE)
 
-- En-tête : logo centré, puis cinq entrées centrées : Accueil ; Sur commande ⌄ (La commande sur
-  demande, L'atelier, Prendre rendez-vous) ; Collections ⌄ (Hypnotic Lace, Toutes les pièces,
+- En-tête : logo centré, puis cinq entrées centrées : Accueil ; À la demande ⌄ (La pièce à la
+  demande, Le détail du savoir-faire, Prendre rendez-vous ; « Sur commande » devenu « À la demande »
+  le 02/11) ; Collections ⌄ (Hypnotic Lace, Toutes les pièces,
   Rechercher une pièce) ; Contact ; Mon Panier ⌄ (Mon panier, Mon compte, Mes envies). La page en
   cours reste soulignée.
 - Pied de page : filet centré, quatre colonnes en capitales : LA MARQUE (Contact, À propos),

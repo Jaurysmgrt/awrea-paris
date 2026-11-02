@@ -1,0 +1,48 @@
+/*
+ * Prendre rendez-vous : la photographie pleine largeur sous la navigation, puis le texte centré sur
+ * la section noire, et la réservation qui s'ouvre sous le bouton. Tokens seulement.
+ */
+.page {
+  padding-top: var(--header-h);
+  padding-bottom: var(--space-section);
+}
+
+/* grande photographie éditoriale, d'un bord à l'autre de l'écran */
+.photo {
+  margin: 0;
+  height: 64svh;
+}
+@media (min-width: 64rem) {
+  .photo {
+    height: 78svh;
+  }
+}
+.media {
+  height: 100%;
+}
+
+/* le titre, le texte, le bouton et sa phrase sur un même axe */
+.texte {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-paragraph);
+  padding-top: var(--space-section);
+  text-align: center;
+}
+.texte :global(.breadcrumb) {
+  justify-content: center;
+}
+.texte h1 {
+  max-width: 100%;
+  text-align: center;
+  text-wrap: balance;
+}
+.texte > p {
+  max-width: var(--container-chapeau);
+  text-align: center;
+  text-wrap: pretty;
+}
+.suite {
+  width: 100%;
+  margin-top: var(--space-paragraph);
+}

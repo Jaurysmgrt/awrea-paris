@@ -636,3 +636,31 @@ l'analyse lui-même, qui a un esprit critique ».
 - Tests : 8 tests unitaires (dont l'ancienne fiche, où il relève bien le délai répété), rôle Design
   dans le passage de tous les rôles, et un parcours qui lance Design puis Rapport et suit leurs
   étapes jusqu'au compte rendu.
+
+## Dossier récapitulatif de la créatrice : À la demande, Hypnotic Lace, rendez-vous, boutons (02/11)
+
+Dossier PDF « AWREA PARIS, dossier récapitulatif », appliqué point par point, sans toucher aux autres
+pages.
+
+- Menu : « Sur commande » devient « À la demande » (ordinateur et téléphone, même document de
+  navigation). Version anglaise inchangée (« Made to order »).
+- Page « À la demande » (`/sur-commande`, adresse gardée) : titre « Le privilège d’une pièce
+  unique. », nouveau chapeau mot pour mot, centré sur l'axe du titre sur tous les écrans, 648 px au
+  plus (`--container-chapeau`, option `leadCentre` de `PageHeader`) ; « Les étapes » devient « Votre
+  expérience », « De votre choix à votre porte » reste, centré. Le fil d'Ariane dit « À la demande ».
+- Collection « Hypnotic Lace » : seul le sous-titre change, « Entre ombre et lumière, une élégance
+  singulière. » (accueil et page de la collection) ; titre et mise en page inchangés.
+- Rendez-vous (`/rendez-vous`) : grande photographie pleine largeur sous la navigation (dentelle
+  ivoire et ciseaux sur la table de l'atelier, photo de l'ancien site), puis une section noire centrée
+  : « Une pièce exclusive à votre demande. », le texte du dossier, un seul bouton « Prendre
+  rendez-vous » et « Un échange privilégié avec la créatrice. ». Les deux cartes ont disparu : la
+  réservation s'ouvre à la place du bouton (le rendez-vous, le jour et l'heure en pastilles, puis les
+  coordonnées), et un lien qui choisit déjà le rendez-vous (`?type=visio`) l'ouvre directement. La
+  section reste noire en mode Nuit (`data-nuit="noir"`), bouton ivoire.
+- Boutons : capsule pleine sans filet visible (le filet prend la couleur du fond), et un survol à
+  peine marqué, le fond s'adoucit de 14 % ; plus d'aplat qui monte ni d'inversion. Nouvelle taille
+  `.btn--capsule`, plus haute et plus longue, pour « Prendre rendez-vous ». Restes des boutons
+  magnétiques retirés du CSS.
+- Tests : menu, chapeau centré et surtitre, page Rendez-vous (titre, bouton, réservation complète,
+  ouverture directe, couleurs en mode Jour et Nuit), Rendez-vous ajoutée aux tests d'accessibilité,
+  d'homogénéité et de responsive. Captures vérifiées à 1440 et 390 px, Jour et Nuit.

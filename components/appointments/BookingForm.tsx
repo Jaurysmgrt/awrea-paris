@@ -106,9 +106,10 @@ export function BookingForm({ t, initialType }: { t: BookingTexts; initialType?:
     >
       <fieldset className="stack-s">
         <legend className="field__label">{t.etapes.type}</legend>
-        <div className="booking__types">
+        {/* le rendez-vous en pastilles, comme les jours et les heures (plus de cartes, dossier du 02/11) */}
+        <div className="booking__choix">
           {(Object.keys(t.types) as TypeId[]).map((k) => (
-            <label key={k} className="booking__type check">
+            <label key={k} className="chip">
               <input
                 type="radio"
                 name="type"
@@ -122,11 +123,7 @@ export function BookingForm({ t, initialType }: { t: BookingTexts; initialType?:
                   setTime(null);
                 }}
               />
-              <span className="stack-s">
-                <span className="t-h4">{t.types[k].titre}</span>
-                <span className="t-note t-left">{t.types[k].texte}</span>
-                <span className="t-label t-soft">{t.types[k].duree}</span>
-              </span>
+              {t.types[k].titre} · {t.types[k].duree.toLowerCase()}
             </label>
           ))}
         </div>

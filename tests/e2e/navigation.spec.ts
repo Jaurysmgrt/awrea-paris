@@ -11,7 +11,7 @@ test.describe("En-tête de la maquette : logo centré, navigation centrée desso
     const nav = mainNav(page);
     const entries = nav.locator(".site-nav__list > li > :is(a, button)");
     const labels = (await entries.allInnerTexts()).map((t) => t.replace(/\s+/g, " ").trim());
-    expect(labels).toEqual(["Accueil", "Sur commande", "Collections", "Contact", "Mon Panier"]);
+    expect(labels).toEqual(["Accueil", "À la demande", "Collections", "Contact", "Mon Panier"]);
     await expect(nav.getByRole("link", { name: "Accueil" })).toHaveAttribute("aria-current", "page");
     // trois menus déroulants, chacun avec son chevron dessiné (aucun signe des polices)
     await expect(nav.locator("button[aria-expanded] svg.chevron")).toHaveCount(3);
@@ -37,7 +37,7 @@ test.describe("En-tête de la maquette : logo centré, navigation centrée desso
     await page.goto("/contact");
     await waitForHydration(page);
     const nav = mainNav(page);
-    const surCommande = nav.getByRole("button", { name: "Sur commande" });
+    const surCommande = nav.getByRole("button", { name: "À la demande" });
     await expect(nav.getByRole("link", { name: "Contact" })).toHaveAttribute("aria-current", "page");
 
     await surCommande.focus();
@@ -185,7 +185,7 @@ test.describe("Téléphone : Menu, logo au centre, panier ; menu plein écran", 
     await expect(menu).toBeVisible();
     await expect(page.locator("#site-menu")).toHaveAttribute("data-open", "true");
     await expect(menu.getByRole("link", { name: "Accueil" })).toBeFocused();
-    for (const name of ["Sur commande", "Collections", "Mon Panier"]) await expect(menu.getByRole("button", { name, exact: true })).toHaveAttribute("aria-expanded", "false");
+    for (const name of ["À la demande", "Collections", "Mon Panier"]) await expect(menu.getByRole("button", { name, exact: true })).toHaveAttribute("aria-expanded", "false");
     await expect(menu.getByRole("link", { name: "Contact" })).toHaveAttribute("href", "/contact");
     const collections = menu.getByRole("button", { name: "Collections" });
     await collections.click();

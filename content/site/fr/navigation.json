@@ -2,7 +2,7 @@
   "principal": [
     { "label": "Accueil", "href": "/" },
     {
-      "label": "Sur commande",
+      "label": "À la demande",
       "sousMenu": [
         { "label": "La pièce à la demande", "href": "/sur-commande" },
         { "label": "Le détail du savoir-faire", "href": "/atelier" },

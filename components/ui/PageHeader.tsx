@@ -9,6 +9,8 @@ import { SplitTitle } from "./SplitTitle";
  * et sa mesure, sa colonne est centrée sous le titre.
  * « giant » : pages éditoriales, où le titre devient une affiche (encore plus grand).
  * « align="left" » : titre au fer à gauche, quand une photo ou un formulaire l'accompagne.
+ * « leadCentre » : le chapeau se centre lui aussi, sur l'axe du titre, dans une colonne d'environ
+ * 650 px (page « À la demande », dossier de la créatrice du 02/11).
  */
 export function PageHeader({
   title,
@@ -18,6 +20,7 @@ export function PageHeader({
   theme = "ivory",
   giant = false,
   align = "center",
+  leadCentre = false,
   lang,
   children,
 }: {
@@ -28,6 +31,7 @@ export function PageHeader({
   theme?: "ink" | "ivory" | "paper" | "pearl";
   giant?: boolean;
   align?: "center" | "left";
+  leadCentre?: boolean;
   /** langue du titre et du chapeau quand elle diffère de celle de la page (texte resté en français sous /en) */
   lang?: string;
   children?: React.ReactNode;
@@ -43,7 +47,7 @@ export function PageHeader({
         ) : null}
         <SplitTitle text={title} className={`page-head__title ${giant ? "t-giant" : "t-display"}`} lang={lang} />
         {lead ? (
-          <p className="t-lead page-head__lead" lang={lang}>
+          <p className={`t-lead page-head__lead${leadCentre ? " page-head__lead--centre" : ""}`} lang={lang}>
             {lead}
           </p>
         ) : null}

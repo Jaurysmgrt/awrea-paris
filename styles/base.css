@@ -68,7 +68,7 @@
     --line: color-mix(in oklab, var(--color-ivory) 20%, transparent);
     --accent: var(--color-ivory);
   }
-  html[data-mode="dark"]:has(:is(main > .scene, main > article > .scene):first-child[data-theme="ink"]) body {
+  html[data-mode="dark"]:has(:is(main > .scene, main > article > .scene):first-child[data-theme="ink"]:not([data-nuit="noir"])) body {
     --bg: var(--color-ivory);
     --fg: var(--color-ink);
     --fg-soft: var(--color-ink-soft);

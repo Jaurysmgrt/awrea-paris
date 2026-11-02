@@ -305,11 +305,8 @@
   .btn {
     --btn-fg: var(--bg); /* texte */
     --btn-bg: var(--fg); /* fond */
-    --btn-edge: var(--fg); /* filet */
-    --btn-hover-bg: var(--bg); /* aplat qui monte au survol */
-    --btn-on: var(--fg); /* texte au survol */
+    --btn-edge: var(--btn-bg); /* filet : celui du fond, invisible sur le bouton plein */
     position: relative;
-    isolation: isolate;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -327,38 +324,24 @@
     letter-spacing: var(--tracking-snug);
     text-align: center;
     line-height: var(--leading-label);
-    overflow: hidden;
     cursor: pointer;
-    /* attraction magnétique (components/motion/Magnetic.tsx) : retour en douceur */
-    translate: var(--mx, 0) var(--my, 0);
     transition:
-      color var(--dur) var(--ease),
-      translate var(--dur) var(--ease);
+      background-color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
   }
-  .btn[data-magnet="on"] {
-    transition:
-      color var(--dur) var(--ease),
-      translate var(--dur) var(--ease);
-  }
-  .btn::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
-    background: var(--btn-hover-bg);
-    transform: scaleY(0);
-    transform-origin: 50% 100%;
-    transition: transform var(--dur) var(--ease);
-  }
+  /* survol : le fond s'adoucit à peine (dossier de la créatrice du 02/11 : « une transition très
+     subtile et élégante, sans animation excessive ») ; ni aplat qui monte, ni inversion */
   @media (hover: hover) {
-    .btn:hover {
-      color: var(--btn-on);
+    .btn:hover:not([disabled], [aria-disabled="true"]) {
+      background-color: color-mix(in oklab, var(--btn-bg) 86%, var(--btn-fg));
+      border-color: color-mix(in oklab, var(--btn-edge) 86%, var(--btn-fg));
     }
-    .btn:hover::before {
-      transform: scaleY(1);
-      transform-origin: 50% 0%;
-    }
+  }
+  /* capsule : l'appel principal d'une page (« Prendre rendez-vous »), plus long et plus haut ;
+     ivoire sur une section noire, noir sur une section claire */
+  .btn--capsule {
+    min-height: calc(var(--spacing-touch) + var(--spacing-2xs));
+    padding-inline: var(--spacing-xl);
   }
   /* anneau de focus : un filet qui suit la pilule, décollé d'un cran (visible sur tous les fonds) */
   .btn:focus-visible {
@@ -369,23 +352,24 @@
   .btn--outline {
     --btn-fg: var(--fg);
     --btn-bg: transparent;
-    --btn-hover-bg: var(--fg);
-    --btn-on: var(--bg);
+    --btn-edge: var(--fg);
   }
   /* lien souligné d'un filet : même famille que les boutons, sans pilule */
   .btn--link {
     --btn-fg: var(--fg);
     --btn-bg: transparent;
     --btn-edge: transparent;
-    --btn-on: var(--fg);
     padding-inline: 0;
     border-radius: 0;
     text-decoration: underline;
     text-decoration-thickness: var(--border-width-hair);
     text-underline-offset: 0.2em;
   }
-  .btn--link::before {
-    display: none;
+  @media (hover: hover) {
+    .btn--link:hover:not([disabled], [aria-disabled="true"]) {
+      background-color: transparent;
+      border-color: transparent;
+    }
   }
   .btn--link:focus-visible {
     border-radius: var(--radius-soft);
@@ -398,10 +382,6 @@
   .btn[aria-disabled="true"] {
     opacity: 0.45;
     cursor: not-allowed;
-  }
-  .btn[disabled]::before,
-  .btn[aria-disabled="true"]::before {
-    display: none;
   }
 
   /* bouton icône (fermer, menu, quantité) */

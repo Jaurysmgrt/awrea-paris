@@ -36,7 +36,7 @@ export default async function SurCommandePage() {
 
   return (
     <>
-      <PageHeader title={t.titre} lead={t.chapeau} crumbs={[{ name: t.titre, path: "/sur-commande" }]} />
+      <PageHeader title={t.titre} lead={t.chapeau} leadCentre crumbs={[{ name: t.nom, path: "/sur-commande" }]} />
 
       {/* ------------------------------------------------ LES ÉTAPES */}
       <Section theme="ivory" className="section section--flush-top" labelledBy="commande-etapes">
