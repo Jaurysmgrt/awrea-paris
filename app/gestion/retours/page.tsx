@@ -20,7 +20,7 @@ export default async function RetoursPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Retours</h1>
-        <p className="t-lead">Les clientes demandent leur retour ou leur échange de taille en ligne et reçoivent leur étiquette. Vous réceptionnez le colis, puis remboursez ou envoyez la nouvelle taille.</p>
+        <p className="t-lead">Recevez le colis, puis remboursez ou envoyez la nouvelle taille.</p>
       </header>
       <section className="panel" aria-labelledby="open-title">
         <h2 id="open-title" className="t-h3">

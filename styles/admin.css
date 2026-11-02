@@ -1044,3 +1044,64 @@
     overflow-wrap: anywhere;
   }
 }
+
+/* Équipe : les règles de chaque agent, repliées (retour du 02/11 : « trop de texte partout ») */
+@layer components {
+  .team__regles summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--spacing-touch);
+    color: var(--fg-soft);
+    cursor: pointer;
+  }
+  .team__regles summary:focus-visible {
+    outline: var(--border-width-focus) solid var(--fg);
+    outline-offset: var(--spacing-3xs);
+  }
+  .team__regles[open] summary {
+    color: var(--fg);
+  }
+  .team__regles > p + p {
+    margin-top: var(--spacing-2xs);
+  }
+}
+
+/* menu compact sur ordinateur : il tient dans l'écran (retour du 02/11 : « qu'on ne s'y perde pas ») */
+@layer components {
+  @media (min-width: 64rem) {
+    .admin-nav__groupes {
+      gap: var(--spacing-s);
+    }
+    .admin-nav__link {
+      min-height: calc(var(--spacing-m) * 1.5);
+      font-size: var(--text-step--1);
+    }
+    summary.admin-nav__titre {
+      min-height: calc(var(--spacing-m) * 1.5);
+    }
+    .admin__side {
+      gap: var(--spacing-s);
+    }
+  }
+}
+
+/* Pages : « Créer une page » replié en bas, après la liste des pages */
+@layer components {
+  .nouvelle-page > summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .nouvelle-page > summary::-webkit-details-marker {
+    display: none;
+  }
+  .nouvelle-page > summary::after {
+    content: " +";
+  }
+  .nouvelle-page[open] > summary::after {
+    content: " −";
+  }
+  .nouvelle-page > summary:focus-visible {
+    outline: var(--border-width-focus) solid var(--fg);
+    outline-offset: var(--spacing-3xs);
+  }
+}

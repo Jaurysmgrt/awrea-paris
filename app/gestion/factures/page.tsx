@@ -25,7 +25,7 @@ export default async function FacturesPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Factures</h1>
-        <p className="t-lead">Chaque paiement donne sa facture, chaque remboursement son avoir, numérotés dans l’ordre et conservés dix ans. Les pièces y figurent avec leur taille, créées sur demande par des artisans français. L’export du mois part seul à la comptabilité le 1er.</p>
+        <p className="t-lead">Une facture par paiement, un avoir par remboursement, gardés dix ans.</p>
         {vatFranchise() ? <p className="t-note">Franchise en base de TVA : les factures portent la mention de l’article 293 B du CGI.</p> : null}
       </header>
       {months.length ? (

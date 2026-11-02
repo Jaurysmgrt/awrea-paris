@@ -31,7 +31,7 @@ export default async function CertificatAtelierPage({ params }: { params: Promis
           {c.orderNumber ? ` · commande ${c.orderNumber}` : ""}
         </p>
         <h1 className="t-h1">{c.serial}</h1>
-        <p className="t-lead">Vérifiez la date de confection, posée le jour où la commande est prête, écrivez votre mot si vous le souhaitez, puis imprimez la feuille : le certificat à glisser dans le paquet, l’étiquette à coudre dans la pièce.</p>
+        <p className="t-lead">Vérifiez la date, ajoutez votre mot si vous le souhaitez, puis imprimez.</p>
       </header>
       <section className="panel no-print" aria-labelledby="edit-title">
         <h2 id="edit-title" className="t-h3">Date et mot de la créatrice</h2>

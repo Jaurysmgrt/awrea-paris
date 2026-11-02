@@ -1,5 +1,4 @@
 import { getProposals } from "@/lib/agents/perform";
-import { POLICY } from "@/lib/agents/policy";
 import { ProposalCard } from "@/components/admin/ProposalCard";
 
 export default async function ValidationsPage() {
@@ -10,7 +9,7 @@ export default async function ValidationsPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">À valider</h1>
-        <p className="t-lead">Seules les actions qui touchent à l’argent ou qui sont irréversibles vous sont demandées : {Object.values(POLICY).filter((p) => p.approval).map((p) => p.label.toLowerCase()).join(", ")}.</p>
+        <p className="t-lead">Ce qui touche à l’argent ou ne se défait pas attend votre accord ici.</p>
       </header>
       <section className="panel" aria-labelledby="pending-title">
         <h2 id="pending-title" className="t-h3">

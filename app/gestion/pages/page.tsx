@@ -34,13 +34,9 @@ export default async function PagesPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Pages</h1>
-        <p className="t-lead">Ouvrez une page pour la modifier directement sur le site. Rien ne change en ligne avant « Publier », et chaque version reste dans l’historique.</p>
+        <p className="t-lead">Ouvrez une page pour la modifier sur le site. Rien ne change avant « Publier ».</p>
       </header>
 
-      <section className="panel stack" aria-labelledby="nouvelle-page">
-        <h2 id="nouvelle-page" className="t-h3">Nouvelle page</h2>
-        <NewPageForm modeles={Object.entries(MODELES).map(([id, m]) => ({ id, label: m.label, description: m.description, prefixe: m.prefixe }))} />
-      </section>
 
       <section className="panel stack" aria-labelledby="photos-provisoires">
         <h2 id="photos-provisoires" className="t-h3">{P.boutonBarre}</h2>
@@ -125,6 +121,10 @@ export default async function PagesPage() {
           </section>
         );
       })}
+      <details className="panel stack nouvelle-page">
+        <summary className="t-h3" id="nouvelle-page">Créer une page</summary>
+        <NewPageForm modeles={Object.entries(MODELES).map(([id, m]) => ({ id, label: m.label, description: m.description, prefixe: m.prefixe }))} />
+      </details>
     </div>
   );
 }

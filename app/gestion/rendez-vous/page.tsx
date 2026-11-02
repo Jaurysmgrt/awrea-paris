@@ -14,7 +14,7 @@ export default async function RendezVousAtelier() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Rendez-vous</h1>
-        <p className="t-lead">Les clientes réservent elles-mêmes sur la page Rendez-vous, dans les moments que vous ouvrez ici. Chacune reçoit une confirmation, puis un rappel la veille.</p>
+        <p className="t-lead">Les moments que vous ouvrez ici, les clientes les réservent sur le site.</p>
       </header>
 
       <section className="panel stack" aria-labelledby="a-venir">

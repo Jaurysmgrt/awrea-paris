@@ -17,7 +17,7 @@ export default async function SeoPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">SEO et visibilité IA</h1>
-        <p className="t-lead">Le dimanche à 5 h, l’agent audite le site et corrige les balises des fiches. Il publie aussi un article du Journal et met à jour llms.txt pour les moteurs de réponse IA.</p>
+        <p className="t-lead">Chaque dimanche, l’agent relit le site et corrige ce qui aide Google à le trouver.</p>
         <ActionButton endpoint={atelierApi("/agents/seo")} label="Lancer un audit" busyLabel="Audit en cours…" />
       </header>
       {last ? (

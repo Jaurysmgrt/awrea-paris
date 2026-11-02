@@ -12,7 +12,7 @@ export default async function AvisPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Avis</h1>
-        <p className="t-lead">Les avis viennent tous de clientes qui ont acheté la pièce. Relisez-les, puis publiez-les ou refusez-les. Vous pouvez y répondre en quelques mots.</p>
+        <p className="t-lead">Relisez, publiez ou refusez. Les avis sans souci sont publiés seuls, sauf si vous l’avez coupé dans les Réglages.</p>
       </header>
       <section className="panel" aria-labelledby="pending-title">
         <h2 id="pending-title" className="t-h3">À relire ({pending.length})</h2>

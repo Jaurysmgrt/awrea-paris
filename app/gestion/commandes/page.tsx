@@ -49,7 +49,7 @@ export default async function CommandesPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Commandes</h1>
-        <p className="t-lead">Chaque pièce est créée sur demande. Faites avancer une commande d’une étape en un geste, la cliente reçoit aussitôt l’e-mail de l’étape. Les commandes qui dépassent le délai annoncé sont signalées en tête.</p>
+        <p className="t-lead">Un geste fait avancer une commande, et la cliente reçoit l’e-mail de l’étape.</p>
         <ActionButton endpoint={atelierApi("/agents/commandes-confection")} label="Lancer une vérification" busyLabel="Vérification…" />
       </header>
 
