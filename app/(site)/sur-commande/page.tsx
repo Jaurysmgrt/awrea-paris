@@ -44,7 +44,7 @@ export default async function SurCommandePage() {
               {t.etapes.titre}
             </h2>
           </header>
-          <Frise etapes={t.etapes.frise} />
+          <Frise etapes={t.etapes.frise} officiel={t.etapes.officiel} />
         </div>
       </Section>
 

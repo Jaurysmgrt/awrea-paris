@@ -9,7 +9,8 @@ import s from "./frise.module.css";
  * alternativement au-dessus et au-dessous, chacune avec sa photographie en noir et blanc. Sur
  * tablette et téléphone, la frise devient une chronologie verticale, la ligne sur le côté.
  * Apparitions douces au défilement, sur cette page seulement (FriseApparition) ; rien ne bouge en
- * animations apaisées. Textes : content/site/fr/sur-commande.json (etapes.frise).
+ * animations apaisées. Textes : content/site/fr/sur-commande.json (etapes.frise). Les textes des étapes
+ * sont ceux de la créatrice, mot pour mot : marqués data-officiel, seule la typographie y est contrôlée.
  */
 export interface EtapeFrise {
   numero: string;
@@ -19,13 +20,13 @@ export interface EtapeFrise {
   image: Image;
 }
 
-export function Frise({ etapes, id = "frise-etapes", className }: { etapes: EtapeFrise[]; id?: string; className?: string }) {
+export function Frise({ etapes, officiel, id = "frise-etapes", className }: { etapes: EtapeFrise[]; officiel?: boolean; id?: string; className?: string }) {
   return (
     <>
       <ol id={id} className={`${s.frise} ${className ?? ""}`}>
         {etapes.map((e, i) => (
           <li key={e.numero} className={s.etape} data-cote={i % 2 ? "bas" : "haut"}>
-            <div className={s.texte}>
+            <div className={s.texte} data-officiel={officiel ? "" : undefined}>
               <p className={`t-label ${s.numero}`}>
                 <span aria-hidden="true">{e.numero}</span> {e.nom}
               </p>
