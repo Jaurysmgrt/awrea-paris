@@ -1,0 +1,57 @@
+{
+  "nom": "Rappel d’un retour à déposer",
+  "quand": "Envoyé par le rôle Retours une semaine après une demande de retour, si le colis n’est pas encore arrivé à l’atelier : une seule fois par retour.",
+  "famille": "service",
+  "sujet": "Votre retour {retour}",
+  "preheader": "Votre colis n’est pas encore arrivé à l’atelier.",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la cliente",
+      "exemple": "Camille"
+    },
+    "retour": {
+      "description": "Le numéro du retour",
+      "exemple": "R-1042-1"
+    },
+    "commande": {
+      "description": "Le numéro de la commande",
+      "exemple": "AW-1042"
+    },
+    "suivi": {
+      "description": "Le lien du suivi de la commande, où se trouve l’étiquette",
+      "exemple": "https://www.awreaparis.com/suivi/AW-1042"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-relret01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "type": "titre",
+      "titre": "Votre retour",
+      "id": "b-relret02"
+    },
+    {
+      "type": "texte",
+      "texte": "Bonjour {prenom},\n\nVous nous avez demandé un retour pour votre commande {commande}, et votre colis n’est pas encore arrivé à l’atelier.",
+      "id": "b-relret03"
+    },
+    {
+      "type": "texte",
+      "texte": "L’étiquette de retour vous attend dans le suivi de votre commande : {suivi}\n\nSi vous avez changé d’avis ou si quelque chose vous gêne, répondez simplement à ce message.",
+      "id": "b-relret04"
+    },
+    {
+      "type": "signature",
+      "texte": "Avec toute notre attention,\nL’atelier Awrea Paris",
+      "id": "b-relret05"
+    },
+    {
+      "id": "b-relret06",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

@@ -10,12 +10,11 @@ type Draft = { id: string; date: string; status: "draft" | "published" | "archiv
 export default async function ContenusPage() {
   const drafts = (await kv.list<Draft>("content:drafts", 200)).filter((d) => d.status !== "archived");
   const posts = drafts.filter((d) => d.kind === "instagram");
-  const letters = drafts.filter((d) => d.kind === "newsletter");
   return (
     <div className="admin-page stack-l">
       <header className="admin-page__head">
-        <h1 className="t-h1">Contenus</h1>
-        <p className="t-lead">L’agent Contenu prépare chaque semaine trois posts Instagram et une lettre. L’envoi de la lettre à toute la liste vous est proposé dans « À valider ».</p>
+        <h1 className="t-h1">Instagram</h1>
+        <p className="t-lead">Les posts préparés chaque semaine par l’agent Contenu. Ses idées de lettre sont dans E-mails › La lettre.</p>
         <ActionButton endpoint={atelierApi("/agents/contenu")} label="Préparer de nouveaux contenus" busyLabel="L’agent écrit…" />
       </header>
       <section className="panel" aria-labelledby="ig-title">
@@ -47,27 +46,6 @@ export default async function ContenusPage() {
           </ul>
         ) : (
           <p className="t-note">Aucun post préparé.</p>
-        )}
-      </section>
-      <section className="panel" aria-labelledby="nl-title">
-        <h2 id="nl-title" className="t-h3">Lettres</h2>
-        {letters.length ? (
-          <div className="stack-l">
-            {letters.map((l) => (
-              <article key={l.id} className="letter-draft stack">
-                <p className="t-label t-soft"><When iso={l.date} /></p>
-                <h3 className="t-h4">{l.subject ?? l.title}</h3>
-                {l.preheader ? <p className="t-note">{l.preheader}</p> : null}
-                <div className="prose">{l.body.split(/\n{2,}/).map((t, i) => <p key={i}>{t}</p>)}</div>
-                <div className="proposal__actions">
-                  <CopyButton text={l.body} label="Copier le texte" />
-                  <ActionButton endpoint={atelierApi(`/contenus/${l.id}`)} body={{ status: "archived" }} label="Archiver" variant="quiet" />
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <p className="t-note">Aucune lettre préparée.</p>
         )}
       </section>
     </div>

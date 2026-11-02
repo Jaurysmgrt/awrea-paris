@@ -117,17 +117,17 @@ Le menu de gauche est rangé comme une journée de la Maison (sur téléphone, i
 | **Messages** | Les messages des clientes, avec une réponse préparée |
 | **Fichier clientes** | Les comptes des clientes |
 | **Retours** | Les retours et les échanges de taille |
-| **Avis** | Les avis des clientes à publier ou non |
+| **Avis** | Les avis qui portent une photo ou signalent quelque chose ; les autres sont publiés seuls |
 | *Pièces* : **Catalogue** | Prix, délai de fabrication, « provisoire » et « Nouveau » de chaque pièce ; une nouvelle pièce |
 | **Avant-premières** | Annoncer une collection avant son dévoilement |
 | **Certificats** | Les certificats d’authenticité et leurs numéros de création |
 | *Le site* : **Pages** | Toutes les pages du site, pour les modifier |
 | **Photos** | Toutes les photos du site, avec la page où chacune paraît, et les photos provisoires à remplacer |
-| **E-mails** | Tous les e-mails envoyés aux clientes, pour les modifier |
+| **E-mails** | La lettre à écrire et envoyer, les inscrites, les e-mails partis, les e-mails automatiques |
 | *Gestion* : **À valider** | Accepter ou refuser ce que les agents proposent (argent, gestes définitifs) |
 | **Factures** | Les factures, les avoirs et l’export du mois |
-| **Réglages** | Les services branchés, ceux qui manquent, le lien privé du site, les connexions à l’Atelier |
-| *Coulisses* (replié) | Équipe (les agents et leur dernier passage, la maintenance de nuit), Journal des actions, Rapports, Référencement, Contenus |
+| **Réglages** | Ce que les agents font seuls, les délais, les services branchés, le lien privé du site, la sécurité |
+| *Coulisses* (replié) | Équipe (les agents et leur dernier passage, la maintenance de nuit), Journal des actions, Rapports, Référencement, Instagram |
 
 ![L’accueil « Aujourd’hui » et son menu](docs/guide/03-vue-d-ensemble.png)
 
@@ -485,13 +485,24 @@ reste le même.
 
 ![Le formulaire d’une avant-première](docs/guide/11-avant-premieres.png)
 
-## 12. Les e-mails et leur aperçu
+## 12. Les e-mails et la lettre
 
-Tous les e-mails envoyés à vos clientes se modifient comme une page : confirmation de commande,
-étapes de la commande, rendez-vous, lettres.
+Atelier › **E-mails** a quatre onglets.
 
-1. Atelier › **E-mails**. Chaque e-mail s’y montre tel qu’il arrive dans la boîte de vos clientes.
-   Ils sont rangés en deux familles : **Service** (les commandes, les rendez-vous) et **Lettres**.
+- **La lettre** : la lettre de la Maison telle qu’elle arrivera. **Écrire la lettre** ouvre son
+  éditeur (titre, texte, photo, bouton), comme pour une page ; publiez-la quand elle est prête.
+  **M’envoyer un essai** vous l’envoie d’abord. **Envoyer à … inscrites** la fait partir à toutes,
+  avec un lien de désinscription. Une lettre encore entre crochets, ou déjà partie, ne part pas.
+  Plus bas : les lettres déjà parties, et les idées de lettre de l’agent Contenu, à copier.
+- **Inscrites** : qui reçoit la lettre, depuis quand, et **Télécharger le tableur**.
+- **Envoyés** : les derniers e-mails partis du site ; touchez une ligne pour lire le texte.
+- **Automatiques** : les e-mails qui partent seuls (commande, rendez-vous, retard, retour…), à
+  modifier comme une page.
+
+Pour modifier un e-mail automatique :
+
+1. Atelier › **E-mails** › **Automatiques**. Chaque e-mail s’y montre tel qu’il arrive dans la boîte
+   de vos clientes, rangé par famille : **Commandes**, **Service**, **Après une inscription**.
 2. **Modifier l’e-mail** : l’**Objet**, la **Ligne d’aperçu** (la phrase qui s’affiche sous l’objet
    dans la boîte de réception), puis les blocs : en-tête, photographie, texte, pièce, bouton,
    signature, pied de page. Glissez un bloc pour le déplacer, ou utilisez **Monter le bloc** et
@@ -545,8 +556,15 @@ Ces e-mails se modifient dans Atelier › **E-mails**.
 ## 14. Les validations demandées par les agents
 
 Des agents s’occupent chaque jour de la gestion courante : messages, commandes en confection,
-retours, comptabilité, rendez-vous, sauvegarde… Ils préviennent et préparent. Tout ce qui touche à
-l’argent ou ne se défait pas vous est toujours demandé.
+retours, comptabilité, rendez-vous, sauvegarde… Tout ce qui touche à l’argent ou ne se défait pas
+vous est toujours demandé.
+
+**Ce qu’ils font seuls** (Atelier › **Réglages**, en haut) : prévenir une cliente d’un retard de
+confection, corriger la typographie du site et la description d’une photo, publier un avis sans
+souci, envoyer les relances et le mot de bienvenue du Cercle. Chacun a sa règle, écrite à côté, et
+un interrupteur : **Seul** ou **Avec vous**. Sur « Avec vous », l’agent vous propose chaque geste
+dans **À valider** au lieu de le faire. Une cliente ne reçoit jamais plus d’un e-mail d’agent par
+semaine ; une correction du site se défait dans l’historique de la page.
 
 1. Atelier › **À valider**. **En attente** liste les propositions : un changement de prix, un
    remboursement, une annulation de commande, la suppression d’une pièce, une lettre à toute la

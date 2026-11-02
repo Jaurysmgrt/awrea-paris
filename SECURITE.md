@@ -239,10 +239,22 @@ d'autonomie (`lib/agents/policy.ts`).
 | Assistante (clientes) | Catalogue, guide des tailles, livraison ; une commande seulement si l'e-mail et le numéro correspondent | Répondre ; transmettre une demande à l'atelier |
 | Catalogue | Photos et notes de la créatrice | Publier ou mettre à jour une fiche |
 | Service client | Le message reçu, la commande citée (si l'e-mail correspond), le catalogue | Répondre aux questions courantes ; brouillon et escalade ; **proposer** un remboursement |
-| Commandes et stock | Commandes et stocks | Mettre à jour un stock, prévenir la liste d'attente, signaler ; **proposer** une annulation |
+| Commandes et confection | Commandes et délais de confection | Signaler ; prévenir la cliente d'un retard (e-mail de la Maison, à l'adresse de la commande) ; **proposer** une annulation |
 | SEO et visibilité IA | Catalogue et pages publiques | Textes SEO, articles du Journal, llms.txt |
 | Contenu | Catalogue et collection | Brouillons de posts et de lettres ; **proposer** l'envoi à toute la liste |
 | Rapport | Chiffres agrégés (ventes, sources, audience) | Envoyer le rapport à la créatrice |
+
+**Actions faites seules dans les limites choisies par la créatrice (02/11)** (`lib/agents/autonomie.ts`) :
+prévenir d'un retard, publier un avis vérifié sans souci, corriger la typographie d'une page en ligne,
+relances et mot d'accueil. Ces actions ne prennent que des identifiants (commande, avis, page, retour,
+demande, fiche cliente) : aucun texte ni aucune adresse ne viennent d'un agent. L'e-mail est un document
+de la Maison, l'adresse est lue côté serveur ; un avis est revérifié au moment de le publier ; une page
+n'est jamais corrigée si elle a un brouillon ni dans un bloc officiel. Une même cliente reçoit au plus un
+e-mail d'agent par semaine. Chaque autonomie se coupe dans l'Atelier › Réglages (route
+`/api/gestion/autonomie`, compte de l'Atelier, Zod) : coupée, l'action redevient une proposition, et le
+Contrôle signale toute action faite malgré tout. La lettre à toute la liste reste un geste de la
+créatrice (`lib/email/lettre.ts`) : version jamais envoyée, nombre d'inscrites confirmé, tableur des
+inscrites protégé contre les formules.
 
 **Aucun agent n'a accès aux données bancaires ni aux mots de passe** : les paiements restent chez
 Shopify (une commande ne contient que le libellé du moyen de paiement) ; les clientes n'ont pas de

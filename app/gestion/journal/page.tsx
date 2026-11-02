@@ -11,7 +11,7 @@ export default async function JournalActionsPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Journal des actions</h1>
-        <p className="t-lead">Toutes les actions des agents, autonomes ou proposées, et vos décisions. Rien n’est fait sans laisser de trace.</p>
+        <p className="t-lead">Tout ce que les agents ont fait, et vos décisions.</p>
       </header>
       <LogFilter items={items} names={names} />
     </div>

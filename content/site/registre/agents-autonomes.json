@@ -1,0 +1,18 @@
+{
+  "email-retard-confection": {
+    "label": "Retard de confection",
+    "kind": "email"
+  },
+  "email-relance-retour": {
+    "label": "Rappel d’un retour à déposer",
+    "kind": "email"
+  },
+  "email-accuse-sur-mesure": {
+    "label": "Demande de sur mesure reçue",
+    "kind": "email"
+  },
+  "email-bienvenue-cercle": {
+    "label": "Bienvenue dans le Cercle",
+    "kind": "email"
+  }
+}

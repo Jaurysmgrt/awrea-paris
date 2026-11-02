@@ -2,9 +2,15 @@
  * Rôles de la relation avec les clientes : données personnelles, Cercle, sur mesure, presse et
  * influence. Ils lisent la boîte des messages et la base clientes, signalent ce qui attend et
  * préparent ; ils n'effacent rien et n'envoient rien à toute une liste.
+ * Ce qu'ils font seuls (lib/agents/autonomie.ts, coupable dans les Réglages) : l'accusé d'une
+ * demande de sur mesure restée un jour sans réponse, et le mot de bienvenue du Cercle (la cliente
+ * entre alors dans le Cercle). Au plus un e-mail par cliente et par semaine.
  */
 import { listInbox, type InboxMessage } from "@/lib/inbox";
 import { listCustomerStats } from "@/lib/customers";
+import { perform } from "@/lib/agents/perform";
+import { annoncer } from "@/lib/agents/progress";
+import { envoiPermis, envoisFaits } from "@/lib/agents/autonomie";
 import type { Finding, RoleOutcome } from "./types";
 
 const DAY = 86_400_000;
@@ -30,19 +36,44 @@ export async function runRgpd(now = new Date()): Promise<RoleOutcome> {
   return { resume: findings.length ? `${findings.length} point${findings.length > 1 ? "s" : ""} sur les données personnelles.` : "Aucune demande en attente, aucune donnée à échéance.", findings };
 }
 
-export async function runCercle(): Promise<RoleOutcome> {
-  const customers = await listCustomerStats().catch(() => []);
+export async function runCercle(now = new Date()): Promise<RoleOutcome> {
+  const [customers, envois] = await Promise.all([listCustomerStats().catch(() => []), envoisFaits()]);
   const candidates = customers.filter((c) => c.segment === "vip" && !c.cercleMember);
-  const findings: Finding[] = candidates.slice(0, 10).map((c) => ({ gravite: "info", titre: `${c.firstName ?? c.email} peut entrer dans le Cercle`, detail: `${c.ordersCount} commandes.`, lien: "/clientes", cible: c.id }));
-  return { resume: candidates.length ? `${candidates.length} cliente${candidates.length > 1 ? "s" : ""} pourrai${candidates.length > 1 ? "ent" : "t"} entrer dans le Cercle.` : "Aucune nouvelle entrée possible dans le Cercle.", findings };
+  const findings: Finding[] = [];
+  let entrees = 0;
+  for (const c of candidates.slice(0, 10)) {
+    const nom = c.firstName ?? c.email;
+    if (!envoiPermis(envois, c.email, `cercle:${c.id}`, now)) {
+      findings.push({ gravite: "info", titre: `${nom} peut entrer dans le Cercle`, detail: `${c.ordersCount} commandes. Elle a reçu un e-mail de la Maison cette semaine : le mot de bienvenue attend.`, lien: "/clientes", cible: c.id });
+      continue;
+    }
+    annoncer(`Accueille ${nom} dans le Cercle.`);
+    const out = await perform("cercle", "send_relance", { kind: "cercle", id: c.id }, { summary: `Bienvenue dans le Cercle à ${nom}`, rationale: `Cliente fidèle : ${c.ordersCount} commandes.` });
+    if (out.status === "done") entrees++;
+    else findings.push({ gravite: out.status === "failed" ? "attention" : "info", titre: `${nom} peut entrer dans le Cercle`, detail: out.message, lien: out.status === "failed" ? "/journal" : "/validations", cible: c.id });
+  }
+  const resume = [entrees ? `${entrees} cliente${entrees > 1 ? "s" : ""} accueillie${entrees > 1 ? "s" : ""} dans le Cercle.` : "", findings.length ? `${findings.length} entrée${findings.length > 1 ? "s" : ""} en attente.` : ""].filter(Boolean).join(" ");
+  return { resume: resume || "Aucune nouvelle entrée possible dans le Cercle.", findings };
 }
 
 export async function runSurMesure(now = new Date()): Promise<RoleOutcome> {
-  const inbox = await listInbox(500);
+  const [inbox, envois] = await Promise.all([listInbox(500), envoisFaits()]);
   const asks = inbox.filter((m) => m.appointment?.type === "sur-mesure" || about(BESPOKE)(m));
   const waiting = asks.filter(open);
-  const findings: Finding[] = waiting.map((m) => ({ gravite: age(m.date, now) >= 2 ? "attention" : "info", titre: `Demande de sur mesure de ${m.name}`, detail: `Reçue il y a ${age(m.date, now)} jour${age(m.date, now) > 1 ? "s" : ""}.`, lien: "/messages", cible: m.id }));
-  return { resume: waiting.length ? `${waiting.length} demande${waiting.length > 1 ? "s" : ""} de sur mesure en attente.` : "Aucune demande de sur mesure en attente.", findings };
+  const findings: Finding[] = [];
+  let accuses = 0;
+  for (const m of waiting) {
+    const d = age(m.date, now);
+    // une demande restée un jour sans réponse : la cliente reçoit l'accusé, une seule fois
+    if (m.status === "new" && d >= 1 && !envois[`sujet:sur-mesure:${m.id}`] && envoiPermis(envois, m.email, `sur-mesure:${m.id}`, now)) {
+      annoncer(`Répond à ${m.name} que sa demande est arrivée.`);
+      const out = await perform("sur-mesure", "send_relance", { kind: "sur-mesure", id: m.id }, { summary: `Accusé de la demande de sur mesure de ${m.name}`, rationale: `Demande reçue il y a ${d} jour${d > 1 ? "s" : ""}, sans réponse.` });
+      if (out.status === "done") accuses++;
+    }
+    findings.push({ gravite: d >= 2 ? "attention" : "info", titre: `Demande de sur mesure de ${m.name}`, detail: `Reçue il y a ${d} jour${d > 1 ? "s" : ""}.${envois[`sujet:sur-mesure:${m.id}`] || accuses ? " La cliente sait que sa demande est arrivée." : ""}`, lien: "/messages", cible: m.id });
+  }
+  const faits = accuses ? ` ${accuses} accusé${accuses > 1 ? "s" : ""} envoyé${accuses > 1 ? "s" : ""}.` : "";
+  return { resume: waiting.length ? `${waiting.length} demande${waiting.length > 1 ? "s" : ""} de sur mesure en attente.${faits}` : "Aucune demande de sur mesure en attente.", findings };
 }
 
 export async function runPresse(now = new Date()): Promise<RoleOutcome> {

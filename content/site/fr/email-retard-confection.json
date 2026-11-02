@@ -1,0 +1,53 @@
+{
+  "nom": "Retard de confection",
+  "quand": "Envoyé par l’agent Commandes et confection quand la confection d’une commande prend du retard : un seul message par commande et par retard.",
+  "famille": "service",
+  "sujet": "Votre commande {commande}",
+  "preheader": "Sa confection demande un peu plus de temps.",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la cliente",
+      "exemple": "Camille"
+    },
+    "commande": {
+      "description": "Le numéro de la commande",
+      "exemple": "AW-1042"
+    },
+    "suivi": {
+      "description": "Le lien du suivi de la commande (sans compte)",
+      "exemple": "https://www.awreaparis.com/suivi/AW-1042"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-retard01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "type": "titre",
+      "titre": "Un peu plus de temps",
+      "id": "b-retard02"
+    },
+    {
+      "type": "texte",
+      "texte": "Bonjour {prenom},\n\nVotre commande {commande} est entre les mains de nos artisans. Sa confection demande un peu plus de temps que prévu, et nous préférons vous le dire dès maintenant.",
+      "id": "b-retard03"
+    },
+    {
+      "type": "texte",
+      "texte": "Nous vous écrirons dès que votre pièce sera prête, avec la date d’expédition. Si vous avez une question, répondez simplement à ce message.\n\nVotre commande se suit ici : {suivi}",
+      "id": "b-retard04"
+    },
+    {
+      "type": "signature",
+      "texte": "Avec toute notre attention,\nL’atelier Awrea Paris",
+      "id": "b-retard05"
+    },
+    {
+      "id": "b-retard06",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

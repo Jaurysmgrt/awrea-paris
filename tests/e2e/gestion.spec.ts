@@ -153,6 +153,8 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
     await login(page);
     await page.goto(`${ATELIER}/reglages`);
     await expect(page.getByRole("heading", { name: "Sécurité" })).toBeVisible();
+    // le journal est replié : il s'ouvre d'un clic
+    await page.getByText("Journal des connexions", { exact: true }).click();
     await expect(page.getByRole("rowheader", { name: /Connexion réussie/ }).first()).toBeVisible();
   });
 

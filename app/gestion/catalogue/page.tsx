@@ -19,7 +19,7 @@ export default async function CataloguePage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Catalogue</h1>
-        <p className="t-lead">Chaque pièce est créée sur demande, sans stock. Réglez ici son prix et son délai de fabrication ; pour une nouvelle pièce, déposez ses photos et quelques notes, l’agent Catalogue rédige la fiche.</p>
+        <p className="t-lead">Prix et délais de chaque pièce. Pour une nouvelle pièce : des photos et quelques notes.</p>
       </header>
 
       <section className="panel" aria-labelledby="list-title">

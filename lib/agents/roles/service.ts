@@ -2,11 +2,16 @@
  * Rôles du service : retours et échanges, logistique, avis clientes. Ils lisent les commandes, les
  * retours et les avis, signalent ce qui attend, et ne décident jamais d'un remboursement : celui-ci
  * reste une proposition validée par la créatrice (lib/agents/policy.ts).
+ * Ce qu'ils font seuls (lib/agents/autonomie.ts, coupable dans les Réglages) : le rappel d'un retour
+ * dont le colis n'est pas arrivé après une semaine, et la publication des avis vérifiés sans souci.
  */
 import { listReturns } from "@/lib/returns";
 import { getOrders } from "@/lib/commerce/orders";
 import { withStages } from "@/lib/store/order-stages";
 import { listReviews } from "@/lib/reviews";
+import { perform } from "@/lib/agents/perform";
+import { annoncer } from "@/lib/agents/progress";
+import { avisPublicable, envoiPermis, envoisFaits } from "@/lib/agents/autonomie";
 import type { Finding, RoleOutcome } from "./types";
 
 const DAY = 86_400_000;
@@ -25,15 +30,28 @@ function workingDays(from: string, now: Date): number {
 }
 
 export async function runRetours(now = new Date()): Promise<RoleOutcome> {
-  const all = await listReturns();
+  const [all, envois] = await Promise.all([listReturns(), envoisFaits()]);
   const findings: Finding[] = [];
+  let relances = 0;
   for (const r of all) {
-    if (r.status === "demande" && days(r.createdAt, now) >= 7) findings.push({ gravite: "attention", titre: `Retour ${r.id} demandé il y a ${days(r.createdAt, now)} jours, colis pas encore reçu`, detail: `${r.name}, commande ${r.orderNumber}.`, lien: "/retours", cible: r.id });
+    if (r.status === "demande" && days(r.createdAt, now) >= 7) {
+      // une semaine sans colis : le rappel part seul, une fois par retour (au plus un e-mail par semaine à la cliente)
+      const deja = Boolean(envois[`sujet:retour:${r.id}`]);
+      if (!deja && envoiPermis(envois, r.email, `retour:${r.id}`, now)) {
+        annoncer(`Rappelle à ${r.name} son retour ${r.id}.`);
+        const out = await perform("retours", "send_relance", { kind: "retour", id: r.id }, { summary: `Rappel du retour ${r.id} à ${r.name}`, rationale: `Retour demandé il y a ${days(r.createdAt, now)} jours, colis pas encore reçu.` });
+        if (out.status === "done") relances++;
+        else if (out.status === "failed") findings.push({ gravite: "attention", titre: `Le rappel du retour ${r.id} n’est pas parti`, detail: out.message, lien: "/journal", cible: `${r.id}:rappel` });
+      } else if (deja && days(r.createdAt, now) >= 14) {
+        findings.push({ gravite: "attention", titre: `Retour ${r.id} demandé il y a ${days(r.createdAt, now)} jours, toujours pas reçu malgré le rappel`, detail: `${r.name}, commande ${r.orderNumber}.`, lien: "/retours", cible: r.id });
+      }
+    }
     if (r.labelPending) findings.push({ gravite: "urgent", titre: `Retour ${r.id} sans étiquette`, detail: "Déposez l’étiquette dans la fiche du retour pour que la cliente puisse renvoyer sa pièce.", lien: "/retours", cible: `${r.id}:etiquette` });
     if (r.status === "recu" && days(r.updatedAt, now) >= 2) findings.push({ gravite: "urgent", titre: `Retour ${r.id} reçu depuis ${days(r.updatedAt, now)} jours`, detail: r.items.some((i) => i.wish === "echange") ? "Un échange attend son envoi." : "Le remboursement attend votre accord dans « À valider » (14 jours au plus après réception).", lien: r.items.some((i) => i.wish === "echange") ? "/retours" : "/validations", cible: `${r.id}:recu` });
   }
   const open = all.filter((r) => r.status === "demande" || r.status === "recu").length;
-  return { resume: open ? `${plural(open, "retour en cours", "retours en cours")}, ${plural(findings.length, "point à regarder", "points à regarder")}.` : "Aucun retour en cours.", findings };
+  const rappels = relances ? `, ${plural(relances, "rappel envoyé", "rappels envoyés")}` : "";
+  return { resume: open ? `${plural(open, "retour en cours", "retours en cours")}${rappels}, ${plural(findings.length, "point à regarder", "points à regarder")}.` : "Aucun retour en cours.", findings };
 }
 
 /**
@@ -59,12 +77,20 @@ export async function runLogistique(now = new Date()): Promise<RoleOutcome> {
 }
 
 export async function runAvis(now = new Date()): Promise<RoleOutcome> {
-  const pending = await listReviews("pending");
   const findings: Finding[] = [];
+  // avis vérifiés sans photo ni souci : publiés seuls ; les autres restent à la créatrice
+  let publies = 0;
+  for (const r of (await listReviews("pending")).filter(avisPublicable)) {
+    annoncer(`Publie l’avis de ${r.authorName}.`);
+    const out = await perform("avis", "publish_review", { reviewId: r.id }, { summary: `Avis de ${r.authorName} sur ${r.productHandle}`, rationale: "Avis d’achat vérifié, sans photo, sans lien ni coordonnées, qui ne signale aucun souci." });
+    if (out.status === "done") publies++;
+  }
+  const pending = await listReviews("pending");
   for (const r of pending) {
     const age = days(r.createdAt, now);
     const fit = r.fit && r.fit !== "juste";
-    if (age >= 3 || fit) findings.push({ gravite: age >= 7 ? "attention" : "info", titre: `Avis sur ${r.productHandle} en attente depuis ${age} jour${age > 1 ? "s" : ""}`, detail: fit ? "La cliente signale une taille qui ne tombe pas juste : une réponse de votre main rassure les suivantes." : undefined, lien: "/avis", cible: r.id });
+    if (age >= 3 || fit) findings.push({ gravite: age >= 7 ? "attention" : "info", titre: `Avis sur ${r.productHandle} en attente depuis ${age} jour${age > 1 ? "s" : ""}`, detail: fit ? "La cliente signale une taille qui ne tombe pas juste : une réponse de votre main rassure les suivantes." : "Il porte une photo ou signale quelque chose : il vous revient.", lien: "/avis", cible: r.id });
   }
-  return { resume: pending.length ? `${plural(pending.length, "avis attend", "avis attendent")} votre lecture.` : "Aucun avis en attente.", findings };
+  const faits = publies ? `${plural(publies, "avis publié", "avis publiés")}. ` : "";
+  return { resume: `${faits}${pending.length ? `${plural(pending.length, "avis attend", "avis attendent")} votre lecture.` : "Aucun avis en attente."}`, findings };
 }

@@ -36,6 +36,8 @@ test.describe("Éditeur visuel", () => {
     await acceptCookies(page);
 
     await page.goto(`${ATELIER}/pages`);
+    // « Créer une page » est replié en bas de la liste
+    await page.getByText("Créer une page", { exact: true }).click();
     await page.getByLabel("Page d’événement").check();
     await page.getByLabel("Titre").fill("Essai du pop-up");
     await page.getByLabel("Adresse").fill(slug);

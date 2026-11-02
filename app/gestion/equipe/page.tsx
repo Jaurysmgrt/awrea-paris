@@ -24,7 +24,7 @@ export default async function EquipePage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Équipe</h1>
-        <p className="t-lead">Les agents s’occupent du quotidien et vous proposent ce qui touche à l’argent ou ne se défait pas. Le Contrôle relit chaque passage avant qu’il n’arrive ici.</p>
+        <p className="t-lead">Ils font le quotidien seuls, dans les règles des Réglages. Ce qui touche à l’argent vous attend dans « À valider ».</p>
       </header>
 
       <section className="panel" aria-labelledby="agents-title">
@@ -39,8 +39,11 @@ export default async function EquipePage() {
               <li key={a.id} className="team__agent">
                 <h3 className="t-h4">{a.name}</h3>
                 <p className="t-body">{a.mission}</p>
-                <p className="t-note">{a.autonomy}</p>
-                <p className="t-label t-soft">{a.schedule}</p>
+                <details className="team__regles">
+                  <summary className="t-label">Ses règles</summary>
+                  <p className="t-note t-left">{a.autonomy}</p>
+                  <p className="t-note t-left">{a.schedule}</p>
+                </details>
                 <p className="t-note team__last">
                   {last ? (
                     <>
@@ -117,8 +120,11 @@ export default async function EquipePage() {
             <li key={r.id} className="team__agent panel stack-s">
               <h3 className="t-h4">{r.name}</h3>
               <p className="t-body">{r.mission}</p>
-              <p className="t-note">{r.autonomy}</p>
-              <p className="t-label t-soft">{r.run ? r.schedule : "En préparation"}</p>
+              <details className="team__regles">
+                <summary className="t-label">Ses règles</summary>
+                <p className="t-note t-left">{r.autonomy}</p>
+                <p className="t-note t-left">{r.run ? r.schedule : "En préparation"}</p>
+              </details>
               {rep ? (
                 <div className="stack-s">
                   <p className="t-note">

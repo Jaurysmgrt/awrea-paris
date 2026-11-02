@@ -5,6 +5,7 @@
  */
 import { expect, test } from "@playwright/test";
 import { adminLogin, ATELIER } from "./admin-auth";
+import { outbox } from "./helpers";
 
 const ROLES = ["gardien-editeur", "avis", "retours", "logistique", "comptabilite", "rgpd", "cercle", "drops", "sur-mesure", "rendez-vous", "production", "presse", "instagram", "publicite", "accessibilite", "performance", "sauvegarde", "design"];
 
@@ -88,8 +89,38 @@ test("Agents : Commandes et confection, bilan du catalogue, propositions à vali
   await page.goto(`${ATELIER}/equipe`);
   await expect(page.getByRole("heading", { name: "Commandes et confection", exact: true })).toBeVisible();
 
-  // prix et délais provisoires, message de retard préparé : rien ne part sans la créatrice
+  // un retard : la cliente est prévenue par l'agent lui-même (autonomie allumée par défaut),
+  // avec l'e-mail « Retard de confection » de la Maison, une seule fois par commande
+  const retards = () => outbox().filter((m) => /^Votre commande AW-/.test(m.subject) && /un peu plus de temps/.test(m.text));
+  expect(retards().length).toBeGreaterThan(0);
+  const avant = retards().length;
+  expect((await page.request.post(`${ATELIER}/api/agents/commandes-confection`)).ok()).toBeTruthy();
+  expect(retards().length).toBe(avant);
+
+  // prix et délais provisoires : rien ne change sans la créatrice ; plus de message de retard à valider
   await page.goto(`${ATELIER}/validations`);
   await expect(page.getByRole("heading", { name: /confirmer le (prix|délai)/ }).first()).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Prévenir .* d’un retard de confection/ }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Prévenir .* d’un retard de confection/ })).toHaveCount(0);
+});
+
+test("Réglages : ce que les agents font seuls se coupe et se rallume", async ({ page }) => {
+  await adminLogin(page);
+  await page.goto(`${ATELIER}/reglages`);
+  const section = page.locator("section", { has: page.getByRole("heading", { name: "Ce que les agents font seuls" }) });
+  for (const titre of ["Prévenir une cliente d’un retard", "Corriger le site", "Publier les avis vérifiés", "Relances et mots d’accueil"]) await expect(section.getByRole("switch", { name: titre })).toHaveAttribute("aria-checked", "true");
+  // l'argent reste sa décision, et c'est écrit
+  await expect(section).toContainText(/Toujours votre décision.*rembourser une commande/);
+  const avis = section.getByRole("switch", { name: "Publier les avis vérifiés" });
+  await avis.click();
+  await expect(avis).toHaveAttribute("aria-checked", "false");
+  await page.reload();
+  await expect(section.getByRole("switch", { name: "Publier les avis vérifiés" })).toHaveAttribute("aria-checked", "false");
+  // une autonomie inconnue ou une valeur invalide : refusé
+  expect((await page.request.patch(`${ATELIER}/api/autonomie`, { data: { autonomie: "remboursements", actif: true } })).status()).toBe(400);
+  await section.getByRole("switch", { name: "Publier les avis vérifiés" }).click();
+  await expect(section.getByRole("switch", { name: "Publier les avis vérifiés" })).toHaveAttribute("aria-checked", "true");
+  // hors de l'Atelier : refusé
+  const visiteuse = await page.context().browser()!.newContext();
+  expect((await visiteuse.request.patch(`${page.url().split(ATELIER)[0]}${ATELIER}/api/autonomie`, { data: { autonomie: "avis", actif: false } })).status()).not.toBe(200);
+  await visiteuse.close();
 });
