@@ -84,11 +84,25 @@ passent en blanc cassé, texte noir, puis la page redevient noire.
 
 ![L’écran de la double authentification avec son code carré](docs/guide/01-double-authentification.png)
 
-### Les fois suivantes
+### Les fois suivantes : Face ID ou l’empreinte
 
-1. Ouvrez l’adresse secrète.
-2. **Adresse e-mail**, **Mot de passe**, puis **Continuer**.
-3. Le code à six chiffres de votre application (ou un code de secours), puis **Entrer**.
+Après le code, l’Atelier vous propose **Ajouter Face ID** sur l’appareil où vous êtes (téléphone,
+Mac, ordinateur avec empreinte). Acceptez : les fois suivantes, il suffit de
+
+1. ouvrir l’adresse secrète ;
+2. toucher **Entrer avec Face ID ou l’empreinte**, puis regarder votre téléphone ou poser le doigt.
+
+C’est tout : ni mot de passe ni code. C’est aussi la façon la plus sûre d’entrer, car la clé ne
+quitte jamais votre appareil et ne fonctionne que sur l’adresse de l’Atelier.
+
+Ajoutez Face ID sur chaque appareil (Atelier › **Réglages** › **Face ID** › **Ajouter Face ID sur
+cet appareil**). Au même endroit, **Retirer** un appareil perdu, vendu ou changé. Un e-mail vous
+prévient à chaque ajout.
+
+En secours, ou sur un appareil sans Face ID :
+
+1. **Adresse e-mail**, **Mot de passe**, puis **Continuer**.
+2. Le code à six chiffres de votre application (ou un code de secours), puis **Entrer**.
 
 ![L’écran de connexion](docs/guide/02-connexion.png)
 

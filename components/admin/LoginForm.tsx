@@ -1,14 +1,34 @@
 "use client";
 /**
- * Connexion à l'Atelier : adresse e-mail et mot de passe, puis code de l'application
- * d'authentification. Première connexion d'un compte : mot de passe d'installation, choix du mot
- * de passe personnel, QR code à scanner, puis codes de secours.
+ * Connexion à l'Atelier : Face ID ou l'empreinte d'un appareil déjà ajouté (un geste), ou bien
+ * adresse e-mail et mot de passe, puis code de l'application d'authentification. Après une entrée
+ * par le code, l'Atelier propose d'ajouter Face ID sur cet appareil. Première connexion d'un
+ * compte : mot de passe d'installation, choix du mot de passe personnel, QR code à scanner, puis
+ * codes de secours.
  */
 import { useState } from "react";
 import { Turnstile } from "@/components/security/Turnstile";
 import { useAtelier } from "./AtelierContext";
+import { ajouterCetAppareil, entrerAvecFaceId, useFaceIdPossible } from "./FaceId";
 
-type Step = "password" | "setup" | "totp" | "enroll" | "recovery";
+type Step = "password" | "setup" | "totp" | "enroll" | "recovery" | "faceid";
+
+/** « Plus tard » ou déjà fait : cet appareil ne se voit plus proposer Face ID après le code. */
+const PROPOSE = "awrea-atelier-faceid";
+const dejaPropose = () => {
+  try {
+    return localStorage.getItem(PROPOSE) === "1";
+  } catch {
+    return true;
+  }
+};
+const noterPropose = () => {
+  try {
+    localStorage.setItem(PROPOSE, "1");
+  } catch {
+    /* navigation privée : rien à retenir */
+  }
+};
 
 async function post(url: string, body: unknown) {
   const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).catch(() => null);
@@ -31,6 +51,7 @@ export function LoginForm({ next }: { next: string }) {
   const [busy, setBusy] = useState(false);
   const [enroll, setEnroll] = useState<{ svg: string; secret: string } | null>(null);
   const [codes, setCodes] = useState<string[]>([]);
+  const faceIdPossible = useFaceIdPossible();
 
   const startEnroll = async () => {
     const res = await fetch(api("/login/enroll")).catch(() => null);
@@ -55,7 +76,7 @@ export function LoginForm({ next }: { next: string }) {
             </li>
           ))}
         </ul>
-        <button type="button" className="btn btn--block" onClick={() => (window.location.href = next)}>
+        <button type="button" className="btn btn--block" onClick={() => (faceIdPossible && !dejaPropose() ? setStep("faceid") : (window.location.href = next))}>
           J’ai noté mes codes, entrer
         </button>
       </div>
@@ -150,6 +171,42 @@ export function LoginForm({ next }: { next: string }) {
     );
   }
 
+  if (step === "faceid") {
+    return (
+      <div className="stack-m admin-login__form">
+        <h2 className="t-label">Entrer plus vite la prochaine fois</h2>
+        <p className="t-body t-left">Ajoutez Face ID ou l’empreinte sur cet appareil : vous entrerez d’un geste, sans mot de passe ni code.</p>
+        <ErrorLine error={error} />
+        <button
+          type="button"
+          className="btn btn--block"
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            setError("");
+            const erreur = await ajouterCetAppareil(api);
+            setBusy(false);
+            if (erreur) return setError(erreur);
+            noterPropose();
+            window.location.href = next;
+          }}
+        >
+          {busy ? "Un instant…" : "Ajouter Face ID"}
+        </button>
+        <button
+          type="button"
+          className="btn btn--link"
+          onClick={() => {
+            noterPropose();
+            window.location.href = next;
+          }}
+        >
+          Plus tard
+        </button>
+      </div>
+    );
+  }
+
   if (step === "totp") {
     return (
       <form
@@ -160,7 +217,8 @@ export function LoginForm({ next }: { next: string }) {
           setError("");
           const { ok, json } = await post(api("/login/totp"), { code: new FormData(e.currentTarget).get("code") });
           setBusy(false);
-          if (ok) window.location.href = next;
+          if (ok && faceIdPossible && !dejaPropose()) setStep("faceid");
+          else if (ok) window.location.href = next;
           else {
             setError(json.error ?? "Code incorrect.");
             expired(json.error);
@@ -183,6 +241,27 @@ export function LoginForm({ next }: { next: string }) {
   }
 
   return (
+    <div className="stack-m">
+      {faceIdPossible ? (
+        <div className="stack-s admin-login__form">
+          <button
+            type="button"
+            className="btn btn--block"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              setError("");
+              const erreur = await entrerAvecFaceId(api);
+              if (!erreur) return void (window.location.href = next);
+              setBusy(false);
+              setError(erreur);
+            }}
+          >
+            Entrer avec Face ID ou l’empreinte
+          </button>
+          <p className="t-note t-center">ou avec votre adresse et votre mot de passe</p>
+        </div>
+      ) : null}
     <form
       className="stack-m admin-login__form"
       onSubmit={async (e) => {
@@ -214,9 +293,10 @@ export function LoginForm({ next }: { next: string }) {
       </div>
       <Turnstile action="atelier" />
       <ErrorLine error={error} />
-      <button type="submit" className="btn btn--block" disabled={busy}>
+      <button type="submit" className={faceIdPossible ? "btn btn--outline btn--block" : "btn btn--block"} disabled={busy}>
         {busy ? "Connexion…" : "Continuer"}
       </button>
     </form>
+    </div>
   );
 }

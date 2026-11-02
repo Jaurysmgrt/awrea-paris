@@ -26,10 +26,25 @@ export const ACCOUNT_GUARD = { limit: 5, windowSeconds: 30 * 60 };
 /** identifiant de blocage d'une adresse (jamais l'adresse en clair dans les clés) */
 export const emailKey = (email: string) => createHash("sha256").update(email.trim().toLowerCase()).digest("hex").slice(0, 24);
 
+/** Clé d'accès (Face ID, empreinte, code de l'appareil) : lib/auth/passkeys.ts. */
+export interface Passkey {
+  /** identifiant de la clé (base64url) */
+  id: string;
+  /** clé publique COSE (base64url) : la clé privée ne quitte jamais l'appareil */
+  publicKey: string;
+  counter: number;
+  transports?: string[];
+  /** appareil sur lequel elle a été créée (« Safari · iOS ») */
+  label: string;
+  createdAt: string;
+  lastUsedAt?: string;
+}
+
 export interface AtelierAccount {
   email: string;
   passwordHash?: string;
   totp?: { secret: string; createdAt: string; lastCounter: number; recovery: string[] };
+  passkeys?: Passkey[];
   createdAt: string;
   lastLoginAt?: string;
 }
