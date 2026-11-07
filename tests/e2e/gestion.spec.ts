@@ -131,6 +131,23 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
     await expect(page.getByText(/Validé par la créatrice/).first()).toBeVisible();
   });
 
+  test("une proposition ne se décide qu'une fois, même avec deux clics simultanés", async ({ page }) => {
+    await login(page);
+    // l'agent Contenu prépare une lettre à toute la liste : elle attend la créatrice
+    expect((await page.request.post(`${ATELIER}/api/agents/contenu`)).ok()).toBe(true);
+    await page.goto(`${ATELIER}/validations`);
+    const id = await page.locator(".proposal[data-status=pending]").first().getAttribute("data-id");
+    expect(id).toBeTruthy();
+    // refus, pour ne rien envoyer : deux décisions au même instant, une seule passe. Le stockage
+    // local des tests garde ses données en mémoire et ne montre pas la course ; elle n'existe qu'avec
+    // Upstash, où le verrou de decide() l'empêche (lib/agents/perform.ts)
+    const [a, b] = await Promise.all([1, 2].map(() => page.request.post(`${ATELIER}/api/proposals/${id}`, { data: { decision: "reject" } })));
+    expect([a.status(), b.status()].sort()).toEqual([200, 400]);
+    const refus = (await page.request.post(`${ATELIER}/api/proposals/${id}`, { data: { decision: "approve" } }));
+    expect(refus.status()).toBe(400);
+    expect((await refus.json()).error).toMatch(/déjà/);
+  });
+
   test("injection de prompt : un message piégé n'obtient jamais de réponse automatique", async ({ page, request }) => {
     await request.post("/api/contact", {
       data: {

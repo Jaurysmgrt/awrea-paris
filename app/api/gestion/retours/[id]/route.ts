@@ -1,5 +1,6 @@
 /** Atelier : gestes sur un retour (colis reçu, remboursement, échange, refus). */
 import { NextResponse } from "next/server";
+import { isAdmin } from "@/lib/auth/admin";
 import { z } from "zod";
 import { exchangeReturn, receiveReturn, refundReturn, refuseReturn } from "@/lib/returns-flow";
 import { formatPrice } from "@/lib/format";
@@ -12,6 +13,8 @@ const Body = z.discriminatedUnion("action", [
 ]);
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  // l'adresse secrète ne suffit pas : la session est revérifiée ici (SECURITE.md, défense en profondeur)
+  if (!(await isAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Demande illisible." }, { status: 400 });
   const id = (await params).id;

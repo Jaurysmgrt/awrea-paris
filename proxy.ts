@@ -188,13 +188,17 @@ async function isEditorSession(request: NextRequest): Promise<boolean> {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (pathname.startsWith("/api/") && !pathname.startsWith("/api/webhooks/") && !pathname.startsWith("/api/cron/") && foreignOrigin(request)) {
+  const base = atelierBase();
+  // l'API de l'Atelier vit sous son adresse secrète (réécrite ensuite vers /api/gestion) : elle a
+  // droit au même contrôle d'origine que /api/…, en plus de son cookie SameSite=Strict
+  const publicApi = pathname.startsWith("/api/") && !pathname.startsWith("/api/webhooks/") && !pathname.startsWith("/api/cron/");
+  const atelierWrite = Boolean(base && (pathname === base || pathname.startsWith(`${base}/`)));
+  if ((publicApi || atelierWrite) && foreignOrigin(request)) {
     await countRefusal("csrf");
     return NextResponse.json({ error: "Origine non autorisée" }, { status: 403 });
   }
   const nonce = cspEnabled && cspMode === "strict" && isDocument(request) ? newNonce() : null;
 
-  const base = atelierBase();
   // version anglaise : la même page, servie sous /en (l'Atelier et l'API n'en ont pas)
   const { locale, path } = splitLocale(pathname);
   const translated = locale !== DEFAULT_LOCALE;

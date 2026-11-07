@@ -69,3 +69,15 @@ test("connexion : alerte e-mail, puis « ce n’était pas moi » ferme les sess
   // le compte est remis à zéro : la connexion suivante le recrée (mot de passe d'installation)
   await adminLogin(page);
 });
+
+test("une autre origine ne peut rien écrire dans l'Atelier, même avec la session de la créatrice", async ({ page }) => {
+  await adminLogin(page);
+  const maison = new URL(page.url()).origin;
+  // proposition inexistante : sans effet, la route répond 400 si la demande l'atteint
+  const pirate = await page.request.post(`${ATELIER}/api/proposals/inconnue`, { data: { decision: "approve" }, headers: { Origin: "https://pirate.exemple" } });
+  expect(pirate.status()).toBe(403);
+  const cadre = await page.request.post(`${ATELIER}/api/proposals/inconnue`, { data: { decision: "approve" }, headers: { Origin: "null" } });
+  expect(cadre.status()).toBe(403);
+  const chezSoi = await page.request.post(`${ATELIER}/api/proposals/inconnue`, { data: { decision: "approve" }, headers: { Origin: maison } });
+  expect(chezSoi.status()).toBe(400);
+});
