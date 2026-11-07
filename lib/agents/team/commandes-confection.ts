@@ -115,7 +115,7 @@ export async function runCommandesConfectionAgent(trigger: AgentRun["trigger"] =
         { handle: p.handle, price: Boolean(p.priceProvisional), leadTime: Boolean(p.leadTimeProvisional) },
         {
           summary: `${p.title} : confirmer ${what}`,
-          rationale: `${what.charAt(0).toUpperCase()}${what.slice(1)} ${both ? "sont encore marqués provisoires" : "est encore marqué provisoire"}. Validez si c’est juste. Pour changer une valeur, ouvrez la pièce dans l’onglet Catalogue.`,
+          rationale: `${what.charAt(0).toUpperCase()}${what.slice(1)} ${both ? "sont encore marqués provisoires" : "est encore marqué provisoire"}. Validez si c’est juste. Pour changer une valeur, ouvrez la pièce dans Produits.`,
         },
       );
     }

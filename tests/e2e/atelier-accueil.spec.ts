@@ -65,7 +65,7 @@ test("menu clair : six rubriques, sous-entrées dans leur rubrique, titres ident
   }
 
   // dans Commandes, ses sous-entrées apparaissent
-  await nav.getByRole("link", { name: "Commandes", exact: true }).click();
+  await nav.getByRole("link", { name: /^Commandes(\s|$)/ }).click();
   for (const name of [/^Retours/, /^Factures/]) await expect(nav.getByRole("link", { name })).toBeVisible();
   await nav.getByRole("link", { name: /^Retours/ }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Retours" })).toBeVisible();

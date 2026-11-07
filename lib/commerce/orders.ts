@@ -12,10 +12,22 @@ export const ORDER_STATUS_KEY = "orders:status"; // surcharges de statut (démo)
 export const ORDER_DELIVERED_KEY = "orders:delivered"; // dates de livraison (démo)
 export const ORDER_TRACKING_KEY = "orders:tracking"; // transporteur et numéro de suivi (démo)
 
+/** Shopify ne renvoie que les dernières commandes : au-delà, les périodes plus anciennes sont incomplètes. */
+export const SHOPIFY_ORDERS_LIMIT = 100;
+
 export async function getOrders(): Promise<Order[]> {
+  return (await getOrdersWithSource()).orders;
+}
+
+/**
+ * Les commandes, et d'où elles viennent : « shopify » pour les vraies, « demo » pour les exemples du
+ * mode essai, y compris quand Shopify ne répond pas. La Vue d'ensemble le dit alors à la créatrice :
+ * jamais un exemple présenté comme une vraie commande.
+ */
+export async function getOrdersWithSource(): Promise<{ orders: Order[]; source: "shopify" | "demo" }> {
   if (adminEnabled) {
     try {
-      return await shopifyOrders();
+      return { orders: await shopifyOrders(), source: "shopify" };
     } catch (e) {
       console.error("[orders] Shopify indisponible :", e);
     }
@@ -26,9 +38,10 @@ export async function getOrders(): Promise<Order[]> {
     kv.get<Record<string, string>>(ORDER_DELIVERED_KEY),
     kv.get<Record<string, { carrier: string; tracking: string }>>(ORDER_TRACKING_KEY),
   ]);
-  return [...(created ?? []), ...demoOrders]
+  const orders = [...(created ?? []), ...demoOrders]
     .map((o) => ({ ...o, status: overrides?.[o.id] ?? o.status, deliveredAt: delivered?.[o.id] ?? o.deliveredAt, shipping: { ...o.shipping, ...(tracking?.[o.id] ?? {}) } }))
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return { orders, source: "demo" };
 }
 
 export async function getOrder(numberOrId: string): Promise<Order | null> {
@@ -80,7 +93,7 @@ async function shopifyOrders(): Promise<Order[]> {
     lineItems: { nodes: { title: string; quantity: number; variantTitle: string | null; originalUnitPriceSet: { shopMoney: { amount: string } }; product: { handle: string } | null }[] };
     paymentGatewayNames: string[];
   };
-  const data = await admin<{ orders: { nodes: N[] } }>(`query { orders(first: 100, sortKey: CREATED_AT, reverse: true) { nodes {
+  const data = await admin<{ orders: { nodes: N[] } }>(`query { orders(first: ${SHOPIFY_ORDERS_LIMIT}, sortKey: CREATED_AT, reverse: true) { nodes {
     id name createdAt email displayFinancialStatus displayFulfillmentStatus paymentGatewayNames cancelledAt tags
     customer { displayName } totalPriceSet { shopMoney { amount } }
     shippingLine { title originalPriceSet { shopMoney { amount } } }

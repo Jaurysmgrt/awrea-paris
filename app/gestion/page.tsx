@@ -2,8 +2,8 @@ import Link from "@/components/ui/Link";
 import { getProposals } from "@/lib/agents/perform";
 import { confectionAlerts } from "@/lib/agents/confection";
 import { getLog } from "@/lib/agents/log";
-import { commerceMode, getAllProducts, getCollections } from "@/lib/commerce";
-import { getOrders, statusLabel } from "@/lib/commerce/orders";
+import { commerceMode, getAllProducts } from "@/lib/commerce";
+import { getOrdersWithSource, SHOPIFY_ORDERS_LIMIT, statusLabel } from "@/lib/commerce/orders";
 import { withStages } from "@/lib/store/order-stages";
 import { listInbox } from "@/lib/inbox";
 import { listReturns } from "@/lib/returns";
@@ -15,7 +15,11 @@ import { formatPrice } from "@/lib/format";
 import {
   activiteRecente,
   compte,
+  couvre,
+  de,
+  debutMoisPrecedent,
   evolution,
+  lienAction,
   latestOrders,
   monthRevenue,
   newCustomers,
@@ -48,13 +52,7 @@ const mois = (d: Date) =>
     month: "long",
     timeZone: "Europe/Paris",
   }).format(d);
-/** Lien d'un événement : « atelier:/… » (et l'ancien « /gestion/… ») mène à l'Atelier, le reste au site. */
-const lien = (href: string) =>
-  href.startsWith("atelier:")
-    ? atelierHref(href.slice(8) || "/")
-    : /^\/gestion(?:[/#]|$)/.test(href)
-      ? atelierHref(href.slice(8) || "/")
-      : href;
+const lien = (href: string) => lienAction(href, atelierHref);
 
 /** Raccourcis de « Que souhaitez-vous faire ? » : une entrée n'apparaît que le jour où sa page existe. */
 const RACCOURCIS: { href: string; label: string; site?: boolean }[] = [
@@ -76,10 +74,9 @@ const RACCOURCIS: { href: string; label: string; site?: boolean }[] = [
 export default async function GestionHome() {
   const [
     proposals,
-    orders,
+    { orders, source },
     inbox,
     products,
-    collections,
     rdv,
     returns,
     reviews,
@@ -87,14 +84,14 @@ export default async function GestionHome() {
     log,
   ] = await Promise.all([
     getProposals(),
-    getOrders().then(withStages),
+    getOrdersWithSource().then(async (r) => ({ ...r, orders: await withStages(r.orders) })),
     listInbox(500),
     getAllProducts().catch(() => []),
-    getCollections().catch(() => []),
     upcomingAppointments(),
     listReturns(),
     listReviews("pending").catch(() => []),
-    listCustomerStats().catch(() => []),
+    // base clientes injoignable : le chiffre est dit indisponible, jamais « 0 »
+    listCustomerStats().catch(() => null),
     getLog(60),
   ]);
   // composant serveur dynamique : rendu une seule fois par requête, l'heure courante est voulue
@@ -113,9 +110,13 @@ export default async function GestionHome() {
     ["new", "drafted", "escalated"].includes(m.status),
   );
   const today = parisDay(now).day;
-  const nouvelles = newCustomers(customers, now);
+  const nouvelles = customers ? newCustomers(customers, now) : null;
+  // Shopify ne renvoie que ses dernières commandes : une période qu'elles ne couvrent pas n'est pas chiffrée
+  const comparable = couvre(orders, debutMoisPrecedent(now), SHOPIFY_ORDERS_LIMIT);
+  const troisMois = couvre(orders, new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000), SHOPIFY_ORDERS_LIMIT);
   const ventes = topSold(orders, now);
   const todo = priorites({
+    blocked: orders.filter((o) => o.status === "blocked").length,
     late,
     rdvToday: rdv.filter((a) => parisDay(new Date(a.start)).day === today)
       .length,
@@ -131,9 +132,6 @@ export default async function GestionHome() {
     provisional: products
       .filter((p) => p.priceProvisional || p.leadTimeProvisional)
       .map((p) => p.title),
-    collectionsSansTexte: collections
-      .filter((c) => c.current && !c.lead?.trim())
-      .map((c) => c.title),
   });
   const activite = activiteRecente({ messages: inbox, actions: log });
   const greeting = new Intl.DateTimeFormat("fr-FR", {
@@ -155,10 +153,11 @@ export default async function GestionHome() {
             ? `${compte(todo.length, "chose vous attend", "choses vous attendent")} aujourd’hui, dans l’ordre où les faire.`
             : "Rien ne presse aujourd’hui : tout est à jour."}
         </p>
-        {commerceMode === "demo" ? (
+        {source === "demo" ? (
           <p className="t-note">
-            Boutique en mode essai : les commandes et les chiffres ci-dessous
-            sont des exemples, tant que Shopify n’est pas relié.
+            {commerceMode === "shopify"
+              ? "Shopify ne répond pas pour le moment : les commandes et les chiffres ci-dessous sont des exemples, pas vos ventes."
+              : "Boutique en mode essai : les commandes et les chiffres ci-dessous sont des exemples, tant que Shopify n’est pas relié."}
           </p>
         ) : null}
       </header>
@@ -208,13 +207,13 @@ export default async function GestionHome() {
 
       <dl className="kpis">
         <div>
-          <dt className="t-label">Ventes de {mois(now)}</dt>
+          <dt className="t-label">Ventes {de(mois(now))}</dt>
           <dd className="kpis__value">{formatPrice(revenue.amount)}</dd>
           <dd className="t-note">
             {compte(revenue.count, "commande", "commandes")}
-            {change === null
+            {change === null || !comparable
               ? ""
-              : `, ${change >= 0 ? "+" : "−"}${Math.abs(change)} % par rapport à ${mois(previousMonth)} à la même date`}
+              : `, ${change >= 0 ? "+" : "−"}${Math.abs(change)} % par rapport à ${mois(previousMonth)} à la même date`}
           </dd>
         </div>
         <div>
@@ -237,7 +236,7 @@ export default async function GestionHome() {
         </div>
         <div>
           <dt className="t-label">Nouvelles clientes</dt>
-          <dd className="kpis__value">{nouvelles.length}</dd>
+          <dd className={nouvelles ? "kpis__value" : "kpis__value kpis__value--small"}>{nouvelles ? nouvelles.length : "Indisponible"}</dd>
           <dd className="t-note">
             <Link href={atelierHref("/clientes")} className="text-link">
               Ces 30 derniers jours
@@ -356,8 +355,8 @@ export default async function GestionHome() {
                   <li key={v.handle} className="liste-simple__ligne">
                     <span className="liste-simple__titre">{v.title}</span>
                     <span className="t-note">
-                      {compte(v.quantity, "pièce vendue", "pièces vendues")} en
-                      trois mois
+                      {compte(v.quantity, "pièce vendue", "pièces vendues")}{" "}
+                      {troisMois ? "en trois mois" : `sur les ${SHOPIFY_ORDERS_LIMIT} dernières commandes`}
                     </span>
                   </li>
                 ))}

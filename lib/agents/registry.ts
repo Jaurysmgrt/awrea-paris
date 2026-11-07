@@ -24,7 +24,7 @@ export const AGENTS: AgentInfo[] = [
     name: "Catalogue",
     mission: "Connaît chaque pièce du catalogue, aujourd’hui la collection Hypnotic Lace. Fait le bilan des photos provisoires, des prix et des délais encore provisoires, et de ce qui manque aux fiches. Rédige une nouvelle fiche à partir de photos et de quelques notes.",
     autonomy: "Publie seul une nouvelle fiche. Un prix modifié ensuite ou une suppression passent par vous. N’invente ni matière ni entretien.",
-    schedule: "À la demande : le bilan ici, une nouvelle fiche depuis l’onglet Catalogue",
+    schedule: "À la demande : le bilan ici, une nouvelle fiche depuis Produits",
     cron: null,
   },
   {

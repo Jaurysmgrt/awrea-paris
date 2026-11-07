@@ -3,13 +3,8 @@ import type { AgentAction } from "@/lib/agents/log";
 import Link from "@/components/ui/Link";
 import { AgentName, Status, When } from "./Status";
 import { useAtelier } from "./AtelierContext";
+import { lienAction as targetHref } from "@/lib/admin/dashboard";
 
-/** Lien d'une action : « atelier:/messages » (et l'ancien « /gestion/messages ») mène à l'Atelier. */
-function targetHref(href: string, atelier: (p: string) => string): string {
-  if (href.startsWith("atelier:")) return atelier(href.slice(8) || "/");
-  if (href === "/gestion" || href.startsWith("/gestion/") || href.startsWith("/gestion#")) return atelier(href.slice(8) || "/");
-  return href;
-}
 
 export function LogList({ items, names }: { items: AgentAction[]; names?: Record<string, string> }) {
   const atelier = useAtelier();

@@ -5,9 +5,9 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { activiteRecente, evolution, latestOrders, monthRevenue, newCustomers, ordersToHandle, parisMonthKey, prenom, previousMonthKey, priorites, topSold, type EtatDuJour } from "@/lib/admin/dashboard";
+import { activiteRecente, couvre, de, debutMoisPrecedent, evolution, latestOrders, lienAction, monthRevenue, newCustomers, ordersToHandle, parisMonthKey, prenom, previousMonthKey, priorites, topSold, type EtatDuJour } from "@/lib/admin/dashboard";
 
-type O = { number: string; status: "pending" | "paid" | "in_production" | "ready" | "shipped" | "delivered" | "refunded"; total: number; createdAt: string; name: string; lines: { handle: string; title: string; quantity: number }[] };
+type O = { number: string; status: "pending" | "paid" | "in_production" | "ready" | "shipped" | "delivered" | "refunded" | "blocked" | "returned"; total: number; createdAt: string; name: string; lines: { handle: string; title: string; quantity: number }[] };
 const order = (number: string, createdAt: string, total: number, status: O["status"] = "paid", lines: O["lines"] = []): O => ({ number, status, total, createdAt, name: "Camille Martin", lines });
 
 test("le mois est celui de Paris, quel que soit le fuseau du serveur", () => {
@@ -26,13 +26,15 @@ test("ventes du mois : payées seulement, comparées aux mêmes jours du mois pr
       order("A2", "2026-11-05T10:00:00Z", 320, "in_production"),
       order("A3", "2026-11-06T10:00:00Z", 999, "pending"), // pas encore payée
       order("A4", "2026-11-06T11:00:00Z", 250, "refunded"), // remboursée
+      order("A5", "2026-11-06T12:00:00Z", 600, "blocked"), // annulée sans remboursement ou paiement à vérifier
+      order("A6", "2026-11-06T13:00:00Z", 100, "returned"), // retour en cours : vente jusqu'au remboursement
       order("B1", "2026-10-03T10:00:00Z", 400, "delivered"), // octobre, avant le 7 : comparable
       order("B2", "2026-10-20T10:00:00Z", 700, "delivered"), // octobre, après le 7 : hors comparaison
     ],
     now,
   );
-  assert.deepEqual(r, { amount: 800, count: 2, previousAmount: 400, previousCount: 1 });
-  assert.equal(evolution(r.amount, r.previousAmount), 100);
+  assert.deepEqual(r, { amount: 900, count: 3, previousAmount: 400, previousCount: 1 });
+  assert.equal(evolution(r.amount, r.previousAmount), 125);
   // rien à comparer : aucune évolution affichée (jamais un pourcentage inventé)
   assert.equal(evolution(800, 0), null);
 });
@@ -65,19 +67,20 @@ test("pièces les plus vendues : quantités des trois derniers mois, ventes rée
   ]);
 });
 
-const calme: EtatDuJour = { late: 0, rdvToday: 0, messages: 0, received: 0, ready: 0, returns: 0, proposals: 0, reviews: 0, unsellable: [], provisional: [], collectionsSansTexte: [] };
+const calme: EtatDuJour = { blocked: 0, late: 0, rdvToday: 0, messages: 0, received: 0, ready: 0, returns: 0, proposals: 0, reviews: 0, unsellable: [], provisional: [] };
 
 test("priorités : rien d'inventé quand tout est à jour, et l'ordre où les faire", () => {
   assert.deepEqual(priorites(calme), []);
-  const p = priorites({ ...calme, provisional: ["Le top Kira"], messages: 1, late: 2, received: 3, collectionsSansTexte: ["Hypnotic Lace"] });
+  const p = priorites({ ...calme, provisional: ["Le top Kira"], messages: 1, late: 2, received: 3, blocked: 1 });
   assert.deepEqual(
     p.map((x) => x.href),
-    ["/commandes", "/messages", "/commandes", "/pages", "/catalogue"],
+    ["/commandes", "/commandes", "/messages", "/commandes", "/catalogue"],
   );
-  assert.match(p[0].titre, /^2 commandes en retard/);
-  assert.equal(p[1].titre, "Une cliente attend une réponse");
-  assert.match(p[2].titre, /^3 commandes attendent d’être mises en confection/);
-  assert.match(p[3].titre, /«\sHypnotic Lace\s» n’a pas encore de présentation/);
+  // une commande en attente (la cliente attend l'appel de la Maison) passe avant tout
+  assert.equal(p[0].titre, "Une commande en attente de votre appel");
+  assert.match(p[1].titre, /^2 commandes en retard/);
+  assert.equal(p[2].titre, "Une cliente attend une réponse");
+  assert.match(p[3].titre, /^3 commandes attendent d’être mises en confection/);
   assert.match(p[4].titre, /«\sLe top Kira\s»/);
 });
 
@@ -86,6 +89,7 @@ test("activité récente : messages et gestes des agents, le plus récent d'abor
     messages: [{ date: "2026-11-02T10:00:00Z", name: "Inès Durand" }],
     actions: [
       { date: "2026-11-04T10:00:00Z", summary: "Fiche publiée", status: "done", agent: "catalogue", target: { href: "/boutique/robe-odessa" } },
+      { date: "2026-11-03T10:00:00Z", summary: "Réponse envoyée à camille.martin@exemple.fr", status: "done", agent: "service-client" },
       { date: "2026-11-05T10:00:00Z", summary: "Proposition", status: "proposed", agent: "contenu" },
       { date: "2026-11-06T10:00:00Z", summary: "Double authentification configurée", status: "done", agent: "systeme" },
     ],
@@ -94,7 +98,9 @@ test("activité récente : messages et gestes des agents, le plus récent d'abor
     a.map((e) => [e.texte, e.href]),
     [
       ["Fiche publiée", "/boutique/robe-odessa"],
-      ["Message de Inès D.", "atelier:/messages"],
+      // les adresses des clientes restent dans le journal
+      ["Réponse envoyée à une cliente", undefined],
+      ["Message d’Inès D.", "atelier:/messages"],
     ],
   );
 });
@@ -103,4 +109,35 @@ test("noms abrégés : prénom et initiale", () => {
   assert.equal(prenom("Camille Martin"), "Camille M.");
   assert.equal(prenom("  Inès  "), "Inès");
   assert.equal(prenom(""), "Une cliente");
+});
+
+test("élision : d’avril, d’octobre, d’Inès, de novembre", () => {
+  assert.equal(de("avril"), "d’avril");
+  assert.equal(de("août"), "d’août");
+  assert.equal(de("octobre"), "d’octobre");
+  assert.equal(de("Inès D."), "d’Inès D.");
+  assert.equal(de("novembre"), "de novembre");
+  assert.equal(activiteRecente({ messages: [{ date: "2026-11-01T00:00:00Z", name: "" }], actions: [] })[0].texte, "Message d’une cliente");
+});
+
+test("période couverte : au-delà de la limite de Shopify, une période trop ancienne n'est pas chiffrée", () => {
+  const now = new Date("2026-11-07T10:00:00Z");
+  const since = debutMoisPrecedent(now);
+  assert.ok(since.getTime() < Date.parse("2026-10-01T00:00:00Z"));
+  // peu de commandes : tout est couvert
+  assert.equal(couvre([order("A", "2026-11-01T00:00:00Z", 1)], since, 100), true);
+  // la limite atteinte, toutes en novembre : octobre n'est pas couvert
+  const recentes = Array.from({ length: 100 }, (_, i) => order(`N${i}`, "2026-11-02T00:00:00Z", 1));
+  assert.equal(couvre(recentes, since, 100), false);
+  // la limite atteinte, la plus ancienne avant octobre : couvert
+  assert.equal(couvre([...recentes.slice(1), order("S", "2026-09-20T00:00:00Z", 1)], since, 100), true);
+});
+
+test("liens des actions : Atelier sous son adresse, site tel quel", () => {
+  const atelier = (p: string) => `/prive-x${p}`;
+  assert.equal(lienAction("atelier:/messages", atelier), "/prive-x/messages");
+  assert.equal(lienAction("atelier:", atelier), "/prive-x/");
+  assert.equal(lienAction("/gestion/commandes", atelier), "/prive-x/commandes");
+  assert.equal(lienAction("/gestionnaire", atelier), "/gestionnaire");
+  assert.equal(lienAction("/boutique/robe-odessa", atelier), "/boutique/robe-odessa");
 });

@@ -97,8 +97,9 @@
   }
 
   /* menu clair (brief du 07/11, « Shopify simplifié ») : groupes en mots simples, entrées en romain
-     et non en capitales, l'entrée en cours sur un fond pierre, les sous-entrées en retrait dans leur
-     rubrique ; sur téléphone, replié derrière « Menu ». Couleurs du thème : le mode Nuit suit. */
+     et non en capitales, l'entrée en cours sur un fond teinté et soulignée (le fond seul ne
+     contraste pas assez, WCAG 1.4.11), les sous-entrées en retrait dans leur rubrique ; sur
+     téléphone, replié derrière « Menu ». Couleurs du thème : le mode Nuit suit. */
   .admin-nav {
     min-width: 0;
     display: grid;
@@ -143,23 +144,6 @@
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
   }
-  summary.admin-nav__titre {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    min-height: var(--spacing-touch);
-    cursor: pointer;
-    list-style: none;
-  }
-  summary.admin-nav__titre::-webkit-details-marker {
-    display: none;
-  }
-  summary.admin-nav__titre::after {
-    content: "+";
-  }
-  .admin-nav__coulisses[open] summary.admin-nav__titre::after {
-    content: "−";
-  }
   .admin-nav__link {
     display: flex;
     justify-content: space-between;
@@ -182,6 +166,11 @@
   }
   .admin-nav__link[aria-current="page"] {
     background: color-mix(in oklab, var(--fg) 9%, transparent);
+  }
+  .admin-nav__link[aria-current="page"] > span:first-child {
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+    text-underline-offset: var(--spacing-3xs);
   }
   .admin-nav__sous {
     display: grid;
@@ -1118,9 +1107,6 @@
     }
     .admin-nav__groupe {
       gap: 0;
-    }
-    summary.admin-nav__titre {
-      min-height: calc(var(--spacing-m) * 1.5);
     }
     .admin__side {
       gap: var(--spacing-s);

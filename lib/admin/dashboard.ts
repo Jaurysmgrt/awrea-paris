@@ -29,8 +29,33 @@ export function previousMonthKey(key: string): string {
   return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
 }
 
-/** Une commande compte dans le chiffre d'affaires une fois payée, tant qu'elle n'est pas remboursée. */
-export const isSale = (o: Pick<Order, "status">) => o.status !== "pending" && o.status !== "refunded";
+/**
+ * Une commande compte dans le chiffre d'affaires une fois payée, tant qu'elle n'est ni remboursée ni
+ * en attente (paiement à vérifier, ou annulée sans remboursement : la Maison contacte la cliente).
+ * Un retour en cours reste une vente jusqu'au remboursement.
+ */
+export const isSale = (o: Pick<Order, "status">) => o.status !== "pending" && o.status !== "refunded" && o.status !== "blocked";
+
+/**
+ * Les commandes lues couvrent-elles toute la période ? Shopify n'en renvoie qu'un nombre limité, les
+ * plus récentes : si la limite est atteinte et que la plus ancienne est plus récente que le début de
+ * la période, les chiffres de cette période seraient incomplets (on ne les montre pas).
+ */
+export function couvre(orders: Pick<Order, "createdAt">[], since: Date, limit: number): boolean {
+  if (orders.length < limit) return true;
+  return orders.some((o) => new Date(o.createdAt).getTime() <= since.getTime());
+}
+
+/** Début (UTC) du mois précédent de Paris, à un jour près vers le passé : sert à `couvre()`. */
+export function debutMoisPrecedent(now: Date): Date {
+  const [y, m] = previousMonthKey(parisMonthKey(now)).split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, 1) - DAY);
+}
+
+/** « de novembre », « d’avril », « d’Inès » : l'élision devant une voyelle ou un h muet. */
+export function de(mot: string): string {
+  return /^[aeiouyhàâäéèêëîïôöûüœ]/i.test(mot.trim()) ? `d’${mot.trim()}` : `de ${mot.trim()}`;
+}
 
 export interface MonthRevenue {
   /** ventes du 1er du mois à aujourd'hui (Paris) */
@@ -109,6 +134,8 @@ export interface Priorite {
 }
 
 export interface EtatDuJour {
+  /** commandes en attente : paiement à vérifier ou annulées sans remboursement, la Maison contacte la cliente */
+  blocked: number;
   /** commandes en retard sur le délai annoncé */
   late: number;
   rdvToday: number;
@@ -123,8 +150,6 @@ export interface EtatDuJour {
   unsellable: string[];
   /** pièces dont le prix ou le délai est encore provisoire */
   provisional: string[];
-  /** collections en cours sans texte de présentation */
-  collectionsSansTexte: string[];
 }
 
 /**
@@ -134,6 +159,7 @@ export interface EtatDuJour {
  */
 export function priorites(e: EtatDuJour): Priorite[] {
   const out: Priorite[] = [];
+  if (e.blocked) out.push({ href: "/commandes", titre: e.blocked > 1 ? `${e.blocked} commandes en attente de votre appel` : "Une commande en attente de votre appel", detail: "Paiement à vérifier ou commande annulée : la cliente attend des nouvelles de la Maison." });
   if (e.late) out.push({ href: "/commandes", titre: `${compte(e.late, "commande", "commandes")} en retard sur le délai annoncé`, detail: "À faire avancer en priorité, ou à expliquer à la cliente." });
   if (e.rdvToday) out.push({ href: "/rendez-vous", titre: `${compte(e.rdvToday, "rendez-vous", "rendez-vous")} aujourd’hui`, detail: "Le lien de l’appel vidéo est dans Rendez-vous." });
   if (e.messages) out.push({ href: "/messages", titre: e.messages > 1 ? `${e.messages} clientes attendent une réponse` : "Une cliente attend une réponse", detail: "Une réponse est souvent déjà préparée : relisez-la, puis envoyez." });
@@ -143,7 +169,6 @@ export function priorites(e: EtatDuJour): Priorite[] {
   if (e.proposals) out.push({ href: "/validations", titre: `${compte(e.proposals, "proposition", "propositions")} à valider`, detail: "Rien ne part sans votre accord : prix, remboursements, lettres." });
   if (e.reviews) out.push({ href: "/avis", titre: `${compte(e.reviews, "avis", "avis")} à relire`, detail: "Un avis n’est publié qu’après votre lecture." });
   if (e.unsellable.length) out.push({ href: "/catalogue", titre: e.unsellable.length > 1 ? `${e.unsellable.length} pièces ne peuvent pas être achetées` : `« ${e.unsellable[0]} » ne peut pas être achetée`, detail: "Aucune taille n’est ouverte à la vente." });
-  if (e.collectionsSansTexte.length) out.push({ href: "/pages", titre: e.collectionsSansTexte.length > 1 ? "Vos collections n’ont pas encore de présentation" : `Votre collection « ${e.collectionsSansTexte[0]} » n’a pas encore de présentation`, detail: "Quelques lignes suffisent, dans la page de la collection." });
   if (e.provisional.length) out.push({ href: "/catalogue", titre: e.provisional.length > 1 ? `${e.provisional.length} pièces ont un prix ou un délai à confirmer` : `Le prix ou le délai de « ${e.provisional[0]} » est à confirmer`, detail: "Une fois confirmé, la mention provisoire disparaît du site." });
   return out;
 }
@@ -162,8 +187,9 @@ export interface Evenement {
  */
 export function activiteRecente(sources: { messages: { date: string; name: string }[]; actions: { date: string; summary: string; status: string; agent?: string; target?: { href?: string } }[] }, n = 5): Evenement[] {
   const all: Evenement[] = [
-    ...sources.messages.map((m) => ({ date: m.date, texte: `Message de ${prenom(m.name)}`, href: "atelier:/messages" })),
-    ...sources.actions.filter((a) => (a.status === "done" || a.status === "approved") && a.agent !== "systeme").map((a) => ({ date: a.date, texte: a.summary, href: a.target?.href })),
+    ...sources.messages.map((m) => ({ date: m.date, texte: m.name.trim() ? `Message ${de(prenom(m.name))}` : "Message d’une cliente", href: "atelier:/messages" })),
+    // la Vue d'ensemble n'affiche pas les adresses des clientes (elles restent dans le journal)
+    ...sources.actions.filter((a) => (a.status === "done" || a.status === "approved") && a.agent !== "systeme").map((a) => ({ date: a.date, texte: a.summary.replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, "une cliente"), href: a.target?.href })),
   ];
   return all.sort((a, b) => b.date.localeCompare(a.date)).slice(0, n);
 }
@@ -173,4 +199,14 @@ export function prenom(name: string): string {
   const [first, ...rest] = name.trim().split(/\s+/);
   const last = rest.at(-1);
   return last ? `${first} ${last[0].toUpperCase()}.` : first || "Une cliente";
+}
+
+/**
+ * Lien d'une action du journal : « atelier:/messages » (et l'ancien « /gestion/messages ») mène à
+ * l'Atelier, sous son adresse ; le reste (« /boutique/… ») mène au site.
+ */
+export function lienAction(href: string, atelier: (path: string) => string): string {
+  if (href.startsWith("atelier:")) return atelier(href.slice(8) || "/");
+  if (href === "/gestion" || href.startsWith("/gestion/") || href.startsWith("/gestion#")) return atelier(href.slice(8) || "/");
+  return href;
 }
