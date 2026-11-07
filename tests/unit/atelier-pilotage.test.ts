@@ -81,24 +81,20 @@ test("priorités : rien d'inventé quand tout est à jour, et l'ordre où les fa
   assert.match(p[4].titre, /«\sLe top Kira\s»/);
 });
 
-test("activité récente : la plus récente d'abord, liens de l'Atelier au format du journal", () => {
-  const a = activiteRecente(
-    {
-      orders: [order("AW-1", "2026-11-01T10:00:00Z", 480), order("AW-2", "2026-11-03T10:00:00Z", 1, "pending")],
-      messages: [{ date: "2026-11-02T10:00:00Z", name: "Inès Durand" }],
-      actions: [
-        { date: "2026-11-04T10:00:00Z", summary: "Fiche publiée", status: "done", target: { href: "/boutique/robe-odessa" } },
-        { date: "2026-11-05T10:00:00Z", summary: "Proposition", status: "proposed" },
-      ],
-    },
-    (n) => `${n} €`,
-  );
+test("activité récente : messages et gestes des agents, le plus récent d'abord, sans les gestes techniques", () => {
+  const a = activiteRecente({
+    messages: [{ date: "2026-11-02T10:00:00Z", name: "Inès Durand" }],
+    actions: [
+      { date: "2026-11-04T10:00:00Z", summary: "Fiche publiée", status: "done", agent: "catalogue", target: { href: "/boutique/robe-odessa" } },
+      { date: "2026-11-05T10:00:00Z", summary: "Proposition", status: "proposed", agent: "contenu" },
+      { date: "2026-11-06T10:00:00Z", summary: "Double authentification configurée", status: "done", agent: "systeme" },
+    ],
+  });
   assert.deepEqual(
     a.map((e) => [e.texte, e.href]),
     [
       ["Fiche publiée", "/boutique/robe-odessa"],
       ["Message de Inès D.", "atelier:/messages"],
-      ["Commande AW-1 de Camille M., 480 €", "atelier:/commandes/AW-1"],
     ],
   );
 });

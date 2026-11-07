@@ -155,12 +155,15 @@ export interface Evenement {
   href?: string;
 }
 
-/** Activité récente : commandes, messages et gestes des agents, les plus récents d'abord. */
-export function activiteRecente(sources: { orders: Pick<Order, "number" | "createdAt" | "name" | "total" | "status">[]; messages: { date: string; name: string }[]; actions: { date: string; summary: string; status: string; target?: { href?: string } }[] }, formatPrice: (n: number) => string, n = 6): Evenement[] {
+/**
+ * Activité récente : messages reçus et gestes faits par les agents, les plus récents d'abord. Les
+ * commandes ont leur propre liste (Dernières commandes), les gestes techniques (connexions, double
+ * authentification) restent dans le journal.
+ */
+export function activiteRecente(sources: { messages: { date: string; name: string }[]; actions: { date: string; summary: string; status: string; agent?: string; target?: { href?: string } }[] }, n = 5): Evenement[] {
   const all: Evenement[] = [
-    ...sources.orders.filter((o) => o.status !== "pending").map((o) => ({ date: o.createdAt, texte: `Commande ${o.number} de ${prenom(o.name)}, ${formatPrice(o.total)}`, href: `atelier:/commandes/${encodeURIComponent(o.number)}` })),
     ...sources.messages.map((m) => ({ date: m.date, texte: `Message de ${prenom(m.name)}`, href: "atelier:/messages" })),
-    ...sources.actions.filter((a) => a.status === "done" || a.status === "approved").map((a) => ({ date: a.date, texte: a.summary, href: a.target?.href })),
+    ...sources.actions.filter((a) => (a.status === "done" || a.status === "approved") && a.agent !== "systeme").map((a) => ({ date: a.date, texte: a.summary, href: a.target?.href })),
   ];
   return all.sort((a, b) => b.date.localeCompare(a.date)).slice(0, n);
 }

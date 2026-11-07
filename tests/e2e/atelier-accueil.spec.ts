@@ -11,7 +11,7 @@ test("Vue d'ensemble : priorités, raccourcis, chiffres et dernières commandes 
   await page.goto(ATELIER);
   await expect(page.getByRole("heading", { level: 1, name: "Bonjour." })).toBeVisible();
   // mode essai : la page le dit, rien n'est présenté comme réel
-  await expect(page.getByText(/Boutique en mode essai/)).toBeVisible();
+  await expect(page.locator("#contenu").getByText(/Boutique en mode essai/)).toBeVisible();
 
   await expect(page.getByRole("heading", { name: "À faire en priorité" })).toBeVisible();
   const raccourcis = page.getByRole("navigation", { name: /Que souhaitez-vous faire/ });
