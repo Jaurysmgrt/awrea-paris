@@ -12,9 +12,12 @@ import { AUTONOMIES, permise } from "./autonomie";
 import { logAction, type AgentId } from "./log";
 import { cleanTexts } from "@/lib/writing/agents";
 import { reportWriting } from "@/lib/writing/report";
+import { safeOutbound } from "@/lib/ai/guard";
 
 /** Actions qui mettent un texte sous les yeux des clientes sans relecture humaine. */
 const PUBLISHES_TEXT = new Set<ActionType>(["publish_product", "update_product_content", "send_reply", "publish_article", "update_ai_visibility"]);
+/** Actions qui écrivent seules à une cliente, avec un texte rédigé par un agent. */
+const WRITES_TO_CLIENT = new Set<ActionType>(["send_reply"]);
 
 export interface Proposal<T extends ActionType = ActionType> {
   id: string;
@@ -69,11 +72,17 @@ export async function perform<T extends ActionType>(agent: AgentId, action: T, r
     meta = { ...meta, rationale: `Texte à relire avant publication : ${notes}${meta.rationale ? `. ${meta.rationale}` : ""}` };
   }
 
+  // une réponse qui part seule ne cite que le site et les transporteurs, quel que soit l'agent qui
+  // l'a écrite (assistant compris) : une autre adresse, un autre lien ou un numéro, et elle attend
+  const outbound = params as { subject?: string; body?: string };
+  const horsMaison = WRITES_TO_CLIENT.has(action) && !safeOutbound(`${outbound.subject ?? ""}\n${outbound.body ?? ""}`);
+  if (horsMaison) meta = { ...meta, rationale: `Le texte cite une adresse, un lien ou un numéro qui n’est pas celui de la Maison : à relire avant l’envoi.${meta.rationale ? ` ${meta.rationale}` : ""}` };
+
   // autonomie coupée dans les Réglages : l'action attend la créatrice
   const autonomie = AUTONOMIE_DE[action];
   const coupee = autonomie ? !(await permise(autonomie)) : false;
 
-  if (requiresApproval(action) || mustReview || coupee) {
+  if (requiresApproval(action) || mustReview || coupee || horsMaison) {
     const list = await getProposals();
     const duplicate = list.find((p) => p.status === "pending" && p.action === action && JSON.stringify(p.params) === JSON.stringify(params));
     if (duplicate) return { status: "proposed", message: "Une proposition identique attend déjà la validation de la créatrice.", proposalId: duplicate.id };
@@ -104,13 +113,18 @@ export async function perform<T extends ActionType>(agent: AgentId, action: T, r
   }
 }
 
-/** Décision de la créatrice sur une proposition (un clic dans le tableau de bord). */
+/**
+ * Décision de la créatrice sur une proposition (un clic dans le tableau de bord). Une seule décision
+ * par proposition, même avec deux clics ou deux onglets : la proposition est réservée (verrou du stockage, 10 minutes) avant d'exécuter quoi que
+ * ce soit, puis la liste est relue au moment d'enregistrer, pour ne rien écraser de ce qui a changé
+ * pendant l'exécution (un remboursement ou une lettre ne partent jamais deux fois).
+ */
 export async function decide(id: string, decision: "approve" | "reject"): Promise<Proposal> {
-  const list = await getProposals();
-  const p = list.find((x) => x.id === id);
-  if (!p) throw new Error("Proposition introuvable");
-  if (p.status !== "pending") throw new Error("Cette proposition a déjà été traitée.");
-  p.decidedAt = new Date().toISOString();
+  const first = (await getProposals()).find((x) => x.id === id);
+  if (!first) throw new Error("Proposition introuvable");
+  if (first.status !== "pending") throw new Error("Cette proposition a déjà été traitée.");
+  if ((await kv.incr(`agents:proposals:decision:${id}`, 600)) !== 1) throw new Error("Cette proposition est déjà en cours de traitement.");
+  const p: Proposal = { ...first, decidedAt: new Date().toISOString() };
   if (decision === "reject") {
     p.status = "rejected";
     await logAction({ agent: p.agent, kind: p.action, status: "rejected", summary: `Refusé par la créatrice : ${p.summary}`, proposalId: p.id });
@@ -127,6 +141,10 @@ export async function decide(id: string, decision: "approve" | "reject"): Promis
       await logAction({ agent: p.agent, kind: p.action, status: "failed", summary: `Échec après validation : ${p.summary}`, detail: p.result, proposalId: p.id });
     }
   }
+  const list = await getProposals();
+  const i = list.findIndex((x) => x.id === id);
+  if (i >= 0) list[i] = p;
+  else list.unshift(p);
   await saveProposals(list);
   return p;
 }

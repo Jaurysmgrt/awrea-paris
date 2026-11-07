@@ -1,5 +1,6 @@
 /** Atelier : la facture d'une commande en PDF (émise si elle ne l'est pas encore), ou l'avoir (?avoir=1). */
 import { NextResponse } from "next/server";
+import { isAdmin } from "@/lib/auth/admin";
 import { getOrder } from "@/lib/commerce/orders";
 import { invoiceOf, issueInvoice } from "@/lib/invoices";
 import { invoicePdf } from "@/lib/invoices/pdf";
@@ -7,6 +8,8 @@ import { invoicePdf } from "@/lib/invoices/pdf";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request, { params }: { params: Promise<{ number: string }> }) {
+  // l'adresse secrète ne suffit pas : la session est revérifiée ici (SECURITE.md, défense en profondeur)
+  if (!(await isAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const number = decodeURIComponent((await params).number);
   const order = await getOrder(number);
   if (!order) return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });

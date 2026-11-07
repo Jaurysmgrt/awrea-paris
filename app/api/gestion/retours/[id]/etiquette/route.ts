@@ -1,8 +1,11 @@
 /** Atelier : déposer l'étiquette prépayée d'un retour (PDF, 2 Mo au plus) ; elle part à la cliente. */
 import { NextResponse } from "next/server";
+import { isAdmin } from "@/lib/auth/admin";
 import { uploadReturnLabel } from "@/lib/returns-flow";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  // l'adresse secrète ne suffit pas : la session est revérifiée ici (SECURITE.md, défense en profondeur)
+  if (!(await isAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const form = await req.formData().catch(() => null);
   const file = form?.get("etiquette");
   if (!(file instanceof File) || file.size === 0 || file.size > 2 * 1024 * 1024) return NextResponse.json({ error: "Joignez l’étiquette en PDF (2 Mo au plus)." }, { status: 400 });

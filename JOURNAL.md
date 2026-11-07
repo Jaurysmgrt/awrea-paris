@@ -736,3 +736,21 @@ Brief de la créatrice (PDF, deux captures de référence), appliqué à la page
   brief, « À la demande › Étapes de confection ») ; rien d’autre dans la navigation.
 - Tests : textes et photos de la frise, alternance et absence de chevauchement sur ordinateur,
   empilement sur téléphone, animations apaisées ; homogénéité, responsive et accessibilité verts.
+
+## Refonte de l’Atelier : audit et lot 0, sécurité (07/11)
+
+Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/11 et 07/11).
+
+- Audit en quatre relectures séparées (pages et ergonomie, données et intégrations, sécurité, IA et
+  agents), points graves vérifiés à la main : carte de l’existant, problèmes classés, architecture
+  cible et plan en cinq lots dans `docs/ATELIER-REFONTE.md`.
+- Lot 0, avant toute refonte visuelle et avant l’assistant :
+  - contrôle d’origine étendu à l’adresse secrète de l’Atelier et à son API ;
+  - session revérifiée par les routes des factures, de l’export comptable, des retours et de
+    l’étiquette ; test unitaire qui refuse toute route de l’Atelier sans contrôle de session ;
+  - `decide()` : une seule décision par proposition (verrou), liste relue avant l’enregistrement ;
+  - une réponse qui part seule à une cliente et cite une autre adresse, un autre lien ou un
+    numéro attend la créatrice, quel que soit l’agent qui l’a écrite.
+- Tests : origine étrangère refusée avec la session (échoue sur l’ancien code), décision unique
+  (le stockage local des tests ne reproduit pas la course, qui n’existe qu’avec Upstash).
+

@@ -43,7 +43,7 @@ const NAMES = withRegistryNames([...AGENTS, ...ROLES]);
 
 export function ProposalCard({ p }: { p: Proposal }) {
   return (
-    <article className="proposal" data-status={p.status}>
+    <article className="proposal" data-status={p.status} data-id={p.id}>
       <header className="proposal__head">
         <Status value={p.status === "pending" ? "pending" : p.status === "approved" ? "approved" : p.status === "rejected" ? "rejected" : "failed"} />
         <span className="t-label t-soft">

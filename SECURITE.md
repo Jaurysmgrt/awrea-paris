@@ -101,7 +101,8 @@ plans. **Règles de pare-feu recommandées** (Vercel → Firewall, à créer par
 
 **CSRF** : cookies de session `SameSite` (Lax pour les clientes, Strict pour l'Atelier) et, en
 profondeur, toute requête d'API qui modifie des données en annonçant une autre origine est
-refusée (403) par `proxy.ts` — hors webhooks signés et tâches planifiées.
+refusée (403) par `proxy.ts` — hors webhooks signés et tâches planifiées. Le même contrôle couvre
+l'adresse secrète de l'Atelier et son API (`/prive-…/api/…`), réécrite ensuite vers `/api/gestion`.
 
 **Anti-robots** : Cloudflare Turnstile (invisible pour les humaines) sur la newsletter, le
 contact et les rendez-vous, la liste d'attente, la connexion des clientes, la rétractation en
@@ -324,6 +325,10 @@ automatiquement.
 | Moyenne | Les sessions de l'Atelier n'étaient pas révocables avant leur expiration. | Génération de session : déconnexion de tous les appareils, révocation à la réinitialisation de la double authentification. |
 | Faible | Le tunnel de démonstration envoyait le numéro de carte de test au serveur. | Seule l'issue simulée quitte le navigateur. |
 | Faible | La route des e-mails automatiques ne revérifiait pas la session (protégée par `proxy.ts` seulement). | Vérification ajoutée (défense en profondeur). |
+| Moyenne | Audit du 07/11 : le contrôle d'origine ne couvrait pas l'API de l'Atelier (servie sous l'adresse secrète), seul le cookie `SameSite=Strict` la protégeait. | Contrôle étendu à toute l'adresse de l'Atelier (`proxy.ts`), test de bout en bout. |
+| Moyenne | Audit du 07/11 : la validation d'une proposition (`decide()`) pouvait s'exécuter deux fois avec deux clics simultanés (remboursement, lettre à toute la liste) sur Upstash. | Verrou par proposition avant toute exécution, liste relue avant l'enregistrement. |
+| Faible | Audit du 07/11 : factures, export comptable, retours (remboursement) et étiquette de retour ne revérifiaient pas la session. | Vérification ajoutée ; un test unitaire refuse désormais toute route de l'Atelier sans contrôle de session, hors connexion et déconnexion. |
+| Faible | Audit du 07/11 : une réponse automatique écrite par un autre agent que le Service client échappait au filtre des adresses, liens et numéros. | Filtre appliqué dans `perform()` à toute réponse qui part seule : sinon, elle attend la créatrice. |
 
 ## 11. À faire par la maison
 
