@@ -179,7 +179,9 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
     await login(page);
     await page.goto(`${ATELIER}/reglages`);
     const nav = page.getByRole("navigation", { name: "Menu de l’Atelier" });
-    for (const name of ["Commandes", "Catalogue", "Certificats", "Avant-premières"]) await expect(nav.getByRole("link", { name, exact: true })).toBeVisible();
+    for (const name of ["Vue d’ensemble", "Produits", "Commandes", "Clientes", "Réglages"]) await expect(nav.getByRole("link", { name, exact: true })).toBeVisible();
+    // les sous-entrées n'apparaissent que dans leur rubrique
+    await expect(nav.getByRole("link", { name: "Avant-premières", exact: true })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: /Drops|Stock/i })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "Réglages", exact: true })).toHaveAttribute("aria-current", "page");
     // délais de fabrication par défaut (provisoires) et ce qui reste à confirmer, réglé pièce par pièce dans le Catalogue
@@ -187,7 +189,12 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
     await expect(delais.getByRole("row", { name: /^Robes/ })).toContainText("3 à 4 semaines");
     await expect(delais.getByRole("row", { name: /^Bodys/ })).toContainText("2 à 3 semaines");
     await expect(delais.getByRole("row", { name: /^Bodys/ })).toContainText("Le body Aura");
-    await expect(delais.getByRole("link", { name: "Confirmer dans le Catalogue" })).toHaveAttribute("href", `${ATELIER}/catalogue`);
+    await expect(delais.getByRole("link", { name: "Confirmer dans Produits" })).toHaveAttribute("href", `${ATELIER}/catalogue`);
+    await delais.getByRole("link", { name: "Confirmer dans Produits" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Produits" })).toBeVisible();
+    for (const name of ["Avant-premières", "Certificats"]) await expect(nav.getByRole("link", { name, exact: true })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Produits", exact: true })).toHaveAttribute("aria-current", "page");
+    await page.goto(`${ATELIER}/reglages`);
     // plus aucune trace de stock (hors « sans stock », le modèle de la Maison), de liste d'attente ni de numéro d'édition
     const obsolete = /(?<!sans )\bstocks?\b|liste d’attente|numéro d’édition|série numérotée|édition limitée|pièces? restantes?/i;
     // (Réglages compris, avec le tableau des connexions : libellés des services, lib/config/providers.ts)

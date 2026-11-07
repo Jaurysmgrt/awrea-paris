@@ -23,7 +23,7 @@ export default async function EquipePage() {
   return (
     <div className="admin-page stack-l">
       <header className="admin-page__head">
-        <h1 className="t-h1">Équipe</h1>
+        <h1 className="t-h1">Agents</h1>
         <p className="t-lead">Ils font le quotidien seuls, dans les règles des Réglages. Ce qui touche à l’argent vous attend dans « À valider ».</p>
       </header>
 

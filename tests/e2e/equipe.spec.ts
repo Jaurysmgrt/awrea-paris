@@ -32,7 +32,7 @@ test("Équipe : chaque rôle passe, rend un résumé, et apparaît dans l'Atelie
     }
   }
   await page.goto(`${ATELIER}/equipe`);
-  await expect(page.getByRole("heading", { level: 1, name: "Équipe" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Agents" })).toBeVisible();
   await expect(page.getByText(/Dernier passage le/).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "Gardien de l’éditeur" })).toBeVisible();
   // modèle « sur demande » : les rôles parlent d'avant-premières et de confection, jamais de stock

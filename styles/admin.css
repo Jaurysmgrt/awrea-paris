@@ -26,6 +26,7 @@
   }
   @media (min-width: 64rem) {
     .admin__side {
+      border-right: var(--border-width-hair) solid var(--line);
       position: sticky;
       top: 0;
       height: 100dvh;
@@ -38,7 +39,7 @@
   .admin__logo {
     display: inline-block;
     --logo-h: var(--size-logo);
-    color: var(--color-ivory);
+    color: var(--fg);
   }
   .admin__title {
     color: var(--fg-soft);
@@ -48,11 +49,6 @@
     display: grid;
     gap: var(--spacing-s);
     justify-items: start;
-  }
-  .admin__site {
-    background: var(--color-ivory);
-    color: var(--color-ink);
-    border-color: var(--color-ivory);
   }
   .admin__modes {
     display: grid;
@@ -68,6 +64,7 @@
     .admin__side {
       position: relative;
       gap: var(--spacing-s);
+      border-bottom: var(--border-width-hair) solid var(--line);
     }
     .admin__title,
     .admin__foot {
@@ -99,9 +96,9 @@
     min-width: 0;
   }
 
-  /* menu (retour de la créatrice du 01/11 : « on s'y perd ») : groupes en mots simples, entrées en
-     romain et non en capitales, l'entrée en cours en pastille ivoire ; sur téléphone, replié
-     derrière « Menu » ; « Coulisses » replié partout */
+  /* menu clair (brief du 07/11, « Shopify simplifié ») : groupes en mots simples, entrées en romain
+     et non en capitales, l'entrée en cours sur un fond pierre, les sous-entrées en retrait dans leur
+     rubrique ; sur téléphone, replié derrière « Menu ». Couleurs du thème : le mode Nuit suit. */
   .admin-nav {
     min-width: 0;
     display: grid;
@@ -181,24 +178,29 @@
       color var(--dur) var(--ease);
   }
   .admin-nav__link:hover {
-    background: color-mix(in oklab, var(--color-ivory) 10%, transparent);
+    background: color-mix(in oklab, var(--fg) 5%, transparent);
   }
   .admin-nav__link[aria-current="page"] {
-    background: var(--color-ivory);
-    color: var(--color-ink);
+    background: color-mix(in oklab, var(--fg) 9%, transparent);
+  }
+  .admin-nav__sous {
+    display: grid;
+  }
+  .admin-nav__link--sous {
+    padding-inline-start: var(--spacing-m);
+    color: var(--fg-soft);
+  }
+  .admin-nav__link--sous[aria-current="page"] {
+    color: var(--fg);
   }
   .admin-nav__count {
     min-width: var(--spacing-m);
     padding: 0 var(--spacing-2xs);
     border-radius: var(--radius-pill);
-    background: var(--color-ivory);
-    color: var(--color-ink);
+    background: var(--fg);
+    color: var(--bg);
     font-size: var(--text-step--2);
     text-align: center;
-  }
-  .admin-nav__link[aria-current="page"] .admin-nav__count {
-    background: var(--color-ink);
-    color: var(--color-ivory);
   }
   .admin-nav__logout {
     justify-self: start;
@@ -267,31 +269,67 @@
     text-decoration-thickness: var(--border-width-hair);
     text-underline-offset: var(--spacing-3xs);
   }
-  .gestes {
+  /* Vue d'ensemble (centre de pilotage, brief du 07/11) : ce qui attend et les raccourcis en haut,
+     les chiffres, puis les listes courtes ; deux colonnes sur ordinateur, une sur téléphone */
+  .pilotage__haut,
+  .pilotage__bas {
+    display: grid;
+    gap: var(--spacing-l);
+    align-items: start;
+  }
+  @media (min-width: 64rem) {
+    .pilotage__haut,
+    .pilotage__bas {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    }
+  }
+  /* « Que souhaitez-vous faire ? » : une liste de gestes, chacun sur sa ligne */
+  .raccourcis {
+    display: grid;
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .raccourcis > li {
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .raccourcis__lien {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-xs);
-  }
-  /* les pièces en photo : l'Atelier ressemble à la Maison */
-  .pieces {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(var(--size-piece-thumb), 1fr));
-    gap: var(--spacing-m) var(--spacing-s);
-  }
-  .pieces__item {
-    display: grid;
-    gap: var(--spacing-2xs);
+    align-items: center;
+    min-height: var(--spacing-touch);
+    padding: var(--spacing-2xs) 0;
     text-decoration: none;
   }
-  .pieces__photo {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 3 / 4;
-    object-fit: cover;
-    border-radius: var(--radius-card);
-    background: var(--media-bg);
+  .raccourcis__lien:hover,
+  .raccourcis__lien:focus-visible {
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+    text-underline-offset: var(--spacing-3xs);
   }
-  .pieces__item:hover .pieces__nom {
+  /* listes courtes : dernières commandes, rendez-vous, ventes, activité */
+  .liste-simple {
+    display: grid;
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .liste-simple > li {
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .liste-simple__ligne {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0 var(--spacing-s);
+    padding: var(--spacing-xs) 0;
+    text-decoration: none;
+  }
+  .liste-simple__ligne > .t-note {
+    grid-column: 1;
+  }
+  .liste-simple__montant {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    font-variant-numeric: tabular-nums;
+  }
+  a.liste-simple__ligne:hover .liste-simple__titre,
+  a.liste-simple__ligne:focus-visible .liste-simple__titre {
     text-decoration: underline;
     text-decoration-thickness: var(--border-width-hair);
     text-underline-offset: var(--spacing-3xs);

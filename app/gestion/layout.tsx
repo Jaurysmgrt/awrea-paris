@@ -6,6 +6,7 @@ import { AdminNav } from "@/components/admin/AdminNav";
 import { isAdmin, usingDemoPassword } from "@/lib/auth/admin";
 import { getProposals } from "@/lib/agents/perform";
 import { listInbox } from "@/lib/inbox";
+import { listReviews } from "@/lib/reviews";
 import { commerceMode } from "@/lib/commerce";
 import { aiEnabled } from "@/lib/ai/client";
 import { atelierBase, atelierHref, ATELIER_INTERNAL } from "@/lib/admin/path";
@@ -28,28 +29,29 @@ export default async function GestionLayout({ children }: { children: React.Reac
         </div>
       </AtelierProvider>
     );
-  const [proposals, inbox, returns] = await Promise.all([getProposals(), listInbox(500), listReturns()]);
+  const [proposals, inbox, returns, reviews] = await Promise.all([getProposals(), listInbox(500), listReturns(), listReviews("pending").catch(() => [])]);
   const counts = {
     "/retours": returns.filter((r) => r.status === "demande" || r.status === "recu").length,
     "/validations": proposals.filter((p) => p.status === "pending").length,
     "/messages": inbox.filter((m) => m.status === "escalated" || m.status === "drafted" || m.status === "new").length,
+    "/avis": reviews.length,
   };
   return (
     <AtelierProvider base={base}>
     <div className="admin">
-      <aside className="admin__side scene" data-theme="ink">
+      <aside className="admin__side scene" data-theme="ivory">
         <Link href={atelierHref("/")} className="admin__logo" aria-label="Accueil de l’Atelier">
           <Logo />
         </Link>
         <p className="t-label admin__title">Atelier</p>
         <AdminNav counts={counts} />
         <div className="admin__foot">
-          <Link href="/" className="btn admin__site">
+          <Link href="/" className="btn btn--outline admin__site">
             Voir le site
           </Link>
-          <ul className="admin__modes" aria-label="État des services">
-            <li>{commerceMode === "shopify" ? "Paiement : Shopify" : "Paiement simulé"}</li>
-            <li>{aiEnabled ? "Assistante : Claude" : "Assistante simulée"}</li>
+          <ul className="admin__modes" aria-label="État de la boutique">
+            <li>{commerceMode === "shopify" ? "Boutique reliée à Shopify" : "Boutique en mode essai"}</li>
+            <li>{aiEnabled ? "Intelligence artificielle active" : "Intelligence artificielle en mode simple"}</li>
             {usingDemoPassword() ? <li>Mot de passe d’essai</li> : null}
           </ul>
         </div>
