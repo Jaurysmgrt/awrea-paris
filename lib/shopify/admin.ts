@@ -11,7 +11,8 @@
  *  - ancienne application personnalisée : jeton permanent SHOPIFY_ADMIN_ACCESS_TOKEN.
  * Portées nécessaires : read/write_products (dont les métachamps des pièces), read/write_inventory
  * (création des tailles sans suivi de stock), read/write_orders, read/write_customers,
- * read/write_content (articles), read_analytics.
+ * read/write_content (articles), read_analytics, read/write_publications (Atelier › Produits :
+ * une pièce remise en ligne est publiée sur les canaux de vente).
  */
 import { providerOf } from "@/lib/config/providers";
 
@@ -358,4 +359,122 @@ export async function shopifyAbandonedCheckouts(): Promise<{ email: string; valu
     items: n.lineItems.nodes.map((l) => l.title),
     at: n.createdAt,
   }));
+}
+
+/* ------------------------------------------------------------------------
+ * Catalogue de l'Atelier (refonte du 07/11) : toutes les pièces, en ligne, en brouillon ou
+ * archivées (la Storefront API ne voit que les pièces en ligne), leurs textes, leur statut et leur
+ * copie. Portées : read/write_products, et read/write_publications pour mettre une pièce sur les
+ * canaux de vente (site compris) quand elle passe en ligne.
+ * ---------------------------------------------------------------------- */
+
+export interface AdminPiece {
+  handle: string;
+  title: string;
+  status: string;
+  productType: string;
+  tags: string[];
+  descriptionHtml: string;
+  seo: { title: string | null; description: string | null };
+  variants: { nodes: { price: string; selectedOptions: { name: string; value: string }[] }[] };
+  media: { nodes: ({ alt?: string | null; image?: { url: string; width: number; height: number } | null } | Record<string, never>)[] };
+  collections: { nodes: { handle: string }[] };
+  tagline?: { value: string } | null;
+  leadMin?: { value: string } | null;
+  leadMax?: { value: string } | null;
+  priceProvisional?: { value: string } | null;
+  leadProvisional?: { value: string } | null;
+  isNew?: { value: string } | null;
+  imagesProvisional?: { value: string } | null;
+}
+
+const ADMIN_PIECE_FIELDS = `handle title status productType tags descriptionHtml seo { title description }
+  variants(first: 20) { nodes { price selectedOptions { name value } } }
+  media(first: 12) { nodes { ... on MediaImage { alt image { url width height } } } }
+  collections(first: 1) { nodes { handle } }
+  tagline: metafield(namespace: "awrea", key: "tagline") { value }
+  leadMin: metafield(namespace: "awrea", key: "delai_min") { value }
+  leadMax: metafield(namespace: "awrea", key: "delai_max") { value }
+  priceProvisional: metafield(namespace: "awrea", key: "prix_provisoire") { value }
+  leadProvisional: metafield(namespace: "awrea", key: "delai_provisoire") { value }
+  isNew: metafield(namespace: "awrea", key: "nouveau") { value }
+  imagesProvisional: metafield(namespace: "awrea", key: "visuels_provisoires") { value }`;
+
+/** Toutes les pièces de la boutique, quel que soit leur statut (250 au plus). */
+export async function shopifyAtelierPieces(): Promise<AdminPiece[]> {
+  const out: AdminPiece[] = [];
+  let after: string | null = null;
+  for (let page = 0; page < 5; page++) {
+    const d: { products: { nodes: AdminPiece[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } } } = await admin(
+      `query L($after: String) { products(first: 50, after: $after, sortKey: TITLE) { nodes { ${ADMIN_PIECE_FIELDS} } pageInfo { hasNextPage endCursor } } }`,
+      { after },
+    );
+    out.push(...d.products.nodes);
+    if (!d.products.pageInfo.hasNextPage) break;
+    after = d.products.pageInfo.endCursor;
+  }
+  return out;
+}
+
+export async function shopifyAtelierPiece(handle: string): Promise<AdminPiece | null> {
+  const d = await admin<{ productByIdentifier: AdminPiece | null }>(`query P($h: String!) { productByIdentifier(identifier: { handle: $h }) { ${ADMIN_PIECE_FIELDS} } }`, { h: handle });
+  return d.productByIdentifier;
+}
+
+/** Nom, accroche, description et référencement d'une pièce. */
+export async function shopifyUpdateTexts(handle: string, input: { title?: string; tagline?: string; descriptionHtml?: string; seo?: { title: string; description: string } }) {
+  const id = await productIdByHandle(handle);
+  if (!id) throw new Error(`Produit ${handle} introuvable`);
+  const { tagline, ...product } = input;
+  if (Object.keys(product).length) {
+    const r = await admin<{ productUpdate: UserErrors }>(`mutation U($product: ProductUpdateInput!) { productUpdate(product: $product) { userErrors { field message } } }`, { product: { id, ...product } });
+    assertNoErrors("Textes de la pièce", r.productUpdate);
+  }
+  if (tagline !== undefined) {
+    const r = await admin<{ metafieldsSet: UserErrors }>(`mutation S($metafields: [MetafieldsSetInput!]!) { metafieldsSet(metafields: $metafields) { userErrors { field message } } }`, {
+      metafields: [{ ownerId: id, namespace: "awrea", key: "tagline", type: "single_line_text_field", value: tagline }],
+    });
+    assertNoErrors("Accroche de la pièce", r.metafieldsSet);
+  }
+}
+
+/**
+ * Statut d'une pièce. Passée en ligne, elle est aussi publiée sur les canaux de vente où elle ne
+ * l'est pas encore (le site compris) ; sans la permission des publications, le statut change quand
+ * même et le résultat le dit (`canaux: false`).
+ */
+export async function shopifySetStatus(handle: string, status: "ACTIVE" | "DRAFT" | "ARCHIVED"): Promise<{ canaux: boolean }> {
+  const id = await productIdByHandle(handle);
+  if (!id) throw new Error(`Produit ${handle} introuvable`);
+  const r = await admin<{ productUpdate: UserErrors }>(`mutation U($product: ProductUpdateInput!) { productUpdate(product: $product) { userErrors { field message } } }`, { product: { id, status } });
+  assertNoErrors("Statut de la pièce", r.productUpdate);
+  if (status !== "ACTIVE") return { canaux: true };
+  try {
+    const d = await admin<{ product: { unpublishedPublications: { nodes: { id: string }[] } } | null }>(`query U($id: ID!) { product(id: $id) { unpublishedPublications(first: 20) { nodes { id } } } }`, { id });
+    const publications = d.product?.unpublishedPublications.nodes ?? [];
+    if (publications.length) {
+      const p = await admin<{ publishablePublish: UserErrors }>(`mutation P($id: ID!, $input: [PublicationInput!]!) { publishablePublish(id: $id, input: $input) { userErrors { field message } } }`, {
+        id,
+        input: publications.map((x) => ({ publicationId: x.id })),
+      });
+      assertNoErrors("Publication sur les canaux de vente", p.publishablePublish);
+    }
+    return { canaux: true };
+  } catch (e) {
+    console.error("[shopify] publication sur les canaux :", e);
+    return { canaux: false };
+  }
+}
+
+/** Copie d'une pièce, en brouillon, avec ses photos. */
+export async function shopifyDuplicate(handle: string, newTitle: string): Promise<{ handle: string }> {
+  const id = await productIdByHandle(handle);
+  if (!id) throw new Error(`Produit ${handle} introuvable`);
+  const r = await admin<{ productDuplicate: UserErrors & { newProduct: { handle: string } | null } }>(
+    `mutation D($id: ID!, $title: String!) { productDuplicate(productId: $id, newTitle: $title, newStatus: DRAFT, includeImages: true) { newProduct { handle } userErrors { field message } } }`,
+    { id, title: newTitle },
+  );
+  assertNoErrors("Copie de la pièce", r.productDuplicate);
+  if (!r.productDuplicate.newProduct) throw new Error("Copie de la pièce : Shopify n’a pas renvoyé la nouvelle pièce.");
+  return { handle: r.productDuplicate.newProduct.handle };
 }

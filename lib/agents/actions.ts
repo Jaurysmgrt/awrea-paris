@@ -8,6 +8,7 @@
 import * as z from "zod/v4";
 import { revalidatePath } from "next/cache";
 import { kv } from "@/lib/store";
+import { lirePiece } from "@/lib/commerce/atelier-catalogue";
 import { DEMO_KEYS } from "@/lib/commerce/catalog-demo";
 import { getAllProducts, getProduct } from "@/lib/commerce";
 import { getOrder, setOrderStatus } from "@/lib/commerce/orders";
@@ -149,7 +150,8 @@ export interface ActionResult {
 export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promise<ActionResult> } = {
   async publish_product({ product: d }) {
     const handle = d.handle ? slugify(d.handle) : slugify(d.title);
-    const existing = await getProduct(handle);
+    // en ligne, en brouillon ou archivée : une adresse prise ne se réutilise pas
+    const existing = await lirePiece(handle);
     if (existing) throw new Error(`Une pièce existe déjà sous l’adresse /boutique/${handle}.`);
     const code = d.title.split(" ").pop()!.slice(0, 3).toUpperCase();
     const leadTime = d.lead_time && d.lead_time.min <= d.lead_time.max ? d.lead_time : DEFAULT_LEAD_TIME[d.category];
@@ -207,12 +209,15 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
         tags: d.tags,
         publishedAt: new Date().toISOString().slice(0, 10),
       };
-      if (d.status === "draft") {
-        await kv.push("demo:products:drafts", product, 100);
-        return { summary: `Fiche « ${d.title} » enregistrée en brouillon (non visible en boutique)`, target: { type: "product", id: handle, label: d.title, href: "atelier:/catalogue" } };
-      }
       const extra = (await kv.get<Product[]>(DEMO_KEYS.extra)) ?? [];
       await kv.set(DEMO_KEYS.extra, [...extra, product]);
+      if (d.status === "draft") {
+        // brouillon : dans Produits, jamais sur le site (lib/commerce/catalog-demo.ts)
+        const statuts = (await kv.get<Record<string, string>>(DEMO_KEYS.statut)) ?? {};
+        await kv.set(DEMO_KEYS.statut, { ...statuts, [handle]: "brouillon" });
+        refresh();
+        return { summary: `Fiche « ${d.title} » enregistrée en brouillon (non visible en boutique)`, target: { type: "product", id: handle, label: d.title, href: `atelier:/catalogue/${handle}` } };
+      }
     }
     refresh();
     return { summary: `Fiche « ${d.title} » publiée (${formatPrice(d.price)}, créée sur demande en ${leadTime.min} à ${leadTime.max} semaines)`, target: { type: "product", id: handle, label: d.title, href: `/boutique/${handle}` } };

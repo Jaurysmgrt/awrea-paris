@@ -97,7 +97,7 @@ Playwright, puis demande de fusion.
 |---|---|---|
 | 0 | Sécurité préalable : session revérifiée sur les 4 routes, contrôle d'origine sur l'API de l'Atelier, `decide()` atomique, filtre des réponses dans `perform()` (fait le 07/11) | tests qui échouent avant et passent après |
 | 1 | (fait le 07/11) Menu clair et nouvelle Vue d'ensemble : chiffre d'affaires du mois et comparaison, commandes à traiter, nouvelles clientes, dernières commandes, pièces les plus vendues, rendez-vous, activité récente, « Que souhaitez-vous faire ? », actions prioritaires ; données réelles seulement | parcours Playwright de l'accueil et du menu, sur téléphone et ordinateur |
-| 2 | Produits : fiche modifiable (textes, photos, collection, tailles), ajout en étapes courtes, brouillon ou publié, aperçu, dupliquer, archiver, propositions de l'IA sans rien inventer ; publication Shopify sur le canal du site | création, duplication, archivage testés en démonstration |
+| 2 | (2a fait le 08/11 : liste, fiche, textes, statut, copie ; 2b à venir : création en étapes, photos, IA) Produits : fiche modifiable (textes, photos, collection, tailles), ajout en étapes courtes, brouillon ou publié, aperçu, dupliquer, archiver, propositions de l'IA sans rien inventer ; publication Shopify sur le canal du site | création, duplication, archivage testés en démonstration |
 | 3 | Commandes (statuts de la confection, recherche, filtres, notes internes, historique, actions rapides confirmées) et clientes (fiche, catégories nouvelle, régulière, fidèle, inactive, filtres, ajout) | fiches et filtres testés |
 | 4 | AWREA ASSISTANT, agents, page Automatisations avec interrupteurs, Promotions (codes privés), Statistiques | demandes types du brief testées avec et sans clé |
 

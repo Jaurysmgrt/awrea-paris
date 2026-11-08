@@ -15,7 +15,7 @@ import { adminEnabled, MixedPricesError, shopifyUpdatePiece } from "@/lib/shopif
 import { formatPrice } from "@/lib/format";
 import { DEMO_KEYS, type DemoPieceSettings } from "./catalog-demo";
 import { LEAD_TIME_BOUNDS, leadTimeText } from "./availability";
-import { getProduct } from "./index";
+import { lirePiece } from "./atelier-catalogue";
 import { changedSettings, type PieceSettings } from "./piece-settings";
 
 export { changedSettings, type PieceSettings };
@@ -26,7 +26,8 @@ export class PieceError extends Error {}
 export const MIXED_PRICES_MESSAGE = "Les tailles de cette pièce n’ont pas toutes le même prix dans Shopify. Pour ne pas les écraser, modifiez ces prix directement dans Shopify.";
 
 export async function updatePiece(handle: string, settings: PieceSettings): Promise<{ summary: string; title: string }> {
-  const p = await getProduct(handle);
+  // en ligne, en brouillon ou archivée : une pièce se règle avant d'être mise en ligne
+  const p = await lirePiece(handle);
   if (!p) throw new PieceError("Cette pièce n’existe pas.");
   if (settings.price !== undefined && (!Number.isInteger(settings.price) || settings.price <= 0)) throw new PieceError("Le prix doit être un montant positif.");
   if (settings.leadTime) {

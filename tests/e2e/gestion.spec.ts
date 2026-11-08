@@ -20,7 +20,7 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
 
   test("agent Catalogue : photos + notes → fiche publiée en boutique", async ({ page }) => {
     await login(page);
-    await page.goto(`${ATELIER}/catalogue`);
+    await page.goto(`${ATELIER}/catalogue/nouveau`);
     await page.locator(".dropzone input[type=file]").setInputFiles(path.join(__dirname, "fixture-piece.jpg"));
     await expect(page.locator(".thumbs img")).toHaveCount(1);
     const name = `Top Test ${Date.now().toString(36).slice(-4)}`;
@@ -36,8 +36,11 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
 
   test("catalogue : la créatrice règle le prix, le délai de fabrication et l’indicateur provisoire", async ({ page }) => {
     await login(page);
+    // la liste signale ce qui reste à confirmer ; le réglage se fait sur la fiche de la pièce
     await page.goto(`${ATELIER}/catalogue`);
-    await expect(page.getByText(/Prix à confirmer/)).toContainText("Le top Kira");
+    await expect(page.getByRole("link", { name: /Le top Kira/ })).toContainText("prix à confirmer");
+    await page.getByRole("link", { name: /Le top Kira/ }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Le top Kira" })).toBeVisible();
     const min = page.getByLabel("Le top Kira, délai le plus court en semaines");
     const max = page.getByLabel("Le top Kira, délai le plus long en semaines");
     const provisional = page.getByLabel("Le top Kira, délai provisoire");
@@ -52,13 +55,13 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
       await page.goto("/boutique/top-kira");
       await expect(page.locator("[data-delai]")).toContainText("3 à 5 semaines");
       // un délai incohérent est refusé
-      await page.goto(`${ATELIER}/catalogue`);
+      await page.goto(`${ATELIER}/catalogue/top-kira`);
       await min.fill("6");
       await max.fill("4");
       await row.getByRole("button", { name: "Enregistrer" }).click();
       await expect(row.getByRole("alert")).toContainText("Le délai le plus court vient d’abord");
     } finally {
-      await page.goto(`${ATELIER}/catalogue`);
+      await page.goto(`${ATELIER}/catalogue/top-kira`);
       await min.fill(before.min);
       await max.fill(before.max);
       await provisional.setChecked(before.provisional);

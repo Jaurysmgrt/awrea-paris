@@ -340,7 +340,9 @@ boutique.
 3. **Configuration** › **Accès** : cocher uniquement `read_products`, `write_products` (fiches,
    prix, métachamps), `read_inventory`, `write_inventory` (création des tailles sans suivi de
    stock), `read_orders`, `write_orders` (étiquettes d'étape, remboursements), `read_customers`,
-   `write_customers`. Dans **Données clientes protégées**, demander l'accès
+   `write_customers`, `read_publications`, `write_publications` (une pièce remise en ligne depuis
+   l'Atelier › Produits est publiée sur les canaux de vente, le site compris ; sans ces deux accès,
+   le statut change quand même et l'Atelier dit de vérifier les canaux dans Shopify). Dans **Données clientes protégées**, demander l'accès
    aux noms, e-mails, adresses et téléphones (nécessaire aux bons de livraison et aux factures).
    Publier la version.
 4. **Installer** l'application sur la boutique.

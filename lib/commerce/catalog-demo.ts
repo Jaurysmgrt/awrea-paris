@@ -8,6 +8,7 @@ import { collections as baseCollections, looks as baseLooks } from "@/data/demo/
 import { kv } from "@/lib/store";
 import { DEFAULT_LEAD_TIME } from "./availability";
 import type { Collection, Look, Product } from "./types";
+import type { StatutPiece } from "./statut-pieces";
 
 /** Réglages d'une pièce par l'Atelier, gardés dans la surcouche des fiches (`DEMO_KEYS.patches`). */
 export type DemoPieceSettings = Partial<Pick<Product, "leadTime" | "priceProvisional" | "leadTimeProvisional" | "isNew">>;
@@ -22,16 +23,25 @@ export const DEMO_KEYS = {
   extra: "demo:products:extra", // Product[] publiés par l'agent Catalogue
   removed: "demo:products:removed", // handles retirés
   patches: "demo:products:patch", // { [handle]: Partial<Product> } (SEO, textes, délai, indicateurs)
+  statut: "demo:products:statut", // { [handle]: "brouillon" | "archivee" } (absente : en ligne)
 } as const;
 
-export async function demoProducts(): Promise<Product[]> {
-  const [price, extra, removed, patches] = await Promise.all([
+/**
+ * Pièces de la démonstration. Le site ne voit que les pièces en ligne ; l'Atelier (`{ tous: true }`)
+ * voit aussi les brouillons et les pièces archivées, avec leur statut.
+ */
+export async function demoProducts(): Promise<Product[]>;
+export async function demoProducts(o: { tous: true }): Promise<(Product & { statut: StatutPiece })[]>;
+export async function demoProducts(o: { tous?: boolean } = {}): Promise<(Product & { statut?: StatutPiece })[]> {
+  const [price, extra, removed, patches, statuts] = await Promise.all([
     kv.get<Record<string, number>>(DEMO_KEYS.price),
     kv.get<Product[]>(DEMO_KEYS.extra),
     kv.get<string[]>(DEMO_KEYS.removed),
     kv.get<Record<string, Partial<Product>>>(DEMO_KEYS.patches),
+    kv.get<Record<string, StatutPiece>>(DEMO_KEYS.statut),
   ]);
-  const all = [...baseProducts, ...(extra ?? [])].filter((p) => !(removed ?? []).includes(p.handle));
+  const statutDe = (handle: string): StatutPiece => statuts?.[handle] ?? "en-ligne";
+  const all = [...baseProducts, ...(extra ?? [])].filter((p) => !(removed ?? []).includes(p.handle) && (o.tous || statutDe(p.handle) === "en-ligne"));
   return all.map((p) => {
     const merged: Product = { ...p, ...(patches?.[p.handle] ?? {}) };
     // pièce publiée avant le modèle « sur demande » (sans délai) : délai provisoire de sa
@@ -42,15 +52,18 @@ export async function demoProducts(): Promise<Product[]> {
       price: price?.[p.handle] ?? p.price,
       leadTime: known ? merged.leadTime : (DEFAULT_LEAD_TIME[p.category] ?? DEFAULT_LEAD_TIME.robe),
       leadTimeProvisional: merged.leadTimeProvisional ?? !known,
+      ...(o.tous ? { statut: statutDe(p.handle) } : {}),
     };
   });
 }
 
 export async function demoCollections(): Promise<Collection[]> {
-  const extra = (await kv.get<Product[]>(DEMO_KEYS.extra)) ?? [];
+  const [extra, statuts] = await Promise.all([kv.get<Product[]>(DEMO_KEYS.extra), kv.get<Record<string, StatutPiece>>(DEMO_KEYS.statut)]);
+  // une pièce en brouillon ou archivée sort aussi de sa collection
+  const enLigne = (handle: string) => (statuts?.[handle] ?? "en-ligne") === "en-ligne";
   return baseCollections.map((c) => ({
     ...c,
-    products: [...c.products, ...extra.filter((p) => p.collection === c.handle).map((p) => p.handle)],
+    products: [...c.products, ...(extra ?? []).filter((p) => p.collection === c.handle).map((p) => p.handle)].filter(enLigne),
   }));
 }
 
