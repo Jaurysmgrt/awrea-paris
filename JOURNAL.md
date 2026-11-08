@@ -797,3 +797,36 @@ Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/
   Catalogue et les réglages de prix suivent les mêmes règles ; pages du site rafraîchies après chaque
   geste ; messages d'état lus par les lecteurs d'écran ; réglage du prix lisible sur téléphone.
 
+## Refonte de l’Atelier : lot 2b, aperçu, nouvelle pièce, photos (08/11)
+
+- Aperçu d’une pièce en brouillon ou archivée sur la vraie page du site, depuis sa fiche
+  (« Voir l’aperçu sur le site ») : seulement pour la créatrice connectée en mode Édition ; une
+  visiteuse obtient toujours une page introuvable, et l’aperçu n’entre jamais dans le cache du site.
+  Bandeau « Aperçu », commande désactivée, ni données structurées, ni statistiques, ni indexation.
+- Nouvelle pièce en quatre étapes courtes (les photos, la pièce, prix et délai, vos notes), avec ce
+  qui manque dit en mots simples. L’agent Catalogue rédige d’après les photos et les notes, sans
+  rien inventer ; la pièce naît toujours en brouillon et sa fiche s’ouvre aussitôt.
+- Sécurité (audit, point 4) : `publish_product` ne publie plus jamais directement, en démonstration
+  comme avec Shopify.
+- Photos depuis la fiche : ajouter, choisir la principale, écrire ce que montre la photo, retirer
+  (au moins une photo, 12 au plus). Shopify : nouvelle permission `write_files` (ACTIVATION.md).
+- Tests : aperçu (créatrice et visiteuse), quatre étapes, photos.
+- Relecture indépendante, corrigée : un parcours dépendait de l’ordre des tests (copies du top Kira) ;
+  aucune mesure d’audience en mode Édition ni sur un aperçu ; 8 photos au plus partout (ce que le
+  site montre) ; les textes anglais des photos suivent leurs photos quand l’ordre change ; contrôles
+  du prix et du délai avant l’envoi, messages en français ; dépôt de photos sans doublon ni course ;
+  photo de détail jamais retirée en démonstration ; boutons et champs des photos numérotés pour les
+  lecteurs d’écran, focus gardé dans la liste ; identifiants de photos imprévisibles.
+- Limites connues, notées pour la suite : avec Shopify, une photo ajoutée hérite du repère « visuels
+  provisoires » de la pièce ; Shopify va chercher les photos à l’adresse du site en ligne (pas depuis
+  un aperçu Vercel) ; d’anciennes propositions `publish_product` « en ligne » encore en attente sont
+  désormais refusées à la validation (voulu).
+
+## Complément du MASTER PROMPT et choix de la créatrice (08/11)
+
+- Le complément (sections 3 à 22) est intégré au plan sans repartir de zéro :
+  `docs/ATELIER-REFONTE.md`, sections 4 à 8 (plan en lots 2c à 7, état de chaque section,
+  ressources réellement utilisables).
+- Choix de la créatrice : boutique propre (Supabase) et paiement par Stripe, bascule progressive,
+  Shopify actif jusqu’à son feu vert ; pièces sur demande avec quantité limitée possible pièce par
+  pièce ; codes privés et prix de vente privée des avant-premières, rien de barré.

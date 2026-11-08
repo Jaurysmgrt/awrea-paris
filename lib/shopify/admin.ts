@@ -12,9 +12,12 @@
  * Portées nécessaires : read/write_products (dont les métachamps des pièces), read/write_inventory
  * (création des tailles sans suivi de stock), read/write_orders, read/write_customers,
  * read/write_content (articles), read_analytics, read/write_publications (Atelier › Produits :
- * une pièce remise en ligne est publiée sur les canaux de vente).
+ * une pièce remise en ligne est publiée sur les canaux de vente), read/write_files (Atelier ›
+ * Produits : retirer une photo d'une pièce, écrire son texte alternatif).
  */
 import { providerOf } from "@/lib/config/providers";
+import { PRODUCT_METAFIELDS, type SProduct } from "./storefront";
+import { PHOTOS_MAX } from "@/lib/commerce/statut-pieces";
 
 const domain = process.env.SHOPIFY_STORE_DOMAIN;
 const staticToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
@@ -377,7 +380,7 @@ export interface AdminPiece {
   descriptionHtml: string;
   seo: { title: string | null; description: string | null };
   variants: { nodes: { price: string; selectedOptions: { name: string; value: string }[] }[] };
-  media: { nodes: ({ alt?: string | null; image?: { url: string; width: number; height: number } | null } | Record<string, never>)[] };
+  media: { nodes: ({ id?: string; alt?: string | null; image?: { url: string; width: number; height: number } | null } | Record<string, never>)[] };
   collections: { nodes: { handle: string }[] };
   tagline?: { value: string } | null;
   leadMin?: { value: string } | null;
@@ -390,7 +393,7 @@ export interface AdminPiece {
 
 const ADMIN_PIECE_FIELDS = `handle title status productType tags descriptionHtml seo { title description }
   variants(first: 20) { nodes { price selectedOptions { name value } } }
-  media(first: 12) { nodes { ... on MediaImage { alt image { url width height } } } }
+  media(first: 12) { nodes { ... on MediaImage { id alt image { url width height } } } }
   collections(first: 1) { nodes { handle } }
   tagline: metafield(namespace: "awrea", key: "tagline") { value }
   leadMin: metafield(namespace: "awrea", key: "delai_min") { value }
@@ -448,6 +451,91 @@ export async function shopifyAtelierPieces(): Promise<{ pieces: AdminPieceResume
 export async function shopifyAtelierPiece(handle: string): Promise<AdminPiece | null> {
   const d = await admin<{ productByIdentifier: AdminPiece | null }>(`query P($h: String!) { productByIdentifier(identifier: { handle: $h }) { ${ADMIN_PIECE_FIELDS} } }`, { h: handle });
   return d.productByIdentifier;
+}
+
+type ApercuMedia = {
+  alt: string | null;
+  image?: { url: string; altText: string | null; width: number; height: number } | null;
+  preview?: { image: { url: string } | null } | null;
+  sources?: { url: string; mimeType: string; height: number }[];
+};
+type ApercuProduit = Omit<SProduct, "images" | "media" | "priceRange" | "variants" | "publishedAt"> & {
+  status: string;
+  publishedAt: string | null;
+  priceRangeV2: SProduct["priceRange"];
+  media: { nodes: ApercuMedia[] };
+  variants: { nodes: { id: string; sku: string | null; selectedOptions: { name: string; value: string }[] }[] };
+};
+
+/**
+ * Une pièce, quel que soit son statut, sous la forme que lit le site (lib/shopify/storefront.ts,
+ * mapProduct) : pour l'aperçu d'un brouillon, réservé à la créatrice connectée en mode Édition.
+ * Toutes les tailles sont gardées : une pièce pas encore publiée n'est « en vente » nulle part.
+ */
+export async function shopifyApercuPiece(handle: string): Promise<(SProduct & { status: string }) | null> {
+  const d = await admin<{ productByIdentifier: ApercuProduit | null }>(
+    `query A($h: String!) { productByIdentifier(identifier: { handle: $h }) {
+      id handle title description descriptionHtml productType tags publishedAt status
+      seo { title description }
+      collections(first: 1) { nodes { handle } }
+      priceRangeV2 { minVariantPrice { amount } maxVariantPrice { amount } }
+      media(first: 16) { nodes { alt ... on MediaImage { image { url altText width height } } ... on Video { preview { image { url } } sources { url mimeType height } } } }
+      variants(first: 20) { nodes { id sku selectedOptions { name value } } }
+      ${PRODUCT_METAFIELDS}
+    } }`,
+    { h: handle },
+  );
+  const p = d.productByIdentifier;
+  if (!p) return null;
+  const { priceRangeV2, media, variants, publishedAt, ...reste } = p;
+  return {
+    ...reste,
+    publishedAt: publishedAt ?? "",
+    priceRange: priceRangeV2,
+    // les 8 premières photos, comme le site (lib/shopify/storefront.ts)
+    images: { nodes: media.nodes.flatMap((m) => (m.image ? [{ ...m.image, altText: m.image.altText ?? m.alt }] : [])).slice(0, PHOTOS_MAX) },
+    media: { nodes: media.nodes.map((m) => (m.sources?.length ? { alt: m.alt ?? undefined, previewImage: m.preview?.image ?? undefined, sources: m.sources } : {})) },
+    variants: { nodes: variants.nodes.map((v) => ({ ...v, sku: v.sku ?? "", availableForSale: true })) },
+  };
+}
+
+/**
+ * Photos d'une pièce. Ajout : Shopify va chercher chaque photo à son adresse publique, puis la
+ * prépare (quelques secondes). Retrait et texte alternatif : fileUpdate (permission `write_files`) ;
+ * photo principale : productReorderMedia, la première photo étant celle des listes.
+ */
+export async function shopifyAddPhotos(handle: string, photos: { url: string; alt: string }[]) {
+  const id = await productIdByHandle(handle);
+  if (!id) throw new Error(`Produit ${handle} introuvable`);
+  const r = await admin<{ productUpdate: UserErrors }>(
+    `mutation M($product: ProductUpdateInput!, $media: [CreateMediaInput!]) { productUpdate(product: $product, media: $media) { userErrors { field message } } }`,
+    { product: { id }, media: photos.map((p) => ({ originalSource: p.url, alt: p.alt, mediaContentType: "IMAGE" })) },
+  );
+  assertNoErrors("Photos de la pièce", r.productUpdate);
+}
+
+export async function shopifyRemovePhoto(handle: string, mediaId: string) {
+  const id = await productIdByHandle(handle);
+  if (!id) throw new Error(`Produit ${handle} introuvable`);
+  const r = await admin<{ fileUpdate: UserErrors }>(`mutation F($files: [FileUpdateInput!]!) { fileUpdate(files: $files) { userErrors { field message } } }`, {
+    files: [{ id: mediaId, referencesToRemove: [id] }],
+  });
+  assertNoErrors("Retrait de la photo", r.fileUpdate);
+}
+
+export async function shopifyMainPhoto(handle: string, mediaId: string) {
+  const id = await productIdByHandle(handle);
+  if (!id) throw new Error(`Produit ${handle} introuvable`);
+  const r = await admin<{ productReorderMedia: { mediaUserErrors: { field: string[] | null; message: string }[] } }>(
+    `mutation R($id: ID!, $moves: [MoveInput!]!) { productReorderMedia(id: $id, moves: $moves) { mediaUserErrors { field message } } }`,
+    { id, moves: [{ id: mediaId, newPosition: "0" }] },
+  );
+  assertNoErrors("Photo principale", { userErrors: r.productReorderMedia.mediaUserErrors });
+}
+
+export async function shopifyPhotoAlt(mediaId: string, alt: string) {
+  const r = await admin<{ fileUpdate: UserErrors }>(`mutation F($files: [FileUpdateInput!]!) { fileUpdate(files: $files) { userErrors { field message } } }`, { files: [{ id: mediaId, alt }] });
+  assertNoErrors("Texte de la photo", r.fileUpdate);
 }
 
 /** Nom, accroche, description et référencement d'une pièce. */

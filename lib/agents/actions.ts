@@ -83,7 +83,8 @@ export const ProductDraftSchema = z.object({
   details: z.array(z.string()).default([]),
   seo: z.object({ title: z.string().min(10).max(70), description: z.string().min(50).max(170) }),
   tags: z.array(z.string()).default([]),
-  status: z.enum(["active", "draft"]).default("active"),
+  // une pièce naît toujours en brouillon : la créatrice la relit, puis la met en ligne (lot 2 de la refonte)
+  status: z.literal("draft").default("draft"),
 });
 export type ProductDraft = z.infer<typeof ProductDraftSchema>;
 
@@ -157,14 +158,15 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
     if (existing) throw new Error(`Une pièce existe déjà sous l’adresse /boutique/${handle}.`);
     const code = d.title.split(" ").pop()!.slice(0, 3).toUpperCase();
     const leadTime = d.lead_time && d.lead_time.min <= d.lead_time.max ? d.lead_time : DEFAULT_LEAD_TIME[d.category];
+    let adresse = handle;
     if (adminEnabled) {
-      await shopifyCreateProduct({
+      ({ handle: adresse } = await shopifyCreateProduct({
         handle,
         title: d.title,
         descriptionHtml: descriptionHtml(d.description),
         productType: d.category,
         tags: d.tags,
-        status: d.status === "active" ? "ACTIVE" : "DRAFT",
+        status: "DRAFT",
         seo: d.seo,
         metafields: [
           { key: "tagline", type: "single_line_text_field", value: d.tagline },
@@ -182,7 +184,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
         images: d.images.map((i) => ({ url: i.src.startsWith("http") ? i.src : `${identity.url}${i.src}`, alt: i.alt })),
         sizes: d.sizes.map((size) => ({ size, sku: `AW-${code}-${size}` })),
         price: d.price,
-      });
+      }));
     } else {
       const product: Product = {
         id: `agent-${handle}`,
@@ -211,18 +213,18 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
         tags: d.tags,
         publishedAt: new Date().toISOString().slice(0, 10),
       };
+      // brouillon : dans Produits, jamais sur le site (lib/commerce/catalog-demo.ts) ; le statut
+      // d'abord, pour que la pièce ne soit jamais un instant en ligne
+      const statuts = (await kv.get<Record<string, string>>(DEMO_KEYS.statut)) ?? {};
+      await kv.set(DEMO_KEYS.statut, { ...statuts, [handle]: "brouillon" });
       const extra = (await kv.get<Product[]>(DEMO_KEYS.extra)) ?? [];
       await kv.set(DEMO_KEYS.extra, [...extra, product]);
-      if (d.status === "draft") {
-        // brouillon : dans Produits, jamais sur le site (lib/commerce/catalog-demo.ts)
-        const statuts = (await kv.get<Record<string, string>>(DEMO_KEYS.statut)) ?? {};
-        await kv.set(DEMO_KEYS.statut, { ...statuts, [handle]: "brouillon" });
-        refresh();
-        return { summary: `Fiche « ${d.title} » enregistrée en brouillon (non visible en boutique)`, target: { type: "product", id: handle, label: d.title, href: `atelier:/catalogue/${handle}` } };
-      }
     }
     refresh();
-    return { summary: `Fiche « ${d.title} » publiée (${formatPrice(d.price)}, créée sur demande en ${leadTime.min} à ${leadTime.max} semaines)`, target: { type: "product", id: handle, label: d.title, href: `/boutique/${handle}` } };
+    return {
+      summary: `Fiche « ${d.title} » créée en brouillon (${formatPrice(d.price)}, créée sur demande en ${leadTime.min} à ${leadTime.max} semaines), à relire avant de la mettre en ligne`,
+      target: { type: "product", id: adresse, label: d.title, href: `atelier:/catalogue/${adresse}` },
+    };
   },
 
   async update_product_content({ handle, tagline, description, seo, alts }) {
@@ -234,7 +236,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       await shopifyUpdateProduct(handle, { descriptionHtml: description ? descriptionHtml(description) : undefined, seo });
     } else {
       const patches = (await kv.get<Record<string, Partial<Product>>>(DEMO_KEYS.patches)) ?? {};
-      const images = alts?.length ? p.images.map((im, i) => ({ ...im, alt: alts.find((a) => a.index === i)?.alt ?? im.alt })) : undefined;
+      const images = alts?.length ? p.images.map(({ cle: _cle, ...im }, i) => ({ ...im, alt: alts.find((a) => a.index === i)?.alt ?? im.alt })) : undefined;
       patches[handle] = { ...(patches[handle] ?? {}), ...(tagline ? { tagline } : {}), ...(description ? { description } : {}), ...(seo ? { seo } : {}), ...(images ? { images } : {}) };
       await kv.set(DEMO_KEYS.patches, patches);
     }

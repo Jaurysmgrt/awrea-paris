@@ -65,7 +65,8 @@ export async function storefront<T>(query: string, variables: Record<string, unk
   return json.data as T;
 }
 
-const MF = `
+/** Métachamps d'une pièce : même écriture dans la Storefront API et dans l'API Admin (aperçu des brouillons). */
+export const PRODUCT_METAFIELDS = `
   tagline: metafield(namespace: "awrea", key: "tagline") { value }
   leadMin: metafield(namespace: "awrea", key: "delai_min") { value }
   leadMax: metafield(namespace: "awrea", key: "delai_max") { value }
@@ -92,11 +93,11 @@ const PRODUCT_FIELDS = `
   images(first: 8) { nodes { url altText width height } }
   media(first: 8) { nodes { ... on Video { alt previewImage { url } sources { url mimeType height } } } }
   variants(first: 20) { nodes { id sku availableForSale selectedOptions { name value } } }
-  ${MF}
+  ${PRODUCT_METAFIELDS}
 `;
 
-type SImage = { url: string; altText: string | null; width: number; height: number };
-type SProduct = {
+export type SImage = { url: string; altText: string | null; width: number; height: number };
+export type SProduct = {
   id: string; handle: string; title: string; description: string; descriptionHtml: string; productType: string; tags: string[]; publishedAt: string;
   seo: { title: string | null; description: string | null };
   collections: { nodes: { handle: string }[] };

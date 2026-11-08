@@ -35,9 +35,10 @@ Claude (`lib/ai`). Sans clé, chaque service passe en démonstration.
    sous l'adresse secrète, n'est protégée que par le cookie `SameSite=Strict` (vérifié).
 3. `decide()` (validation d'une proposition) n'est pas atomique : deux clics peuvent exécuter deux
    fois un remboursement ou un envoi (vérifié).
-4. `publish_product` met une pièce en ligne à un prix libre sans validation (vérifié), alors que
-   `change_price` en demande une. Aujourd'hui le prix vient du formulaire de la créatrice ; au lot 2
-   une pièce naît toujours en brouillon, et l'assistant (lot 4) ne reçoit jamais `publish_product`.
+4. `publish_product` mettait une pièce en ligne à un prix libre sans validation (vérifié), alors que
+   `change_price` en demande une. Corrigé au lot 2b : une pièce naît toujours en brouillon (démonstration
+   et Shopify), la créatrice la met en ligne depuis sa fiche ; l'assistant (lot 4) ne recevra jamais
+   `publish_product`.
 5. Les filtres des réponses aux clientes (`safeOutbound`, `suspicious`) ne vivent que dans l'agent
    Service client, pas dans `perform()`.
 
@@ -90,30 +91,77 @@ la rubrique. Aucune rubrique vide : une entrée n'apparaît que le jour où sa p
 
 ## 4. Plan par lots
 
-Chaque lot : relecture indépendante, lint, types, tokens, écriture, tests unitaires, base et
-Playwright, puis demande de fusion.
+Chaque lot : relecture indépendante, lint, types, tokens, écriture, tests unitaires, base et
+Playwright, puis demande de fusion. Mis à jour le 08/11 avec le complément du MASTER PROMPT
+(sections 3 à 22) et les choix de la créatrice (section 6).
 
 | Lot | Contenu | Fini quand |
 |---|---|---|
-| 0 | Sécurité préalable : session revérifiée sur les 4 routes, contrôle d'origine sur l'API de l'Atelier, `decide()` atomique, filtre des réponses dans `perform()` (fait le 07/11) | tests qui échouent avant et passent après |
-| 1 | (fait le 07/11) Menu clair et nouvelle Vue d'ensemble : chiffre d'affaires du mois et comparaison, commandes à traiter, nouvelles clientes, dernières commandes, pièces les plus vendues, rendez-vous, activité récente, « Que souhaitez-vous faire ? », actions prioritaires ; données réelles seulement | parcours Playwright de l'accueil et du menu, sur téléphone et ordinateur |
-| 2 | (2a fait le 08/11 : liste, fiche, textes, statut, copie ; 2b à venir : création en étapes, photos, IA) Produits : fiche modifiable (textes, photos, collection, tailles), ajout en étapes courtes, brouillon ou publié, aperçu, dupliquer, archiver, propositions de l'IA sans rien inventer ; publication Shopify sur le canal du site | création, duplication, archivage testés en démonstration |
-| 3 | Commandes (statuts de la confection, recherche, filtres, notes internes, historique, actions rapides confirmées) et clientes (fiche, catégories nouvelle, régulière, fidèle, inactive, filtres, ajout) | fiches et filtres testés |
-| 4 | AWREA ASSISTANT, agents, page Automatisations avec interrupteurs, Promotions (codes privés), Statistiques | demandes types du brief testées avec et sans clé |
+| 0 | (fait le 07/11) Sécurité préalable : session revérifiée sur les 4 routes, contrôle d'origine sur l'API de l'Atelier, `decide()` atomique, filtre des réponses dans `perform()` | tests qui échouent avant et passent après |
+| 1 | (fait le 07/11) Menu clair et Vue d'ensemble : chiffre d'affaires du mois, commandes à traiter, nouvelles clientes, dernières commandes, pièces les plus vendues, rendez-vous, activité, actions prioritaires ; données réelles seulement | parcours de l'accueil et du menu, téléphone et ordinateur |
+| 2a | (fait le 08/11) Produits : liste, recherche, filtres, fiche, textes, statut, copie, archive | parcours testés en démonstration |
+| 2b | (fait le 08/11) Aperçu des brouillons sur la vraie page, création en quatre étapes toujours en brouillon, photos (ajout, ordre, texte, retrait) | parcours testés en démonstration |
+| 2c | Fiche complète : collection, tailles, matières, entretien, coupe ; quantité limitée par pièce (alerte quand il en reste peu, fermeture à zéro) ; propositions de l'IA sur une fiche existante, sans rien inventer | réglages enregistrés et visibles sur le site |
+| 3 | Commandes (statuts de la confection, recherche, filtres par statut et période, notes internes, historique, annulation et remboursement confirmés) et clientes (fiche, historique, total des achats, catégories nouvelle, régulière, fidèle, inactive, notes, RGPD : export et effacement) | fiches, filtres et historique testés |
+| 4 | Boutique propre : pièces, tailles, commandes et clientes dans la base Supabase (tables, sécurité par ligne, sauvegarde), paiement par Stripe Checkout et son webhook signé, import depuis Shopify ; bascule par un seul réglage, le jour choisi par la créatrice, Shopify restant actif d'ici là | commande de bout en bout en mode test Stripe, import vérifié |
+| 5 | Agents et autonomie : file de tâches (planifiées et déclenchées par un événement, relances, statuts, journal), agents Boutique, Commandes, Clientes, Marketing, Analytics et Coordinateur (mission, outils, permissions, mémoire de travail, passage de relais), interrupteur et limite par agent | tâches réellement déclenchées et suivies, validations en attente respectées |
+| 6 | IA et coûts : modèle par agent (économique pour les tâches simples), budget mensuel et quotidien, consommation et coût estimé, historique des appels, alerte, suspension des tâches au plafond ; AWREA ASSISTANT branché sur les vraies données | budget atteint : tâches suspendues et créatrice prévenue ; boutique intacte sans IA |
+| 7 | Pilotage : filtres de période (aujourd'hui, 7 jours, 30 jours, 12 mois, période choisie), panier moyen, évolution des ventes, performances des pièces ; Promotions (codes privés, prix de vente privée des avant-premières) ; Statistiques | chiffres réels seulement, testés par période |
 
 ## 5. Ce qui demande une clé ou une configuration
 
 | Fonction | Nécessaire |
 |---|---|
-| Vraies commandes, produits, codes de réduction | Shopify Admin (`write_products`, `write_publications`, `write_discounts`, `read_orders`, `write_orders`) |
-| Fiches clientes avec comptes | Supabase |
-| Assistant qui comprend les phrases libres, rédaction | clé Claude (`ANTHROPIC_API_KEY`), payante à l'usage ; plafond quotidien prévu au lot 4 |
+| Boutique propre et paiement (lot 4) | compte Stripe créé par la créatrice (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`) ; frais par vente, sans abonnement |
+| Vraies commandes et produits tant que Shopify reste actif | Shopify Admin (`write_products`, `write_publications`, `write_files`, `write_discounts`, `read_orders`, `write_orders`) |
+| Fiches clientes, et au lot 4 pièces et commandes | Supabase |
+| Assistant qui comprend les phrases libres, rédaction, agents | clé Claude (`ANTHROPIC_API_KEY`), payante à l'usage ; budget réglable au lot 6 |
 | E-mails | Resend |
 | Données durables sur Vercel | Upstash (`KV_REST_API_URL`, `KV_REST_API_TOKEN`) |
 
-## 6. Choix faits par défaut (modifiables)
-- **Promotions** : codes privés, donnés à une cliente, sans prix barré ni bannière (règle de luxe
-  discret de `MARQUE.md`).
-- **Menu** : clair, ivoire, comme le demande le brief.
-- **Vocabulaire** : « Produits » dans l'Atelier, comme dans le brief ; « pièce » reste la règle sur
-  le site public.
+## 6. Choix de la créatrice
+
+Le 08/11, en réponse au complément du MASTER PROMPT :
+- **Paiement** : boutique propre (base Supabase) et paiement par Stripe, sans abonnement ; bascule
+  progressive, Shopify reste actif jusqu'au jour qu'elle choisit. Aucune donnée bancaire sur le site :
+  Stripe Checkout encaisse. Le compte Stripe est créé par la créatrice.
+- **Stocks** : les pièces restent créées sur demande ; une quantité limitée peut être fixée pièce par
+  pièce (tissu rare, édition courte), avec une alerte quand il en reste peu et une fermeture à zéro.
+- **Promotions** : codes privés donnés à une cliente, et prix de vente privée réservé aux inscrites
+  d'une avant-première ; rien de barré sur le site public (règle de luxe discret de `MARQUE.md`).
+
+Choix plus anciens, toujours valables : menu clair et ivoire ; « Produits » dans l'Atelier, « pièce »
+sur le site public.
+
+## 7. Complément du MASTER PROMPT : où en est chaque section (08/11)
+
+| Section | Existant | À faire (lot) |
+|---|---|---|
+| 4. Architecture | Next.js 16, couche commerce à trois modes (Shopify, démonstration), Supabase pour les clientes, stockage clé-valeur, IA facultative | boutique propre et Stripe (4) |
+| 5. Tableau de bord | Vue d'ensemble du lot 1 (chiffre du mois, commandes, clientes, pièces vendues, activité, alertes et propositions) | filtres de période, panier moyen, évolution (7) |
+| 6. Produits | lots 2a et 2b : liste, fiche, textes, photos et ordre, statut, copie, aperçu | collection, tailles, quantité limitée, matières (2c) ; suppression définitive après confirmation (2c) |
+| 7. Commandes | liste, fiche, étape suivante avec e-mail, bon, facture | recherche, filtres, notes, historique, annulation (3) |
+| 8. Clientes | tableau et catégories | fiche, historique, notes, RGPD (3) |
+| 9. Contenu | éditeur « Édition » : textes, photos, blocs, pages, brouillons, aperçu, programmation, historique | rien de bloquant |
+| 10. Assistant | assistante des clientes ; propositions et journal des agents | AWREA ASSISTANT de gestion (6) |
+| 11. Agents | 6 agents et 19 rôles quotidiens, propositions à valider, journal | missions et permissions par agent, mémoire, passage de relais, Coordinateur (5) |
+| 12. Autonomie | tâches planifiées Vercel (chaque jour et chaque semaine), événement « commande créée » | file de tâches, relances, déclencheurs, statuts (5) |
+| 13. Permissions | `lib/agents/policy.ts` : argent et irréversible toujours validés ; autonomies réglables | interrupteur et limite par agent (5) |
+| 14. Modèles et coûts | un modèle Claude réglable, mode sans clé | modèle par agent, budget, consommation, alertes (6) |
+| 15 à 18. Design, simplicité, sécurité, qualité | audits de tokens et d'écriture, tests Playwright et axe, sécurité du lot 0, relectures indépendantes | à tenir à chaque lot |
+
+## 8. Ressources réellement utilisables (vérifiées le 08/11)
+
+- **Sous-agents du projet** (`.claude/agents/`, 50) : relecteur de code, attaquant éthique,
+  testeuse non technique, testeurs (accessibilité, responsive, performance, homogénéité), équipes
+  d'écriture, de design et de SEO, spécialiste Shopify, chef de projet. Utilisés pour chaque lot :
+  relecture indépendante du lot 2a et du lot 2b (relecteur de code).
+- **Connecteurs utilisés** : GitHub (demandes de fusion, vérifications, fusion), documentation
+  Shopify (requêtes de l'API Admin 2026), Playwright (parcours et captures sur téléphone et
+  ordinateur).
+- **Compétences (Skills)** : « no-ui-slop » pour les écrans de l'Atelier ; avant le lot 6, la
+  référence de l'API Claude (modèles, prix, cache) sera lue avant d'écrire le moindre réglage de
+  modèle ou de budget.
+- **Indisponibles ici** : analyse de sécurité HawkScan (clé `HAWK_API_KEY` absente) ; plusieurs
+  connecteurs refusés par le réseau de l'environnement ; aucun connecteur Stripe ni Supabase (les
+  tests de la base passent par PostgreSQL embarqué, `npm run test:db`).

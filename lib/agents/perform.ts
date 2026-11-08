@@ -50,6 +50,8 @@ export interface PerformOutcome {
   status: "done" | "proposed" | "failed";
   message: string;
   proposalId?: string;
+  /** ce que l'action a touché (une pièce créée, par exemple) */
+  target?: ActionResult["target"];
 }
 
 export async function perform<T extends ActionType>(agent: AgentId, action: T, rawParams: unknown, meta: { summary: string; rationale?: string }): Promise<PerformOutcome> {
@@ -105,7 +107,7 @@ export async function perform<T extends ActionType>(agent: AgentId, action: T, r
     const executor = EXECUTORS[action] as unknown as (p: ActionParams<T>) => Promise<ActionResult>;
     const result = await executor(params);
     await logAction({ agent, kind: action, status: "done", summary: result.summary, detail: meta.rationale, target: result.target });
-    return { status: "done", message: result.summary };
+    return { status: "done", message: result.summary, target: result.target };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     await logAction({ agent, kind: action, status: "failed", summary: meta.summary, detail: message });

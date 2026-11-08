@@ -20,6 +20,8 @@ import { dropOfProduct } from "@/lib/drops";
 import { Reviews } from "@/components/reviews/Reviews";
 import { Traceability } from "@/components/commerce/Traceability";
 import { ShareButton } from "@/components/commerce/ShareButton";
+import { pieceEnApercu } from "@/lib/commerce/apercu";
+import { ApercuBandeau } from "@/components/admin/ApercuBandeau";
 import s from "./fiche.module.css";
 
 /**
@@ -43,8 +45,13 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }) {
-  const p = await getProduct((await params).handle);
-  if (!p) return {};
+  const { handle } = await params;
+  const p = await getProduct(handle);
+  if (!p) {
+    // aperçu d'un brouillon (créatrice connectée, mode Édition) : jamais indexé
+    const apercu = await pieceEnApercu(handle);
+    return apercu ? pageMetadata({ ...apercu.product.seo, path: `/boutique/${handle}`, noindex: true }) : {};
+  }
   // pièce d'une collection pas encore dévoilée : pas d'indexation avant le dévoilement
   const drop = await dropOfProduct(p.handle);
   // un visuel provisoire n'est jamais envoyé aux réseaux, qui ne montrent pas la mention
@@ -54,7 +61,11 @@ export async function generateMetadata({ params }: { params: Promise<{ handle: s
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ handle: string }> }) {
-  const product = await getProduct((await params).handle);
+  const { handle } = await params;
+  const enLigne = await getProduct(handle);
+  // pièce en brouillon ou archivée : seulement en aperçu, pour la créatrice (lib/commerce/apercu.ts)
+  const apercu = enLigne ? null : await pieceEnApercu(handle);
+  const product = enLigne ?? apercu?.product;
   if (!product) notFound();
   const [collection, look, drop] = await Promise.all([getCollection(product.collection), getProductsByHandles(product.completeTheLook), dropOfProduct(product.handle)]);
   const dropInfo: DropInfo | null = drop ? { slug: drop.slug, title: drop.title, earlyAccessAt: drop.earlyAccessAt, publicAt: drop.publicAt, privateSale: drop.privateSale } : null;
@@ -65,9 +76,18 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
 
   return (
     <>
-      <JsonLd data={productSchema(product, tPlain.delai, await getLocale())} />
-      <ViewTracker handle={product.handle} title={product.title} price={product.price} collection={product.collection} />
+      {apercu ? null : (
+        <>
+          <JsonLd data={productSchema(product, tPlain.delai, await getLocale())} />
+          <ViewTracker handle={product.handle} title={product.title} price={product.price} collection={product.collection} />
+        </>
+      )}
       <Section theme="ivory" className="product">
+        {apercu ? (
+          <div className="container">
+            <ApercuBandeau handle={product.handle} statut={apercu.statut} />
+          </div>
+        ) : null}
         <div className="container product__grid">
           <div className={`product__gallery ${s.galerie}`}>
             <ProductGallery product={product} />
@@ -102,9 +122,16 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                 <p className="t-lead">{product.tagline}</p>
               </header>
 
-              <DropGate drop={dropInfo}>
-                <ProductForm product={product} stickyBar />
-              </DropGate>
+              {apercu ? (
+                // aperçu : les tailles se voient, rien ne s'ajoute au panier
+                <fieldset disabled className="apercu-commande">
+                  <ProductForm product={product} />
+                </fieldset>
+              ) : (
+                <DropGate drop={dropInfo}>
+                  <ProductForm product={product} stickyBar />
+                </DropGate>
+              )}
 
               <div className="product__details">
                 <details className="disclosure">

@@ -5,8 +5,9 @@
  *     les shootings), prix et délais de fabrication encore provisoires, informations que la Maison
  *     doit donner (composition, entretien, taille du mannequin), jamais inventées ;
  *  2. une nouvelle fiche à partir de photos et de quelques notes (runCatalogueAgent) : nom, accroche,
- *     description dans le ton de la Maison, coupe, textes alternatifs, balises SEO, publiée seule.
- *     Sans prix, la fiche reste en brouillon. Composition et entretien ne sont repris que s'ils sont
+ *     description dans le ton de la Maison, coupe, textes alternatifs, balises SEO. La pièce naît
+ *     toujours en brouillon : la créatrice la relit, regarde l'aperçu, puis la met en ligne depuis
+ *     sa fiche dans l'Atelier. Composition et entretien ne sont repris que s'ils sont
  *     dans les notes ; sinon un repère « [À COMPLÉTER : …] ».
  */
 import * as z from "zod/v4";
@@ -65,7 +66,8 @@ const Copy = z.object({
   missing_information: z.array(z.string()).describe("Informations manquantes à confirmer par la créatrice (vide si rien ne manque)"),
 });
 
-export async function runCatalogueAgent(input: CatalogueInput, trigger: AgentRun["trigger"] = "manuel"): Promise<AgentRun> {
+/** Le passage de l'agent, et l'adresse de la pièce quand elle a été créée. */
+export async function runCatalogueAgent(input: CatalogueInput, trigger: AgentRun["trigger"] = "manuel"): Promise<AgentRun & { handle?: string }> {
   const rec = new RunRecorder("catalogue", trigger);
   try {
     const media = (await Promise.all(input.mediaIds.map((id) => kv.get<StoredMedia>(`media:${id}`)))).filter((m): m is StoredMedia => Boolean(m));
@@ -151,18 +153,19 @@ Pièces déjà au catalogue, dont le nom ne doit pas être repris : ${existing.
           details: copy.details,
           seo: copy.seo,
           tags: copy.tags,
-          status: hasPrice ? "active" : "draft",
+          status: "draft",
         },
       },
-      { summary: `Publication de la fiche « ${copy.title} »`, rationale: copy.missing_information.length ? `À confirmer : ${copy.missing_information.join(" ; ")}` : undefined },
+      { summary: `Création de la fiche « ${copy.title} », en brouillon`, rationale: copy.missing_information.length ? `À confirmer : ${copy.missing_information.join(" ; ")}` : undefined },
     );
-    return rec.finish(
+    const run = await rec.finish(
       outcome.status === "done"
-        ? `Fiche « ${copy.title} » ${hasPrice ? "publiée" : "créée en brouillon (prix manquant)"}${copy.missing_information.length ? `, ${copy.missing_information.length} point(s) à confirmer` : ""}`
+        ? `Fiche « ${copy.title} » créée en brouillon${copy.missing_information.length ? `, ${copy.missing_information.length} point(s) à confirmer` : ""}`
         : outcome.status === "proposed"
-          ? `Fiche « ${copy.title} » prête : elle attend votre accord dans Validations avant d’être publiée`
-          : `Échec de la publication : ${outcome.message}`,
+          ? `Fiche « ${copy.title} » prête : elle attend votre relecture dans « À valider » avant d’être créée`
+          : `La fiche n’a pas pu être créée : ${outcome.message}`,
     );
+    return outcome.status === "done" && outcome.target ? { ...run, handle: outcome.target.id } : run;
   } catch (e) {
     rec.error(e);
     return rec.finish("Passage interrompu");
@@ -187,7 +190,7 @@ export async function runCatalogueReview(trigger: AgentRun["trigger"] = "manuel"
         ...p.toComplete.map((t) => `${t} à compléter`),
       ].filter(Boolean);
       if (!notes.length) continue;
-      await logAction({ agent: "catalogue", kind: "bilan", status: "info", summary: `${p.title} : ${notes.join(", ")}`, target: { type: "product", id: p.handle, label: p.title, href: "atelier:/catalogue" } });
+      await logAction({ agent: "catalogue", kind: "bilan", status: "info", summary: `${p.title} : ${notes.join(", ")}`, target: { type: "product", id: p.handle, label: p.title, href: "atelier:/catalogue" } });
     }
     const byCollection = collections
       .map((c) => ({ title: c.title, n: products.filter((p) => p.collection === c.handle).length }))

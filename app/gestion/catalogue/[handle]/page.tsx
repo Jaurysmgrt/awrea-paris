@@ -5,13 +5,15 @@ import {
   catalogueModifiable,
   lirePiece,
   MESSAGE_LECTURE_SEULE,
+  PHOTOS_MAX,
 } from "@/lib/commerce/atelier-catalogue";
 import { LEAD_TIME_BOUNDS } from "@/lib/commerce/availability";
 import { LIBELLE_STATUT } from "@/lib/commerce/statut-pieces";
 import { imageAt } from "@/lib/media";
-import { atelierHref } from "@/lib/admin/path";
+import { atelierApi, atelierHref } from "@/lib/admin/path";
 import { PieceEditor } from "@/components/admin/PieceEditor";
 import { PieceGestes } from "@/components/admin/PieceGestes";
+import { PiecePhotos } from "@/components/admin/PiecePhotos";
 import { PieceTextes } from "@/components/admin/PieceTextes";
 
 const CLASSE_STATUT = {
@@ -81,6 +83,14 @@ export default async function PiecePage({
             <Link href={`/boutique/${p.handle}`} className="text-link">
               Voir la pièce sur le site
             </Link>
+          ) : modifiable ? (
+            <>
+              Vos clientes ne la voient pas.{" "}
+              {/* lien simple, jamais préchargé : il ouvre le mode Édition (lib/commerce/apercu.ts) */}
+              <a href={`${atelierApi("/edition/entrer")}?chemin=${encodeURIComponent(`/boutique/${p.handle}`)}`} className="text-link">
+                Voir l’aperçu sur le site
+              </a>
+            </>
           ) : (
             "Visible sur le site une fois mise en ligne."
           )}
@@ -154,7 +164,18 @@ export default async function PiecePage({
         <h2 id="photos-title" className="t-h3">
           Photos ({p.images.length})
         </h2>
-        {p.images.length ? (
+        {modifiable ? (
+          <PiecePhotos
+            handle={p.handle}
+            max={PHOTOS_MAX}
+            photos={p.images.map((im) => ({
+              cle: im.cle,
+              src: imageAt(im.src, 480),
+              alt: im.alt,
+              provisoire: im.provisoire,
+            }))}
+          />
+        ) : p.images.length ? (
           <ul className="piece-photos">
             {p.images.map((im, i) => (
               <li key={`${im.src}-${i}`}>
