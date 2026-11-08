@@ -876,3 +876,42 @@ Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/
   erreur 500 de Next.js avant d’atteindre le site, publique comme privée.
 - Tests : règle des gestes (unitaires), parcours remboursement fait une seule fois même avec deux
   demandes simultanées, confirmation qui dit ce qui va se passer.
+
+## Boutique indépendante : retrait complet de Shopify (08/11)
+
+- Décision de la créatrice : aucune connexion à Shopify, même optionnelle. Retirés du code : le
+  module Shopify, son webhook, la synchronisation des comptes, l'export des e-mails en Liquid, le
+  CDN Shopify de la sécurité du contenu et des images. Catalogue, panier, commandes, remboursements,
+  retours, agents et Atelier ne lisent et n'écrivent plus que la base de la Maison. Ancien code
+  sauvegardé sur la branche `sauvegarde/avant-suppression-shopify`.
+- Boutique réelle ou démonstration (`lib/config/boutique.ts`) : tout site Vercel est en boutique
+  réelle par défaut (aucun exemple, aucun code ni accès d'essai, aucune remise à zéro) ; une
+  prévisualisation ne passe en démonstration qu'avec `BOUTIQUE_DEMONSTRATION=1`, la production
+  jamais. Correction trouvée par la relecture des documents : les codes de réduction d'essai étaient
+  acceptés partout ; ils ne le sont plus sur la boutique réelle.
+- Base clientes : migration `20261108000000_boutique_independante.sql` (colonne `reference`, aucune
+  commande effacée). Documents, CLAUDE.md et fiches d'agents mis à jour (`specialiste-boutique`).
+- Reste, hors de ce lot : une mention dans `.github/workflows/maintenance.yml`, que l'agent ne
+  touche jamais, à retirer par la créatrice.
+
+## Paiement par Stripe (08/11)
+
+- Stripe Checkout, page hébergée : la cliente règle chez Stripe, aucune donnée bancaire sur le site.
+  La commande s'enregistre « en attente de paiement », une seule page de paiement par commande
+  (clé d'idempotence, empreinte du panier contre le double clic) ; elle devient « reçue » quand
+  Stripe confirme (webhook signé, ou retour de la cliente vérifié auprès de Stripe), puis facture,
+  certificats, e-mail et agents, une seule fois (`lib/commerce/finalisation.ts`, aussi utilisé par
+  le paiement d'essai).
+- Webhook `/api/webhooks/stripe` : signature vérifiée sur le corps brut avant toute lecture,
+  événement rejoué sans effet, erreur passagère renvoyée par Stripe ; dix événements suivis
+  (réussi, différé, refusé, expiré, encaissé, remboursé, remboursement refusé, contestation).
+- Atelier : section Paiement sur chaque commande (statut, montant, part remboursée, moyen, références,
+  lien vers Stripe, historique), pastille dans la liste, page Commandes › Paiements, ligne Stripe des
+  Réglages. Remboursements par Stripe depuis la fiche, les propositions validées et les retours,
+  sous le verrou d'argent de la commande ; un remboursement fait depuis Stripe revient dans la commande.
+- Écritures des commandes sous verrou (deux paiements simultanés ne s'écrasent plus) ; numéro de
+  commande unique même pour deux commandes au même instant.
+- Tests : unitaires (session, montants, événements, signature, idempotence, avec un faux serveur
+  Stripe local) ; parcours (webhook non signé refusé, paiement d'essai visible dans l'Atelier,
+  retour d'un paiement abandonné). Pas encore essayé avec un vrai compte Stripe : il faut les clés
+  de test de la Maison (`ACTIVATION.md`, étape 4 bis).

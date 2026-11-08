@@ -1,10 +1,12 @@
-# ACTIVATION — brancher les vrais services
+# ACTIVATION · brancher les vrais services
 
-> Pour la créatrice et toute personne qui l'aide, **sans connaissance technique**. Le site
-> fonctionne déjà entièrement sans aucun compte : catalogue, panier, commande, comptes clientes,
-> e-mails, assistante et agents sont **simulés**. Chaque service se branche ensuite seul, **sans
-> modifier le code** : on crée le compte, on recopie quelques valeurs dans Vercel, on redéploie, on
-> vérifie. Ce document est tenu à jour à chaque nouveau service.
+> Pour la créatrice et toute personne qui l'aide, **sans connaissance technique**. La boutique est
+> entièrement à la Maison : pièces, commandes, clientes, retours et factures se gèrent dans
+> l'Atelier, sans plateforme de commerce extérieure. Les services de ce document gardent les
+> données, envoient les e-mails, font tourner l'assistante. Tant qu'un service n'est pas branché,
+> le site le remplace par une **simulation**. Chaque service se branche seul, **sans modifier le
+> code** : on crée le compte, on recopie quelques valeurs dans Vercel, on redéploie, on vérifie. Ce
+> document est tenu à jour à chaque nouveau service.
 >
 > Les prix sont indicatifs (octobre 2026) et les menus des services changent parfois de nom : en cas
 > de doute, chercher le mot indiqué entre guillemets dans le service.
@@ -18,21 +20,21 @@ jamais les coller dans un fichier du dépôt GitHub. Les ranger dans un gestionn
 
 **Où les mettre.** Dans Vercel : votre projet › **Settings** › **Environment Variables** ›
 **Add New**. Pour chaque clé : le **nom** exact (par exemple `RESEND_API_KEY`), la **valeur**, et
-cocher **Production** (et **Preview** pour les versions de test). Ensuite : **Deployments** › la
-version la plus récente › **⋯** › **Redeploy**. Une clé n'est prise en compte qu'après ce
-redéploiement.
+cocher **Production** (et **Preview** pour les versions de test, après avoir lu la prudence de
+l'étape 4.1). Ensuite : **Deployments** › la version la plus récente › **⋯** › **Redeploy**. Une
+clé n'est prise en compte qu'après ce redéploiement.
 
 **Comment vérifier.** Dans l'Atelier (`/gestion`) › **Réglages** › tableau **Connexions**. Chaque
-service y affiche le nom du vrai prestataire (« Shopify », « Supabase »…) quand il est branché, ou
-« Simulation — … » sinon. S'il manque une clé, son nom exact est écrit dans la dernière colonne.
+service y affiche le nom du vrai prestataire (« Supabase », « Resend »…) quand il est branché, ou
+« Simulation · … » sinon. S'il manque une clé, son nom exact est écrit dans la dernière colonne.
 
 **Les interrupteurs.** Chaque service a une variable `…_PROVIDER` :
 
 | Valeur | Effet |
 | --- | --- |
 | vide (conseillé) | le vrai service dès que ses clés sont renseignées, la simulation sinon |
-| `mock` | simulation, même si les clés sont là (pour faire un essai sans toucher à la vraie boutique) |
-| nom du service (`shopify`, `supabase`…) | le vrai service ; s'il manque une clé, le site reste en simulation et l'Atelier dit laquelle |
+| `mock` | simulation, même si les clés sont là (pour faire un essai sans toucher aux vraies données) |
+| nom du service (`supabase`, `resend`…) | le vrai service ; s'il manque une clé, le site reste en simulation et l'Atelier dit laquelle |
 
 Le site **ne plante jamais** faute de clé : il bascule sur la simulation.
 
@@ -46,8 +48,9 @@ fonctionnement.
 | 0 | Sécurité des comptes, GitHub | Protéger le code et les comptes | Gratuit |
 | 1 | Vercel | Héberger le site, nom de domaine | Pro : environ 20 $ / mois (le forfait gratuit est réservé aux sites non commerciaux) |
 | 2 | Secrets du site | Sessions, Atelier, tâches planifiées | Gratuit (aucun compte) |
-| 3 | Upstash Redis | Mémoire technique (paniers, files d'envoi, sécurité) | Gratuit pour commencer |
-| 4 | Shopify | Catalogue, paiement, commandes | À partir d'environ 30 € / mois + frais de paiement |
+| 3 | Upstash Redis | Mémoire du site (réglages des pièces, commandes, retours, factures, files d'envoi, sécurité) | Gratuit pour commencer |
+| 4 | La boutique de la Maison | Pièces, prix, délais, commandes, dans l'Atelier | Inclus (aucun compte) |
+| 4 bis | Stripe | Paiement en ligne | Frais à chaque vente, sans abonnement |
 | 5 | Supabase | Comptes et base clientes | Gratuit pour commencer ; Pro (environ 25 $ / mois) conseillé pour les sauvegardes |
 | 6 | Resend | E-mails du site (codes de connexion, confirmations) | Gratuit jusqu'à environ 3 000 e-mails / mois |
 | 7 | Brevo (ou Klaviyo) | Lettre d'information et e-mails automatiques | Gratuit pour commencer (Brevo) |
@@ -60,15 +63,16 @@ fonctionnement.
 | 13 | Maintenance automatique | Agent de nuit, sauvegardes (GitHub Actions) | Inclus dans GitHub ; Claude à l'usage |
 | 14 | Éditeur visuel et e-mails | Modifier textes, photos, pages et e-mails sans code | Inclus (Upstash et Supabase des étapes 3 et 5) |
 
-Les étapes 0 à 4 sont nécessaires avant d'ouvrir la boutique au public ; les autres peuvent venir
-ensuite, dans n'importe quel ordre.
+Les étapes 0 à 5 sont nécessaires avant de prendre de vraies commandes ; les commandes payées
+attendent en plus l'étape 4 bis (Stripe). Les autres étapes peuvent venir ensuite,
+dans n'importe quel ordre.
 
 ---
 
-## Étape 0 — Sécurité des comptes et GitHub
+## Étape 0 · Sécurité des comptes et GitHub
 
 1. Activer la **double authentification** sur chaque compte créé dans ce document (GitHub, Vercel,
-   Shopify, Supabase, Cloudflare, Anthropic, Resend, Brevo…), avec une application
+   Supabase, Cloudflare, Anthropic, Resend, Brevo, puis Stripe…), avec une application
    d'authentification plutôt que les SMS.
 2. GitHub (github.com) › le dépôt du site › **Settings** › **General** › tout en bas,
    **Change visibility** › **Private**.
@@ -79,7 +83,7 @@ ensuite, dans n'importe quel ordre.
 
 **Vérifier** : le dépôt affiche un cadenas « Private ».
 
-## Étape 1 — Vercel (hébergement)
+## Étape 1 · Vercel (hébergement)
 
 1. Créer un compte sur [vercel.com](https://vercel.com/signup) avec le compte GitHub (fait le
    26/10/2026). Pour l'essai privé (`SITE_PRIVE=1`), le forfait gratuit **Hobby** suffit ; avant
@@ -100,7 +104,7 @@ ensuite, dans n'importe quel ordre.
 
 **Vérifier** : le site s'ouvre à son adresse, avec le cadenas du navigateur.
 
-## Étape 2 — Les secrets du site (aucun compte)
+## Étape 2 · Les secrets du site (aucun compte)
 
 Créer ces variables dans Vercel. Pour fabriquer une valeur aléatoire sans terminal : le générateur
 de mots de passe de votre gestionnaire, réglé sur 64 caractères, lettres et chiffres.
@@ -132,9 +136,12 @@ sa titulaire.
 Ne jamais changer `SESSION_SECRET` ensuite sans raison : toutes les sessions seraient fermées et la
 double authentification serait à refaire.
 
-## Étape 3 — Upstash Redis (mémoire technique)
+## Étape 3 · Upstash Redis (mémoire technique)
 
-Indispensable en ligne : sans lui, Vercel efface régulièrement la mémoire du site.
+Indispensable en ligne : sans lui, Vercel efface régulièrement la mémoire du site. C'est là que
+vivent les réglages des pièces faits dans l'Atelier, les commandes, les retours, les factures et les
+avoirs : à brancher avant toute vraie commande. La sauvegarde de chaque nuit (étape 13) en garde une
+copie chiffrée.
 
 1. Vercel › votre projet › **Storage** › **Create Database** › **Upstash for Redis**
    (« Marketplace »).
@@ -146,116 +153,77 @@ Indispensable en ligne : sans lui, Vercel efface régulièrement la mémoire du 
 **Vérifier** : Réglages › « Stockage technique » indique « Upstash Redis ».
 **Interrupteur** : `STORE_PROVIDER` (`mock` = fichier local).
 
-## Étape 4 — Shopify (boutique et paiement)
+## Étape 4 · La boutique de la Maison (aucun compte à créer)
 
-### 4.1 Créer la boutique
+La boutique fait partie du site : aucune plateforme de commerce à ouvrir, aucun abonnement. Les
+pièces, les commandes, les clientes, les retours, les factures et les avoirs se gèrent dans
+l'Atelier. Elle s'appuie sur deux services de ce document : Upstash (étape 3) garde les réglages des
+pièces et les commandes, Supabase (étape 5) garde les comptes clientes et une copie de chaque
+commande.
 
-1. [shopify.com/fr](https://www.shopify.com/fr) › créer la boutique (pays : France, devise : euro).
-2. **Paramètres** › **Paiements** : activer **Shopify Payments** (carte bancaire, Apple Pay,
-   Google Pay, Shop Pay), ajouter **PayPal**. Paiement en 3 ou 4 fois : activer **Klarna** dans
-   Shopify Payments, ou installer l'application **Alma** (société française).
-3. **Paramètres** › **Expédition et livraison** : tarifs Colissimo, Chronopost, international ;
-   seuil de livraison offerte (250 €) ; **points relais** : installer l'application officielle
-   **Mondial Relay** (le choix du point se fait alors dans le paiement Shopify) ; **retrait à
-   l'atelier** : « Retrait en magasin » sur l'adresse de l'atelier, avec la mention « sur
-   rendez-vous ». **Paramètres** › **Taxes et droits** : TVA française, et
-   « droits et taxes à l'importation » calculés au paiement pour l'international.
-4. **Paramètres** › **Marchés** : France, Union européenne, Royaume-Uni, Suisse, États-Unis, avec
-   leurs devises (euro, livre, franc suisse, dollar).
+### 4.1 Boutique réelle ou démonstration
+
+Le site choisit seul sa façon de tourner :
+
+| Où | Façon de tourner | Ce qui se passe |
+| --- | --- | --- |
+| Le site en ligne (Vercel, **Production**) et, par défaut, les versions de test de Vercel (**Preview**) | **Boutique réelle** | Aucune commande d'exemple, aucun code de réduction d'essai, aucun accès d'essai à l'Atelier (le mot de passe `atelier-demo` est refusé), aucune remise à zéro. Le paiement passe par Stripe avec une clé **réelle** (`sk_live_…`, étape 4 bis) ; sans elle, le site ne prend aucune commande payée : la page de commande le dit et propose **Écrire à la Maison**. |
+| Votre ordinateur, les tests automatiques, et une version de test marquée `BOUTIQUE_DEMONSTRATION` = `1` | **Démonstration** | Des commandes d'exemple et un paiement d'essai, clairement signalés : aucun argent ne bouge. Avec des clés Stripe **de test**, le vrai parcours Stripe en mode test. Atelier › **Réglages** › **Données de démonstration** › **Réinitialiser la démonstration** remet tout à zéro. |
+
+Pour imposer la boutique réelle ailleurs : variable `BOUTIQUE_REELLE` = `1`. La production n'est
+jamais en démonstration, quel que soit le réglage.
+
+**Une version de test en démonstration** (pour essayer Stripe en mode test avant l'ouverture) : dans
+Vercel › **Settings** › **Environment Variables**, pour **Preview** seulement : `BOUTIQUE_DEMONSTRATION`
+= `1`, des clés Stripe **de test**, et un stockage à part (`STORE_PROVIDER` = `mock` et
+`CUSTOMERS_PROVIDER` = `mock`, ou une base Upstash distincte). Jamais les clés Upstash et Supabase de
+la production : la remise à zéro de la démonstration effacerait les vraies commandes.
+
+**Vérifier** : en bas du menu de l'Atelier, une ligne dit où en est la boutique : « Boutique en
+démonstration », « Paiement en ligne pas encore branché » ou « Boutique ouverte ».
 
 ### 4.2 Les pièces (créées sur demande, sans stock)
 
 Chaque pièce de la Maison est **créée sur demande**, après la commande, par des artisans français.
 Il n'y a donc **aucun stock** : le site ne lit ni n'affiche jamais de quantité, ne dit jamais
-« épuisée » ni « dernière pièce », et chaque fiche annonce son **délai de fabrication**. Shopify
-doit, de son côté, accepter chaque taille en permanence.
+« épuisée » ni « dernière pièce », et chaque fiche annonce son **délai de fabrication**. Chaque
+taille se commande toujours.
 
-Commencer par les définitions de métachamps (point 4 ci-dessous, et 4.2 ter pour la collection),
-puis créer les pièces : leurs cases sont alors prêtes à remplir sur chaque fiche.
+Les sept pièces de la collection sont déjà dans le site : c'est le catalogue de départ
+(`data/demo/products.ts`). Ce que vous changez ensuite dans l'Atelier est gardé dans le stockage du
+site (Upstash, étape 3) et remplace la valeur du catalogue de départ.
 
-1. **Créer chaque pièce** : **Produits** › **Ajouter un produit**, une fiche par ligne du tableau
-   de l'étape 4.2 bis.
-   - **Titre** : exactement celui du tableau, avec son article (« Le body Aura »).
-   - **Adresse de la page** (le « handle ») : en bas de la fiche, rubrique du référencement sur
-     les moteurs de recherche › **Modifier**. Shopify propose `le-body-aura`, tiré du titre :
-     la remplacer par l'adresse du tableau, sans article (`body-aura`). Le site, ses
-     redirections, ses liens, les commandes de démonstration et les essais automatiques reposent
-     sur ces sept adresses ; une autre adresse donne une fiche que le site ne relie à rien.
-   - **Description** : les paragraphes de la fiche de démonstration (`data/demo/products.ts`),
-     séparés par une ligne vide ; la phrase d'accroche va dans le métachamp `awrea.tagline`.
-   - **Type de produit** (point 3), **prix** de chaque taille, **délai** (`awrea.delai_min`,
-     `awrea.delai_max`, point 4) : ceux du tableau 4.2 bis ; « provisoire » se traduit par
-     `awrea.prix_provisoire` ou `awrea.delai_provisoire` à vrai.
-   - **Photos** : les visuels provisoires du site, en pleine taille (`public/media/img/`, par
-     exemple `aura-1.webp` pour la fiche et `aura-detail.webp` dans `awrea.detail_image`), avec
-     le métachamp `awrea.visuels_provisoires` à vrai ; `awrea.nouveau` à vrai.
-   - **Canal de vente** : cocher **Headless** (étape 4.3), sinon la pièce reste invisible du site.
-2. Chaque pièce est un produit avec l'option de variante **« Taille »**. Pour **chaque taille**,
-   rubrique **Inventaire** : décocher **« Suivre la quantité »** (conseillé). Si le suivi reste
-   coché, cocher alors **« Continuer à vendre en cas de rupture de stock »**. Une taille que
-   Shopify refuse de vendre n'apparaît pas sur le site (le journal du serveur le signale). Les
-   pièces publiées par l'agent Catalogue sont déjà réglées ainsi. Renseigner aussi la
-   **référence (SKU)** de chaque taille, sur le modèle de la démonstration (`AW-AUR-S` pour le
-   body Aura en S ; `ODS`, `ARI`, `SIE`, `GAI`, `EVI`, `KIR` pour les autres pièces) : elle sert
-   d'identifiant à chaque taille dans les flux Google et Meta.
-3. **Type de produit** : `robe`, `body` ou `top` (`jupe` et `accessoire` existent aussi). Il range
-   la pièce dans les filtres de la boutique et lui donne un délai provisoire tant que ses
-   métachamps de délai ne sont pas remplis (bodys et tops 2 à 3 semaines, robes 3 à 4 semaines).
-4. **Paramètres** › **Données personnalisées** › **Produits** › **Ajouter une définition**, pour
-   chacune des lignes ci-dessous, avec l'espace de noms et la clé indiqués, et la case
-   **« Accès à l'API Storefront »** cochée :
+Dans l'Atelier › **Produits**, touchez une pièce pour ouvrir sa fiche :
 
-| Espace de noms et clé | Type | Contenu |
-| --- | --- | --- |
-| `awrea.delai_min` | Nombre entier | délai de fabrication le plus court, en semaines (par exemple `2`) |
-| `awrea.delai_max` | Nombre entier | délai de fabrication le plus long, en semaines (par exemple `3`) ; le site affiche « 2 à 3 semaines » |
-| `awrea.prix_provisoire` | Vrai ou faux | prix encore à confirmer (signalé dans l'Atelier › Catalogue) |
-| `awrea.delai_provisoire` | Vrai ou faux | délai encore à confirmer ; une pièce sans délai renseigné est signalée de la même façon |
-| `awrea.nouveau` | Vrai ou faux | pastille noire « Nouveau » sur la carte de la pièce (l'étiquette de produit `nouveau` fait de même) |
-| `awrea.visuels_provisoires` | Vrai ou faux | photos de présentation en attendant les prises de vue : chaque photo porte la mention « visuel provisoire » |
-| `awrea.tagline` | Texte sur une ligne | phrase d'accroche |
-| `awrea.materials` | JSON | matières, par exemple `[{"name":"Dentelle","percent":100}]` ; laisser vide tant que la composition n'est pas connue |
-| `awrea.care` | Liste de textes sur une ligne | conseils d'entretien |
-| `awrea.fit` | Texte sur plusieurs lignes | tombé et conseils de taille |
-| `awrea.model` | Texte sur une ligne | taille portée par le mannequin |
-| `awrea.details` | Liste de textes sur une ligne | détails de façon |
-| `awrea.lining` | Texte sur une ligne | doublure |
-| `awrea.complete_the_look` | Liste de références de produits | pièces à associer |
-| `awrea.detail_image` | Fichier | photographie de détail (loupe) |
-| `awrea.traceability` | JSON | étapes de fabrication et origine des matières, par exemple `{"steps":[{"label":"Coupe","place":"France"}],"origins":[{"material":"Dentelle","origin":null}]}` |
+- **Prix et délai** : le prix, le délai de fabrication (de tant à tant de semaines), les cases
+  « provisoire » et la pastille « Nouveau » ;
+- **Textes** : le nom, la phrase d'accroche, la description, et ce que Google affiche ;
+- **Photos** : en ajouter (huit au plus), choisir la principale, en retirer, écrire le texte lu aux
+  personnes qui ne voient pas la photo ;
+- en haut de la fiche : mettre la pièce en ligne, en brouillon, l'archiver ou la dupliquer. Une
+  pièce en brouillon ou archivée n'apparaît jamais sur le site.
 
-   Les anciens métachamps `awrea.edition_total`, `awrea.edition_produced` et
-   `awrea.lead_time_weeks` ne servent plus : les supprimer s'ils existent.
-5. **Prix, délai, « provisoire » et « Nouveau »** se règlent aussi sans ouvrir Shopify : Atelier ›
-   **Catalogue**, une ligne par pièce, bouton **Enregistrer**. Le site écrit alors lui-même le prix
-   de toutes les tailles et les métachamps ci-dessus.
-5 bis. **Version anglaise des fiches** (site sous /en) : en attendant, les textes anglais des pièces se saisissent dans `content/site/en/catalogue-pieces.json` (repli sur le français) ; avec Shopify, installer l'application **Translate & Adapt** (gratuite, publiée par Shopify) pour traduire titres et descriptions dans la boutique ; le site les demandera alors à Shopify en anglais (requêtes Storefront « @inContext(language: EN) », à brancher dans `lib/shopify/storefront.ts`).
-6. Emballage cadeau : créer un produit « Emballage cadeau » (inventaire non suivi, lui aussi), le
-   rendre disponible sur le canal Headless (voir 4.3) mais pas sur la boutique en ligne Shopify.
-   Ouvrir sa variante : l'adresse de la page se termine par `/variants/123456789`. Variable :
-   `SHOPIFY_GIFT_WRAP_VARIANT_ID` = `gid://shopify/ProductVariant/123456789`.
-7. **Étapes de la commande.** La cliente suit sa commande en cinq étapes : commande reçue, en
-   confection, prête, expédiée, livrée. Shopify ne connaît que le paiement, l'expédition et la
-   livraison : les deux étapes de la confection se marquent par une **étiquette de la commande**
-   (**Commandes** › la commande › **Étiquettes**) :
-   - `en-confection` quand la confection commence ;
-   - `prete` quand la pièce est terminée (retirer alors `en-confection`).
+**Ajouter un produit**, en haut de la page Produits, crée une nouvelle pièce, toujours en
+brouillon : vous la mettez en ligne depuis sa fiche quand elle est prête (`GUIDE-CREATRICE.md`,
+partie 7).
 
-   Ces deux étiquettes se posent aussi depuis l'Atelier, sans ouvrir Shopify : **Commandes** › la
-   commande › **Étapes**, boutons « En confection » puis « Prête » ; la cliente reçoit l'e-mail de
-   chaque étape.
+Une pièce sans délai à elle reçoit le délai provisoire de sa catégorie : bodys et tops 2 à 3
+semaines, robes 3 à 4 semaines (Atelier › **Réglages** › **Délais de fabrication**).
 
-   Sans étiquette, une commande payée est « Commande reçue ». Le traitement de la commande avec son
-   numéro de suivi la fait passer à « Expédiée », l'évènement de livraison à « Livrée ». Rien n'est
-   remis en stock lors d'un remboursement ou d'une annulation depuis l'Atelier.
+Ne se règlent pas encore dans l'Atelier : la composition des matières, la doublure, l'entretien, la
+taille portée par le mannequin, les étapes de fabrication et l'origine des matières. Les envoyer à
+la personne qui s'occupe du site, qui les inscrit dans `data/demo/products.ts` (liste de ce qui
+manque dans `LEGAL-A-COMPLETER.md`).
+
+**Version anglaise des fiches** (site sous /en) : les textes anglais des pièces vivent dans
+`content/site/en/catalogue-pieces.json` ; un texte absent garde le français.
 
 ### 4.2 bis Prix et délais à confirmer par la Maison
 
-Ce tableau donne les sept pièces de la collection **Hypnotic Lace** telles qu'elles sont en ligne
-dans la boutique de démonstration ; elles se saisissent à l'identique dans Shopify (étape 4.2,
-point 1). Les valeurs marquées **provisoire** sont signalées dans l'Atelier › Catalogue ; une fois
-la valeur confirmée, décocher « provisoire » sur la ligne de la pièce (ou passer le métachamp à
-faux dans Shopify).
+Ce tableau donne les sept pièces de la collection **Hypnotic Lace** telles qu'elles sont dans le
+catalogue de départ du site. Les valeurs marquées **provisoire** sont signalées dans l'Atelier ›
+**Produits** et dans **Réglages** › **Délais de fabrication** › **À confirmer**. Une fois la valeur
+confirmée, décocher « provisoire » sur la fiche de la pièce (rubrique **Prix et délai**).
 
 | Pièce (titre exact) | Adresse (handle) | Type de produit | Prix | Délai de fabrication |
 | --- | --- | --- | --- | --- |
@@ -268,132 +236,114 @@ faux dans Shopify).
 | Le top Kira | `top-kira` | `top` | 70,00 €, **provisoire** | 2 à 3 semaines, **provisoire** |
 
 La fiche de chaque pièce s'ouvre ensuite à l'adresse `https://www.awreaparis.com/boutique/` suivie
-de son handle (par exemple `/boutique/body-aura`).
+de son handle (par exemple `/boutique/body-aura`). Le site, ses redirections, ses liens et les
+essais automatiques reposent sur ces sept adresses.
 
-Également à confirmer : les **tailles proposées** (XS, S, M et L pour chaque pièce, en attendant),
-et toutes les **photos**, provisoires jusqu'aux prises de vue (`RESSOURCES.md`). Compositions,
-doublures, entretien et taille du mannequin restent à fournir : `LEGAL-A-COMPLETER.md`.
+Également à confirmer : les **tailles proposées** (XS, S, M, L et XL pour chaque pièce, en
+attendant), et toutes les **photos**, provisoires jusqu'aux prises de vue (`RESSOURCES.md`).
+Compositions, doublures, entretien et taille du mannequin restent à fournir :
+`LEGAL-A-COMPLETER.md`.
 
 ### 4.2 ter La collection Hypnotic Lace
 
-1. **Paramètres** › **Données personnalisées** › **Collections** › **Ajouter une définition**,
-   pour chacune des lignes ci-dessous, avec la case **« Accès à l'API Storefront »** cochée :
+La collection est déjà dans le site (`data/demo/collections.ts`), rien à créer : titre
+« Hypnotic Lace », adresse `/collections/hypnotic-lace` (l'ancienne adresse
+`/collections/lace-is-more` y mène), les sept pièces dans l'ordre du tableau 4.2 bis, le texte
+officiel de la créatrice repris mot pour mot (`ressources-awrea/TEXTES/TEXTE DE COLLECTION.pdf`),
+et ses textes pour Google. Sa saison reste vide tant que la Maison ne l'a pas choisie. La collection
+ne se modifie pas encore dans l'Atelier : pour la changer, passer par la personne qui s'occupe du
+site.
 
-| Espace de noms et clé | Type | Contenu |
-| --- | --- | --- |
-| `awrea.current` | Vrai ou faux | collection en cours, celle que le site met en avant (une seule à la fois) |
-| `awrea.season` | Texte sur une ligne | saison écrite à côté du titre ; laisser vide tant que la Maison ne l'a pas choisie |
-| `awrea.texte_officiel` | Vrai ou faux | la description est le texte de la créatrice, repris mot pour mot : ne jamais la faire réécrire |
-| `awrea.visuels_provisoires` | Vrai ou faux | l'image de la collection est un visuel provisoire : elle porte la mention « visuel provisoire » |
+### 4.3 Commandes, livraisons et e-mails
 
-2. **Produits** › **Collections** › **Créer une collection** : titre **« Hypnotic Lace »**,
-   collection **manuelle**. Adresse de la page imposée à `hypnotic-lace` (rubrique du
-   référencement › **Modifier**), comme pour les pièces : l'ancienne adresse du site,
-   `/collections/lace-is-more`, mène à celle-ci. Ajouter les sept pièces dans l'ordre du tableau
-   4.2 bis, puis cocher le canal **Headless**.
-3. **Description** : le texte officiel de la collection
-   (`ressources-awrea/TEXTES/TEXTE DE COLLECTION.pdf`), sans son titre, tel qu'il figure
-   ci-dessous : les mots de la créatrice, seuls les guillemets français et la majuscule de
-   « Lace » étant harmonisés comme sur le site. Trois paragraphes séparés par une ligne vide ; le
-   site lit le premier comme l'accroche, les suivants comme l'intention.
+- Chaque commande est gardée dans le stockage du site (Upstash, étape 3) et copiée dans la base
+  Supabase (table `orders`, étape 5), rattachée au compte de la cliente par son adresse e-mail.
+- Les cinq étapes (commande reçue, en confection, prête, expédiée, livrée) se donnent toutes depuis
+  l'Atelier › **Commandes** ; la cliente reçoit l'e-mail de chaque étape. Rien n'est remis en stock
+  lors d'un remboursement ou d'une annulation.
+- Les e-mails de commande partent du site lui-même (Resend, étape 6), avec la version publiée dans
+  l'Atelier › **E-mails** : rien à recopier dans un autre service.
+- Livraison, taxes et emballage cadeau se règlent dans `content/settings.ts` : France métropolitaine
+  seulement, comme l'article 5 des CGV. Tarifs, seuil de la livraison offerte et prix de
+  l'emballage sont à confirmer (`LEGAL-A-COMPLETER.md`).
+- Points relais Mondial Relay : aujourd'hui des points simulés, présentés comme tels. Les vrais
+  points relais demanderont un accès Mondial Relay de la Maison, pas encore branché.
+- Les codes de réduction et la carte cadeau de `content/settings.ts` sont des codes d'essai, et le
+  panier les accepte aussi sur la boutique réelle : les retirer ou les remplacer avant d'ouvrir le
+  paiement en ligne.
 
-   > La délicatesse, le pouvoir de l’or.
-   >
-   > La délicatesse rencontre la force. L’élégance devient une signature. Une rencontre entre la
-   > finesse de la dentelle, la sensualité des drapés et l’éclat audacieux de la dorure.
-   >
-   > À travers des silhouettes sculpturales et des détails précieux, la collection
-   > « Hypnotic Lace » célèbre une féminité contrastée : délicate, sensuelle et affirmée.
+### 4.4 Vérifier
 
-4. Métachamps de la collection : `awrea.current` à vrai, `awrea.texte_officiel` à vrai,
-   `awrea.season` vide. Image de la collection : facultative. Sans image, le site prend la
-   première photo de la première pièce, avec sa mention « visuel provisoire » ; avec un visuel
-   provisoire déposé ici, passer `awrea.visuels_provisoires` à vrai.
-5. Référencement de la collection (même rubrique) : titre « Hypnotic Lace, dentelle noire et
-   dorure | Awrea Paris » et description « Hypnotic Lace, la collection d’Awrea Paris : la
-   dentelle, les drapés et l’éclat de la dorure. Sept pièces créées sur demande par des artisans
-   français. » (ceux de la boutique de démonstration).
+1. Atelier › **Réglages** › **Connexions**, ligne « Paiement en ligne » : « Pas encore branché : la
+   boutique ne prend aucune commande payée » sur le site en ligne, « Paiement d'essai
+   (démonstration) » ailleurs.
+2. La boutique du site affiche les sept pièces, chacune avec son délai de fabrication, dans toutes
+   ses tailles.
+3. Sur le site en ligne, la page `/commande` dit « Le paiement en ligne n'est pas encore ouvert » et
+   propose **Écrire à la Maison**. Sur une version de démonstration, une commande d'essai va
+   jusqu'au bout et apparaît dans l'Atelier › **Commandes**, avec son certificat.
 
-### 4.3 Relier le site à la boutique (canal Headless)
+## Étape 4 bis · Stripe (paiement en ligne)
 
-1. Dans l'App Store de Shopify, installer le canal de vente **« Headless »** (gratuit, publié par
-   Shopify).
-2. **Créer un storefront**. Dans **Storefront API**, cocher les autorisations : produits,
-   collections, paniers et paiement (« checkouts »), contenus et métaobjets, étiquettes. L'accès
-   aux stocks n'est pas nécessaire : le site ne les lit pas.
-3. Copier le **jeton d'accès privé** et l'adresse de la boutique (`….myshopify.com`).
+Le paiement passe par **Stripe Checkout** (choix de la créatrice) : la cliente règle sur la page
+sécurisée de Stripe, jamais sur le site ; aucune donnée bancaire ne passe par le site ni n'est
+gardée par la boutique. Stripe confirme chaque paiement au site par un message signé (le webhook) :
+la commande passe alors à « Commande reçue », la facture et les certificats partent, et l'Atelier
+montre le paiement (Commandes › **Paiements**, et la fiche de chaque commande).
 
-| Variable | Valeur |
-| --- | --- |
-| `SHOPIFY_STORE_DOMAIN` | `awrea-paris.myshopify.com` (votre adresse) |
-| `SHOPIFY_STOREFRONT_PRIVATE_TOKEN` | le jeton privé (à défaut, le jeton public dans `SHOPIFY_STOREFRONT_ACCESS_TOKEN`) |
+**1. Le compte** (par la créatrice) : [dashboard.stripe.com](https://dashboard.stripe.com/register),
+double authentification activée (étape 0), informations de l'entreprise et compte bancaire de
+versement renseignés. Tout le paramétrage se fait d'abord en **mode test** (interrupteur en haut à
+droite du tableau de bord).
 
-### 4.4 L'accès des agents de gestion (application du Dev Dashboard)
+**2. Les moyens de paiement** : **Paramètres** › **Paiements** › **Moyens de paiement** : activer
+ceux de l'article 4 des CGV (carte bancaire, Apple Pay, Google Pay, PayPal), sans paiement en
+plusieurs fois (`LEGAL-A-COMPLETER.md`). Le site n'impose aucun moyen : la page de Stripe propose
+ceux activés ici.
 
-Le tableau de bord et les agents (fiches des pièces, prix et délais, étapes des commandes,
-remboursements proposés à votre validation) ont besoin d'un accès à l'administration de la
-boutique.
+**3. L'apparence** : **Paramètres** › **Image de marque** : logo officiel (`content/brand/assets.ts`),
+fond blanc cassé `#F7F6F3`, accent noir `#0A0A0A`, police à empattements. La page de paiement
+s'accorde ainsi au site.
 
-1. Ouvrir le [Dev Dashboard de Shopify](https://dev.shopify.com/dashboard) **avec le même compte
-   que la boutique** (la boutique et l'application doivent appartenir à la même organisation).
-2. **Créer une application** › nom « Awrea — agents ».
-3. **Configuration** › **Accès** : cocher uniquement `read_products`, `write_products` (fiches,
-   prix, métachamps), `read_inventory`, `write_inventory` (création des tailles sans suivi de
-   stock), `read_orders`, `write_orders` (étiquettes d'étape, remboursements), `read_customers`,
-   `write_customers`, `read_publications`, `write_publications` (une pièce remise en ligne depuis
-   l'Atelier › Produits est publiée sur les canaux de vente, le site compris ; sans ces deux accès,
-   le statut change quand même et l'Atelier dit de vérifier les canaux dans Shopify), `read_files`,
-   `write_files` (retirer une photo d'une pièce et écrire son texte alternatif depuis l'Atelier ;
-   ajouter une photo et choisir la principale n'en ont pas besoin). Dans **Données clientes protégées**, demander l'accès
-   aux noms, e-mails, adresses et téléphones (nécessaire aux bons de livraison et aux factures).
-   Publier la version.
-4. **Installer** l'application sur la boutique.
-5. **Paramètres** de l'application : copier l'**identifiant client** et le **secret client**.
+**4. Les clés de test** : **Développeurs** › **Clés API** : copier la **clé secrète de test**
+(`sk_test_…`). Dans Vercel, pour **Preview** seulement (voir 4.1, version de test en démonstration) :
 
 | Variable | Valeur |
 | --- | --- |
-| `SHOPIFY_CLIENT_ID` | identifiant client |
-| `SHOPIFY_CLIENT_SECRET` | secret client |
+| `STRIPE_SECRET_KEY` | `sk_test_…` |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_…` (point 5) |
+| `BOUTIQUE_DEMONSTRATION` | `1` |
 
-Le site demande lui-même un jeton d'accès valable 24 heures et le renouvelle automatiquement.
-(Une ancienne « application personnalisée » créée avant 2026 donne plutôt un jeton permanent
-commençant par `shpat_` : le mettre dans `SHOPIFY_ADMIN_ACCESS_TOKEN`.)
+**5. Le webhook** : **Développeurs** › **Webhooks** › **Ajouter un point de terminaison** :
+adresse `https://<adresse de la version de test>/api/webhooks/stripe`, événements :
+`checkout.session.completed`, `checkout.session.async_payment_succeeded`,
+`checkout.session.async_payment_failed`, `checkout.session.expired`,
+`payment_intent.payment_failed`, `charge.succeeded`, `charge.refunded`, `refund.failed`,
+`charge.dispute.created`, `charge.dispute.closed`. Copier la **clé de signature** (`whsec_…`) dans
+`STRIPE_WEBHOOK_SECRET`. Le site refuse tout message dont la signature n'est pas la bonne, et ne
+traite jamais deux fois le même événement.
 
-Si l'Atelier signale « jeton refusé (shop_not_permitted) », l'application et la boutique ne sont pas
-dans la même organisation : recréer l'application depuis le compte propriétaire de la boutique.
+**6. Essayer en mode test** : sur la version de test, commander une pièce, payer avec la carte de
+test `4242 4242 4242 4242` (date future, cryptogramme au choix), puis : la page de confirmation
+s'affiche, la commande apparaît « reçue » dans l'Atelier avec son paiement « Réussi », ses
+références Stripe et son historique. Essayer aussi une carte refusée (`4000 0000 0000 0002`), un
+paiement abandonné (bouton retour de la page Stripe : le panier est intact), et un remboursement
+depuis la fiche de la commande (il apparaît dans Stripe, puis dans l'historique).
 
-### 4.5 Les webhooks (Shopify prévient le site)
+**7. Le passage en production** : quand tout est juste en mode test, refaire les points 4 et 5 en
+**mode réel** dans Stripe (clé `sk_live_…`, webhook vers `https://www.awreaparis.com/api/webhooks/stripe`),
+et renseigner ces deux clés pour **Production** dans Vercel, puis redéployer. La boutique réelle
+refuse une clé de test : tant qu'une clé réelle manque, elle ne prend aucune commande payée.
 
-**Paramètres** › **Notifications** › **Webhooks** › **Créer un webhook**, au format JSON, adresse
-`https://www.awreaparis.com/api/webhooks/shopify`, dernière version de l'API, pour chacun de ces
-évènements :
+**Vérifier** : Atelier › **Réglages** › **Connexions**, ligne « Paiement en ligne (Stripe) » ; et
+Atelier › Commandes › **Paiements**.
 
-- Création de commande, Mise à jour de commande (commandes, étapes de confection, certificats,
-  e-mails)
-- Création de traitement de commande (expédition : e-mail avec le lien de suivi)
-- Création d'évènement de traitement (livraison : e-mail d'arrivée, puis entretien et demande d'avis)
-- Création, Mise à jour et Suppression de produit ; Mise à jour de collection (les pages de la
-  boutique se régénèrent seules). Aucun webhook de stock : il n'y a pas de stock à suivre.
+**Sécurité** : les clés vivent seulement dans Vercel (jamais dans un fichier ni dans un message) ;
+la clé secrète ne quitte jamais le serveur ; chaque paiement, chaque page de paiement et chaque
+remboursement porte une clé d'idempotence (une demande répétée ne fait qu'une opération) ; un
+remboursement passe toujours par la confirmation de la créatrice dans l'Atelier.
 
-En bas de la page, Shopify affiche « Vos webhooks seront signés avec … » : copier cette clé dans
-`SHOPIFY_WEBHOOK_SECRET`.
-
-### 4.6 Vérifier
-
-1. Réglages › « Boutique et paiement » indique « Shopify », et « Shopify Admin (agents) » aussi.
-2. La boutique du site affiche les pièces de Shopify, chacune avec « Sur demande » et son délai de
-   fabrication, dans toutes ses tailles.
-3. Passer une commande d'essai : **Paramètres** › **Paiements** › activer le **mode test** de
-   Shopify Payments, payer avec la carte d'essai `4242 4242 4242 4242`, puis désactiver le mode
-   test. La commande apparaît dans l'Atelier, avec son certificat.
-4. Facultatif : **Paramètres** › **Domaines** › relier `paiement.awreaparis.com` pour que la page
-   de paiement porte le nom de la maison.
-
-**Interrupteur** : `COMMERCE_PROVIDER` (`mock` = boutique de démonstration).
-À noter : tant qu'une adresse `SHOPIFY_STORE_DOMAIN` est renseignée, le mot de passe de
-démonstration de l'Atelier est refusé, même en simulation.
-
-## Étape 5 — Supabase (comptes et base clientes)
+## Étape 5 · Supabase (comptes et base clientes)
 
 1. [supabase.com](https://supabase.com/dashboard) › **New project** › nom « awrea-paris », mot de
    passe de la base (le garder dans le gestionnaire), région **West EU (Paris)**.
@@ -402,7 +352,12 @@ démonstration de l'Atelier est refusé, même en simulation.
    S'il y a plusieurs fichiers dans `supabase/migrations`, les passer **dans l'ordre** des noms,
    en particulier `20261018000000_creation_sur_demande.sql` **avant le déploiement** du site : il
    ajoute le délai de fabrication des commandes (`lead_time`) et le numéro de création des
-   certificats (`next_creation_number`), et retire les listes d'attente.
+   certificats (`next_creation_number`), et retire les listes d'attente. Puis
+   `20261108000000_boutique_independante.sql`, **au moment de mettre en ligne la boutique
+   indépendante** : la colonne qui identifie chaque commande devient `reference` (aucune commande
+   n'est effacée), et une colonne qui ne sert plus quitte la table des clientes. Sans cette
+   migration, les commandes ne se recopient plus dans Supabase (l'erreur est notée dans les journaux
+   du serveur) ; elles restent gardées dans le stockage du site.
 3. **Authentication** › **URL Configuration** : *Site URL* = `https://www.awreaparis.com` ;
    *Redirect URLs* : ajouter `https://www.awreaparis.com/api/account/callback`.
 4. **Authentication** › **Emails** › **SMTP Settings** : activer un SMTP personnalisé avec Resend
@@ -429,7 +384,7 @@ cliente sur le site avec votre adresse : le code arrive par e-mail, le compte ap
 Supabase › **Authentication** › **Users** et dans l'Atelier › Clientes.
 **Interrupteur** : `CUSTOMERS_PROVIDER`.
 
-## Étape 6 — Resend (e-mails du site)
+## Étape 6 · Resend (e-mails du site)
 
 1. [resend.com](https://resend.com/signup) › **Domains** › **Add Domain** › `awreaparis.com`, région
    **Ireland (eu-west-1)**.
@@ -449,7 +404,7 @@ son lien de désinscription et l'en-tête « List-Unsubscribe » : Gmail et Appl
 la désinscription en un clic, comme ils l'exigent des expéditeurs de lettres.
 **Interrupteur** : `EMAIL_PROVIDER` (`mock` = boîte d'envoi simulée, lisible dans l'Atelier).
 
-## Étape 7 — Brevo (lettre d'information et e-mails automatiques)
+## Étape 7 · Brevo (lettre d'information et e-mails automatiques)
 
 Brevo est une société française, données hébergées dans l'Union européenne. Klaviyo est possible à
 la place (variables `KLAVIYO_PRIVATE_KEY`, `KLAVIYO_LIST_ID`).
@@ -469,7 +424,7 @@ la place (variables `KLAVIYO_PRIVATE_KEY`, `KLAVIYO_LIST_ID`).
 lettre depuis le site apparaît dans la liste (après confirmation par e-mail).
 **Interrupteur** : `MARKETING_PROVIDER` (`brevo`, `klaviyo` ou `mock`).
 
-## Étape 8 — Anthropic (assistante, agents)
+## Étape 8 · Anthropic (assistante, agents)
 
 1. [console.anthropic.com](https://console.anthropic.com) › créer le compte de l'entreprise ›
    **Billing** : ajouter un moyen de paiement et une **limite de dépense mensuelle** (par exemple
@@ -485,7 +440,7 @@ lettre depuis le site apparaît dans la liste (après confirmation par e-mail).
 taille à l'assistante sur une fiche.
 **Interrupteur** : `AI_PROVIDER` (`mock` = réponses de démonstration).
 
-## Étape 9 — Cloudflare Turnstile (anti-robots)
+## Étape 9 · Cloudflare Turnstile (anti-robots)
 
 1. [dash.cloudflare.com](https://dash.cloudflare.com/sign-up) › créer le compte › **Turnstile** ›
    **Add widget** › nom « Awrea », domaines `awreaparis.com` et `www.awreaparis.com`, mode
@@ -501,7 +456,7 @@ taille à l'assistante sur une fiche.
 formulaire de contact s'envoie normalement.
 **Interrupteur** : `CAPTCHA_PROVIDER`.
 
-## Étape 10 — Instagram (publications sur la page d'accueil)
+## Étape 10 · Instagram (publications sur la page d'accueil)
 
 1. Le compte @awrea.paris doit être un **compte professionnel** (Instagram › Paramètres ›
    Type de compte).
@@ -516,7 +471,7 @@ formulaire de contact s'envoie normalement.
 les dernières publications.
 **Interrupteur** : `INSTAGRAM_PROVIDER`.
 
-## Étape 10 bis — Retours, adresses et comptabilité
+## Étape 10 bis · Retours, adresses et comptabilité
 
 **Étiquettes de retour prépayées (Colissimo), facultatives.** La créatrice a choisi le 25/10/2026 de
 laisser les frais de retour à la cliente, comme l'article 7 des CGV : la cliente reçoit un bordereau
@@ -537,8 +492,8 @@ l'Atelier › Retours (elle lui est envoyée aussitôt).
 | `COLISSIMO_CONTRACT_NUMBER` | numéro de contrat |
 | `COLISSIMO_PASSWORD` | mot de passe du service web |
 
-**Vérifier** : passer une commande d'essai, la marquer expédiée puis livrée dans l'Atelier (mode
-démonstration) ou avec Shopify, demander un retour depuis le suivi de la commande : l'étiquette PDF
+**Vérifier** : sur une version de démonstration, passer une commande d'essai, la marquer expédiée
+puis livrée dans l'Atelier, demander un retour depuis le suivi de la commande : l'étiquette PDF
 arrive avec le numéro de suivi Colissimo. Si Colissimo refuse la demande, l'Atelier vous prévient et
 la rubrique Retours vous propose de déposer l'étiquette à la main.
 
@@ -552,7 +507,7 @@ l'Atelier › Factures. **Avant la première vente**, compléter les mentions l�
 (`LEGAL-A-COMPLETER.md` : dénomination, adresse, SIRET, TVA — ou la mention « TVA non applicable,
 art. 293 B du CGI » en franchise).
 
-## Étape 11 — Mesure d'audience et publicité
+## Étape 11 · Mesure d'audience et publicité
 
 Tous ces outils ne se chargent **qu'après l'accord de la visiteuse** (bandeau cookies). Une
 variable vide = outil éteint.
@@ -581,7 +536,7 @@ dans l'outil. Refuser les cookies dans une fenêtre privée : rien ne doit appar
 Sans Sentry, les erreurs du site restent visibles dans l'Atelier › Équipe › Performance.
 **Interrupteur** : `ERRORS_PROVIDER` (`sentry` ou `mock`).
 
-## Étape 12 — Visibilité hors du site
+## Étape 12 · Visibilité hors du site
 
 1. **Google Search Console** ([search.google.com/search-console](https://search.google.com/search-console)) :
    ajouter la propriété « Préfixe d'URL » `https://www.awreaparis.com`, méthode **Balise HTML** :
@@ -601,20 +556,21 @@ Sans Sentry, les erreurs du site restent visibles dans l'Atelier › Équipe ›
    commande »).
 
    **Visuels provisoires.** Une photo marquée provisoire (image générée en attendant les prises
-   de vue, `awrea.visuels_provisoires`) n'est jamais envoyée à Google ni à Meta : ni dans ces
+   de vue) n'est jamais envoyée à Google ni à Meta : ni dans ces
    deux flux, ni dans les données structurées des fiches. Ces plateformes ne montreraient pas la
    mention « visuel provisoire » du site, et elles ont leurs propres règles sur les images
    générées (`LEGAL-A-COMPLETER.md`). Tant que toutes les photos des pièces sont provisoires, les
    flux restent donc vides et Merchant Center n'a rien à montrer : c'est voulu. Chaque pièce y
-   entre seule dès que ses vraies photographies remplacent les visuels provisoires et que le
-   métachamp repasse à faux.
+   entre seule dès que ses vraies photographies remplacent les visuels provisoires (Atelier ›
+   **Produits**, fiche de la pièce, rubrique **Photos** : ajouter les vraies photos, retirer les
+   visuels provisoires).
 6. **Instagram** : dans la bio de @awrea.paris, le lien `https://www.awreaparis.com` ; dans
    « Boutons d'action », « Réserver » vers `https://www.awreaparis.com/contact`.
 
 **Vérifier** : Search Console › **Inspection de l'URL** sur la page d'accueil : « L'URL est sur
 Google » (quelques jours après l'envoi du sitemap).
 
-## Étape 13 — Maintenance automatique et sauvegardes (GitHub Actions)
+## Étape 13 · Maintenance automatique et sauvegardes (GitHub Actions)
 
 1. Installer l'application GitHub **Claude** sur le dépôt (github.com/apps/claude).
 2. GitHub › dépôt › **Settings** › **Secrets and variables** › **Actions** :
@@ -629,7 +585,7 @@ Google » (quelques jours après l'envoi du sitemap).
 **Vérifier** : onglet **Actions** › « Maintenance » › **Run workflow** : le rapport apparaît dans
 l'Atelier et dans `JOURNAL.md`.
 
-## Étape 14 — Éditeur visuel et e-mails modifiables
+## Étape 14 · Éditeur visuel et e-mails modifiables
 
 L'éditeur ne demande **aucun nouveau compte** : il utilise Upstash (étape 3) pour les brouillons,
 l'historique et les versions publiées, et Supabase (étape 5) pour les photos déposées.
@@ -655,16 +611,12 @@ l'historique et les versions publiées, et Supabase (étape 5) pour les photos d
    arrivées à échéance dès qu'il s'ouvre.
 4. **E-mails** : l'Atelier › **E-mails** montre chaque e-mail tel qu'il arrive (Apple Mail, Gmail,
    Outlook, téléphone, clair et sombre). Les e-mails du site partent directement avec la version
-   publiée. Pour les services d'envoi :
+   publiée, e-mails de commande compris (commande reçue, en confection, prête, expédiée) : rien à
+   recopier ailleurs. Pour les services d'envoi de lettres :
    - **Brevo** : l'e-mail › **Pour Brevo** télécharge le gabarit ; Brevo › **Campagnes** ›
      **Modèles** › **Nouveau modèle** › **Importer un modèle** › **Importer un fichier HTML**.
    - **Klaviyo** : **Pour Klaviyo** ; Klaviyo › **Content** › **Templates** › **Create Template** ›
      **Import** › **HTML**.
-   - **Notifications Shopify** (confirmation de commande, expédition) : **Pour Shopify** ; la
-     créatrice a choisi le 25/10/2026 que la cliente reçoive l'e-mail du site : coller **Commande
-     reçue** dans **Confirmation de commande** (Shopify ne permet pas de couper cette notification) ;
-     Shopify › **Paramètres** › **Notifications** › l'e-mail › **Modifier le code** : remplacer le
-     contenu par celui du fichier, **Aperçu**, puis **Enregistrer**.
 5. **Interrupteur** : `EDITION_STORAGE` (`stockage` en ligne, `fichiers` en local ; vide conseillé).
 
 **Vérifier** : Atelier › **Pages** › **Modifier** sur l'accueil ; changer un mot ; le site public
@@ -685,5 +637,6 @@ précédente › **Remettre en ligne**.
 ## Revenir à la simulation
 
 Pour tester une nouveauté sans toucher aux vraies données : dans un déploiement **Preview** de
-Vercel, mettre l'interrupteur du service à `mock` (par exemple `COMMERCE_PROVIDER=mock`). La
+Vercel, mettre l'interrupteur du service à `mock`, par exemple `STORE_PROVIDER=mock` et
+`CUSTOMERS_PROVIDER=mock` pour garder les commandes et les comptes d'essai à part (étape 4.1). La
 production n'est pas concernée.

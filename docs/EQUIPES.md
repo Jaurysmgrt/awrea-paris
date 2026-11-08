@@ -14,7 +14,7 @@ les **ressources officielles de la Maison** (`ressources-awrea/`, inventaire et 
 | 0. Direction | `chef-de-projet` (orchestrateur : répartit, ordonne, vérifie la cohérence, feu vert, `PLAN.md`, `JOURNAL.md`) | aucun : il ne juge pas son propre travail, chaque équipe a le sien |
 | Design | `veille-design`, `da-dentelle`, `da-atelier`, `da-edition` (leurs trois directions sont archivées : les maquettes officielles les remplacent, `DESIGN.md`) | `critique-design`, `gardien-marque` |
 | 1. Développement | `architecte`, `dev-interface`, `dev-animations` | `relecteur-code` |
-| 2. E-commerce | `specialiste-shopify`, `parcours-achat` | `cliente-mystere` |
+| 2. E-commerce | `specialiste-boutique`, `parcours-achat` | `cliente-mystere` |
 | 3. Contenu et rédaction | `redacteur-poetique`, `redacteur-sobre`, `redacteur-intime`, puis `redacteur-final` | `critique-editorial` |
 | 4. SEO et visibilité IA | `stratege-seo`, `technicien-seo`, `specialiste-ia` | `auditeur-seo` |
 | 5. Sécurité | `defenseur` | `attaquant-ethique` |

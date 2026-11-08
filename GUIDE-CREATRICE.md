@@ -12,9 +12,17 @@ modifier le site directement sur ses pages, depuis l’Atelier.
 Dans ce guide, « Atelier › Commandes » veut dire : dans l’Atelier, cliquez sur **Commandes** dans le
 menu. Les mots en gras sont ceux que vous lisez à l’écran.
 
-Tant que les services de la Maison ne sont pas tous branchés (boutique Shopify, envoi des e-mails…),
-le site fonctionne en démonstration : tout marche, mais les commandes et les e-mails sont simulés.
-L’Atelier › **Réglages** dit ce qui est branché et ce qui manque.
+La boutique est entièrement à la Maison. Vos pièces, vos commandes, vos clientes, les retours et
+les factures se gèrent ici, dans l’Atelier. Le paiement en ligne passe par Stripe : vos clientes règlent sur la page sécurisée de Stripe,
+puis la commande arrive dans l’Atelier, avec son paiement (Commandes › Paiements). Tant que votre
+compte Stripe n’est pas relié au site, le site en ligne ne prend aucune commande payée, et la page de
+commande le dit à vos clientes.
+
+Sur les versions d’essai du site, tout marche en démonstration : les commandes sont des exemples et
+le paiement est un paiement d’essai, toujours signalés comme tels. Aucun argent ne bouge. En bas du
+menu de l’Atelier, une ligne vous dit où vous êtes : « Boutique en démonstration », « Paiement en
+ligne pas encore branché » ou « Boutique ouverte ». L’Atelier › **Réglages** dit ce qui est branché
+et ce qui manque.
 
 > Les captures d’écran montrent le site de démonstration tel qu’il est aujourd’hui, avec des photos
 > de pièces encore provisoires.
@@ -262,25 +270,24 @@ version anglaise du site la montre aussi. Seule sa description a une version ang
    provisoire, décochez-la si une photo déjà en place est en fait définitive.
 
 > Le détail, pas à pas, est dans `docs/EDITEUR.md`, partie « Photos provisoires ». Les photos
-> des pièces et des collections se remplacent dans Shopify (ci-dessous).
+> des pièces se remplacent sur leur fiche, dans l’Atelier (ci-dessous).
 
 ### Les photos des pièces
 
-Les photos de la fiche d’une pièce viennent de la boutique. Une fois la boutique Shopify branchée :
+Les photos d’une pièce se changent sur sa fiche, dans l’Atelier.
 
-1. Dans Shopify, **Produits**, ouvrez la pièce.
-2. Dans **Médias**, ajoutez vos photos et retirez les visuels provisoires. La première photo est
-   celle des cartes de la boutique.
-3. Dans les métachamps de la pièce, passez **visuels provisoires** à faux : la mention « visuel
-   provisoire » disparaît de la fiche.
+1. Atelier › **Produits**, puis touchez la pièce : sa fiche s’ouvre.
+2. Rubrique **Photos**, **Ajouter des photos** : choisissez vos photos, huit au plus par pièce.
+3. Sous chaque photo, remplissez **Ce que montre la photo** pour les personnes qui ne la voient pas,
+   puis **Enregistrer le texte**.
+4. **Mettre en premier** sur la photo qui doit ouvrir la fiche. C’est aussi celle des cartes de la
+   boutique.
+5. **Retirer** chaque visuel provisoire, puis confirmez. Une pièce garde toujours au moins une
+   photo : ajoutez les vôtres avant de retirer les anciennes.
 
-Le site se met à jour tout seul quelques instants après. Le détail est dans `ACTIVATION.md`,
-étape 4.2.
-
-L’Atelier ne permet pas de remplacer les photos d’une pièce déjà en ligne : cela se fait dans
-Shopify, comme ci-dessus. Dans Atelier › **Photos**, chaque photo provisoire d’une pièce le
-rappelle. Tant que la boutique n’est pas branchée, confiez vos photos à la personne qui s’occupe du
-site. Seule une nouvelle pièce reçoit ses photos depuis l’Atelier (partie 7).
+Une photo que vous ajoutez n’est pas provisoire. La mention « visuel provisoire » quitte la fiche
+avec le dernier visuel provisoire retiré. Attention, ici il n’y a pas de brouillon : chaque
+changement se voit aussitôt sur le site.
 
 ![Une photo provisoire avec sa pastille, et la liste des photos à remplacer](docs/guide/06-photos-provisoires.png)
 
@@ -296,14 +303,13 @@ tailles. Sa fiche affiche son délai de fabrication. Il n’y a donc aucun stock
    En haut de la page, l’Atelier rappelle les prix et les délais encore à confirmer. Une fois une
    valeur confirmée, décochez la case.
 5. **Nouveau** : cochée, la pièce porte la pastille noire « Nouveau » sur sa carte.
-6. **Enregistrer**, au bout de la ligne. Le changement s’affiche aussitôt sur le site (et dans
-   Shopify quand la boutique est branchée).
+6. **Enregistrer**, au bout de la ligne. Le changement s’affiche aussitôt sur le site.
 
 Aujourd’hui, les prix de la robe Sienna, du body Gaïa, du top Evina et du top Kira sont provisoires,
 ainsi que tous les délais (bodys et tops 2 à 3 semaines, robes 3 à 4 semaines).
 
-Si les tailles d’une pièce n’ont pas toutes le même prix dans Shopify, le prix se règle dans
-Shopify : l’Atelier vous le dit sur la ligne de la pièce.
+Si les tailles d’une pièce n’ont pas toutes le même prix, l’Atelier ne les remplace pas par un prix
+unique : il vous le dit sur la ligne de la pièce.
 
 ### Ajouter une nouvelle pièce
 
@@ -341,7 +347,7 @@ e-mail à chaque étape.
 | **En confection** | Les artisans travaillent la pièce | Vous, **Passer en confection** |
 | **Prête** | La pièce est terminée | Vous, **Marquer comme prête** |
 | **Expédiée** | Le colis est parti | Vous, **Marquer comme expédiée** |
-| **Livrée** | Le colis est arrivé | Vous, **Marquer comme livrée** (ou toute seule, voir plus bas) |
+| **Livrée** | Le colis est arrivé | Vous, **Marquer comme livrée** |
 
 ### Faire avancer une commande
 
@@ -360,13 +366,14 @@ Sur la fiche d’une commande, vous trouvez aussi la frise des étapes telle que
 l’adresse de livraison, les options cadeau, **Imprimer le bon de livraison**, **Facture** et
 **Certificats**.
 
-### Quand la boutique Shopify est branchée
+### Tant que le paiement en ligne n’est pas branché
 
-Le paiement arrive de Shopify : la commande apparaît toute seule en **Commande reçue**. Les étapes
-**En confection** et **Prête** se donnent toujours depuis l’Atelier. L’expédition se déclare dans
-Shopify, en ouvrant la commande et en indiquant le numéro de suivi : le site suit seul et passe la
-commande en **Expédiée**, puis en **Livrée** quand Shopify reçoit la livraison. L’Atelier vous le
-rappelle par la mention **Dans Shopify**.
+Sur le site en ligne, aucune commande payée n’arrive encore. La page de commande dit à vos clientes
+que le paiement en ligne n’est pas encore ouvert, et les invite à vous écrire.
+
+Sur une version de démonstration, la page **Commandes** le signale en haut : des commandes
+d’exemple accompagnent celles passées en essai. Vous pouvez les faire avancer pour vous entraîner.
+Aucun argent ne bouge.
 
 ### Les e-mails de chaque étape
 
@@ -380,12 +387,8 @@ livraison, une invitation à donner son avis.
 Les étapes se suivent dans l’ordre : aucune ne peut être sautée. Si un e-mail ne part pas, l’étape
 reste enregistrée et l’Atelier vous le dit.
 
-Avec la boutique Shopify, c’est Shopify qui envoie la confirmation de commande (il ne permet pas de
-la couper). Pour que la cliente reçoive l’e-mail du site, et lui seul, collez le texte de **Commande
-reçue** dans Shopify : Atelier › **E-mails** › **Commande reçue** › **Pour Shopify**, puis Shopify ›
-**Paramètres** › **Notifications** › **Confirmation de commande** › **Modifier le code**.
-Une commande expédiée reste **Expédiée** tant que Shopify n’a pas enregistré la livraison du colis :
-l’Atelier n’a pas de bouton pour la passer à la main en **Livrée**.
+Tous ces e-mails partent du site lui-même, dans la version que vous avez publiée dans Atelier ›
+**E-mails** (partie 12).
 
 ![La liste des commandes et la fiche d’une commande avec sa frise](docs/guide/08-commandes.png)
 
@@ -430,7 +433,8 @@ reste à leur charge.
    souhaite.
 2. À l’arrivée du colis : **Colis reçu**.
 3. Pour un remboursement : **Rembourser** (le montant est écrit sur le bouton). Le site vous demande
-   de confirmer, et l’avoir est émis tout seul.
+   de confirmer, et l’avoir est émis tout seul. Tant que le paiement en ligne n’est pas branché,
+   aucun remboursement ne part de l’Atelier sur le site en ligne : l’Atelier vous le dit.
 4. Pour un échange : **Expédier la nouvelle taille**.
 5. Si la pièce revient portée ou sans son certificat : **Refuser**. La cliente est prévenue par
    e-mail.
@@ -536,14 +540,12 @@ panneau vous le dit.
 la Maison, le lien de désinscription, repris en bas de chaque e-mail.
 
 Pour un service d’envoi (Brevo ou Klaviyo) : dans l’e-mail, **Pour Brevo** ou **Pour Klaviyo**
-télécharge le gabarit à importer (`ACTIVATION.md`, étape 14). Sur les e-mails des étapes de commande,
-**Pour Shopify** télécharge aussi le gabarit des notifications de Shopify.
+télécharge le gabarit à importer (`ACTIVATION.md`, étape 14).
 
 Les e-mails des étapes de commande sont dans la famille **Service** : **Commande reçue**, **Commande
 en confection**, **Commande prête** et **Commande expédiée**. Sous chaque aperçu, une phrase dit
-quand il part. Avec la boutique Shopify, **Commande reçue** passe par Shopify : son bouton
-**Pour Shopify** donne le texte à coller dans la confirmation de commande de Shopify (chapitre 8).
-Les e-mails qui suivent la livraison (« Votre pièce est arrivée »,
+quand il part. Ils partent du site lui-même : ce que vous publiez ici est ce que reçoit votre
+cliente. Les e-mails qui suivent la livraison (« Votre pièce est arrivée »,
 l’entretien, la demande d’avis) ne sont pas dans la liste : pour l’instant, leur texte ne se modifie
 pas depuis l’Atelier.
 
@@ -628,15 +630,14 @@ les matières et l’entretien de chaque pièce.
 
 1. Les informations légales : envoyez-les à la personne qui s’occupe du site. Elle les inscrit dans
    le registre légal (`content/legal/fields.ts`), et le repère disparaît partout d’un coup.
-2. Les matières, la composition et l’entretien d’une pièce : avec la boutique Shopify, dans la fiche
-   de la pièce (**Produits**, la pièce, métachamps « matières » et « entretien ») ; sinon, envoyez-les
-   à la personne qui s’occupe du site.
+2. Les matières, la composition et l’entretien d’une pièce : envoyez-les à la personne qui
+   s’occupe du site.
 3. Les repères entre crochets d’une page que vous avez créée : remplacez-les en mode Édition
    (partie 3).
 
-Pour l’instant, l’Atelier ne permet de remplir ni les matières ni l’entretien d’une pièce déjà en
-ligne : la page **Catalogue** ne règle que le prix, le délai et les cases « provisoire » et
-« Nouveau ». Passez par Shopify ou par la personne qui s’occupe du site (point 2). Pour une nouvelle
+Pour l’instant, l’Atelier ne permet de remplir ni les matières ni l’entretien d’une pièce : sa
+fiche règle le prix, le délai, les cases « provisoire » et « Nouveau », les textes et les photos.
+Passez par la personne qui s’occupe du site (point 2). Pour une nouvelle
 pièce, écrivez-les dès le départ dans **Vos notes** : une fois l’assistante branchée, l’agent
 Catalogue les reprend sur la fiche (partie 7).
 
@@ -644,10 +645,11 @@ Catalogue les reprend sur la fiche (partie 7).
 
 Rien ne part en ligne sans **Publier**, et tout se défait par l’**Historique**.
 
-Le site ne tombe jamais faute d’un service : il passe en démonstration, et Atelier › **Réglages**
-dit ce qui manque.
+Le site ne tombe jamais faute d’un service : le service manquant est remplacé par une simulation,
+et Atelier › **Réglages** dit ce qui manque.
 
-Brancher un service (Shopify, l’envoi des e-mails, l’assistante…) se fait sans toucher au code :
+Brancher un service (le paiement en ligne, l’envoi des e-mails, l’assistante…) se fait sans toucher
+au code :
 `ACTIVATION.md` donne chaque étape, dans l’ordre.
 
 Un geste qui touche à l’argent ou qui est définitif vous demande toujours une confirmation.

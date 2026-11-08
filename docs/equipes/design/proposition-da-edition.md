@@ -106,7 +106,7 @@ Le risque propre à mon angle est le code A6, la mise en page « magazine » g
 
 **`components/atelier/Sketchbook.tsx`.** Il dessine des croquis provisoires inventés, contraires à la nouvelle règle de la créatrice ; la feuille réservée de la planche le remplacerait.
 
-**Contenus.** `_components/textes.ts` devient des documents `content/site/fr/`. Il faut aussi un champ « exergue » par pièce (métachamp Shopify) et des légendes par photographie.
+**Contenus.** `_components/textes.ts` devient des documents `content/site/fr/`. Il faut aussi un champ « exergue » par pièce (dans les données de la pièce) et des légendes par photographie.
 
 **`MARQUE.md` (proposition au chef de projet).** Inscrire la règle « le folio d’une pièce est son numéro d’édition ». Nommer l’accès à l’assistante « Courrier », et la première rubrique « Les pièces » plutôt que « Boutique ».
 

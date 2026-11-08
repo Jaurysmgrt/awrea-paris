@@ -23,7 +23,7 @@
    - prix, tailles, délais et photos ne changent jamais ;
    - `getAllProducts` reste la source brute en français (Atelier, agents, panier) ;
    - `/api/products?langue=en` sert la liste d'envies ;
-   - une ligne sur Translate & Adapt est ajoutée dans `ACTIVATION.md` (4.2, point 5 bis).
+   - une ligne sur la version anglaise des fiches est ajoutée dans `ACTIVATION.md` (étape 4.2).
 7. **Formats** (`lib/format.ts`) : `formatPrice`, `formatDate` et `formatMonth` acceptent une langue (`en-GB`, toujours en EUR). Elle est passée par `Price`, devenu composant client, par le panier, le paiement, la fiche, le compte, la frise, le certificat, les avis, le Journal, la presse, le suivi, la confirmation et la recherche.
 8. **Tests** :
    - `tests/e2e/anglais.spec.ts`, 8 tests : /en, `lang`, 404 Atelier et API sous /en, aller-retour du sélecteur entre /boutique et /en/boutique, liens internes sous /en avant et après une navigation, hreflang et canonique, axe sur /en, /en/boutique/body-aura et /en/cgu, sélecteur du menu téléphone ;
@@ -66,9 +66,9 @@ Textes en dur visibles sous /en, déplacés dans le document « site » (clés `
   - `websiteSchema` en `inLanguage: fr-FR`.
 - **Commerce et e-mails** :
   - les titres des lignes du panier restent en français (enregistrés par l'API panier) ;
-  - messages d'erreur des API, e-mails, réponses de l'assistante et paiement Shopify sont sans langue ;
+  - messages d'erreur des API, e-mails, réponses de l'assistante et page de paiement sont sans langue ;
   - le retour après connexion OAuth (`next=/compte`) se fait en français.
-- **Shopify** : brancher `@inContext(language: EN)` dans `lib/shopify/storefront.ts` une fois Translate & Adapt installé.
+- **Fiches des pièces** : sans objet depuis le 08/11 (boutique sans plateforme de commerce extérieure) ; les textes anglais des pièces vivent dans `content/site/en/catalogue-pieces.json`.
 - **Éditeur** : `catalogue-pieces` n'est déclaré dans aucun registre (il n'a pas de base française). À décider avec l'équipe Édition.
 - **CSP_MODE=static** : toutes les pages lisent maintenant la langue de la requête, donc elles sont rendues à chaque visite même dans ce mode. Le mode strict, celui par défaut, ne change pas. Retrouver le cache CDN demanderait un segment `[lang]`.
 - **Décision SEO** : faut-il indexer sous /en les pages qui retombent sur le français ?

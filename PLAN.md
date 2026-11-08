@@ -13,13 +13,13 @@
 
 - [x] Sauvegarde de l'état antérieur (`archive/avant-nouvelle-da`), audit (`ETAT.md`), plan priorisé
 - [x] `DECISIONS.md`, `ACTIVATION.md` (comptes à créer, pas à pas, compréhensible sans être développeur)
-- [x] Interrupteurs par service (`COMMERCE_PROVIDER=mock|shopify`, etc.) avec bascule automatique sur
-      la simulation quand la clé manque, listés dans `.env.example`, visibles dans l'Atelier ;
-      nouveaux accès Shopify (jeton privé Headless, jetons Admin de 24 h renouvelés seuls)
+- [x] Interrupteurs par service (`STORE_PROVIDER`, `CUSTOMERS_PROVIDER`, etc.) avec bascule
+      automatique sur la simulation quand la clé manque, listés dans `.env.example`, visibles dans
+      l'Atelier
 - [x] Polices hébergées dans le dépôt (aucun appel à Google Fonts) ; une durée et une courbe pour
       toutes les animations (contrôlé par l'audit) ; `MARQUE.md` complété
-- [x] En avance sur la phase B : Microsoft Clarity et pixel TikTok après consentement, régénération du
-      catalogue par webhooks Shopify, renouvellement automatique du jeton Instagram
+- [x] En avance sur la phase B : Microsoft Clarity et pixel TikTok après consentement,
+      renouvellement automatique du jeton Instagram
 
 ## Phase H · Écriture humaine, édition sans code, accès admin, e-mails (consignes du 14/10)
 
@@ -40,7 +40,7 @@
    haute → Typographe → Cohérence) : faite le 15/10 ; à reprendre sur les textes qui parlaient de
    stock, de séries ou de « fait main à Paris » (balayage éditorial en cours).
 7. [x] **E-mails modifiables sans code** : blocs dans la DA, rendu Gmail, Apple Mail, Outlook,
-   mobile, clair et sombre ; export Brevo, Klaviyo, Shopify.
+   mobile, clair et sombre ; export Brevo et Klaviyo.
 8. [x] **Nouveaux agents** : équipes de construction (`.claude/agents/`) et rôles de gestion
    quotidienne dans l'Atelier.
 9. [ ] **Documentation** : `ACTIVATION.md` à jour du modèle sur demande ; `GUIDE-CREATRICE.md`
@@ -86,10 +86,21 @@ maquettes, textes, pièces, CGV et mentions légales. Équipes en parallèle, un
 SVG, licence commerciale de Croisan ou confirmation pour le logo, crédit du portrait, prix et délais
 définitifs, matières, compositions, entretien et mesures, informations légales manquantes.
 
+## Phase I · Boutique indépendante (décision de la créatrice du 08/11)
+
+1. [x] **Aucune connexion à une plateforme de commerce extérieure** : pièces, commandes, clientes,
+   retours, factures et avoirs gérés dans l'Atelier ; boutique réelle ou démonstration selon
+   `lib/config/boutique.ts` ; commandes copiées dans la table `orders` de Supabase (colonne
+   `reference`, migration `20261108000000_boutique_independante.sql`, à appliquer par la Maison) ;
+   code d'avant gardé sur la branche `sauvegarde/avant-suppression-shopify`.
+2. [ ] **Paiement en ligne par Stripe Checkout** et son webhook signé (`STRIPE_SECRET_KEY`,
+   `STRIPE_WEBHOOK_SECRET`), lot suivant (`docs/ATELIER-REFONTE.md`, lot 4). D'ici là, la boutique
+   réelle ne prend aucune commande payée.
+
 ## Phase B · Boutique complète et fonctionnelle (mode simulé)
 
 Fait le 13 et le 14/10 : fiche produit (traçabilité, partage, barre d'achat fixe sur mobile), panier
-et commande (suggestions, Shop Pay, adresses, points relais, retrait, droits et taxes, options
+et commande (suggestions, adresses, points relais, retrait, droits et taxes, options
 cadeau), après la commande (suivi sans compte, retours et échanges avec étiquette, factures et avoirs,
 export comptable), rendez-vous en ligne. Reste :
 

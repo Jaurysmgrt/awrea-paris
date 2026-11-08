@@ -562,7 +562,7 @@ Garder la fonction ; la forme, elle, peut être propre à Awrea.
    avec un agrandissement au clic ou au toucher, pas au survol.
 5. **Informations complètes avant de payer** : composition, entretien, fabrication, délais, frais et
    retours ([S] Loewe : modules qui répondent aux questions courantes).
-6. **Tunnel court** : paiement Shopify, commande possible sans créer de compte, paiements express
+6. **Tunnel court** : paiement en ligne, commande possible sans créer de compte, paiements express
    ([S] Givenchy : paiement simplifié ; [C] Baymard : l'obligation de créer un compte est une cause
    majeure d'abandon).
 7. **Navigation visible et prévisible** : cinq entrées au plus, des mots plutôt que des
