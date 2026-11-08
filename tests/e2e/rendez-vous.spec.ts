@@ -9,8 +9,9 @@ import { acceptCookies, outbox, waitForHydration } from "./helpers";
 test("réserver puis annuler un appel vidéo", async ({ page, request }) => {
   test.setTimeout(120_000);
   const email = `rdv.${Date.now().toString(36)}@exemple.fr`;
-  await page.goto("/rendez-vous");
+  // le consentement est posé avant le chargement : sinon le bandeau, déjà affiché, masque le bouton
   await acceptCookies(page);
+  await page.goto("/rendez-vous");
   await waitForHydration(page);
   // la page : une photo, le titre, un seul bouton ; la réservation s'ouvre derrière lui
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Une pièce exclusive à votre demande.");
