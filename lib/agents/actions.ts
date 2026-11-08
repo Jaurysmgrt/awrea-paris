@@ -13,7 +13,10 @@ import { descriptionHtml } from "@/lib/commerce/statut-pieces";
 import { DEMO_KEYS, demoHandlesPris } from "@/lib/commerce/catalog-demo";
 import { getAllProducts, getProduct } from "@/lib/commerce";
 import { getOrder, setOrderStatus } from "@/lib/commerce/orders";
-import type { Product } from "@/lib/commerce/types";
+import { dejaRembourse, marquerRembourse, sousVerrouArgent } from "@/lib/commerce/argent";
+import { issueCreditNote } from "@/lib/invoices";
+import { invoicePdf } from "@/lib/invoices/pdf";
+import type { Order, Product } from "@/lib/commerce/types";
 import {
   adminEnabled,
   PIECE_METAFIELDS,
@@ -148,6 +151,57 @@ export interface ActionResult {
 }
 
 /* ---------------------------------------------------------------- EXÉCUTION */
+
+/**
+ * Remboursement complet d'une commande (annulée ou non), par tous les chemins : un seul geste à la
+ * fois par commande, jamais deux fois la même (lib/commerce/argent.ts). Puis, une fois l'argent
+ * parti : l'avoir, et l'e-mail de la Maison à la cliente avec l'avoir ; un e-mail qui ne part pas ne
+ * fait pas passer le remboursement pour un échec (le résumé le dit).
+ */
+async function rembourserCommande(o: Order, motif: string, annuler: boolean): Promise<ActionResult> {
+  if (o.status === "refunded" || (await dejaRembourse(o.id))) throw new Error(`La commande ${o.number} est déjà remboursée : rien n’est reparti.`);
+  const montant = await sousVerrouArgent(o.id, async () => {
+    if (await dejaRembourse(o.id)) throw new Error(`La commande ${o.number} est déjà remboursée : rien n’est reparti.`);
+    let m = o.total;
+    if (adminEnabled) {
+      if (annuler) await shopifyCancelOrder(o.id, true);
+      else m = await shopifyRefundOrder(o.id, motif);
+    } else await setOrderStatus(o.id, "refunded");
+    await marquerRembourse(o.id, { montant: m, par: motif });
+    return m;
+  });
+  let avoir: Awaited<ReturnType<typeof issueCreditNote>> | null = null;
+  try {
+    const lignes = o.lines.map((l) => ({ title: l.title, detail: `Taille ${l.size}`, quantity: l.quantity, unitTtc: l.unitPrice }));
+    if (o.shipping.price > 0) lignes.push({ title: "Livraison", detail: o.shipping.method, quantity: 1, unitTtc: o.shipping.price });
+    avoir = await issueCreditNote(o, lignes, annuler ? "annulation" : "remboursement");
+  } catch (e) {
+    console.error("[argent] avoir", e);
+  }
+  const pdf = avoir ? await invoicePdf(avoir).catch(() => null) : null;
+  const ecrit = await sendEmail({
+    to: o.email,
+    subject: annuler ? `Annulation de votre commande ${o.number}` : `Remboursement de votre commande ${o.number}`,
+    tag: "remboursement",
+    attachments: pdf && avoir ? [{ filename: `${avoir.number}.pdf`, content: pdf }] : undefined,
+    ...brandEmail({
+      preheader: "Votre remboursement est en cours.",
+      title: annuler ? "Votre commande est annulée" : "Votre remboursement",
+      paragraphs: [
+        `Bonjour ${o.name.split(" ")[0]},`,
+        `${annuler ? `Votre commande ${o.number} est annulée et vous` : `Votre commande ${o.number} vous`} est remboursée : ${formatPrice(montant)}, sur le moyen de paiement utilisé lors de l’achat. La somme apparaît sur votre relevé d’ici quelques jours.${avoir ? ` L’avoir ${avoir.number} est joint à ce message.` : ""}`,
+      ],
+      signature: "Avec toute notre attention,\nl’atelier Awrea Paris",
+    }),
+  })
+    .then(() => true)
+    .catch((e) => {
+      console.error("[argent] e-mail", e);
+      return false;
+    });
+  const suite = [avoir ? `avoir ${avoir.number}` : "avoir à émettre depuis Factures", ecrit ? "cliente prévenue" : "l’e-mail n’a pas pu partir : écrivez-lui"].join(", ");
+  return { summary: `Commande ${o.number} ${annuler ? "annulée et remboursée" : "remboursée"} (${formatPrice(montant)}) : ${suite}`, target: { type: "order", id: o.id, label: o.number, href: `atelier:/commandes/${encodeURIComponent(o.number)}` } };
+}
 
 export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promise<ActionResult> } = {
   async publish_product({ product: d }) {
@@ -340,15 +394,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
   async refund_order({ orderId, reason }) {
     const o = await getOrder(orderId);
     if (!o) throw new Error("Commande introuvable");
-    if (adminEnabled) await shopifyRefundOrder(o.id, reason);
-    else await setOrderStatus(o.id, "refunded");
-    await sendEmail({
-      to: o.email,
-      subject: `Remboursement de votre commande ${o.number}`,
-      tag: "remboursement",
-      ...brandEmail({ preheader: "Votre remboursement est en cours.", title: "Votre remboursement", paragraphs: [`Bonjour ${o.name.split(" ")[0]},`, `Votre commande ${o.number} vous est remboursée : ${formatPrice(o.total)}, sur le moyen de paiement utilisé lors de l’achat. La somme apparaît sur votre relevé d’ici quelques jours.`], signature: "Avec toute notre attention,\nl’atelier Awrea Paris" }),
-    });
-    return { summary: `Commande ${o.number} remboursée (${formatPrice(o.total)})`, target: { type: "order", id: o.id, label: o.number, href: "atelier:/commandes" } };
+    return rembourserCommande(o, reason, false);
   },
 
   // même chemin que l'Atelier (Catalogue) : une pièce Shopify aux prix différents selon la taille garde ses prix
@@ -375,9 +421,10 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
   async cancel_order({ orderId, refund }) {
     const o = await getOrder(orderId);
     if (!o) throw new Error("Commande introuvable");
-    if (adminEnabled) await shopifyCancelOrder(o.id, refund);
-    else await setOrderStatus(o.id, refund ? "refunded" : "blocked");
-    return { summary: `Commande ${o.number} annulée${refund ? " et remboursée" : ""}`, target: { type: "order", id: o.id, label: o.number, href: "atelier:/commandes" } };
+    if (refund) return rembourserCommande(o, "Commande annulée", true);
+    if (adminEnabled) await shopifyCancelOrder(o.id, false);
+    else await setOrderStatus(o.id, "blocked");
+    return { summary: `Commande ${o.number} annulée`, target: { type: "order", id: o.id, label: o.number, href: "atelier:/commandes" } };
   },
 
   async send_newsletter_all({ subject, preheader, paragraphs, cta }) {

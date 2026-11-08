@@ -466,25 +466,110 @@ export async function deleteAccount(s: CustomerSession) {
 }
 
 // ------------------------------------------------------------------ administration (tableau de bord)
+/**
+ * Atelier : le profil d'une cliente, lu avec la clé de service (jamais depuis le navigateur). Null
+ * pour une cliente qui a commandé sans créer de compte ; une erreur de la base n'est jamais prise
+ * pour une absence de compte (elle remonte, et la page le dit).
+ */
+export async function profilPourAtelier(id: string): Promise<CustomerProfile | null> {
+  if (isSupabaseConfigured) {
+    if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+    const { data, error } = await supabaseAdmin().from("customers").select("*").eq("id", id).maybeSingle<CustomerRow>();
+    if (error) throw new Error(`Base clientes : ${error.message}`);
+    return data ? fromRow(data) : null;
+  }
+  return kv.get<CustomerProfile>(demoKey(id));
+}
+
+/**
+ * Atelier : les données d'une cliente à lui remettre quand elle les demande (droit d'accès) :
+ * profil, adresses, envies, navigation, inscriptions aux avant-premières, avis, toutes ses
+ * commandes, et les notes de l'atelier qui la concernent (fournies par l'appelant). Une lecture qui
+ * échoue fait échouer l'export : jamais un fichier incomplet présenté comme complet.
+ */
+export async function exportPourAtelier(c: { id: string; email: string }, notes: { cliente: unknown[]; commandes: Record<string, unknown[]> }) {
+  const email = c.email.trim().toLowerCase();
+  // comparaison sans casse, mais exacte : « _ » et « % » d'une adresse ne sont pas des jokers
+  const motif = email.replace(/[\\%_]/g, (m) => `\\${m}`);
+  const profile = await profilPourAtelier(c.id);
+  let addresses: Address[] = [];
+  let wishlist: string[] = [];
+  let browsing: BrowsingEvent[] = [];
+  let drops: { drop: string; at: string }[] = [];
+  let orders: unknown[];
+  if (isSupabaseConfigured) {
+    const admin = supabaseAdmin();
+    const lire = <T,>(r: { data: T | null; error: { message: string } | null }, quoi: string): T => {
+      if (r.error) throw new Error(`Base clientes (${quoi}) : ${r.error.message}`);
+      return (r.data ?? []) as T;
+    };
+    const [a, w, b, d, o] = await Promise.all([
+      admin.from("addresses").select("*").eq("customer_id", c.id),
+      admin.from("wishlist_items").select("product_handle").eq("customer_id", c.id),
+      admin.from("browsing_events").select("kind, product_handle, collection_handle, created_at").eq("customer_id", c.id).order("created_at", { ascending: false }),
+      admin.from("drop_signups").select("drop_slug, created_at").ilike("email", motif),
+      admin.from("orders").select("*").ilike("email", motif).order("placed_at", { ascending: false }),
+    ]);
+    addresses = lire(a as { data: AddressRow[] | null; error: { message: string } | null }, "adresses").map(addressFromRow);
+    wishlist = lire(w as { data: { product_handle: string }[] | null; error: { message: string } | null }, "envies").map((r) => r.product_handle);
+    browsing = lire(b as { data: { kind: BrowsingEvent["kind"]; product_handle: string | null; collection_handle: string | null; created_at: string }[] | null; error: { message: string } | null }, "navigation").map((r) => ({ kind: r.kind, handle: r.product_handle, collection: r.collection_handle, at: r.created_at }));
+    drops = lire(d as { data: { drop_slug: string; created_at: string }[] | null; error: { message: string } | null }, "avant-premières").map((r) => ({ drop: r.drop_slug, at: r.created_at }));
+    orders = lire(o as { data: unknown[] | null; error: { message: string } | null }, "commandes");
+  } else {
+    if (profile) {
+      addresses = (await kv.get<Address[]>(demoKey(c.id, "addr"))) ?? [];
+      wishlist = (await kv.get<string[]>(demoKey(c.id, "wish"))) ?? [];
+      browsing = await kv.list<BrowsingEvent>(demoKey(c.id, "seen"), SEEN_CAP);
+    }
+    orders = (await getOrders()).filter((o) => o.email.trim().toLowerCase() === email);
+  }
+  return {
+    exportedAt: new Date().toISOString(),
+    controller: "Awrea Paris",
+    email: c.email,
+    profile,
+    addresses,
+    wishlist,
+    browsing,
+    drops,
+    reviews: await reviewsOf(c),
+    orders,
+    notesDeLAtelier: notes,
+  };
+}
+
+type LigneStats = { id: string; email: string; first_name: string | null; last_name: string | null; created_at: string; cercle_member: boolean; marketing_email: boolean; orders_count: number; total_spent: number; last_order_at: string | null };
+
+const statsDepuisLigne = (r: LigneStats): CustomerStats => ({
+  id: r.id,
+  email: r.email,
+  firstName: r.first_name,
+  lastName: r.last_name,
+  createdAt: r.created_at,
+  cercleMember: r.cercle_member,
+  marketingEmail: r.marketing_email,
+  ordersCount: Number(r.orders_count),
+  totalSpent: Number(r.total_spent),
+  lastOrderAt: r.last_order_at,
+  segment: segmentOf(Number(r.orders_count), Number(r.total_spent)),
+});
+
+/** Atelier : une cliente par son identifiant, même au-delà des 2 000 premières de la liste. */
+export async function statsCliente(id: string): Promise<CustomerStats | null> {
+  if (isSupabaseConfigured) {
+    if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+    const { data, error } = await supabaseAdmin().from("customer_stats").select("*").eq("id", id).maybeSingle<LigneStats>();
+    if (error) throw new Error(`Base clientes : ${error.message}`);
+    return data ? statsDepuisLigne(data) : null;
+  }
+  return (await listCustomerStats()).find((c) => c.id === id) ?? null;
+}
+
 export async function listCustomerStats(): Promise<CustomerStats[]> {
   if (isSupabaseConfigured) {
     const { data, error } = await supabaseAdmin().from("customer_stats").select("*").order("created_at", { ascending: false }).limit(2000);
     if (error) throw new Error(error.message);
-    return (data ?? []).map(
-      (r: { id: string; email: string; first_name: string | null; last_name: string | null; created_at: string; cercle_member: boolean; marketing_email: boolean; orders_count: number; total_spent: number; last_order_at: string | null }) => ({
-        id: r.id,
-        email: r.email,
-        firstName: r.first_name,
-        lastName: r.last_name,
-        createdAt: r.created_at,
-        cercleMember: r.cercle_member,
-        marketingEmail: r.marketing_email,
-        ordersCount: Number(r.orders_count),
-        totalSpent: Number(r.total_spent),
-        lastOrderAt: r.last_order_at,
-        segment: segmentOf(Number(r.orders_count), Number(r.total_spent)),
-      }),
-    );
+    return (data ?? []).map(statsDepuisLigne);
   }
   // démonstration : clientes inscrites + clientes ayant commandé
   const [index, orders] = await Promise.all([kv.get<string[]>("customers:index"), getOrders()]);
@@ -541,6 +626,6 @@ export const customersMode = isSupabaseConfigured ? "supabase" : "demo";
 export async function purgeExpired(): Promise<Record<string, number> | null> {
   if (!isSupabaseConfigured) return null;
   const { data, error } = await supabaseAdmin().rpc("purge_expired");
-  if (error) throw new Error(`purge_expired : ${error.message}`);
+  if (error) throw new Error(`purge_expired : ${error.message}`);
   return data as Record<string, number>;
 }

@@ -305,6 +305,43 @@
       grid-template-columns: minmax(0, 1fr) auto;
     }
   }
+  /* fiche d'une commande : notes et historique, des lignes séparées d'un filet */
+  .commande-notes,
+  .commande-historique {
+    display: grid;
+    gap: var(--spacing-s);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .commande-notes > li {
+    padding-bottom: var(--spacing-s);
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .commande-historique > li {
+    display: grid;
+    gap: var(--spacing-3xs);
+  }
+  @media (min-width: 48rem) {
+    .commande-historique > li {
+      grid-template-columns: calc(var(--spacing-3xl) * 2) minmax(0, 1fr);
+      gap: var(--spacing-s);
+    }
+  }
+  /* commandes : recherche et période sur une ligne dès la tablette */
+  .commandes-filtres {
+    display: grid;
+    gap: var(--spacing-s);
+    align-items: end;
+  }
+  @media (min-width: 48rem) {
+    .commandes-filtres {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+    }
+    .commandes-filtres--deux {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+  }
   .produits__filtres {
     display: flex;
     flex-wrap: wrap;
@@ -578,6 +615,34 @@
     white-space: normal;
     line-height: var(--leading-label);
     margin-block-end: var(--spacing-3xs);
+  }
+  /* sur téléphone, chaque commande devient une carte : plus de tableau qui défile de côté */
+  @media (max-width: 47.99rem) {
+    :is(.table--commandes, .table--clientes) {
+      display: block;
+    }
+    :is(.table--commandes, .table--clientes) thead {
+      display: none;
+    }
+    :is(.table--commandes, .table--clientes) :is(tbody, tr, th, td) {
+      display: block;
+    }
+    :is(.table--commandes, .table--clientes) tr {
+      padding-block: var(--spacing-s);
+      border-bottom: var(--border-width-hair) solid var(--line);
+    }
+    :is(.table--commandes, .table--clientes) :is(th, td) {
+      padding: var(--spacing-3xs) 0;
+      border: 0;
+    }
+    :is(.table--commandes, .table--clientes) td[data-titre]::before {
+      content: attr(data-titre);
+      display: block;
+      font-size: var(--text-step--2);
+      letter-spacing: var(--tracking-label);
+      text-transform: uppercase;
+      color: var(--fg-soft);
+    }
   }
   .table__gestes {
     display: grid;

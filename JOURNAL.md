@@ -831,3 +831,48 @@ Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/
 - Choix de la créatrice : boutique propre (Supabase) et paiement par Stripe, bascule progressive,
   Shopify actif jusqu’à son feu vert ; pièces sur demande avec quantité limitée possible pièce par
   pièce ; codes privés et prix de vente privée des avant-premières, rien de barré.
+
+## Refonte de l’Atelier : lot 3a, commandes (08/11)
+
+- Liste : recherche par numéro, nom, adresse ou pièce (sans accents ni majuscules), étapes en
+  pastilles avec leur nombre, période (aujourd’hui, 7 jours, 30 jours, 12 mois) ; les retards se
+  calculent sur toutes les commandes, plus seulement les 60 dernières ; sur téléphone, chaque
+  commande devient une carte.
+- Fiche : notes internes (jamais vues par la cliente), historique (commande passée, étapes, notes,
+  actions de l’atelier et des agents), annulation et remboursement après une confirmation qui dit
+  ce qui va se passer, un seul geste à la fois par commande, consigné au journal.
+- Pastille « En retard » de la fiche plus jamais barrée (demande du 01/11).
+- Tests : règles des commandes (unitaires), recherche, étapes, note, historique, remboursement
+  fait une seule fois.
+
+## Refonte de l’Atelier : lot 3b, clientes (08/11)
+
+- Liste : recherche par prénom, nom ou adresse (sans accents), catégories d’activité tirées des
+  seules commandes (nouvelle, régulière, fidèle, inactive après un an, sans commande), VIP gardé ;
+  chaque cliente ouvre sa fiche ; cartes sur téléphone.
+- Fiche : coordonnées et préférences, total des achats, ses commandes, notes internes (jamais vues
+  par elle), ses données remises en fichier à sa demande, effacement de son compte après avoir
+  recopié son adresse (commandes gardées dix ans, détachées du compte) ; registre RGPD sans donnée
+  personnelle.
+- Tests : règles des catégories (unitaires), parcours liste, fiche, note, données, effacement gardé.
+
+## Refonte de l’Atelier : lot 3, relecture indépendante et corrections (08/11)
+
+- Relecture indépendante (critique séparé) : deux points bloquants corrigés. Avec Shopify, le
+  remboursement ne rendait que la livraison : il rend désormais la commande entière (montant
+  proposé par Shopify, refus si rien n’est à rembourser). En cas d’échec, le message disait à tort
+  que rien n’était parti : il dit maintenant que le geste n’a pas pu être confirmé et qu’une
+  commande remboursée ne l’est jamais deux fois.
+- Un seul chemin pour l’argent : fiche de la commande, proposition d’agent validée et remboursement
+  d’un retour passent par le même verrou par commande, et une commande remboursée en entier est
+  marquée pour ne jamais l’être une seconde fois (`lib/commerce/argent.ts`).
+- Le geste vérifie que la commande n’a pas changé (identifiant et montant) avant de partir ; il
+  émet l’avoir et prévient la cliente par l’e-mail de la Maison, à l’adresse de sa commande.
+- Une commande en route ou en retour ne propose plus de remboursement global (un retour se
+  rembourse pièce par pièce depuis Retours).
+- Clientes : ses données remises comprennent désormais adresses, envies, inscriptions, avis et
+  notes ; l’effacement dit précisément ce qui est effacé et ce qui est gardé.
+- Point connu, hors de ce lot : une adresse mal encodée (par exemple « %E0%A4%A ») renvoie une
+  erreur 500 de Next.js avant d’atteindre le site, publique comme privée.
+- Tests : règle des gestes (unitaires), parcours remboursement fait une seule fois même avec deux
+  demandes simultanées, confirmation qui dit ce qui va se passer.

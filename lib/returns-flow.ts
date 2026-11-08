@@ -8,6 +8,7 @@ import "server-only";
 import { getOrder, setOrderStatus } from "@/lib/commerce/orders";
 import { adminEnabled, shopifyRefundLines } from "@/lib/shopify/admin";
 import { issueCreditNote } from "@/lib/invoices";
+import { sousVerrouArgent } from "@/lib/commerce/argent";
 import { invoicePdf } from "@/lib/invoices/pdf";
 import { sendEmail } from "@/lib/email/send";
 import { brandEmail } from "@/lib/email/templates";
@@ -108,6 +109,12 @@ export async function receiveReturn(id: string): Promise<ReturnRequest> {
 
 /** Remboursement des pièces à rembourser du retour (geste de la créatrice) : avoir émis et envoyé. */
 export async function refundReturn(id: string): Promise<{ r: ReturnRequest; amount: number }> {
+  // un seul geste d'argent à la fois par commande (fiche, proposition validée, retour) : le statut
+  // du retour est relu sous le verrou, pour qu'un double clic ne rembourse jamais deux fois
+  return sousVerrouArgent((await load(id)).order.id, () => rembourserRetour(id));
+}
+
+async function rembourserRetour(id: string): Promise<{ r: ReturnRequest; amount: number }> {
   const { r, order } = await load(id);
   if (!["recu", "demande"].includes(r.status)) throw new Error("Ce retour n’est plus à rembourser.");
   const items = r.items.filter((i) => i.wish === "remboursement");
