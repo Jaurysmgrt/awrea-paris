@@ -63,7 +63,7 @@ const GROUPES: { titre?: string; liens: Entree[] }[] = [
       { href: "/equipe", label: "Agents", sous: [{ href: "/journal", label: "Journal des actions" }] },
     ],
   },
-  { titre: "Paramètres", liens: [{ href: "/reglages", label: "Réglages" }] },
+  { titre: "Paramètres", liens: [{ href: "/reglages", label: "Réglages", sous: [{ href: "/application", label: "Application" }] }] },
 ];
 
 export function AdminNav({ counts }: { counts: Record<string, number> }) {
