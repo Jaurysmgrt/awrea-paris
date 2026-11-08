@@ -797,3 +797,17 @@ Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/
   Catalogue et les réglages de prix suivent les mêmes règles ; pages du site rafraîchies après chaque
   geste ; messages d'état lus par les lecteurs d'écran ; réglage du prix lisible sur téléphone.
 
+## Refonte de l’Atelier : lot 2b, aperçu, nouvelle pièce, photos (08/11)
+
+- Aperçu d’une pièce en brouillon ou archivée sur la vraie page du site, depuis sa fiche
+  (« Voir l’aperçu sur le site ») : seulement pour la créatrice connectée en mode Édition ; une
+  visiteuse obtient toujours une page introuvable, et l’aperçu n’entre jamais dans le cache du site.
+  Bandeau « Aperçu », commande désactivée, ni données structurées, ni statistiques, ni indexation.
+- Nouvelle pièce en quatre étapes courtes (les photos, la pièce, prix et délai, vos notes), avec ce
+  qui manque dit en mots simples. L’agent Catalogue rédige d’après les photos et les notes, sans
+  rien inventer ; la pièce naît toujours en brouillon et sa fiche s’ouvre aussitôt.
+- Sécurité (audit, point 4) : `publish_product` ne publie plus jamais directement, en démonstration
+  comme avec Shopify.
+- Photos depuis la fiche : ajouter, choisir la principale, écrire ce que montre la photo, retirer
+  (au moins une photo, 12 au plus). Shopify : nouvelle permission `write_files` (ACTIVATION.md).
+- Tests : aperçu (créatrice et visiteuse), quatre étapes, photos.
