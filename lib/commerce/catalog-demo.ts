@@ -57,6 +57,15 @@ export async function demoProducts(o: { tous?: boolean } = {}): Promise<(Product
   });
 }
 
+/**
+ * Adresses déjà prises, même par une pièce retirée : une copie ou une nouvelle pièce n'en reprend
+ * jamais une (elle hériterait des surcouches de l'ancienne, prix, textes et statut).
+ */
+export async function demoHandlesPris(): Promise<string[]> {
+  const [extra, removed] = await Promise.all([kv.get<Product[]>(DEMO_KEYS.extra), kv.get<string[]>(DEMO_KEYS.removed)]);
+  return [...baseProducts.map((p) => p.handle), ...(extra ?? []).map((p) => p.handle), ...(removed ?? [])];
+}
+
 export async function demoCollections(): Promise<Collection[]> {
   const [extra, statuts] = await Promise.all([kv.get<Product[]>(DEMO_KEYS.extra), kv.get<Record<string, StatutPiece>>(DEMO_KEYS.statut)]);
   // une pièce en brouillon ou archivée sort aussi de sa collection

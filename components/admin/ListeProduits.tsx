@@ -51,6 +51,9 @@ export function ListeProduits({ pieces }: { pieces: LigneProduit[] }) {
         </div>
       </div>
 
+      <p className="sr-only" role="status">
+        {`${visibles.length} pièce${visibles.length > 1 ? "s" : ""} affichée${visibles.length > 1 ? "s" : ""}`}
+      </p>
       {visibles.length ? (
         <ul className="produits" aria-label={`${visibles.length} pièce${visibles.length > 1 ? "s" : ""}`}>
           {visibles.map((p) => (

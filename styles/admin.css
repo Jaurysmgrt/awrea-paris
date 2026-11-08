@@ -363,6 +363,12 @@
     text-decoration-thickness: var(--border-width-hair);
     text-underline-offset: var(--spacing-3xs);
   }
+  /* zones d'annonce gardées dans la page pour les lecteurs d'écran : vides, elles ne se voient pas */
+  .admin :is([role="alert"], [role="status"]):empty {
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
   /* fiche d'une pièce : la photo et le nom, le statut, puis les gestes */
   .piece-tete__titre {
     display: flex;
@@ -386,6 +392,30 @@
   /* sur la fiche, la pièce est déjà nommée en tête : la première colonne du réglage s'efface */
   .piece-reglages :is(th, td):first-child {
     display: none;
+  }
+  /* sur téléphone, le réglage se lit de haut en bas : chaque case porte son intitulé */
+  @media (max-width: 47.99rem) {
+    .piece-reglages :is(table, tbody, tr, td) {
+      display: block;
+    }
+    .piece-reglages thead {
+      display: none;
+    }
+    .piece-reglages td {
+      padding-inline: 0;
+      padding-block: var(--spacing-s);
+    }
+    .piece-reglages td > .check {
+      display: flex;
+    }
+    .piece-reglages td[data-titre]::before {
+      content: attr(data-titre);
+      display: block;
+      margin-bottom: var(--spacing-2xs);
+      font-size: var(--text-step--2);
+      letter-spacing: var(--tracking-label);
+      text-transform: uppercase;
+    }
   }
   .piece-photos > li {
     display: grid;
@@ -791,6 +821,10 @@
     min-height: var(--spacing-l);
     padding: var(--spacing-3xs) 0;
     text-align: center;
+  }
+  /* un prix tient sur six chiffres (« 1250.00 ») sans être coupé */
+  .stock-input--prix {
+    width: calc(var(--spacing-xl) * 2);
   }
   .stock-row {
     display: flex;

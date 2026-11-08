@@ -7,6 +7,7 @@
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { useAtelier } from "./AtelierContext";
+import { paragraphes } from "@/lib/commerce/statut-pieces";
 
 export interface TextesInitiaux {
   title: string;
@@ -45,6 +46,8 @@ export function PieceTextes({ handle, initial }: { handle: string; initial: Text
     }
     setState("done");
     setMessage("C’est enregistré.");
+    // les textes tels que le serveur les garde : espaces retirés, paragraphes recousus
+    setT({ title: t.title.trim(), tagline: t.tagline.trim(), description: paragraphes(t.description).join("\n\n"), seoTitle: t.seoTitle.trim(), seoDescription: t.seoDescription.trim() });
     router.refresh();
   }
 
@@ -94,11 +97,12 @@ export function PieceTextes({ handle, initial }: { handle: string; initial: Text
           {state === "busy" ? "Enregistrement…" : "Enregistrer les textes"}
         </button>
       </div>
-      {message ? (
-        <p className={state === "error" ? "field__error" : "t-note"} role={state === "error" ? "alert" : "status"}>
-          {message}
-        </p>
-      ) : null}
+      <p className="t-note" role="status">
+        {state === "error" ? "" : message}
+      </p>
+      <p className="field__error" role="alert">
+        {state === "error" ? message : ""}
+      </p>
     </form>
   );
 }

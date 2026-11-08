@@ -789,4 +789,11 @@ Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/
   enfin dans Produits (ils étaient rangés dans une liste que personne ne lisait).
 - Tests : règles des statuts et des copies (unitaires), parcours copie, textes, mise en ligne,
   archive, invisibilité sur le site.
+- Relecture indépendante, corrigée : sans jeton Admin Shopify, Produits passe en lecture seule et le
+  dit (aucun geste qui échouerait) ; liste lue 25 pièces à la fois pour rester sous le plafond de
+  coût de Shopify, avec un avertissement si elle est incomplète ; remise en ligne publiée sur le seul
+  canal du site (`SHOPIFY_PUBLICATION_ID` au besoin) ; accroche vidée retirée au lieu d'être refusée ;
+  description vide refusée ; copie sans adresse déjà prise (même d'une pièce retirée) ; l'agent
+  Catalogue et les réglages de prix suivent les mêmes règles ; pages du site rafraîchies après chaque
+  geste ; messages d'état lus par les lecteurs d'écran ; réglage du prix lisible sur téléphone.
 

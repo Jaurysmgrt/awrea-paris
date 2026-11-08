@@ -52,7 +52,7 @@ export async function admin<T>(query: string, variables: Record<string, unknown>
     cache: "no-store",
   });
   const json = (await res.json()) as { data?: T; errors?: { message: string }[] };
-  if (!res.ok || json.errors?.length) throw new Error(`Shopify Admin : ${json.errors?.map((e) => e.message).join(" ; ") ?? res.status}`);
+  if (!res.ok || json.errors?.length) throw new Error(`Shopify Admin : ${json.errors?.map((e) => e.message).join(" ; ") ?? res.status}`);
   return json.data as T;
 }
 
@@ -98,7 +98,7 @@ export async function unsubscribeNewsletter(email: string): Promise<void> {
 type UserErrors = { userErrors: { field?: string[] | null; message: string }[] };
 
 function assertNoErrors(label: string, r: UserErrors | null | undefined) {
-  if (r?.userErrors?.length) throw new Error(`${label} : ${r.userErrors.map((e) => e.message).join(" ; ")}`);
+  if (r?.userErrors?.length) throw new Error(`${label} : ${r.userErrors.map((e) => e.message).join(" ; ")}`);
 }
 
 export async function productIdByHandle(handle: string): Promise<string | null> {
@@ -346,7 +346,7 @@ export async function shopifyCancelOrder(orderId: string, refund: boolean) {
     `mutation C($orderId: ID!, $refund: Boolean!) { orderCancel(orderId: $orderId, reason: CUSTOMER, refund: $refund, restock: false, notifyCustomer: true) { orderCancelUserErrors { message } } }`,
     { orderId, refund },
   );
-  if (r.orderCancel.orderCancelUserErrors.length) throw new Error(r.orderCancel.orderCancelUserErrors.map((e) => e.message).join(" ; "));
+  if (r.orderCancel.orderCancelUserErrors.length) throw new Error(r.orderCancel.orderCancelUserErrors.map((e) => e.message).join(" ; "));
 }
 
 export async function shopifyAbandonedCheckouts(): Promise<{ email: string; value: number; items: string[]; at: string }[]> {
@@ -400,20 +400,49 @@ const ADMIN_PIECE_FIELDS = `handle title status productType tags descriptionHtml
   isNew: metafield(namespace: "awrea", key: "nouveau") { value }
   imagesProvisional: metafield(namespace: "awrea", key: "visuels_provisoires") { value }`;
 
-/** Toutes les pièces de la boutique, quel que soit leur statut (250 au plus). */
-export async function shopifyAtelierPieces(): Promise<AdminPiece[]> {
-  const out: AdminPiece[] = [];
+/** Ligne de la liste Produits : peu de champs, pour rester loin du plafond de coût d'une requête. */
+export interface AdminPieceResume {
+  handle: string;
+  title: string;
+  status: string;
+  productType: string;
+  featuredMedia: { alt?: string | null; image?: { url: string; width: number; height: number } | null } | null;
+  priceRangeV2: { minVariantPrice: { amount: string }; maxVariantPrice: { amount: string } };
+  variantsCount: { count: number } | null;
+  collections: { nodes: { handle: string }[] };
+  leadMin?: { value: string } | null;
+  leadMax?: { value: string } | null;
+  priceProvisional?: { value: string } | null;
+  leadProvisional?: { value: string } | null;
+}
+
+const ADMIN_PIECE_RESUME = `handle title status productType
+  featuredMedia { ... on MediaImage { alt image { url width height } } }
+  priceRangeV2 { minVariantPrice { amount } maxVariantPrice { amount } }
+  variantsCount { count }
+  collections(first: 1) { nodes { handle } }
+  leadMin: metafield(namespace: "awrea", key: "delai_min") { value }
+  leadMax: metafield(namespace: "awrea", key: "delai_max") { value }
+  priceProvisional: metafield(namespace: "awrea", key: "prix_provisoire") { value }
+  leadProvisional: metafield(namespace: "awrea", key: "delai_provisoire") { value }`;
+
+/**
+ * Toutes les pièces de la boutique, quel que soit leur statut, page après page (25 par requête :
+ * le coût d'une requête Admin est plafonné). Au-delà de 1 000 pièces, la liste s'arrête et le dit.
+ */
+export async function shopifyAtelierPieces(): Promise<{ pieces: AdminPieceResume[]; complet: boolean }> {
+  const out: AdminPieceResume[] = [];
   let after: string | null = null;
-  for (let page = 0; page < 5; page++) {
-    const d: { products: { nodes: AdminPiece[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } } } = await admin(
-      `query L($after: String) { products(first: 50, after: $after, sortKey: TITLE) { nodes { ${ADMIN_PIECE_FIELDS} } pageInfo { hasNextPage endCursor } } }`,
+  for (let page = 0; page < 40; page++) {
+    const d: { products: { nodes: AdminPieceResume[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } } } = await admin(
+      `query L($after: String) { products(first: 25, after: $after, sortKey: TITLE) { nodes { ${ADMIN_PIECE_RESUME} } pageInfo { hasNextPage endCursor } } }`,
       { after },
     );
     out.push(...d.products.nodes);
-    if (!d.products.pageInfo.hasNextPage) break;
+    if (!d.products.pageInfo.hasNextPage) return { pieces: out, complet: true };
     after = d.products.pageInfo.endCursor;
   }
-  return out;
+  return { pieces: out, complet: false };
 }
 
 export async function shopifyAtelierPiece(handle: string): Promise<AdminPiece | null> {
@@ -426,22 +455,42 @@ export async function shopifyUpdateTexts(handle: string, input: { title?: string
   const id = await productIdByHandle(handle);
   if (!id) throw new Error(`Produit ${handle} introuvable`);
   const { tagline, ...product } = input;
-  if (Object.keys(product).length) {
-    const r = await admin<{ productUpdate: UserErrors }>(`mutation U($product: ProductUpdateInput!) { productUpdate(product: $product) { userErrors { field message } } }`, { product: { id, ...product } });
-    assertNoErrors("Textes de la pièce", r.productUpdate);
-  }
-  if (tagline !== undefined) {
+  // l'accroche d'abord : une accroche vidée est retirée (Shopify refuse un métachamp vide)
+  if (tagline !== undefined && tagline) {
     const r = await admin<{ metafieldsSet: UserErrors }>(`mutation S($metafields: [MetafieldsSetInput!]!) { metafieldsSet(metafields: $metafields) { userErrors { field message } } }`, {
       metafields: [{ ownerId: id, namespace: "awrea", key: "tagline", type: "single_line_text_field", value: tagline }],
     });
     assertNoErrors("Accroche de la pièce", r.metafieldsSet);
+  } else if (tagline !== undefined) {
+    const r = await admin<{ metafieldsDelete: UserErrors }>(`mutation D($metafields: [MetafieldIdentifierInput!]!) { metafieldsDelete(metafields: $metafields) { userErrors { field message } } }`, {
+      metafields: [{ ownerId: id, namespace: "awrea", key: "tagline" }],
+    });
+    assertNoErrors("Accroche de la pièce", r.metafieldsDelete);
+  }
+  if (Object.keys(product).length) {
+    const r = await admin<{ productUpdate: UserErrors }>(`mutation U($product: ProductUpdateInput!) { productUpdate(product: $product) { userErrors { field message } } }`, { product: { id, ...product } });
+    assertNoErrors("Textes de la pièce", r.productUpdate);
   }
 }
 
 /**
- * Statut d'une pièce. Passée en ligne, elle est aussi publiée sur les canaux de vente où elle ne
- * l'est pas encore (le site compris) ; sans la permission des publications, le statut change quand
- * même et le résultat le dit (`canaux: false`).
+ * Canal de vente du site (publication du canal « Headless » qui sert la Storefront API) :
+ * SHOPIFY_PUBLICATION_ID s'il est réglé, sinon la seule publication d'application dont le catalogue
+ * s'appelle « Headless ». Jamais tous les canaux : ni le point de vente, ni Google, ni Meta.
+ */
+async function publicationDuSite(): Promise<string | null> {
+  const fixe = process.env.SHOPIFY_PUBLICATION_ID?.trim();
+  if (fixe) return fixe.startsWith("gid://") ? fixe : `gid://shopify/Publication/${fixe}`;
+  const d = await admin<{ publications: { nodes: { id: string; catalog: { title: string } | null }[] } }>(`query { publications(first: 25, catalogType: APP) { nodes { id catalog { title } } } }`);
+  const site = d.publications.nodes.filter((p) => /headless/i.test(p.catalog?.title ?? ""));
+  return site.length === 1 ? site[0].id : null;
+}
+
+/**
+ * Statut d'une pièce. Passée en ligne, elle est aussi publiée sur le canal de vente du site s'il
+ * lui manque ; si ce canal n'est pas trouvé (permission des publications absente, ou plusieurs
+ * canaux possibles sans SHOPIFY_PUBLICATION_ID), le statut change quand même et le résultat le dit
+ * (`canaux: false`).
  */
 export async function shopifySetStatus(handle: string, status: "ACTIVE" | "DRAFT" | "ARCHIVED"): Promise<{ canaux: boolean }> {
   const id = await productIdByHandle(handle);
@@ -450,18 +499,19 @@ export async function shopifySetStatus(handle: string, status: "ACTIVE" | "DRAFT
   assertNoErrors("Statut de la pièce", r.productUpdate);
   if (status !== "ACTIVE") return { canaux: true };
   try {
-    const d = await admin<{ product: { unpublishedPublications: { nodes: { id: string }[] } } | null }>(`query U($id: ID!) { product(id: $id) { unpublishedPublications(first: 20) { nodes { id } } } }`, { id });
-    const publications = d.product?.unpublishedPublications.nodes ?? [];
-    if (publications.length) {
+    const site = await publicationDuSite();
+    if (!site) return { canaux: false };
+    const d = await admin<{ product: { unpublishedPublications: { nodes: { id: string }[] } } | null }>(`query U($id: ID!) { product(id: $id) { unpublishedPublications(first: 25) { nodes { id } } } }`, { id });
+    if ((d.product?.unpublishedPublications.nodes ?? []).some((x) => x.id === site)) {
       const p = await admin<{ publishablePublish: UserErrors }>(`mutation P($id: ID!, $input: [PublicationInput!]!) { publishablePublish(id: $id, input: $input) { userErrors { field message } } }`, {
         id,
-        input: publications.map((x) => ({ publicationId: x.id })),
+        input: [{ publicationId: site }],
       });
-      assertNoErrors("Publication sur les canaux de vente", p.publishablePublish);
+      assertNoErrors("Publication sur le canal du site", p.publishablePublish);
     }
     return { canaux: true };
   } catch (e) {
-    console.error("[shopify] publication sur les canaux :", e);
+    console.error("[shopify] publication sur les canaux :", e);
     return { canaux: false };
   }
 }

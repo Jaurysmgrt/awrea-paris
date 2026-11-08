@@ -9,13 +9,12 @@
  * prix est alors refusé, avec une explication).
  */
 import "server-only";
-import { revalidatePath, revalidateTag } from "next/cache";
 import { kv } from "@/lib/store";
 import { adminEnabled, MixedPricesError, shopifyUpdatePiece } from "@/lib/shopify/admin";
 import { formatPrice } from "@/lib/format";
 import { DEMO_KEYS, type DemoPieceSettings } from "./catalog-demo";
 import { LEAD_TIME_BOUNDS, leadTimeText } from "./availability";
-import { lirePiece } from "./atelier-catalogue";
+import { catalogueModifiable, lirePiece, MESSAGE_LECTURE_SEULE, rafraichirCatalogue } from "./atelier-catalogue";
 import { changedSettings, type PieceSettings } from "./piece-settings";
 
 export { changedSettings, type PieceSettings };
@@ -26,6 +25,8 @@ export class PieceError extends Error {}
 export const MIXED_PRICES_MESSAGE = "Les tailles de cette pièce n’ont pas toutes le même prix dans Shopify. Pour ne pas les écraser, modifiez ces prix directement dans Shopify.";
 
 export async function updatePiece(handle: string, settings: PieceSettings): Promise<{ summary: string; title: string }> {
+  // Shopify sans accès Admin : rien ne s'écrit dans la démonstration, que le site ne lit pas
+  if (!catalogueModifiable()) throw new PieceError(MESSAGE_LECTURE_SEULE);
   // en ligne, en brouillon ou archivée : une pièce se règle avant d'être mise en ligne
   const p = await lirePiece(handle);
   if (!p) throw new PieceError("Cette pièce n’existe pas.");
@@ -63,12 +64,8 @@ export async function updatePiece(handle: string, settings: PieceSettings): Prom
     await Promise.all(writes);
   }
 
-  try {
-    if (adminEnabled) revalidateTag("shopify", { expire: 0 });
-    revalidatePath("/", "layout");
-  } catch {
-    /* hors contexte de requête (script) */
-  }
+  // caches des pièces et des collections compris (étiquettes de lib/shopify/storefront.ts)
+  rafraichirCatalogue(handle);
 
   const parts = [
     s.price !== undefined ? `prix ${formatPrice(p.price)} → ${formatPrice(s.price)}` : null,

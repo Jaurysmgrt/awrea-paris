@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   const { handle, priceEuros, ...rest } = parsed.data;
   try {
     const r = await updatePiece(handle, { ...rest, ...(priceEuros !== undefined ? { price: Math.round(priceEuros * 100) } : {}) });
-    await logAction({ agent: "systeme", kind: "update_piece", status: "done", summary: `Par l’atelier · ${r.summary}`, target: { type: "product", id: handle, label: r.title, href: `/boutique/${handle}` } });
+    await logAction({ agent: "systeme", kind: "update_piece", status: "done", summary: `Par l’atelier · ${r.summary}`, target: { type: "product", id: handle, label: r.title, href: `atelier:/catalogue/${handle}` } });
     return NextResponse.json({ ok: true, summary: r.summary });
   } catch (e) {
     if (e instanceof PieceError) return NextResponse.json({ error: e.message }, { status: 400 });
