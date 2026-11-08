@@ -8,7 +8,7 @@ export const maxDuration = 300;
 
 const Weeks = z.number().int().min(LEAD_TIME_BOUNDS.min).max(LEAD_TIME_BOUNDS.max);
 
-/** Nouvelle pièce : créée sur demande, sans stock ; tailles proposées, prix, délai de fabrication. */
+/** Nouvelle pièce, toujours en brouillon : créée sur demande, sans stock ; tailles proposées, prix, délai de fabrication. */
 const Body = z
   .object({
     notes: z.string().max(4000),
@@ -28,6 +28,7 @@ export async function POST(req: Request) {
   if (!(await isAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues.map((i) => `${i.path.join(".")} : ${i.message}`).join(" ; ") }, { status: 400 });
-  const run = await runCatalogueAgent({ ...parsed.data, sizes: [...new Set(parsed.data.sizes)] }, "manuel");
-  return NextResponse.json({ run });
+  const { handle, ...run } = await runCatalogueAgent({ ...parsed.data, sizes: [...new Set(parsed.data.sizes)] }, "manuel");
+  // la pièce créée (toujours en brouillon) : l'Atelier ouvre sa fiche
+  return NextResponse.json({ run, ...(handle ? { handle } : {}) });
 }

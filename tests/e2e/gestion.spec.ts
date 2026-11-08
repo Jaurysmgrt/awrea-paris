@@ -18,18 +18,42 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
     expect((await request.post(`${ATELIER}/api/login/totp`, { headers: ip, data: { code: "000000" } })).status()).toBe(401);
   });
 
-  test("agent Catalogue : photos + notes → fiche publiée en boutique", async ({ page }) => {
+  test("nouvelle pièce : quatre étapes, l'agent rédige, la pièce naît en brouillon et sa fiche s'ouvre", async ({ page }) => {
     await login(page);
     await page.goto(`${ATELIER}/catalogue/nouveau`);
+    const alerte = page.locator(".nouvelle-piece [role=alert]");
+    // 1. les photos : sans photo, on ne passe pas
+    await expect(page.locator(".nouvelle-etapes [aria-current=step]")).toHaveText(/Les photos/);
+    await page.getByRole("button", { name: "Continuer" }).click();
+    await expect(alerte).toHaveText("Ajoutez au moins une photo de la pièce.");
     await page.locator(".dropzone input[type=file]").setInputFiles(path.join(__dirname, "fixture-piece.jpg"));
     await expect(page.locator(".thumbs img")).toHaveCount(1);
+    await page.getByRole("button", { name: "Continuer" }).click();
+    // 2. la pièce : le titre de l'étape prend le focus
+    await expect(page.getByRole("heading", { level: 2, name: /La pièce/ })).toBeFocused();
     const name = `Top Test ${Date.now().toString(36).slice(-4)}`;
     await page.getByLabel("Nom (facultatif)").fill(name);
     await page.getByLabel("Catégorie").selectOption("top");
+    await page.getByRole("button", { name: "Continuer" }).click();
+    // 3. prix et délai : le prix est demandé ; « Retour » ramène à l'étape précédente sans rien perdre
+    await page.getByRole("button", { name: "Continuer" }).click();
+    await expect(alerte).toHaveText("Indiquez le prix de la pièce.");
+    await page.getByRole("button", { name: "Retour" }).click();
+    await expect(page.getByLabel("Nom (facultatif)")).toHaveValue(name);
+    await page.getByRole("button", { name: "Continuer" }).click();
     await page.getByLabel("Prix (€)").fill("240");
+    await page.getByRole("button", { name: "Continuer" }).click();
+    // 4. les notes, puis la création : la fiche de la pièce s'ouvre, en brouillon
     await page.getByLabel("Vos notes").fill("Jersey noir, col en V, manches amples, se porte avec la robe Odessa.");
-    await page.getByRole("button", { name: "Rédiger et publier la fiche" }).click();
-    await expect(page.getByRole("status").filter({ hasText: "publiée" })).toBeVisible({ timeout: 60_000 });
+    await page.getByRole("button", { name: "Créer la pièce en brouillon" }).click();
+    await expect(page.getByRole("heading", { level: 1, name })).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator(".piece-tete .status")).toHaveText("Brouillon");
+    const handle = page.url().split("/").pop()!;
+    expect(handle).toMatch(/^top-test-/);
+    // invisible sur le site tant qu'elle n'est pas en ligne
+    expect((await page.request.get(`/boutique/${handle}`)).status()).toBe(404);
+    await page.getByRole("button", { name: "Mettre en ligne" }).click();
+    await expect(page.locator(".piece-tete .status")).toHaveText("En ligne");
     await page.goto("/boutique");
     await expect(page.getByRole("heading", { name })).toBeVisible();
   });

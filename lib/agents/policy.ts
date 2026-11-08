@@ -51,7 +51,8 @@ export interface ActionPolicy {
 }
 
 export const POLICY: Record<ActionType, ActionPolicy> = {
-  publish_product: { label: "Publier la fiche d’une pièce", approval: false },
+  // toujours en brouillon : rien n'est en ligne avant que la créatrice ne la mette en ligne
+  publish_product: { label: "Créer la fiche d’une pièce, en brouillon", approval: false },
   update_product_content: { label: "Mettre à jour textes, SEO, textes alternatifs", approval: false },
   send_reply: { label: "Répondre à une question courante", approval: false },
   save_reply_draft: { label: "Préparer un brouillon de réponse", approval: false },

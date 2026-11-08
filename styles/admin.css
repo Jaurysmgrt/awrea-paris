@@ -816,6 +816,64 @@
     aspect-ratio: 2 / 3;
     object-fit: cover;
   }
+  /* nouvelle pièce : quatre étapes courtes, celle en cours soulignée, les précédentes en noir */
+  .nouvelle-etapes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs) var(--spacing-m);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .nouvelle-etapes li {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3xs);
+    color: var(--fg-soft);
+    font-size: var(--text-step--1);
+  }
+  .nouvelle-etapes li:is([aria-current="step"], [data-faite]) {
+    color: var(--fg);
+  }
+  .nouvelle-etapes li[aria-current="step"] .nouvelle-etapes__nom {
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+    text-underline-offset: var(--spacing-3xs);
+  }
+  .nouvelle-etapes__num {
+    display: inline-grid;
+    place-items: center;
+    width: var(--spacing-m);
+    height: var(--spacing-m);
+    border: var(--border-width-hair) solid currentColor;
+    border-radius: var(--radius-full);
+    font-size: var(--text-step--2);
+    font-variant-numeric: lining-nums;
+    line-height: 1;
+  }
+  .nouvelle-etapes li[aria-current="step"] .nouvelle-etapes__num {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  /* champs alignés en haut, même quand une case à cocher n'accompagne que certains d'entre eux */
+  .nouvelle-piece .form__row > .field {
+    align-content: start;
+  }
+  .nouvelle-piece .thumbs :is(button, .t-note) {
+    font-size: var(--text-step--1);
+  }
+  .nouvelle-piece__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+  .nouvelle-piece h2:focus {
+    outline: none;
+  }
+  .nouvelle-piece h2:focus-visible {
+    outline: var(--border-width-hair) solid var(--fg);
+    outline-offset: var(--spacing-3xs);
+  }
   .stock-input {
     width: calc(var(--spacing-xl) + var(--spacing-xs));
     min-height: var(--spacing-l);
