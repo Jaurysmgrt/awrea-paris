@@ -4,7 +4,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { adresseDeCopie, depuisShopify, descriptionHtml, nomDeCopie, paragraphes, VERS_SHOPIFY } from "@/lib/commerce/statut-pieces";
+import { adresseDeCopie, depuisShopify, descriptionHtml, nomDeCopie, paragraphes, realignerParCle, VERS_SHOPIFY } from "@/lib/commerce/statut-pieces";
 
 test("statuts : Shopify ↔ Atelier, aller et retour", () => {
   for (const s of ["en-ligne", "brouillon", "archivee"] as const) assert.equal(depuisShopify(VERS_SHOPIFY[s]), s);
@@ -24,4 +24,17 @@ test("copies : une adresse libre, un nom qui le dit", () => {
 test("description : paragraphes séparés par une ligne vide, texte échappé pour Shopify", () => {
   assert.deepEqual(paragraphes("Dentelle noire.\nDrapé au dos.\n\n  Créée sur demande.  \n\n\n"), ["Dentelle noire. Drapé au dos.", "Créée sur demande."]);
   assert.equal(descriptionHtml(["Robe <b>noire</b> & dorée", " ", "Fin"]), "<p>Robe &lt;b&gt;noire&lt;/b&gt; &amp; dorée</p><p>Fin</p>");
+});
+
+test("photos : chaque texte traduit suit sa photo quand l'ordre change", () => {
+  const avant = ["a", "b", "c"];
+  const textes = ["front", "back", "detail"];
+  // la photo c devient la principale
+  assert.deepEqual(realignerParCle(avant, ["c", "a", "b"], textes), ["detail", "front", "back"]);
+  // la photo a est retirée
+  assert.deepEqual(realignerParCle(avant, ["b", "c"], textes), ["back", "detail"]);
+  // une photo nouvelle n'a pas de texte traduit : le site reprend le texte français
+  assert.deepEqual(realignerParCle(avant, ["a", "b", "c", "d"], textes), ["front", "back", "detail", ""]);
+  // des textes plus courts que les photos
+  assert.deepEqual(realignerParCle(avant, ["c", "a"], ["front"]), ["", "front"]);
 });

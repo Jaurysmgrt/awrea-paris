@@ -53,3 +53,25 @@ export const paragraphes = (texte: string): string[] =>
     .split(/\n\s*\n/)
     .map((p) => p.replace(/\s*\n\s*/g, " ").trim())
     .filter(Boolean);
+
+/**
+ * Photos d'une pièce : 8 au plus, ce que le site montre (lib/shopify/storefront.ts lit les 8
+ * premières) ; la première est la principale, celle des listes.
+ */
+export const PHOTOS_MAX = 8;
+
+/** Bornes du prix d'une pièce, en euros. */
+export const PRIX_MIN = 1;
+export const PRIX_MAX = 100000;
+
+/**
+ * Textes rangés par photo (les textes alternatifs traduits, par exemple) après un changement
+ * d'ordre : chaque texte suit sa photo, repérée par sa clé ; une photo nouvelle n'a pas de texte
+ * (le site reprend alors le texte français).
+ */
+export function realignerParCle(avant: readonly string[], apres: readonly string[], textes: readonly (string | undefined)[]): string[] {
+  return apres.map((cle) => {
+    const i = avant.indexOf(cle);
+    return i >= 0 ? (textes[i] ?? "") : "";
+  });
+}

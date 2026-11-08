@@ -12,6 +12,7 @@ async function reduire(file: File): Promise<{ data: string; width: number; heigh
   canvas.width = width;
   canvas.height = height;
   canvas.getContext("2d")!.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
   return { data: canvas.toDataURL("image/jpeg", 0.85).split(",")[1], width, height };
 }
 

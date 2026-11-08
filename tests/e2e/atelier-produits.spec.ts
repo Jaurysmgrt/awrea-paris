@@ -79,6 +79,10 @@ test("textes refusés : un nom vide n'est pas enregistré", async ({ page }) => 
   await adminLogin(page);
   const r = await page.request.fetch(`${ATELIER}/api/pieces/top-kira`, { method: "PATCH", data: { title: "" } });
   expect(r.status()).toBe(400);
+  // nouvelle pièce : un prix sous 1 € est refusé, avec ce qui est à revoir en mots simples
+  const prix = await page.request.post(`${ATELIER}/api/catalogue`, { data: { notes: "", priceEuros: 0.004, sizes: ["S"], mediaIds: ["abcdef12"] } });
+  expect(prix.status()).toBe(400);
+  expect((await prix.json()).error).toMatch(/^À revoir.*le prix/);
   const inconnue = await page.request.post(`${ATELIER}/api/pieces/piece-inconnue/statut`, { data: { statut: "en-ligne" } });
   expect(inconnue.status()).toBe(400);
   expect((await inconnue.json()).error).toMatch(/n’existe pas/);
@@ -143,8 +147,12 @@ test("photos d'une pièce : ajouter, choisir la principale, décrire, retirer", 
     await expect(photos).toHaveCount(avant);
     await expect(photos.first().locator("img")).not.toHaveAttribute("src", /\/api\/media\//);
     // une photo inconnue ou un texte trop court sont refusés
-    const r = await page.request.post(`${ATELIER}/api/pieces/${handle}/photos`, { data: { action: "texte", cle: "inconnue", alt: "ok" } });
-    expect(r.status()).toBe(400);
+    const inconnue = await page.request.post(`${ATELIER}/api/pieces/${handle}/photos`, { data: { action: "texte", cle: "inconnue", alt: "Une photo qui n’existe pas" } });
+    expect(inconnue.status()).toBe(400);
+    expect((await inconnue.json()).error).toMatch(/plus sur la pièce/);
+    const court = await page.request.post(`${ATELIER}/api/pieces/${handle}/photos`, { data: { action: "texte", cle: "inconnue", alt: "ok" } });
+    expect(court.status()).toBe(400);
+    expect((await court.json()).error).toMatch(/entre 3 et 240/);
   } finally {
     await page.request.post(`${ATELIER}/api/pieces/${handle}/statut`, { data: { statut: "archivee" } });
   }

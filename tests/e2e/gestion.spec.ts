@@ -62,8 +62,10 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
     await login(page);
     // la liste signale ce qui reste à confirmer ; le réglage se fait sur la fiche de la pièce
     await page.goto(`${ATELIER}/catalogue`);
-    await expect(page.getByRole("link", { name: /Le top Kira/ })).toContainText("prix à confirmer");
-    await page.getByRole("link", { name: /Le top Kira/ }).click();
+    // l'adresse exacte : des copies du top Kira peuvent exister (parcours d'aperçu, joué avant)
+    const kira = page.locator(`a[href="${ATELIER}/catalogue/top-kira"]`);
+    await expect(kira).toContainText("prix à confirmer");
+    await kira.click();
     await expect(page.getByRole("heading", { level: 1, name: "Le top Kira" })).toBeVisible();
     const min = page.getByLabel("Le top Kira, délai le plus court en semaines");
     const max = page.getByLabel("Le top Kira, délai le plus long en semaines");

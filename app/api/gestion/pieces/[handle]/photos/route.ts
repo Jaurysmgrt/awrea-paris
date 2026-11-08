@@ -7,7 +7,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isAdmin } from "@/lib/auth/admin";
 import { logAction } from "@/lib/agents/log";
-import { CatalogueError, changerPhotos, PHOTOS_MAX } from "@/lib/commerce/atelier-catalogue";
+import { CatalogueError, changerPhotos } from "@/lib/commerce/atelier-catalogue";
+import { PHOTOS_MAX } from "@/lib/commerce/statut-pieces";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +32,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ handle:
   }
   try {
     const r = await changerPhotos(handle.data, parsed.data);
-    await logAction({ agent: "systeme", kind: "photos_piece", status: "done", summary: `Par l’atelier · ${r.summary}`, target: { type: "product", id: handle.data, label: r.title, href: `atelier:/catalogue/${handle.data}` } });
+    // le journal ne fait jamais passer pour un échec une modification faite (elle serait refaite)
+    await logAction({ agent: "systeme", kind: "photos_piece", status: "done", summary: `Par l’atelier · ${r.summary}`, target: { type: "product", id: handle.data, label: r.title, href: `atelier:/catalogue/${handle.data}` } }).catch((e) => console.error("[gestion/pieces/photos] journal", e));
     return NextResponse.json({ ok: true, message: r.summary });
   } catch (e) {
     if (e instanceof CatalogueError) return NextResponse.json({ error: e.message }, { status: 400 });

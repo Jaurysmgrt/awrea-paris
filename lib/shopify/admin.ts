@@ -17,6 +17,7 @@
  */
 import { providerOf } from "@/lib/config/providers";
 import { PRODUCT_METAFIELDS, type SProduct } from "./storefront";
+import { PHOTOS_MAX } from "@/lib/commerce/statut-pieces";
 
 const domain = process.env.SHOPIFY_STORE_DOMAIN;
 const staticToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
@@ -491,7 +492,8 @@ export async function shopifyApercuPiece(handle: string): Promise<(SProduct & { 
     ...reste,
     publishedAt: publishedAt ?? "",
     priceRange: priceRangeV2,
-    images: { nodes: media.nodes.flatMap((m) => (m.image ? [{ ...m.image, altText: m.image.altText ?? m.alt }] : [])) },
+    // les 8 premières photos, comme le site (lib/shopify/storefront.ts)
+    images: { nodes: media.nodes.flatMap((m) => (m.image ? [{ ...m.image, altText: m.image.altText ?? m.alt }] : [])).slice(0, PHOTOS_MAX) },
     media: { nodes: media.nodes.map((m) => (m.sources?.length ? { alt: m.alt ?? undefined, previewImage: m.preview?.image ?? undefined, sources: m.sources } : {})) },
     variants: { nodes: variants.nodes.map((v) => ({ ...v, sku: v.sku ?? "", availableForSale: true })) },
   };

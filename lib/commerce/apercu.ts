@@ -10,6 +10,7 @@
  * pas d'aperçu (et l'Atelier ne les liste pas).
  */
 import "server-only";
+import { cache } from "react";
 import { isEditing } from "@/lib/edition/read";
 import { adminEnabled, shopifyApercuPiece } from "@/lib/shopify/admin";
 import { mapProduct } from "@/lib/shopify/storefront";
@@ -25,7 +26,8 @@ export interface Apercu {
 
 const ADRESSE = /^[a-z0-9][a-z0-9-]{0,119}$/;
 
-export async function pieceEnApercu(handle: string): Promise<Apercu | null> {
+/** Une seule lecture par requête : la page et ses métadonnées la partagent. */
+export const pieceEnApercu = cache(async (handle: string): Promise<Apercu | null> => {
   if (!ADRESSE.test(handle) || !(await isEditing())) return null;
   if (adminEnabled) {
     const p = await shopifyApercuPiece(handle).catch((e) => {
@@ -41,4 +43,4 @@ export async function pieceEnApercu(handle: string): Promise<Apercu | null> {
   if (!p || p.statut === "en-ligne") return null;
   const { statut, ...product } = p;
   return { product, statut };
-}
+});

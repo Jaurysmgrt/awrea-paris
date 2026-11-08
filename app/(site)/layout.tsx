@@ -42,7 +42,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
               <Assistant />
               <Justification active={!editing} />
               <Suspense fallback={null}>
-                <Trackers />
+                {/* mode Édition et aperçu des brouillons : aucune mesure d'audience (pièces non dévoilées) */}
+                {editing ? null : <Trackers />}
               </Suspense>
               <JsonLd data={[organizationSchema(), websiteSchema()]} />
             </PageTransition>

@@ -12,13 +12,13 @@ import { useEffect, useRef, useState } from "react";
 import { useAtelier } from "./AtelierContext";
 import { deposerPhoto } from "./depot-photos";
 import { DEFAULT_LEAD_TIME, LEAD_TIME_BOUNDS } from "@/lib/commerce/availability";
+import { PHOTOS_MAX, PRIX_MAX, PRIX_MIN } from "@/lib/commerce/statut-pieces";
 import type { LeadTime } from "@/lib/commerce/types";
 
 type Photo = { id: string; url: string; name: string };
 type Categorie = "" | "robe" | "body" | "top" | "jupe" | "accessoire";
 const TAILLES = ["XS", "S", "M", "L", "XL", "TU"] as const;
 const ETAPES = ["Les photos", "La pièce", "Prix et délai", "Vos notes"] as const;
-const PHOTOS_MAX = 8;
 const DELAIS = DEFAULT_LEAD_TIME as Record<string, LeadTime>;
 
 export function NouvellePiece({ collections }: { collections: { handle: string; title: string }[] }) {
@@ -40,32 +40,54 @@ export function NouvellePiece({ collections }: { collections: { handle: string; 
   const [etat, setEtat] = useState<"idle" | "busy" | "attente" | "error">("idle");
   const [message, setMessage] = useState("");
   const [erreurEtape, setErreurEtape] = useState("");
-  const premierRendu = useRef(true);
-
-  // à chaque étape, le titre prend le focus : un lecteur d'écran annonce où l'on se trouve
+  const etapePrecedente = useRef(etape);
+  const vignettes = useRef<HTMLUListElement>(null);
+  const nbPhotos = useRef(0);
   useEffect(() => {
-    if (premierRendu.current) {
-      premierRendu.current = false;
-      return;
-    }
+    nbPhotos.current = photos.length;
+  }, [photos.length]);
+
+  // à chaque changement d'étape (et seulement alors), le titre prend le focus : un lecteur d'écran
+  // annonce où l'on se trouve
+  useEffect(() => {
+    if (etapePrecedente.current === etape) return;
+    etapePrecedente.current = etape;
     titre.current?.focus();
   }, [etape]);
 
-  async function ajouterPhotos(files: FileList | null) {
-    if (!files?.length) return;
+  async function ajouterPhotos(input: HTMLInputElement) {
+    const files = Array.from(input.files ?? []);
+    input.value = ""; // la même photo peut être choisie de nouveau
+    if (!files.length) return;
     setEnvoi(true);
     setErreurEtape("");
+    // la place restante se compte maintenant, pas au moment du choix
+    const place = Math.max(0, PHOTOS_MAX - nbPhotos.current);
     let refusees = 0;
-    for (const file of Array.from(files).slice(0, PHOTOS_MAX - photos.length)) {
+    for (const file of files.slice(0, place)) {
       const depot = await deposerPhoto(atelier.api("/media"), file);
-      if (depot) setPhotos((p) => [...p, { ...depot, name: file.name }]);
+      if (depot) setPhotos((p) => (p.length < PHOTOS_MAX ? [...p, { ...depot, name: file.name }] : p));
       else refusees++;
     }
     setEnvoi(false);
-    if (refusees) setErreurEtape(refusees > 1 ? `${refusees} photos n’ont pas pu être préparées. Essayez une autre photo.` : "Une photo n’a pas pu être préparée. Essayez une autre photo.");
+    const ecartees = files.length - place;
+    const messages = [
+      refusees ? (refusees > 1 ? `${refusees} photos n’ont pas pu être préparées : essayez-en d’autres.` : "Une photo n’a pas pu être préparée : essayez-en une autre.") : "",
+      ecartees > 0 ? `${PHOTOS_MAX} photos au plus : ${ecartees > 1 ? `${ecartees} photos n’ont pas été ajoutées` : "une photo n’a pas été ajoutée"}.` : "",
+    ].filter(Boolean);
+    if (messages.length) setErreurEtape(messages.join(" "));
   }
 
-  const premiere = (id: string) => setPhotos((p) => [...p.filter((x) => x.id === id), ...p.filter((x) => x.id !== id)]);
+  // après un changement d'ordre ou un retrait, le focus reste dans la liste des photos
+  const garderFocus = () => requestAnimationFrame(() => vignettes.current?.focus());
+  const premiere = (id: string) => {
+    setPhotos((p) => [...p.filter((x) => x.id === id), ...p.filter((x) => x.id !== id)]);
+    garderFocus();
+  };
+  const retirer = (id: string) => {
+    setPhotos((x) => x.filter((y) => y.id !== id));
+    garderFocus();
+  };
   const taillesChoisies = TAILLES.filter((t) => tailles[t]);
   const prixEuros = Number(prix.replace(",", "."));
 
@@ -74,7 +96,10 @@ export function NouvellePiece({ collections }: { collections: { handle: string; 
     if (etape === 0) return photos.length ? "" : "Ajoutez au moins une photo de la pièce.";
     if (etape === 1) return taillesChoisies.length ? "" : "Cochez au moins une taille.";
     if (etape === 2) {
-      if (!(prixEuros > 0)) return "Indiquez le prix de la pièce.";
+      if (!prix.trim() || !Number.isFinite(prixEuros)) return "Indiquez le prix de la pièce.";
+      if (prixEuros < PRIX_MIN || prixEuros > PRIX_MAX) return `Le prix va de ${PRIX_MIN} à ${PRIX_MAX.toLocaleString("fr-FR")} €.`;
+      const borne = (n: number) => Number.isInteger(n) && n >= LEAD_TIME_BOUNDS.min && n <= LEAD_TIME_BOUNDS.max;
+      if (!borne(delai.min) || !borne(delai.max)) return `Le délai se compte en semaines entières, de ${LEAD_TIME_BOUNDS.min} à ${LEAD_TIME_BOUNDS.max}.`;
       if (delai.min > delai.max) return "Le délai au plus tôt dépasse le délai au plus tard.";
     }
     return "";
@@ -100,7 +125,7 @@ export function NouvellePiece({ collections }: { collections: { handle: string; 
         name: nom.trim() || undefined,
         category: categorie || undefined,
         collection: collection || undefined,
-        priceEuros: prixEuros,
+        priceEuros: Math.round(prixEuros * 100) / 100,
         priceProvisional: prixProvisoire,
         leadTime: delai,
         leadTimeProvisional: delaiProvisoire,
@@ -131,6 +156,7 @@ export function NouvellePiece({ collections }: { collections: { handle: string; 
               {i + 1}
             </span>
             <span className="nouvelle-etapes__nom">{nomEtape}</span>
+            {i < etape ? <span className="sr-only"> (faite)</span> : null}
           </li>
         ))}
       </ol>
@@ -148,12 +174,12 @@ export function NouvellePiece({ collections }: { collections: { handle: string; 
             <p className="field__hint">Jusqu’à {PHOTOS_MAX} photos. La première est celle que l’on voit dans les listes.</p>
             {photos.length < PHOTOS_MAX ? (
               <label className="dropzone">
-                <input type="file" accept="image/*" multiple onChange={(e) => ajouterPhotos(e.target.files)} />
+                <input type="file" accept="image/*" multiple disabled={envoi} onChange={(e) => ajouterPhotos(e.currentTarget)} />
                 <span className="t-body">{envoi ? "Préparation des photos…" : "Choisir ou déposer les photos"}</span>
               </label>
             ) : null}
             {photos.length ? (
-              <ul className="thumbs">
+              <ul className="thumbs" ref={vignettes} tabIndex={-1} aria-label="Photos choisies">
                 {photos.map((p, i) => (
                   <li key={p.id}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -161,11 +187,11 @@ export function NouvellePiece({ collections }: { collections: { handle: string; 
                     {i === 0 ? (
                       <span className="t-note">Principale</span>
                     ) : (
-                      <button type="button" className="link link--quiet" onClick={() => premiere(p.id)}>
+                      <button type="button" className="link link--quiet" aria-label={`Mettre en premier la photo ${i + 1}`} onClick={() => premiere(p.id)}>
                         Mettre en premier
                       </button>
                     )}
-                    <button type="button" className="link link--quiet" onClick={() => setPhotos((x) => x.filter((y) => y.id !== p.id))}>
+                    <button type="button" className="link link--quiet" aria-label={`Retirer la photo ${i + 1}`} onClick={() => retirer(p.id)}>
                       Retirer
                     </button>
                   </li>
@@ -281,7 +307,7 @@ export function NouvellePiece({ collections }: { collections: { handle: string; 
 
       <div className="nouvelle-piece__actions">
         {etape > 0 ? (
-          <button type="button" className="btn btn--outline" disabled={etat === "busy"} onClick={() => (setErreurEtape(""), setEtape((e) => e - 1))}>
+          <button type="button" className="btn btn--outline" disabled={etat === "busy"} onClick={() => (setErreurEtape(""), etat === "error" && setEtat("idle"), setEtape((e) => e - 1))}>
             Retour
           </button>
         ) : null}
