@@ -6,6 +6,8 @@
  * commandent toujours, et chaque pièce annonce son délai de fabrication.
  */
 
+import type { Paiement } from "@/lib/paiement/types";
+
 export type Size = "XS" | "S" | "M" | "L" | "XL" | "TU";
 export type Category = "robe" | "body" | "top" | "jupe" | "accessoire";
 
@@ -258,4 +260,6 @@ export interface Order {
   source?: string | null;
   /** preuve d'acceptation des CGV et choix de la cliente au moment de la commande */
   consents?: { cgvVersion: string; acceptedAt: string; newsletter: boolean };
+  /** paiement (Stripe, ou essai en démonstration) : état, références, historique ; jamais de donnée bancaire */
+  payment?: Paiement;
 }

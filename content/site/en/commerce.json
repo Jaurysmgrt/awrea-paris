@@ -123,10 +123,20 @@
       "titre": "Checkout",
       "chapeau": "Three steps, with no account to create.",
       "fermee": "Online payment is not open yet. For any question about a piece, write to the Maison.",
-      "fermeeLien": "Write to the Maison"
+      "fermeeLien": "Write to the Maison",
+      "annule": "The payment did not go through and nothing was charged. Your bag is waiting: you can try again."
     },
     "pieces": "{n} pieces",
-    "droitsEtTaxes": "Import duties and taxes"
+    "droitsEtTaxes": "Import duties and taxes",
+    "stripe": {
+      "texte": "You pay on Stripe’s secure page, our payment provider: card and other methods offered depending on your device. Your bank details never pass through our site.",
+      "bouton": "Pay {total}",
+      "redirection": "Opening the secure payment page…",
+      "test": "Stripe test mode: use a test card, no money moves.",
+      "ligneCommande": "Order {commande}",
+      "ligneLivraison": "Delivery",
+      "ligneTaille": "Size {taille}"
+    }
   },
   "confirmation": {
     "seo": {
@@ -150,6 +160,8 @@
     "certificats": "Your certificates of authenticity",
     "suivre": "Track my order",
     "facture": "Download the invoice",
-    "continuer": "Continue browsing"
+    "continuer": "Continue browsing",
+    "enAttente": "Your payment is being confirmed. As soon as it is approved, you will receive your order confirmation by email.",
+    "echec": "The payment for this order did not go through: nothing was charged."
   }
 }

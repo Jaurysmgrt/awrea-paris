@@ -6,6 +6,7 @@
 import { demoOrders } from "@/data/demo/orders";
 import { kv } from "@/lib/store";
 import { boutiqueReelle } from "@/lib/config/boutique";
+import { avecVerrou } from "@/lib/store/verrou";
 import type { Order, OrderStatus } from "./types";
 
 export const ORDERS_KEY = "orders";
@@ -40,9 +41,24 @@ export async function getOrder(numberOrId: string): Promise<Order | null> {
   return (await getOrders()).find((o) => o.number.toUpperCase() === n || o.id === numberOrId) ?? null;
 }
 
+/** Enregistre une commande (nouvelle ou mise à jour), sous verrou : deux écritures ne s'écrasent jamais. */
 export async function saveOrder(order: Order) {
-  const list = (await kv.get<Order[]>(ORDERS_KEY)) ?? [];
-  await kv.set(ORDERS_KEY, [order, ...list.filter((o) => o.id !== order.id)]);
+  await avecVerrou(ORDERS_KEY, async () => {
+    const list = (await kv.get<Order[]>(ORDERS_KEY)) ?? [];
+    await kv.set(ORDERS_KEY, [order, ...list.filter((o) => o.id !== order.id)]);
+  });
+}
+
+/** Met à jour une commande enregistrée à partir de sa dernière version (lue sous verrou). */
+export async function updateOrder(id: string, change: (o: Order) => Order): Promise<Order | null> {
+  return avecVerrou(ORDERS_KEY, async () => {
+    const list = (await kv.get<Order[]>(ORDERS_KEY)) ?? [];
+    const o = list.find((x) => x.id === id);
+    if (!o) return null;
+    const maj = change(o);
+    await kv.set(ORDERS_KEY, list.map((x) => (x.id === id ? maj : x)));
+    return maj;
+  });
 }
 
 /** Transporteur et numéro de suivi saisis dans l'Atelier. */

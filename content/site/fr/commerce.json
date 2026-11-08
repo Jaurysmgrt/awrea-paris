@@ -123,10 +123,20 @@
       "titre": "Commande",
       "chapeau": "Trois étapes, sans création de compte.",
       "fermee": "Le paiement en ligne n’est pas encore ouvert. Pour toute question sur une pièce, écrivez à la Maison.",
-      "fermeeLien": "Écrire à la Maison"
+      "fermeeLien": "Écrire à la Maison",
+      "annule": "Le paiement n’a pas abouti et aucune somme n’a été prélevée. Votre panier vous attend : vous pouvez réessayer."
     },
     "pieces": "{n} pièces",
-    "droitsEtTaxes": "Droits et taxes à l’importation"
+    "droitsEtTaxes": "Droits et taxes à l’importation",
+    "stripe": {
+      "texte": "Vous réglez sur la page sécurisée de Stripe, notre prestataire de paiement : carte bancaire et autres moyens proposés selon votre appareil. Vos coordonnées bancaires ne passent jamais par notre site.",
+      "bouton": "Régler {total}",
+      "redirection": "Ouverture de la page de paiement sécurisée…",
+      "test": "Mode test de Stripe : utilisez une carte de test, aucun argent ne bouge.",
+      "ligneCommande": "Commande {commande}",
+      "ligneLivraison": "Livraison",
+      "ligneTaille": "Taille {taille}"
+    }
   },
   "confirmation": {
     "seo": {
@@ -150,6 +160,8 @@
     "certificats": "Vos certificats d’authenticité",
     "suivre": "Suivre ma commande",
     "facture": "Télécharger la facture",
-    "continuer": "Continuer la visite"
+    "continuer": "Continuer la visite",
+    "enAttente": "Votre paiement est en cours de confirmation. Dès qu’il est validé, vous recevez la confirmation de votre commande par e-mail.",
+    "echec": "Le paiement de cette commande n’a pas abouti : aucune somme n’a été prélevée."
   }
 }

@@ -22,7 +22,8 @@ import { OrderStageControl } from "../_components/OrderStageControl";
 import { NotesInternes } from "@/components/admin/NotesInternes";
 import { CommandeGestes } from "@/components/admin/CommandeGestes";
 import { gestesPossibles, historiqueDe, NOTE_MAX, notesDe } from "@/lib/admin/commandes-suivi";
-import { boutiqueReelle, paiementEnLigne } from "@/lib/config/boutique";
+import { boutiqueReelle, stripeConfigure } from "@/lib/config/boutique";
+import { PaiementCommande } from "@/components/admin/PaiementCommande";
 
 export const dynamic = "force-dynamic";
 
@@ -33,8 +34,11 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
   if (!found) notFound();
   const [{ order, timeline }, suivi, catalogue] = await Promise.all([timelineOf(found), getDoc<SuiviTexts>("suivi-commande", "fr", { plain: true }), getDoc<CatalogueTexts>("catalogue", "fr", { plain: true })]);
   const next = nextStage(order.status);
-  const demonstration = !boutiqueReelle();
-  const paiementBranche = demonstration || paiementEnLigne();
+  // remboursement possible d'ici : par Stripe pour une commande payée par Stripe (Stripe configuré),
+  // simulé pour un paiement d'essai de la démonstration ; jamais pour une commande sans paiement en ligne
+  const parStripe = order.payment?.prestataire === "stripe";
+  const demonstration = !parStripe && !boutiqueReelle();
+  const paiementBranche = parStripe ? stripeConfigure() : demonstration;
   const a = order.address;
   const hide = Boolean(order.gift?.wrap && order.gift.hidePrices !== false);
   const url = trackingUrl(order.shipping.carrier, order.shipping.tracking);
@@ -82,6 +86,13 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
                 : "Cette commande a franchi sa dernière étape."}
           </p>
         )}
+      </section>
+
+      <section className="panel no-print stack-m" aria-labelledby="paiement-title">
+        <h2 id="paiement-title" className="t-h3">
+          Paiement
+        </h2>
+        <PaiementCommande paiement={order.payment} moyenAncien={order.paymentMethod} />
       </section>
 
       <section className="panel no-print" aria-labelledby="client-title">
@@ -189,9 +200,11 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
         </h2>
         <p className="t-note">
           {gestes.length && !paiementBranche
-            ? "Le paiement en ligne n’est pas encore branché : aucun remboursement ne peut partir d’ici."
+            ? parStripe
+              ? "Stripe n’est pas configuré sur ce site : aucun remboursement ne peut partir d’ici."
+              : "Cette commande n’a pas été payée en ligne : aucun remboursement ne peut partir d’ici."
             : gestes.length
-            ? `Le remboursement passe par le moyen de paiement de la cliente${demonstration ? " (démonstration\u00a0: aucun argent ne bouge)" : ""}. Chaque geste est demandé une seule fois et consigné au journal.`
+            ? `Le remboursement ${parStripe ? "part par Stripe, " : "passe par le moyen de paiement de la cliente"}${parStripe ? "sur le moyen de paiement de la cliente" : ""}${demonstration ? " (démonstration\u00a0: aucun argent ne bouge)" : ""}. Chaque geste est demandé une seule fois et consigné au journal.`
             : order.status === "refunded"
               ? "Commande remboursée : il n’y a plus rien à faire ici."
               : order.status === "returned"

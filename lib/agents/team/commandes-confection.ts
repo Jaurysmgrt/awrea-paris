@@ -65,7 +65,11 @@ export async function runCommandesConfectionAgent(trigger: AgentRun["trigger"] =
     for (const o of orders) {
       if (memory.flagged.includes(o.id)) continue;
       const age = (now.getTime() - new Date(o.createdAt).getTime()) / DAY;
-      const reason = o.status === "blocked" ? "Commande en attente : paiement à vérifier ou adresse incomplète." : o.status === "pending" && age > 2 ? "Paiement en attente depuis plus de 48 heures." : null;
+      // une page de paiement Stripe abandonnée ou expirée n'est pas une commande à vérifier : Stripe
+      // ne prélève rien, la commande reste « en attente de paiement » sans alerte ; seul un paiement
+      // encore en cours de validation après 48 heures (virement, prélèvement) mérite un regard
+      const abandon = o.status === "pending" && o.payment?.prestataire === "stripe" && o.payment.statut !== "en-attente";
+      const reason = o.status === "blocked" ? "Commande en attente : paiement à vérifier ou adresse incomplète." : o.status === "pending" && !abandon && age > 2 ? "Paiement en attente depuis plus de 48 heures." : null;
       if (!reason) continue;
       await rec.act("flag_order", { orderId: o.id, reason }, { summary: `Commande ${o.number} à vérifier`, rationale: reason });
       memory.flagged.push(o.id);

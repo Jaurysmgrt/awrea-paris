@@ -15,6 +15,8 @@ import { PurchaseTracker } from "@/components/analytics/PurchaseTracker";
 import { AtelierNote, type CoulissesTexts } from "@/components/ui/AtelierNote";
 import { certificatesOfOrder } from "@/lib/certificates";
 import { orderAccessToken, orderLink } from "@/lib/commerce/order-access";
+import { confirmerRetour } from "@/lib/paiement/suivi";
+import { ViderPanier } from "@/components/commerce/ViderPanier";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = (await getDoc<CommerceTexts>("commerce", { plain: true })).confirmation;
@@ -25,12 +27,17 @@ export const dynamic = "force-dynamic";
 export default async function ConfirmationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ n?: string; t?: string; a?: string }>;
+  searchParams: Promise<{ n?: string; t?: string; a?: string; s?: string }>;
 }) {
   const sp = await searchParams;
   const locale = await getLocale();
   const token = verify<{ n: string }>(sp.t);
-  const order = token && token.n === sp.n ? await getOrder(token.n) : null;
+  const lue = token && token.n === sp.n ? await getOrder(token.n) : null;
+  // retour de la page de paiement Stripe : si le webhook n'est pas encore arrivé, le paiement est
+  // vérifié auprès de Stripe (jamais cru sur la seule adresse de retour)
+  const order = lue && sp.s ? await confirmerRetour(lue, sp.s).catch(() => lue) : lue;
+  const enAttente = order?.status === "pending" && order.payment?.statut === "en-attente";
+  const echec = order?.status === "pending" && (order.payment?.statut === "echoue" || order.payment?.statut === "expire");
   const first = order?.name.split(" ")[0];
   const certificates = order ? await certificatesOfOrder(order).catch(() => []) : [];
   // la suite de la commande : frise de la confection, délai et fin prévue, e-mails à chaque étape
@@ -47,7 +54,8 @@ export default async function ConfirmationPage({
   return (
     <>
       <Section theme="paper" className="confirmation">
-        {order ? (
+        {sp.s && order && !enAttente && !echec ? <ViderPanier /> : null}
+        {order && !enAttente && !echec ? (
           <PurchaseTracker
             number={order.number}
             value={order.total}
@@ -68,7 +76,20 @@ export default async function ConfirmationPage({
             <p className="t-body t-center">
               {order ? fill(t.texteCommande, { commande: order.number, email: order.email }) : t.texte}
             </p>
-            {order ? (
+            {enAttente ? (
+              <p className="notice t-body" role="status">
+                {t.enAttente}
+              </p>
+            ) : null}
+            {echec ? (
+              <p className="notice t-body" role="status">
+                {t.echec}{" "}
+                <Link href="/commande" className="link">
+                  {commerce.commande.page.titre}
+                </Link>
+              </p>
+            ) : null}
+            {order && !echec ? (
               <div className="notice stack">
                 <p className="t-label">{statusLabel[order.status]}</p>
                 <ul className="stack">

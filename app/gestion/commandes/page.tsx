@@ -6,6 +6,7 @@
  */
 import Link from "@/components/ui/Link";
 import { getOrdersWithSource, statusLabel, trackingUrl } from "@/lib/commerce/orders";
+import { PastillePaiement } from "@/components/admin/PaiementCommande";
 import { withStages } from "@/lib/store/order-stages";
 import { nextStage, orderTimeline, type OrderTimeline } from "@/lib/customers/order-timeline";
 import { formatDate, formatPrice } from "@/lib/format";
@@ -172,6 +173,8 @@ export default async function CommandesPage({ searchParams }: { searchParams: Pr
                     <td role="cell" className="table__nombre" data-titre="Total">{formatPrice(o.total)}</td>
                     <td role="cell" data-titre="Étape">
                       <span className={`status status--${o.status === "blocked" ? "pending" : o.status === "delivered" || o.status === "shipped" ? "done" : "info"}`}>{statusLabel[o.status]}</span>
+                      {/* paiement Stripe pas (ou plus) réussi : visible sans ouvrir la fiche */}
+                      {o.payment && o.payment.prestataire === "stripe" && o.payment.statut !== "reussi" ? <> <PastillePaiement statut={o.payment.statut} /></> : null}
                       {timeline.late ? <> <span className="status status--pending">En retard</span></> : null}
                       <span className="t-note table__detail">{estimate ? `Fin prévue ${estimate}` : "Aucune fin prévue"}</span>
                       {url ? <a href={url} className="text-link t-note" target="_blank" rel="noopener noreferrer">Suivi {o.shipping.carrier}</a> : null}

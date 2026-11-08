@@ -6,7 +6,8 @@
  */
 import "server-only";
 import { getOrder, setOrderStatus } from "@/lib/commerce/orders";
-import { boutiqueReelle, paiementEnLigne } from "@/lib/config/boutique";
+import { boutiqueReelle } from "@/lib/config/boutique";
+import { rembourserParStripe } from "@/lib/paiement/suivi";
 import { issueCreditNote } from "@/lib/invoices";
 import { sousVerrouArgent } from "@/lib/commerce/argent";
 import { invoicePdf } from "@/lib/invoices/pdf";
@@ -119,8 +120,11 @@ async function rembourserRetour(id: string): Promise<{ r: ReturnRequest; amount:
   if (!["recu", "demande"].includes(r.status)) throw new Error("Ce retour n’est plus à rembourser.");
   const items = r.items.filter((i) => i.wish === "remboursement");
   if (!items.length) throw new Error("Aucune pièce à rembourser dans ce retour (échange seulement).");
-  // boutique réelle sans paiement en ligne branché : aucun argent ne peut repartir d'ici
-  if (boutiqueReelle() && !paiementEnLigne()) throw new Error("Le paiement en ligne n’est pas encore branché : aucun remboursement ne peut partir de l’Atelier.");
+  const parStripe = order.payment?.prestataire === "stripe";
+  // boutique réelle : seul un paiement passé par Stripe se rembourse d'ici, par Stripe
+  if (boutiqueReelle() && !parStripe) throw new Error("Cette commande n’a pas été payée en ligne : aucun remboursement ne peut partir de l’Atelier.");
+  // l'argent d'abord (Stripe, une seule fois par retour) ; l'avoir ensuite, du même montant
+  if (parStripe) await rembourserParStripe((await getOrder(order.id)) ?? order, items.reduce((t, i) => t + i.unitPrice, 0), `Retour ${r.id}`, { quoi: "retour", id: r.id });
   const note = await issueCreditNote(
     order,
     items.map((i) => ({ title: i.title, detail: `Taille ${i.size} · retour ${r.id}`, quantity: 1, unitTtc: i.unitPrice })),

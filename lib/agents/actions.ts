@@ -16,7 +16,8 @@ import { dejaRembourse, marquerRembourse, sousVerrouArgent } from "@/lib/commerc
 import { issueCreditNote } from "@/lib/invoices";
 import { invoicePdf } from "@/lib/invoices/pdf";
 import type { Order, Product } from "@/lib/commerce/types";
-import { boutiqueReelle, paiementEnLigne } from "@/lib/config/boutique";
+import { boutiqueReelle } from "@/lib/config/boutique";
+import { rembourserParStripe } from "@/lib/paiement/suivi";
 import { DEFAULT_LEAD_TIME } from "@/lib/commerce/availability";
 import { updatePiece } from "@/lib/commerce/pieces";
 import { updateInbox, listInbox } from "@/lib/inbox";
@@ -150,19 +151,31 @@ export interface ActionResult {
  * fait pas passer le remboursement pour un échec (le résumé le dit).
  */
 async function rembourserCommande(o: Order, motif: string, annuler: boolean): Promise<ActionResult> {
-  // boutique réelle sans paiement en ligne branché : aucun argent ne peut repartir d'ici
-  if (boutiqueReelle() && !paiementEnLigne()) throw new Error(`Le paiement en ligne n’est pas encore branché : aucun remboursement ne peut partir de l’Atelier pour la commande ${o.number}.`);
+  const parStripe = o.payment?.prestataire === "stripe";
+  // boutique réelle : seul un paiement passé par Stripe se rembourse d'ici, par Stripe
+  if (boutiqueReelle() && !parStripe) throw new Error(`La commande ${o.number} n’a pas été payée en ligne : aucun remboursement ne peut partir de l’Atelier.`);
   if (o.status === "refunded" || (await dejaRembourse(o.id))) throw new Error(`La commande ${o.number} est déjà remboursée : rien n’est reparti.`);
   const montant = await sousVerrouArgent(o.id, async () => {
     if (await dejaRembourse(o.id)) throw new Error(`La commande ${o.number} est déjà remboursée : rien n’est reparti.`);
+    let m = o.total;
+    if (parStripe) {
+      const frais = await getOrder(o.id);
+      const reste = (frais?.payment?.montant ?? o.total) - (frais?.payment?.rembourse ?? 0);
+      if (reste <= 0) throw new Error(`La commande ${o.number} est déjà remboursée : rien n’est reparti.`);
+      m = (await rembourserParStripe(frais ?? o, reste, motif, { quoi: "remboursement", id: o.id })).montant;
+    }
     await setOrderStatus(o.id, "refunded");
-    await marquerRembourse(o.id, { montant: o.total, par: motif });
-    return o.total;
+    await marquerRembourse(o.id, { montant: m, par: motif });
+    return m;
   });
   let avoir: Awaited<ReturnType<typeof issueCreditNote>> | null = null;
   try {
-    const lignes = o.lines.map((l) => ({ title: l.title, detail: `Taille ${l.size}`, quantity: l.quantity, unitTtc: l.unitPrice }));
-    if (o.shipping.price > 0) lignes.push({ title: "Livraison", detail: o.shipping.method, quantity: 1, unitTtc: o.shipping.price });
+    // une partie déjà remboursée (un retour) : l'avoir porte seulement le solde remboursé ici
+    const lignes =
+      montant < o.total
+        ? [{ title: `Solde de la commande ${o.number}`, detail: motif, quantity: 1, unitTtc: montant }]
+        : o.lines.map((l) => ({ title: l.title, detail: `Taille ${l.size}`, quantity: l.quantity, unitTtc: l.unitPrice }));
+    if (montant >= o.total && o.shipping.price > 0) lignes.push({ title: "Livraison", detail: o.shipping.method, quantity: 1, unitTtc: o.shipping.price });
     avoir = await issueCreditNote(o, lignes, annuler ? "annulation" : "remboursement");
   } catch (e) {
     console.error("[argent] avoir", e);

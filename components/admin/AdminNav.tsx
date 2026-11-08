@@ -33,6 +33,7 @@ const GROUPES: { titre?: string; liens: Entree[] }[] = [
         label: "Commandes",
         sous: [
           { href: "/retours", label: "Retours", compte: "à traiter" },
+          { href: "/paiements", label: "Paiements" },
           { href: "/factures", label: "Factures" },
         ],
       },

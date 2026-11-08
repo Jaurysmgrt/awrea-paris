@@ -33,6 +33,12 @@ interface ServiceSpec {
 }
 
 export const SERVICES = {
+  paiement: {
+    label: "Paiement en ligne",
+    env: "PAYMENT_PROVIDER",
+    mock: "Paiement d’essai (démonstration) : aucun argent ne bouge",
+    providers: { stripe: { label: "Stripe", keys: ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"] } },
+  },
   customers: {
     label: "Base clientes et comptes",
     env: "CUSTOMERS_PROVIDER",

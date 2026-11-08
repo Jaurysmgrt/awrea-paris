@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { shop } from "@/content/settings";
 import { legalVersions } from "@/content/legal-versions";
 import { getAllProducts } from "./index";
+import { boutiqueReelle } from "@/lib/config/boutique";
 import { longestLeadTime, MAX_PER_LINE, overLineLimit } from "./availability";
 import { earliestGiftDate, latestGiftDate } from "./international";
 import type { Cart, Product } from "./types";
@@ -73,11 +74,13 @@ export function computeDemoCart(state: DemoState, products: Product[]): Cart {
     .filter((x): x is NonNullable<typeof x> => Boolean(x));
 
   const subtotal = lines.reduce((s, l) => s + l.unitPrice * l.quantity, 0);
-  const rule = state.d ? shop.demoDiscounts.find((d) => d.code === state.d) : undefined;
+  // codes et cartes d'essai : démonstration seulement, jamais sur la boutique réelle
+  const essai = !boutiqueReelle();
+  const rule = essai && state.d ? shop.demoDiscounts.find((d) => d.code === state.d) : undefined;
   const discountAmount = rule ? (rule.type === "percent" ? Math.round((subtotal * rule.value) / 100) : Math.min(rule.value, subtotal)) : 0;
   const wrap = state.w && lines.length > 0 ? shop.giftWrapPrice : 0;
   const afterDiscount = subtotal - discountAmount + wrap;
-  const card = state.g ? shop.demoGiftCards.find((g) => g.code === state.g) : undefined;
+  const card = essai && state.g ? shop.demoGiftCards.find((g) => g.code === state.g) : undefined;
   const giftAmount = card ? Math.min(card.balance, afterDiscount) : 0;
   const shippingEstimate = lines.length === 0 ? null : subtotal - discountAmount >= shop.freeShippingThreshold ? 0 : null;
 
@@ -149,7 +152,7 @@ async function demoApply(state: DemoState, action: CartAction): Promise<DemoStat
         s.d = null;
         break;
       }
-      if (!shop.demoDiscounts.some((d) => d.code === code)) throw new CartError("Ce code n’est pas valable.");
+      if (boutiqueReelle() || !shop.demoDiscounts.some((d) => d.code === code)) throw new CartError("Ce code n’est pas valable.");
       s.d = code;
       break;
     }
@@ -159,7 +162,7 @@ async function demoApply(state: DemoState, action: CartAction): Promise<DemoStat
         s.g = null;
         break;
       }
-      if (!shop.demoGiftCards.some((g) => g.code === code)) throw new CartError("Cette carte cadeau n’est pas reconnue.");
+      if (boutiqueReelle() || !shop.demoGiftCards.some((g) => g.code === code)) throw new CartError("Cette carte cadeau n’est pas reconnue.");
       s.g = code;
       break;
     }

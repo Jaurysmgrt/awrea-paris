@@ -9,7 +9,7 @@ import { delaiText, type CatalogueTexts } from "@/lib/commerce/texts";
 import type { Category } from "@/lib/commerce/types";
 import { getDoc } from "@/lib/edition/read";
 import { MODEL } from "@/lib/ai/client";
-import { boutiqueReelle, paiementEnLigne } from "@/lib/config/boutique";
+import { boutiqueReelle, paiementEnLigne, raisonPaiementFerme, stripeEnTest } from "@/lib/config/boutique";
 import { services as providers } from "@/lib/config/providers";
 import { turnstileEnabled } from "@/lib/security/turnstile";
 import { currentAdmin, usingDemoPassword } from "@/lib/auth/admin";
@@ -90,7 +90,12 @@ export default async function ReglagesPage() {
         ? `${s.env}=${s.requested} demandé : manque ${s.missing.join(", ")}`
         : `${s.env} · ${Object.values(s.keys).map((k) => k.join(", ")).join(" ou ")}`,
     })),
-    { name: "Paiement en ligne", ok: paiementEnLigne(), state: paiementEnLigne() ? "Branché" : boutiqueReelle() ? "Pas encore branché : la boutique ne prend aucune commande payée" : "Paiement d’essai (démonstration)", hint: "Stripe Checkout, à brancher avec le compte Stripe de la Maison" },
+    {
+      name: "Paiement en ligne (Stripe)",
+      ok: paiementEnLigne(),
+      state: paiementEnLigne() ? (stripeEnTest() ? "Branché, mode test de Stripe" : "Branché") : (raisonPaiementFerme() ?? ""),
+      hint: "STRIPE_SECRET_KEY et STRIPE_WEBHOOK_SECRET ; webhook Stripe vers /api/webhooks/stripe (ACTIVATION.md, Stripe)",
+    },
     { name: "Tâches planifiées sécurisées", ok: Boolean(process.env.CRON_SECRET), state: process.env.CRON_SECRET ? "Active" : "À configurer", hint: "CRON_SECRET" },
     { name: "Mot de passe d’installation de l’Atelier", ok: !usingDemoPassword(), state: usingDemoPassword() ? "Démonstration" : "Personnel", hint: "ATELIER_PASSWORD, sert seulement à la première connexion d’un compte" },
   ];
