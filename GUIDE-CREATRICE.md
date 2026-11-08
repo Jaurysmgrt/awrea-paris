@@ -129,6 +129,13 @@ C’est voulu.
 
 Pour sortir : **Se déconnecter**, en bas du menu.
 
+### L’Atelier sur votre téléphone
+
+L’Atelier s’installe sur l’iPhone ou l’Android comme une application, avec ses notifications
+(nouvelle commande, action à valider, alerte de sécurité) : **Réglages › Application**. La marche à
+suivre complète est dans `docs/APPLICATION.md`. Si un téléphone est perdu, **Réglages › Sécurité ›
+Déconnecter tous les appareils** ferme toutes les sessions et coupe ses notifications.
+
 ## 2. Se repérer dans l’Atelier
 
 Le menu de gauche est rangé comme une journée de la Maison (sur téléphone, il s’ouvre avec

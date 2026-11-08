@@ -15,10 +15,12 @@ import { after } from "next/server";
 import { kv } from "@/lib/store";
 import { identity } from "@/content/brand/identity";
 import { atelierBase, ATELIER_INTERNAL } from "@/lib/admin/path";
-import { TYPES_NOTIFICATION, type NotificationAtelier, type TypeNotification } from "./application";
-import { envoyerA, type Abonnement, type Vapid } from "./push-envoi";
+import { TYPES_NOTIFICATION, type NotificationAtelier, type TypeNotification } from "@/lib/admin/application";
+import { envoyerA, type Abonnement, type Vapid } from "@/lib/admin/push-envoi";
 
 const CLE = "atelier:appareils";
+/** Ce qu'un nouvel appareil reçoit d'emblée : tout, sauf la fin de chaque passage des agents (à demander). */
+const TYPES_PAR_DEFAUT = TYPES_NOTIFICATION.filter((t) => t !== "taches");
 export const APPAREILS_MAX = 10;
 
 export type Appareil = Abonnement & {
@@ -63,7 +65,7 @@ export async function enregistrerAppareil(abonnement: Abonnement, nom: string, p
   const liste = await appareils();
   const deja = liste.find((a) => a.endpoint === abonnement.endpoint);
   if (!deja && liste.length >= APPAREILS_MAX) throw new PushError(`Dix appareils reçoivent déjà les notifications. Retirez-en un avant d’ajouter celui-ci.`);
-  const appareil: Appareil = deja ? { ...deja, keys: abonnement.keys, nom } : { ...abonnement, id: crypto.randomUUID(), nom, types: [...TYPES_NOTIFICATION], par, ajouteLe: new Date().toISOString() };
+  const appareil: Appareil = deja ? { ...deja, keys: abonnement.keys, nom } : { ...abonnement, id: crypto.randomUUID(), nom, types: TYPES_PAR_DEFAUT, par, ajouteLe: new Date().toISOString() };
   await kv.set(CLE, [appareil, ...liste.filter((a) => a.endpoint !== abonnement.endpoint)]);
   return visible(appareil);
 }

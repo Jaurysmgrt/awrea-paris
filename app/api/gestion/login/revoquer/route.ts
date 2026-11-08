@@ -6,6 +6,7 @@ import { verify } from "@/lib/auth/session";
 import { clientIp, rateLimit } from "@/lib/security/rate-limit";
 import { logSecurityEvent } from "@/lib/security/audit";
 import { logAction } from "@/lib/agents/log";
+import { oublierTousLesAppareils } from "@/lib/admin/push";
 
 /**
  * Lien « ce n'était pas moi » reçu après une connexion : ferme toutes les sessions de l'Atelier et
@@ -18,6 +19,7 @@ export async function POST(req: Request) {
   const token = parsed.success ? verify<{ purpose: string; email: string }>(parsed.data.t) : null;
   if (!token || token.purpose !== "revoquer") return NextResponse.json({ error: "Ce lien n’est plus valable. Fermez les sessions depuis les Réglages de l’Atelier, ou demandez de l’aide." }, { status: 400 });
   await revokeAdminSessions();
+  await oublierTousLesAppareils();
   await resetAccount(token.email);
   await clearAdminCookie();
   await logSecurityEvent("admin_revoked", req, clientIp(req), token.email);

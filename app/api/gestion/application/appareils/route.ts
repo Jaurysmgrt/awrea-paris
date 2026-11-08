@@ -20,7 +20,7 @@ const Delete = z.object({ id: z.string().uuid() }).strict();
 
 const refus = (error: string, status = 400) => NextResponse.json({ error }, { status });
 const lire = async (req: Request) => req.json().catch(() => null);
-const SERVICE_INCONNU = "Ce navigateur passe par un service de notification inconnu : il ne peut pas recevoir les notifications de l’Atelier.";
+const SERVICE_INCONNU = "Ce navigateur passe par un service de notification inconnu : il ne peut pas recevoir les notifications de l’Atelier.";
 
 export async function GET() {
   if (!(await currentAdmin())) return refus("Non autorisé", 401);
@@ -30,7 +30,7 @@ export async function GET() {
 export async function POST(req: Request) {
   const par = await currentAdmin();
   if (!par) return refus("Non autorisé", 401);
-  if (!pushConfig().actif) return refus("Les notifications ne sont pas encore branchées : il manque les clés VAPID dans Vercel.", 409);
+  if (!pushConfig().actif) return refus("Les notifications ne sont pas encore branchées : il manque les clés VAPID dans Vercel.", 409);
   const parsed = Post.safeParse(await lire(req));
   if (!parsed.success) return refus("Demande illisible.");
   const { endpoint, keys } = parsed.data.abonnement;

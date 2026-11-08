@@ -9,7 +9,7 @@
  * réseau) le garde.
  */
 import webpush from "web-push";
-import { contenuNotification, serviceAutorise, type NotificationAtelier, type TypeNotification } from "./application";
+import { contenuNotification, serviceAutorise, type NotificationAtelier, type TypeNotification } from "@/lib/admin/application";
 
 export type Abonnement = { endpoint: string; keys: { p256dh: string; auth: string } };
 export type Vapid = { subject: string; publicKey: string; privateKey: string };

@@ -47,13 +47,13 @@ function Installation({ env }: { env: Environnement }) {
   }, []);
 
   if (env.plateforme === "serveur") return <div aria-hidden="true"><span className="skeleton skeleton--line" /><span className="skeleton skeleton--line skeleton--short" /></div>;
-  if (env.installee) return <p className="t-body">L’Atelier est installé sur cet appareil : vous l’ouvrez depuis son icône, comme une application.</p>;
+  if (env.installee) return <p className="t-body">L’Atelier est installé sur cet appareil : vous l’ouvrez depuis son icône, comme une application.</p>;
 
   const ios = (
     <ol className="application-etapes">
       <li>Ouvrez cette page dans Safari.</li>
       <li>Touchez le bouton Partager, le carré d’où sort une flèche.</li>
-      <li>Choisissez « Sur l’écran d’accueil », puis « Ajouter ».</li>
+      <li>Choisissez « Sur l’écran d’accueil », puis « Ajouter ».</li>
       <li>Ouvrez l’Atelier depuis sa nouvelle icône et connectez-vous une fois, avec Face ID si vous l’avez réglé.</li>
     </ol>
   );
@@ -61,14 +61,14 @@ function Installation({ env }: { env: Environnement }) {
     <ol className="application-etapes">
       <li>Ouvrez cette page dans Chrome.</li>
       <li>Touchez le menu, les trois points en haut à droite.</li>
-      <li>Choisissez « Installer l’application » (ou « Ajouter à l’écran d’accueil »), puis confirmez.</li>
+      <li>Choisissez « Installer l’application » (ou « Ajouter à l’écran d’accueil »), puis confirmez.</li>
       <li>Ouvrez l’Atelier depuis sa nouvelle icône et connectez-vous une fois.</li>
     </ol>
   );
   const ordinateur = (
     <ol className="application-etapes">
       <li>Dans Chrome ou Edge, cliquez sur l’icône d’installation au bout de la barre d’adresse.</li>
-      <li>Dans Safari sur Mac, choisissez Fichier, puis « Ajouter au Dock ».</li>
+      <li>Dans Safari sur Mac, choisissez Fichier, puis « Ajouter au Dock ».</li>
     </ol>
   );
   const principal = env.plateforme === "ios" ? ios : env.plateforme === "android" ? android : ordinateur;
@@ -209,7 +209,7 @@ export function ApplicationAtelier() {
     if (!etat.config.actif)
       return (
         <p className="t-body">
-          Les notifications ne sont pas encore branchées : il faut ajouter deux clés dans Vercel, VAPID_PUBLIC_KEY et VAPID_PRIVATE_KEY. La marche à suivre est dans ACTIVATION.md, section « Application de l’Atelier ».
+          Les notifications ne sont pas encore branchées : il faut ajouter deux clés dans Vercel, VAPID_PUBLIC_KEY et VAPID_PRIVATE_KEY. La marche à suivre est dans ACTIVATION.md, section « Application de l’Atelier ».
         </p>
       );
     if (!env.push)

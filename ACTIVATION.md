@@ -62,6 +62,7 @@ fonctionnement.
 | 12 | Visibilité hors du site | Google, Bing, fiche Google, Merchant Center, boutique Instagram | Gratuit |
 | 13 | Maintenance automatique | Agent de nuit, sauvegardes (GitHub Actions) | Inclus dans GitHub ; Claude à l'usage |
 | 14 | Éditeur visuel et e-mails | Modifier textes, photos, pages et e-mails sans code | Inclus (Upstash et Supabase des étapes 3 et 5) |
+| 15 | Application de l'Atelier | L'Atelier sur l'iPhone ou l'Android, avec ses notifications | Gratuit (aucun compte, aucune boutique d'applications) |
 
 Les étapes 0 à 5 sont nécessaires avant de prendre de vraies commandes ; les commandes payées
 attendent en plus l'étape 4 bis (Stripe). Les autres étapes peuvent venir ensuite,
@@ -629,6 +630,36 @@ l'historique et les versions publiées, et Supabase (étape 5) pour les photos d
 **Vérifier** : Atelier › **Pages** › **Modifier** sur l'accueil ; changer un mot ; le site public
 ne change pas ; **Publier** ; le site public montre le nouveau mot ; **Historique** › la version
 précédente › **Remettre en ligne**.
+
+## Étape 15 · Application de l'Atelier (téléphone et notifications)
+
+L'Atelier s'installe sur l'iPhone ou l'Android comme une application, sans App Store ni Google Play :
+c'est le même Atelier, à la même adresse secrète, avec la même connexion (mot de passe et code, ou
+Face ID). Marche à suivre pour la créatrice : `docs/APPLICATION.md`.
+
+L'installation ne demande rien. Les **notifications** demandent une paire de clés propre à la Maison
+(clés VAPID), à créer une fois :
+
+1. Sur un ordinateur où Node.js est installé, dans un terminal : `npx web-push generate-vapid-keys`.
+   La commande affiche une clé publique et une clé privée (ou demandez-les à la personne qui vous
+   aide : elles ne servent qu'à ce site).
+2. Dans Vercel, pour **Production** (et **Preview** si vous voulez essayer sur la version de test) :
+
+| Variable | Valeur |
+| --- | --- |
+| `VAPID_PUBLIC_KEY` | la clé publique |
+| `VAPID_PRIVATE_KEY` | la clé privée (ne la donnez jamais, ne l'écrivez dans aucun fichier) |
+| `VAPID_SUBJECT` | facultatif : `mailto:` suivi de l'adresse de l'Atelier |
+
+3. Redéployer. Changer ces clés plus tard oblige chaque téléphone à réactiver ses notifications.
+
+**Vérifier** : Atelier › **Réglages** › ligne « Notifications de l'application » ; puis, sur le
+téléphone, Atelier › Réglages › **Application** › **Recevoir les notifications ici** ›
+**Envoyer une notification d'essai**.
+
+**Sécurité** : une notification ne montre jamais le nom, l'adresse ni le téléphone d'une cliente ;
+rien n'est gardé sur le téléphone ; **Fermer toutes les sessions** (Réglages) coupe aussi les
+notifications de tous les appareils, à faire aussitôt si un téléphone est perdu.
 
 ---
 

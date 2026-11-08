@@ -23,6 +23,7 @@ import { securityDigest, securityEvents, type SecurityEventType } from "@/lib/se
 import { isSupabaseConfigured } from "@/lib/db/supabase";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { When } from "@/components/admin/Status";
+import { pushConfig } from "@/lib/admin/push";
 
 const EVENT_LABELS: Record<SecurityEventType, string> = {
   admin_password_ok: "Mot de passe accepté",
@@ -95,6 +96,12 @@ export default async function ReglagesPage() {
       ok: paiementEnLigne(),
       state: paiementEnLigne() ? (stripeEnTest() ? "Branché, mode test de Stripe" : "Branché") : (raisonPaiementFerme() ?? ""),
       hint: "STRIPE_SECRET_KEY et STRIPE_WEBHOOK_SECRET ; webhook Stripe vers /api/webhooks/stripe (ACTIVATION.md, Stripe)",
+    },
+    {
+      name: "Notifications de l’application",
+      ok: pushConfig().actif,
+      state: pushConfig().actif ? "Branchées" : "À configurer",
+      hint: "VAPID_PUBLIC_KEY et VAPID_PRIVATE_KEY (ACTIVATION.md, application de l’Atelier)",
     },
     { name: "Tâches planifiées sécurisées", ok: Boolean(process.env.CRON_SECRET), state: process.env.CRON_SECRET ? "Active" : "À configurer", hint: "CRON_SECRET" },
     { name: "Mot de passe d’installation de l’Atelier", ok: !usingDemoPassword(), state: usingDemoPassword() ? "Démonstration" : "Personnel", hint: "ATELIER_PASSWORD, sert seulement à la première connexion d’un compte" },

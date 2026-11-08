@@ -33,6 +33,7 @@ import { invoicePdf } from "@/lib/invoices/pdf";
 import { issueCertificates } from "@/lib/certificates";
 import { sendOrderStageEmail } from "@/lib/email/commandes";
 import { onOrderCreated } from "@/lib/agents/events";
+import { signaler } from "@/lib/admin/push";
 import { runCommandesConfectionAgent } from "@/lib/agents/team/commandes-confection";
 import type { Order } from "@/lib/commerce/types";
 
@@ -154,7 +155,12 @@ async function etapes(commande: Order): Promise<string[]> {
   }).catch(noter("e-mail"));
 
   // journal de l'Atelier : une ligne par commande, même si la finalisation est reprise
-  if ((await kv.incr(`${cle(order.id)}:agents`, VINGT_ANS)) === 1) await onOrderCreated(order).catch((e) => console.error("[commande] agents", e));
+  if ((await kv.incr(`${cle(order.id)}:agents`, VINGT_ANS)) === 1) {
+    await onOrderCreated(order).catch((e) => console.error("[commande] agents", e));
+    // application de l'Atelier : le numéro et le montant, jamais le nom de la cliente
+    const pieces = order.lines.reduce((t, l) => t + l.quantity, 0);
+    await signaler({ type: "commande", titre: "Nouvelle commande", texte: `Commande ${order.number}, ${formatPrice(order.total)}, ${pieces} pièce${pieces > 1 ? "s" : ""}.`, chemin: `/commandes/${encodeURIComponent(order.number)}`, etiquette: `commande-${order.number}` });
+  }
   ensuite(() => runCommandesConfectionAgent("evenement").catch((e) => console.error("[agent commandes-confection]", e)));
   return echecs;
 }

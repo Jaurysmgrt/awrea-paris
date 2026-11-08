@@ -32,6 +32,7 @@ import { creerSession, lireSession } from "@/lib/paiement/stripe-api";
 import { avecEvenement, paiementEnAttente, type EvenementPaiement } from "@/lib/paiement/types";
 import { clientPourPayer, clientStripe } from "@/lib/paiement/stripe";
 import * as rapprochement from "@/lib/paiement/rapprochement";
+import { signaler } from "@/lib/admin/push";
 
 const JOURNAL = "paiements:journal";
 
@@ -55,6 +56,7 @@ async function journaliser(o: Order, e: EvenementPaiement) {
 const lienCommande = (o: Order) => `atelier:/commandes/${encodeURIComponent(o.number)}`;
 
 async function alerter(o: Order | null, resume: string) {
+  await signaler({ type: "intervention", titre: o ? `Paiement de la commande ${o.number}` : "Paiement à vérifier", texte: resume, chemin: o ? `/commandes/${encodeURIComponent(o.number)}` : "/paiements", etiquette: o ? `paiement-${o.number}` : "paiements" });
   await logAction({ agent: "systeme", kind: "paiement", status: "failed", summary: o ? `Commande ${o.number} : ${resume}` : resume, ...(o ? { target: { type: "order", id: o.id, label: o.number, href: lienCommande(o) } } : {}) }).catch(() => {});
   await sendEmail({
     to: process.env.ATELIER_EMAIL ?? identity.email,
