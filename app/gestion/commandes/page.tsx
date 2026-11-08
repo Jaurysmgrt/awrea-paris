@@ -15,6 +15,7 @@ import { When } from "@/components/admin/Status";
 import { atelierHref, atelierApi } from "@/lib/admin/path";
 import type { Order } from "@/lib/commerce/types";
 import { OrderStageControl } from "./_components/OrderStageControl";
+import { compterParEtape, estEtape, estPeriode, ETAPES_FILTRE, filtrerCommandes, PERIODES, type FiltreEtape, type Periode } from "@/lib/admin/commandes";
 
 export const dynamic = "force-dynamic";
 
@@ -42,9 +43,26 @@ function NextAction({ order }: { order: Order }) {
   return <OrderStageControl number={order.number} next={next} compact />;
 }
 
-export default async function CommandesPage() {
-  const orders = (await withStages(await getOrders())).slice(0, 60).map((o) => ({ order: o, timeline: orderTimeline(o) }));
-  const late = orders.filter((x) => x.timeline.late);
+const AFFICHEES = 100;
+
+export default async function CommandesPage({ searchParams }: { searchParams: Promise<{ q?: string; etape?: string; periode?: string }> }) {
+  const sp = await searchParams;
+  const q = (sp.q ?? "").slice(0, 80);
+  const etape: FiltreEtape = estEtape(sp.etape) ? sp.etape : "toutes";
+  const periode: Periode = estPeriode(sp.periode) ? sp.periode : "tout";
+  const toutes = await withStages(await getOrders());
+  const maintenant = new Date();
+  // les compteurs des étapes suivent la recherche et la période ; la liste suit aussi l'étape
+  const cherchees = filtrerCommandes(toutes, { q, periode }, maintenant);
+  const compte = compterParEtape(cherchees);
+  const trouvees = filtrerCommandes(cherchees, { etape }, maintenant);
+  const orders = trouvees.slice(0, AFFICHEES).map((o) => ({ order: o, timeline: orderTimeline(o) }));
+  const late = toutes.map((o) => ({ order: o, timeline: orderTimeline(o) })).filter((x) => x.timeline.late);
+  const lien = (e: FiltreEtape) => {
+    const p = new URLSearchParams({ ...(q ? { q } : {}), ...(e !== "toutes" ? { etape: e } : {}), ...(periode !== "tout" ? { periode } : {}) }).toString();
+    return atelierHref(`/commandes${p ? `?${p}` : ""}`);
+  };
+  const filtre = Boolean(q || etape !== "toutes" || periode !== "tout");
   return (
     <div className="admin-page stack-l">
       <header className="admin-page__head">
@@ -73,8 +91,52 @@ export default async function CommandesPage() {
         )}
       </section>
 
-      <section className="panel" aria-labelledby="orders-title">
-        <h2 id="orders-title" className="t-h3">Dernières commandes</h2>
+      <section className="panel stack-m" aria-labelledby="orders-title">
+        <h2 id="orders-title" className="t-h3">
+          {filtre ? `Commandes trouvées (${trouvees.length})` : "Dernières commandes"}
+        </h2>
+        <form className="commandes-filtres" role="search" method="get" action={atelierHref("/commandes")}>
+          <div className="field">
+            <label className="field__label" htmlFor="commandes-q">
+              Chercher une commande
+            </label>
+            <input id="commandes-q" name="q" type="search" className="field__input" defaultValue={q} placeholder="Numéro, nom, adresse ou pièce" autoComplete="off" />
+          </div>
+          <div className="field">
+            <label className="field__label" htmlFor="commandes-periode">
+              Période
+            </label>
+            <select id="commandes-periode" name="periode" className="field__input" defaultValue={periode}>
+              {PERIODES.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          {etape !== "toutes" ? <input type="hidden" name="etape" value={etape} /> : null}
+          <button type="submit" className="btn btn--outline">
+            Chercher
+          </button>
+        </form>
+        <nav className="produits__filtres" aria-label="Étapes des commandes">
+          {ETAPES_FILTRE.map((e) => (
+            <Link key={e.id} href={lien(e.id)} className="chip" aria-current={e.id === etape ? "true" : undefined}>
+              {e.label} ({compte[e.id]})
+            </Link>
+          ))}
+        </nav>
+        {filtre ? (
+          <p className="t-note">
+            <Link href={atelierHref("/commandes")} className="text-link">
+              Effacer la recherche et les filtres
+            </Link>
+          </p>
+        ) : null}
+        {trouvees.length > AFFICHEES ? <p className="t-note">Les {AFFICHEES} plus récentes sont affichées : affinez la recherche pour trouver les autres.</p> : null}
+        {!orders.length ? (
+          <p className="t-body">{toutes.length ? "Aucune commande ne correspond. Essayez un autre mot, une autre étape ou une autre période." : "Aucune commande pour l’instant."}</p>
+        ) : (
         <div className="table-scroll">
           {/* six colonnes qui tiennent dans l'écran (capture de la créatrice du 01/11 : dix colonnes
               débordaient et écrasaient les pièces mot par mot) ; facture, certificats et suivi du
@@ -104,16 +166,16 @@ export default async function CommandesPage() {
                         <When iso={o.createdAt} />
                       </span>
                     </th>
-                    <td>{o.name}<br /><span className="t-note table__mail">{o.email.split("@")[0]}<wbr />@{o.email.split("@").slice(1).join("@")}</span></td>
-                    <td>{o.lines.map((l) => `${l.title} (${l.size})`).join(", ")}{o.gift?.wrap ? <><br /><span className="t-note">Cadeau : « {o.gift.message} »</span></> : null}</td>
-                    <td className="table__nombre">{formatPrice(o.total)}</td>
-                    <td>
+                    <td data-titre="Cliente">{o.name}<br /><span className="t-note table__mail">{o.email.split("@")[0]}<wbr />@{o.email.split("@").slice(1).join("@")}</span></td>
+                    <td data-titre="Pièces">{o.lines.map((l) => `${l.title} (${l.size})`).join(", ")}{o.gift?.wrap ? <><br /><span className="t-note">Cadeau : « {o.gift.message} »</span></> : null}</td>
+                    <td className="table__nombre" data-titre="Total">{formatPrice(o.total)}</td>
+                    <td data-titre="Étape">
                       <span className={`status status--${o.status === "blocked" ? "pending" : o.status === "delivered" || o.status === "shipped" ? "done" : "info"}`}>{statusLabel[o.status]}</span>
                       {timeline.late ? <> <span className="status status--pending">En retard</span></> : null}
                       <span className="t-note table__detail">{estimate ? `Fin prévue ${estimate}` : "Aucune fin prévue"}</span>
                       {url ? <a href={url} className="text-link t-note" target="_blank" rel="noopener noreferrer">Suivi {o.shipping.carrier}</a> : null}
                     </td>
-                    <td>
+                    <td data-titre="À faire">
                       <div className="table__gestes">
                         <NextAction order={o} />
                         <ActionButton endpoint={atelierApi("/avis/demande")} body={{ number: o.number }} label="Demander un avis" busyLabel="Envoi…" variant="quiet" />
@@ -125,6 +187,7 @@ export default async function CommandesPage() {
             </tbody>
           </table>
         </div>
+        )}
       </section>
     </div>
   );

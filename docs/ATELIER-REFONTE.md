@@ -93,7 +93,9 @@ la rubrique. Aucune rubrique vide : une entrée n'apparaît que le jour où sa p
 
 Chaque lot : relecture indépendante, lint, types, tokens, écriture, tests unitaires, base et
 Playwright, puis demande de fusion. Mis à jour le 08/11 avec le complément du MASTER PROMPT
-(sections 3 à 22) et les choix de la créatrice (section 6).
+(sections 3 à 22) et les choix de la créatrice (section 6). Ordre de travail retenu : 3, puis 4,
+puis 2c (la quantité limitée, la collection et les tailles se règlent plus simplement sur la
+boutique propre), puis 5, 6 et 7.
 
 | Lot | Contenu | Fini quand |
 |---|---|---|
@@ -102,7 +104,7 @@ Playwright, puis demande de fusion. Mis à jour le 08/11 avec le complément du 
 | 2a | (fait le 08/11) Produits : liste, recherche, filtres, fiche, textes, statut, copie, archive | parcours testés en démonstration |
 | 2b | (fait le 08/11) Aperçu des brouillons sur la vraie page, création en quatre étapes toujours en brouillon, photos (ajout, ordre, texte, retrait) | parcours testés en démonstration |
 | 2c | Fiche complète : collection, tailles, matières, entretien, coupe ; quantité limitée par pièce (alerte quand il en reste peu, fermeture à zéro) ; propositions de l'IA sur une fiche existante, sans rien inventer | réglages enregistrés et visibles sur le site |
-| 3 | Commandes (statuts de la confection, recherche, filtres par statut et période, notes internes, historique, annulation et remboursement confirmés) et clientes (fiche, historique, total des achats, catégories nouvelle, régulière, fidèle, inactive, notes, RGPD : export et effacement) | fiches, filtres et historique testés |
+| 3 | (3a commandes en cours le 08/11 : recherche, étapes, période, notes, historique, remboursement confirmé ; 3b clientes à venir) Commandes (statuts de la confection, recherche, filtres par statut et période, notes internes, historique, annulation et remboursement confirmés) et clientes (fiche, historique, total des achats, catégories nouvelle, régulière, fidèle, inactive, notes, RGPD : export et effacement) | fiches, filtres et historique testés |
 | 4 | Boutique propre : pièces, tailles, commandes et clientes dans la base Supabase (tables, sécurité par ligne, sauvegarde), paiement par Stripe Checkout et son webhook signé, import depuis Shopify ; bascule par un seul réglage, le jour choisi par la créatrice, Shopify restant actif d'ici là | commande de bout en bout en mode test Stripe, import vérifié |
 | 5 | Agents et autonomie : file de tâches (planifiées et déclenchées par un événement, relances, statuts, journal), agents Boutique, Commandes, Clientes, Marketing, Analytics et Coordinateur (mission, outils, permissions, mémoire de travail, passage de relais), interrupteur et limite par agent | tâches réellement déclenchées et suivies, validations en attente respectées |
 | 6 | IA et coûts : modèle par agent (économique pour les tâches simples), budget mensuel et quotidien, consommation et coût estimé, historique des appels, alerte, suspension des tâches au plafond ; AWREA ASSISTANT branché sur les vraies données | budget atteint : tâches suspendues et créatrice prévenue ; boutique intacte sans IA |

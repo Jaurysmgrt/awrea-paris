@@ -20,6 +20,9 @@ import { delaiText, type CatalogueTexts } from "@/lib/commerce/texts";
 import { timelineOf } from "@/lib/store/order-stages";
 import { nextStage } from "@/lib/customers/order-timeline";
 import { OrderStageControl } from "../_components/OrderStageControl";
+import { CommandeNotes } from "@/components/admin/CommandeNotes";
+import { CommandeGestes } from "@/components/admin/CommandeGestes";
+import { gestesPossibles, historiqueDe, NOTE_MAX, notesDe } from "@/lib/admin/commandes-suivi";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +38,8 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
   const hide = Boolean(order.gift?.wrap && order.gift.hidePrices !== false);
   const url = trackingUrl(order.shipping.carrier, order.shipping.tracking);
   const exp = order.taxes?.export;
+  const notes = await notesDe(order.id);
+  const [histoire, gestes] = [await historiqueDe(order, notes), gestesPossibles(order)];
 
   return (
     <div className="admin-page stack-l">
@@ -64,7 +69,7 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
           Étapes de la commande
         </h2>
         <OrderStages timeline={timeline} t={suivi.frise} delai={timeline.leadTime ? delaiText(catalogue, timeline.leadTime) : null} />
-        {timeline.late ? <p className="t-body"><span className="status status--failed">En retard</span> La confection dépasse le délai annoncé à la cliente. Un mot de votre part la rassurera.</p> : null}
+        {timeline.late ? <p className="t-body"><span className="status status--pending">En retard</span> La confection dépasse le délai annoncé à la cliente. Un mot de votre part la rassurera.</p> : null}
         {next && next !== "paid" ? (
           viaShopify ? (
             <p className="t-note">L’expédition et la livraison se déclarent dans Shopify : le site suit seul, et la cliente reçoit l’e-mail de l’étape.</p>
@@ -138,6 +143,63 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
             </dd>
           </div>
         </dl>
+      </section>
+
+      <section className="panel no-print stack-m" aria-labelledby="notes-title">
+        <h2 id="notes-title" className="t-h3">
+          Notes internes ({notes.length})
+        </h2>
+        {notes.length ? (
+          <ul className="commande-notes">
+            {notes.map((n) => (
+              <li key={n.at}>
+                <p className="t-body">{n.texte}</p>
+                <p className="t-note">
+                  <When iso={n.at} /> · {n.par}
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="t-note">Aucune note pour l’instant.</p>
+        )}
+        <CommandeNotes numero={order.number} max={NOTE_MAX} />
+      </section>
+
+      <section className="panel no-print stack-m" aria-labelledby="historique-title">
+        <h2 id="historique-title" className="t-h3">
+          Historique
+        </h2>
+        <ol className="commande-historique">
+          {histoire.map((h, i) => (
+            <li key={`${h.at}-${i}`}>
+              <span className="t-note">
+                <When iso={h.at} />
+              </span>
+              <span>
+                {h.quoi}
+                {h.par ? <span className="t-note"> · {h.par}</span> : null}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* toujours présente : le message du geste reste lu après la mise à jour de la page */}
+      <section className="panel no-print stack-m" aria-labelledby="argent-title">
+        <h2 id="argent-title" className="t-h3">
+          Annulation et remboursement
+        </h2>
+        <p className="t-note">
+          {gestes.length
+            ? `Le remboursement passe par le moyen de paiement de la cliente${commerceMode === "demo" ? " (démonstration\u00a0: aucun argent ne bouge)" : ""}. Chaque geste est demandé une seule fois et consigné au journal.`
+            : order.status === "refunded"
+              ? "Commande remboursée : il n’y a plus rien à faire ici."
+              : order.status === "shipped"
+                ? "La pièce est en route : le remboursement se propose une fois la commande livrée, ou depuis Retours."
+                : "Aucun geste d’argent n’est possible à cette étape."}
+        </p>
+        <CommandeGestes numero={order.number} montant={formatPrice(order.total)} gestes={gestes} />
       </section>
 
       {/* bon de livraison : glissé dans le colis */}

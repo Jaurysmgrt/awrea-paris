@@ -830,3 +830,16 @@ Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/
 - Choix de la créatrice : boutique propre (Supabase) et paiement par Stripe, bascule progressive,
   Shopify actif jusqu’à son feu vert ; pièces sur demande avec quantité limitée possible pièce par
   pièce ; codes privés et prix de vente privée des avant-premières, rien de barré.
+
+## Refonte de l’Atelier : lot 3a, commandes (08/11)
+
+- Liste : recherche par numéro, nom, adresse ou pièce (sans accents ni majuscules), étapes en
+  pastilles avec leur nombre, période (aujourd’hui, 7 jours, 30 jours, 12 mois) ; les retards se
+  calculent sur toutes les commandes, plus seulement les 60 dernières ; sur téléphone, chaque
+  commande devient une carte.
+- Fiche : notes internes (jamais vues par la cliente), historique (commande passée, étapes, notes,
+  actions de l’atelier et des agents), annulation et remboursement après une confirmation qui dit
+  ce qui va se passer, un seul geste à la fois par commande, consigné au journal.
+- Pastille « En retard » de la fiche plus jamais barrée (demande du 01/11).
+- Tests : règles des commandes (unitaires), recherche, étapes, note, historique, remboursement
+  fait une seule fois.
