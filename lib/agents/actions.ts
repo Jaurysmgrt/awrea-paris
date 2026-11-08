@@ -236,7 +236,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       await shopifyUpdateProduct(handle, { descriptionHtml: description ? descriptionHtml(description) : undefined, seo });
     } else {
       const patches = (await kv.get<Record<string, Partial<Product>>>(DEMO_KEYS.patches)) ?? {};
-      const images = alts?.length ? p.images.map((im, i) => ({ ...im, alt: alts.find((a) => a.index === i)?.alt ?? im.alt })) : undefined;
+      const images = alts?.length ? p.images.map(({ cle: _cle, ...im }, i) => ({ ...im, alt: alts.find((a) => a.index === i)?.alt ?? im.alt })) : undefined;
       patches[handle] = { ...(patches[handle] ?? {}), ...(tagline ? { tagline } : {}), ...(description ? { description } : {}), ...(seo ? { seo } : {}), ...(images ? { images } : {}) };
       await kv.set(DEMO_KEYS.patches, patches);
     }

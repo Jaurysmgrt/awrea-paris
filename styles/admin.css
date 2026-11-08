@@ -429,6 +429,30 @@
     border-radius: var(--radius-card);
     background: var(--media-bg);
   }
+  /* photos modifiables : la vignette à gauche, ce qu'elle montre et les gestes à droite */
+  .piece-photos-liste {
+    display: grid;
+    gap: var(--spacing-m);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .piece-photos-liste > li {
+    display: grid;
+    grid-template-columns: calc(var(--spacing-2xl) * 1.5) minmax(0, 1fr);
+    gap: var(--spacing-s);
+    align-items: start;
+    padding-bottom: var(--spacing-m);
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .piece-photos-liste img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: var(--radius-soft);
+    background: var(--media-bg);
+  }
   .piece-infos {
     display: grid;
     gap: var(--spacing-s);

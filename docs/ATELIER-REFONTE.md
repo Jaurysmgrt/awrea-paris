@@ -105,7 +105,7 @@ Playwright, puis demande de fusion.
 
 | Fonction | Nécessaire |
 |---|---|
-| Vraies commandes, produits, codes de réduction | Shopify Admin (`write_products`, `write_publications`, `write_discounts`, `read_orders`, `write_orders`) |
+| Vraies commandes, produits, codes de réduction | Shopify Admin (`write_products`, `write_publications`, `write_files`, `write_discounts`, `read_orders`, `write_orders`) |
 | Fiches clientes avec comptes | Supabase |
 | Assistant qui comprend les phrases libres, rédaction | clé Claude (`ANTHROPIC_API_KEY`), payante à l'usage ; plafond quotidien prévu au lot 4 |
 | E-mails | Resend |

@@ -1,3 +1,4 @@
+import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { adminLogin, ATELIER } from "./admin-auth";
 
@@ -106,6 +107,45 @@ test("aperçu d'un brouillon : la vraie page du site, pour la créatrice seuleme
     expect((await site.goto(`/boutique/${handle}`))?.status()).toBe(404);
   } finally {
     await visiteuse.close();
+    await page.request.post(`${ATELIER}/api/pieces/${handle}/statut`, { data: { statut: "archivee" } });
+  }
+});
+
+test("photos d'une pièce : ajouter, choisir la principale, décrire, retirer", async ({ page }) => {
+  await adminLogin(page);
+  await page.goto(`${ATELIER}/catalogue/robe-odessa`);
+  await page.getByRole("button", { name: "Dupliquer" }).click();
+  await expect(page).toHaveURL(new RegExp(`${ATELIER}/catalogue/robe-odessa-copie(-\\d+)?$`));
+  const handle = page.url().split("/").pop()!;
+  try {
+    const photos = page.locator(".piece-photos-liste > li");
+    const avant = await photos.count();
+    expect(avant).toBeGreaterThan(0);
+    // ajouter : la nouvelle photo arrive en dernier
+    await page.locator(".piece-photos-liste ~ .dropzone input[type=file]").setInputFiles(path.join(__dirname, "fixture-piece.jpg"));
+    await expect(page.getByRole("status").filter({ hasText: "1 photo ajoutée" })).toBeVisible();
+    await expect(photos).toHaveCount(avant + 1);
+    await expect(photos.last().locator("img")).toHaveAttribute("src", /\/api\/media\//);
+    // la principale : la nouvelle passe en premier
+    await photos.last().getByRole("button", { name: "Mettre en premier" }).click();
+    await expect(photos.first().locator("img")).toHaveAttribute("src", /\/api\/media\//);
+    await expect(photos.first()).toContainText("Photo principale");
+    // ce que montre la photo : enregistré, et toujours là après un rechargement
+    const texte = "La robe Odessa portée de face, dentelle noire sur fond clair.";
+    await photos.first().getByLabel("Ce que montre la photo").fill(texte);
+    await photos.first().getByRole("button", { name: "Enregistrer le texte" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "texte de la photo enregistré" })).toBeVisible();
+    await page.reload();
+    await expect(photos.first().getByLabel("Ce que montre la photo")).toHaveValue(texte);
+    // retirer, après confirmation
+    page.once("dialog", (d) => d.accept());
+    await photos.first().getByRole("button", { name: "Retirer" }).click();
+    await expect(photos).toHaveCount(avant);
+    await expect(photos.first().locator("img")).not.toHaveAttribute("src", /\/api\/media\//);
+    // une photo inconnue ou un texte trop court sont refusés
+    const r = await page.request.post(`${ATELIER}/api/pieces/${handle}/photos`, { data: { action: "texte", cle: "inconnue", alt: "ok" } });
+    expect(r.status()).toBe(400);
+  } finally {
     await page.request.post(`${ATELIER}/api/pieces/${handle}/statut`, { data: { statut: "archivee" } });
   }
 });

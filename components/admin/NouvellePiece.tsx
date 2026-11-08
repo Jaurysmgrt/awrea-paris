@@ -10,6 +10,7 @@ import Link from "@/components/ui/Link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useAtelier } from "./AtelierContext";
+import { deposerPhoto } from "./depot-photos";
 import { DEFAULT_LEAD_TIME, LEAD_TIME_BOUNDS } from "@/lib/commerce/availability";
 import type { LeadTime } from "@/lib/commerce/types";
 
@@ -19,19 +20,6 @@ const TAILLES = ["XS", "S", "M", "L", "XL", "TU"] as const;
 const ETAPES = ["Les photos", "La pièce", "Prix et délai", "Vos notes"] as const;
 const PHOTOS_MAX = 8;
 const DELAIS = DEFAULT_LEAD_TIME as Record<string, LeadTime>;
-
-/** Photo réduite dans le navigateur (1 600 px au plus) avant l'envoi. */
-async function reduire(file: File): Promise<{ data: string; width: number; height: number }> {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
-  const width = Math.round(bitmap.width * scale);
-  const height = Math.round(bitmap.height * scale);
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, width, height);
-  return { data: canvas.toDataURL("image/jpeg", 0.85).split(",")[1], width, height };
-}
 
 export function NouvellePiece({ collections }: { collections: { handle: string; title: string }[] }) {
   const atelier = useAtelier();
@@ -69,15 +57,9 @@ export function NouvellePiece({ collections }: { collections: { handle: string; 
     setErreurEtape("");
     let refusees = 0;
     for (const file of Array.from(files).slice(0, PHOTOS_MAX - photos.length)) {
-      try {
-        const { data, width, height } = await reduire(file);
-        const res = await fetch(atelier.api("/media"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: file.name, mediaType: "image/jpeg", data, width, height }) });
-        const j = await res.json();
-        if (res.ok) setPhotos((p) => [...p, { id: j.id, url: j.url, name: file.name }]);
-        else refusees++;
-      } catch {
-        refusees++;
-      }
+      const depot = await deposerPhoto(atelier.api("/media"), file);
+      if (depot) setPhotos((p) => [...p, { ...depot, name: file.name }]);
+      else refusees++;
     }
     setEnvoi(false);
     if (refusees) setErreurEtape(refusees > 1 ? `${refusees} photos n’ont pas pu être préparées. Essayez une autre photo.` : "Une photo n’a pas pu être préparée. Essayez une autre photo.");

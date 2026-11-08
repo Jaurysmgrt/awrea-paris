@@ -13,7 +13,9 @@
 import "server-only";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { kv } from "@/lib/store";
-import { adminEnabled, shopifyAtelierPiece, shopifyAtelierPieces, shopifyDuplicate, shopifySetStatus, shopifyUpdateTexts, type AdminPiece, type AdminPieceResume } from "@/lib/shopify/admin";
+import { adminEnabled, shopifyAddPhotos, shopifyAtelierPiece, shopifyAtelierPieces, shopifyDuplicate, shopifyMainPhoto, shopifyPhotoAlt, shopifyRemovePhoto, shopifySetStatus, shopifyUpdateTexts, type AdminPiece, type AdminPieceResume } from "@/lib/shopify/admin";
+import { identity } from "@/content/brand/identity";
+import type { StoredMedia } from "@/lib/agents/team/catalogue";
 import { paragraphsOf } from "@/lib/shopify/html";
 import { DEFAULT_LEAD_TIME, normalizeLeadTime } from "./availability";
 import { DEMO_KEYS, demoHandlesPris, demoProducts } from "./catalog-demo";
@@ -22,6 +24,9 @@ import { adresseDeCopie, depuisShopify, descriptionHtml, LIBELLE_STATUT, nomDeCo
 import type { Category, Image, LeadTime, Product, Size } from "./types";
 
 export type { StatutPiece };
+
+/** Photo d'une pièce et sa clé : l'identifiant du média dans Shopify, l'adresse de la photo sinon. */
+export type PhotoPiece = Image & { cle: string };
 
 /** Pièce complète, pour sa fiche dans l'Atelier. */
 export interface PieceAtelier {
@@ -38,7 +43,7 @@ export interface PieceAtelier {
   leadTimeProvisional: boolean;
   isNew: boolean;
   sizes: Size[];
-  images: Image[];
+  images: PhotoPiece[];
   description: string[];
   seo: { title: string; description: string };
   statut: StatutPiece;
@@ -88,7 +93,7 @@ function depuisProduit(p: Product, statut: StatutPiece): PieceAtelier {
     leadTimeProvisional: Boolean(p.leadTimeProvisional),
     isNew: Boolean(p.isNew),
     sizes: p.variants.map((v) => v.size),
-    images: p.images,
+    images: p.images.map((im) => ({ ...im, cle: im.src })),
     description: p.description,
     seo: p.seo,
     statut,
@@ -112,7 +117,7 @@ function depuisAdmin(p: AdminPiece): PieceAtelier {
   const category = CATEGORIES[p.productType.toLowerCase()] ?? "robe";
   const prix = p.variants.nodes.map((v) => cents(v.price));
   const provisoire = vrai(p.imagesProvisional);
-  const images = p.media.nodes.flatMap((m) => ("image" in m && m.image ? [{ src: m.image.url, alt: m.alt ?? p.title, width: m.image.width, height: m.image.height, ...(provisoire ? { provisoire: true } : {}) }] : []));
+  const images: PhotoPiece[] = p.media.nodes.flatMap((m) => ("image" in m && m.image && m.id ? [{ cle: m.id, src: m.image.url, alt: m.alt ?? p.title, width: m.image.width, height: m.image.height, ...(provisoire ? { provisoire: true } : {}) }] : []));
   const texte = paragraphsOf(p.descriptionHtml);
   return {
     handle: p.handle,
@@ -267,7 +272,7 @@ export async function dupliquerPiece(handle: string): Promise<{ handle: string; 
   if (adminEnabled) {
     const r = await shopifyDuplicate(handle, title);
     // la copie existe déjà : un titre Google resté à l'ancien nom ne doit pas la faire passer pour un échec
-    await shopifyUpdateTexts(r.handle, { seo: { title: titreGoogle(title), description: p.seo.description } }).catch((e) => console.warn("Copie : titre Google non mis à jour", e));
+    await shopifyUpdateTexts(r.handle, { seo: { title: titreGoogle(title), description: p.seo.description } }).catch((e) => console.warn("Copie : titre Google non mis à jour", e));
     rafraichirCatalogue();
     return { handle: r.handle, title };
   }
@@ -291,4 +296,66 @@ export async function dupliquerPiece(handle: string): Promise<{ handle: string; 
   await kv.set(DEMO_KEYS.extra, [...(extra ?? []), copie]);
   rafraichirCatalogue();
   return { handle: nouvelle, title };
+}
+
+export const PHOTOS_MAX = 12;
+
+export type ChangementPhotos =
+  | { action: "ajouter"; mediaIds: string[] }
+  | { action: "retirer"; cle: string }
+  | { action: "principale"; cle: string }
+  | { action: "texte"; cle: string; alt: string };
+
+/**
+ * Photos d'une pièce : en ajouter (déposées dans l'Atelier), en retirer, choisir la principale (la
+ * première, celle des listes), écrire le texte alternatif lu aux personnes aveugles. Une pièce
+ * garde toujours au moins une photo. Avec Shopify, une photo ajoutée est préparée par Shopify en
+ * quelques secondes : la phrase le dit.
+ */
+export async function changerPhotos(handle: string, c: ChangementPhotos): Promise<{ title: string; summary: string }> {
+  exigerModifiable();
+  const p = await lirePiece(handle);
+  if (!p) throw new CatalogueError("Cette pièce n’existe pas.");
+  const i = c.action === "ajouter" ? -1 : p.images.findIndex((im) => im.cle === c.cle);
+  if (c.action !== "ajouter" && i < 0) throw new CatalogueError("Cette photo n’est plus sur la pièce : rechargez la page.");
+  if (c.action === "retirer" && p.images.length <= 1) throw new CatalogueError("Une pièce garde au moins une photo : ajoutez-en une autre avant de retirer celle-ci.");
+  if (c.action === "ajouter" && p.images.length + c.mediaIds.length > PHOTOS_MAX) throw new CatalogueError(`${PHOTOS_MAX} photos au plus par pièce.`);
+  if (c.action === "principale" && i === 0) return { title: p.title, summary: `${p.title} : c’est déjà la photo principale` };
+
+  let nouvelles: Image[] = [];
+  if (c.action === "ajouter") {
+    const medias = await Promise.all(c.mediaIds.map((id) => kv.get<StoredMedia>(`media:${id}`)));
+    if (medias.some((m) => !m)) throw new CatalogueError("Une photo n’a pas été retrouvée : déposez-la de nouveau.");
+    nouvelles = (medias as StoredMedia[]).map((m, k) => ({ src: `/api/media/${m.id}`, alt: `${p.title}, photographie ${p.images.length + k + 1}`, width: m.width, height: m.height }));
+  }
+
+  if (adminEnabled) {
+    if (c.action === "ajouter") await shopifyAddPhotos(handle, nouvelles.map((n) => ({ url: `${identity.url}${n.src}`, alt: n.alt })));
+    else if (c.action === "retirer") await shopifyRemovePhoto(handle, c.cle);
+    else if (c.action === "principale") await shopifyMainPhoto(handle, c.cle);
+    else await shopifyPhotoAlt(c.cle, c.alt);
+  } else {
+    const images: Image[] = p.images.map(({ cle: _cle, ...im }) => im);
+    const suivantes =
+      c.action === "ajouter"
+        ? [...images, ...nouvelles]
+        : c.action === "retirer"
+          ? images.filter((_, k) => k !== i)
+          : c.action === "principale"
+            ? [images[i], ...images.filter((_, k) => k !== i)]
+            : images.map((im, k) => (k === i ? { ...im, alt: c.alt } : im));
+    const patches = (await kv.get<Record<string, Partial<Product>>>(DEMO_KEYS.patches)) ?? {};
+    await kv.set(DEMO_KEYS.patches, { ...patches, [handle]: { ...(patches[handle] ?? {}), images: suivantes } });
+  }
+  rafraichirCatalogue(handle);
+  const n = c.action === "ajouter" ? c.mediaIds.length : 0;
+  const summary =
+    c.action === "ajouter"
+      ? `${p.title} : ${n} photo${n > 1 ? "s" : ""} ajoutée${n > 1 ? "s" : ""}${adminEnabled ? " ; Shopify les prépare, elles apparaissent dans un instant" : ""}`
+      : c.action === "retirer"
+        ? `${p.title} : photo retirée`
+        : c.action === "principale"
+          ? `${p.title} : nouvelle photo principale`
+          : `${p.title} : texte de la photo enregistré`;
+  return { title: p.title, summary };
 }
