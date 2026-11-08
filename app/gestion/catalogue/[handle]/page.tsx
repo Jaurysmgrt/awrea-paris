@@ -9,7 +9,7 @@ import {
 import { LEAD_TIME_BOUNDS } from "@/lib/commerce/availability";
 import { LIBELLE_STATUT } from "@/lib/commerce/statut-pieces";
 import { imageAt } from "@/lib/media";
-import { atelierHref } from "@/lib/admin/path";
+import { atelierApi, atelierHref } from "@/lib/admin/path";
 import { PieceEditor } from "@/components/admin/PieceEditor";
 import { PieceGestes } from "@/components/admin/PieceGestes";
 import { PieceTextes } from "@/components/admin/PieceTextes";
@@ -81,6 +81,14 @@ export default async function PiecePage({
             <Link href={`/boutique/${p.handle}`} className="text-link">
               Voir la pièce sur le site
             </Link>
+          ) : modifiable ? (
+            <>
+              Vos clientes ne la voient pas.{" "}
+              {/* lien simple, jamais préchargé : il ouvre le mode Édition (lib/commerce/apercu.ts) */}
+              <a href={`${atelierApi("/edition/entrer")}?chemin=${encodeURIComponent(`/boutique/${p.handle}`)}`} className="text-link">
+                Voir l’aperçu sur le site
+              </a>
+            </>
           ) : (
             "Visible sur le site une fois mise en ligne."
           )}

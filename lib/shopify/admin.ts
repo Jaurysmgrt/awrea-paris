@@ -15,6 +15,7 @@
  * une pièce remise en ligne est publiée sur les canaux de vente).
  */
 import { providerOf } from "@/lib/config/providers";
+import { PRODUCT_METAFIELDS, type SProduct } from "./storefront";
 
 const domain = process.env.SHOPIFY_STORE_DOMAIN;
 const staticToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
@@ -448,6 +449,51 @@ export async function shopifyAtelierPieces(): Promise<{ pieces: AdminPieceResume
 export async function shopifyAtelierPiece(handle: string): Promise<AdminPiece | null> {
   const d = await admin<{ productByIdentifier: AdminPiece | null }>(`query P($h: String!) { productByIdentifier(identifier: { handle: $h }) { ${ADMIN_PIECE_FIELDS} } }`, { h: handle });
   return d.productByIdentifier;
+}
+
+type ApercuMedia = {
+  alt: string | null;
+  image?: { url: string; altText: string | null; width: number; height: number } | null;
+  preview?: { image: { url: string } | null } | null;
+  sources?: { url: string; mimeType: string; height: number }[];
+};
+type ApercuProduit = Omit<SProduct, "images" | "media" | "priceRange" | "variants" | "publishedAt"> & {
+  status: string;
+  publishedAt: string | null;
+  priceRangeV2: SProduct["priceRange"];
+  media: { nodes: ApercuMedia[] };
+  variants: { nodes: { id: string; sku: string | null; selectedOptions: { name: string; value: string }[] }[] };
+};
+
+/**
+ * Une pièce, quel que soit son statut, sous la forme que lit le site (lib/shopify/storefront.ts,
+ * mapProduct) : pour l'aperçu d'un brouillon, réservé à la créatrice connectée en mode Édition.
+ * Toutes les tailles sont gardées : une pièce pas encore publiée n'est « en vente » nulle part.
+ */
+export async function shopifyApercuPiece(handle: string): Promise<(SProduct & { status: string }) | null> {
+  const d = await admin<{ productByIdentifier: ApercuProduit | null }>(
+    `query A($h: String!) { productByIdentifier(identifier: { handle: $h }) {
+      id handle title description descriptionHtml productType tags publishedAt status
+      seo { title description }
+      collections(first: 1) { nodes { handle } }
+      priceRangeV2 { minVariantPrice { amount } maxVariantPrice { amount } }
+      media(first: 16) { nodes { alt ... on MediaImage { image { url altText width height } } ... on Video { preview { image { url } } sources { url mimeType height } } } }
+      variants(first: 20) { nodes { id sku selectedOptions { name value } } }
+      ${PRODUCT_METAFIELDS}
+    } }`,
+    { h: handle },
+  );
+  const p = d.productByIdentifier;
+  if (!p) return null;
+  const { priceRangeV2, media, variants, publishedAt, ...reste } = p;
+  return {
+    ...reste,
+    publishedAt: publishedAt ?? "",
+    priceRange: priceRangeV2,
+    images: { nodes: media.nodes.flatMap((m) => (m.image ? [{ ...m.image, altText: m.image.altText ?? m.alt }] : [])) },
+    media: { nodes: media.nodes.map((m) => (m.sources?.length ? { alt: m.alt ?? undefined, previewImage: m.preview?.image ?? undefined, sources: m.sources } : {})) },
+    variants: { nodes: variants.nodes.map((v) => ({ ...v, sku: v.sku ?? "", availableForSale: true })) },
+  };
 }
 
 /** Nom, accroche, description et référencement d'une pièce. */

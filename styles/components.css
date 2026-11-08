@@ -859,6 +859,20 @@
     padding-block: var(--spacing-s);
   }
 
+  /* aperçu d'une pièce en brouillon (créatrice connectée seulement) : la commande est désactivée */
+  .apercu-bandeau {
+    background: var(--bg);
+    color: var(--fg);
+    padding: var(--spacing-xs) var(--spacing-s);
+    margin-bottom: var(--space-block);
+  }
+  .apercu-commande {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-inline-size: 0;
+  }
+
   .breadcrumb {
     display: flex;
     flex-wrap: wrap;
