@@ -132,8 +132,12 @@ async function canSeePrivateSite(request: NextRequest): Promise<boolean> {
   return isAdminToken(request.cookies.get(ADMIN_COOKIE)?.value);
 }
 
-/** Pages de l'Atelier ouvertes sans session : connexion et lien « ce n'était pas moi ». */
-const OPEN_PAGES = ["/connexion", "/revoquer"];
+/**
+ * Pages de l'Atelier ouvertes sans session : connexion, lien « ce n'était pas moi », et les deux
+ * fichiers de l'application privée (manifeste et service worker), que le navigateur lit sans cookie
+ * et qui ne contiennent aucune donnée (lib/admin/application.ts).
+ */
+const OPEN_PAGES = ["/connexion", "/revoquer", "/atelier.webmanifest", "/sw.js"];
 
 async function protectAtelier(request: NextRequest, base: string, nonce: string | null) {
   const target = toInternal(request.nextUrl.pathname, base)!;
