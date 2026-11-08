@@ -54,7 +54,7 @@ export function PieceGestes({
     );
     if (r) {
       setMessage({
-        ok: r.canaux !== false,
+        ok: true,
         texte: String(r.message ?? "C’est fait."),
       });
       router.refresh();

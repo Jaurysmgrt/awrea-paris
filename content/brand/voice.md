@@ -182,6 +182,6 @@ promet rien et on propose de demander à la Maison.
 Rendez-vous : essayage, appel vidéo avec la créatrice ou premier rendez-vous sur mesure, réservés
 sur la page Rendez-vous.
 
-Paiement : par Shopify. Aucune donnée bancaire ne passe par le site.
+Paiement : par Stripe, prestataire de paiement certifié. Aucune donnée bancaire ne passe par le site.
 
 Contact : le formulaire du site, l’adresse awrea.contact@gmail.com et Instagram @awrea.paris.

@@ -1,12 +1,10 @@
 /**
- * Panier côté serveur. Même forme de données pour les deux pilotes.
- *  - démo : l'état du panier tient dans un cookie (lignes, code, carte cadeau, emballage) ;
- *  - Shopify : l'identifiant du panier Shopify est conservé en cookie, tout le reste vit chez Shopify.
+ * Panier côté serveur : son état tient dans un cookie (lignes, code, carte cadeau, emballage), les
+ * prix et les pièces sont toujours relus dans le catalogue de la Maison.
  */
 import { cookies } from "next/headers";
 import { shop } from "@/content/settings";
 import { legalVersions } from "@/content/legal-versions";
-import { GIFT_WRAP_VARIANT, shopifyCartCreate, shopifyCartGet, shopifyCartMutate, shopifyEnabled } from "@/lib/shopify/storefront";
 import { getAllProducts } from "./index";
 import { longestLeadTime, MAX_PER_LINE, overLineLimit } from "./availability";
 import { earliestGiftDate, latestGiftDate } from "./international";
@@ -40,7 +38,6 @@ export type CartAction =
   | { type: "giftCard"; code: string }
   | { type: "gift"; wrap: boolean; message: string; hidePrices?: boolean; deliveryDate?: string | null }
   /** passage au paiement : preuve d'acceptation des CGV, canal d'origine, e-mail de la cliente connectée */
-  | { type: "checkout"; source?: string | null; newsletter?: boolean; email?: string | null }
   | { type: "clear" };
 
 export class CartError extends Error {}
@@ -97,7 +94,6 @@ export function computeDemoCart(state: DemoState, products: Product[]): Cart {
     total: Math.max(0, afterDiscount - giftAmount),
     totalQuantity: lines.reduce((s, l) => s + l.quantity, 0),
     checkoutUrl: "/commande",
-    mode: "demo",
   };
 }
 
@@ -173,9 +169,6 @@ async function demoApply(state: DemoState, action: CartAction): Promise<DemoStat
       if (action.hidePrices !== undefined) s.h = action.hidePrices;
       if (action.deliveryDate !== undefined) s.dd = checkGiftDate(action.deliveryDate, products, s.l);
       break;
-    case "checkout":
-      // démonstration : l'acceptation des CGV est recueillie sur la page de commande
-      break;
     case "clear":
       return emptyState();
   }
@@ -193,93 +186,18 @@ function checkGiftDate(date: string | null, products: Product[], lines: { v: str
   return date;
 }
 
-/* ---------------------------------------------------------------- SHOPIFY */
-
-async function shopifyApply(cartId: string | null, action: CartAction): Promise<Cart> {
-  if (action.type === "add" || action.type === "addMany") {
-    const lines = action.type === "add" ? [{ merchandiseId: action.variantId, quantity: action.quantity ?? 1 }] : action.variantIds.map((id) => ({ merchandiseId: id, quantity: 1 }));
-    // même règle que le mode démonstration : dix pièces identiques au plus par ligne
-    const current = cartId ? await shopifyCartGet(cartId) : null;
-    const inCart = (id: string) => current?.lines.find((x) => x.variantId === id)?.quantity ?? 0;
-    if (overLineLimit(inCart, lines.map((l) => ({ variantId: l.merchandiseId, quantity: l.quantity }))).length) throw tooMany();
-    if (!cartId) return shopifyCartCreate(lines);
-    return shopifyCartMutate("add", cartId, lines);
-  }
-  if (!cartId) return shopifyCartCreate([]);
-  switch (action.type) {
-    case "update":
-      return shopifyCartMutate("update", cartId, [{ id: action.lineId, quantity: action.quantity }]);
-    case "remove":
-      return shopifyCartMutate("remove", cartId, [action.lineId]);
-    case "discount":
-      return shopifyCartMutate("discount", cartId, action.code ? [action.code] : []);
-    case "giftCard":
-      return shopifyCartMutate("giftcard", cartId, action.code ? [action.code] : []);
-    case "gift": {
-      const current = await shopifyCartGet(cartId);
-      const date = action.deliveryDate === undefined ? (current?.gift.deliveryDate ?? null) : action.deliveryDate;
-      const weeks = longestLeadTime((current?.lines ?? []).map((l) => l.leadTime))?.max ?? 0;
-      if (date && (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date < earliestGiftDate(weeks) || date > latestGiftDate())) throw new CartError("Cette date de livraison n’est pas possible.");
-      const cart = await shopifyCartMutate("attributes", cartId, giftAttributes({
-        wrap: action.wrap,
-        message: action.message.slice(0, 300),
-        hidePrices: action.hidePrices ?? current?.gift.hidePrices ?? true,
-        deliveryDate: date,
-      }));
-      if (GIFT_WRAP_VARIANT && action.wrap && !cart.lines.some((l) => l.variantId === GIFT_WRAP_VARIANT)) {
-        return shopifyCartMutate("add", cartId, [{ merchandiseId: GIFT_WRAP_VARIANT, quantity: 1 }]);
-      }
-      return cart;
-    }
-    case "checkout": {
-      const current = await shopifyCartGet(cartId);
-      const attributes = [
-        ...giftAttributes(current?.gift ?? { wrap: false, message: "" }),
-        { key: "_cgv_version", value: legalVersions.cgv },
-        { key: "_cgv_accepted_at", value: new Date().toISOString() },
-        ...(action.source ? [{ key: "_source", value: action.source }] : []),
-        ...(action.newsletter ? [{ key: "_newsletter", value: "1" }] : []),
-      ];
-      let cart = await shopifyCartMutate("attributes", cartId, attributes);
-      if (action.email) cart = await shopifyCartMutate("buyer", cartId, { email: action.email });
-      return cart;
-    }
-    case "clear":
-      return shopifyCartCreate([]);
-  }
-}
-
-/** Options cadeau transmises à la commande Shopify (lisibles par l'atelier dans l'administration). */
-function giftAttributes(g: { wrap: boolean; message: string; hidePrices?: boolean; deliveryDate?: string | null }) {
-  return [
-    { key: "Emballage cadeau", value: g.wrap ? "Oui" : "Non" },
-    { key: "Message cadeau", value: g.message },
-    { key: "Prix masqués", value: g.wrap && g.hidePrices !== false ? "Oui" : "Non" },
-    { key: "Livraison souhaitée le", value: g.deliveryDate ?? "" },
-  ];
-}
-
 /* ------------------------------------------------------------------ API */
 
 export async function readCart(): Promise<Cart> {
   const jar = await cookies();
   const raw = jar.get(CART_COOKIE)?.value;
-  if (shopifyEnabled) {
-    const cart = await shopifyCartGet(raw ?? null).catch(() => null);
-    if (cart) return cart;
-  }
-  return computeDemoCart(parseState(shopifyEnabled ? undefined : raw), await getAllProducts());
+  return computeDemoCart(parseState(raw), await getAllProducts());
 }
 
 export async function applyCartAction(action: CartAction): Promise<Cart> {
   const jar = await cookies();
   const raw = jar.get(CART_COOKIE)?.value;
   const opts = { httpOnly: true, sameSite: "lax" as const, secure: process.env.NODE_ENV === "production", path: "/", maxAge: MAX_AGE };
-  if (shopifyEnabled) {
-    const cart = await shopifyApply(raw ?? null, action);
-    jar.set(CART_COOKIE, cart.id, opts);
-    return cart;
-  }
   const next = await demoApply(parseState(raw), action);
   jar.set(CART_COOKIE, serialize(next), opts);
   return computeDemoCart(next, await getAllProducts());

@@ -4,7 +4,7 @@
  * - photos déposées par l'atelier : /api/media/<id> (une seule taille)
  * - photos de l'éditeur : /media/edition/<id> ou Supabase Storage (…/public/medias/edition/<id>),
  *   déclinées comme les visuels locaux
- * - CDN Shopify : paramètre ?width=
+ * - toute autre adresse complète : servie telle quelle
  */
 export type ImageWidth = 480 | 960 | 1200;
 
@@ -18,7 +18,7 @@ export function isSized(src: string): boolean {
 
 export function imageAt(src: string, width: ImageWidth = 960): string {
   if (!src) return "";
-  if (src.startsWith("http") && !isStoredEdition(src)) return `${src}${src.includes("?") ? "&" : "?"}width=${width}`;
+  if (src.startsWith("http") && !isStoredEdition(src)) return src;
   if (!isSized(src)) return src;
   return width === 1200 ? `${src}.webp` : `${src}-${width}.webp`;
 }

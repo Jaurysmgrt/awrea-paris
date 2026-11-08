@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { isAdmin } from "@/lib/auth/admin";
 import { kv } from "@/lib/store";
-import { commerceMode } from "@/lib/commerce";
+import { boutiqueReelle } from "@/lib/config/boutique";
 import { DEMO_KEYS } from "@/lib/commerce/catalog-demo";
 
 /**
- * Réinitialise les données de démonstration (indisponible quand Shopify est branché) : les surcouches
+ * Réinitialise les données de démonstration (jamais sur la boutique réelle, lib/config/boutique.ts) : les surcouches
  * du catalogue (DEMO_KEYS), les commandes, la mémoire des agents. Les anciennes clés de stock
  * (« demo:stock », « demo:produced »), de liste d'attente (« waitlist ») et de l'ancien agent
  * (« agents:commandes-stock:memory ») sont encore effacées : elles ne servent plus (pièces créées
@@ -22,7 +22,7 @@ const KEYS = [
 
 export async function POST() {
   if (!(await isAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-  if (commerceMode !== "demo") return NextResponse.json({ error: "Réinitialisation impossible avec une vraie boutique." }, { status: 400 });
+  if (boutiqueReelle()) return NextResponse.json({ error: "Réinitialisation impossible sur la boutique réelle." }, { status: 400 });
   for (const k of KEYS) await kv.del(k);
   return NextResponse.json({ ok: true });
 }

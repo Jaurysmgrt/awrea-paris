@@ -5,7 +5,7 @@
  *  - « strict » (par défaut) : chaque page reçoit un nonce unique (proxy.ts) ; seuls les scripts
  *    portant ce nonce s'exécutent, et ceux qu'ils chargent eux-mêmes (« strict-dynamic » : mesure
  *    d'audience, Turnstile…). Aucun « unsafe-inline » pour les scripts. Les pages sont alors
- *    rendues à chaque visite (les données Shopify restent en cache 5 minutes).
+ *    rendues à chaque visite.
  *  - « static » : pages servies depuis le cache du CDN ; les scripts en ligne de Next.js imposent
  *    alors « unsafe-inline » pour les scripts. Plus rapide, un peu moins strict.
  * Dans les deux cas, seuls les domaines réellement utilisés sont autorisés, et le reste est
@@ -50,7 +50,6 @@ function directives(nonce?: string, selfFrame = false): Record<string, string[]>
       "blob:",
       // photos déposées dans l'éditeur visuel (Supabase Storage, dossier « medias »)
       supabase,
-      "https://cdn.shopify.com",
       "https://www.facebook.com",
       "https://www.google-analytics.com",
       "https://www.googletagmanager.com",
@@ -62,7 +61,7 @@ function directives(nonce?: string, selfFrame = false): Record<string, string[]>
       "https://analytics.tiktok.com",
     ],
     "font-src": ["'self'"],
-    "media-src": ["'self'", "blob:", "https://cdn.shopify.com"],
+    "media-src": ["'self'", "blob:"],
     "connect-src": [
       "'self'",
       supabase,

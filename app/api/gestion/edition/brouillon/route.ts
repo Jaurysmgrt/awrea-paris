@@ -12,7 +12,7 @@ import { withProvisional } from "@/lib/edition/provisoires";
 import { setMediaProvisional } from "@/lib/edition/medias";
 
 const Image = z.object({
-  src: z.string().max(400).regex(/^(\/media\/|\/api\/media\/|https:\/\/cdn\.shopify\.com\/|$)/),
+  src: z.string().max(400).regex(/^(\/media\/|\/api\/media\/|$)/),
   alt: z.string().max(180),
   width: z.number().int().positive().max(10000),
   height: z.number().int().positive().max(10000),

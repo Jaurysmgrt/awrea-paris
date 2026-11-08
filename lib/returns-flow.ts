@@ -6,7 +6,7 @@
  */
 import "server-only";
 import { getOrder, setOrderStatus } from "@/lib/commerce/orders";
-import { adminEnabled, shopifyRefundLines } from "@/lib/shopify/admin";
+import { boutiqueReelle, paiementEnLigne } from "@/lib/config/boutique";
 import { issueCreditNote } from "@/lib/invoices";
 import { sousVerrouArgent } from "@/lib/commerce/argent";
 import { invoicePdf } from "@/lib/invoices/pdf";
@@ -119,7 +119,8 @@ async function rembourserRetour(id: string): Promise<{ r: ReturnRequest; amount:
   if (!["recu", "demande"].includes(r.status)) throw new Error("Ce retour n’est plus à rembourser.");
   const items = r.items.filter((i) => i.wish === "remboursement");
   if (!items.length) throw new Error("Aucune pièce à rembourser dans ce retour (échange seulement).");
-  if (adminEnabled) await shopifyRefundLines(order.id, items, `Retour ${r.id}`);
+  // boutique réelle sans paiement en ligne branché : aucun argent ne peut repartir d'ici
+  if (boutiqueReelle() && !paiementEnLigne()) throw new Error("Le paiement en ligne n’est pas encore branché : aucun remboursement ne peut partir de l’Atelier.");
   const note = await issueCreditNote(
     order,
     items.map((i) => ({ title: i.title, detail: `Taille ${i.size} · retour ${r.id}`, quantity: 1, unitTtc: i.unitPrice })),
@@ -128,7 +129,7 @@ async function rembourserRetour(id: string): Promise<{ r: ReturnRequest; amount:
   const amount = note.totals.ttc;
   r.status = "rembourse";
   await saveReturn(r);
-  if (!adminEnabled) {
+  {
     const all = (await returnsOf(order.number)).filter((x) => x.status === "rembourse").flatMap((x) => x.items).length;
     await setOrderStatus(order.id, all >= order.lines.reduce((s, l) => s + l.quantity, 0) ? "refunded" : "returned");
     // pièces créées sur demande : aucune remise en stock

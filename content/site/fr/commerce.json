@@ -121,7 +121,9 @@
         "description": "Finaliser votre commande Awrea Paris."
       },
       "titre": "Commande",
-      "chapeau": "Trois étapes, sans création de compte."
+      "chapeau": "Trois étapes, sans création de compte.",
+      "fermee": "Le paiement en ligne n’est pas encore ouvert. Pour toute question sur une pièce, écrivez à la Maison.",
+      "fermeeLien": "Écrire à la Maison"
     },
     "pieces": "{n} pièces",
     "droitsEtTaxes": "Droits et taxes à l’importation"

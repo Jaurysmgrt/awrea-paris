@@ -9,7 +9,6 @@ import { kv } from "@/lib/store";
 import { sign, verify } from "@/lib/auth/session";
 import { siteUrl } from "@/lib/seo/metadata";
 import { unsubscribeContact } from "@/lib/marketing/provider";
-import { unsubscribeNewsletter } from "@/lib/shopify/admin";
 
 const YEAR = 60 * 60 * 24 * 365;
 
@@ -32,5 +31,5 @@ export async function unsubscribe(email: string): Promise<void> {
   const list = (await kv.get<{ email: string }[]>("newsletter:subscribers")) ?? [];
   await kv.set("newsletter:subscribers", list.filter((s) => s.email.toLowerCase() !== email.toLowerCase()));
   await kv.push("newsletter:desinscriptions", { email, date: new Date().toISOString() }, 2000);
-  await Promise.all([unsubscribeContact(email).catch((e) => console.error("[désinscription] e-mails", e)), unsubscribeNewsletter(email).catch((e) => console.error("[désinscription] Shopify", e))]);
+  await unsubscribeContact(email).catch((e) => console.error("[désinscription] e-mails", e));
 }

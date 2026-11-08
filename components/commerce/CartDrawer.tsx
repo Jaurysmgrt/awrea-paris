@@ -8,9 +8,6 @@ import { useTexts } from "@/components/content/Texts";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { formatPrice } from "@/lib/format";
 import { shop } from "@/content/settings";
-import { TermsCheckbox } from "@/components/account/TermsCheckbox";
-import { readSource } from "@/components/analytics/source";
-import { track } from "@/lib/analytics/track";
 import { earliestGiftDate, latestGiftDate } from "@/lib/commerce/international";
 import { longestLeadTime } from "@/lib/commerce/availability";
 import { delaiText, fill, type CatalogueTexts, type CommerceTexts } from "@/lib/commerce/texts";
@@ -43,7 +40,6 @@ export function CartDrawer() {
     setSyncedMessage(giftMessage);
     setMessage(giftMessage);
   }
-  const [terms, setTerms] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const lineKey = (cart?.lines ?? []).map((l) => l.productHandle).join(",");
 
@@ -293,29 +289,9 @@ export function CartDrawer() {
                   <dd>{formatPrice(cart!.total, locale)}</dd>
                 </div>
               </dl>
-              {cart?.mode === "shopify" ? (
-                <form
-                  className="stack"
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    // preuve d'acceptation des CGV jointe à la commande Shopify, puis paiement Shopify
-                    const ok = await dispatch({ type: "checkout", source: readSource() });
-                    if (ok) {
-                      track({ name: "begin_checkout", value: cart.total, items: cart.totalQuantity });
-                      window.location.href = cart.checkoutUrl;
-                    }
-                  }}
-                >
-                  <TermsCheckbox kind="cgv" checked={terms} onChange={setTerms} newTab />
-                  <button type="submit" className="btn btn--solid btn--block" disabled={busy || !terms}>
-                    {t.commander}
-                  </button>
-                </form>
-              ) : (
-                <Link href={cart?.checkoutUrl ?? "/commande"} className="btn btn--solid btn--block" onClick={close}>
-                  {t.commander}
-                </Link>
-              )}
+              <Link href={cart?.checkoutUrl ?? "/commande"} className="btn btn--solid btn--block" onClick={close}>
+                {t.commander}
+              </Link>
             </footer>
           </>
         )}

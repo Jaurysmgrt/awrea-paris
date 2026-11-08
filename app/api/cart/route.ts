@@ -16,7 +16,6 @@ const Action = z.discriminatedUnion("type", [
   z.object({ type: z.literal("discount"), code: z.string().max(60) }),
   z.object({ type: z.literal("giftCard"), code: z.string().max(60) }),
   z.object({ type: z.literal("gift"), wrap: z.boolean(), message: z.string().max(300), hidePrices: z.boolean().optional(), deliveryDate: z.string().max(10).nullable().optional() }),
-  z.object({ type: z.literal("checkout"), source: z.string().max(40).nullable().optional(), newsletter: z.boolean().optional(), email: z.email().nullable().optional() }),
   z.object({ type: z.literal("clear") }),
 ]);
 
@@ -30,14 +29,10 @@ export async function POST(req: Request) {
   // avant-premières : une pièce pas encore dévoilée ne se commande qu'avec le lien de l'avant-première
   // ou le mot de passe d'une présentation privée
   const action = parsed.data;
-  if (action.type === "add" || action.type === "addMany" || action.type === "checkout") {
-    let handles: string[];
-    if (action.type === "checkout") handles = (await readCart()).lines.map((l) => l.productHandle);
-    else {
-      const ids = action.type === "add" ? [action.variantId] : action.variantIds;
-      const products = await getAllProducts();
-      handles = ids.map((id) => products.find((p) => p.variants.some((v) => v.id === id))?.handle).filter((h): h is string => Boolean(h));
-    }
+  if (action.type === "add" || action.type === "addMany") {
+    const ids = action.type === "add" ? [action.variantId] : action.variantIds;
+    const products = await getAllProducts();
+    const handles = ids.map((id) => products.find((p) => p.variants.some((v) => v.id === id))?.handle).filter((h): h is string => Boolean(h));
     const blocked = await assertCanBuy(handles);
     if (blocked) return NextResponse.json({ error: blocked, cart: await readCart() }, { status: 403 });
   }

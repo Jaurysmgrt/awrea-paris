@@ -5,8 +5,8 @@ import { delaiText, fill, type CatalogueTexts } from "@/lib/commerce/texts";
 
 /**
  * Fabrication de la pièce : créée sur demande après la commande, par des artisans français, rien
- * n'étant fabriqué d'avance, dans un délai annoncé. Quand la Maison les renseigne (métachamp Shopify
- * `awrea.traceability`), les étapes et l'origine des matières s'ajoutent ; une origine encore
+ * n'étant fabriqué d'avance, dans un délai annoncé. Quand la Maison les renseigne (fiche de la
+ * pièce, `traceability`), les étapes et l'origine des matières s'ajoutent ; une origine encore
  * inconnue est dite comme telle, jamais inventée. Le certificat d'authenticité et le lien vers la
  * commande sur demande y sont réunis (retour de la créatrice du 01/11 : la fiche en disait trop
  * avant le bouton).

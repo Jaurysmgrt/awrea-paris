@@ -8,7 +8,7 @@ import { EmailsTabs } from "@/components/admin/EmailsTabs";
 import { LETTRE_DOC } from "@/lib/email/lettre";
 
 const FAMILLES = [
-  { id: "commande", title: "Commandes", intro: "Envoyés par Shopify : modifiés ici, ils s’exportent vers ses notifications." },
+  { id: "commande", title: "Commandes", intro: "Envoyés par le site à chaque étape de la commande." },
   { id: "service", title: "Service", intro: "Envoyés par le site et par les agents, de la commande reçue au rendez-vous." },
   { id: "lettre", title: "Après une inscription", intro: "Les messages qui suivent une inscription à la lettre." },
 ] as const;

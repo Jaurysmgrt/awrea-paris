@@ -25,7 +25,7 @@ export function telephoneValide(v: string): boolean {
 }
 
 /**
- * Numéro au format international E.164 (« +33699557443 »), demandé par Brevo, Klaviyo et Shopify ;
+ * Numéro au format international E.164 (« +33699557443 »), demandé par Brevo et Klaviyo ;
  * un numéro français à dix chiffres (« 06 99 55 74 43 ») prend l'indicatif +33. Null si le numéro
  * ne peut pas être converti sans deviner son pays.
  */

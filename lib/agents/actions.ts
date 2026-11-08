@@ -1,6 +1,6 @@
 /**
- * Exécuteurs des actions des agents. Chaque action a un schéma de paramètres (validé)
- * et une exécution : Shopify Admin quand il est configuré, données de démonstration sinon.
+ * Exécuteurs des actions des agents. Chaque action a un schéma de paramètres (validé) et une
+ * exécution sur les données de la boutique de la Maison (catalogue, commandes, clientes).
  *
  * Modèle « sur demande » : aucune action ne touche à un stock ni à une liste d'attente. Les prix,
  * délais et indicateurs « provisoire » passent par lib/commerce/pieces.ts, comme dans l'Atelier.
@@ -8,8 +8,7 @@
 import * as z from "zod/v4";
 import { revalidatePath } from "next/cache";
 import { kv } from "@/lib/store";
-import { catalogueModifiable, lirePiece, MESSAGE_LECTURE_SEULE } from "@/lib/commerce/atelier-catalogue";
-import { descriptionHtml } from "@/lib/commerce/statut-pieces";
+import { lirePiece } from "@/lib/commerce/atelier-catalogue";
 import { DEMO_KEYS, demoHandlesPris } from "@/lib/commerce/catalog-demo";
 import { getAllProducts, getProduct } from "@/lib/commerce";
 import { getOrder, setOrderStatus } from "@/lib/commerce/orders";
@@ -17,15 +16,7 @@ import { dejaRembourse, marquerRembourse, sousVerrouArgent } from "@/lib/commerc
 import { issueCreditNote } from "@/lib/invoices";
 import { invoicePdf } from "@/lib/invoices/pdf";
 import type { Order, Product } from "@/lib/commerce/types";
-import {
-  adminEnabled,
-  PIECE_METAFIELDS,
-  shopifyCancelOrder,
-  shopifyCreateProduct,
-  shopifyDeleteProduct,
-  shopifyRefundOrder,
-  shopifyUpdateProduct,
-} from "@/lib/shopify/admin";
+import { boutiqueReelle, paiementEnLigne } from "@/lib/config/boutique";
 import { DEFAULT_LEAD_TIME } from "@/lib/commerce/availability";
 import { updatePiece } from "@/lib/commerce/pieces";
 import { updateInbox, listInbox } from "@/lib/inbox";
@@ -159,16 +150,14 @@ export interface ActionResult {
  * fait pas passer le remboursement pour un échec (le résumé le dit).
  */
 async function rembourserCommande(o: Order, motif: string, annuler: boolean): Promise<ActionResult> {
+  // boutique réelle sans paiement en ligne branché : aucun argent ne peut repartir d'ici
+  if (boutiqueReelle() && !paiementEnLigne()) throw new Error(`Le paiement en ligne n’est pas encore branché : aucun remboursement ne peut partir de l’Atelier pour la commande ${o.number}.`);
   if (o.status === "refunded" || (await dejaRembourse(o.id))) throw new Error(`La commande ${o.number} est déjà remboursée : rien n’est reparti.`);
   const montant = await sousVerrouArgent(o.id, async () => {
     if (await dejaRembourse(o.id)) throw new Error(`La commande ${o.number} est déjà remboursée : rien n’est reparti.`);
-    let m = o.total;
-    if (adminEnabled) {
-      if (annuler) await shopifyCancelOrder(o.id, true);
-      else m = await shopifyRefundOrder(o.id, motif);
-    } else await setOrderStatus(o.id, "refunded");
-    await marquerRembourse(o.id, { montant: m, par: motif });
-    return m;
+    await setOrderStatus(o.id, "refunded");
+    await marquerRembourse(o.id, { montant: o.total, par: motif });
+    return o.total;
   });
   let avoir: Awaited<ReturnType<typeof issueCreditNote>> | null = null;
   try {
@@ -207,39 +196,11 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
   async publish_product({ product: d }) {
     const handle = d.handle ? slugify(d.handle) : slugify(d.title);
     // en ligne, en brouillon, archivée ou retirée : une adresse prise ne se réutilise pas
-    if (!catalogueModifiable()) throw new Error(MESSAGE_LECTURE_SEULE);
-    const existing = (await lirePiece(handle)) ?? (!adminEnabled && (await demoHandlesPris()).includes(handle));
+    const existing = (await lirePiece(handle)) ?? (await demoHandlesPris()).includes(handle);
     if (existing) throw new Error(`Une pièce existe déjà sous l’adresse /boutique/${handle}.`);
     const code = d.title.split(" ").pop()!.slice(0, 3).toUpperCase();
     const leadTime = d.lead_time && d.lead_time.min <= d.lead_time.max ? d.lead_time : DEFAULT_LEAD_TIME[d.category];
-    let adresse = handle;
-    if (adminEnabled) {
-      ({ handle: adresse } = await shopifyCreateProduct({
-        handle,
-        title: d.title,
-        descriptionHtml: descriptionHtml(d.description),
-        productType: d.category,
-        tags: d.tags,
-        status: "DRAFT",
-        seo: d.seo,
-        metafields: [
-          { key: "tagline", type: "single_line_text_field", value: d.tagline },
-          { ...PIECE_METAFIELDS.leadTimeMin, value: String(leadTime.min) },
-          { ...PIECE_METAFIELDS.leadTimeMax, value: String(leadTime.max) },
-          { ...PIECE_METAFIELDS.priceProvisional, value: String(d.price_provisional) },
-          { ...PIECE_METAFIELDS.leadTimeProvisional, value: String(d.lead_time_provisional) },
-          { ...PIECE_METAFIELDS.isNew, value: "true" },
-          { key: "materials", type: "json", value: JSON.stringify(d.materials) },
-          { key: "care", type: "list.single_line_text_field", value: JSON.stringify(d.care) },
-          { key: "fit", type: "multi_line_text_field", value: d.fit },
-          { key: "model", type: "single_line_text_field", value: d.model || "La taille portée sur les photos reste à préciser par l’atelier." },
-          { key: "details", type: "list.single_line_text_field", value: JSON.stringify(d.details.length ? d.details : ["Créée sur demande par des artisans français"]) },
-        ],
-        images: d.images.map((i) => ({ url: i.src.startsWith("http") ? i.src : `${identity.url}${i.src}`, alt: i.alt })),
-        sizes: d.sizes.map((size) => ({ size, sku: `AW-${code}-${size}` })),
-        price: d.price,
-      }));
-    } else {
+    {
       const product: Product = {
         id: `agent-${handle}`,
         handle,
@@ -277,18 +238,15 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
     refresh();
     return {
       summary: `Fiche « ${d.title} » créée en brouillon (${formatPrice(d.price)}, créée sur demande en ${leadTime.min} à ${leadTime.max} semaines), à relire avant de la mettre en ligne`,
-      target: { type: "product", id: adresse, label: d.title, href: `atelier:/catalogue/${adresse}` },
+      target: { type: "product", id: handle, label: d.title, href: `atelier:/catalogue/${handle}` },
     };
   },
 
   async update_product_content({ handle, tagline, description, seo, alts }) {
-    if (!catalogueModifiable()) throw new Error(MESSAGE_LECTURE_SEULE);
     // brouillons et archives compris : une fiche se prépare avant d'être mise en ligne
     const p = await lirePiece(handle);
     if (!p) throw new Error(`Pièce ${handle} introuvable`);
-    if (adminEnabled) {
-      await shopifyUpdateProduct(handle, { descriptionHtml: description ? descriptionHtml(description) : undefined, seo });
-    } else {
+    {
       const patches = (await kv.get<Record<string, Partial<Product>>>(DEMO_KEYS.patches)) ?? {};
       const images = alts?.length ? p.images.map(({ cle: _cle, ...im }, i) => ({ ...im, alt: alts.find((a) => a.index === i)?.alt ?? im.alt })) : undefined;
       patches[handle] = { ...(patches[handle] ?? {}), ...(tagline ? { tagline } : {}), ...(description ? { description } : {}), ...(seo ? { seo } : {}), ...(images ? { images } : {}) };
@@ -326,7 +284,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
   async flag_order({ orderId, reason }) {
     const o = await getOrder(orderId);
     if (!o) throw new Error("Commande introuvable");
-    if (!adminEnabled) await setOrderStatus(o.id, "blocked");
+    await setOrderStatus(o.id, "blocked");
     await sendEmail({
       to: atelierEmail(),
       subject: `Commande ${o.number} à vérifier`,
@@ -397,7 +355,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
     return rembourserCommande(o, reason, false);
   },
 
-  // même chemin que l'Atelier (Catalogue) : une pièce Shopify aux prix différents selon la taille garde ses prix
+  // même chemin que l'Atelier (Catalogue)
   async change_price({ handle, price }) {
     const p = await lirePiece(handle);
     if (!p) throw new Error(`Pièce ${handle} introuvable`);
@@ -406,11 +364,9 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
   },
 
   async delete_product({ handle }) {
-    if (!catalogueModifiable()) throw new Error(MESSAGE_LECTURE_SEULE);
     const p = await lirePiece(handle);
     if (!p) throw new Error(`Pièce ${handle} introuvable`);
-    if (adminEnabled) await shopifyDeleteProduct(handle);
-    else {
+    {
       const removed = (await kv.get<string[]>(DEMO_KEYS.removed)) ?? [];
       await kv.set(DEMO_KEYS.removed, [...new Set([...removed, handle])]);
     }
@@ -422,8 +378,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
     const o = await getOrder(orderId);
     if (!o) throw new Error("Commande introuvable");
     if (refund) return rembourserCommande(o, "Commande annulée", true);
-    if (adminEnabled) await shopifyCancelOrder(o.id, false);
-    else await setOrderStatus(o.id, "blocked");
+    await setOrderStatus(o.id, "blocked");
     return { summary: `Commande ${o.number} annulée`, target: { type: "order", id: o.id, label: o.number, href: "atelier:/commandes" } };
   },
 

@@ -3,13 +3,13 @@ import { POLICY } from "@/lib/agents/policy";
 import { AUTONOMIES, LISTE_AUTONOMIES, autonomies } from "@/lib/agents/autonomie";
 import { AutonomieSwitch } from "@/components/admin/AutonomieSwitch";
 import { FaceIdManager } from "@/components/admin/FaceId";
-import { commerceMode, getAllProducts } from "@/lib/commerce";
+import { getAllProducts } from "@/lib/commerce";
 import { DEFAULT_LEAD_TIME } from "@/lib/commerce/availability";
 import { delaiText, type CatalogueTexts } from "@/lib/commerce/texts";
 import type { Category } from "@/lib/commerce/types";
 import { getDoc } from "@/lib/edition/read";
 import { MODEL } from "@/lib/ai/client";
-import { adminEnabled } from "@/lib/shopify/admin";
+import { boutiqueReelle, paiementEnLigne } from "@/lib/config/boutique";
 import { services as providers } from "@/lib/config/providers";
 import { turnstileEnabled } from "@/lib/security/turnstile";
 import { currentAdmin, usingDemoPassword } from "@/lib/auth/admin";
@@ -90,7 +90,7 @@ export default async function ReglagesPage() {
         ? `${s.env}=${s.requested} demandé : manque ${s.missing.join(", ")}`
         : `${s.env} · ${Object.values(s.keys).map((k) => k.join(", ")).join(" ou ")}`,
     })),
-    { name: "Shopify Admin (agents)", ok: adminEnabled, state: adminEnabled ? "Shopify" : "Simulation", hint: "SHOPIFY_CLIENT_ID et SHOPIFY_CLIENT_SECRET (ou SHOPIFY_ADMIN_ACCESS_TOKEN)" },
+    { name: "Paiement en ligne", ok: paiementEnLigne(), state: paiementEnLigne() ? "Branché" : boutiqueReelle() ? "Pas encore branché : la boutique ne prend aucune commande payée" : "Paiement d’essai (démonstration)", hint: "Stripe Checkout, à brancher avec le compte Stripe de la Maison" },
     { name: "Tâches planifiées sécurisées", ok: Boolean(process.env.CRON_SECRET), state: process.env.CRON_SECRET ? "Active" : "À configurer", hint: "CRON_SECRET" },
     { name: "Mot de passe d’installation de l’Atelier", ok: !usingDemoPassword(), state: usingDemoPassword() ? "Démonstration" : "Personnel", hint: "ATELIER_PASSWORD, sert seulement à la première connexion d’un compte" },
   ];
@@ -140,7 +140,7 @@ export default async function ReglagesPage() {
           </tbody>
         </table></div>
         <p className="t-note">
-          Le délai par défaut d’une catégorie sert à une nouvelle pièce tant que le sien n’est pas réglé, et à une pièce de Shopify dont le délai n’est pas renseigné. Ces délais par
+          Le délai par défaut d’une catégorie sert à une nouvelle pièce tant que le sien n’est pas réglé, et à une pièce dont le délai n’est pas renseigné. Ces délais par
           défaut sont provisoires, en attendant leur confirmation par la Maison (ACTIVATION.md).
         </p>
         <h3 className="t-label">À confirmer</h3>
@@ -257,7 +257,7 @@ export default async function ReglagesPage() {
           <ActionButton endpoint={atelierApi("/securite/totp")} label="Réinitialiser la double authentification" variant="quiet" confirm="Réinitialiser la double authentification ? Vous devrez scanner un nouveau QR code à la prochaine connexion." />
         </div>
       </section>
-      {commerceMode === "demo" ? (
+      {!boutiqueReelle() ? (
         <section className="panel" aria-labelledby="reset-title">
           <h2 id="reset-title" className="t-h3">Données de démonstration</h2>
           <p className="t-body">Efface les commandes de test, messages, propositions, journaux, factures, certificats et contenus générés, et rétablit les pièces d’origine (prix, délais de fabrication, indicateurs provisoires). Les numéros de création déjà attribués ne reviennent jamais.</p>

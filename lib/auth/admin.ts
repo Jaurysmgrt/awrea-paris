@@ -8,13 +8,14 @@
  *
  * Mot de passe d'installation (ATELIER_PASSWORD) : il ne sert qu'à la première connexion d'un
  * compte autorisé, pour créer son mot de passe personnel. Sans lui, l'accès de démonstration
- * « atelier-demo » n'est permis qu'en démonstration (aucune boutique Shopify branchée) et jamais sur
- * le site de production.
+ * « atelier-demo » n'est permis qu'en démonstration, jamais sur la boutique réelle
+ * (lib/config/boutique.ts).
  */
 import { timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { kv } from "@/lib/store";
 import { atelierBase, ATELIER_INTERNAL } from "@/lib/admin/path";
+import { boutiqueReelle } from "@/lib/config/boutique";
 import { isAllowed } from "./accounts";
 import { sign, verify } from "./session";
 
@@ -31,7 +32,7 @@ export function adminPassword(): string | null {
   if (process.env.ATELIER_PASSWORD) return process.env.ATELIER_PASSWORD;
   // jamais de mot de passe de démonstration en production : sinon, une inconnue pourrait
   // se connecter la première et enregistrer sa propre double authentification
-  if (!process.env.SHOPIFY_STORE_DOMAIN && process.env.VERCEL_ENV !== "production") return "atelier-demo";
+  if (!boutiqueReelle()) return "atelier-demo";
   return null;
 }
 

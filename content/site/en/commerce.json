@@ -121,7 +121,9 @@
         "description": "Complete your Awrea Paris order."
       },
       "titre": "Checkout",
-      "chapeau": "Three steps, with no account to create."
+      "chapeau": "Three steps, with no account to create.",
+      "fermee": "Online payment is not open yet. For any question about a piece, write to the Maison.",
+      "fermeeLien": "Write to the Maison"
     },
     "pieces": "{n} pieces",
     "droitsEtTaxes": "Import duties and taxes"

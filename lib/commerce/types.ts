@@ -1,5 +1,5 @@
 /**
- * Modèle commerce commun aux pilotes `demo` et `shopify`. Montants en centimes d'euro.
+ * Modèle commerce de la boutique de la Maison. Montants en centimes d'euro.
  *
  * Modèle de la Maison : chaque pièce est créée SUR DEMANDE, sans stock, par des artisans français.
  * Il n'y a donc ni quantité en stock, ni rupture, ni série numérotée : toutes les tailles se
@@ -64,7 +64,7 @@ export interface Product {
   collection: string; // handle de collection
   price: number;
   /**
-   * les tailles n'ont pas toutes le même prix (boutique Shopify) : `price` est le plus bas, et
+   * les tailles n'ont pas toutes le même prix : `price` est le plus bas, et
    * l'Atelier ne remplace pas ces prix par un prix unique
    */
   priceVaries?: boolean;
@@ -163,7 +163,7 @@ export interface Address {
 export interface OrderTaxes {
   vatRate: number;
   vat: number;
-  /** droits et taxes à l'importation (commande Shopify) */
+  /** droits et taxes à l'importation */
   duties?: number;
   export?: { exVat: number; duty: number; dutyRate: number; importVat: number; importVatRate: number };
 }
@@ -181,7 +181,6 @@ export interface Cart {
   total: number;
   totalQuantity: number;
   checkoutUrl: string;
-  mode: "demo" | "shopify";
 }
 
 export interface ProductFilter {

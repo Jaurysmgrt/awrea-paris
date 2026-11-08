@@ -4,7 +4,7 @@
  * informations identiques partout. L'agent SEO y ajoute des notes d'actualité.
  *
  * Modèle de la Maison : création sur demande, sans stock, par des artisans français (document
- * « catalogue ») ; collection en cours et son texte officiel (catalogue Shopify ou démonstration).
+ * « catalogue ») ; collection en cours et son texte officiel (catalogue de la boutique).
  * La description vient de content/brand/identity.ts, alignée sur le modèle de la Maison.
  */
 import { identity } from "@/content/brand/identity";

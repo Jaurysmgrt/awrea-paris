@@ -3,8 +3,8 @@
  * Tunnel de commande court, sans compte obligatoire — MODE TEST.
  * Paiement express en tête, puis trois étapes sur une seule page : coordonnées, livraison, paiement.
  * Suggestions d'adresses, points relais, retrait à l'atelier, droits et taxes calculés à l'avance
- * hors Union européenne. En production (Shopify), le bouton « Commander » du panier mène au
- * paiement Shopify, qui fait tout cela lui-même.
+ * hors Union européenne. Paiement d'essai en démonstration (lib/config/boutique.ts) ; le paiement
+ * réel se fera chez Stripe, jamais sur le site.
  */
 import Link from "@/components/ui/Link";
 import { useRouter } from "next/navigation";
@@ -34,12 +34,12 @@ type Pay = "card" | "apple-pay" | "google-pay" | "paypal";
  */
 const PAY_OPTIONS: Pay[] = ["card", "apple-pay", "google-pay", "paypal"];
 
-/** Paiement express : un geste, l'adresse reprise du portefeuille (en production, chez Shopify). */
+/** Paiement express : un geste, l'adresse reprise du portefeuille. */
 const EXPRESS: Pay[] = ["apple-pay", "google-pay", "paypal"];
 
 /**
  * Mode test uniquement : la carte « refusée » de test (4000 0000 0000 0002) simule un refus.
- * Le numéro reste dans le navigateur ; en production, le paiement se fait chez Shopify.
+ * Le numéro reste dans le navigateur ; le paiement réel se fera chez Stripe, jamais sur le site.
  */
 function testOutcome(cardNumber: string): "accepted" | "declined" | "incomplete" {
   const digits = cardNumber.replace(/\D/g, "");

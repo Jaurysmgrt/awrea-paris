@@ -5,7 +5,7 @@ import { PRIVATE_PAGE, isPreviewKey, isPreviewToken, openWhilePrivate, previewKe
 
 test("site privé : seuls la page d’attente, les webhooks et les tâches planifiées restent ouverts", () => {
   assert.equal(openWhilePrivate(PRIVATE_PAGE), true);
-  assert.equal(openWhilePrivate("/api/webhooks/shopify"), true);
+  assert.equal(openWhilePrivate("/api/webhooks/stripe"), true);
   assert.equal(openWhilePrivate("/api/cron/agents"), true);
   for (const path of ["/", "/boutique/body-aura", "/la-maison", "/api/search", "/api/checkout", "/feeds/google.xml", "/acces-prive-bis", "/compte"]) {
     assert.equal(openWhilePrivate(path), false, path);

@@ -36,22 +36,6 @@ export function previousMonthKey(key: string): string {
  */
 export const isSale = (o: Pick<Order, "status">) => o.status !== "pending" && o.status !== "refunded" && o.status !== "blocked";
 
-/**
- * Les commandes lues couvrent-elles toute la période ? Shopify n'en renvoie qu'un nombre limité, les
- * plus récentes : si la limite est atteinte et que la plus ancienne est plus récente que le début de
- * la période, les chiffres de cette période seraient incomplets (on ne les montre pas).
- */
-export function couvre(orders: Pick<Order, "createdAt">[], since: Date, limit: number): boolean {
-  if (orders.length < limit) return true;
-  return orders.some((o) => new Date(o.createdAt).getTime() <= since.getTime());
-}
-
-/** Début (UTC) du mois précédent de Paris, à un jour près vers le passé : sert à `couvre()`. */
-export function debutMoisPrecedent(now: Date): Date {
-  const [y, m] = previousMonthKey(parisMonthKey(now)).split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, 1) - DAY);
-}
-
 /** « de novembre », « d’avril », « d’Inès » : l'élision devant une voyelle ou un h muet. */
 export function de(mot: string): string {
   return /^[aeiouyhàâäéèêëîïôöûüœ]/i.test(mot.trim()) ? `d’${mot.trim()}` : `de ${mot.trim()}`;

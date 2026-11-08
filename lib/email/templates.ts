@@ -4,8 +4,7 @@
  * sur la bande noire) ; polices officielles, Fraunces italique pour les titres (jamais sous 24 px)
  * et Cormorant Garamond pour le texte (servies par /fonts, repli sur Georgia) ; bouton noir en
  * pilule ; espacements multiples de 8 px. Tableaux et styles en ligne pour la
- * compatibilité des messageries. Les mêmes gabarits servent de modèle aux notifications Shopify
- * (voir docs/shopify-emails.md).
+ * compatibilité des messageries.
  */
 import { identity } from "@/content/brand/identity";
 import { palette, fontStacks } from "@/styles/tokens";

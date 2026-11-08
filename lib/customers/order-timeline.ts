@@ -90,7 +90,7 @@ export function orderTimeline(o: Pick<Order, "status" | "createdAt" | "stages" |
 
 /**
  * Étape suivante d'une commande dans l'Atelier. Aucune tant que le paiement n'est pas confirmé (il
- * vient de Shopify, jamais d'un geste à la main), pour une commande en attente de vérification, ni
+ * vient du paiement de la commande, jamais d'un geste à la main), pour une commande en attente de vérification, ni
  * une fois la commande livrée, retournée ou remboursée.
  */
 export function nextStage(status: OrderStatus): OrderStage | null {

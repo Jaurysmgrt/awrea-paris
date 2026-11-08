@@ -16,7 +16,7 @@ export interface PieceSettings {
 
 /**
  * Réglages réellement différents de ceux de la pièce : rien d'autre n'est écrit. Décocher
- * « provisoire » ne réécrit donc jamais le prix (ni, avec Shopify, les prix de chaque taille).
+ * « provisoire » ne réécrit donc jamais le prix (ni des prix différents selon la taille).
  */
 export function changedSettings(p: Pick<Product, "price" | "priceProvisional" | "leadTime" | "leadTimeProvisional" | "isNew">, s: PieceSettings): PieceSettings {
   return {

@@ -11,7 +11,7 @@ export interface EmailDoc {
   nom: string;
   /** quand il part, en une phrase */
   quand: string;
-  /** e-mail de commande (Shopify), transactionnel du site, ou lettre */
+  /** e-mail de commande, transactionnel du site, ou lettre */
   famille: "commande" | "service" | "lettre";
   sujet: string;
   preheader: string;

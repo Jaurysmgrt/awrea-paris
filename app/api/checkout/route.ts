@@ -1,7 +1,7 @@
 /**
- * Validation de commande — MODE TEST (pilote démo uniquement).
- * En production, le paiement, les taxes, la livraison et la création de commande sont faits
- * par le checkout Shopify ; cette route n'est alors jamais appelée.
+ * Validation de commande de la boutique de la Maison. En démonstration, le paiement est un paiement
+ * d'essai (aucun argent ne bouge) ; sur la boutique réelle, aucune commande n'est prise tant que le
+ * paiement en ligne n'est pas branché (lib/config/boutique.ts).
  * Chaque pièce est créée sur demande : aucune vérification de stock, la commande est « reçue »
  * puis passe en confection ; le délai annoncé est celui de la pièce la plus longue à faire.
  */
@@ -20,10 +20,10 @@ import { sign } from "@/lib/auth/session";
 import { sendOrderStageEmail } from "@/lib/email/commandes";
 import { formatPrice } from "@/lib/format";
 import { onOrderCreated } from "@/lib/agents/events";
-import { shopifyEnabled } from "@/lib/shopify/storefront";
+import { commandesOuvertes } from "@/lib/config/boutique";
 import type { Order } from "@/lib/commerce/types";
 import { legalVersions } from "@/content/legal-versions";
-import { upsertOrder } from "@/lib/customers/shopify-sync";
+import { upsertOrder } from "@/lib/customers/commandes-base";
 import { issueCertificates } from "@/lib/certificates";
 import { onNewsletterSignup } from "@/lib/marketing/flows";
 import { upsertContact } from "@/lib/marketing/provider";
@@ -59,7 +59,7 @@ const Body = z.object({
 const PAYMENT_LABEL = { card: "Carte bancaire", "apple-pay": "Apple Pay", "google-pay": "Google Pay", paypal: "PayPal" } as const;
 
 export async function POST(req: Request) {
-  if (shopifyEnabled) return NextResponse.json({ error: "Le paiement est géré par Shopify." }, { status: 400 });
+  if (!commandesOuvertes()) return NextResponse.json({ error: "Le paiement en ligne n’est pas encore ouvert. Pour toute question sur une pièce, écrivez à la Maison." }, { status: 503 });
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Merci de compléter tous les champs requis et d’accepter les conditions générales de vente." }, { status: 400 });
   const d = parsed.data;
@@ -130,7 +130,7 @@ export async function POST(req: Request) {
   };
   await saveOrder(order);
   // base clientes : commande recopiée et rattachée au compte de même e-mail
-  after(() => upsertOrder({ ...order, shopifyId: `demo-${order.id}`, source: order.source }).catch((e) => console.error("[checkout] base clientes", e)));
+  after(() => upsertOrder({ ...order, source: order.source }).catch((e) => console.error("[checkout] base clientes", e)));
   if (d.newsletter) {
     const list = (await kv.get<{ email: string; date: string; source?: string }[]>("newsletter:subscribers")) ?? [];
     if (!list.some((s) => s.email === d.email)) await kv.set("newsletter:subscribers", [...list, { email: d.email, date: order.createdAt, source: "commande" }]);

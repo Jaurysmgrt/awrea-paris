@@ -96,7 +96,7 @@
     min-width: 0;
   }
 
-  /* menu clair (brief du 07/11, « Shopify simplifié ») : groupes en mots simples, entrées en romain
+  /* menu clair (brief du 07/11) : groupes en mots simples, entrées en romain
      et non en capitales, l'entrée en cours sur un fond teinté et soulignée (le fond seul ne
      contraste pas assez, WCAG 1.4.11), les sous-entrées en retrait dans leur rubrique ; sur
      téléphone, replié derrière « Menu ». Couleurs du thème : le mode Nuit suit. */

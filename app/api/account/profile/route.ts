@@ -2,7 +2,6 @@ import { NextResponse, after } from "next/server";
 import { z } from "zod";
 import { requireCustomer } from "@/lib/auth/require-customer";
 import { acceptTerms, clearBrowsing, updateProfile } from "@/lib/customers";
-import { syncCustomerToShopify } from "@/lib/customers/shopify-sync";
 import { upsertContact } from "@/lib/marketing/provider";
 import { legalVersions } from "@/content/legal-versions";
 
@@ -36,7 +35,6 @@ export async function PATCH(req: Request) {
   // retrait de la personnalisation : les données de navigation sont effacées aussitôt
   if (patch.personalization === false) await clearBrowsing(session);
   after(async () => {
-    await syncCustomerToShopify(profile).catch((e) => console.error("[profil] Shopify", e));
     if (patch.marketingEmail !== undefined || patch.firstName !== undefined || patch.cercleMember !== undefined || patch.birthday !== undefined) {
       await upsertContact({ email: profile.email, firstName: profile.firstName, lastName: profile.lastName, locale: profile.locale, marketing: profile.marketingEmail, cercle: profile.cercleMember, birthday: profile.birthday }).catch((e) =>
         console.error("[profil] e-mails", e),

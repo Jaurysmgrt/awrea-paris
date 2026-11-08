@@ -5,9 +5,7 @@
  * délai. Aucune liste d'attente : toutes les pièces se commandent toujours.
  */
 import Link from "@/components/ui/Link";
-import { getOrdersWithSource, SHOPIFY_ORDERS_LIMIT, statusLabel, trackingUrl } from "@/lib/commerce/orders";
-import { adminEnabled } from "@/lib/shopify/admin";
-import { commerceMode } from "@/lib/commerce";
+import { getOrdersWithSource, statusLabel, trackingUrl } from "@/lib/commerce/orders";
 import { withStages } from "@/lib/store/order-stages";
 import { nextStage, orderTimeline, type OrderTimeline } from "@/lib/customers/order-timeline";
 import { formatDate, formatPrice } from "@/lib/format";
@@ -33,7 +31,6 @@ function NextAction({ order }: { order: Order }) {
   const next = nextStage(order.status);
   if (!next || next === "paid") return null;
   if (next === "shipped" || next === "delivered") {
-    if (commerceMode !== "demo") return <span className="t-note">Dans Shopify</span>;
     if (next === "shipped")
       return (
         <Link href={atelierHref(`/commandes/${encodeURIComponent(order.number)}#etapes`)} className="text-link">
@@ -136,8 +133,7 @@ export default async function CommandesPage({ searchParams }: { searchParams: Pr
             </Link>
           </p>
         ) : null}
-        {adminEnabled && source === "demo" ? <p className="notice t-body">Shopify ne répond pas : ces commandes sont des exemples de démonstration, pas les vôtres. Aucun geste d’argent n’est possible avant son retour.</p> : null}
-        {source === "shopify" && lues.length >= SHOPIFY_ORDERS_LIMIT ? <p className="t-note">Les {SHOPIFY_ORDERS_LIMIT} commandes les plus récentes sont chargées : une commande plus ancienne se retrouve dans Shopify.</p> : null}
+        {source === "demo" ? <p className="t-note">Démonstration : des commandes d’exemple accompagnent celles passées en essai.</p> : null}
         {trouvees.length > AFFICHEES ? <p className="t-note">Les {AFFICHEES} plus récentes sont affichées : affinez la recherche pour trouver les autres.</p> : null}
         {!orders.length ? (
           <p className="t-body">{toutes.length ? "Aucune commande ne correspond. Essayez un autre mot, une autre étape ou une autre période." : "Aucune commande pour l’instant."}</p>

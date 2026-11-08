@@ -2,8 +2,7 @@
  * Gestes d'argent sur une commande (remboursement, annulation remboursée, remboursement d'un retour),
  * quel que soit le chemin : fiche de la commande dans l'Atelier, proposition d'un agent validée par
  * la créatrice, remboursement d'un retour. Un seul geste à la fois par commande (verrou partagé),
- * et une commande déjà remboursée en entier ne l'est jamais une seconde fois (marque gardée, qui ne
- * dépend pas de la fraîcheur des données de Shopify).
+ * et une commande déjà remboursée en entier ne l'est jamais une seconde fois (marque gardée).
  *
  * Ces fonctions ne sont appelées que par les exécuteurs (lib/agents/actions.ts, après validation)
  * et par les gestes de la créatrice : jamais directement par l'assistant ni par un agent.

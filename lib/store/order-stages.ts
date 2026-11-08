@@ -19,8 +19,8 @@ export const ORDER_STAGES_KEY = "orders:stages";
 
 type StageMap = Record<string, OrderStageDates>;
 
-/** Identifiant de la commande dans la base clientes (copie des commandes Shopify et du site). */
-export const orderRowKey = (o: Pick<Order, "id">) => (o.id.startsWith("gid://") ? o.id : `demo-${o.id}`);
+/** Référence de la commande dans la base clientes (colonne `reference`) : son identifiant. */
+export const orderRowKey = (o: Pick<Order, "id">) => o.id;
 
 /**
  * Consigne le passage d'une commande à une étape (la première date est gardée si l'étape est
@@ -33,7 +33,7 @@ export async function recordOrderStage(order: Pick<Order, "id">, stage: OrderSta
   if (isSupabaseConfigured) {
     const patch: Record<string, unknown> = { status: stage };
     if (stage === "delivered") patch.delivered_at = at;
-    const { error } = await supabaseAdmin().from("orders").update(patch).eq("shopify_order_id", orderRowKey(order));
+    const { error } = await supabaseAdmin().from("orders").update(patch).eq("reference", orderRowKey(order));
     if (error) console.error("[étapes] base clientes", error.message);
   }
   return dates;

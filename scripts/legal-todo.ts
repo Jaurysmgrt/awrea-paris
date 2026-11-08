@@ -42,7 +42,7 @@ const HAND_DEFAULT = [
   "- [ ] Faire relire l’ensemble des pages légales (CGV, CGU, confidentialité, cookies, mentions légales, propriété intellectuelle, notice de l’assistante IA) par une ou un juriste.",
   "- [ ] Mettre à jour les CGV et les mentions légales officielles, puis les reporter mot pour mot dans l’éditeur « Édition » (documents « Conditions générales de vente » et « Mentions légales »).",
   "- [ ] Signer la convention avec un médiateur de la consommation et renseigner le champ `mediateur`.",
-  "- [ ] Vérifier dans Shopify : politiques (CGV, confidentialité, retours) liées au checkout, moyens de paiement activés (article 4 des CGV), zones de livraison (article 5).",
+  "- [ ] Vérifier dans le compte Stripe de la Maison les moyens de paiement activés (article 4 des CGV), et dans l’Atelier les zones de livraison (article 5).",
   "- [ ] Tenir le registre des traitements (RGPD, article 30) : la page Confidentialité en fournit la base.",
   "- [ ] Conserver les contrats de cession de droits (photographes, vidéastes) et les autorisations de droit à l’image des mannequins.",
   "",

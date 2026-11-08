@@ -9,8 +9,8 @@
  * Textes : document « site » (content/site/fr/site.json, partie « lettre »), transmis à tout le
  * site par le TextsRoot de app/layout.tsx. Erreurs écrites sous chaque champ (aria-invalid,
  * aria-describedby), focus sur le premier champ à corriger. Le serveur (app/api/newsletter) revérifie
- * tout : contrôle d'origine, limitation de débit, Turnstile, schéma Zod, consentement confirmé
- * côté Shopify.
+ * tout : contrôle d'origine, limitation de débit, Turnstile, schéma Zod, consentement gardé avec
+ * l'inscription.
  */
 import { useId, useRef, useState } from "react";
 import Link from "@/components/ui/Link";
