@@ -18,7 +18,7 @@ export default async function CataloguePage() {
   return (
     <div className="admin-page stack-l">
       <header className="admin-page__head">
-        <h1 className="t-h1">Catalogue</h1>
+        <h1 className="t-h1">Produits</h1>
         <p className="t-lead">Prix et délais de chaque pièce. Pour une nouvelle pièce : des photos et quelques notes.</p>
       </header>
 
@@ -75,7 +75,7 @@ export default async function CataloguePage() {
         <p className="t-note">Vos changements s’affichent aussitôt sur le site. Un changement de prix ou une suppression demandés par un agent attendent votre accord dans « À valider ».</p>
       </section>
 
-      <section className="panel" aria-labelledby="new-title">
+      <section className="panel" id="nouvelle-piece" aria-labelledby="new-title">
         <h2 id="new-title" className="t-h3">Nouvelle pièce</h2>
         <CatalogueForm collections={collections.map((c) => ({ handle: c.handle, title: c.title }))} />
       </section>

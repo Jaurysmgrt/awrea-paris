@@ -122,7 +122,7 @@ export default async function ReglagesPage() {
         <h2 id="delais-title" className="t-h3">Délais de fabrication</h2>
         <p className="t-body">
           Chaque pièce est créée sur demande, sans stock, par des artisans français. Son délai de fabrication s’affiche sur sa fiche, dans le panier, au paiement et dans le suivi de la
-          commande. Il se règle pièce par pièce dans le Catalogue.
+          commande. Il se règle pièce par pièce dans Produits.
         </p>
         <div className="table-scroll"><table className="table">
           <thead><tr><th scope="col">Catégorie</th><th scope="col">Délai par défaut</th><th scope="col">Pièces</th></tr></thead>
@@ -157,7 +157,7 @@ export default async function ReglagesPage() {
         )}
         <div>
           <Link href={atelierHref("/catalogue")} className="btn btn--outline">
-            Confirmer dans le Catalogue
+            Confirmer dans Produits
           </Link>
         </div>
       </section>

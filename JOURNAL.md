@@ -754,3 +754,21 @@ Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/
 - Tests : origine étrangère refusée avec la session (échoue sur l’ancien code), décision unique
   (le stockage local des tests ne reproduit pas la course, qui n’existe qu’avec Upstash).
 
+## Refonte de l’Atelier : lot 1, menu clair et Vue d’ensemble (07/11)
+
+- Menu en six rubriques (Ma boutique, Mon site, Mon activité, Intelligence artificielle,
+  Paramètres), barre latérale ivoire, sous-entrées visibles dans leur rubrique seulement, ce qui
+  attend remonte sur la rubrique repliée ; chaque entrée porte le titre de sa page (Produits,
+  Agents, Référencement) ; l’entrée en cours est aussi soulignée (contraste).
+- Vue d’ensemble, le centre de pilotage : priorités dans l’ordre où agir (commandes en attente,
+  retards, rendez-vous du jour, clientes qui attendent une réponse, confections, envois, retours,
+  propositions, avis, catalogue), « Que souhaitez-vous faire ? », ventes du mois comparées à date
+  égale, commandes à traiter, confections, nouvelles clientes, dernières commandes, rendez-vous,
+  pièces les plus vendues, activité récente.
+- Aucun chiffre inventé (`lib/admin/dashboard.ts`, fonctions pures testées) : les commandes disent
+  d’où elles viennent et la page prévient quand ce sont des exemples ; une période que les
+  commandes de Shopify ne couvrent pas n’est pas chiffrée ; « Indisponible » plutôt que 0.
+- Relecture indépendante : onze remarques, toutes traitées.
+- Tests : 10 tests unitaires du pilotage, 3 parcours (Vue d’ensemble, menu, téléphone), suite
+  complète verte (464).
+

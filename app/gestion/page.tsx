@@ -1,186 +1,374 @@
 import Link from "@/components/ui/Link";
 import { getProposals } from "@/lib/agents/perform";
 import { confectionAlerts } from "@/lib/agents/confection";
-import { getAllProducts } from "@/lib/commerce";
-import { getOrders } from "@/lib/commerce/orders";
+import { getLog } from "@/lib/agents/log";
+import { commerceMode, getAllProducts } from "@/lib/commerce";
+import { getOrdersWithSource, SHOPIFY_ORDERS_LIMIT, statusLabel } from "@/lib/commerce/orders";
 import { withStages } from "@/lib/store/order-stages";
 import { listInbox } from "@/lib/inbox";
 import { listReturns } from "@/lib/returns";
+import { listReviews } from "@/lib/reviews";
+import { listCustomerStats } from "@/lib/customers";
 import { upcomingAppointments } from "@/lib/appointments-notify";
-import { parisDay } from "@/lib/appointments";
+import { APPOINTMENT_TYPES, parisDay } from "@/lib/appointments";
 import { formatPrice } from "@/lib/format";
-import { imageAt } from "@/lib/media";
-import { ProposalCard } from "@/components/admin/ProposalCard";
+import {
+  activiteRecente,
+  compte,
+  couvre,
+  de,
+  debutMoisPrecedent,
+  evolution,
+  lienAction,
+  latestOrders,
+  monthRevenue,
+  newCustomers,
+  ordersToHandle,
+  parisMonthKey,
+  prenom,
+  previousMonthKey,
+  priorites,
+  topSold,
+} from "@/lib/admin/dashboard";
 import { atelierHref } from "@/lib/admin/path";
 
-/** « 1 message », « 3 messages ». */
-const compte = (n: number, un: string, plusieurs: string) => `${n} ${n > 1 ? plusieurs : un}`;
+const quand = (iso: string) =>
+  new Intl.DateTimeFormat("fr-FR", {
+    day: "numeric",
+    month: "long",
+    timeZone: "Europe/Paris",
+  }).format(new Date(iso));
+const heure = (iso: string) =>
+  new Intl.DateTimeFormat("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Paris",
+  }).format(new Date(iso));
+const mois = (d: Date) =>
+  new Intl.DateTimeFormat("fr-FR", {
+    month: "long",
+    timeZone: "Europe/Paris",
+  }).format(d);
+const lien = (href: string) => lienAction(href, atelierHref);
+
+/** Raccourcis de « Que souhaitez-vous faire ? » : une entrée n'apparaît que le jour où sa page existe. */
+const RACCOURCIS: { href: string; label: string; site?: boolean }[] = [
+  { href: "/catalogue#nouvelle-piece", label: "Ajouter un produit" },
+  { href: "/commandes", label: "Voir les commandes" },
+  { href: "/pages", label: "Modifier mon site" },
+  { href: "/pages/photos", label: "Changer une photo" },
+  { href: "/e-mails", label: "Écrire une lettre" },
+  { href: "/", label: "Voir le site", site: true },
+];
 
 /**
- * Accueil de l'Atelier (retour de la créatrice du 01/11 : trop austère, trop technique, on s'y
- * perd) : ce qui l'attend aujourd'hui, en mots simples et dans l'ordre où le faire, quelques
- * chiffres, ses pièces en photo et les gestes les plus courants. Les agents, la maintenance et le
- * journal sont dans les coulisses (Équipe).
+ * Vue d'ensemble de l'Atelier, le centre de pilotage (brief de la créatrice du 03/11 et du 07/11) :
+ * en ouvrant l'Atelier le matin, ce qui attend dans l'ordre où le faire, les gestes courants, quatre
+ * chiffres, puis les dernières commandes, les prochains rendez-vous, les pièces qui se vendent et
+ * l'activité récente. Rien n'est inventé : chaque chiffre vient des commandes, des clientes et des
+ * messages réels (calculs dans lib/admin/dashboard.ts) ; en mode essai, la page le dit.
  */
 export default async function GestionHome() {
-  const [proposals, orders, inbox, products, rdv, returns] = await Promise.all([
+  const [
+    proposals,
+    { orders, source },
+    inbox,
+    products,
+    rdv,
+    returns,
+    reviews,
+    customers,
+    log,
+  ] = await Promise.all([
     getProposals(),
-    getOrders().then(withStages),
+    getOrdersWithSource().then(async (r) => ({ ...r, orders: await withStages(r.orders) })),
     listInbox(500),
     getAllProducts().catch(() => []),
     upcomingAppointments(),
     listReturns(),
+    listReviews("pending").catch(() => []),
+    // base clientes injoignable : le chiffre est dit indisponible, jamais « 0 »
+    listCustomerStats().catch(() => null),
+    getLog(60),
   ]);
   // composant serveur dynamique : rendu une seule fois par requête, l'heure courante est voulue
   // eslint-disable-next-line react-hooks/purity
-  const now = Date.now();
-  const since = now - 7 * 24 * 60 * 60 * 1000;
-  const week = orders.filter((o) => new Date(o.createdAt).getTime() >= since && !["refunded", "pending"].includes(o.status));
-  const revenue = week.reduce((s, o) => s + o.total, 0);
-  const pending = proposals.filter((p) => p.status === "pending");
-  const toAnswer = inbox.filter((m) => ["new", "drafted", "escalated"].includes(m.status));
-  // chaque pièce est créée sur demande : on suit les confections, jamais un stock
-  const received = orders.filter((o) => o.status === "paid");
-  const making = orders.filter((o) => o.status === "paid" || o.status === "in_production");
-  const late = confectionAlerts(making, products).filter((a) => a.kind === "en-retard").length;
-  const today = parisDay(new Date(now)).day;
-  const rdvToday = rdv.filter((a) => parisDay(new Date(a.start)).day === today);
-  const returnsToHandle = returns.filter((r) => r.status === "demande" || r.status === "recu");
-  const greeting = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Paris" }).format(new Date(now));
-
-  // dans l'ordre où les faire : ce qui est en retard, puis les clientes, puis le reste
-  const todo: { href: string; titre: string; detail: string }[] = [];
-  if (late) todo.push({ href: "/commandes", titre: `${compte(late, "commande", "commandes")} en retard sur le délai annoncé`, detail: "À faire avancer en priorité, ou à expliquer à la cliente." });
-  if (rdvToday.length) todo.push({ href: "/rendez-vous", titre: `${compte(rdvToday.length, "rendez-vous", "rendez-vous")} aujourd’hui`, detail: "Le lien de l’appel vidéo est dans la rubrique Rendez-vous." });
-  if (toAnswer.length) todo.push({ href: "/messages", titre: `${compte(toAnswer.length, "message", "messages")} à lire`, detail: "Une réponse est souvent déjà préparée : relisez-la, puis envoyez." });
-  if (received.length) todo.push({ href: "/commandes", titre: `${compte(received.length, "commande reçue", "commandes reçues")} à mettre en confection`, detail: "Un geste fait avancer la commande, et la cliente reçoit l’e-mail de l’étape." });
-  if (returnsToHandle.length) todo.push({ href: "/retours", titre: `${compte(returnsToHandle.length, "retour", "retours")} à traiter`, detail: "Demandes de retour et colis arrivés à l’atelier." });
-  if (pending.length) todo.push({ href: "/validations", titre: `${compte(pending.length, "proposition", "propositions")} à valider`, detail: "Rien ne part sans votre accord : prix, délais, messages délicats." });
+  const now = new Date(Date.now());
+  const revenue = monthRevenue(orders, now);
+  const change = evolution(revenue.amount, revenue.previousAmount);
+  const { received, ready } = ordersToHandle(orders);
+  const making = orders.filter(
+    (o) => o.status === "paid" || o.status === "in_production",
+  );
+  const late = confectionAlerts(making, products, now).filter(
+    (a) => a.kind === "en-retard",
+  ).length;
+  const toAnswer = inbox.filter((m) =>
+    ["new", "drafted", "escalated"].includes(m.status),
+  );
+  const today = parisDay(now).day;
+  const nouvelles = customers ? newCustomers(customers, now) : null;
+  // Shopify ne renvoie que ses dernières commandes : une période qu'elles ne couvrent pas n'est pas chiffrée
+  const comparable = couvre(orders, debutMoisPrecedent(now), SHOPIFY_ORDERS_LIMIT);
+  const troisMois = couvre(orders, new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000), SHOPIFY_ORDERS_LIMIT);
+  const ventes = topSold(orders, now);
+  const todo = priorites({
+    blocked: orders.filter((o) => o.status === "blocked").length,
+    late,
+    rdvToday: rdv.filter((a) => parisDay(new Date(a.start)).day === today)
+      .length,
+    messages: toAnswer.length,
+    received: received.length,
+    ready: ready.length,
+    returns: returns.filter(
+      (r) => r.status === "demande" || r.status === "recu",
+    ).length,
+    proposals: proposals.filter((p) => p.status === "pending").length,
+    reviews: reviews.length,
+    unsellable: products.filter((p) => !p.variants.length).map((p) => p.title),
+    provisional: products
+      .filter((p) => p.priceProvisional || p.leadTimeProvisional)
+      .map((p) => p.title),
+  });
+  const activite = activiteRecente({ messages: inbox, actions: log });
+  const greeting = new Intl.DateTimeFormat("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "Europe/Paris",
+  }).format(now);
+  const [py, pm] = previousMonthKey(parisMonthKey(now)).split("-").map(Number);
+  const previousMonth = new Date(Date.UTC(py, pm - 1, 15));
 
   return (
-    <div className="admin-page stack-l">
+    <div className="admin-page stack-l pilotage">
       <header className="admin-page__head admin-page__head--accueil">
         <p className="eyebrow">{greeting}</p>
         <h1 className="t-h1">Bonjour.</h1>
-        <p className="t-lead">{todo.length ? "Voici ce qui vous attend aujourd’hui, dans l’ordre." : "Rien ne presse aujourd’hui : tout est à jour."}</p>
+        <p className="t-lead">
+          {todo.length
+            ? `${compte(todo.length, "chose vous attend", "choses vous attendent")} aujourd’hui, dans l’ordre où les faire.`
+            : "Rien ne presse aujourd’hui : tout est à jour."}
+        </p>
+        {source === "demo" ? (
+          <p className="t-note">
+            {commerceMode === "shopify"
+              ? "Shopify ne répond pas pour le moment : les commandes et les chiffres ci-dessous sont des exemples, pas vos ventes."
+              : "Boutique en mode essai : les commandes et les chiffres ci-dessous sont des exemples, tant que Shopify n’est pas relié."}
+          </p>
+        ) : null}
       </header>
 
-      {todo.length ? (
+      <div className="pilotage__haut">
         <section className="panel" aria-labelledby="todo-title">
           <h2 id="todo-title" className="t-h3">
-            À faire
+            À faire en priorité
           </h2>
-          <ol className="a-faire">
-            {todo.map((t) => (
-              <li key={t.titre}>
-                <Link href={atelierHref(t.href)} className="a-faire__item">
-                  <span className="a-faire__titre">{t.titre}</span>
-                  <span className="t-note">{t.detail}</span>
+          {todo.length ? (
+            <ol className="a-faire">
+              {todo.map((t) => (
+                <li key={t.titre}>
+                  <Link href={atelierHref(t.href)} className="a-faire__item">
+                    <span className="a-faire__titre">{t.titre}</span>
+                    <span className="t-note">{t.detail}</span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="t-note">
+              Aucune commande, aucun message ni aucune validation n’attend.
+              Profitez-en pour préparer la suite.
+            </p>
+          )}
+        </section>
+
+        <nav className="panel" aria-labelledby="raccourcis-title">
+          <h2 id="raccourcis-title" className="t-h3">
+            Que souhaitez-vous faire ?
+          </h2>
+          <ul className="raccourcis">
+            {RACCOURCIS.map((r) => (
+              <li key={r.href}>
+                <Link
+                  href={r.site ? r.href : atelierHref(r.href)}
+                  className="raccourcis__lien"
+                >
+                  {r.label}
                 </Link>
               </li>
             ))}
-          </ol>
-        </section>
-      ) : null}
+          </ul>
+        </nav>
+      </div>
 
       <dl className="kpis">
         <div>
-          <dt className="t-label">Ventes · 7 jours</dt>
-          <dd className="kpis__value">{formatPrice(revenue)}</dd>
-          <dd className="t-note">{compte(week.length, "commande", "commandes")}</dd>
+          <dt className="t-label">Ventes {de(mois(now))}</dt>
+          <dd className="kpis__value">{formatPrice(revenue.amount)}</dd>
+          <dd className="t-note">
+            {compte(revenue.count, "commande", "commandes")}
+            {change === null || !comparable
+              ? ""
+              : `, ${change >= 0 ? "+" : "−"}${Math.abs(change)} % par rapport à ${mois(previousMonth)} à la même date`}
+          </dd>
+        </div>
+        <div>
+          <dt className="t-label">Commandes à traiter</dt>
+          <dd className="kpis__value">{received.length + ready.length}</dd>
+          <dd className="t-note">
+            <Link href={atelierHref("/commandes")} className="text-link">
+              {received.length || ready.length
+                ? `${received.length} à mettre en confection, ${ready.length} à expédier`
+                : "Toutes avancent"}
+            </Link>
+          </dd>
         </div>
         <div>
           <dt className="t-label">En confection</dt>
           <dd className="kpis__value">{making.length}</dd>
           <dd className="t-note">
-            <Link href={atelierHref("/commandes")} className="text-link">
-              {late ? `Dont ${late} en retard` : "Toutes dans les délais"}
-            </Link>
+            {late ? `Dont ${late} en retard` : "Toutes dans les délais"}
           </dd>
         </div>
         <div>
-          <dt className="t-label">Rendez-vous à venir</dt>
-          <dd className="kpis__value">{rdv.length}</dd>
+          <dt className="t-label">Nouvelles clientes</dt>
+          <dd className={nouvelles ? "kpis__value" : "kpis__value kpis__value--small"}>{nouvelles ? nouvelles.length : "Indisponible"}</dd>
           <dd className="t-note">
-            <Link href={atelierHref("/rendez-vous")} className="text-link">
-              Voir l’agenda
-            </Link>
-          </dd>
-        </div>
-        <div>
-          <dt className="t-label">Messages à lire</dt>
-          <dd className="kpis__value">{toAnswer.length}</dd>
-          <dd className="t-note">
-            <Link href={atelierHref("/messages")} className="text-link">
-              Ouvrir la boîte
+            <Link href={atelierHref("/clientes")} className="text-link">
+              Ces 30 derniers jours
             </Link>
           </dd>
         </div>
       </dl>
 
-      <section className="panel" aria-labelledby="gestes-title">
-        <h2 id="gestes-title" className="t-h3">
-          Gestes courants
-        </h2>
-        <div className="gestes">
-          <Link href={atelierHref("/pages")} className="btn">
-            Modifier le site
-          </Link>
-          <Link href={atelierHref("/catalogue")} className="btn btn--outline">
-            Ajouter une pièce
-          </Link>
-          <Link href={atelierHref("/pages/photos")} className="btn btn--outline">
-            Changer une photo
-          </Link>
-          <Link href="/" className="btn btn--outline">
-            Voir le site
-          </Link>
+      <div className="pilotage__bas">
+        <div className="stack-l">
+          <section className="panel" aria-labelledby="dernieres-title">
+            <div className="panel__head">
+              <h2 id="dernieres-title" className="t-h3">
+                Dernières commandes
+              </h2>
+              <Link href={atelierHref("/commandes")} className="link">
+                Toutes les commandes
+              </Link>
+            </div>
+            {orders.length ? (
+              <ul className="liste-simple">
+                {latestOrders(orders).map((o) => (
+                  <li key={o.id}>
+                    <Link
+                      href={atelierHref(
+                        `/commandes/${encodeURIComponent(o.number)}`,
+                      )}
+                      className="liste-simple__ligne"
+                    >
+                      <span className="liste-simple__titre">
+                        {o.number} · {prenom(o.name)}
+                      </span>
+                      <span className="t-note">
+                        {quand(o.createdAt)} · {statusLabel[o.status]}
+                      </span>
+                      <span className="liste-simple__montant">
+                        {formatPrice(o.total)}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="t-note">
+                Aucune commande pour l’instant. Elles apparaîtront ici dès la
+                première.
+              </p>
+            )}
+          </section>
+          <section className="panel" aria-labelledby="activite-title">
+            <h2 id="activite-title" className="t-h3">
+              Activité récente
+            </h2>
+            {activite.length ? (
+              <ul className="liste-simple">
+                {activite.map((a) => (
+                  <li key={`${a.date}-${a.texte}`}>
+                    {a.href ? (
+                      <Link href={lien(a.href)} className="liste-simple__ligne">
+                        <span className="liste-simple__titre">{a.texte}</span>
+                        <span className="t-note">{quand(a.date)}</span>
+                      </Link>
+                    ) : (
+                      <div className="liste-simple__ligne">
+                        <span className="liste-simple__titre">{a.texte}</span>
+                        <span className="t-note">{quand(a.date)}</span>
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="t-note">Rien de nouveau pour l’instant.</p>
+            )}
+          </section>
         </div>
-      </section>
 
-      {products.length ? (
-        <section className="panel" aria-labelledby="pieces-title">
-          <div className="panel__head">
-            <h2 id="pieces-title" className="t-h3">
-              Vos pièces
-            </h2>
-            <Link href={atelierHref("/catalogue")} className="link">
-              Prix et délais
-            </Link>
-          </div>
-          <ul className="pieces">
-            {products.map((p) => (
-              <li key={p.handle}>
-                <Link href={`/boutique/${p.handle}`} className="pieces__item">
-                  {p.images[0] ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={imageAt(p.images[0].src, 480)} alt="" width={240} height={320} loading="lazy" className="pieces__photo" />
-                  ) : null}
-                  <span className="pieces__nom">{p.title}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+        <div className="stack-l">
+          <section className="panel" aria-labelledby="rdv-title">
+            <div className="panel__head">
+              <h2 id="rdv-title" className="t-h3">
+                Prochains rendez-vous
+              </h2>
+              <Link href={atelierHref("/rendez-vous")} className="link">
+                Agenda
+              </Link>
+            </div>
+            {rdv.length ? (
+              <ul className="liste-simple">
+                {[...rdv]
+                  .sort((a, b) => a.start.localeCompare(b.start))
+                  .slice(0, 3)
+                  .map((a) => (
+                    <li key={a.id} className="liste-simple__ligne">
+                      <span className="liste-simple__titre">
+                        {prenom(a.name)}
+                      </span>
+                      <span className="t-note">
+                        {APPOINTMENT_TYPES[a.type].label}, {heure(a.start)}
+                      </span>
+                    </li>
+                  ))}
+              </ul>
+            ) : (
+              <p className="t-note">Aucun rendez-vous à venir.</p>
+            )}
+          </section>
 
-      {pending.length ? (
-        <section className="panel" aria-labelledby="valider-title">
-          <div className="panel__head">
-            <h2 id="valider-title" className="t-h3">
-              À valider
+          <section className="panel" aria-labelledby="ventes-title">
+            <h2 id="ventes-title" className="t-h3">
+              Pièces les plus vendues
             </h2>
-            <Link href={atelierHref("/validations")} className="link">
-              Tout voir
-            </Link>
-          </div>
-          <div className="stack-m">
-            {pending.slice(0, 3).map((p) => (
-              <ProposalCard key={p.id} p={p} />
-            ))}
-          </div>
-        </section>
-      ) : null}
+            {ventes.length ? (
+              <ol className="liste-simple">
+                {ventes.map((v) => (
+                  <li key={v.handle} className="liste-simple__ligne">
+                    <span className="liste-simple__titre">{v.title}</span>
+                    <span className="t-note">
+                      {compte(v.quantity, "pièce vendue", "pièces vendues")}{" "}
+                      {troisMois ? "en trois mois" : `sur les ${SHOPIFY_ORDERS_LIMIT} dernières commandes`}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="t-note">
+                Pas encore de vente ces trois derniers mois.
+              </p>
+            )}
+          </section>
+        </div>
+      </div>
     </div>
   );
 }
