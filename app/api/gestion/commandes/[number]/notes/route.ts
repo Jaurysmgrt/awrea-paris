@@ -17,7 +17,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ number:
   if (!par) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Demande illisible." }, { status: 400 });
-  const order = await getOrder(decodeURIComponent((await params).number).slice(0, 40));
+  let numero: string;
+  try {
+    numero = decodeURIComponent((await params).number).slice(0, 40);
+  } catch {
+    return NextResponse.json({ error: "Cette commande n’existe pas." }, { status: 404 });
+  }
+  const order = await getOrder(numero);
   if (!order) return NextResponse.json({ error: "Cette commande n’existe pas." }, { status: 404 });
   try {
     const note = await ajouterNote(order, parsed.data.texte, par);

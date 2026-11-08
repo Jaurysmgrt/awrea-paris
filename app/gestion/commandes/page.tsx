@@ -5,7 +5,8 @@
  * délai. Aucune liste d'attente : toutes les pièces se commandent toujours.
  */
 import Link from "@/components/ui/Link";
-import { getOrders, statusLabel, trackingUrl } from "@/lib/commerce/orders";
+import { getOrdersWithSource, SHOPIFY_ORDERS_LIMIT, statusLabel, trackingUrl } from "@/lib/commerce/orders";
+import { adminEnabled } from "@/lib/shopify/admin";
 import { commerceMode } from "@/lib/commerce";
 import { withStages } from "@/lib/store/order-stages";
 import { nextStage, orderTimeline, type OrderTimeline } from "@/lib/customers/order-timeline";
@@ -45,12 +46,14 @@ function NextAction({ order }: { order: Order }) {
 
 const AFFICHEES = 100;
 
-export default async function CommandesPage({ searchParams }: { searchParams: Promise<{ q?: string; etape?: string; periode?: string }> }) {
+export default async function CommandesPage({ searchParams }: { searchParams: Promise<{ q?: string | string[]; etape?: string | string[]; periode?: string | string[] }> }) {
   const sp = await searchParams;
-  const q = (sp.q ?? "").slice(0, 80);
+  // une seule valeur texte (?q=a&q=b donne un tableau)
+  const q = (typeof sp.q === "string" ? sp.q : "").slice(0, 80);
   const etape: FiltreEtape = estEtape(sp.etape) ? sp.etape : "toutes";
   const periode: Periode = estPeriode(sp.periode) ? sp.periode : "tout";
-  const toutes = await withStages(await getOrders());
+  const { orders: lues, source } = await getOrdersWithSource();
+  const toutes = await withStages(lues);
   const maintenant = new Date();
   // les compteurs des étapes suivent la recherche et la période ; la liste suit aussi l'étape
   const cherchees = filtrerCommandes(toutes, { q, periode }, maintenant);
@@ -133,6 +136,8 @@ export default async function CommandesPage({ searchParams }: { searchParams: Pr
             </Link>
           </p>
         ) : null}
+        {adminEnabled && source === "demo" ? <p className="notice t-body">Shopify ne répond pas : ces commandes sont des exemples de démonstration, pas les vôtres. Aucun geste d’argent n’est possible avant son retour.</p> : null}
+        {source === "shopify" && lues.length >= SHOPIFY_ORDERS_LIMIT ? <p className="t-note">Les {SHOPIFY_ORDERS_LIMIT} commandes les plus récentes sont chargées : une commande plus ancienne se retrouve dans Shopify.</p> : null}
         {trouvees.length > AFFICHEES ? <p className="t-note">Les {AFFICHEES} plus récentes sont affichées : affinez la recherche pour trouver les autres.</p> : null}
         {!orders.length ? (
           <p className="t-body">{toutes.length ? "Aucune commande ne correspond. Essayez un autre mot, une autre étape ou une autre période." : "Aucune commande pour l’instant."}</p>
@@ -141,24 +146,24 @@ export default async function CommandesPage({ searchParams }: { searchParams: Pr
           {/* six colonnes qui tiennent dans l'écran (capture de la créatrice du 01/11 : dix colonnes
               débordaient et écrasaient les pièces mot par mot) ; facture, certificats et suivi du
               transporteur sont sur la fiche de chaque commande */}
-          <table className="table table--commandes">
-            <thead>
-              <tr>
-                <th scope="col">Commande</th>
-                <th scope="col">Cliente</th>
-                <th scope="col">Pièces</th>
-                <th scope="col">Total</th>
-                <th scope="col">Étape</th>
-                <th scope="col">À faire</th>
+          <table className="table table--commandes" role="table">
+            <thead role="rowgroup">
+              <tr role="row">
+                <th scope="col" role="columnheader">Commande</th>
+                <th scope="col" role="columnheader">Cliente</th>
+                <th scope="col" role="columnheader">Pièces</th>
+                <th scope="col" role="columnheader">Total</th>
+                <th scope="col" role="columnheader">Étape</th>
+                <th scope="col" role="columnheader">À faire</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {orders.map(({ order: o, timeline }) => {
                 const url = trackingUrl(o.shipping.carrier, o.shipping.tracking);
                 const estimate = estimateText(timeline);
                 return (
-                  <tr key={o.id} data-status={o.status} data-late={timeline.late || undefined}>
-                    <th scope="row">
+                  <tr role="row" key={o.id} data-status={o.status} data-late={timeline.late || undefined}>
+                    <th scope="row" role="rowheader">
                       <Link href={atelierHref(`/commandes/${encodeURIComponent(o.number)}`)} className="text-link">
                         {o.number}
                       </Link>
@@ -166,16 +171,16 @@ export default async function CommandesPage({ searchParams }: { searchParams: Pr
                         <When iso={o.createdAt} />
                       </span>
                     </th>
-                    <td data-titre="Cliente">{o.name}<br /><span className="t-note table__mail">{o.email.split("@")[0]}<wbr />@{o.email.split("@").slice(1).join("@")}</span></td>
-                    <td data-titre="Pièces">{o.lines.map((l) => `${l.title} (${l.size})`).join(", ")}{o.gift?.wrap ? <><br /><span className="t-note">Cadeau : « {o.gift.message} »</span></> : null}</td>
-                    <td className="table__nombre" data-titre="Total">{formatPrice(o.total)}</td>
-                    <td data-titre="Étape">
+                    <td role="cell" data-titre="Cliente">{o.name}<br /><span className="t-note table__mail">{o.email.split("@")[0]}<wbr />@{o.email.split("@").slice(1).join("@")}</span></td>
+                    <td role="cell" data-titre="Pièces">{o.lines.map((l) => `${l.title} (${l.size})`).join(", ")}{o.gift?.wrap ? <><br /><span className="t-note">Cadeau : « {o.gift.message} »</span></> : null}</td>
+                    <td role="cell" className="table__nombre" data-titre="Total">{formatPrice(o.total)}</td>
+                    <td role="cell" data-titre="Étape">
                       <span className={`status status--${o.status === "blocked" ? "pending" : o.status === "delivered" || o.status === "shipped" ? "done" : "info"}`}>{statusLabel[o.status]}</span>
                       {timeline.late ? <> <span className="status status--pending">En retard</span></> : null}
                       <span className="t-note table__detail">{estimate ? `Fin prévue ${estimate}` : "Aucune fin prévue"}</span>
                       {url ? <a href={url} className="text-link t-note" target="_blank" rel="noopener noreferrer">Suivi {o.shipping.carrier}</a> : null}
                     </td>
-                    <td data-titre="À faire">
+                    <td role="cell" data-titre="À faire">
                       <div className="table__gestes">
                         <NextAction order={o} />
                         <ActionButton endpoint={atelierApi("/avis/demande")} body={{ number: o.number }} label="Demander un avis" busyLabel="Envoi…" variant="quiet" />

@@ -271,7 +271,13 @@ export async function shopifyUpdatePiece(
 }
 
 /** Remboursement intégral à partir du remboursement suggéré par Shopify. */
-export async function shopifyRefundOrder(orderId: string, note: string) {
+/**
+ * Remboursement complet d'une commande : toutes les pièces et la livraison (suggestFullRefund), sur
+ * le moyen de paiement d'origine, sans remise en stock. Shopify n'écrit pas à la cliente : la Maison
+ * lui envoie son propre e-mail, avec l'avoir. Rien à rembourser (déjà fait) : refusé, sans
+ * transaction. Renvoie le montant remboursé, en centimes.
+ */
+export async function shopifyRefundOrder(orderId: string, note: string): Promise<number> {
   const d = await admin<{
     order: {
       suggestedRefund: {
@@ -280,7 +286,7 @@ export async function shopifyRefundOrder(orderId: string, note: string) {
       };
     } | null;
   }>(
-    `query R($id: ID!) { order(id: $id) { suggestedRefund(refundShipping: true) {
+    `query R($id: ID!) { order(id: $id) { suggestedRefund(refundShipping: true, suggestFullRefund: true) {
       refundLineItems { lineItem { id } quantity }
       suggestedTransactions { gateway parentTransaction { id } amountSet { shopMoney { amount } } }
     } } }`,
@@ -288,13 +294,15 @@ export async function shopifyRefundOrder(orderId: string, note: string) {
   );
   if (!d.order) throw new Error("Commande introuvable");
   const s = d.order.suggestedRefund;
+  const montant = s.suggestedTransactions.reduce((t, x) => t + Math.round(parseFloat(x.amountSet.shopMoney.amount) * 100), 0);
+  if (montant <= 0) throw new Error("Rien à rembourser : cette commande l’est déjà.");
   const r = await admin<{ refundCreate: UserErrors }>(
     `mutation R($input: RefundInput!) { refundCreate(input: $input) { userErrors { field message } } }`,
     {
       input: {
         orderId,
         note,
-        notify: true,
+        notify: false,
         shipping: { fullRefund: true },
         // aucune remise en stock : les pièces sont créées sur demande
         refundLineItems: s.refundLineItems.map((l) => ({ lineItemId: l.lineItem.id, quantity: l.quantity, restockType: "NO_RESTOCK" })),
@@ -303,6 +311,7 @@ export async function shopifyRefundOrder(orderId: string, note: string) {
     },
   );
   assertNoErrors("Remboursement", r.refundCreate);
+  return montant;
 }
 
 /**
@@ -335,7 +344,7 @@ export async function shopifyRefundLines(orderId: string, items: { handle: strin
       input: {
         orderId,
         note,
-        notify: true,
+        notify: false,
         refundLineItems: refundLineItems.map((l) => ({ ...l, restockType: "NO_RESTOCK" })),
         transactions: (d.order?.suggestedRefund.suggestedTransactions ?? []).map((t) => ({ orderId, gateway: t.gateway, kind: "REFUND", amount: t.amountSet.shopMoney.amount, parentId: t.parentTransaction?.id })),
       },
@@ -344,9 +353,10 @@ export async function shopifyRefundLines(orderId: string, items: { handle: strin
   assertNoErrors("Remboursement", r.refundCreate);
 }
 
+/** Annulation (remboursée ou non) ; Shopify n'écrit pas à la cliente : la Maison lui envoie son e-mail. */
 export async function shopifyCancelOrder(orderId: string, refund: boolean) {
   const r = await admin<{ orderCancel: { orderCancelUserErrors: { message: string }[] } }>(
-    `mutation C($orderId: ID!, $refund: Boolean!) { orderCancel(orderId: $orderId, reason: CUSTOMER, refund: $refund, restock: false, notifyCustomer: true) { orderCancelUserErrors { message } } }`,
+    `mutation C($orderId: ID!, $refund: Boolean!) { orderCancel(orderId: $orderId, reason: CUSTOMER, refund: $refund, restock: false, notifyCustomer: false) { orderCancelUserErrors { message } } }`,
     { orderId, refund },
   );
   if (r.orderCancel.orderCancelUserErrors.length) throw new Error(r.orderCancel.orderCancelUserErrors.map((e) => e.message).join(" ; "));

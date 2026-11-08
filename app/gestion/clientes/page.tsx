@@ -21,9 +21,10 @@ const AFFICHEES = 200;
  * régulière, fidèle, inactive), ouvrir sa fiche ; consentements, ventes par source, e-mails
  * automatiques et registre RGPD.
  */
-export default async function ClientesPage({ searchParams }: { searchParams: Promise<{ q?: string; categorie?: string }> }) {
+export default async function ClientesPage({ searchParams }: { searchParams: Promise<{ q?: string | string[]; categorie?: string | string[] }> }) {
   const sp = await searchParams;
-  const q = (sp.q ?? "").slice(0, 80);
+  // une seule valeur texte (?q=a&q=b donne un tableau)
+  const q = (typeof sp.q === "string" ? sp.q : "").slice(0, 80);
   const categorie: CategorieActivite | "toutes" = estCategorie(sp.categorie) ? sp.categorie : "toutes";
   const [customers, consent, sources, sent, rgpd] = await Promise.all([
     listCustomerStats(),
@@ -47,14 +48,14 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Clientes</h1>
-        <p className="t-lead">Chaque cliente, ses commandes et vos notes ({customersMode === "supabase" ? "base Supabase" : "mode démonstration"}).</p>
+        <p className="t-lead">Chaque cliente, ses commandes et vos notes{customersMode === "supabase" ? "" : " (mode démonstration)"}.</p>
       </header>
 
       <section className="panel stack-m" aria-labelledby="customers-title">
         <h2 id="customers-title" className="t-h3">
           {filtre ? `Clientes trouvées (${shown.length})` : `Toutes les clientes (${customers.length})`}
         </h2>
-        <form className="commandes-filtres" role="search" method="get" action={atelierHref("/clientes")}>
+        <form className="commandes-filtres commandes-filtres--deux" role="search" method="get" action={atelierHref("/clientes")}>
           <div className="field">
             <label className="field__label" htmlFor="clientes-q">
               Chercher une cliente
@@ -88,36 +89,36 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
           <p className="t-body">{customers.length ? "Aucune cliente ne correspond. Essayez un autre mot ou une autre catégorie." : "Aucune cliente pour l’instant."}</p>
         ) : (
           <div className="table-scroll">
-            <table className="table table--clientes">
-              <thead>
-                <tr>
-                  <th scope="col">Cliente</th>
-                  <th scope="col">Catégorie</th>
-                  <th scope="col">Commandes</th>
-                  <th scope="col">Montant</th>
-                  <th scope="col">Dernière commande</th>
-                  <th scope="col">Lettres</th>
+            <table className="table table--clientes" role="table">
+              <thead role="rowgroup">
+                <tr role="row">
+                  <th scope="col" role="columnheader">Cliente</th>
+                  <th scope="col" role="columnheader">Catégorie</th>
+                  <th scope="col" role="columnheader">Commandes</th>
+                  <th scope="col" role="columnheader">Montant</th>
+                  <th scope="col" role="columnheader">Dernière commande</th>
+                  <th scope="col" role="columnheader">Lettres</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody role="rowgroup">
                 {shown.slice(0, AFFICHEES).map((c) => (
-                  <tr key={c.id}>
-                    <th scope="row">
+                  <tr role="row" key={c.id}>
+                    <th scope="row" role="rowheader">
                       <Link href={atelierHref(`/clientes/${encodeURIComponent(c.id)}`)} className="text-link">
                         {[c.firstName, c.lastName].filter(Boolean).join(" ") || "Nom inconnu"}
                       </Link>
                       <br />
                       <span className="t-note table__mail">{c.email}</span>
                     </th>
-                    <td data-titre="Catégorie">
+                    <td role="cell" data-titre="Catégorie">
                       <span className="status status--info">{LIBELLE_CATEGORIE[categorieActivite(c, maintenant)]}</span>
                       {c.segment === "vip" ? <> <span className="status status--done">VIP</span></> : null}
                       {c.cercleMember ? <span className="t-note table__detail">Membre du Cercle</span> : null}
                     </td>
-                    <td data-titre="Commandes">{c.ordersCount}</td>
-                    <td data-titre="Montant">{formatPrice(c.totalSpent)}</td>
-                    <td data-titre="Dernière commande">{c.lastOrderAt ? <When iso={c.lastOrderAt} /> : "Aucune"}</td>
-                    <td data-titre="Lettres">{c.marketingEmail ? "Oui" : "Non"}</td>
+                    <td role="cell" data-titre="Commandes">{c.ordersCount}</td>
+                    <td role="cell" data-titre="Montant">{formatPrice(c.totalSpent)}</td>
+                    <td role="cell" data-titre="Dernière commande">{c.lastOrderAt ? <When iso={c.lastOrderAt} /> : "Aucune"}</td>
+                    <td role="cell" data-titre="Lettres">{c.marketingEmail ? "Oui" : "Non"}</td>
                   </tr>
                 ))}
               </tbody>

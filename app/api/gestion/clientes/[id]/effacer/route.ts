@@ -5,7 +5,7 @@
  */
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { isAdmin } from "@/lib/auth/admin";
+import { currentAdmin } from "@/lib/auth/admin";
 import { ClienteError, effacerCliente } from "@/lib/admin/clientes-suivi";
 
 export const dynamic = "force-dynamic";
@@ -13,11 +13,12 @@ export const dynamic = "force-dynamic";
 const Body = z.object({ email: z.string().max(320) }).strict();
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!(await isAdmin())) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  const par = await currentAdmin();
+  if (!par) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Demande illisible." }, { status: 400 });
   try {
-    await effacerCliente((await params).id, parsed.data.email);
+    await effacerCliente((await params).id, parsed.data.email, par);
     return NextResponse.json({ ok: true });
   } catch (e) {
     if (e instanceof ClienteError) return NextResponse.json({ error: e.message }, { status: 400 });

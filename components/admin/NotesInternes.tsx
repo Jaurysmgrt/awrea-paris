@@ -1,7 +1,7 @@
 "use client";
 /**
- * Notes internes d'une commande ou d'une cliente, sur sa fiche dans l'Atelier : jamais vues par la
- * cliente. Une note s'ajoute en un geste ; la liste (et l'historique) se mettent à jour sans recharger.
+ * Notes internes d'une commande ou d'une cliente, sur sa fiche dans l'Atelier : elles ne paraissent
+ * nulle part sur le site, et font partie des données remises à la cliente qui les demande (RGPD). Une note s'ajoute en un geste ; la liste (et l'historique) se mettent à jour sans recharger.
  */
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -40,8 +40,8 @@ export function NotesInternes({ chemin, max, exemple }: { chemin: string; max: n
         <label className="field__label" htmlFor="note-interne">
           Nouvelle note
         </label>
-        <textarea id="note-interne" className="field__input" rows={3} maxLength={max} value={texte} onChange={(e) => setTexte(e.target.value)} placeholder={exemple} />
-        <span className="field__hint">Pour vous seule : la cliente ne la voit jamais.</span>
+        <textarea id="note-interne" aria-describedby="note-interne-aide" className="field__input" rows={3} maxLength={max} value={texte} onChange={(e) => setTexte(e.target.value)} placeholder={exemple} />
+        <span className="field__hint" id="note-interne-aide">Pour l’atelier : elle ne paraît nulle part sur le site. Si la cliente demande ses données, ses notes lui sont remises.</span>
       </div>
       <div>
         <button type="submit" className="btn btn--outline" disabled={busy}>

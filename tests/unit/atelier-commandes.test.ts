@@ -4,7 +4,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compterParEtape, correspond, dansPeriode, filtrerCommandes, historique, jourDeParis } from "@/lib/admin/commandes";
+import { compterParEtape, correspond, dansPeriode, filtrerCommandes, gestesPossibles, historique, jourDeParis } from "@/lib/admin/commandes";
 
 type S = "pending" | "paid" | "in_production" | "ready" | "shipped" | "delivered" | "returned" | "refunded" | "blocked";
 const cmd = (number: string, status: S, createdAt: string, name = "Hélène Durand", titre = "La robe Odessa") => ({ number, status, createdAt, name, email: `${name.split(" ")[0].toLowerCase()}@exemple.fr`, lines: [{ title: titre }] });
@@ -65,3 +65,11 @@ test("historique : du plus récent au plus ancien, sans doublon ni date illisibl
     ["Note : appeler la cliente", "En confection", "Commande reçue"],
   );
 });
+
+test("gestes d'argent : annuler avant le départ, rembourser après la livraison, jamais deux fois", () => {
+  for (const status of ["paid", "in_production", "ready", "blocked"] as const) assert.deepEqual(gestesPossibles({ status }), ["annuler-rembourser"]);
+  assert.deepEqual(gestesPossibles({ status: "delivered" }), ["rembourser"]);
+  // en route, retour (remboursé pièce par pièce depuis Retours), déjà remboursée, paiement en attente
+  for (const status of ["shipped", "returned", "refunded", "pending"] as const) assert.deepEqual(gestesPossibles({ status }), []);
+});
+

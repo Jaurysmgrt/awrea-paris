@@ -142,8 +142,8 @@ sur le site public.
 | 4. Architecture | Next.js 16, couche commerce à trois modes (Shopify, démonstration), Supabase pour les clientes, stockage clé-valeur, IA facultative | boutique propre et Stripe (4) |
 | 5. Tableau de bord | Vue d'ensemble du lot 1 (chiffre du mois, commandes, clientes, pièces vendues, activité, alertes et propositions) | filtres de période, panier moyen, évolution (7) |
 | 6. Produits | lots 2a et 2b : liste, fiche, textes, photos et ordre, statut, copie, aperçu | collection, tailles, quantité limitée, matières (2c) ; suppression définitive après confirmation (2c) |
-| 7. Commandes | liste, fiche, étape suivante avec e-mail, bon, facture | recherche, filtres, notes, historique, annulation (3) |
-| 8. Clientes | tableau et catégories | fiche, historique, notes, RGPD (3) |
+| 7. Commandes | lot 3 : liste, recherche, étapes et période, fiche, étape suivante avec e-mail, bon, facture, notes, historique, annulation et remboursement confirmés, une seule fois par commande | rien de bloquant |
+| 8. Clientes | lot 3 : liste, recherche, catégories, fiche, historique, total des achats, notes, données remises, effacement gardé | rien de bloquant |
 | 9. Contenu | éditeur « Édition » : textes, photos, blocs, pages, brouillons, aperçu, programmation, historique | rien de bloquant |
 | 10. Assistant | assistante des clientes ; propositions et journal des agents | AWREA ASSISTANT de gestion (6) |
 | 11. Agents | 6 agents et 19 rôles quotidiens, propositions à valider, journal | missions et permissions par agent, mémoire, passage de relais, Coordinateur (5) |

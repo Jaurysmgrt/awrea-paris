@@ -18,9 +18,16 @@ import { EffacerCliente } from "@/components/admin/EffacerCliente";
 export const dynamic = "force-dynamic";
 
 export default async function ClientePage({ params }: { params: Promise<{ id: string }> }) {
-  const c = await trouverCliente(decodeURIComponent((await params).id));
+  let id: string;
+  try {
+    id = decodeURIComponent((await params).id);
+  } catch {
+    notFound();
+  }
+  const c = await trouverCliente(id);
   if (!c) notFound();
-  const [profil, toutes, notes] = await Promise.all([profilPourAtelier(c.id), getOrders(), notesCliente(c.id)]);
+  // une base qui ne répond pas n'est jamais prise pour une cliente sans compte
+  const [profil, toutes, notes] = await Promise.all([profilPourAtelier(c.id).catch(() => undefined), getOrders(), notesCliente(c.id)]);
   const email = c.email.trim().toLowerCase();
   const commandes = toutes.filter((o) => o.email.trim().toLowerCase() === email).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const nom = [c.firstName, c.lastName].filter(Boolean).join(" ") || "Nom inconnu";
@@ -58,7 +65,7 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
           ) : null}
           <div>
             <dt className="t-label">Compte</dt>
-            <dd>{profil ? <>créé le <When iso={profil.createdAt} /></> : "aucun : elle a commandé sans créer de compte"}</dd>
+            <dd>{profil === undefined ? "la base clientes ne répond pas : réessayez dans un instant" : profil ? <>créé le <When iso={profil.createdAt} /></> : "aucun : elle a commandé sans créer de compte"}</dd>
           </div>
           <div>
             <dt className="t-label">Lettres</dt>
@@ -71,7 +78,7 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
           <div>
             <dt className="t-label">Achats</dt>
             <dd>
-              {c.ordersCount} commande{c.ordersCount > 1 ? "s" : ""} · {formatPrice(c.totalSpent)}
+              {c.ordersCount} commande{c.ordersCount > 1 ? "s" : ""} payée{c.ordersCount > 1 ? "s" : ""} · {formatPrice(c.totalSpent)}
               {c.lastOrderAt ? (
                 <>
                   {" "}
@@ -140,7 +147,15 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
           </a>
         </p>
         {profil ? (
-          <EffacerCliente id={c.id} />
+          <>
+            <p className="t-note">
+              L’effacement retire son compte, ses adresses, ses envies, sa navigation, son inscription à la lettre et vos notes sur elle. Ses commandes et leurs factures restent, détachées
+              de son compte, dix ans durant (obligation comptable).
+            </p>
+            <EffacerCliente id={c.id} />
+          </>
+        ) : profil === undefined ? (
+          <p className="t-note">La base clientes ne répond pas : l’effacement sera possible dès son retour.</p>
         ) : (
           <p className="t-note">Sans compte, il n’y a rien à effacer : ses commandes restent pour la comptabilité, dix ans durant.</p>
         )}

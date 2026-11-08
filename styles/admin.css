@@ -338,6 +338,9 @@
     .commandes-filtres {
       grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
     }
+    .commandes-filtres--deux {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
   }
   .produits__filtres {
     display: flex;

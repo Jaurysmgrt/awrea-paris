@@ -108,3 +108,17 @@ export function historique(evenements: readonly EvenementHistorique[]): Evenemen
       return true;
     });
 }
+
+export type GesteCommande = "annuler-rembourser" | "rembourser";
+
+/**
+ * Gestes d'argent possibles depuis la fiche, selon l'étape : annuler et rembourser tant que la pièce
+ * n'est pas partie ; rembourser une fois livrée ; un retour se rembourse depuis Retours (pièce par
+ * pièce, avec son avoir) ; rien sur une commande remboursée, en attente de paiement ou en route.
+ */
+export function gestesPossibles(order: { status: OrderStatus }): GesteCommande[] {
+  if (["paid", "in_production", "ready", "blocked"].includes(order.status)) return ["annuler-rembourser"];
+  if (order.status === "delivered") return ["rembourser"];
+  return [];
+}
+

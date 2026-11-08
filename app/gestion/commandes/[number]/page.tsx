@@ -23,6 +23,7 @@ import { OrderStageControl } from "../_components/OrderStageControl";
 import { NotesInternes } from "@/components/admin/NotesInternes";
 import { CommandeGestes } from "@/components/admin/CommandeGestes";
 import { gestesPossibles, historiqueDe, NOTE_MAX, notesDe } from "@/lib/admin/commandes-suivi";
+import { adminEnabled } from "@/lib/shopify/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -186,20 +187,22 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
       </section>
 
       {/* toujours présente : le message du geste reste lu après la mise à jour de la page */}
-      <section className="panel no-print stack-m" aria-labelledby="argent-title">
+      <section className="panel no-print stack-m" aria-labelledby="argent-title" data-commande-id={order.id} data-commande-total={order.total}>
         <h2 id="argent-title" className="t-h3">
           Annulation et remboursement
         </h2>
         <p className="t-note">
           {gestes.length
-            ? `Le remboursement passe par le moyen de paiement de la cliente${commerceMode === "demo" ? " (démonstration\u00a0: aucun argent ne bouge)" : ""}. Chaque geste est demandé une seule fois et consigné au journal.`
+            ? `Le remboursement passe par le moyen de paiement de la cliente${adminEnabled ? "" : " (démonstration\u00a0: aucun argent ne bouge)"}. Chaque geste est demandé une seule fois et consigné au journal.`
             : order.status === "refunded"
               ? "Commande remboursée : il n’y a plus rien à faire ici."
-              : order.status === "shipped"
-                ? "La pièce est en route : le remboursement se propose une fois la commande livrée, ou depuis Retours."
-                : "Aucun geste d’argent n’est possible à cette étape."}
+              : order.status === "returned"
+                ? "Un retour se rembourse depuis Retours, pièce par pièce, avec son avoir."
+                : order.status === "shipped"
+                  ? "La pièce est en route : rien ne s’annule plus d’ici. Un retour éventuel se rembourse depuis Retours."
+                  : "Aucun geste d’argent n’est possible à cette étape."}
         </p>
-        <CommandeGestes numero={order.number} montant={formatPrice(order.total)} gestes={gestes} />
+        <CommandeGestes numero={order.number} id={order.id} total={order.total} montant={formatPrice(order.total)} gestes={gestes} demonstration={!adminEnabled} />
       </section>
 
       {/* bon de livraison : glissé dans le colis */}

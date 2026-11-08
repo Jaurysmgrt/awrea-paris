@@ -6,7 +6,10 @@
  */
 import "server-only";
 import { kv } from "@/lib/store";
-import { deleteAccount, listCustomerStats, profilPourAtelier } from "@/lib/customers";
+import { deleteAccount, exportPourAtelier, profilPourAtelier, statsCliente } from "@/lib/customers";
+import { unsubscribe } from "@/lib/marketing/unsubscribe";
+import { getOrders } from "@/lib/commerce/orders";
+import { notesDe } from "./commandes-suivi";
 import { logAction } from "@/lib/agents/log";
 import type { NoteInterne } from "./commandes";
 
@@ -20,7 +23,7 @@ export const ID_CLIENTE = /^[A-Za-z0-9_-]{6,64}$/;
 
 export async function trouverCliente(id: string) {
   if (!ID_CLIENTE.test(id)) return null;
-  return (await listCustomerStats()).find((c) => c.id === id) ?? null;
+  return statsCliente(id);
 }
 
 export async function notesCliente(id: string): Promise<NoteInterne[]> {
@@ -38,15 +41,32 @@ export async function ajouterNoteCliente(id: string, texte: string, par: string)
 
 /**
  * Effacement du compte d'une cliente, à sa demande, après que la créatrice a recopié son adresse
- * e-mail. Le registre RGPD et le journal ne gardent aucune donnée personnelle.
+ * e-mail : son compte (profil, adresses, envies, navigation), son inscription à la lettre, les notes
+ * de l'atelier sur elle et sur ses commandes. Restent ses commandes et leurs factures, détachées du
+ * compte, dix ans durant (obligation comptable), et, avec Shopify, sa fiche client dans Shopify, à
+ * effacer depuis Shopify (la page le dit). Le registre RGPD et le journal ne gardent aucune donnée
+ * personnelle de la cliente.
  */
-export async function effacerCliente(id: string, emailRecopie: string): Promise<void> {
+export async function effacerCliente(id: string, emailRecopie: string, par: string): Promise<void> {
   const c = await trouverCliente(id);
   if (!c) throw new ClienteError("Cette cliente n’existe pas.");
   if (emailRecopie.trim().toLowerCase() !== c.email.trim().toLowerCase()) throw new ClienteError("L’adresse recopiée ne correspond pas : rien n’a été effacé.");
   if (!(await profilPourAtelier(id))) throw new ClienteError("Cette cliente n’a pas de compte : il n’y a rien à effacer, ses commandes restent pour la comptabilité.");
+  const email = c.email.trim().toLowerCase();
+  const sesCommandes = (await getOrders()).filter((o) => o.email.trim().toLowerCase() === email);
   await deleteAccount({ id, email: c.email });
+  await unsubscribe(c.email).catch((e) => console.error("[clientes] lettre", e));
   await kv.del(cleNotes(id));
+  await Promise.all(sesCommandes.map((o) => kv.del(`commandes:notes:${o.id}`)));
   await kv.push("rgpd:requests", { kind: "effacement (Atelier)", at: new Date().toISOString() }, 1000);
-  await logAction({ agent: "systeme", kind: "rgpd", status: "done", summary: "Par l’atelier · compte d’une cliente effacé à sa demande (commandes gardées, détachées du compte)" }).catch(() => {});
+  await logAction({ agent: "systeme", kind: "rgpd", status: "done", summary: `Par l’atelier (${par}) · compte d’une cliente effacé à sa demande (commandes gardées, détachées du compte)` }).catch(() => {});
 }
+
+/** Données d'une cliente à lui remettre (droit d'accès), notes de l'atelier comprises. */
+export async function donneesCliente(c: { id: string; email: string }) {
+  const email = c.email.trim().toLowerCase();
+  const sesCommandes = (await getOrders()).filter((o) => o.email.trim().toLowerCase() === email);
+  const commandes = Object.fromEntries(await Promise.all(sesCommandes.map(async (o) => [o.number, await notesDe(o.id)] as const)));
+  return exportPourAtelier(c, { cliente: await notesCliente(c.id), commandes });
+}
+
