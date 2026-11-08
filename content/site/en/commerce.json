@@ -135,7 +135,14 @@
       "test": "Stripe test mode: use a test card, no money moves.",
       "ligneCommande": "Order {commande}",
       "ligneLivraison": "Delivery",
-      "ligneTaille": "Size {taille}"
+      "ligneTaille": "Size {taille}",
+      "erreurs": {
+        "fermee": "Online payment is not open yet. For any question about a piece, write to the Maison.",
+        "moyen": "Please choose a payment method.",
+        "ouverture": "The payment page could not open. Please try again in a moment: nothing has been charged.",
+        "montantMinimum": "The amount due is too small for an online payment. Write to the Maison and we will complete your order with you.",
+        "enCours": "Your order is already on its way. Please wait a moment, the payment page is about to open."
+      }
     }
   },
   "confirmation": {
@@ -161,7 +168,15 @@
     "suivre": "Track my order",
     "facture": "Download the invoice",
     "continuer": "Continue browsing",
-    "enAttente": "Your payment is being confirmed. As soon as it is approved, you will receive your order confirmation by email.",
-    "echec": "The payment for this order did not go through: nothing was charged."
+    "echec": "The payment for this order did not go through: nothing was charged.",
+    "attente": {
+      "salutation": "Your payment is on its way.",
+      "titre": "Your payment is being confirmed",
+      "texte": "Your order {commande} will be confirmed as soon as your bank approves the payment. We will then write to you at {email}."
+    },
+    "nonAbouti": {
+      "titre": "Your payment did not go through",
+      "texte": "Your order {commande} is not recorded as paid. Your pieces are waiting for you in your bag."
+    }
   }
 }

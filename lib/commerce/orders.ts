@@ -61,6 +61,22 @@ export async function updateOrder(id: string, change: (o: Order) => Order): Prom
   });
 }
 
+/**
+ * Retire les tentatives de paiement abandonnées (page Stripe expirée, refusée ou jamais ouverte) depuis
+ * plus de `jours` jours : rien n'a été payé, et l'adresse ou le téléphone saisis ne sont pas gardés
+ * sans raison. Renvoie les numéros retirés.
+ */
+export async function purgerCommandesAbandonnees(jours = 30, maintenant = new Date()): Promise<string[]> {
+  const limite = maintenant.getTime() - jours * 86_400_000;
+  return avecVerrou(ORDERS_KEY, async () => {
+    const list = (await kv.get<Order[]>(ORDERS_KEY)) ?? [];
+    const abandon = (o: Order) => o.status === "pending" && o.payment?.prestataire === "stripe" && (o.payment.statut === "expire" || o.payment.statut === "echoue" || !o.payment.session) && Date.parse(o.createdAt) < limite;
+    const retirees = list.filter(abandon);
+    if (retirees.length) await kv.set(ORDERS_KEY, list.filter((o) => !abandon(o)));
+    return retirees.map((o) => o.number);
+  });
+}
+
 /** Transporteur et numéro de suivi saisis dans l'Atelier. */
 export async function setOrderTracking(id: string, carrier: string, tracking: string) {
   const map = (await kv.get<Record<string, { carrier: string; tracking: string }>>(ORDER_TRACKING_KEY)) ?? {};
@@ -69,13 +85,23 @@ export async function setOrderTracking(id: string, carrier: string, tracking: st
 
 /** Étape d'une commande, réglée depuis l'Atelier (ou par un agent, après validation). */
 export async function setOrderStatus(id: string, status: OrderStatus) {
-  const map = (await kv.get<Record<string, OrderStatus>>(ORDER_STATUS_KEY)) ?? {};
-  map[id] = status;
-  await kv.set(ORDER_STATUS_KEY, map);
+  // sous verrou : l'étape d'une autre commande, réglée au même instant, n'est jamais perdue
+  await avecVerrou(ORDER_STATUS_KEY, async () => {
+    const map = (await kv.get<Record<string, OrderStatus>>(ORDER_STATUS_KEY)) ?? {};
+    map[id] = status;
+    await kv.set(ORDER_STATUS_KEY, map);
+  });
   if (status === "delivered") {
-    const dates = (await kv.get<Record<string, string>>(ORDER_DELIVERED_KEY)) ?? {};
-    await kv.set(ORDER_DELIVERED_KEY, { ...dates, [id]: dates[id] ?? new Date().toISOString() });
+    await avecVerrou(ORDER_DELIVERED_KEY, async () => {
+      const dates = (await kv.get<Record<string, string>>(ORDER_DELIVERED_KEY)) ?? {};
+      await kv.set(ORDER_DELIVERED_KEY, { ...dates, [id]: dates[id] ?? new Date().toISOString() });
+    });
   }
+}
+
+/** Étape réglée à part (Atelier, agent) qui prime sur celle de la commande, s'il y en a une. */
+export async function statutRegle(id: string): Promise<OrderStatus | null> {
+  return (await kv.get<Record<string, OrderStatus>>(ORDER_STATUS_KEY))?.[id] ?? null;
 }
 
 /** Étapes de la commande : reçue, en confection, prête, expédiée, livrée. */

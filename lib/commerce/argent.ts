@@ -9,19 +9,30 @@
  */
 import "server-only";
 import { kv } from "@/lib/store";
+import { prendreVerrou, rendreVerrou } from "@/lib/store/verrou";
 
 export class ArgentError extends Error {}
 
-const verrou = (orderId: string) => `commandes:argent:${orderId}`;
+const verrou = (orderId: string) => `argent:${orderId}`;
 const marque = (orderId: string) => `commandes:rembourse:${orderId}`;
 
 export async function sousVerrouArgent<T>(orderId: string, geste: () => Promise<T>): Promise<T> {
-  if ((await kv.incr(verrou(orderId), 600)) !== 1) throw new ArgentError("Un geste d’argent est déjà en cours sur cette commande. Patientez un instant, puis rechargez la page.");
+  // dix minutes au plus : un geste interrompu (serveur arrêté) ne bloque pas la commande au-delà
+  const jeton = await prendreVerrou(verrou(orderId), 600_000);
+  if (!jeton) throw new ArgentError("Un geste d’argent est déjà en cours sur cette commande. Patientez un instant, puis rechargez la page.");
   try {
     return await geste();
   } finally {
-    await kv.del(verrou(orderId)).catch(() => {});
+    await rendreVerrou(verrou(orderId), jeton);
   }
+}
+
+/** Un geste d'argent de l'Atelier est-il en cours sur cette commande ? (le verrou est tenu) */
+export async function gesteEnCours(orderId: string): Promise<boolean> {
+  const jeton = await prendreVerrou(verrou(orderId), 2_000);
+  if (!jeton) return true;
+  await rendreVerrou(verrou(orderId), jeton);
+  return false;
 }
 
 export async function dejaRembourse(orderId: string): Promise<boolean> {

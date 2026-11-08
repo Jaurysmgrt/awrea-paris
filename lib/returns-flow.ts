@@ -8,7 +8,8 @@ import "server-only";
 import { getOrder, setOrderStatus } from "@/lib/commerce/orders";
 import { boutiqueReelle } from "@/lib/config/boutique";
 import { rembourserParStripe } from "@/lib/paiement/suivi";
-import { issueCreditNote } from "@/lib/invoices";
+import { issueCreditNote, listInvoices } from "@/lib/invoices";
+import { partsPayees } from "@/lib/commerce/remboursement";
 import { sousVerrouArgent } from "@/lib/commerce/argent";
 import { invoicePdf } from "@/lib/invoices/pdf";
 import { sendEmail } from "@/lib/email/send";
@@ -123,13 +124,19 @@ async function rembourserRetour(id: string): Promise<{ r: ReturnRequest; amount:
   const parStripe = order.payment?.prestataire === "stripe";
   // boutique réelle : seul un paiement passé par Stripe se rembourse d'ici, par Stripe
   if (boutiqueReelle() && !parStripe) throw new Error("Cette commande n’a pas été payée en ligne : aucun remboursement ne peut partir de l’Atelier.");
-  // l'argent d'abord (Stripe, une seule fois par retour) ; l'avoir ensuite, du même montant
-  if (parStripe) await rembourserParStripe((await getOrder(order.id)) ?? order, items.reduce((t, i) => t + i.unitPrice, 0), `Retour ${r.id}`, { quoi: "retour", id: r.id });
-  const note = await issueCreditNote(
-    order,
-    items.map((i) => ({ title: i.title, detail: `Taille ${i.size} · retour ${r.id}`, quantity: 1, unitTtc: i.unitPrice })),
-    `retour ${r.id}`,
-  );
+  // ce que la cliente a réellement payé pour ces pièces (remise, taxes, carte cadeau au prorata)
+  const parts = partsPayees(order, items.map((i) => i.unitPrice));
+  // l'argent d'abord (Stripe, une seule fois par retour, même redemandé des jours après) ; l'avoir
+  // ensuite, du même montant, une seule fois aussi (un essai repris après une coupure ne le double pas)
+  if (parStripe) await rembourserParStripe((await getOrder(order.id)) ?? order, parts.reduce((t, x) => t + x, 0), `Retour ${r.id}`, { quoi: "retour", id: r.id });
+  const motifAvoir = `retour ${r.id}`;
+  const note =
+    (await listInvoices()).find((i) => i.kind === "avoir" && i.orderNumber === order.number && i.reason === motifAvoir) ??
+    (await issueCreditNote(
+      order,
+      items.map((i, k) => ({ title: i.title, detail: `Taille ${i.size} · retour ${r.id}`, quantity: 1, unitTtc: parts[k] })),
+      motifAvoir,
+    ));
   const amount = note.totals.ttc;
   r.status = "rembourse";
   await saveReturn(r);

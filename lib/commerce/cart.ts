@@ -1,11 +1,16 @@
 /**
  * Panier côté serveur : son état tient dans un cookie (lignes, code, carte cadeau, emballage), les
  * prix et les pièces sont toujours relus dans le catalogue de la Maison.
+ *
+ * Paiement Stripe : le panier reste intact pendant le paiement (une cliente qui renonce le retrouve),
+ * et garde la commande ouverte. Dès que cette commande est payée, le panier se lit vide, même si la
+ * cliente a fermé la page de Stripe avant d'en revenir : la même commande n'est jamais repassée.
  */
 import { cookies } from "next/headers";
 import { shop } from "@/content/settings";
 import { legalVersions } from "@/content/legal-versions";
 import { getAllProducts } from "./index";
+import { getOrder } from "./orders";
 import { boutiqueReelle } from "@/lib/config/boutique";
 import { longestLeadTime, MAX_PER_LINE, overLineLimit } from "./availability";
 import { earliestGiftDate, latestGiftDate } from "./international";
@@ -26,6 +31,8 @@ interface DemoState {
   h?: boolean;
   /** date de livraison souhaitée */
   dd?: string | null;
+  /** commande ouverte pour ce panier (paiement Stripe en cours) */
+  c?: string;
 }
 
 const emptyState = (): DemoState => ({ l: [], d: null, g: null, w: false, m: "", h: true, dd: null });
@@ -191,17 +198,30 @@ function checkGiftDate(date: string | null, products: Product[], lines: { v: str
 
 /* ------------------------------------------------------------------ API */
 
+const OPTIONS_COOKIE = { httpOnly: true, sameSite: "lax" as const, secure: process.env.NODE_ENV === "production", path: "/", maxAge: MAX_AGE };
+
+/** État du panier ; vide si la commande ouverte pour lui a été payée entre-temps. */
+async function etatCourant(raw: string | undefined): Promise<DemoState> {
+  const state = parseState(raw);
+  if (!state.c) return state;
+  const o = await getOrder(state.c).catch(() => null);
+  return o && o.status !== "pending" ? emptyState() : state;
+}
+
 export async function readCart(): Promise<Cart> {
   const jar = await cookies();
-  const raw = jar.get(CART_COOKIE)?.value;
-  return computeDemoCart(parseState(raw), await getAllProducts());
+  return computeDemoCart(await etatCourant(jar.get(CART_COOKIE)?.value), await getAllProducts());
 }
 
 export async function applyCartAction(action: CartAction): Promise<Cart> {
   const jar = await cookies();
-  const raw = jar.get(CART_COOKIE)?.value;
-  const opts = { httpOnly: true, sameSite: "lax" as const, secure: process.env.NODE_ENV === "production", path: "/", maxAge: MAX_AGE };
-  const next = await demoApply(parseState(raw), action);
-  jar.set(CART_COOKIE, serialize(next), opts);
+  const next = await demoApply(await etatCourant(jar.get(CART_COOKIE)?.value), action);
+  jar.set(CART_COOKIE, serialize(next), OPTIONS_COOKIE);
   return computeDemoCart(next, await getAllProducts());
+}
+
+/** Note sur le panier la commande ouverte pour lui (route de commande, paiement Stripe). */
+export async function noterCommandeOuverte(commande: string): Promise<void> {
+  const jar = await cookies();
+  jar.set(CART_COOKIE, serialize({ ...parseState(jar.get(CART_COOKIE)?.value), c: commande }), OPTIONS_COOKIE);
 }

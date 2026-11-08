@@ -45,6 +45,10 @@ test("Anti-fraude : première commande élevée, rafale, hors de l’Union ; une
   assert.deepEqual(suspicion(fidele[1], fidele), []);
   const rafale = [1, 2, 3].map((i) => o(`AW-1${i}`, "c@exemple.fr", 20_000, `2026-10-15T0${i}:00:00Z`));
   assert.match(suspicion(rafale[2], rafale).join(), /3 commandes/);
+  // une tentative de paiement abandonnée n'est pas une commande précédente
+  const abandon = { ...(o("AW-7", "e@exemple.fr", 30_000, "2026-09-10T08:00:00Z") as object), status: "pending" } as never;
+  const apres = o("AW-8", "e@exemple.fr", 200_000, "2026-10-15T08:00:00Z");
+  assert.match(suspicion(apres, [abandon, apres]).join(), /première commande/);
   const loin = o("AW-9", "d@exemple.fr", 120_000, "2026-10-15T08:00:00Z", "US");
   assert.match(suspicion(loin, [loin]).join(), /hors de l’Union/);
 });

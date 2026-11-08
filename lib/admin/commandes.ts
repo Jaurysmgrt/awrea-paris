@@ -116,7 +116,10 @@ export type GesteCommande = "annuler-rembourser" | "rembourser";
  * n'est pas partie ; rembourser une fois livrée ; un retour se rembourse depuis Retours (pièce par
  * pièce, avec son avoir) ; rien sur une commande remboursée, en attente de paiement ou en route.
  */
-export function gestesPossibles(order: { status: OrderStatus }): GesteCommande[] {
+export function gestesPossibles(order: { status: OrderStatus; payment?: { prestataire: string; statut: string } }): GesteCommande[] {
+  // paiement Stripe jamais encaissé (en attente, refusé, expiré) : il n'y a rien à rembourser
+  const p = order.payment;
+  if (p?.prestataire === "stripe" && !["reussi", "partiellement-rembourse"].includes(p.statut)) return [];
   if (["paid", "in_production", "ready", "blocked"].includes(order.status)) return ["annuler-rembourser"];
   if (order.status === "delivered") return ["rembourser"];
   return [];

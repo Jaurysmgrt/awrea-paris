@@ -150,7 +150,10 @@ test("API : session et remboursement portent une clé d'idempotence, montant et 
     recues.push({ url: req.url ?? "", cle: req.headers["idempotency-key"] as string | undefined, corps });
     res.setHeader("Content-Type", "application/json");
     if (req.url === "/v1/checkout/sessions") res.end(JSON.stringify({ id: "cs_test_1", object: "checkout.session", url: "https://checkout.stripe.com/c/pay/cs_test_1", expires_at: 1762599000, livemode: false }));
-    else if (req.url === "/v1/refunds") res.end(JSON.stringify({ id: "re_1", object: "refund", status: "succeeded", amount: Number(new URLSearchParams(corps).get("amount")) }));
+    else if (req.url === "/v1/refunds") {
+      const montant = Number(new URLSearchParams(corps).get("amount"));
+      res.end(JSON.stringify({ id: "re_1", object: "refund", status: "succeeded", amount: montant, charge: { id: "ch_1", object: "charge", amount: 23900, amount_refunded: montant + 1000 } }));
+    }
     else {
       res.statusCode = 404;
       res.end("{}");
@@ -170,6 +173,8 @@ test("API : session et remboursement portent une clé d'idempotence, montant et 
     assert.equal(form.get("payment_method_types[0]"), null);
     const r = await rembourser(client, { intention: "pi_1", montant: 9000, commande: "o-test1", numero: "AW-1043", motif: "Retour R-1", cle: { quoi: "retour", id: "R-1" } });
     assert.equal(r.montant, 9000);
+    assert.equal(r.totalCharge, 10000, "le montant remboursé de la charge, relu avec le remboursement");
+    assert.equal(new URLSearchParams(recues[1].corps).get("expand[0]"), "charge");
     assert.equal(recues[1].cle, "awrea-retour-R-1");
     assert.equal(new URLSearchParams(recues[1].corps).get("payment_intent"), "pi_1");
     await assert.rejects(rembourser(client, { intention: "pi_1", montant: 0, commande: "o", numero: "n", motif: "m", cle: { quoi: "remboursement", id: "o" } }));

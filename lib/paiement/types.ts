@@ -52,6 +52,11 @@ export interface Paiement {
   test?: boolean;
   /** empreinte du panier et de l'adresse : une même commande ne s'enregistre qu'une fois */
   empreinte?: string;
+  /**
+   * remboursements demandés à Stripe depuis la boutique, un par geste (« remboursement » de la
+   * commande, « retour » R-…) : un geste déjà parti n'est jamais redemandé, même des jours après
+   */
+  remboursements?: { cle: string; id: string; montant: number; at: string }[];
   evenements: EvenementPaiement[];
 }
 

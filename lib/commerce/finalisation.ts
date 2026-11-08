@@ -1,18 +1,27 @@
 /**
  * Ce qui suit le paiement d'une commande, quel que soit le chemin (paiement d'essai de la
- * démonstration, webhook de Stripe, retour de la cliente sur la page de confirmation) : la commande
- * passe à « Commande reçue », est copiée dans la base clientes, la facture est émise, les certificats
- * aussi, l'e-mail « Commande reçue » part avec la facture, les agents sont prévenus.
+ * démonstration, webhook de Stripe, retour de la cliente sur la page de confirmation, relance par
+ * l'agent des commandes) : la commande passe à « Commande reçue », est copiée dans la base clientes,
+ * la facture est émise, les certificats aussi, l'e-mail « Commande reçue » part avec la facture, les
+ * agents sont prévenus.
  *
- * Une seule fois par commande, même si le webhook de Stripe et le retour de la cliente arrivent en
- * même temps, ou si Stripe renvoie le même événement (verrou du stockage, jamais expiré).
+ * Chaque étape ne se fait qu'une fois (facture par commande, certificats sous leur verrou, e-mail
+ * gardé par commande et par étape) : la finalisation peut donc être relancée sans rien doubler. Elle
+ * n'est marquée terminée que si toutes les étapes ont réussi ; sinon elle lève une erreur, et le
+ * prochain essai (Stripe renvoie l'événement, la cliente revient, l'agent repasse) reprend les étapes
+ * manquantes. Une seule finalisation à la fois par commande (verrou à jeton).
+ *
+ * Les marques (finalisation terminée, journal de l'Atelier) vivent dans le stockage partagé Upstash,
+ * seul admis sur la boutique réelle ; en démonstration avec le stockage fichier, elles ne durent que
+ * le temps du processus.
  */
 import "server-only";
 import { after } from "next/server";
 import { kv } from "@/lib/store";
 import { shop } from "@/content/settings";
 import { getAllProducts } from "@/lib/commerce";
-import { saveOrder, updateOrder } from "@/lib/commerce/orders";
+import { saveOrder, setOrderStatus, statutRegle, updateOrder } from "@/lib/commerce/orders";
+import { prendreVerrou, rendreVerrou } from "@/lib/store/verrou";
 import { delaiText, fill, type CatalogueTexts, type CommerceTexts } from "@/lib/commerce/texts";
 import { getDoc } from "@/lib/edition/read";
 import { formatPrice } from "@/lib/format";
@@ -30,6 +39,9 @@ import type { Order } from "@/lib/commerce/types";
 const VINGT_ANS = 60 * 60 * 24 * 365 * 20;
 const cle = (id: string) => `commandes:finalisee:${id}`;
 
+/** Une étape de la finalisation n'a pas abouti : elle sera reprise au prochain essai. */
+export class FinalisationIncomplete extends Error {}
+
 /** Lance une tâche après la réponse quand on est dans une requête, tout de suite sinon. */
 function ensuite(tache: () => Promise<unknown>) {
   try {
@@ -39,18 +51,39 @@ function ensuite(tache: () => Promise<unknown>) {
   }
 }
 
-/** La commande a-t-elle déjà été finalisée ? */
+/** La commande a-t-elle été entièrement finalisée ? */
 export async function dejaFinalisee(id: string): Promise<boolean> {
   return (await kv.peek(cle(id))) > 0;
 }
 
 /**
- * Finalise une commande payée. Renvoie false si elle l'était déjà (rien n'est refait). Les étapes
- * qui échouent sont consignées sans empêcher les suivantes : une facture en retard ne bloque pas
- * l'e-mail, et la commande reste « reçue » dans l'Atelier.
+ * Finalise une commande payée. Renvoie false si elle l'était déjà, ou si une autre finalisation de
+ * la même commande est en cours ; lève FinalisationIncomplete si une étape a échoué (les autres sont
+ * faites quand même : une facture en retard ne bloque pas l'e-mail).
  */
 export async function finaliserCommande(commande: Order): Promise<boolean> {
-  if ((await kv.incr(cle(commande.id), VINGT_ANS)) !== 1) return false;
+  if (await dejaFinalisee(commande.id)) return false;
+  // deux minutes au plus : un serveur arrêté en cours de route ne bloque pas le prochain essai
+  const jeton = await prendreVerrou(`finalisation:${commande.id}`, 120_000);
+  if (!jeton) return false;
+  try {
+    if (await dejaFinalisee(commande.id)) return false;
+    const echecs = await etapes(commande);
+    if (echecs.length) throw new FinalisationIncomplete(`Commande ${commande.number} payée, finalisation incomplète (${echecs.join(", ")}) : elle sera reprise.`);
+    await kv.incr(cle(commande.id), VINGT_ANS);
+    return true;
+  } finally {
+    await rendreVerrou(`finalisation:${commande.id}`, jeton);
+  }
+}
+
+async function etapes(commande: Order): Promise<string[]> {
+  const echecs: string[] = [];
+  const noter = (etape: string) => (e: unknown) => {
+    console.error(`[commande] ${etape}`, e);
+    echecs.push(etape);
+    return null;
+  };
   // dernière version enregistrée (le paiement a pu être complété entre-temps), passée à « reçue »
   const recue = (o: Order): Order => ({ ...o, status: o.status === "pending" ? "paid" : o.status });
   let order = await updateOrder(commande.id, recue);
@@ -58,38 +91,46 @@ export async function finaliserCommande(commande: Order): Promise<boolean> {
     order = recue(commande);
     await saveOrder(order);
   }
+  // une étape « en attente de paiement » réglée à part ne cache jamais une commande payée (une
+  // commande mise de côté par la créatrice ou l'anti-fraude le reste)
+  const reglee = await statutRegle(order.id);
+  if (reglee === "pending") await setOrderStatus(order.id, "paid");
+  order = { ...order, status: reglee === "pending" ? "paid" : (reglee ?? order.status) };
 
   // base clientes : commande recopiée et rattachée au compte de même e-mail
   ensuite(() => upsertOrder({ ...order, source: order.source }).catch((e) => console.error("[commande] base clientes", e)));
   if (order.consents?.newsletter) {
-    const list = (await kv.get<{ email: string; date: string; source?: string }[]>("newsletter:subscribers")) ?? [];
-    if (!list.some((s) => s.email === order.email)) await kv.set("newsletter:subscribers", [...list, { email: order.email, date: order.createdAt, source: "commande" }]);
-    ensuite(async () => {
-      await upsertContact({ email: order.email, firstName: order.address?.firstName, lastName: order.address?.lastName, marketing: true }).catch((e) => console.error("[commande] e-mails", e));
-      await onNewsletterSignup(order.email).catch(() => {});
-    });
+    const inscrite = order;
+    // inscrite une fois : une finalisation reprise ne renvoie pas l'e-mail de bienvenue
+    const nouvelle = await (async () => {
+      const list = (await kv.get<{ email: string; date: string; source?: string }[]>("newsletter:subscribers")) ?? [];
+      if (list.some((s) => s.email === inscrite.email)) return false;
+      await kv.set("newsletter:subscribers", [...list, { email: inscrite.email, date: inscrite.createdAt, source: "commande" }]);
+      return true;
+    })().catch(noter("lettre d’information"));
+    if (nouvelle)
+      ensuite(async () => {
+        await upsertContact({ email: inscrite.email, firstName: inscrite.address?.firstName, lastName: inscrite.address?.lastName, marketing: true }).catch((e) => console.error("[commande] e-mails", e));
+        await onNewsletterSignup(inscrite.email).catch(() => {});
+      });
   }
 
   // facture émise dès le paiement (numérotation continue), jointe à l'e-mail de confirmation
-  const invoice = await issueInvoice(order).catch((e) => {
-    console.error("[commande] facture", e);
-    return null;
-  });
+  const invoice = await issueInvoice(order).catch(noter("facture"));
   const invoiceFile = invoice ? await invoicePdf(invoice).catch(() => null) : null;
 
   // un certificat d'authenticité numérique par pièce (QR code, rattachement au compte)
-  await issueCertificates(order).catch((e) => {
-    console.error("[commande] certificats", e);
-    return [];
-  });
+  await issueCertificates(order).catch(noter("certificats"));
 
   // e-mail « Commande reçue » (document email-commande-recue, modifiable dans l'Atelier) : pièces et
   // délais, totaux, facture jointe ; il ne part qu'une fois par commande (lib/email/commandes.ts)
-  const [products, tCommerce, tCatalogue] = await Promise.all([
+  const textes = await Promise.all([
     getAllProducts(),
     getDoc<CommerceTexts>("commerce", undefined, { plain: true }),
     getDoc<CatalogueTexts>("catalogue", undefined, { plain: true }),
-  ]);
+  ]).catch(noter("e-mail"));
+  if (!textes) return echecs;
+  const [products, tCommerce, tCatalogue] = textes;
   const tp = tCommerce.panier;
   const relay = order.shipping.relay;
   const taxes = order.taxes;
@@ -110,9 +151,10 @@ export async function finaliserCommande(commande: Order): Promise<boolean> {
       ...(taxes?.export ? [{ label: tCommerce.commande.droitsEtTaxes, value: formatPrice(taxes.export.duty + taxes.export.importVat) }] : []),
       { label: taxes?.export ? tCommerce.commande.totalTaxes : tp.total, value: formatPrice(order.total) },
     ],
-  }).catch((e) => console.error("[commande] e-mail", e));
+  }).catch(noter("e-mail"));
 
-  await onOrderCreated(order).catch((e) => console.error("[commande] agents", e));
+  // journal de l'Atelier : une ligne par commande, même si la finalisation est reprise
+  if ((await kv.incr(`${cle(order.id)}:agents`, VINGT_ANS)) === 1) await onOrderCreated(order).catch((e) => console.error("[commande] agents", e));
   ensuite(() => runCommandesConfectionAgent("evenement").catch((e) => console.error("[agent commandes-confection]", e)));
-  return true;
+  return echecs;
 }

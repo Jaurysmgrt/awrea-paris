@@ -7,31 +7,33 @@
  * Client → site → page de paiement Stripe → webhook « paiement réussi » (ou retour de la cliente,
  * vérifié auprès de Stripe) → commande « reçue », facture, certificats, e-mail → Atelier.
  *
- * Idempotence : un événement déjà traité ne l'est jamais deux fois (son identifiant est gardé
- * trente jours) ; la finalisation n'a lieu qu'une fois par commande (lib/commerce/finalisation.ts) ;
- * une seule page de paiement par commande (clé d'idempotence de Stripe).
+ * Les règles du rapprochement vivent dans lib/paiement/rapprochement.ts (testées sans réseau) ; ce
+ * module y branche le stockage, les commandes, la finalisation et les alertes.
+ *
+ * Idempotence : un événement n'est noté traité qu'une fois appliqué (gardé trente jours) ; la
+ * finalisation se reprend sans rien doubler (lib/commerce/finalisation.ts) ; un remboursement voulu
+ * (la commande, tel retour) ne part qu'une fois, même redemandé des jours après.
  */
 import "server-only";
+import { randomUUID } from "node:crypto";
 import type Stripe from "stripe";
 import { kv } from "@/lib/store";
 import { identity } from "@/content/brand/identity";
 import { getOrder, setOrderStatus, updateOrder } from "@/lib/commerce/orders";
-import { dejaRembourse, marquerRembourse } from "@/lib/commerce/argent";
+import { dejaRembourse, gesteEnCours, marquerRembourse } from "@/lib/commerce/argent";
 import { finaliserCommande } from "@/lib/commerce/finalisation";
 import { logAction } from "@/lib/agents/log";
 import { sendEmail } from "@/lib/email/send";
 import { brandEmail } from "@/lib/email/templates";
 import { formatPrice } from "@/lib/format";
 import type { Order } from "@/lib/commerce/types";
-import { EVENEMENTS_ECOUTES, reperesDe, suivreEvenement } from "@/lib/paiement/evenements";
 import { parametresSession, type OptionsSession } from "@/lib/paiement/session";
 import { creerSession, lireSession } from "@/lib/paiement/stripe-api";
 import { avecEvenement, paiementEnAttente, type EvenementPaiement } from "@/lib/paiement/types";
 import { clientPourPayer, clientStripe } from "@/lib/paiement/stripe";
+import * as rapprochement from "@/lib/paiement/rapprochement";
 
-const TRENTE_JOURS = 60 * 60 * 24 * 30;
 const JOURNAL = "paiements:journal";
-const indexIntention = (pi: string) => `paiement:intention:${pi}`;
 
 export interface LigneJournal extends EvenementPaiement {
   commande: string;
@@ -46,9 +48,54 @@ export async function journalPaiements(limite = 200): Promise<LigneJournal[]> {
   return kv.list<LigneJournal>(JOURNAL, limite);
 }
 
-async function journaliser(o: Order, e: EvenementPaiement, test?: boolean) {
-  await kv.push<LigneJournal>(JOURNAL, { ...e, commande: o.id, numero: o.number, ...(test ? { test } : {}) }, 2000).catch((x) => console.error("[paiement] journal", x));
+async function journaliser(o: Order, e: EvenementPaiement) {
+  await kv.push<LigneJournal>(JOURNAL, { ...e, commande: o.id, numero: o.number, ...(o.payment?.test ? { test: true } : {}) }, 2000).catch((x) => console.error("[paiement] journal", x));
 }
+
+const lienCommande = (o: Order) => `atelier:/commandes/${encodeURIComponent(o.number)}`;
+
+async function alerter(o: Order | null, resume: string) {
+  await logAction({ agent: "systeme", kind: "paiement", status: "failed", summary: o ? `Commande ${o.number} : ${resume}` : resume, ...(o ? { target: { type: "order", id: o.id, label: o.number, href: lienCommande(o) } } : {}) }).catch(() => {});
+  await sendEmail({
+    to: process.env.ATELIER_EMAIL ?? identity.email,
+    subject: o ? `Paiement de la commande ${o.number} : ${resume.toLowerCase()}` : "Paiement Stripe à vérifier",
+    tag: "alerte",
+    ...brandEmail({
+      preheader: resume,
+      title: o ? `Commande ${o.number}` : "Paiement à vérifier",
+      paragraphs: [resume, ...(o ? [`Total de la commande : ${formatPrice(o.total)}. Le détail est dans l’Atelier, sur la fiche de la commande, et dans le tableau de bord Stripe.`] : [])],
+      cta: o ? { label: "Ouvrir la commande", href: lienCommande(o) } : { label: "Ouvrir les paiements", href: "atelier:/paiements" },
+    }),
+  }).catch((e) => console.error("[paiement] alerte", e));
+}
+
+/** Le stockage, les commandes et les envois réels, branchés sur les règles du rapprochement. */
+const branchements: rapprochement.Branchements = {
+  prendre: (cle, jeton, ms) => kv.prendre(cle, jeton, ms),
+  rendre: (cle, jeton) => kv.rendre(cle, jeton),
+  incr: (cle, ttl) => kv.incr(cle, ttl),
+  peek: (cle) => kv.peek(cle),
+  get: (cle) => kv.get(cle),
+  set: (cle, v) => kv.set(cle, v),
+  majCommande: updateOrder,
+  jeton: randomUUID,
+  journaliser,
+  alerter,
+  async finaliser(o, premiere) {
+    if (premiere) await logAction({ agent: "systeme", kind: "paiement", status: "done", summary: `Commande ${o.number} payée (${formatPrice(o.payment?.montant ?? o.total)}${o.payment?.test ? ", mode test de Stripe" : ""})`, target: { type: "order", id: o.id, label: o.number, href: lienCommande(o) } }).catch(() => {});
+    await finaliserCommande(o);
+  },
+  async rembourseeChezStripe(o, montant) {
+    await setOrderStatus(o.id, "refunded");
+    // remboursé par l'Atelier (geste en cours, ou déjà inscrit sur le paiement) : rien à signaler
+    const parAtelier = (o.payment?.remboursements ?? []).reduce((t, r) => t + r.montant, 0);
+    if (parAtelier >= montant || (await dejaRembourse(o.id)) || (await gesteEnCours(o.id))) return;
+    // remboursement total fait hors de l'Atelier (tableau de bord Stripe) : la commande le dit,
+    // l'Atelier ne la rembourse plus, et la créatrice sait qu'aucun avoir n'a été émis par le site
+    await marquerRembourse(o.id, { montant, par: "Stripe" });
+    await alerter(o, `Remboursement total fait depuis le tableau de bord Stripe (${formatPrice(montant)}) : aucun avoir n’a été émis par le site, ni aucun e-mail envoyé à la cliente`);
+  },
+};
 
 /**
  * Ouvre la page de paiement Stripe d'une commande enregistrée « en attente de paiement » et garde
@@ -59,77 +106,23 @@ export async function ouvrirPaiement(order: Order, options: OptionsSession): Pro
   if (!client) throw new PaiementError("Le paiement en ligne n’est pas ouvert.");
   const s = await creerSession(client, order, parametresSession(order, options));
   const e: EvenementPaiement = { at: new Date().toISOString(), type: "checkout.session.created", resume: "Page de paiement ouverte", reference: s.id, montant: order.total };
-  await updateOrder(order.id, (o) => ({ ...o, payment: avecEvenement({ ...(o.payment ?? paiementEnAttente("stripe", o.total, s.test)), session: s.id, url: s.url, expireLe: s.expireLe, test: s.test || undefined }, e) }));
-  await journaliser(order, e, s.test);
+  const maj = await updateOrder(order.id, (o) => ({ ...o, payment: avecEvenement({ ...(o.payment ?? paiementEnAttente("stripe", o.total, s.test)), session: s.id, url: s.url, expireLe: s.expireLe, test: s.test || undefined }, e) }));
+  await journaliser(maj ?? order, e);
   return s.url;
 }
 
-/** Commande concernée par un événement : par ses métadonnées, sinon par son PaymentIntent. */
-async function commandeDe(event: Stripe.Event): Promise<string | null> {
-  const r = reperesDe(event);
-  if (r.commande) return r.commande;
-  if (r.intention) return kv.get<string>(indexIntention(r.intention));
-  return null;
-}
-
-async function alerter(o: Order, resume: string) {
-  const to = process.env.ATELIER_EMAIL ?? identity.email;
-  await sendEmail({
-    to,
-    subject: `Paiement de la commande ${o.number} : ${resume.toLowerCase()}`,
-    tag: "alerte",
-    ...brandEmail({ preheader: resume, title: `Commande ${o.number}`, paragraphs: [resume, `Total de la commande : ${formatPrice(o.total)}. Le détail est dans l’Atelier, sur la fiche de la commande, et dans le tableau de bord Stripe.`], cta: { label: "Ouvrir la commande", href: `atelier:/commandes/${encodeURIComponent(o.number)}` } }),
-  }).catch((e) => console.error("[paiement] alerte", e));
-}
-
-/** Applique un événement à sa commande (sous le verrou des commandes) et donne la suite. */
-async function appliquer(event: Stripe.Event): Promise<void> {
-  const id = await commandeDe(event);
-  if (!id) {
-    console.warn(`[paiement] ${event.type} ${event.id} : aucune commande de la boutique`);
-    return;
-  }
-  const etat: { suite: ReturnType<typeof suivreEvenement>["suite"]; nouveau?: EvenementPaiement } = { suite: "aucune" };
-  const maj = await updateOrder(id, (o) => {
-    const avant = o.payment ?? paiementEnAttente("stripe", o.total);
-    const r = suivreEvenement(avant, event);
-    etat.suite = r.suite;
-    etat.nouveau = r.paiement.evenements.length > avant.evenements.length ? r.paiement.evenements[r.paiement.evenements.length - 1] : undefined;
-    return { ...o, payment: r.paiement, ...(r.paiement.moyen ? { paymentMethod: `Stripe · ${r.paiement.moyen}` } : {}) };
-  });
-  if (!maj?.payment) return;
-  const p = maj.payment;
-  const { suite, nouveau } = etat;
-  if (p.intention) await kv.set(indexIntention(p.intention), maj.id);
-  if (nouveau) await journaliser(maj, nouveau, p.test);
-  if (suite === "finaliser") {
-    await finaliserCommande(maj);
-    await logAction({ agent: "systeme", kind: "paiement", status: "done", summary: `Commande ${maj.number} payée (${formatPrice(p.montant)}${p.test ? ", mode test de Stripe" : ""})`, target: { type: "order", id: maj.id, label: maj.number, href: `atelier:/commandes/${encodeURIComponent(maj.number)}` } }).catch(() => {});
-  } else if (suite === "rembourse") {
-    // remboursement total fait depuis Stripe : la commande le dit, et l'Atelier ne la rembourse plus
-    if (!(await dejaRembourse(maj.id))) await marquerRembourse(maj.id, { montant: p.rembourse, par: "Stripe" });
-    await setOrderStatus(maj.id, "refunded");
-  } else if (suite === "alerter" && nouveau) {
-    await logAction({ agent: "systeme", kind: "paiement", status: "failed", summary: `Commande ${maj.number} : ${nouveau.resume}`, target: { type: "order", id: maj.id, label: maj.number, href: `atelier:/commandes/${encodeURIComponent(maj.number)}` } }).catch(() => {});
-    await alerter(maj, nouveau.resume);
-  }
-}
-
 /**
- * Traite un événement reçu par le webhook (signature déjà vérifiée). « deja » : déjà traité, rien
- * n'est refait. Une erreur relance l'événement plus tard (Stripe le renvoie tant qu'il échoue).
+ * La page de paiement n'a pas pu s'ouvrir : la commande le dit (paiement « échoué », sans page),
+ * pour que l'Atelier ne l'attende pas et qu'aucun geste d'argent n'y soit proposé.
  */
-export async function traiterEvenement(event: Stripe.Event): Promise<"traite" | "deja" | "ignore"> {
-  if (!(EVENEMENTS_ECOUTES as readonly string[]).includes(event.type)) return "ignore";
-  const cle = `stripe:evenement:${event.id}`;
-  if ((await kv.incr(cle, TRENTE_JOURS)) !== 1) return "deja";
-  try {
-    await appliquer(event);
-    return "traite";
-  } catch (e) {
-    await kv.del(cle).catch(() => {});
-    throw e;
-  }
+export async function paiementNonOuvert(order: Order, raison: string): Promise<void> {
+  const e: EvenementPaiement = { at: new Date().toISOString(), type: "atelier.ouverture", resume: `La page de paiement n’a pas pu s’ouvrir (${raison.slice(0, 120)})` };
+  await updateOrder(order.id, (o) => ({ ...o, payment: avecEvenement({ ...(o.payment ?? paiementEnAttente("stripe", o.total)), statut: "echoue" }, e) })).catch(() => null);
+}
+
+/** Traite un événement reçu par le webhook (signature déjà vérifiée). */
+export function traiterEvenement(event: Stripe.Event) {
+  return rapprochement.traiterEvenement(branchements, event);
 }
 
 /**
@@ -147,7 +140,7 @@ export async function confirmerRetour(order: Order, sessionId: string): Promise<
   });
   if (!s || s.metadata?.commande !== order.id) return order;
   const synthese = { id: `retour_${s.id}`, object: "event", type: "checkout.session.completed", created: Math.floor(Date.now() / 1000), livemode: s.livemode, data: { object: s } } as unknown as Stripe.Event;
-  await appliquer(synthese);
+  await rapprochement.appliquer(branchements, synthese).catch((e) => console.error("[paiement] retour de la cliente", e));
   return (await getOrder(order.id)) ?? order;
 }
 
@@ -155,12 +148,15 @@ export async function confirmerRetour(order: Order, sessionId: string): Promise<
  * Rembourse par Stripe tout ou partie d'une commande payée par Stripe (geste de l'Atelier, proposition
  * d'un agent validée par la créatrice, retour). Appelé sous le verrou d'argent de la commande
  * (lib/commerce/argent.ts). `cle` : « remboursement » de la commande entière, ou « retour » R-… ;
- * la même demande deux fois ne rembourse qu'une fois (idempotence de Stripe).
+ * un remboursement déjà parti pour cette clé n'est jamais redemandé (il est renvoyé tel quel).
  */
 export async function rembourserParStripe(order: Order, montant: number, motif: string, cle: { quoi: "remboursement" | "retour"; id: string }): Promise<{ id: string; statut: string; montant: number }> {
   const p = order.payment;
   if (p?.prestataire !== "stripe") throw new PaiementError("Cette commande n’a pas été payée par Stripe.");
-  if (!p.intention) throw new PaiementError(`Le paiement Stripe de la commande ${order.number} n’est pas encore confirmé : rien ne peut être remboursé.`);
+  const cleTexte = rapprochement.cleRemboursement(cle);
+  const parti = rapprochement.remboursementParti(p, cleTexte);
+  if (parti) return { id: parti.id, statut: "deja", montant: parti.montant };
+  if (!p.intention || !rapprochement.estEncaisse(p)) throw new PaiementError(`Le paiement Stripe de la commande ${order.number} n’est pas encaissé : rien ne peut être remboursé.`);
   const reste = p.montant - p.rembourse;
   if (montant > reste) throw new PaiementError(`Il reste ${formatPrice(Math.max(0, reste))} à rembourser sur la commande ${order.number} : le remboursement demandé dépasse ce montant.`);
   const client = clientStripe();
@@ -168,11 +164,8 @@ export async function rembourserParStripe(order: Order, montant: number, motif: 
   const { rembourser } = await import("@/lib/paiement/stripe-api");
   const r = await rembourser(client, { intention: p.intention, montant, commande: order.id, numero: order.number, motif, cle });
   const e: EvenementPaiement = { at: new Date().toISOString(), type: "atelier.remboursement", resume: `Remboursement envoyé à Stripe (${motif})${r.statut === "succeeded" ? "" : ", en cours"}`, reference: r.id, montant: r.montant };
-  const maj = await updateOrder(order.id, (o) => {
-    const q = o.payment ?? p;
-    const rembourse = Math.min(q.montant, q.rembourse + r.montant);
-    return { ...o, payment: avecEvenement({ ...q, rembourse, statut: rembourse >= q.montant ? "rembourse" : "partiellement-rembourse" }, e) };
-  });
-  await journaliser(maj ?? order, e, p.test);
+  // inscrit aussitôt sur la commande : redemandé plus tard, ce remboursement ne repart pas
+  const maj = await updateOrder(order.id, (o) => ({ ...o, payment: rapprochement.avecRemboursement(o.payment ?? p, { cle: cleTexte, id: r.id, montant: r.montant, totalCharge: r.totalCharge }, e) }));
+  await journaliser(maj ?? order, e);
   return r;
 }

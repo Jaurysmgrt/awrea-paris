@@ -319,9 +319,15 @@ adresse `https://<adresse de la version de test>/api/webhooks/stripe`, événeme
 `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
 `checkout.session.async_payment_failed`, `checkout.session.expired`,
 `payment_intent.payment_failed`, `charge.succeeded`, `charge.refunded`, `refund.failed`,
-`charge.dispute.created`, `charge.dispute.closed`. Copier la **clé de signature** (`whsec_…`) dans
-`STRIPE_WEBHOOK_SECRET`. Le site refuse tout message dont la signature n'est pas la bonne, et ne
-traite jamais deux fois le même événement.
+`charge.dispute.created`, `charge.dispute.closed`. Choisir la **version d'API** `2026-10-28.endive`
+(celle de la bibliothèque Stripe du site : les messages arrivent alors dans la forme qu'il attend).
+Copier la **clé de signature** (`whsec_…`) dans `STRIPE_WEBHOOK_SECRET`. Le site refuse tout message
+dont la signature n'est pas la bonne, et ne traite jamais deux fois le même événement.
+
+La version de test doit aussi avoir **son propre stockage Upstash** (variables `KV_REST_API_URL` et
+`KV_REST_API_TOKEN` pour Preview, d'une base distincte de la production) : les commandes de test ne
+se mêlent jamais aux vraies. En démonstration, seule une clé de test ouvre le paiement par Stripe ;
+une clé réelle y est ignorée (le paiement d'essai reste en place).
 
 **6. Essayer en mode test** : sur la version de test, commander une pièce, payer avec la carte de
 test `4242 4242 4242 4242` (date future, cryptogramme au choix), puis : la page de confirmation
@@ -333,7 +339,8 @@ depuis la fiche de la commande (il apparaît dans Stripe, puis dans l'historique
 **7. Le passage en production** : quand tout est juste en mode test, refaire les points 4 et 5 en
 **mode réel** dans Stripe (clé `sk_live_…`, webhook vers `https://www.awreaparis.com/api/webhooks/stripe`),
 et renseigner ces deux clés pour **Production** dans Vercel, puis redéployer. La boutique réelle
-refuse une clé de test : tant qu'une clé réelle manque, elle ne prend aucune commande payée.
+refuse une clé de test, et n'ouvre le paiement qu'avec le stockage partagé Upstash branché (étape 3) :
+tant que l'un des deux manque, elle ne prend aucune commande payée, et Réglages dit pourquoi.
 
 **Vérifier** : Atelier › **Réglages** › **Connexions**, ligne « Paiement en ligne (Stripe) » ; et
 Atelier › Commandes › **Paiements**.
