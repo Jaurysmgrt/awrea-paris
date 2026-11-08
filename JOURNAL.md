@@ -891,8 +891,9 @@ Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/
   acceptés partout ; ils ne le sont plus sur la boutique réelle.
 - Base clientes : migration `20261108000000_boutique_independante.sql` (colonne `reference`, aucune
   commande effacée). Documents, CLAUDE.md et fiches d'agents mis à jour (`specialiste-boutique`).
-- Reste, hors de ce lot : une mention dans `.github/workflows/maintenance.yml`, que l'agent ne
-  touche jamais, à retirer par la créatrice.
+- La dernière mention, dans `.github/workflows/maintenance.yml`, a été remplacée par Stripe à la
+  demande de la créatrice. Shopify ne reste cité que pour dire qu'il n'est pas utilisé (CLAUDE.md,
+  branche de sauvegarde) et dans la veille design, parmi les modèles à ne pas copier.
 
 ## Paiement par Stripe (08/11)
 
