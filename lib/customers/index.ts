@@ -466,6 +466,49 @@ export async function deleteAccount(s: CustomerSession) {
 }
 
 // ------------------------------------------------------------------ administration (tableau de bord)
+/**
+ * Atelier : le profil d'une cliente, lu avec la clé de service (jamais depuis le navigateur). Null
+ * pour une cliente qui a commandé sans créer de compte.
+ */
+export async function profilPourAtelier(id: string): Promise<CustomerProfile | null> {
+  if (isSupabaseConfigured) {
+    if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+    const { data } = await supabaseAdmin().from("customers").select("*").eq("id", id).maybeSingle<CustomerRow>();
+    return data ? fromRow(data) : null;
+  }
+  return kv.get<CustomerProfile>(demoKey(id));
+}
+
+/**
+ * Atelier : les données d'une cliente à lui remettre quand elle les demande (droit d'accès) :
+ * profil, adresses, liste d'envies, commandes. Elle peut aussi les télécharger elle-même depuis son
+ * compte (exportData, plus complet : navigation et avis).
+ */
+export async function exportPourAtelier(c: { id: string; email: string }) {
+  const email = c.email.trim().toLowerCase();
+  const [profile, orders] = await Promise.all([profilPourAtelier(c.id), getOrders()]);
+  let addresses: Address[] = [];
+  let wishlist: string[] = [];
+  if (profile && isSupabaseConfigured) {
+    const admin = supabaseAdmin();
+    const [a, w] = await Promise.all([admin.from("addresses").select("*").eq("customer_id", c.id), admin.from("wishlist_items").select("product_handle").eq("customer_id", c.id)]);
+    addresses = (a.data as AddressRow[] | null)?.map(addressFromRow) ?? [];
+    wishlist = (w.data ?? []).map((r: { product_handle: string }) => r.product_handle);
+  } else if (profile) {
+    addresses = (await kv.get<Address[]>(demoKey(c.id, "addr"))) ?? [];
+    wishlist = (await kv.get<string[]>(demoKey(c.id, "wish"))) ?? [];
+  }
+  return {
+    exportedAt: new Date().toISOString(),
+    controller: "Awrea Paris",
+    email: c.email,
+    profile,
+    addresses,
+    wishlist,
+    orders: orders.filter((o) => o.email.trim().toLowerCase() === email),
+  };
+}
+
 export async function listCustomerStats(): Promise<CustomerStats[]> {
   if (isSupabaseConfigured) {
     const { data, error } = await supabaseAdmin().from("customer_stats").select("*").order("created_at", { ascending: false }).limit(2000);

@@ -1,4 +1,4 @@
-import { listCustomerStats, segmentLabel, customersMode, type Segment } from "@/lib/customers";
+import { listCustomerStats, customersMode } from "@/lib/customers";
 import { consentStats } from "@/lib/consent/store";
 import { flowCatalog } from "@/lib/marketing/flows";
 import { marketingProvider } from "@/lib/marketing/provider";
@@ -9,13 +9,22 @@ import { formatPrice } from "@/lib/format";
 import { When } from "@/components/admin/Status";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { atelierHref, atelierApi } from "@/lib/admin/path";
+import Link from "@/components/ui/Link";
+import { categorieActivite, CATEGORIES, compterParCategorie, estCategorie, filtrerClientes, LIBELLE_CATEGORIE, type CategorieActivite } from "@/lib/admin/clientes";
 
 export const dynamic = "force-dynamic";
 
-const SEGMENTS: Segment[] = ["nouvelle", "fidele", "vip"];
+const AFFICHEES = 200;
 
-export default async function ClientesPage({ searchParams }: { searchParams: Promise<{ segment?: string }> }) {
-  const { segment } = await searchParams;
+/**
+ * Clientes de l'Atelier : chercher une cliente, la retrouver par catégorie d'activité (nouvelle,
+ * régulière, fidèle, inactive), ouvrir sa fiche ; consentements, ventes par source, e-mails
+ * automatiques et registre RGPD.
+ */
+export default async function ClientesPage({ searchParams }: { searchParams: Promise<{ q?: string; categorie?: string }> }) {
+  const sp = await searchParams;
+  const q = (sp.q ?? "").slice(0, 80);
+  const categorie: CategorieActivite | "toutes" = estCategorie(sp.categorie) ? sp.categorie : "toutes";
   const [customers, consent, sources, sent, rgpd] = await Promise.all([
     listCustomerStats(),
     consentStats(),
@@ -23,32 +32,102 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
     kv.list<{ to: string; subject: string; flow: string; date: string; provider: string }>("marketing:sent", 12),
     kv.list<{ kind: string; at: string }>("rgpd:requests", 10),
   ]);
-  const counts = Object.fromEntries(SEGMENTS.map((s) => [s, customers.filter((c) => c.segment === s).length])) as Record<Segment, number>;
-  const shown = SEGMENTS.includes(segment as Segment) ? customers.filter((c) => c.segment === segment) : customers;
+  const maintenant = new Date();
+  const cherchees = filtrerClientes(customers, { q }, maintenant);
+  const counts = compterParCategorie(cherchees, maintenant);
+  const shown = filtrerClientes(cherchees, { categorie }, maintenant);
   const totalSources = sources.reduce((s, r) => s + r.revenue, 0);
+  const lien = (c: CategorieActivite | "toutes") => {
+    const p = new URLSearchParams({ ...(q ? { q } : {}), ...(c !== "toutes" ? { categorie: c } : {}) }).toString();
+    return atelierHref(`/clientes${p ? `?${p}` : ""}`);
+  };
+  const filtre = Boolean(q || categorie !== "toutes");
 
   return (
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Clientes</h1>
-        <p className="t-lead">
-          La base clientes ({customersMode === "supabase" ? "Supabase, synchronisée avec Shopify" : "mode démonstration"}) : segments, consentements, e-mails automatiques et
-          ventes par source.
-        </p>
+        <p className="t-lead">Chaque cliente, ses commandes et vos notes ({customersMode === "supabase" ? "base Supabase" : "mode démonstration"}).</p>
       </header>
 
-      <dl className="kpis">
-        {SEGMENTS.map((s) => (
-          <div key={s}>
-            <dt className="t-label">{segmentLabel[s]}</dt>
-            <dd className="kpis__value">{counts[s]}</dd>
-            <dd className="t-note">
-              <a href={atelierHref(`/clientes?segment=${s}`)} className="text-link">
-                Voir la liste
-              </a>
-            </dd>
+      <section className="panel stack-m" aria-labelledby="customers-title">
+        <h2 id="customers-title" className="t-h3">
+          {filtre ? `Clientes trouvées (${shown.length})` : `Toutes les clientes (${customers.length})`}
+        </h2>
+        <form className="commandes-filtres" role="search" method="get" action={atelierHref("/clientes")}>
+          <div className="field">
+            <label className="field__label" htmlFor="clientes-q">
+              Chercher une cliente
+            </label>
+            <input id="clientes-q" name="q" type="search" className="field__input" defaultValue={q} placeholder="Prénom, nom ou adresse" autoComplete="off" />
           </div>
-        ))}
+          {categorie !== "toutes" ? <input type="hidden" name="categorie" value={categorie} /> : null}
+          <button type="submit" className="btn btn--outline">
+            Chercher
+          </button>
+        </form>
+        <nav className="produits__filtres" aria-label="Catégories de clientes">
+          <Link href={lien("toutes")} className="chip" aria-current={categorie === "toutes" ? "true" : undefined}>
+            Toutes ({cherchees.length})
+          </Link>
+          {CATEGORIES.map((c) => (
+            <Link key={c.id} href={lien(c.id)} className="chip" aria-current={categorie === c.id ? "true" : undefined}>
+              {c.label} ({counts[c.id]})
+            </Link>
+          ))}
+        </nav>
+        <p className="t-note">{CATEGORIES.map((c) => `${c.label.toLowerCase()} : ${c.regle}`).join(" · ")}. VIP à partir de {formatPrice(rules.vipMinSpent)} d’achats ou {rules.vipMinOrders} commandes.</p>
+        {filtre ? (
+          <p className="t-note">
+            <Link href={atelierHref("/clientes")} className="text-link">
+              Effacer la recherche et les filtres
+            </Link>
+          </p>
+        ) : null}
+        {!shown.length ? (
+          <p className="t-body">{customers.length ? "Aucune cliente ne correspond. Essayez un autre mot ou une autre catégorie." : "Aucune cliente pour l’instant."}</p>
+        ) : (
+          <div className="table-scroll">
+            <table className="table table--clientes">
+              <thead>
+                <tr>
+                  <th scope="col">Cliente</th>
+                  <th scope="col">Catégorie</th>
+                  <th scope="col">Commandes</th>
+                  <th scope="col">Montant</th>
+                  <th scope="col">Dernière commande</th>
+                  <th scope="col">Lettres</th>
+                </tr>
+              </thead>
+              <tbody>
+                {shown.slice(0, AFFICHEES).map((c) => (
+                  <tr key={c.id}>
+                    <th scope="row">
+                      <Link href={atelierHref(`/clientes/${encodeURIComponent(c.id)}`)} className="text-link">
+                        {[c.firstName, c.lastName].filter(Boolean).join(" ") || "Nom inconnu"}
+                      </Link>
+                      <br />
+                      <span className="t-note table__mail">{c.email}</span>
+                    </th>
+                    <td data-titre="Catégorie">
+                      <span className="status status--info">{LIBELLE_CATEGORIE[categorieActivite(c, maintenant)]}</span>
+                      {c.segment === "vip" ? <> <span className="status status--done">VIP</span></> : null}
+                      {c.cercleMember ? <span className="t-note table__detail">Membre du Cercle</span> : null}
+                    </td>
+                    <td data-titre="Commandes">{c.ordersCount}</td>
+                    <td data-titre="Montant">{formatPrice(c.totalSpent)}</td>
+                    <td data-titre="Dernière commande">{c.lastOrderAt ? <When iso={c.lastOrderAt} /> : "Aucune"}</td>
+                    <td data-titre="Lettres">{c.marketingEmail ? "Oui" : "Non"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {shown.length > AFFICHEES ? <p className="t-note">Les {AFFICHEES} premières sont affichées : affinez la recherche pour trouver les autres.</p> : null}
+      </section>
+
+      <dl className="kpis">
         <div>
           <dt className="t-label">Consentements</dt>
           <dd className="kpis__value kpis__value--small">{consent.total} choix</dd>
@@ -57,50 +136,6 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
           </dd>
         </div>
       </dl>
-      <p className="t-note">
-        Règles : VIP à partir de {formatPrice(rules.vipMinSpent)} d’achats ou {rules.vipMinOrders} commandes ; fidèle à partir de {rules.loyalMinOrders} commandes ; nouvelle sinon. Les membres du
-        Cercle qui deviennent VIP en reçoivent automatiquement les avantages.
-      </p>
-
-      <section className="panel" aria-labelledby="customers-title">
-        <h2 id="customers-title" className="t-h3">
-          {segment && SEGMENTS.includes(segment as Segment) ? `Clientes · ${segmentLabel[segment as Segment]}` : "Toutes les clientes"} ({shown.length})
-        </h2>
-        <div className="table-scroll">
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">Cliente</th>
-                <th scope="col">Segment</th>
-                <th scope="col">Commandes</th>
-                <th scope="col">Montant</th>
-                <th scope="col">Dernière commande</th>
-                <th scope="col">Lettres</th>
-                <th scope="col">Cercle</th>
-              </tr>
-            </thead>
-            <tbody>
-              {shown.slice(0, 200).map((c) => (
-                <tr key={c.id}>
-                  <th scope="row">
-                    {[c.firstName, c.lastName].filter(Boolean).join(" ") || "Nom inconnu"}
-                    <br />
-                    <span className="t-note">{c.email}</span>
-                  </th>
-                  <td>
-                    <span className={`status status--${c.segment === "vip" ? "done" : "info"}`}>{segmentLabel[c.segment]}</span>
-                  </td>
-                  <td>{c.ordersCount}</td>
-                  <td>{formatPrice(c.totalSpent)}</td>
-                  <td>{c.lastOrderAt ? <When iso={c.lastOrderAt} /> : "Aucune"}</td>
-                  <td>{c.marketingEmail ? "Oui" : "Non"}</td>
-                  <td>{c.cercleMember ? "Membre" : "Non"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
 
       <section className="panel" aria-labelledby="sources-title">
         <h2 id="sources-title" className="t-h3">Ventes par source · 90 jours</h2>

@@ -843,3 +843,14 @@ Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/
 - Pastille « En retard » de la fiche plus jamais barrée (demande du 01/11).
 - Tests : règles des commandes (unitaires), recherche, étapes, note, historique, remboursement
   fait une seule fois.
+
+## Refonte de l’Atelier : lot 3b, clientes (08/11)
+
+- Liste : recherche par prénom, nom ou adresse (sans accents), catégories d’activité tirées des
+  seules commandes (nouvelle, régulière, fidèle, inactive après un an, sans commande), VIP gardé ;
+  chaque cliente ouvre sa fiche ; cartes sur téléphone.
+- Fiche : coordonnées et préférences, total des achats, ses commandes, notes internes (jamais vues
+  par elle), ses données remises en fichier à sa demande, effacement de son compte après avoir
+  recopié son adresse (commandes gardées dix ans, détachées du compte) ; registre RGPD sans donnée
+  personnelle.
+- Tests : règles des catégories (unitaires), parcours liste, fiche, note, données, effacement gardé.

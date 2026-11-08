@@ -20,7 +20,7 @@ import { delaiText, type CatalogueTexts } from "@/lib/commerce/texts";
 import { timelineOf } from "@/lib/store/order-stages";
 import { nextStage } from "@/lib/customers/order-timeline";
 import { OrderStageControl } from "../_components/OrderStageControl";
-import { CommandeNotes } from "@/components/admin/CommandeNotes";
+import { NotesInternes } from "@/components/admin/NotesInternes";
 import { CommandeGestes } from "@/components/admin/CommandeGestes";
 import { gestesPossibles, historiqueDe, NOTE_MAX, notesDe } from "@/lib/admin/commandes-suivi";
 
@@ -163,7 +163,7 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
         ) : (
           <p className="t-note">Aucune note pour l’instant.</p>
         )}
-        <CommandeNotes numero={order.number} max={NOTE_MAX} />
+        <NotesInternes chemin={`/commandes/${encodeURIComponent(order.number)}/notes`} max={NOTE_MAX} exemple="Mesures confirmées par téléphone, tissu commandé…" />
       </section>
 
       <section className="panel no-print stack-m" aria-labelledby="historique-title">

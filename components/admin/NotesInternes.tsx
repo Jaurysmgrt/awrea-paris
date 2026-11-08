@@ -1,13 +1,13 @@
 "use client";
 /**
- * Notes internes d'une commande, sur sa fiche dans l'Atelier : jamais vues par la cliente. Une note
- * s'ajoute en un geste ; la liste et l'historique se mettent à jour sans recharger.
+ * Notes internes d'une commande ou d'une cliente, sur sa fiche dans l'Atelier : jamais vues par la
+ * cliente. Une note s'ajoute en un geste ; la liste (et l'historique) se mettent à jour sans recharger.
  */
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAtelier } from "./AtelierContext";
 
-export function CommandeNotes({ numero, max }: { numero: string; max: number }) {
+export function NotesInternes({ chemin, max, exemple }: { chemin: string; max: number; exemple: string }) {
   const atelier = useAtelier();
   const router = useRouter();
   const [texte, setTexte] = useState("");
@@ -22,7 +22,7 @@ export function CommandeNotes({ numero, max }: { numero: string; max: number }) 
     }
     setBusy(true);
     setMessage(null);
-    const res = await fetch(atelier.api(`/commandes/${encodeURIComponent(numero)}/notes`), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texte }) }).catch(() => null);
+    const res = await fetch(atelier.api(chemin), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texte }) }).catch(() => null);
     const j = res ? await res.json().catch(() => ({})) : {};
     setBusy(false);
     if (!res?.ok) {
@@ -37,10 +37,10 @@ export function CommandeNotes({ numero, max }: { numero: string; max: number }) 
   return (
     <form className="stack-s" onSubmit={ajouter}>
       <div className="field">
-        <label className="field__label" htmlFor="note-commande">
+        <label className="field__label" htmlFor="note-interne">
           Nouvelle note
         </label>
-        <textarea id="note-commande" className="field__input" rows={3} maxLength={max} value={texte} onChange={(e) => setTexte(e.target.value)} placeholder="Mesures confirmées par téléphone, tissu commandé…" />
+        <textarea id="note-interne" className="field__input" rows={3} maxLength={max} value={texte} onChange={(e) => setTexte(e.target.value)} placeholder={exemple} />
         <span className="field__hint">Pour vous seule : la cliente ne la voit jamais.</span>
       </div>
       <div>

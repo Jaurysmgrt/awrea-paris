@@ -615,21 +615,24 @@
   }
   /* sur téléphone, chaque commande devient une carte : plus de tableau qui défile de côté */
   @media (max-width: 47.99rem) {
-    .table--commandes :is(thead) {
-      display: none;
-    }
-    .table--commandes :is(table, tbody, tr, th, td) {
+    :is(.table--commandes, .table--clientes) {
       display: block;
     }
-    .table--commandes tr {
+    :is(.table--commandes, .table--clientes) thead {
+      display: none;
+    }
+    :is(.table--commandes, .table--clientes) :is(tbody, tr, th, td) {
+      display: block;
+    }
+    :is(.table--commandes, .table--clientes) tr {
       padding-block: var(--spacing-s);
       border-bottom: var(--border-width-hair) solid var(--line);
     }
-    .table--commandes :is(th, td) {
+    :is(.table--commandes, .table--clientes) :is(th, td) {
       padding: var(--spacing-3xs) 0;
       border: 0;
     }
-    .table--commandes td[data-titre]::before {
+    :is(.table--commandes, .table--clientes) td[data-titre]::before {
       content: attr(data-titre);
       display: block;
       font-size: var(--text-step--2);
