@@ -772,3 +772,28 @@ Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/
 - Tests : 10 tests unitaires du pilotage, 3 parcours (Vue d’ensemble, menu, téléphone), suite
   complète verte (464).
 
+## Refonte de l’Atelier : lot 2a, Produits (08/11)
+
+- Produits : toutes les pièces, en ligne, en brouillon ou archivées, avec une recherche par nom et
+  quatre filtres ; chaque ligne (photo, nom, ce qui reste à confirmer, prix, statut) ouvre la fiche.
+- Fiche d’une pièce : statut et gestes (mettre en ligne, en brouillon, archiver avec confirmation,
+  dupliquer en brouillon), prix et délai (réglage repris de l’ancien catalogue), textes (nom,
+  accroche, description, titre et description pour Google avec leur longueur conseillée), photos,
+  informations.
+- Une pièce en brouillon ou archivée n’est jamais visible sur le site : Storefront ne la renvoie
+  pas avec Shopify, le catalogue de démonstration l’écarte (pages, collections, fiche en 404).
+- Shopify : lecture de toutes les pièces par l’API Admin, statut, copie (`productDuplicate`),
+  publication sur les canaux de vente à la remise en ligne (nouvelles permissions
+  `read/write_publications`, ACTIVATION.md) ; description envoyée échappée.
+- Nouvelle pièce : page à part (`/catalogue/nouveau`) ; les brouillons de l’agent Catalogue entrent
+  enfin dans Produits (ils étaient rangés dans une liste que personne ne lisait).
+- Tests : règles des statuts et des copies (unitaires), parcours copie, textes, mise en ligne,
+  archive, invisibilité sur le site.
+- Relecture indépendante, corrigée : sans jeton Admin Shopify, Produits passe en lecture seule et le
+  dit (aucun geste qui échouerait) ; liste lue 25 pièces à la fois pour rester sous le plafond de
+  coût de Shopify, avec un avertissement si elle est incomplète ; remise en ligne publiée sur le seul
+  canal du site (`SHOPIFY_PUBLICATION_ID` au besoin) ; accroche vidée retirée au lieu d'être refusée ;
+  description vide refusée ; copie sans adresse déjà prise (même d'une pièce retirée) ; l'agent
+  Catalogue et les réglages de prix suivent les mêmes règles ; pages du site rafraîchies après chaque
+  geste ; messages d'état lus par les lecteurs d'écran ; réglage du prix lisible sur téléphone.
+

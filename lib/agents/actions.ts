@@ -8,7 +8,9 @@
 import * as z from "zod/v4";
 import { revalidatePath } from "next/cache";
 import { kv } from "@/lib/store";
-import { DEMO_KEYS } from "@/lib/commerce/catalog-demo";
+import { catalogueModifiable, lirePiece, MESSAGE_LECTURE_SEULE } from "@/lib/commerce/atelier-catalogue";
+import { descriptionHtml } from "@/lib/commerce/statut-pieces";
+import { DEMO_KEYS, demoHandlesPris } from "@/lib/commerce/catalog-demo";
 import { getAllProducts, getProduct } from "@/lib/commerce";
 import { getOrder, setOrderStatus } from "@/lib/commerce/orders";
 import type { Product } from "@/lib/commerce/types";
@@ -149,7 +151,9 @@ export interface ActionResult {
 export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promise<ActionResult> } = {
   async publish_product({ product: d }) {
     const handle = d.handle ? slugify(d.handle) : slugify(d.title);
-    const existing = await getProduct(handle);
+    // en ligne, en brouillon, archivée ou retirée : une adresse prise ne se réutilise pas
+    if (!catalogueModifiable()) throw new Error(MESSAGE_LECTURE_SEULE);
+    const existing = (await lirePiece(handle)) ?? (!adminEnabled && (await demoHandlesPris()).includes(handle));
     if (existing) throw new Error(`Une pièce existe déjà sous l’adresse /boutique/${handle}.`);
     const code = d.title.split(" ").pop()!.slice(0, 3).toUpperCase();
     const leadTime = d.lead_time && d.lead_time.min <= d.lead_time.max ? d.lead_time : DEFAULT_LEAD_TIME[d.category];
@@ -157,7 +161,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       await shopifyCreateProduct({
         handle,
         title: d.title,
-        descriptionHtml: d.description.map((p) => `<p>${p}</p>`).join(""),
+        descriptionHtml: descriptionHtml(d.description),
         productType: d.category,
         tags: d.tags,
         status: d.status === "active" ? "ACTIVE" : "DRAFT",
@@ -207,22 +211,27 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
         tags: d.tags,
         publishedAt: new Date().toISOString().slice(0, 10),
       };
-      if (d.status === "draft") {
-        await kv.push("demo:products:drafts", product, 100);
-        return { summary: `Fiche « ${d.title} » enregistrée en brouillon (non visible en boutique)`, target: { type: "product", id: handle, label: d.title, href: "atelier:/catalogue" } };
-      }
       const extra = (await kv.get<Product[]>(DEMO_KEYS.extra)) ?? [];
       await kv.set(DEMO_KEYS.extra, [...extra, product]);
+      if (d.status === "draft") {
+        // brouillon : dans Produits, jamais sur le site (lib/commerce/catalog-demo.ts)
+        const statuts = (await kv.get<Record<string, string>>(DEMO_KEYS.statut)) ?? {};
+        await kv.set(DEMO_KEYS.statut, { ...statuts, [handle]: "brouillon" });
+        refresh();
+        return { summary: `Fiche « ${d.title} » enregistrée en brouillon (non visible en boutique)`, target: { type: "product", id: handle, label: d.title, href: `atelier:/catalogue/${handle}` } };
+      }
     }
     refresh();
     return { summary: `Fiche « ${d.title} » publiée (${formatPrice(d.price)}, créée sur demande en ${leadTime.min} à ${leadTime.max} semaines)`, target: { type: "product", id: handle, label: d.title, href: `/boutique/${handle}` } };
   },
 
   async update_product_content({ handle, tagline, description, seo, alts }) {
-    const p = await getProduct(handle);
+    if (!catalogueModifiable()) throw new Error(MESSAGE_LECTURE_SEULE);
+    // brouillons et archives compris : une fiche se prépare avant d'être mise en ligne
+    const p = await lirePiece(handle);
     if (!p) throw new Error(`Pièce ${handle} introuvable`);
     if (adminEnabled) {
-      await shopifyUpdateProduct(handle, { descriptionHtml: description?.map((x) => `<p>${x}</p>`).join(""), seo });
+      await shopifyUpdateProduct(handle, { descriptionHtml: description ? descriptionHtml(description) : undefined, seo });
     } else {
       const patches = (await kv.get<Record<string, Partial<Product>>>(DEMO_KEYS.patches)) ?? {};
       const images = alts?.length ? p.images.map((im, i) => ({ ...im, alt: alts.find((a) => a.index === i)?.alt ?? im.alt })) : undefined;
@@ -342,14 +351,15 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
 
   // même chemin que l'Atelier (Catalogue) : une pièce Shopify aux prix différents selon la taille garde ses prix
   async change_price({ handle, price }) {
-    const p = await getProduct(handle);
+    const p = await lirePiece(handle);
     if (!p) throw new Error(`Pièce ${handle} introuvable`);
     await updatePiece(handle, { price });
     return { summary: `Prix de ${p.title} : ${formatPrice(p.price)} → ${formatPrice(price)}`, target: { type: "product", id: handle, label: p.title, href: `/boutique/${handle}` } };
   },
 
   async delete_product({ handle }) {
-    const p = await getProduct(handle);
+    if (!catalogueModifiable()) throw new Error(MESSAGE_LECTURE_SEULE);
+    const p = await lirePiece(handle);
     if (!p) throw new Error(`Pièce ${handle} introuvable`);
     if (adminEnabled) await shopifyDeleteProduct(handle);
     else {

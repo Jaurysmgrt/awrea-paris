@@ -111,7 +111,7 @@ export function PieceEditor({ piece, bounds }: { piece: PieceRow; bounds: { min:
         </Link>
         <span className="t-note">{piece.sizes.join(" · ")}</span>
       </td>
-      <td>
+      <td data-titre="Prix">
         {piece.priceVaries ? (
           <p className="t-note" id={`${id}-prix`}>
             À partir de {formatPrice(piece.price)}. Les tailles n’ont pas toutes le même prix : réglez-les dans Shopify.
@@ -121,7 +121,7 @@ export function PieceEditor({ piece, bounds }: { piece: PieceRow; bounds: { min:
             <label className="sr-only" htmlFor={`${id}-prix`}>
               {piece.title}, prix en euros
             </label>
-            <input id={`${id}-prix`} form={id} type="number" min={0.01} step={0.01} required inputMode="decimal" className="field__input stock-input" value={price} onChange={(e) => setPrice(e.target.value)} />
+            <input id={`${id}-prix`} form={id} type="number" min={0.01} step={0.01} required inputMode="decimal" className="field__input stock-input stock-input--prix" value={price} onChange={(e) => setPrice(e.target.value)} />
             <span aria-hidden="true">€</span>
           </span>
         )}
@@ -132,7 +132,7 @@ export function PieceEditor({ piece, bounds }: { piece: PieceRow; bounds: { min:
           </span>
         </label>
       </td>
-      <td>
+      <td data-titre="Délai de fabrication">
         <span className="stock-editor">
           {weeks(min, setMin, `${piece.title}, délai le plus court en semaines`, "min")}
           <span>à</span>
@@ -146,7 +146,7 @@ export function PieceEditor({ piece, bounds }: { piece: PieceRow; bounds: { min:
           </span>
         </label>
       </td>
-      <td>
+      <td data-titre="Pastille">
         <label className="check t-note">
           <input type="checkbox" form={id} checked={isNew} onChange={(e) => setIsNew(e.target.checked)} />
           <span>

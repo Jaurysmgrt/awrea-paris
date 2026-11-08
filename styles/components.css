@@ -961,6 +961,8 @@
     letter-spacing: var(--tracking-text);
   }
   .table-scroll {
+    /* les textes masqués (.sr-only) restent à l'intérieur : sinon ils élargissent la page */
+    position: relative;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }

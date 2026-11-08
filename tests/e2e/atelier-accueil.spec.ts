@@ -31,8 +31,7 @@ test("Vue d'ensemble : priorités, raccourcis, chiffres et dernières commandes 
   // « Ajouter un produit » mène au formulaire de la nouvelle pièce
   await page.goto(ATELIER);
   await raccourcis.getByRole("link", { name: "Ajouter un produit" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Produits" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Nouvelle pièce" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Nouvelle pièce" })).toBeVisible();
 });
 
 test("menu clair : six rubriques, sous-entrées dans leur rubrique, titres identiques aux pages", async ({ page }) => {

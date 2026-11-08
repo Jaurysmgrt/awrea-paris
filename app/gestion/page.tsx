@@ -56,7 +56,7 @@ const lien = (href: string) => lienAction(href, atelierHref);
 
 /** Raccourcis de « Que souhaitez-vous faire ? » : une entrée n'apparaît que le jour où sa page existe. */
 const RACCOURCIS: { href: string; label: string; site?: boolean }[] = [
-  { href: "/catalogue#nouvelle-piece", label: "Ajouter un produit" },
+  { href: "/catalogue/nouveau", label: "Ajouter un produit" },
   { href: "/commandes", label: "Voir les commandes" },
   { href: "/pages", label: "Modifier mon site" },
   { href: "/pages/photos", label: "Changer une photo" },

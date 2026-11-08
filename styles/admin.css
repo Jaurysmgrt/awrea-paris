@@ -293,6 +293,156 @@
     text-decoration-thickness: var(--border-width-hair);
     text-underline-offset: var(--spacing-3xs);
   }
+  /* Produits (refonte du 07/11) : la recherche et les filtres, puis une ligne par pièce (photo, nom
+     et ce qui reste à faire, prix, statut) qui ouvre sa fiche */
+  .produits__outils {
+    display: grid;
+    gap: var(--spacing-s);
+    align-items: end;
+  }
+  @media (min-width: 48rem) {
+    .produits__outils {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+  }
+  .produits__filtres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2xs);
+  }
+  .produits {
+    display: grid;
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .produits > li {
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .produits__ligne {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--spacing-2xs) var(--spacing-s);
+    padding: var(--spacing-xs) 0;
+    text-decoration: none;
+  }
+  .produits__nom {
+    display: grid;
+    gap: var(--spacing-3xs);
+    min-width: 0;
+  }
+  .produits__prix {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .produits__ligne > .status {
+    grid-column: 2 / -1;
+    justify-self: start;
+  }
+  @media (min-width: 48rem) {
+    .produits__ligne {
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+    }
+    .produits__ligne > .status {
+      grid-column: auto;
+    }
+  }
+  .produits__photo {
+    width: var(--spacing-xl);
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: var(--radius-card);
+    background: var(--media-bg);
+  }
+  .produits__photo--vide {
+    display: block;
+  }
+  a.produits__ligne:hover .liste-simple__titre,
+  a.produits__ligne:focus-visible .liste-simple__titre {
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+    text-underline-offset: var(--spacing-3xs);
+  }
+  /* zones d'annonce gardées dans la page pour les lecteurs d'écran : vides, elles ne se voient pas */
+  .admin :is([role="alert"], [role="status"]):empty {
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+  /* fiche d'une pièce : la photo et le nom, le statut, puis les gestes */
+  .piece-tete__titre {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-m);
+  }
+  .piece-tete__titre .produits__photo {
+    width: var(--spacing-2xl);
+  }
+  .piece-gestes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-xs);
+  }
+  .piece-photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, calc(var(--spacing-2xl) * 2.5));
+    gap: var(--spacing-s);
+  }
+  /* sur la fiche, la pièce est déjà nommée en tête : la première colonne du réglage s'efface */
+  .piece-reglages :is(th, td):first-child {
+    display: none;
+  }
+  /* sur téléphone, le réglage se lit de haut en bas : chaque case porte son intitulé */
+  @media (max-width: 47.99rem) {
+    .piece-reglages :is(table, tbody, tr, td) {
+      display: block;
+    }
+    .piece-reglages thead {
+      display: none;
+    }
+    .piece-reglages td {
+      padding-inline: 0;
+      padding-block: var(--spacing-s);
+    }
+    .piece-reglages td > .check {
+      display: flex;
+    }
+    .piece-reglages td[data-titre]::before {
+      content: attr(data-titre);
+      display: block;
+      margin-bottom: var(--spacing-2xs);
+      font-size: var(--text-step--2);
+      letter-spacing: var(--tracking-label);
+      text-transform: uppercase;
+    }
+  }
+  .piece-photos > li {
+    display: grid;
+    gap: var(--spacing-3xs);
+  }
+  .piece-photos img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: var(--radius-card);
+    background: var(--media-bg);
+  }
+  .piece-infos {
+    display: grid;
+    gap: var(--spacing-s);
+  }
+  @media (min-width: 48rem) {
+    .piece-infos {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .piece-infos > div {
+    display: grid;
+    gap: var(--spacing-3xs);
+  }
+
   /* listes courtes : dernières commandes, rendez-vous, ventes, activité */
   .liste-simple {
     display: grid;
@@ -671,6 +821,10 @@
     min-height: var(--spacing-l);
     padding: var(--spacing-3xs) 0;
     text-align: center;
+  }
+  /* un prix tient sur six chiffres (« 1250.00 ») sans être coupé */
+  .stock-input--prix {
+    width: calc(var(--spacing-xl) * 2);
   }
   .stock-row {
     display: flex;
