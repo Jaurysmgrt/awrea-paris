@@ -950,3 +950,23 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
 - Laissé en l'état : le travail de la finalisation reste dans la requête du webhook (Stripe renvoie
   l'événement s'il est coupé, et la reprise ne double rien) ; un `charge.succeeded` arrivé avant la
   session et sans repère de commande perd seulement le nom du moyen de paiement.
+
+## Application privée de l'Atelier (08/11)
+
+- Application web installable (iPhone, Android, ordinateur), choisie plutôt qu'une application des
+  boutiques (React Native, Expo) : aucun coût, aucune validation à attendre, aucune fiche publique,
+  aucune seconde porte d'entrée ; comparaison complète dans `docs/APPLICATION.md`.
+- Manifeste et service worker sous l'adresse secrète, portée limitée à l'Atelier ; aucune donnée
+  gardée sur l'appareil ; page « Pas de réseau » honnête et bandeau quand le réseau tombe.
+- Notifications réglables appareil par appareil (Réglages › Application) et branchées sur les vrais
+  événements : commande payée, proposition à valider, commande ou retour à vérifier, message délicat,
+  alerte de paiement, confection à surveiller, passage d'agent incomplet, connexion, Face ID ajouté,
+  compte bloqué. Jamais de nom, d'adresse ni de téléphone de cliente sur l'écran verrouillé. Sans
+  clés VAPID, la page le dit et rien n'est simulé (`ACTIVATION.md`, étape 15).
+- « Fermer toutes les sessions » et le lien « ce n'était pas moi » coupent aussi les notifications
+  de tous les appareils.
+- Sur téléphone, cinq onglets en bas de l'écran (Accueil, Commandes, Produits, Clientes, À valider),
+  au-dessus de la barre du système ; le menu complet reste derrière « Menu ».
+- Tests : unitaires (manifeste, service worker, texte discret, liens sûrs, envoi chiffré vers un faux
+  service, appareil disparu oublié) et parcours (fichiers servis sans session et sans donnée, page
+  Application honnête, onglets sur téléphone).

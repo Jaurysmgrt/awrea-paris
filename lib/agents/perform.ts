@@ -10,6 +10,7 @@ import { ACTION_SCHEMAS, EXECUTORS, type ActionParams, type ActionResult } from 
 import { AUTONOMIE_DE, isActionType, POLICY, requiresApproval, type ActionType } from "./policy";
 import { AUTONOMIES, permise } from "./autonomie";
 import { logAction, type AgentId } from "./log";
+import { signaler } from "@/lib/admin/push";
 import { cleanTexts } from "@/lib/writing/agents";
 import { reportWriting } from "@/lib/writing/report";
 import { safeOutbound } from "@/lib/ai/guard";
@@ -100,6 +101,9 @@ export async function perform<T extends ActionType>(agent: AgentId, action: T, r
     };
     await saveProposals([proposal as Proposal, ...list]);
     await logAction({ agent, kind: action, status: "proposed", summary: meta.summary, detail: meta.rationale, proposalId: proposal.id });
+    // application de l'Atelier : le nombre de propositions, jamais leur contenu (nom, message)
+    const enAttente = list.filter((p) => p.status === "pending").length + 1;
+    await signaler({ type: "validation", titre: "Approbation demandée", texte: enAttente > 1 ? `${enAttente} propositions des agents attendent votre accord.` : "Une proposition d’un agent attend votre accord.", chemin: "/validations", etiquette: "validations" });
     return { status: "proposed", message: `Proposition enregistrée : elle attend la validation de la créatrice dans le tableau de bord (${POLICY[action].why ?? (coupee && autonomie ? `« ${AUTONOMIES[autonomie].titre} » est coupé dans les Réglages` : "texte à relire")})`, proposalId: proposal.id };
   }
 

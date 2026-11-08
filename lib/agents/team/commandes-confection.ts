@@ -23,6 +23,7 @@ import { generateStructured } from "@/lib/ai/structured";
 import { FENCE_NOTE, fence } from "@/lib/ai/guard";
 import { getAllProducts } from "@/lib/commerce";
 import { getOrders, purgerCommandesAbandonnees } from "@/lib/commerce/orders";
+import { signaler } from "@/lib/admin/push";
 import { leadTimeText } from "@/lib/commerce/availability";
 import { withStages } from "@/lib/store/order-stages";
 import { formatPrice } from "@/lib/format";
@@ -106,6 +107,7 @@ export async function runCommandesConfectionAgent(trigger: AgentRun["trigger"] =
 
     // 2. Confections : la date annoncée approche, elle est passée, ou la confection tarde à commencer
     const alerts = confectionAlerts(orders, products, now);
+    let nouvelles = 0;
     // un seul message par commande : déjà envoyé, ou déjà proposé (quelle que soit la décision de la créatrice)
     const messaged = new Set([
       ...proposals.filter((p) => p.action === "send_client_message" || p.action === "notify_delay").map((p) => (p.params as { orderId: string }).orderId),
@@ -115,6 +117,7 @@ export async function runCommandesConfectionAgent(trigger: AgentRun["trigger"] =
       // une alerte par situation nouvelle, pas une chaque matin pour la même commande
       if (memory.alerted[a.orderId] !== a.kind) {
         memory.alerted[a.orderId] = a.kind;
+        nouvelles++;
         findings.push(alertLine(a));
       }
       // 3. un retard se dessine : la cliente est prévenue, une seule fois (e-mail « Retard de confection »)
@@ -132,6 +135,9 @@ export async function runCommandesConfectionAgent(trigger: AgentRun["trigger"] =
     }
     const watched = new Set(alerts.map((a) => a.orderId));
     for (const id of Object.keys(memory.alerted)) if (!watched.has(id)) delete memory.alerted[id];
+
+    // application de l'Atelier : le nombre de confections à surveiller, sans nom de cliente
+    if (nouvelles) await signaler({ type: "anomalie", titre: "Confection à surveiller", texte: nouvelles > 1 ? `${nouvelles} commandes : date annoncée proche ou dépassée.` : "Une commande : date annoncée proche ou dépassée.", chemin: "/commandes", etiquette: "confections" });
 
     // 4. Prix et délais provisoires : la créatrice confirme, ou modifie la pièce dans le Catalogue
     for (const p of products) {

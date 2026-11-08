@@ -51,7 +51,7 @@ export function AppAtelier() {
 
   return enLigne ? null : (
     <p className="atelier-reseau" role="status">
-      Hors ligne : ce qui s’affiche peut dater, et rien ne s’enregistre tant que le réseau n’est pas revenu.
+      Hors ligne : ce qui s’affiche peut dater, et rien ne s’enregistre tant que le réseau n’est pas revenu.
     </p>
   );
 }

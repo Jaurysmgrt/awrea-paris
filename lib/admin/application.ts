@@ -18,7 +18,7 @@ export const NOTIFICATIONS = {
   intervention: { titre: "Intervention requise", aide: "Commande à vérifier, retour demandé, message qu’un agent vous laisse." },
   validation: { titre: "Approbation demandée", aide: "Un agent propose une action qui attend votre accord." },
   anomalie: { titre: "Anomalie détectée", aide: "Confection en retard, paiement en attente." },
-  taches: { titre: "Passage des agents terminé", aide: "Les agents ont fini leur tour, avec ce qui reste à faire." },
+  taches: { titre: "Passage des agents terminé", aide: "Chaque agent a fini son tour planifié, avec ce qui reste à valider. Non coché d’emblée." },
   erreur: { titre: "Erreur", aide: "Une tâche ou un service n’a pas abouti." },
   securite: { titre: "Alerte de sécurité", aide: "Connexion à l’Atelier, Face ID ajouté, compte bloqué." },
 } as const;

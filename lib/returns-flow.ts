@@ -10,6 +10,7 @@ import { boutiqueReelle } from "@/lib/config/boutique";
 import { rembourserParStripe } from "@/lib/paiement/suivi";
 import { issueCreditNote, listInvoices } from "@/lib/invoices";
 import { partsPayees } from "@/lib/commerce/remboursement";
+import { signaler } from "@/lib/admin/push";
 import { sousVerrouArgent } from "@/lib/commerce/argent";
 import { invoicePdf } from "@/lib/invoices/pdf";
 import { sendEmail } from "@/lib/email/send";
@@ -78,6 +79,7 @@ export async function submitReturn(order: Order, items: ReturnItem[], comment?: 
     }),
   }).catch((e) => console.error("[retour] e-mail atelier", e));
   await logAction({ agent: "systeme", kind: "flag_order", status: "info", summary: `Retour ${r.id} demandé (commande ${order.number})`, target: { type: "order", id: order.id, label: order.number, href: `atelier:/commandes/${encodeURIComponent(order.number)}` } });
+  await signaler({ type: "intervention", titre: "Retour demandé", texte: `Retour ${r.id} pour la commande ${order.number}, ${items.length} pièce${items.length > 1 ? "s" : ""}${pending ? ", étiquette à déposer" : ""}.`, chemin: "/retours", etiquette: `retour-${r.id}` });
   return r;
 }
 

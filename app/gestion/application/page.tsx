@@ -22,11 +22,11 @@ export default function ApplicationPage() {
           Sécurité
         </h2>
         <ul className="application-regles">
-          <li>L’application s’ouvre avec votre connexion habituelle : mot de passe et code, ou Face ID.</li>
-          <li>Rien n’est gardé sur l’appareil : sans réseau, l’Atelier ne montre aucune donnée.</li>
+          <li>L’application s’ouvre avec votre connexion habituelle : mot de passe et code, ou Face ID.</li>
+          <li>Rien n’est gardé sur l’appareil : sans réseau, l’Atelier ne montre aucune donnée.</li>
           <li>Une notification ne montre jamais le nom, l’adresse ni le téléphone d’une cliente.</li>
           <li>
-            « Fermer toutes les sessions », dans les <Link href={atelierHref("/reglages")}>Réglages</Link>, coupe aussi les notifications de tous les appareils.
+            « Fermer toutes les sessions », dans les <Link href={atelierHref("/reglages")}>Réglages</Link>, coupe aussi les notifications de tous les appareils.
           </li>
         </ul>
       </section>
