@@ -13,9 +13,12 @@
  *    valeur envoyée par le navigateur est écrasée). L'Atelier, l'API et les fichiers (plan du site,
  *    llms.txt, images) n'existent qu'en un exemplaire : sous /en, ils répondent 404 comme toute
  *    adresse inconnue.
- *  - Première arrivée (pas encore de cookie de langue) : une visiteuse dont le navigateur préfère
- *    l'anglais, arrivée sur une adresse française, est menée à la même page sous /en. Ensuite la
- *    langue de chaque page est retenue (LOCALE_COOKIE) : le sélecteur FR · EN garde la main.
+ *  - Langue de l'appareil (brief et choix de la créatrice du 09/11, aucun sélecteur) : sur toute
+ *    page publique, quelle que soit l'adresse tapée, la visiteuse est menée avant tout affichage à
+ *    la version dans la langue de son ordinateur ou de son téléphone (Accept-Language :
+ *    preferredLocale), l'anglais si le site ne la parle pas. Ni pays, ni position, ni cookie. Les
+ *    robots d'indexation ne sont jamais redirigés (estRobot) : les deux versions restent
+ *    indexables, déclarées par hreflang. La créatrice connectée voit les deux versions.
  *  - Site privé (SITE_PRIVE=1, lib/security/private-site.ts) : sans session de l'Atelier ni accès
  *    donné par le lien privé (SITE_PRIVE_CLE), toute page du site montre la page d'attente et toute
  *    API répond 404 (sauf webhooks et tâches planifiées) ; aucune réponse n'est indexée.
@@ -27,7 +30,7 @@ import { contentSecurityPolicy, cspEnabled, cspMode, newNonce } from "@/lib/secu
 import { countRefusal } from "@/lib/security/rate-limit";
 import { providerOf } from "@/lib/config/providers";
 import { atelierBase, isInternalAtelierPath, toInternal } from "@/lib/admin/path";
-import { DEFAULT_LOCALE, LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, LOCALE_HEADER, isLocalizable, localizePath, preferredLocale, splitLocale, type Locale } from "@/lib/i18n/routing";
+import { DEFAULT_LOCALE, LOCALE_HEADER, estRobot, isLocalizable, localizePath, preferredLocale, splitLocale, type Locale } from "@/lib/i18n/routing";
 import { PREVIEW_COOKIE, PREVIEW_MAX_AGE, PREVIEW_PARAM, PRIVATE_PAGE, isPreviewKey, isPreviewToken, openWhilePrivate, previewToken, sitePrive } from "@/lib/security/private-site";
 
 const secureCookie = process.env.NODE_ENV === "production";
@@ -210,18 +213,19 @@ export async function proxy(request: NextRequest) {
   const atelier = Boolean(base && toInternal(pathname, base)) || isInternalAtelierPath(pathname);
   if (sitePrive() && !atelier && request.nextUrl.searchParams.has(PREVIEW_PARAM)) return grantPreview(request);
 
-  // pages publiques : la langue du navigateur à la première arrivée, puis celle de chaque page
+  // pages publiques : toujours la langue de l'appareil, quelle que soit l'adresse tapée (/… ou
+  // /en/…), lue à chaque page ; jamais pour un robot d'indexation, ni pour la créatrice connectée
+  // (Atelier, Édition), qui passe librement d'une version à l'autre
   const publicPage = isDocument(request) && !atelier && isLocalizable(path);
-  const remembered = request.cookies.get(LOCALE_COOKIE)?.value;
-  if (publicPage && !remembered && !translated) {
+  const creatrice = publicPage && request.cookies.has(ADMIN_COOKIE) && (await isAdminToken(request.cookies.get(ADMIN_COOKIE)?.value));
+  if (publicPage && !creatrice && !estRobot(request.headers.get("user-agent"))) {
     const wanted = preferredLocale(request.headers.get("accept-language"));
     if (wanted && wanted !== locale) {
       const url = request.nextUrl.clone();
       url.pathname = localizePath(path, wanted);
       const redirect = NextResponse.redirect(url, 307);
-      redirect.cookies.set(LOCALE_COOKIE, wanted, { httpOnly: true, sameSite: "lax", secure: secureCookie, path: "/", maxAge: LOCALE_COOKIE_MAX_AGE });
       redirect.headers.set("Cache-Control", "private, no-store");
-      redirect.headers.set("Vary", "Accept-Language, Cookie");
+      redirect.headers.set("Vary", "Accept-Language, User-Agent");
       return redirect;
     }
   }
@@ -233,8 +237,6 @@ export async function proxy(request: NextRequest) {
   else if (sitePrive() && !openWhilePrivate(path) && !(await canSeePrivateSite(request))) response = privateGate(request, path, nonce, locale);
   else if (path.startsWith("/compte") || pathname.startsWith("/api/account")) response = await refreshCustomerSession(request, nonce, locale, target);
   else response = forward(request, nonce, locale, target);
-
-  if (publicPage && remembered !== locale) response.cookies.set(LOCALE_COOKIE, locale, { httpOnly: true, sameSite: "lax", secure: secureCookie, path: "/", maxAge: LOCALE_COOKIE_MAX_AGE });
 
   // site privé : aucune réponse n'est indexée, même pour la créatrice connectée
   if (sitePrive()) response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");

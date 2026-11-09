@@ -1,0 +1,153 @@
+/*
+ * L'engagement, le suivi et le conseil (Espaces.tsx, brief du 09/11). Tokens seulement.
+ * Téléphone et tablette : un carrousel horizontal, chaque espace occupe presque toute la largeur et
+ * laisse deviner le suivant ; trois points discrets dessous. Ordinateur : trois colonnes égales,
+ * séparées de filets verticaux fins. Aucune carte, aucun cadre : des filets et du blanc.
+ */
+.espaces {
+  display: grid;
+  gap: var(--spacing-m);
+}
+.piste {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 85%;
+  gap: var(--spacing-m);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.piste::-webkit-scrollbar {
+  display: none;
+}
+.piste:focus-visible {
+  outline: var(--border-width-hair) solid var(--fg);
+  outline-offset: var(--spacing-3xs);
+}
+.espace {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-xs);
+  padding-left: var(--spacing-m);
+  border-left: var(--border-width-hair) solid var(--line);
+  scroll-snap-align: start;
+}
+.nom {
+  color: var(--fg);
+}
+.numero {
+  margin-right: var(--spacing-2xs);
+  color: var(--fg-soft);
+}
+.espace :global(.t-note) {
+  color: var(--fg-soft);
+}
+/* le lien : typographique, une petite flèche ; au survol, le filet se dessine, la couleur s'avive
+   et la flèche avance à peine */
+.lien {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  min-height: var(--spacing-touch);
+  margin-top: var(--spacing-2xs);
+  color: var(--fg-soft);
+  text-decoration: none;
+  transition: color var(--dur) var(--ease);
+}
+.lien > span {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0 var(--border-width-hair);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size var(--dur) var(--ease);
+}
+.fleche {
+  width: var(--spacing-m);
+  height: var(--spacing-2xs);
+  transition: translate var(--dur) var(--ease);
+}
+.lien:hover,
+.lien:focus-visible {
+  color: var(--fg);
+}
+.lien:hover > span,
+.lien:focus-visible > span {
+  background-size: 100% var(--border-width-hair);
+}
+.lien:hover .fleche,
+.lien:focus-visible .fleche {
+  translate: var(--spacing-3xs) 0;
+}
+.lien:focus-visible {
+  outline: var(--border-width-hair) solid var(--fg);
+  outline-offset: var(--spacing-3xs);
+}
+
+/* les points du carrousel : une cible tactile confortable, un point fin au centre */
+.points {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-3xs);
+}
+.point {
+  display: grid;
+  place-items: center;
+  width: var(--spacing-l);
+  height: var(--spacing-l);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.point::before {
+  content: "";
+  width: var(--spacing-3xs);
+  height: var(--spacing-3xs);
+  border: var(--border-width-hair) solid var(--fg);
+  border-radius: var(--radius-pill);
+  transition: background-color var(--dur) var(--ease);
+}
+.point[aria-current="true"]::before {
+  background: var(--fg);
+}
+.point:focus-visible {
+  outline: var(--border-width-hair) solid var(--fg);
+  outline-offset: calc(-1 * var(--spacing-3xs));
+}
+
+@media (min-width: 64rem) {
+  .piste {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    overflow: visible;
+  }
+  .espace {
+    padding-inline: var(--spacing-l);
+  }
+  .espace:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .points {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lien,
+  .lien > span,
+  .fleche,
+  .point::before {
+    transition: none;
+  }
+  .lien:hover .fleche,
+  .lien:focus-visible .fleche {
+    translate: none;
+  }
+}

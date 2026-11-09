@@ -313,9 +313,9 @@ pastille « Nouveau », photos des cartes aux angles arrondis. Primitives et cla
 
 ### Navigation et pied de page (maquettes EN-TÊTE DU SITE et BAS DE PAGE)
 
-- En-tête : logo centré, puis cinq entrées centrées : Accueil ; À la demande ⌄ (La pièce à la
-  demande, Le détail du savoir-faire, Prendre rendez-vous ; « Sur commande » devenu « À la demande »
-  le 02/11) ; Collections ⌄ (Hypnotic Lace, Toutes les pièces,
+- En-tête : logo centré, puis cinq entrées centrées : Accueil ; Savoir-faire ⌄ (Étapes de
+  confection, Le détail du savoir-faire, Prendre rendez-vous ; « Sur commande » devenu « À la
+  demande » le 02/11, puis « Savoir-faire » le 09/11) ; Collections ⌄ (Hypnotic Lace, Toutes les pièces,
   Rechercher une pièce) ; Contact ; Mon Panier ⌄ (Mon panier, Mon compte, Mes envies). La page en
   cours reste soulignée.
 - Pied de page : filet centré, quatre colonnes en capitales : LA MARQUE (Contact, À propos),

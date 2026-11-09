@@ -22,18 +22,11 @@ export type { Locale };
 export const LOCALE_HEADER = "x-awrea-locale";
 
 /**
- * Cookie de la langue de la visiteuse : posé dès sa première page, puis suivi à chaque page (le
- * sélecteur FR · EN le met donc à jour). Tant qu'il est absent, proxy.ts choisit la langue d'après
- * le navigateur (preferredLocale).
- */
-export const LOCALE_COOKIE = "awrea_langue";
-/** Durée du cookie de langue : 13 mois, comme les autres préférences. */
-export const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 395;
-
-/**
- * Langue préférée d'après les réglages du navigateur (en-tête Accept-Language) : la première de
- * ses langues que le site propose ; l'anglais si aucune ne l'est (une visiteuse étrangère) ; null
- * sans préférence exprimée (robots d'indexation) : la page demandée est alors servie telle quelle.
+ * Langue de l'appareil de la visiteuse (choix de la créatrice du 09/11 : « quand la personne tape
+ * une adresse, le site se met dans la langue de son ordinateur ou de son téléphone »). Lue à chaque
+ * page dans l'en-tête Accept-Language que tout navigateur envoie : la première de ses langues que le
+ * site propose, l'anglais si aucune ne l'est. Ni pays, ni position, ni cookie : rien n'est retenu.
+ * Null sans préférence exprimée (robots d'indexation) : la page demandée est servie telle quelle.
  */
 export function preferredLocale(header: string | null | undefined): Locale | null {
   if (!header) return null;
@@ -53,6 +46,9 @@ export function preferredLocale(header: string | null | undefined): Locale | nul
   }
   return "en";
 }
+
+/** Robots d'indexation et d'aperçu : jamais redirigés, chaque version reste indexable. */
+export const estRobot = (userAgent: string | null | undefined) => /bot|crawl|spider|slurp|facebookexternalhit|embedly|quora link preview|whatsapp|telegram|pinterest|bingpreview|lighthouse|pagespeed/i.test(userAgent ?? "");
 
 /** Attribut lang de <html>. */
 export const HTML_LANG: Record<Locale, string> = { fr: "fr", en: "en" };
@@ -106,7 +102,7 @@ export function localizePath(href: string, locale: Locale): string {
   return `${prefixOf(locale)}${path === "/" ? "" : path}${rest}`;
 }
 
-/** Même adresse dans une autre langue (sélecteur de langue, hreflang) : « /en/boutique » → « /boutique ». */
+/** Même adresse dans une autre langue (hreflang, plan du site) : « /en/boutique » → « /boutique ». */
 export function switchLocale(pathname: string, locale: Locale): string {
   const path = stripLocale(pathname);
   return locale === DEFAULT_LOCALE ? path : localizePath(path, locale);

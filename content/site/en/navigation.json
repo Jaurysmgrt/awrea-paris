@@ -2,7 +2,7 @@
   "principal": [
     { "label": "Home", "href": "/" },
     {
-      "label": "Made to order",
+      "label": "Savoir-faire",
       "sousMenu": [
         { "label": "The making, step by step", "href": "/sur-commande" },
         { "label": "The craftsmanship in detail", "href": "/atelier" },
@@ -57,10 +57,5 @@
       "titre": "Follow us",
       "liens": [{ "label": "Instagram", "href": "https://www.instagram.com/awrea.paris", "type": "instagram" }]
     }
-  ],
-  "langues": {
-    "titre": "Site language",
-    "fr": { "court": "FR", "nom": "Français" },
-    "en": { "court": "EN", "nom": "English" }
-  }
+  ]
 }

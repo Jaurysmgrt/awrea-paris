@@ -950,3 +950,25 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
 - Laissé en l'état : le travail de la finalisation reste dans la requête du webhook (Stripe renvoie
   l'événement s'il est coupé, et la reprise ne double rien) ; un `charge.succeeded` arrivé avant la
   session et sans repère de commande perd seulement le nom du moyen de paiement.
+
+## Brief de la créatrice : langue automatique, Savoir-faire, étapes de confection (09/11)
+
+- Langue : le sélecteur « FR · EN » quitte l’en-tête et le menu du téléphone ; l’en-tête garde ses
+  proportions (navigation exactement au centre). Précision de la créatrice : le site suit toujours
+  la langue de l’appareil, quelle que soit l’adresse tapée, avant tout affichage (anglais si
+  l’appareil parle une autre langue) ; ni pays, ni position, ni cookie de langue (retiré de la
+  page cookies). Robots jamais redirigés, hreflang et adresses /en inchangés ; la créatrice
+  connectée voit les deux versions.
+- Mode Nuit : fond au noir de la Maison (`#0A0A0A`), plus sombre qu’avant.
+- Menu : « À la demande » devient « Savoir-faire » (français et anglais), sous-menus et animations
+  inchangés.
+- Étapes de confection : chronologie verticale de cinq étapes (textes validés, mot pour mot),
+  ligne fine révélée au défilement, numéros posés sur la ligne, photos en noir et blanc, texte à
+  gauche et photo à droite sur ordinateur ; « Le temps de la création » centré, hauts et bodies
+  2 à 3 semaines, robes 3 à 4 semaines (lus dans le catalogue), lien vers les CGV ; engagement,
+  suivi et conseil en trois colonnes à filets sur ordinateur, carrousel aimanté à trois points sur
+  téléphone et tablette, liens typographiques à petite flèche, mêmes destinations.
+- Modes Jour et Nuit suivis comme partout ; animations apaisées respectées.
+- Tests : langue (unitaires et parcours : appareil en anglais, en français, dans une autre langue,
+  pays ignoré, robots, créatrice connectée), menu, chronologie, délais, trois espaces sur
+  ordinateur et téléphone, accessibilité, responsive, homogénéité.

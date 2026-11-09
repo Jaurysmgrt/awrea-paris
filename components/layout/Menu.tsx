@@ -3,15 +3,15 @@
  * Navigation du site, côté navigateur (maquette EN-TÊTE DU SITE).
  *
  * - HeaderBar : la barre de l'en-tête, rendue par Header.tsx qui lit le document « navigation ».
- *   Logo entier centré, puis les cinq entrées centrées en Cormorant : Accueil, À la demande ⌄,
+ *   Logo entier centré, puis les cinq entrées centrées en Cormorant : Accueil, Savoir-faire ⌄,
  *   Collections ⌄, Contact, Mon Panier ⌄. Les menus déroulants sont des boutons de divulgation
  *   (aria-expanded) : ouverture au clic, au clavier (Entrée, Espace), au survol en confort ;
  *   Échap, un clic ailleurs ou le focus qui s'en va les referment. Au défilement, l'en-tête
  *   devient compact : le monogramme et la même navigation (styles/layout.css).
  * - Menu : le menu plein écran du téléphone, un dialogue modal (<dialog>) qui reprend les cinq
  *   entrées et leurs sous-entrées.
- * - Sélecteur de langue « FR · EN » (LanguageSwitch) : à droite de la navigation sur tablette et
- *   ordinateur, en bas du menu sur téléphone. Sous /en, la page en cours se repère sans le préfixe.
+ * - Aucun sélecteur de langue (brief du 09/11) : le site suit la langue de l'appareil (proxy.ts,
+ *   preferredLocale). Sous /en, la page en cours se repère sans le préfixe.
  * - CookiesButton : « Gérer les cookies » du pied de page (rouvre les préférences).
  *
  * Aucun texte ici : entrées et liens dans content/site/fr/navigation.json, libellés de l'interface
@@ -31,7 +31,6 @@ import { loadSearchIndex } from "@/components/search/load";
 import { fill } from "@/lib/edition/fill";
 import { CONSENT_OPEN_EVENT } from "@/lib/consent";
 import { stripLocale } from "@/lib/i18n/routing";
-import { LanguageSwitch, type LanguesTexts } from "./LanguageSwitch";
 
 const loadSearch = () => import("@/components/search/SearchOverlay");
 const SearchOverlay = dynamic(loadSearch, { ssr: false });
@@ -55,8 +54,6 @@ export interface NavEntry extends NavLink {
 export interface NavigationDoc {
   principal: NavEntry[];
   pied: { titre: string; liens: NavLink[] }[];
-  /** sélecteur de langue « FR · EN » */
-  langues?: LanguesTexts;
 }
 
 type SiteTexts = typeof import("@/content/site/fr/site.json");
@@ -331,7 +328,6 @@ export function HeaderBar({ nav }: { nav: NavigationDoc }) {
               <Compteur n={count} />
             </button>
 
-            {nav.langues ? <LanguageSwitch t={nav.langues} className="site-header__lang" /> : null}
           </div>
         </div>
       </header>
@@ -427,7 +423,6 @@ export function Menu({ open, onClose, nav, actions }: { open: boolean; onClose: 
             ))}
           </ul>
         </nav>
-        {nav.langues ? <LanguageSwitch t={nav.langues} className="site-menu__lang" /> : null}
       </div>
     </dialog>
   );

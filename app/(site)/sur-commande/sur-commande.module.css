@@ -1,27 +1,38 @@
 /*
- * À la demande : les délais de fabrication. La frise des étapes a ses propres styles
- * (frise.module.css). Tokens seulement.
+ * Les étapes de confection : « Le temps de la création », les délais de confection (brief du 09/11).
+ * La chronologie et les trois espaces ont leurs propres styles (frise.module.css, espaces.module.css).
+ * Tokens seulement. Tout est centré ; sur ordinateur et tablette, les deux familles côte à côte,
+ * séparées d'un filet vertical fin, entre deux filets horizontaux ; sur téléphone, l'une sous l'autre.
  */
-/* délais : deux familles côte à côte dès la tablette */
 .delais {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-block) var(--spacing-gutter);
   margin-inline: 0;
-}
-@media (min-width: 48rem) {
-  .delais {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  border-block: var(--border-width-hair) solid var(--line);
 }
 .delai {
   display: grid;
   gap: var(--spacing-xs);
   justify-items: center;
-  padding-top: var(--spacing-m);
-  border-top: var(--border-width-hair) solid var(--fg);
+  padding-block: var(--spacing-l);
+  text-align: center;
+}
+.delai + .delai {
+  border-top: var(--border-width-hair) solid var(--line);
 }
 .delai dd {
   margin: 0;
   text-align: center;
+}
+.mention {
+  color: var(--fg-soft);
+}
+@media (min-width: 48rem) {
+  .delais {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .delai + .delai {
+    border-top: 0;
+    border-left: var(--border-width-hair) solid var(--line);
+  }
 }

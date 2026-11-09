@@ -13,9 +13,9 @@
     "frise": [
       {
         "numero": "01",
-        "nom": "La commande",
-        "titre": "Le début de votre création.",
-        "texte": "Vous choisissez le modèle qui vous correspond ainsi que les caractéristiques proposées pour votre pièce. Votre commande marque le début de sa réalisation.",
+        "nom": "La sélection",
+        "titre": "L’origine de votre pièce.",
+        "texte": "Vous choisissez votre modèle et ses caractéristiques. Chaque création prend naissance dans vos envies et votre sensibilité.",
         "image": {
           "src": "/media/img/editorial-2",
           "alt": "Une robe de dentelle noire vue de dos, le laçage du dos en lumière",
@@ -30,8 +30,8 @@
       {
         "numero": "02",
         "nom": "La préparation",
-        "titre": "Chaque détail prend sa place.",
-        "texte": "Votre commande est transmise pour préparer la réalisation de votre pièce. Les éléments nécessaires à sa confection sont soigneusement réunis.",
+        "titre": "Le soin du détail.",
+        "texte": "Matières, éléments et finitions sont préparés avec exigence afin de donner vie à une pièce fidèle à vos attentes.",
         "image": {
           "src": "/media/img/atelier-5",
           "alt": "Une dentelle ivoire et une paire de ciseaux posées sur la table de l’atelier",
@@ -46,8 +46,8 @@
       {
         "numero": "03",
         "nom": "La confection",
-        "titre": "Le savoir-faire au cœur du geste.",
-        "texte": "Votre pièce prend forme au fil des gestes et du travail de confection. Chaque étape est réalisée avec attention et précision.",
+        "titre": "L’art du geste.",
+        "texte": "Au sein de notre atelier, chaque pièce est confectionnée avec précision. Le savoir-faire artisanal révèle progressivement sa forme.",
         "image": {
           "src": "/media/img/atelier-4",
           "alt": "Les mains d’une couturière qui travaillent une étoffe blanche, sur la table de l’atelier",
@@ -58,8 +58,8 @@
       {
         "numero": "04",
         "nom": "Les finitions",
-        "titre": "L’exigence jusque dans le détail.",
-        "texte": "Les finitions sont soigneusement réalisées et la pièce fait l’objet d’une vérification attentive avant son départ.",
+        "titre": "L’exigence jusque dans les détails.",
+        "texte": "Chaque finition fait l’objet d’une attention particulière. Votre création est soigneusement vérifiée avant son départ.",
         "image": {
           "src": "/media/img/atelier-6",
           "alt": "Une aiguille tenue entre deux doigts, au ras d’une étoffe blanche",
@@ -74,8 +74,8 @@
       {
         "numero": "05",
         "nom": "L’expédition",
-        "titre": "Votre création prend son envol.",
-        "texte": "Votre pièce est préparée avec soin pour être expédiée dans son écrin et rejoindre sa future propriétaire.",
+        "titre": "Jusqu’à vous.",
+        "texte": "Votre pièce est délicatement préparée dans son écrin AWREA PARIS, puis expédiée avec le plus grand soin jusqu’à vous.",
         "image": {
           "src": "/media/img/contact-sacs",
           "alt": "Des sacs blancs au logo Awrea Paris, prêts au départ",
@@ -83,69 +83,64 @@
           "height": 952,
           "provisoire": true
         }
-      },
-      {
-        "numero": "06",
-        "nom": "La réception",
-        "titre": "Une pièce, une histoire.",
-        "texte": "Votre création arrive enfin entre vos mains. Il ne vous reste plus qu’à découvrir et apprécier une pièce réalisée à la demande.",
-        "image": {
-          "src": "/media/img/look-2",
-          "alt": "Une femme vêtue d’une robe noire, dans un intérieur sombre éclairé de bougies",
-          "width": 1200,
-          "height": 1500,
-          "focal": {
-            "x": 50,
-            "y": 35
-          }
-        }
       }
     ]
   },
   "delais": {
-    "surtitre": "Les délais",
-    "titre": "Le temps de la confection",
-    "texte": "Le délai de fabrication court à partir de votre commande, avant l’expédition. Chaque fiche de pièce affiche le sien.",
+    "titre": "Le temps de la création",
+    "texte": "Chaque pièce est confectionnée à la commande, selon le rythme de notre atelier. Le délai indiqué correspond au temps de confection, avant expédition.",
     "groupes": {
-      "hauts": "Bodys et tops",
-      "robes": "Robes"
+      "hauts": "Les hauts & bodies",
+      "robes": "Les robes"
     },
-    "valeur": "{delai} de fabrication",
-    "note": "L’annulation, la livraison et les retours suivent nos conditions générales de vente.",
-    "cta": {
-      "label": "Lire les conditions de livraison",
-      "href": "/livraison-retours"
+    "valeur": "{delai}",
+    "mention": "Délai de confection",
+    "fin": {
+      "avant": "Pour toute information relative aux annulations, à l’expédition et aux retours, nous vous invitons à consulter nos ",
+      "lien": {
+        "label": "Conditions générales de vente",
+        "href": "/cgv"
+      },
+      "apres": "."
     }
   },
-  "suivi": {
-    "surtitre": "Le suivi",
-    "titre": "Suivre votre pièce",
-    "texte": "Chaque étape s’affiche avec sa date dans votre compte. Sans compte, le numéro de la commande et votre adresse e-mail suffisent pour la suivre.",
-    "cta": {
-      "label": "Suivre ma commande",
-      "href": "/suivi"
-    }
-  },
-  "rendezVous": {
-    "surtitre": "Avant de commander",
-    "titre": "Parler de votre pièce",
-    "texte": "Une question de taille, de matière ou de silhouette : la créatrice vous répond de vive voix, sur rendez-vous.",
-    "cta": {
-      "label": "Prendre rendez-vous",
-      "href": "/rendez-vous"
-    }
-  },
-  "ethique": {
-    "surtitre": "L’éthique",
-    "titre": "Produire ce qui est désiré",
-    "citation": {
-      "officiel": true,
-      "texte": "Ce choix est au cœur de notre vision : produire uniquement ce qui est désiré, avec conscience et respect de l’environnement."
-    },
-    "texte": "Fabriquer après la commande, c’est laisser aux artisans le temps de bien faire, et ne rien produire qui finirait oublié.",
-    "cta": {
-      "label": "Entrer dans l’atelier",
-      "href": "/atelier"
+  "espaces": {
+    "titre": "L’engagement, le suivi et le conseil",
+    "officiel": true,
+    "liste": [
+      {
+        "numero": "01",
+        "nom": "L’engagement",
+        "titre": "Créer avec intention.",
+        "texte": "Produire à la commande, privilégier le désir à la surproduction et accorder à chaque pièce le temps nécessaire.",
+        "lien": {
+          "label": "Notre démarche",
+          "href": "/atelier"
+        }
+      },
+      {
+        "numero": "02",
+        "nom": "Le suivi",
+        "titre": "Chaque étape, à vos côtés.",
+        "texte": "Suivez l’évolution de votre commande et retrouvez les informations essentielles à chaque étape.",
+        "lien": {
+          "label": "Suivre ma pièce",
+          "href": "/suivi"
+        }
+      },
+      {
+        "numero": "03",
+        "nom": "Le conseil",
+        "titre": "Un échange privilégié.",
+        "texte": "Une question sur une matière, une coupe ou une silhouette ? Échangez directement avec la créatrice.",
+        "lien": {
+          "label": "Prendre rendez-vous",
+          "href": "/rendez-vous"
+        }
+      }
+    ],
+    "navigation": {
+      "aller": "Aller à l’espace {n}"
     }
   }
 }

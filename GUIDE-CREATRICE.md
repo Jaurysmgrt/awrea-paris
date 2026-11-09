@@ -68,9 +68,12 @@ les accès déjà donnés se ferment.
 
 ### Langue et mode Nuit
 
-À sa première visite, chaque personne voit le site dans la langue de son téléphone ou de son
-ordinateur : en anglais si ses réglages sont en anglais (ou dans une langue que le site ne parle
-pas), en français sinon. Ensuite, le choix fait avec « FR · EN » est retenu.
+Le site n’a plus de bouton « FR · EN » : il s’affiche toujours dans la langue du téléphone ou de
+l’ordinateur de la personne, quelle que soit l’adresse tapée, sans page intermédiaire. Un
+téléphone réglé en français ouvre le site en français ; réglé en anglais, en anglais ; réglé dans
+une autre langue que le site ne parle pas (allemand, japonais…), en anglais. Rien n’est demandé ni
+retenu : ni la position, ni le pays. Vous-même, connectée à l’Atelier, voyez les deux versions
+(les adresses qui commencent par /en sont la version anglaise).
 
 En mode Nuit, le site est noir, et l’alternance s’inverse : les sections noires du mode Jour
 passent en blanc cassé, texte noir, puis la page redevient noire.
@@ -166,8 +169,8 @@ Le menu de gauche est rangé comme une journée de la Maison (sur téléphone, i
    faite, une apostrophe droite). Il propose, vous gardez le dernier mot : **Corriger la
    typographie** applique la correction, **Garder tel quel** garde votre texte.
 6. Sous votre texte, la case **Version anglaise** reçoit la traduction, celle que lisent les
-   visiteuses de la version anglaise du site (les adresses qui commencent par /en, et le choix
-   **FR · EN** en haut des pages). Laissée vide, le français s’affiche à la place.
+   visiteuses de la version anglaise du site (les adresses qui commencent par /en, ouvertes
+   d’elles-mêmes pour les téléphones et ordinateurs réglés dans une autre langue que le français). Laissée vide, le français s’affiche à la place.
 7. **Enregistrer**. Votre texte part en brouillon : vos clientes ne voient rien tant que vous
    n’avez pas appuyé sur **Publier** (partie 4).
 

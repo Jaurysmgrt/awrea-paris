@@ -13,9 +13,9 @@
     "frise": [
       {
         "numero": "01",
-        "nom": "The order",
-        "titre": "The beginning of your creation.",
-        "texte": "You choose the model that suits you, along with the options offered for your piece. Your order marks the start of its making.",
+        "nom": "The selection",
+        "titre": "Where your piece begins.",
+        "texte": "You choose your design and its details. Every creation is born of your wishes and your sensibility.",
         "image": {
           "src": "/media/img/editorial-2",
           "alt": "A black lace dress seen from behind, its lacing in the light",
@@ -30,8 +30,8 @@
       {
         "numero": "02",
         "nom": "The preparation",
-        "titre": "Every detail finds its place.",
-        "texte": "Your order is passed on to prepare the making of your piece. Everything it needs is carefully gathered.",
+        "titre": "Care for every detail.",
+        "texte": "Materials, components and finishes are prepared with rigour, to bring to life a piece true to what you expect.",
         "image": {
           "src": "/media/img/atelier-5",
           "alt": "Ivory lace and a pair of scissors on the atelier table",
@@ -46,8 +46,8 @@
       {
         "numero": "03",
         "nom": "The making",
-        "titre": "Craftsmanship in every gesture.",
-        "texte": "Your piece takes shape gesture by gesture, through the work of making. Each step is carried out with care and precision.",
+        "titre": "The art of the hand.",
+        "texte": "In our atelier, each piece is made with precision. Artisanal savoir-faire gradually reveals its shape.",
         "image": {
           "src": "/media/img/atelier-4",
           "alt": "A seamstress’s hands working white fabric on the atelier table",
@@ -59,7 +59,7 @@
         "numero": "04",
         "nom": "The finishing",
         "titre": "Exacting, down to the last detail.",
-        "texte": "The finishing touches are carefully completed, and the piece is closely checked before it leaves.",
+        "texte": "Every finish receives particular attention. Your creation is carefully checked before it leaves us.",
         "image": {
           "src": "/media/img/atelier-6",
           "alt": "A needle held between two fingers, close to white fabric",
@@ -74,8 +74,8 @@
       {
         "numero": "05",
         "nom": "The shipping",
-        "titre": "Your creation takes flight.",
-        "texte": "Your piece is prepared with care, to be shipped in its case and join its future owner.",
+        "titre": "All the way to you.",
+        "texte": "Your piece is delicately placed in its AWREA PARIS case, then shipped with the greatest care, all the way to you.",
         "image": {
           "src": "/media/img/contact-sacs",
           "alt": "White bags bearing the Awrea Paris logo, ready to leave",
@@ -83,69 +83,64 @@
           "height": 952,
           "provisoire": true
         }
-      },
-      {
-        "numero": "06",
-        "nom": "The arrival",
-        "titre": "One piece, one story.",
-        "texte": "Your creation finally arrives in your hands. All that remains is to discover and enjoy a piece made at your request.",
-        "image": {
-          "src": "/media/img/look-2",
-          "alt": "A woman in a black dress, in a dark candlelit interior",
-          "width": 1200,
-          "height": 1500,
-          "focal": {
-            "x": 50,
-            "y": 35
-          }
-        }
       }
     ]
   },
   "delais": {
-    "surtitre": "Making times",
-    "titre": "The time it takes",
-    "texte": "The making time runs from your order, before dispatch. The page of each piece shows its own.",
+    "titre": "The time of creation",
+    "texte": "Each piece is made to order, at the pace of our atelier. The time shown is the making time, before shipping.",
     "groupes": {
-      "hauts": "Bodysuits and tops",
+      "hauts": "Tops & bodies",
       "robes": "Dresses"
     },
-    "valeur": "Made in {delai}",
-    "note": "Cancellation, delivery and returns follow our terms and conditions of sale.",
-    "cta": {
-      "label": "Read the delivery terms",
-      "href": "/livraison-retours"
+    "valeur": "{delai}",
+    "mention": "Making time",
+    "fin": {
+      "avant": "For anything relating to cancellations, shipping and returns, please see our ",
+      "lien": {
+        "label": "Terms and conditions of sale",
+        "href": "/cgv"
+      },
+      "apres": "."
     }
   },
-  "suivi": {
-    "surtitre": "Tracking",
-    "titre": "Follow your piece",
-    "texte": "Each step appears with its date in your account. Without an account, the order number and your email address are enough to follow it.",
-    "cta": {
-      "label": "Track my order",
-      "href": "/suivi"
-    }
-  },
-  "rendezVous": {
-    "surtitre": "Before you order",
-    "titre": "Talk about your piece",
-    "texte": "A question of size, material or silhouette: the designer will answer you in person, by appointment.",
-    "cta": {
-      "label": "Book an appointment",
-      "href": "/rendez-vous"
-    }
-  },
-  "ethique": {
-    "surtitre": "Ethics",
-    "titre": "Making what is desired",
-    "citation": {
-      "officiel": true,
-      "texte": "This choice lies at the heart of our vision: to produce only what is desired, with awareness and respect for the environment."
-    },
-    "texte": "Making after the order gives the artisans time to do things well, and produces nothing that would end up forgotten.",
-    "cta": {
-      "label": "Step into the atelier",
-      "href": "/atelier"
+  "espaces": {
+    "titre": "Commitment, tracking and guidance",
+    "officiel": true,
+    "liste": [
+      {
+        "numero": "01",
+        "nom": "Commitment",
+        "titre": "Creating with intention.",
+        "texte": "Making to order, choosing desire over overproduction and giving each piece the time it needs.",
+        "lien": {
+          "label": "Our approach",
+          "href": "/atelier"
+        }
+      },
+      {
+        "numero": "02",
+        "nom": "Tracking",
+        "titre": "Every step, by your side.",
+        "texte": "Follow the progress of your order and find the essential information at every step.",
+        "lien": {
+          "label": "Track my piece",
+          "href": "/suivi"
+        }
+      },
+      {
+        "numero": "03",
+        "nom": "Guidance",
+        "titre": "A privileged conversation.",
+        "texte": "A question about a fabric, a cut or a silhouette? Speak directly with the designer.",
+        "lien": {
+          "label": "Book an appointment",
+          "href": "/rendez-vous"
+        }
+      }
+    ],
+    "navigation": {
+      "aller": "Go to item {n}"
     }
   }
 }

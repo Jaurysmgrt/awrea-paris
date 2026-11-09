@@ -1,8 +1,8 @@
 "use client";
 /**
- * Langue de la page pour les composants du navigateur (liens, prix, dates, sélecteur de langue).
+ * Langue de la page pour les composants du navigateur (liens, prix, dates).
  * Posée par le gabarit racine (app/layout.tsx) d'après getLocale() : la même valeur au rendu
- * serveur et à l'hydratation. Changer de langue recharge la page (components/layout/LanguageSwitch.tsx).
+ * serveur et à l'hydratation. La langue est celle de l'appareil de la visiteuse (proxy.ts).
  */
 import { createContext, useCallback, useContext, type ReactNode } from "react";
 import { DEFAULT_LOCALE, localizePath, type Locale } from "@/lib/i18n/routing";
