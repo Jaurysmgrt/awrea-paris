@@ -14,13 +14,15 @@
  * Ne jamais importer ce module dans un composant client : l'adresse ne doit apparaître dans aucun
  * fichier servi au public. Les composants de l'Atelier la reçoivent par `AtelierBase`.
  */
+import { boutiqueReelle } from "@/lib/config/boutique";
+
 export const ATELIER_INTERNAL = "/gestion";
 export const ATELIER_API_INTERNAL = "/api/gestion";
 /** préfixe public, seul visible dans robots.txt */
 export const ATELIER_PREFIX = "/prive-";
 const SECRET_FORMAT = /^\/prive-[a-z0-9]{12,64}$/;
 
-const isProduction = () => process.env.VERCEL_ENV === "production" || (process.env.NODE_ENV === "production" && Boolean(process.env.SHOPIFY_STORE_DOMAIN));
+const isProduction = () => boutiqueReelle();
 
 /** Adresse publique de l'Atelier, ou null si l'Atelier est fermé faute de réglage valable. */
 export function atelierBase(): string | null {

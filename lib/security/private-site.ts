@@ -2,8 +2,8 @@
  * Site privé (interrupteur SITE_PRIVE=1) : tant que la Maison n'ouvre pas le site, seules les
  * personnes connectées à l'Atelier le voient, l'Atelier compris. Une visiteuse ne voit que la page
  * d'attente (/acces-prive), sans aucun contenu du site ; rien n'est indexé (robots.txt fermé, plan
- * du site et llms.txt vides, en-tête noindex sur chaque réponse). Les webhooks de Shopify et les
- * tâches planifiées continuent de fonctionner. Le jour de l'ouverture : retirer SITE_PRIVE.
+ * du site et llms.txt vides, en-tête noindex sur chaque réponse). Les webhooks signés (paiement) et
+ * les tâches planifiées continuent de fonctionner. Le jour de l'ouverture : retirer SITE_PRIVE.
  *
  * Lien privé (choix de la créatrice du 01/11) : « …?cle=<SITE_PRIVE_CLE> » ouvre tout le site, sans
  * passer par l'Atelier, dans le navigateur où il est ouvert, pendant PREVIEW_MAX_AGE. La clé est

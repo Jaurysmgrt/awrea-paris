@@ -2,8 +2,8 @@ import Link from "@/components/ui/Link";
 import { getProposals } from "@/lib/agents/perform";
 import { confectionAlerts } from "@/lib/agents/confection";
 import { getLog } from "@/lib/agents/log";
-import { commerceMode, getAllProducts } from "@/lib/commerce";
-import { getOrdersWithSource, SHOPIFY_ORDERS_LIMIT, statusLabel } from "@/lib/commerce/orders";
+import { getAllProducts } from "@/lib/commerce";
+import { getOrdersWithSource, statusLabel } from "@/lib/commerce/orders";
 import { withStages } from "@/lib/store/order-stages";
 import { listInbox } from "@/lib/inbox";
 import { listReturns } from "@/lib/returns";
@@ -15,9 +15,7 @@ import { formatPrice } from "@/lib/format";
 import {
   activiteRecente,
   compte,
-  couvre,
   de,
-  debutMoisPrecedent,
   evolution,
   lienAction,
   latestOrders,
@@ -111,9 +109,6 @@ export default async function GestionHome() {
   );
   const today = parisDay(now).day;
   const nouvelles = customers ? newCustomers(customers, now) : null;
-  // Shopify ne renvoie que ses dernières commandes : une période qu'elles ne couvrent pas n'est pas chiffrée
-  const comparable = couvre(orders, debutMoisPrecedent(now), SHOPIFY_ORDERS_LIMIT);
-  const troisMois = couvre(orders, new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000), SHOPIFY_ORDERS_LIMIT);
   const ventes = topSold(orders, now);
   const todo = priorites({
     blocked: orders.filter((o) => o.status === "blocked").length,
@@ -155,9 +150,7 @@ export default async function GestionHome() {
         </p>
         {source === "demo" ? (
           <p className="t-note">
-            {commerceMode === "shopify"
-              ? "Shopify ne répond pas pour le moment : les commandes et les chiffres ci-dessous sont des exemples, pas vos ventes."
-              : "Boutique en mode essai : les commandes et les chiffres ci-dessous sont des exemples, tant que Shopify n’est pas relié."}
+            Démonstration : les commandes et les chiffres ci-dessous sont des exemples, pas des ventes.
           </p>
         ) : null}
       </header>
@@ -211,7 +204,7 @@ export default async function GestionHome() {
           <dd className="kpis__value">{formatPrice(revenue.amount)}</dd>
           <dd className="t-note">
             {compte(revenue.count, "commande", "commandes")}
-            {change === null || !comparable
+            {change === null
               ? ""
               : `, ${change >= 0 ? "+" : "−"}${Math.abs(change)} % par rapport à ${mois(previousMonth)} à la même date`}
           </dd>
@@ -356,7 +349,7 @@ export default async function GestionHome() {
                     <span className="liste-simple__titre">{v.title}</span>
                     <span className="t-note">
                       {compte(v.quantity, "pièce vendue", "pièces vendues")}{" "}
-                      {troisMois ? "en trois mois" : `sur les ${SHOPIFY_ORDERS_LIMIT} dernières commandes`}
+                      en trois mois
                     </span>
                   </li>
                 ))}

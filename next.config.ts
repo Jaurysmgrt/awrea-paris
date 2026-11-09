@@ -30,7 +30,6 @@ const config: NextConfig = {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [360, 480, 640, 828, 1080, 1280, 1600, 1920],
     remotePatterns: [
-      { protocol: "https", hostname: "cdn.shopify.com" },
       { protocol: "https", hostname: "*.cdninstagram.com" },
       { protocol: "https", hostname: "*.fbcdn.net" },
     ],

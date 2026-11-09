@@ -5,7 +5,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { activiteRecente, couvre, de, debutMoisPrecedent, evolution, latestOrders, lienAction, monthRevenue, newCustomers, ordersToHandle, parisMonthKey, prenom, previousMonthKey, priorites, topSold, type EtatDuJour } from "@/lib/admin/dashboard";
+import { activiteRecente, de, evolution, latestOrders, lienAction, monthRevenue, newCustomers, ordersToHandle, parisMonthKey, prenom, previousMonthKey, priorites, topSold, type EtatDuJour } from "@/lib/admin/dashboard";
 
 type O = { number: string; status: "pending" | "paid" | "in_production" | "ready" | "shipped" | "delivered" | "refunded" | "blocked" | "returned"; total: number; createdAt: string; name: string; lines: { handle: string; title: string; quantity: number }[] };
 const order = (number: string, createdAt: string, total: number, status: O["status"] = "paid", lines: O["lines"] = []): O => ({ number, status, total, createdAt, name: "Camille Martin", lines });
@@ -118,19 +118,6 @@ test("élision : d’avril, d’octobre, d’Inès, de novembre", () => {
   assert.equal(de("Inès D."), "d’Inès D.");
   assert.equal(de("novembre"), "de novembre");
   assert.equal(activiteRecente({ messages: [{ date: "2026-11-01T00:00:00Z", name: "" }], actions: [] })[0].texte, "Message d’une cliente");
-});
-
-test("période couverte : au-delà de la limite de Shopify, une période trop ancienne n'est pas chiffrée", () => {
-  const now = new Date("2026-11-07T10:00:00Z");
-  const since = debutMoisPrecedent(now);
-  assert.ok(since.getTime() < Date.parse("2026-10-01T00:00:00Z"));
-  // peu de commandes : tout est couvert
-  assert.equal(couvre([order("A", "2026-11-01T00:00:00Z", 1)], since, 100), true);
-  // la limite atteinte, toutes en novembre : octobre n'est pas couvert
-  const recentes = Array.from({ length: 100 }, (_, i) => order(`N${i}`, "2026-11-02T00:00:00Z", 1));
-  assert.equal(couvre(recentes, since, 100), false);
-  // la limite atteinte, la plus ancienne avant octobre : couvert
-  assert.equal(couvre([...recentes.slice(1), order("S", "2026-09-20T00:00:00Z", 1)], since, 100), true);
 });
 
 test("liens des actions : Atelier sous son adresse, site tel quel", () => {

@@ -51,12 +51,9 @@ test("cas et textes à écrire : un bloc conditionnel ou entre crochets ne part 
   assert.match(avec.html, /en fabrication/);
 });
 
-test("export : syntaxe Brevo, Klaviyo et Shopify ; aperçus Gmail et Outlook sans polices du site", () => {
+test("export : syntaxe Brevo et Klaviyo ; aperçus Gmail et Outlook sans polices du site", () => {
   assert.match(renderEmail(doc, { ...ctx, syntax: "brevo" }).html, /\{\{ contact\.PRENOM \}\}.*|\{\{ unsubscribe \}\}/s);
   assert.match(renderEmail(doc, { ...ctx, syntax: "klaviyo" }).html, /\{% unsubscribe_url %\}/);
-  const shop = renderEmail({ ...doc, famille: "commande", blocs: [...doc.blocs, { id: "b-test0008", type: "commande" }] }, { ...ctx, syntax: "shopify" });
-  assert.match(shop.html, /\{\{ customer\.first_name \}\}/);
-  assert.match(shop.html, /\{% for line in line_items %\}/);
   assert.doesNotMatch(renderEmail(doc, { ...ctx, client: "outlook" }).html, /@font-face/);
   assert.match(renderEmail(doc, { ...ctx, client: "apple" }).html, /@font-face/);
 });

@@ -1,7 +1,7 @@
 /**
- * Catalogue de DÉMONSTRATION : les sept pièces de la collection Hypnotic Lace (ressources
- * officielles de la Maison, RESSOURCES.md). En production, ces données viennent de Shopify
- * (Storefront API) ; ce fichier sert au développement sans compte Shopify et de modèle pour la
+ * Catalogue de départ de la boutique : les sept pièces de la collection Hypnotic Lace (ressources
+ * officielles de la Maison, RESSOURCES.md). L'Atelier règle ensuite chaque pièce dans la base de
+ * la boutique (prix, délais, textes, photos, statut) ; ce fichier sert aussi de modèle pour la
  * saisie des fiches.
  *
  * Modèle de la Maison : chaque pièce est créée SUR DEMANDE, sans stock, par des artisans français.

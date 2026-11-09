@@ -6,6 +6,10 @@ démonstration). Ce document décrit chaque protection en place, les résultats 
 failles trouvées et corrigées pendant l'audit, et **ce qui reste à faire par la maison** (réglages
 de comptes que le code ne peut pas faire à sa place).
 
+Mis à jour le 8 novembre 2026 : la boutique est entièrement à la Maison, sans plateforme de commerce
+extérieure (pièces, commandes, clientes, retours, factures dans l'Atelier). Le paiement en ligne
+passe par Stripe Checkout (`lib/paiement`).
+
 ---
 
 ## Synthèse
@@ -19,9 +23,9 @@ de comptes que le code ne peut pas faire à sa place).
 | Anti-robots et limitation de débit | ✓ | Turnstile sur tous les formulaires publics et la connexion à l'Atelier ; limitation de débit partagée entre instances ; blocage après 8 échecs de connexion en 15 minutes. |
 | Authentification | ✓ | Clientes : Supabase sans mot de passe (code e-mail, Google, Apple), sessions qui expirent. **Double authentification obligatoire pour tous les accès admin et le tableau de bord Atelier.** |
 | Base de données | ✓ | Sécurité par ligne (RLS) sur toutes les tables, vérifiée par des tests. |
-| Paiement | ✓ | **Aucune donnée bancaire stockée sur le site : tout le paiement passe par Shopify et ses prestataires certifiés PCI-DSS.** |
+| Paiement | ✓ · ⚠ à activer | **Aucune donnée bancaire sur le site : le paiement en ligne passe par Stripe Checkout, la carte étant saisie chez Stripe, prestataire certifié PCI-DSS.** Clé secrète seulement côté serveur, webhook signé (`STRIPE_WEBHOOK_SECRET`, corps brut, événement rejoué sans effet), clé d'idempotence sur chaque page de paiement et chaque remboursement, aucun numéro de carte gardé (seulement « Carte Visa », « PayPal »…). À activer avec le compte Stripe de la Maison ; vérifié par tests automatiques avec un faux serveur Stripe, pas encore avec un vrai compte. D'ici là, la boutique réelle ne prend aucune commande payée (`lib/config/boutique.ts`). |
 | Sauvegardes | ✓ code prêt · ⚠ secrets à créer | Sauvegarde quotidienne chiffrée (AES-256) avec test de restauration automatique. |
-| Secrets | ✓ | **Toutes les clés (Shopify, Supabase, Claude, e-mails) uniquement dans les variables d'environnement, jamais dans le code ni sur GitHub.** Recherche automatique de clés à chaque modification. |
+| Secrets | ✓ | **Toutes les clés (Supabase, Upstash, Claude, e-mails, et bientôt Stripe) uniquement dans les variables d'environnement, jamais dans le code ni sur GitHub.** Recherche automatique de clés à chaque modification. |
 | Dépendances | ✓ | Dependabot chaque semaine, `npm audit` bloquant en intégration continue : 0 vulnérabilité en production. |
 | Dépôt GitHub | ⚠ **à faire** | Le dépôt est aujourd'hui **public** et la branche `main` **n'est pas protégée** (§ 11). |
 | Sécurité de l'IA | ✓ | Moindre privilège, protection contre l'injection de prompt, aucun accès aux données bancaires ni aux mots de passe. |
@@ -38,8 +42,8 @@ de comptes que le code ne peut pas faire à sa place).
   `https://www.awreaparis.com`) fait foi ; l'autre version (avec ou sans « www ») y est redirigée
   de façon permanente (`next.config.ts`). À doubler dans Vercel → Domains (§ 11).
 - **HSTS** : `max-age=63072000; includeSubDomains; preload` sur tous les déploiements Vercel.
-- **Contenu mixte** : aucun — toutes les ressources sont servies en HTTPS (site, Shopify CDN) et
-  la CSP ajoute `upgrade-insecure-requests`.
+- **Contenu mixte** : aucun. Toutes les ressources sont servies en HTTPS et la CSP ajoute
+  `upgrade-insecure-requests`.
 - Objectif **A+ sur SSL Labs** : atteint avec la configuration TLS de Vercel et HSTS ; à vérifier
   dès la mise en ligne sur ssllabs.com/ssltest (le contrôle quotidien vérifie déjà le certificat).
 
@@ -49,7 +53,7 @@ Valeurs servies par la version de production (relevées pendant l'audit) :
 
 | En-tête | Valeur |
 | --- | --- |
-| `Content-Security-Policy` | `default-src 'self'; script-src 'self' 'nonce-…' 'strict-dynamic' (+ domaines des services autorisés); style-src 'self' 'unsafe-inline'; img-src …; font-src 'self'; media-src 'self' blob: cdn.shopify.com; connect-src …; frame-src challenges.cloudflare.com …; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests` |
+| `Content-Security-Policy` | `default-src 'self'; script-src 'self' 'nonce-…' 'strict-dynamic' (+ domaines des services autorisés); style-src 'self' 'unsafe-inline'; img-src …; font-src 'self'; media-src 'self' blob:; connect-src …; frame-src challenges.cloudflare.com …; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests` |
 | `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` (déploiements Vercel) |
 | `X-Frame-Options` | `DENY` |
 | `X-Content-Type-Options` | `nosniff` |
@@ -65,7 +69,7 @@ eux-mêmes (`strict-dynamic` : mesure d'audience après consentement, Turnstile)
 attributs `style` restent autorisés (variables CSS des animations), sans risque d'exécution.
 
 Contrepartie : les pages sont rendues à chaque visite au lieu d'être servies depuis le cache du
-CDN (les données Shopify restent, elles, en cache cinq minutes). Si un jour le trafic l'exige,
+CDN. Si un jour le trafic l'exige,
 `CSP_MODE=static` rétablit les pages en cache avec une CSP qui tolère les scripts en ligne de
 Next.js (note A au lieu de A+ sur securityheaders.com). Le choix est expliqué dans
 `lib/security/headers.ts`.
@@ -92,10 +96,10 @@ plans. **Règles de pare-feu recommandées** (Vercel → Firewall, à créer par
 | A02 Cryptographie | HTTPS partout ; sessions signées HMAC-SHA256 ; secret TOTP chiffré AES-256-GCM ; codes de secours hachés ; comparaisons en temps constant. |
 | A03 Injection | Requêtes Supabase paramétrées, aucune requête SQL construite à la main ; toutes les entrées validées par des schémas Zod (longueurs, formats) ; échappement automatique de React ; trois seuls `dangerouslySetInnerHTML`, tous sur du contenu de confiance (script de `<head>`, QR code généré par le serveur, JSON-LD échappé). |
 | A04 Conception | Règle d'autonomie des agents centralisée (`lib/agents/policy.ts`) : argent et irréversible toujours validés par la créatrice. |
-| A05 Configuration | En-têtes stricts ; aucune valeur par défaut dangereuse en production (voir § 10) ; mode démonstration impossible sur le site de production. |
+| A05 Configuration | En-têtes stricts ; aucune valeur par défaut dangereuse en production (voir § 10) ; mode démonstration impossible sur le site de production, qui tourne toujours en boutique réelle (`lib/config/boutique.ts`). |
 | A06 Composants vulnérables | Dependabot, `npm audit` bloquant en intégration continue, contrôle quotidien. |
 | A07 Authentification | Double authentification obligatoire pour l'Atelier, blocage après 8 échecs, Turnstile, sessions de 12 h révocables ; clientes sans mot de passe. |
-| A08 Intégrité | Webhooks Shopify signés (HMAC) et rejoués sans effet (identifiant de livraison mémorisé) ; tâches planifiées authentifiées (`CRON_SECRET`, comparaison en temps constant). |
+| A08 Intégrité | Tâches planifiées authentifiées (`CRON_SECRET`, comparaison en temps constant) ; certificats émis une seule fois par commande (verrou atomique). Le webhook de paiement Stripe (`/api/webhooks/stripe`) vérifie la signature (`STRIPE_WEBHOOK_SECRET`) avant toute lecture, et un événement rejoué reste sans effet (identifiant gardé trente jours, finalisation unique par commande). |
 | A09 Journalisation | Journal des actions des agents, journal de sécurité des connexions, compteurs des requêtes refusées, alerte par e-mail. |
 | A10 SSRF | Aucune requête serveur vers une adresse fournie par l'internaute. |
 
@@ -192,9 +196,14 @@ et `tests/unit/site-prive.test.ts`.
 - **Minimisation** : adresses IP jamais conservées au-delà des fenêtres de limitation (sauf
   réseau tronqué dans le journal de sécurité) ; navigation enregistrée seulement avec accord ;
   purge automatique des données expirées.
-- **Paiement** : **aucune donnée bancaire stockée sur le site : tout le paiement passe par
-  Shopify et ses prestataires certifiés PCI-DSS.** Même le tunnel de démonstration ne transmet
-  jamais de numéro de carte au serveur (seule l'issue simulée est envoyée).
+- **Paiement** : **aucune donnée bancaire sur le site : le paiement en ligne passe par Stripe
+  Checkout, la carte étant saisie chez Stripe, prestataire certifié PCI-DSS.** Tant qu'il n'est pas branché, la boutique réelle ne prend aucune commande payée et
+  aucun remboursement ne part de l'Atelier. Même le paiement d'essai de la démonstration ne
+  transmet jamais de numéro de carte au serveur (seule l'issue simulée est envoyée).
+- **Commandes** : gardées dans le stockage du site (Upstash) et copiées dans la table `orders` de
+  la base clientes (colonne `reference`), protégée par la sécurité par ligne. Retours, factures,
+  avoirs et certificats vivent dans le stockage du site ; les deux sont couverts par la sauvegarde
+  quotidienne.
 - **Sauvegardes quotidiennes chiffrées** (`.github/workflows/backup.yml`) : export de la base
   clientes et du stockage technique, chiffrement AES-256, puis **test de restauration
   automatique** dans une base vierge (tables présentes, RLS active, données lisibles). Conservation
@@ -212,12 +221,13 @@ et `tests/unit/site-prive.test.ts`.
 
 ## 6. Secrets
 
-**Toutes les clés (Shopify, Supabase, Claude, e-mails) uniquement dans les variables
-d'environnement, jamais dans le code ni sur GitHub.** La liste complète, sans valeurs, est dans
+**Toutes les clés (Supabase, Upstash, Claude, e-mails, et bientôt Stripe : `STRIPE_SECRET_KEY`,
+`STRIPE_WEBHOOK_SECRET`) uniquement dans les variables d'environnement, jamais dans le code ni sur
+GitHub.** La liste complète, sans valeurs, est dans
 `.env.example` ; `.env*` est ignoré par git (sauf le modèle).
 
-- `node scripts/secret-scan.mjs` cherche les motifs de clés (Anthropic, Shopify, Supabase,
-  Resend, Brevo, Klaviyo, AWS, GitHub, clés privées) dans tous les fichiers suivis, à chaque
+- `node scripts/secret-scan.mjs` cherche les motifs de clés connus (Anthropic, Supabase, Resend,
+  Brevo, Klaviyo, AWS, GitHub, clés privées…) dans tous les fichiers suivis, à chaque
   modification (intégration continue) et chaque semaine. Historique git vérifié pendant l'audit :
   aucune clé.
 - La clé de service Supabase n'est jamais exposée au navigateur (aucun préfixe `NEXT_PUBLIC_`).
@@ -266,8 +276,9 @@ Contrôle signale toute action faite malgré tout. La lettre à toute la liste r
 créatrice (`lib/email/lettre.ts`) : version jamais envoyée, nombre d'inscrites confirmé, tableur des
 inscrites protégé contre les formules.
 
-**Aucun agent n'a accès aux données bancaires ni aux mots de passe** : les paiements restent chez
-Shopify (une commande ne contient que le libellé du moyen de paiement) ; les clientes n'ont pas de
+**Aucun agent n'a accès aux données bancaires ni aux mots de passe** : la carte se saisira chez
+Stripe, jamais sur le site (une commande ne contient que le libellé du moyen de paiement) ; les
+clientes n'ont pas de
 mot de passe ; celui de l'Atelier n'existe que dans une variable d'environnement, comparé par le
 serveur et jamais transmis à un modèle.
 
@@ -320,7 +331,7 @@ automatiquement.
 | Gravité | Faille | Correction |
 | --- | --- | --- |
 | Critique | Sans `SESSION_SECRET`, les sessions étaient signées avec une valeur de développement publique (dépôt public) : une session Atelier aurait pu être fabriquée. | Sur Vercel, aucune valeur par défaut : sans clé de 32 caractères, les sessions sont refusées et l'Atelier reste fermé (`lib/auth/session.ts`). Même règle pour le chiffrement TOTP. |
-| Élevée | Sans `ATELIER_PASSWORD` ni Shopify, le mot de passe de démonstration était accepté — une inconnue aurait pu s'enrôler la première en double authentification. | Jamais de mot de passe de démonstration sur le site de production. |
+| Élevée | Sans `ATELIER_PASSWORD`, le mot de passe de démonstration était accepté sur le site de production : une inconnue aurait pu s'enrôler la première en double authentification. | Jamais de mot de passe de démonstration sur le site de production, qui tourne toujours en boutique réelle (`lib/config/boutique.ts`). |
 | Moyenne | L'enrôlement de la double authentification n'était pas limité en tentatives. | Même limite que la connexion (8 échecs / 15 min), échecs journalisés. |
 | Moyenne | Les sessions de l'Atelier n'étaient pas révocables avant leur expiration. | Génération de session : déconnexion de tous les appareils, révocation à la réinitialisation de la double authentification. |
 | Faible | Le tunnel de démonstration envoyait le numéro de carte de test au serveur. | Seule l'issue simulée quitte le navigateur. |
@@ -341,12 +352,15 @@ Ces réglages relèvent des comptes de la maison ; le code ne peut pas les faire
    exiger une demande de fusion, exiger le passage au vert de « Intégration continue », interdire
    les poussées forcées et la suppression. Activer *Secret scanning* et *Push protection*
    (Settings → Code security).
-3. **Double authentification sur tous les comptes** : GitHub, Vercel, Shopify (et comptes du
-   personnel), Supabase, Cloudflare, Anthropic, Resend/Brevo.
+3. **Double authentification sur tous les comptes** : GitHub, Vercel, Supabase, Cloudflare,
+   Anthropic, Resend/Brevo, puis Stripe dès sa création (et comptes du personnel).
 4. **Variables d'environnement** (Vercel) : au minimum `SESSION_SECRET` (64 caractères aléatoires),
    `ATELIER_PASSWORD`, `CRON_SECRET`, `SECURITY_ALERT_EMAIL`, les clés Turnstile, puis les services
-   (`.env.example`). Jeton Shopify Admin avec les seules autorisations : `write_products`,
-   `write_inventory`, `read_locations`, `write_orders`, `write_customers`.
+   (`.env.example`). Versions de test (Preview) de Vercel : elles tournent en démonstration
+   (mot de passe d'essai `atelier-demo` accepté sans `ATELIER_PASSWORD`, bouton qui efface les
+   données de démonstration). Si elles reçoivent les clés Upstash et Supabase de la production,
+   leur donner `BOUTIQUE_REELLE=1` et `ATELIER_PASSWORD`, ou les garder sur leurs propres données
+   (`STORE_PROVIDER=mock`, `CUSTOMERS_PROVIDER=mock`) : `ACTIVATION.md`, étape 4.1.
 5. **Domaine** : Vercel → Domains → ajouter `awreaparis.com` et `www.awreaparis.com`, rediriger
    l'un vers l'autre (308) ; après une semaine sans incident, inscrire le domaine sur
    hstspreload.org.

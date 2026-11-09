@@ -140,7 +140,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
 
       <section className="panel" aria-labelledby="sources-title">
         <h2 id="sources-title" className="t-h3">Ventes par source · 90 jours</h2>
-        <p className="t-note">Canal d’origine de chaque commande (Shopify, ou mesure d’audience acceptée sur le site). Les commandes sans information sont classées « non renseignée ».</p>
+        <p className="t-note">Canal d’origine de chaque commande (lien suivi jusqu’à la commande, ou mesure d’audience acceptée sur le site). Les commandes sans information sont classées « non renseignée ».</p>
         <div className="table-scroll">
           <table className="table">
             <thead>

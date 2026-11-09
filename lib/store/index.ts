@@ -28,6 +28,13 @@ export interface KV {
    * atomique, jamais remis à zéro ni expiré, jamais deux fois le même même en cas d'appels simultanés.
    */
   next(key: string): Promise<number>;
+  /**
+   * Verrou atomique : pose `key` avec le jeton `jeton` seulement si elle n'existe pas, pour `ttlMs`
+   * millisecondes (SET NX PX). Renvoie true si le verrou est pris.
+   */
+  prendre(key: string, jeton: string, ttlMs: number): Promise<boolean>;
+  /** Rend un verrou seulement s'il porte encore ce jeton : jamais celui d'un autre détenteur. */
+  rendre(key: string, jeton: string): Promise<void>;
 }
 
 const restUrl = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
@@ -65,9 +72,8 @@ class UpstashKV implements KV {
     return (raw ?? []).map((r) => JSON.parse(r) as T);
   }
   async incr(key: string, ttlSeconds: number) {
-    const n = await this.cmd<number>("INCR", key);
-    if (n === 1) await this.cmd("EXPIRE", key, ttlSeconds);
-    return n;
+    // INCR et EXPIRE d'un seul geste : un compteur (verrou, marque) ne reste jamais sans expiration
+    return Number(await this.cmd<number>("EVAL", "local n = redis.call('INCR', KEYS[1]) if n == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end return n", 1, key, ttlSeconds));
   }
   async peek(key: string) {
     return Number((await this.cmd<string | null>("GET", key)) ?? 0);
@@ -75,6 +81,13 @@ class UpstashKV implements KV {
   async next(key: string) {
     // INCR est atomique côté Redis, et la clé ne reçoit aucune expiration
     return Number(await this.cmd<number>("INCR", key));
+  }
+  async prendre(key: string, jeton: string, ttlMs: number) {
+    // une seule commande : la clé ne peut jamais rester posée sans expiration
+    return (await this.cmd<string | null>("SET", key, jeton, "NX", "PX", ttlMs)) === "OK";
+  }
+  async rendre(key: string, jeton: string) {
+    await this.cmd("EVAL", "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('DEL', KEYS[1]) else return 0 end", 1, key, jeton);
   }
 }
 
@@ -149,6 +162,17 @@ class FileKV implements KV {
   async peek(key: string) {
     const c = this.counters.get(key);
     return c && c.exp > Date.now() ? c.n : 0;
+  }
+  // verrous en mémoire : un seul processus lit et écrit le fichier
+  private verrous = new Map<string, { jeton: string; exp: number }>();
+  async prendre(key: string, jeton: string, ttlMs: number) {
+    const v = this.verrous.get(key);
+    if (v && v.exp > Date.now()) return false;
+    this.verrous.set(key, { jeton, exp: Date.now() + ttlMs });
+    return true;
+  }
+  async rendre(key: string, jeton: string) {
+    if (this.verrous.get(key)?.jeton === jeton) this.verrous.delete(key);
   }
   async next(key: string) {
     const d = await this.load();

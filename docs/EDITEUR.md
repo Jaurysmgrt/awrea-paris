@@ -38,10 +38,12 @@ provisoires à remplacer**.
 **Une photo de la Maison déjà en place mais encore marquée provisoire** : cliquez dessus, décochez
 **Photo provisoire**, enregistrez, puis publiez. La mention « visuel provisoire » quitte le site.
 
-**Les photos des pièces et des collections** viennent du catalogue Shopify : elles se remplacent
-dans la fiche de la pièce (ou de la collection) sur Shopify, où l’on décoche ensuite la case
-« Visuels provisoires » (métachamp `awrea.visuels_provisoires`, `ACTIVATION.md`). La liste des
-photos provisoires les montre aussi, avec leur page, pour n’en oublier aucune.
+**Les photos des pièces** se remplacent sur leur fiche, dans l’Atelier › **Produits** › la pièce,
+rubrique **Photos** : une photo ajoutée n’est pas provisoire ; retirer ensuite les visuels
+provisoires (`GUIDE-CREATRICE.md`, partie 6). **Les photos de la collection** viennent du catalogue
+de départ du site (`data/demo/collections.ts`) : pour les changer, passer par la personne qui
+s’occupe du site. La liste des photos provisoires les montre aussi, avec leur page, pour n’en
+oublier aucune.
 
 ### Pour l’équipe
 
@@ -49,7 +51,7 @@ Un seul marqueur, `provisoire: true`, sur toute image :
 
 | Où | Type | Fichier |
 | --- | --- | --- |
-| Catalogue (pièces, collections) | `Image` | `lib/commerce/types.ts` (Shopify : `awrea.visuels_provisoires`) |
+| Catalogue (pièces, collections) | `Image` | `lib/commerce/types.ts` (catalogue de départ `data/demo/`, photos des pièces changées dans l’Atelier : `lib/commerce/atelier-catalogue.ts`) |
 | Documents de contenu, blocs, photos déposées | `Img` | `lib/edition/blocks.ts`, `lib/edition/medias.ts` |
 
 Le marqueur n’est écrit que s’il vaut vrai (jamais `provisoire: false` dans un fichier) ; il n’est

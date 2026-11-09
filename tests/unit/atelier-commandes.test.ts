@@ -71,5 +71,8 @@ test("gestes d'argent : annuler avant le départ, rembourser après la livraison
   assert.deepEqual(gestesPossibles({ status: "delivered" }), ["rembourser"]);
   // en route, retour (remboursé pièce par pièce depuis Retours), déjà remboursée, paiement en attente
   for (const status of ["shipped", "returned", "refunded", "pending"] as const) assert.deepEqual(gestesPossibles({ status }), []);
+  // commande mise de côté dont le paiement Stripe n'a jamais été encaissé : aucun geste d'argent
+  for (const statut of ["en-attente", "echoue", "expire", "rembourse"]) assert.deepEqual(gestesPossibles({ status: "blocked", payment: { prestataire: "stripe", statut } }), []);
+  assert.deepEqual(gestesPossibles({ status: "blocked", payment: { prestataire: "stripe", statut: "reussi" } }), ["annuler-rembourser"]);
 });
 

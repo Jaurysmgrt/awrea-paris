@@ -1,7 +1,7 @@
 /**
- * Points relais (Mondial Relay) pour la commande de démonstration. En production, le choix du point
- * relais se fait dans le paiement Shopify (application Mondial Relay, ACTIVATION.md) : aucune clé
- * n'est nécessaire ici. Les points simulés sont explicitement présentés comme tels.
+ * Points relais (Mondial Relay) pour la commande de démonstration : des points simulés,
+ * explicitement présentés comme tels. Les vrais points relais demanderont l'accès Mondial Relay
+ * de la Maison (ACTIVATION.md).
  */
 export interface RelayPoint {
   id: string;

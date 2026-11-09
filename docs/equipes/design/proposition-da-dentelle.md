@@ -80,7 +80,7 @@ Le pied de page est l'**ourlet** : bord festonné, halo, « Consommer plus juste
 6. `LaceReveal` : l'aligner sur le voile ajouré (tulle fin, une durée). `DrapeTransition` : ourler le pan noir d'un feston bordé du fil blanc.
 7. `components/brand/Logo.tsx` : variante « médaillon » ; favicon en médaillon.
 8. `components/assistant` : ouvrir `AssistantPanel` depuis « Demander conseil » et supprimer la bulle.
-9. Croquis : un champ par pièce (scan ou tracé, notes) dans les données Shopify, au lieu des notes en dur de `Croquis.tsx`.
+9. Croquis : un champ par pièce (scan ou tracé, notes) dans les données de la pièce, au lieu des notes en dur de `Croquis.tsx`.
 10. `scripts/lab-capture.mjs` : poser un témoin de consentement valide (la valeur « lab » cause un décalage d'hydratation) et décoder les images (`img.decode()`) avant la capture pleine page.
 11. Proposition pour `MARQUE.md` § 3 : consigner le vocabulaire « réseau, jour, picot, fil, feston, cordonnet, bride », le verbe unique « ajourer » et les festons réservés aux bandes noires.
 

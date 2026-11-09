@@ -43,8 +43,7 @@ export async function ajouterNoteCliente(id: string, texte: string, par: string)
  * Effacement du compte d'une cliente, à sa demande, après que la créatrice a recopié son adresse
  * e-mail : son compte (profil, adresses, envies, navigation), son inscription à la lettre, les notes
  * de l'atelier sur elle et sur ses commandes. Restent ses commandes et leurs factures, détachées du
- * compte, dix ans durant (obligation comptable), et, avec Shopify, sa fiche client dans Shopify, à
- * effacer depuis Shopify (la page le dit). Le registre RGPD et le journal ne gardent aucune donnée
+ * compte, dix ans durant (obligation comptable). Le registre RGPD et le journal ne gardent aucune donnée
  * personnelle de la cliente.
  */
 export async function effacerCliente(id: string, emailRecopie: string, par: string): Promise<void> {

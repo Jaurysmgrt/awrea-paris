@@ -96,7 +96,7 @@
     min-width: 0;
   }
 
-  /* menu clair (brief du 07/11, « Shopify simplifié ») : groupes en mots simples, entrées en romain
+  /* menu clair (brief du 07/11) : groupes en mots simples, entrées en romain
      et non en capitales, l'entrée en cours sur un fond teinté et soulignée (le fond seul ne
      contraste pas assez, WCAG 1.4.11), les sous-entrées en retrait dans leur rubrique ; sur
      téléphone, replié derrière « Menu ». Couleurs du thème : le mode Nuit suit. */
@@ -1494,5 +1494,52 @@
   .faceid-cle > .btn {
     grid-column: 2;
     grid-row: 1 / span 2;
+  }
+}
+
+@layer components {
+  /* paiement d'une commande (Stripe) : statut, montant, moyen, références, historique */
+  .paiement-fiche {
+    display: grid;
+    gap: var(--spacing-s);
+  }
+  @media (min-width: 48rem) {
+    .paiement-fiche {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .paiement-fiche > div {
+    display: grid;
+    gap: var(--spacing-3xs);
+    min-width: 0;
+  }
+  .paiement-fiche__refs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2xs) var(--spacing-s);
+    align-items: baseline;
+  }
+  .paiement-fiche__refs code {
+    font-size: var(--text-step--2);
+    overflow-wrap: anywhere;
+    color: var(--fg-soft);
+  }
+  .paiement-histoire {
+    display: grid;
+    gap: var(--spacing-2xs);
+    padding: 0;
+    list-style: none;
+  }
+  .paiement-histoire li {
+    display: grid;
+    gap: var(--spacing-3xs);
+    padding-block: var(--spacing-2xs);
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  @media (min-width: 48rem) {
+    .paiement-histoire li {
+      grid-template-columns: calc(var(--spacing-3xl) * 2) minmax(0, 1fr);
+      gap: var(--spacing-s);
+    }
   }
 }

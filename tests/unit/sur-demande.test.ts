@@ -1,14 +1,12 @@
 /**
- * Modèle « création sur demande » : délais de fabrication, limite par ligne de panier, étapes des
- * commandes Shopify, réglages de l'Atelier, descriptions Shopify et catalogue de démonstration.
+ * Modèle « création sur demande » : délais de fabrication, limite par ligne de panier, réglages de
+ * l'Atelier et catalogue de départ de la collection.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { DEFAULT_LEAD_TIME, LEAD_TIME_BOUNDS, leadTimeText, longestLeadTime, madeToOrderLabel, MAX_PER_LINE, normalizeLeadTime, overLineLimit } from "@/lib/commerce/availability";
-import { shopifyStatus } from "@/lib/commerce/order-status";
 import { changedSettings } from "@/lib/commerce/piece-settings";
-import { paragraphsOf } from "@/lib/shopify/html";
 import { fill } from "@/lib/edition/fill";
 import { products } from "@/data/demo/products";
 import { productSchema } from "@/lib/seo/schema";
@@ -67,40 +65,14 @@ test("panier : dix pièces identiques au plus par ligne, ajouts groupés compris
   assert.deepEqual(overLineLimit((id) => (id === "a" ? 9 : 0), [{ variantId: "a", quantity: 1 }, { variantId: "a", quantity: 1 }]), ["a"]);
 });
 
-test("étapes d'une commande Shopify : reçue, en confection, prête, expédiée, livrée", () => {
-  const o = (x: Partial<Parameters<typeof shopifyStatus>[0]>) => shopifyStatus({ cancelled: false, financial: "paid", fulfillment: null, tracked: false, tags: [], ...x });
-  assert.equal(o({}), "paid");
-  assert.equal(o({ financial: "PAID" }), "paid");
-  assert.equal(o({ financial: "pending" }), "pending");
-  assert.equal(o({ tags: ["en-confection"] }), "in_production");
-  // étiquettes comparées sans majuscules ni accents, en liste ou en texte (webhook REST)
-  assert.equal(o({ tags: ["Prête"] }), "ready");
-  assert.equal(o({ tags: "vip, prete, en-confection" }), "ready");
-  assert.equal(o({ tags: " En-Confection " }), "in_production");
-  assert.equal(o({ fulfillment: "fulfilled", tracked: true, tags: ["prete"] }), "shipped");
-  assert.equal(o({ fulfillment: "FULFILLED", tracked: false }), "delivered");
-  assert.equal(o({ financial: "refunded" }), "refunded");
-  assert.equal(o({ cancelled: true, tags: ["prete"] }), "refunded");
-  // une étiquette sans paiement ne fait pas avancer la commande
-  assert.equal(o({ financial: "pending", tags: ["en-confection"] }), "pending");
-});
-
 test("Atelier : seuls les réglages modifiés sont écrits", () => {
   const p = { price: 7000, priceProvisional: true, leadTime: { min: 2, max: 3 }, leadTimeProvisional: true, isNew: true };
-  // décocher « provisoire » ne renvoie jamais le prix (qui écraserait les prix des tailles Shopify)
+  // décocher « provisoire » ne renvoie jamais le prix (qui écraserait des prix différents selon la taille)
   assert.deepEqual(changedSettings(p, { price: 7000, priceProvisional: false }), { priceProvisional: false });
   assert.deepEqual(changedSettings(p, { price: 7000, priceProvisional: true, leadTime: { min: 2, max: 3 }, leadTimeProvisional: true, isNew: true }), {});
   assert.deepEqual(changedSettings(p, { price: 7500 }), { price: 7500 });
   assert.deepEqual(changedSettings(p, { leadTime: { min: 3, max: 5 } }), { leadTime: { min: 3, max: 5 } });
   assert.deepEqual(changedSettings({ ...p, isNew: undefined }, { isNew: false }), {});
-});
-
-test("descriptions Shopify : paragraphes lus dans le HTML, espaces insécables gardées", () => {
-  const html = "<p>La délicatesse, le pouvoir de l’or.</p>\n<p>La délicatesse rencontre la force&nbsp;: une <strong>signature</strong>.</p><p> </p>";
-  assert.deepEqual(paragraphsOf(html, "texte sur une ligne"), ["La délicatesse, le pouvoir de l’or.", "La délicatesse rencontre la force : une signature."]);
-  assert.deepEqual(paragraphsOf("Un<br><br>Deux &amp; trois", ""), ["Un", "Deux & trois"]);
-  assert.deepEqual(paragraphsOf("", "Premier.\n\nSecond."), ["Premier.", "Second."]);
-  assert.deepEqual(paragraphsOf(null, ""), []);
 });
 
 test("catalogue de démonstration : les sept pièces d'Hypnotic Lace, créées sur demande", () => {

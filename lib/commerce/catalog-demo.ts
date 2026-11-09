@@ -45,7 +45,7 @@ export async function demoProducts(o: { tous?: boolean } = {}): Promise<(Product
   return all.map((p) => {
     const merged: Product = { ...p, ...(patches?.[p.handle] ?? {}) };
     // pièce publiée avant le modèle « sur demande » (sans délai) : délai provisoire de sa
-    // catégorie, signalé comme tel (même règle que le pilote Shopify sans métachamps de délai)
+    // catégorie, signalé comme tel
     const known = Boolean(merged.leadTime);
     return {
       ...merged,

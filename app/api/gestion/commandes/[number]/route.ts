@@ -3,17 +3,13 @@
  * (« Commande reçue », « En confection », « Prête », « Expédiée », « Livrée ») : chaque passage est
  * daté et envoie à la cliente l'e-mail de l'étape (documents e-mail-commande-…, modifiables dans
  * Atelier › E-mails ; la livraison garde l'e-mail d'arrivée). L'expédition est confirmée dans
- * l'Atelier et accepte le numéro de suivi du transporteur, facultatif.
- *
- * Avec Shopify : la confection (« En confection », « Prête ») est une étiquette de la commande
- * Shopify posée d'ici ; l'expédition et la livraison se déclarent dans Shopify, le site suit seul.
- * Le paiement (« Commande reçue ») vient toujours de Shopify, jamais d'un geste à la main.
+ * l'Atelier et accepte le numéro de suivi du transporteur, facultatif. Le paiement (« Commande
+ * reçue ») vient toujours du paiement de la commande, jamais d'un geste à la main.
  */
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isAdmin } from "@/lib/auth/admin";
 import { getOrder, setOrderStatus, setOrderTracking, statusLabel } from "@/lib/commerce/orders";
-import { commerceMode } from "@/lib/commerce";
 import { nextStage } from "@/lib/customers/order-timeline";
 import { recordOrderStage } from "@/lib/store/order-stages";
 import { sendOrderStageEmail } from "@/lib/email/commandes";
@@ -53,10 +49,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ number:
       { status: 409 },
     );
   }
-  if (commerceMode !== "demo" && (etape === "shipped" || etape === "delivered")) {
-    return NextResponse.json({ error: "Avec Shopify, l’expédition se déclare dans Shopify : le site suit automatiquement." }, { status: 400 });
-  }
-
   const at = new Date().toISOString();
   let shipping = order.shipping;
   if (etape === "shipped" && tracking) {

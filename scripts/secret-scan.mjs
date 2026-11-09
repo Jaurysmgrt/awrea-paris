@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Recherche de clés secrètes dans les fichiers suivis par git (intégration continue et contrôle
- * hebdomadaire). Règle de la maison : toutes les clés (Shopify, Supabase, Claude, e-mails…) vivent
+ * hebdomadaire). Règle de la maison : toutes les clés (Stripe, Supabase, Claude, e-mails…) vivent
  * uniquement dans les variables d'environnement, jamais dans le code ni sur GitHub.
  * Code de sortie 1 si un motif de clé est trouvé.
  */
@@ -10,7 +10,8 @@ import fs from "node:fs";
 
 const PATTERNS = [
   ["Clé Anthropic", /sk-ant-[A-Za-z0-9_-]{20,}/],
-  ["Jeton Shopify", /shp(?:at|ca|pa|ss)_[a-fA-F0-9]{20,}/],
+  ["Clé Stripe secrète", /\b(?:sk|rk)_(?:live|test)_[A-Za-z0-9]{20,}/],
+  ["Secret de webhook Stripe", /\bwhsec_[A-Za-z0-9]{20,}/],
   ["Clé Supabase (JWT)", /eyJhbGciOi[A-Za-z0-9_-]{15,}\.eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}/],
   ["Clé Supabase (secrète)", /sb_secret_[A-Za-z0-9_-]{20,}/],
   ["Clé Resend", /\bre_[A-Za-z0-9]{8,}_[A-Za-z0-9]{16,}/],

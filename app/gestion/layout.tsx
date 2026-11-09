@@ -7,7 +7,7 @@ import { isAdmin, usingDemoPassword } from "@/lib/auth/admin";
 import { getProposals } from "@/lib/agents/perform";
 import { listInbox } from "@/lib/inbox";
 import { listReviews } from "@/lib/reviews";
-import { commerceMode } from "@/lib/commerce";
+import { boutiqueReelle, paiementEnLigne } from "@/lib/config/boutique";
 import { aiEnabled } from "@/lib/ai/client";
 import { atelierBase, atelierHref, ATELIER_INTERNAL } from "@/lib/admin/path";
 import { AtelierProvider } from "@/components/admin/AtelierContext";
@@ -50,7 +50,7 @@ export default async function GestionLayout({ children }: { children: React.Reac
             Voir le site
           </Link>
           <ul className="admin__modes" aria-label="État de la boutique">
-            <li>{commerceMode === "shopify" ? "Boutique reliée à Shopify" : "Boutique en mode essai"}</li>
+            <li>{!boutiqueReelle() ? "Boutique en démonstration" : paiementEnLigne() ? "Boutique ouverte" : "Paiement en ligne pas encore branché"}</li>
             <li>{aiEnabled ? "Intelligence artificielle active" : "Intelligence artificielle en mode simple"}</li>
             {usingDemoPassword() ? <li>Mot de passe d’essai</li> : null}
           </ul>

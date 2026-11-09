@@ -3,7 +3,7 @@
  *
  * - Numérotation continue, chronologique et sans trou, par année : F-2026-0001 (factures),
  *   A-2026-0001 (avoirs) ; un verrou court garantit qu'un numéro n'est jamais donné deux fois.
- * - Une facture par commande, émise une seule fois (le webhook Shopify peut arriver deux fois),
+ * - Une facture par commande, émise une seule fois (une demande peut arriver deux fois),
  *   jamais modifiée ensuite : un remboursement donne lieu à un avoir.
  * - Mentions obligatoires lues dans le registre légal (content/legal/fields.ts) : tant qu'un champ
  *   manque, la facture affiche un repère « [À COMPLÉTER : …] » bien visible.

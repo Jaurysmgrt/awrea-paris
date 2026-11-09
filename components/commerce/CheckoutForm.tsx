@@ -3,8 +3,8 @@
  * Tunnel de commande court, sans compte obligatoire — MODE TEST.
  * Paiement express en tête, puis trois étapes sur une seule page : coordonnées, livraison, paiement.
  * Suggestions d'adresses, points relais, retrait à l'atelier, droits et taxes calculés à l'avance
- * hors Union européenne. En production (Shopify), le bouton « Commander » du panier mène au
- * paiement Shopify, qui fait tout cela lui-même.
+ * hors Union européenne. Paiement d'essai en démonstration (lib/config/boutique.ts) ; le paiement
+ * réel se fera chez Stripe, jamais sur le site.
  */
 import Link from "@/components/ui/Link";
 import { useRouter } from "next/navigation";
@@ -34,12 +34,12 @@ type Pay = "card" | "apple-pay" | "google-pay" | "paypal";
  */
 const PAY_OPTIONS: Pay[] = ["card", "apple-pay", "google-pay", "paypal"];
 
-/** Paiement express : un geste, l'adresse reprise du portefeuille (en production, chez Shopify). */
+/** Paiement express : un geste, l'adresse reprise du portefeuille. */
 const EXPRESS: Pay[] = ["apple-pay", "google-pay", "paypal"];
 
 /**
  * Mode test uniquement : la carte « refusée » de test (4000 0000 0000 0002) simule un refus.
- * Le numéro reste dans le navigateur ; en production, le paiement se fait chez Shopify.
+ * Le numéro reste dans le navigateur ; le paiement réel se fera chez Stripe, jamais sur le site.
  */
 function testOutcome(cardNumber: string): "accepted" | "declined" | "incomplete" {
   const digits = cardNumber.replace(/\D/g, "");
@@ -47,7 +47,8 @@ function testOutcome(cardNumber: string): "accepted" | "declined" | "incomplete"
   return digits.length < 15 ? "incomplete" : "accepted";
 }
 
-export function CheckoutForm() {
+export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiement?: "stripe" | "essai"; stripeTest?: boolean }) {
+  const stripe = paiement === "stripe";
   const texts = useTexts<CommerceTexts>("commerce");
   const locale = useLocale();
   const t = texts.commande;
@@ -244,9 +245,9 @@ export function CheckoutForm() {
       phone: form.get("phone") || undefined,
       shippingRateId: rate?.id,
       relayId: rate?.relay ? relayId || undefined : undefined,
-      paymentMethod: pay,
-      // mode test : aucune donnée de carte ne quitte le navigateur, seulement l'issue simulée
-      testOutcome: pay === "card" ? testOutcome(String(form.get("cardNumber") ?? "")) : undefined,
+      // Stripe : le moyen se choisit sur la page de Stripe ; essai : aucune donnée de carte ne quitte
+      // le navigateur, seulement l'issue simulée
+      ...(stripe ? {} : { paymentMethod: pay, testOutcome: pay === "card" ? testOutcome(String(form.get("cardNumber") ?? "")) : undefined }),
       acceptTerms: form.get("terms") === "on",
       source: readSource(),
     };
@@ -260,6 +261,11 @@ export function CheckoutForm() {
     if (!res?.ok) {
       setState("error");
       setError(j.error ?? t.erreur);
+      return;
+    }
+    // Stripe : la cliente règle sur la page sécurisée de Stripe, puis revient sur la confirmation
+    if (typeof j.redirect === "string" && j.redirect.startsWith("https://")) {
+      window.location.assign(j.redirect);
       return;
     }
     router.push(localize(`/commande/confirmation?n=${encodeURIComponent(j.number)}&t=${encodeURIComponent(j.token)}`));
@@ -287,8 +293,9 @@ export function CheckoutForm() {
           }
         }}
       >
-        <p className="notice t-note">{t.modeTest}</p>
+        {stripe ? stripeTest ? <p className="notice t-note">{t.stripe.test}</p> : null : <p className="notice t-note">{t.modeTest}</p>}
 
+        {stripe ? null : (
         <section className="express" aria-labelledby="express-title">
           <h2 id="express-title" className="t-label">
             {t.express}
@@ -311,6 +318,7 @@ export function CheckoutForm() {
           </div>
           <p className="t-note">{t.expressNote}</p>
         </section>
+        )}
 
         <fieldset className="checkout-step">
           <legend className="checkout-step__title">
@@ -482,7 +490,8 @@ export function CheckoutForm() {
             <span className="t-h3">{t.etapes.paiement}</span>
           </legend>
           <div className="stack-m">
-            <div className="options">
+            {stripe ? <p className="t-body">{t.stripe.texte}</p> : null}
+            {stripe ? null : <div className="options">
               {PAY_OPTIONS.map((id) => (
                 <label key={id} className="option">
                   <input type="radio" name="pay" value={id} checked={pay === id} onChange={() => setPay(id)} />
@@ -492,8 +501,8 @@ export function CheckoutForm() {
                   </span>
                 </label>
               ))}
-            </div>
-            {pay === "card" ? (
+            </div>}
+            {!stripe && pay === "card" ? (
               <div className="form__row form__row--3 card-fields">
                 <div className="field">
                   <label className="field__label" htmlFor="co-card">
@@ -523,8 +532,12 @@ export function CheckoutForm() {
             ) : null}
             <button type="submit" className="btn btn--solid btn--block" disabled={state === "loading"}>
               {state === "loading"
-                ? t.paiementEnCours
-                : pay === "paypal"
+                ? stripe
+                  ? t.stripe.redirection
+                  : t.paiementEnCours
+                : stripe
+                  ? fill(t.stripe.bouton, { total: formatPrice(total, locale) })
+                  : pay === "paypal"
                   ? fill(t.payerPaypal, { total: formatPrice(total, locale) })
                   : pay === "card"
                     ? fill(t.payer, { total: formatPrice(total, locale) })

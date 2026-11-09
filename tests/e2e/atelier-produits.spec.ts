@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 import { adminLogin, ATELIER } from "./admin-auth";
 
 /**
- * Produits de l'Atelier (refonte du 07/11, « Shopify simplifié ») : la liste se cherche et se
+ * Produits de l'Atelier (refonte du 07/11) : la liste se cherche et se
  * filtre ; une pièce se duplique en brouillon, se renomme, se met en ligne puis s'archive ; une pièce
  * en brouillon ou archivée n'est jamais visible sur le site. Le parcours travaille sur une copie,
  * archivée à la fin, pour ne pas toucher aux pièces des autres tests.

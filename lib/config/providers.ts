@@ -1,10 +1,10 @@
 /**
  * Interrupteurs des services extérieurs.
  *
- * Chaque service a deux versions : la vraie (Shopify, Supabase, Resend…) et une simulation qui
+ * Chaque service a deux versions : la vraie (Supabase, Resend, Upstash…) et une simulation qui
  * fonctionne sans compte ni clé, en local. La variable `<SERVICE>_PROVIDER` choisit :
  *  - `mock` : simulation forcée, même si les clés sont présentes (démonstration, tests) ;
- *  - le nom d'un prestataire (`shopify`, `supabase`…) : appliqué seulement si toutes ses clés
+ *  - le nom d'un prestataire (`supabase`, `resend`…) : appliqué seulement si toutes ses clés
  *    sont présentes ; sinon le site bascule sur la simulation, sans planter, et le signale dans
  *    les journaux du serveur et dans l'Atelier (Réglages) ;
  *  - absente : le prestataire réel dès que ses clés sont présentes, la simulation sinon.
@@ -33,11 +33,11 @@ interface ServiceSpec {
 }
 
 export const SERVICES = {
-  commerce: {
-    label: "Boutique et paiement",
-    env: "COMMERCE_PROVIDER",
-    mock: "Boutique de démonstration (catalogue et commandes simulés)",
-    providers: { shopify: { label: "Shopify", keys: ["SHOPIFY_STORE_DOMAIN", ["SHOPIFY_STOREFRONT_PRIVATE_TOKEN", "SHOPIFY_STOREFRONT_ACCESS_TOKEN"]] } },
+  paiement: {
+    label: "Paiement en ligne",
+    env: "PAYMENT_PROVIDER",
+    mock: "Paiement d’essai (démonstration) : aucun argent ne bouge",
+    providers: { stripe: { label: "Stripe", keys: ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"] } },
   },
   customers: {
     label: "Base clientes et comptes",

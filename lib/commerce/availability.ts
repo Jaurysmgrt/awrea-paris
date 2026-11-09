@@ -10,7 +10,7 @@ import type { Category, LeadTime, Product } from "./types";
 /**
  * Délais de fabrication PROVISOIRES par catégorie, à confirmer par la Maison (ACTIVATION.md) :
  * bodys et tops 2 à 3 semaines, robes 3 à 4 semaines. Servent aussi de repli quand une pièce
- * Shopify n'a pas encore ses métachamps de délai.
+ * n'a pas encore son propre délai.
  */
 export const DEFAULT_LEAD_TIME: Record<Category, LeadTime> = {
   body: { min: 2, max: 3 },
@@ -20,7 +20,7 @@ export const DEFAULT_LEAD_TIME: Record<Category, LeadTime> = {
   accessoire: { min: 2, max: 3 },
 };
 
-/** Bornes acceptées pour un délai, en semaines (contrôle des saisies de l'Atelier et de Shopify). */
+/** Bornes acceptées pour un délai, en semaines (contrôle des saisies de l'Atelier). */
 export const LEAD_TIME_BOUNDS = { min: 1, max: 26 } as const;
 
 /** Modèles de texte du délai (document de contenu « catalogue », clé `delai`). */

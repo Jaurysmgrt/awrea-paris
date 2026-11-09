@@ -877,6 +877,80 @@ Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/
 - Tests : règle des gestes (unitaires), parcours remboursement fait une seule fois même avec deux
   demandes simultanées, confirmation qui dit ce qui va se passer.
 
+## Boutique indépendante : retrait complet de Shopify (08/11)
+
+- Décision de la créatrice : aucune connexion à Shopify, même optionnelle. Retirés du code : le
+  module Shopify, son webhook, la synchronisation des comptes, l'export des e-mails en Liquid, le
+  CDN Shopify de la sécurité du contenu et des images. Catalogue, panier, commandes, remboursements,
+  retours, agents et Atelier ne lisent et n'écrivent plus que la base de la Maison. Ancien code
+  sauvegardé sur la branche `sauvegarde/avant-suppression-shopify`.
+- Boutique réelle ou démonstration (`lib/config/boutique.ts`) : tout site Vercel est en boutique
+  réelle par défaut (aucun exemple, aucun code ni accès d'essai, aucune remise à zéro) ; une
+  prévisualisation ne passe en démonstration qu'avec `BOUTIQUE_DEMONSTRATION=1`, la production
+  jamais. Correction trouvée par la relecture des documents : les codes de réduction d'essai étaient
+  acceptés partout ; ils ne le sont plus sur la boutique réelle.
+- Base clientes : migration `20261108000000_boutique_independante.sql` (colonne `reference`, aucune
+  commande effacée). Documents, CLAUDE.md et fiches d'agents mis à jour (`specialiste-boutique`).
+- La dernière mention, dans `.github/workflows/maintenance.yml`, a été remplacée par Stripe à la
+  demande de la créatrice. Shopify ne reste cité que pour dire qu'il n'est pas utilisé (CLAUDE.md,
+  branche de sauvegarde) et dans la veille design, parmi les modèles à ne pas copier.
+
+## Paiement par Stripe (08/11)
+
+- Stripe Checkout, page hébergée : la cliente règle chez Stripe, aucune donnée bancaire sur le site.
+  La commande s'enregistre « en attente de paiement », une seule page de paiement par commande
+  (clé d'idempotence, empreinte du panier contre le double clic) ; elle devient « reçue » quand
+  Stripe confirme (webhook signé, ou retour de la cliente vérifié auprès de Stripe), puis facture,
+  certificats, e-mail et agents, une seule fois (`lib/commerce/finalisation.ts`, aussi utilisé par
+  le paiement d'essai).
+- Webhook `/api/webhooks/stripe` : signature vérifiée sur le corps brut avant toute lecture,
+  événement rejoué sans effet, erreur passagère renvoyée par Stripe ; dix événements suivis
+  (réussi, différé, refusé, expiré, encaissé, remboursé, remboursement refusé, contestation).
+- Atelier : section Paiement sur chaque commande (statut, montant, part remboursée, moyen, références,
+  lien vers Stripe, historique), pastille dans la liste, page Commandes › Paiements, ligne Stripe des
+  Réglages. Remboursements par Stripe depuis la fiche, les propositions validées et les retours,
+  sous le verrou d'argent de la commande ; un remboursement fait depuis Stripe revient dans la commande.
+- Écritures des commandes sous verrou (deux paiements simultanés ne s'écrasent plus) ; numéro de
+  commande unique même pour deux commandes au même instant.
+- Tests : unitaires (session, montants, événements, signature, idempotence, avec un faux serveur
+  Stripe local) ; parcours (webhook non signé refusé, paiement d'essai visible dans l'Atelier,
+  retour d'un paiement abandonné). Pas encore essayé avec un vrai compte Stripe : il faut les clés
+  de test de la Maison (`ACTIVATION.md`, étape 4 bis).
+
+## Paiement par Stripe : relecture indépendante et corrections (08/11)
+
+Le relecteur de code a trouvé deux défauts bloquants et neuf importants ; tous sont corrigés et
+couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapprochement isolées dans
+`lib/paiement/rapprochement.ts`, testées sans réseau).
+
+- Commande payée jamais finalisée après une étape en échec : la finalisation se décide désormais sur
+  l'état du paiement, se reprend étape par étape sans rien doubler, n'est marquée terminée que si
+  tout a réussi ; un événement n'est noté traité qu'une fois appliqué ; l'agent des commandes
+  reprend une commande payée restée « en attente ».
+- Retour remboursé deux fois : chaque remboursement est inscrit sur le paiement avec sa clé et n'est
+  jamais redemandé à Stripe ; le montant remboursé est celui de la charge relue chez Stripe ; l'avoir
+  d'un retour n'est émis qu'une fois ; un retour est remboursé à la part réellement payée (remise,
+  carte cadeau, taxes d'exportation au prorata), plus au prix du catalogue.
+- Paiement sans commande : la boutique réelle n'ouvre le paiement qu'avec le stockage partagé
+  Upstash ; une commande annoncée par Stripe et introuvable alerte la créatrice et fait renvoyer
+  l'événement. La démonstration n'accepte qu'une clé de test.
+- Verrous atomiques à jeton (SET NX PX), compteurs à expiration atomiques chez Upstash ; étape des
+  commandes écrite sous verrou ; un paiement en attente ne met plus une commande de côté, et une
+  commande non encaissée ne propose aucun geste d'argent.
+- Ventes : une tentative de paiement abandonnée ne compte plus ni dans le seuil européen, ni dans la
+  fiche des clientes, ni dans l'anti-fraude.
+- Cliente : page de confirmation juste selon l'état du paiement (enveloppe et facture seulement une
+  fois payée) ; panier vidé au retour de Stripe, et lu vide dès que la commande ouverte est payée ;
+  limitation de débit, montant minimal vérifié avant d'enregistrer, verrou contre le double envoi,
+  adresse de retour vérifiée, textes d'erreur dans les documents de contenu (français et anglais).
+- Suivi : contestation close et remboursement refusé bien lus, rechargements sans événement en
+  double, remboursement fait depuis Stripe signalé (aucun avoir émis par le site), erreurs du webhook
+  dans le suivi des erreurs, tentatives abandonnées retirées après trente jours, version d'API du
+  webhook précisée dans `ACTIVATION.md`.
+- Laissé en l'état : le travail de la finalisation reste dans la requête du webhook (Stripe renvoie
+  l'événement s'il est coupé, et la reprise ne double rien) ; un `charge.succeeded` arrivé avant la
+  session et sans repère de commande perd seulement le nom du moyen de paiement.
+
 ## Brief de la créatrice : langue automatique, Savoir-faire, étapes de confection (09/11)
 
 - Langue : le sélecteur « FR · EN » quitte l’en-tête et le menu du téléphone ; l’en-tête garde ses

@@ -166,8 +166,8 @@ export async function certificatesFor(session: CustomerSession): Promise<PublicC
 const orderKey = (orderId: string) => `certificates:order:${orderId}`;
 
 /**
- * Émet un certificat par pièce commandée, une seule fois par commande même si Shopify renvoie le
- * webhook (verrou atomique). Renvoie les certificats et leurs codes de rattachement, à
+ * Émet un certificat par pièce commandée, une seule fois par commande même si la demande arrive deux
+ * fois (verrou atomique). Renvoie les certificats et leurs codes de rattachement, à
  * transmettre une seule fois (e-mail, carte papier).
  */
 export async function issueCertificates(order: Order): Promise<{ certificate: Certificate; claimCode: string }[]> {
@@ -306,7 +306,7 @@ export async function certificateQr(serial: string): Promise<string> {
 }
 
 /**
- * Pilote Shopify : Shopify envoie la confirmation de commande ; la maison envoie à part les
+ * Confirmation de commande envoyée à part ; la maison envoie ici les
  * certificats (liens et codes de rattachement à transmettre si la pièce est offerte).
  */
 export async function sendCertificatesEmail(order: Order, issued: { certificate: Certificate; claimCode: string }[]) {

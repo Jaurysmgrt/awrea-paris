@@ -5,7 +5,7 @@
  * l'e-mail d'arrivée des scénarios automatiques (lib/marketing/flows.ts, onOrderDelivered).
  *
  * Un e-mail ne part qu'une fois par commande et par étape, même si l'étape est consignée deux fois
- * (geste de l'Atelier puis webhook Shopify, double clic, appels simultanés).
+ * (double clic, appels simultanés, demande reçue deux fois).
  */
 import "server-only";
 import { kv } from "@/lib/store";

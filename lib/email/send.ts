@@ -1,5 +1,5 @@
 /**
- * Envoi d'e-mails transactionnels (hors e-mails de commande, envoyés par Shopify).
+ * Envoi des e-mails du site (commandes, comptes, rendez-vous, retours, lettres).
  * Pilote Resend (RESEND_API_KEY, interrupteur EMAIL_PROVIDER). Sans clé, les e-mails sont journalisés et conservés
  * dans la boîte « outbox » visible dans le tableau de bord Atelier.
  */
