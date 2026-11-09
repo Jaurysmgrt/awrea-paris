@@ -15,6 +15,7 @@ import { kv } from "@/lib/store";
 import { identity } from "@/content/brand/identity";
 import { brandEmail } from "@/lib/email/templates";
 import { sendEmail } from "@/lib/email/send";
+import { signaler } from "@/lib/admin/push";
 import { sign } from "@/lib/auth/session";
 import { sessionGeneration } from "@/lib/auth/admin";
 import { atelierHref } from "@/lib/admin/path";
@@ -95,6 +96,8 @@ export async function recordAdminLogin(req: Request, ip: string, email: string):
   known[n] = ev.at;
   await kv.set(KNOWN_KEY, known);
   await loginEmail(email, ev, unusual, req).catch((e) => console.error("[sécurité] alerte de connexion non envoyée", e));
+  // application de l'Atelier : l'appareil, jamais l'adresse e-mail ni le réseau
+  await signaler({ type: "securite", titre: unusual ? "Connexion inhabituelle" : "Connexion à l’Atelier", texte: `${unusual ? "Appareil ou réseau inconnu" : "Nouvelle session"} : ${ev.device}. Ce n’était pas vous ? Fermez toutes les sessions dans les Réglages.`, chemin: "/reglages", etiquette: "connexion" });
   return { unusual };
 }
 
@@ -133,6 +136,7 @@ async function loginEmail(email: string, ev: SecurityEvent, unusual: boolean, re
 /** Face ID ou l'empreinte ajouté sur un appareil : la titulaire est prévenue, avec le lien « Ce n'était pas moi ». */
 export async function alertPasskeyAdded(email: string, req: Request, ip: string) {
   const ev = await logSecurityEvent("admin_passkey_added", req, ip, email);
+  await signaler({ type: "securite", titre: "Face ID ajouté", texte: `Un appareil (${ev.device}) ouvre maintenant l’Atelier par Face ID ou empreinte.`, chemin: "/reglages", etiquette: "cle-acces" });
   const link = await revokeLink(email);
   const { html, text } = brandEmail({
     preheader: "Face ID ou l’empreinte d’un appareil ouvre maintenant l’Atelier avec votre compte.",
@@ -151,6 +155,7 @@ export async function alertPasskeyAdded(email: string, req: Request, ip: string)
 /** Compte bloqué après plusieurs échecs : la titulaire est prévenue. */
 export async function alertLocked(email: string, req: Request, ip: string) {
   const ev = await logSecurityEvent("admin_account_locked", req, ip, email);
+  await signaler({ type: "securite", titre: "Compte bloqué", texte: `Plusieurs tentatives de connexion ont échoué depuis ${ev.device} : l’Atelier est bloqué une demi-heure.`, chemin: "/reglages", etiquette: "blocage" });
   const { html, text } = brandEmail({
     preheader: "Plusieurs tentatives de connexion ont échoué sur votre compte de l’Atelier.",
     title: "Compte de l’Atelier bloqué pour une demi-heure",

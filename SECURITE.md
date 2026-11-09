@@ -187,6 +187,28 @@ brouillons ; le site reste exclu des moteurs. Une clé fausse ne donne rien (la 
 Contrôlé par `tests/e2e/site-prive.spec.ts` (serveur lancé avec `SITE_PRIVE=1` et `SITE_PRIVE_CLE`)
 et `tests/unit/site-prive.test.ts`.
 
+### Application privée de l'Atelier (téléphone)
+
+L'Atelier s'installe sur l'écran d'accueil (application web installable, `docs/APPLICATION.md`) :
+c'est le même site, à la même adresse secrète, avec la même connexion et la même double
+authentification ; aucune seconde porte d'entrée.
+
+- Le manifeste et le service worker vivent sous l'adresse secrète et y limitent leur portée ; ce
+  sont les deux seuls fichiers de l'Atelier lisibles sans session (le navigateur les lit sans
+  cookie), et ils ne contiennent ni donnée ni lien vers une page. Le manifeste du site public ne
+  mène jamais à l'Atelier.
+- Le service worker ne garde **aucune** page ni réponse d'API : seulement deux polices et le logo,
+  publics, pour la page « Pas de réseau ». Sans réseau, l'application ne montre aucune donnée.
+- Notifications (Web Push, clés VAPID en variables d'environnement) : contenu chiffré pour
+  l'appareil ; jamais de nom, d'adresse ou de téléphone d'une cliente (numéro de commande, montant
+  ou consigne seulement, filtrés par `texteDiscret`) ; un clic n'ouvre qu'une page de l'Atelier ;
+  le serveur n'envoie qu'aux services de notification des navigateurs (Apple, Google, Mozilla,
+  Microsoft), sans suivre de redirection. Dix appareils au plus, enregistrés session ouverte.
+- **Fermer toutes les sessions** (Réglages, ou lien « ce n'était pas moi ») oublie aussi tous les
+  appareils : un téléphone perdu ne reçoit plus rien.
+
+Contrôlé par `tests/unit/atelier-application.test.ts` et `tests/e2e/atelier-application.spec.ts`.
+
 ## 5. Données
 
 - **Sécurité par ligne (RLS) partout** : les 14 tables de la base clientes sont protégées ; une

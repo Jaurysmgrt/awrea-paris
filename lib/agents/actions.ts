@@ -38,6 +38,7 @@ import { draftOf, isDocId, publishContent, publishedDoc } from "@/lib/edition/st
 import { editionStorage, isLocale } from "@/lib/edition/config";
 import { avisPublicable, envoiPermis, envoisFaits, noterEnvoi } from "./autonomie";
 import { corrigerContenu, resumerCorrections } from "./corrections";
+import { signaler } from "@/lib/admin/push";
 
 const atelierEmail = () => process.env.ATELIER_EMAIL ?? identity.email;
 
@@ -286,11 +287,13 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
 
   async save_reply_draft({ messageId, body, note, sensitive }) {
     await updateInbox(messageId, { status: sensitive ? "escalated" : "drafted", draft: { body, agentNote: note, date: new Date().toISOString(), sensitive } });
+    if (sensitive) await signaler({ type: "intervention", titre: "Message à lire", texte: "Un message délicat vous attend, avec une réponse préparée par l’agent.", chemin: "/messages", etiquette: "messages" });
     return { summary: `Brouillon de réponse préparé${sensitive ? ", cas sensible confié à la créatrice" : ""}`, target: { type: "message", id: messageId, href: "atelier:/messages" } };
   },
 
   async escalate_message({ messageId, reason }) {
     await updateInbox(messageId, { status: "escalated" });
+    await signaler({ type: "intervention", titre: "Message à lire", texte: "Un message vous est confié par le service client.", chemin: "/messages", etiquette: "messages" });
     return { summary: `Message confié à la créatrice : ${reason}`, target: { type: "message", id: messageId, href: "atelier:/messages" } };
   },
 
@@ -304,6 +307,7 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
       tag: "alerte",
       ...brandEmail({ preheader: reason, title: `Commande ${o.number} à vérifier`, paragraphs: [reason, `Cliente : ${o.name} (${o.email}). Total : ${formatPrice(o.total)}.`], cta: { label: "Ouvrir le tableau de bord", href: "atelier:/" } }),
     });
+    await signaler({ type: "intervention", titre: "Commande à vérifier", texte: `Commande ${o.number}, ${formatPrice(o.total)}, mise de côté pour vérification.`, chemin: `/commandes/${encodeURIComponent(o.number)}`, etiquette: `verifier-${o.number}` });
     return { summary: `Commande ${o.number} signalée : ${reason}`, target: { type: "order", id: o.id, label: o.number, href: "atelier:/commandes" } };
   },
 

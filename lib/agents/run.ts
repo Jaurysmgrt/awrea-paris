@@ -62,7 +62,24 @@ export class RunRecorder {
       summary: `Passage terminé (${this.run.mode === "claude" ? "Claude" : "démonstration"}). ${summary}`,
       detail: this.run.errors.length ? this.run.errors.join("\n") : undefined,
     });
+    await this.prevenir();
     return this.run;
+  }
+  /**
+   * Application de l'Atelier : une erreur prévient toujours ; un passage planifié terminé prévient
+   * qui l'a demandé (réglage « Passage des agents terminé »). Une notification par agent, la
+   * suivante remplace la précédente.
+   */
+  private async prevenir() {
+    const { signaler } = await import("@/lib/admin/push");
+    const { agentInfo } = await import("./registry");
+    const nom = agentInfo(this.run.agent)?.name ?? "Un agent";
+    if (this.run.failed) {
+      await signaler({ type: "erreur", titre: "Passage d’agent incomplet", texte: `${nom} : ${this.run.failed} action${this.run.failed > 1 ? "s" : ""} n’${this.run.failed > 1 ? "ont" : "a"} pas abouti.`, chemin: "/journal", etiquette: `erreur-${this.run.agent}` });
+    } else if (this.run.trigger === "cron") {
+      const reste = this.run.proposed ? `, ${this.run.proposed} proposition${this.run.proposed > 1 ? "s" : ""} à valider` : "";
+      await signaler({ type: "taches", titre: "Passage des agents terminé", texte: `${nom} a fini son tour${reste}.`, chemin: this.run.proposed ? "/validations" : "/equipe", etiquette: `passage-${this.run.agent}` });
+    }
   }
 }
 

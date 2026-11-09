@@ -11,12 +11,19 @@ import { boutiqueReelle, paiementEnLigne } from "@/lib/config/boutique";
 import { aiEnabled } from "@/lib/ai/client";
 import { atelierBase, atelierHref, ATELIER_INTERNAL } from "@/lib/admin/path";
 import { AtelierProvider } from "@/components/admin/AtelierContext";
+import { AppAtelier } from "@/components/admin/AppAtelier";
+import { AdminTabs } from "@/components/admin/AdminTabs";
 
-export const metadata: Metadata = {
-  title: { absolute: "Atelier | Awrea Paris" },
-  robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false, noimageindex: true } },
-  referrer: "no-referrer",
-};
+export function generateMetadata(): Metadata {
+  return {
+    title: { absolute: "Atelier | Awrea Paris" },
+    robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false, noimageindex: true } },
+    referrer: "no-referrer",
+    // application privée : son propre manifeste, sous l'adresse secrète (le site public garde le sien)
+    manifest: `${atelierBase() ?? ATELIER_INTERNAL}/atelier.webmanifest`,
+    appleWebApp: { capable: true, title: "Atelier", statusBarStyle: "default" },
+  };
+}
 export const dynamic = "force-dynamic";
 
 export default async function GestionLayout({ children }: { children: React.ReactNode }) {
@@ -25,6 +32,7 @@ export default async function GestionLayout({ children }: { children: React.Reac
     return (
       <AtelierProvider base={base}>
         <div className="admin-login-shell scene" data-theme="ink">
+          <AppAtelier />
           {children}
         </div>
       </AtelierProvider>
@@ -57,8 +65,10 @@ export default async function GestionLayout({ children }: { children: React.Reac
         </div>
       </aside>
       <main className="admin__main scene" data-theme="ivory" id="contenu">
+        <AppAtelier />
         {children}
       </main>
+      <AdminTabs counts={counts} />
     </div>
     </AtelierProvider>
   );

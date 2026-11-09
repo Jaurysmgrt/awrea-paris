@@ -1542,4 +1542,158 @@
       gap: var(--spacing-s);
     }
   }
+
+  /* Application privée de l'Atelier (téléphone et tablette, installée ou non) : les cinq gestes
+     les plus fréquents en bas de l'écran, à portée de pouce, au-dessus de la barre du système ;
+     masqués sur ordinateur, où la colonne de gauche montre tout. */
+  .admin-tabs {
+    position: fixed;
+    z-index: var(--z-sticky);
+    inset-inline: 0;
+    bottom: 0;
+    padding: 0 max(var(--spacing-3xs), env(safe-area-inset-right)) env(safe-area-inset-bottom) max(var(--spacing-3xs), env(safe-area-inset-left));
+    background: var(--bg);
+    color: var(--fg);
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .admin-tabs ul {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .admin-tabs__lien {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: calc(var(--spacing-touch) + var(--spacing-xs));
+    padding-inline: var(--spacing-3xs);
+    color: var(--fg-soft);
+    font-size: var(--text-step--2);
+    line-height: var(--spacing-m);
+    text-align: center;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+  .admin-tabs__lien[aria-current="page"] {
+    color: var(--fg);
+    background: color-mix(in oklab, var(--fg) 9%, transparent);
+  }
+  .admin-tabs__lien[aria-current="page"] > span:first-child {
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-hair);
+    text-underline-offset: var(--spacing-3xs);
+  }
+  .admin-tabs__lien:focus-visible {
+    outline: var(--border-width-hair) solid var(--fg);
+    outline-offset: calc(var(--spacing-3xs) * -1);
+  }
+  .admin-tabs__compte {
+    position: absolute;
+    top: var(--spacing-3xs);
+    right: var(--spacing-3xs);
+    min-width: var(--spacing-m);
+    padding-inline: var(--spacing-3xs);
+    border-radius: var(--radius-pill);
+    background: var(--fg);
+    color: var(--bg);
+    font-size: var(--text-step--2);
+    line-height: var(--spacing-m);
+  }
+  @media (max-width: 63.99rem) {
+    /* le contenu ne passe jamais sous la barre d'onglets */
+    .admin__main {
+      padding-bottom: calc(var(--spacing-2xl) + var(--spacing-touch) + var(--spacing-xs) + env(safe-area-inset-bottom));
+    }
+  }
+  @media (min-width: 64rem) {
+    .admin-tabs {
+      display: none;
+    }
+  }
+  @media print {
+    .admin-tabs {
+      display: none;
+    }
+  }
+
+  /* réseau absent : dit honnêtement, en haut de la page, sans rien masquer */
+  .atelier-reseau {
+    margin: 0 0 var(--spacing-m);
+    padding: var(--spacing-xs) var(--spacing-s);
+    border: var(--border-width-hair) solid var(--line);
+    border-radius: var(--radius-card);
+    background: color-mix(in oklab, var(--fg) 6%, transparent);
+    font-size: var(--text-step--1);
+  }
+
+  /* page « Application » : étapes d'installation, réglages des notifications, appareils */
+  .application-etapes {
+    display: grid;
+    gap: var(--spacing-3xs);
+    margin: 0;
+    padding-left: var(--spacing-m);
+  }
+  .application-autres > summary {
+    min-height: var(--spacing-touch);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  .application-autres[open] > summary {
+    margin-bottom: var(--spacing-s);
+  }
+  .application-types {
+    display: grid;
+    gap: var(--spacing-xs);
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .application-types > legend {
+    margin-bottom: var(--spacing-xs);
+  }
+  .application-type {
+    display: grid;
+    grid-template-columns: var(--spacing-m) minmax(0, 1fr);
+    gap: var(--spacing-s);
+    align-items: start;
+    min-height: var(--spacing-touch);
+  }
+  .application-type input {
+    width: var(--spacing-m);
+    height: var(--spacing-m);
+    margin-top: var(--spacing-3xs);
+    accent-color: var(--fg);
+  }
+  .application-type > span,
+  .application-appareils li > span {
+    display: grid;
+  }
+  .application-type__aide {
+    color: var(--fg-soft);
+    font-size: var(--text-step--1);
+  }
+  .application-appareils {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .application-appareils li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-s);
+    padding-block: var(--spacing-xs);
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .application-regles {
+    display: grid;
+    gap: var(--spacing-3xs);
+    margin: 0;
+    padding-left: var(--spacing-m);
+  }
 }
