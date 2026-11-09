@@ -35,14 +35,15 @@ export function AdminTabs({ counts }: { counts: Record<string, number> }) {
               <Link href={atelier.href(o.href)} className="admin-tabs__lien" aria-current={actif(o.href) ? "page" : undefined}>
                 <span className="admin-tabs__icone">
                   <AtelierIcone nom={o.icone} />
-                  {n ? (
-                    <span className="admin-tabs__compte">
-                      {n}
-                      {o.compte ? <span className="sr-only"> {o.compte}</span> : null}
-                    </span>
-                  ) : null}
                 </span>
+                {/* le mot d'abord, puis le nombre : c'est l'ordre que lit un lecteur d'écran */}
                 <span className="admin-tabs__mot">{o.label}</span>
+                {n ? (
+                  <span className="admin-tabs__compte">
+                    {n}
+                    {o.compte ? <span className="sr-only"> {o.compte}</span> : null}
+                  </span>
+                ) : null}
               </Link>
             </li>
           );

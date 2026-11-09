@@ -1882,9 +1882,11 @@
   .admin .admin-tabs__lien[aria-current="page"] .admin-tabs__icone {
     background: color-mix(in oklab, var(--fg) 12%, transparent);
   }
+  /* le nombre se pose en haut à droite de l'icône (il suit le mot dans le code, pour la lecture) */
   .admin .admin-tabs__compte {
-    top: calc(var(--spacing-3xs) / -2);
-    right: 0;
+    top: calc(var(--spacing-3xs) / 2);
+    right: auto;
+    left: calc(50% + var(--spacing-2xs));
     font-size: var(--ui-text-sm);
     line-height: var(--spacing-xs);
     min-width: var(--spacing-xs);
