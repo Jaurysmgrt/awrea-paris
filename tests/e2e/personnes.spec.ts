@@ -1,8 +1,10 @@
 /**
- * Les personnes de l'Atelier (Réglages, demande de la créatrice du 09/11) : la propriétaire ajoute une
- * personne avec son code à six chiffres ; la personne entre une première fois avec son code
- * d'invitation (une seule fois), choisit son mot de passe et son propre code ; elle ne peut ni ajouter
- * ni retirer ; retirée, elle ne passe plus, sessions comprises ; chaque geste prévient la propriétaire.
+ * Accès à l'Atelier (Réglages, demande de la créatrice du 09/11 : deux administrateurs qui peuvent
+ * tout gérer) : un administrateur ajoute une personne avec son code à six chiffres ; la personne entre
+ * une première fois avec son code d'invitation (une seule fois), choisit son mot de passe et son
+ * propre code ; elle peut tout gérer à son tour, mais aucun geste sur son propre accès ; retirée, elle
+ * ne passe plus, sessions comprises ; ajoutée de nouveau, son ancien mot de passe ne sert plus ;
+ * chaque geste prévient tous les administrateurs.
  */
 import { expect, test, type Page } from "@playwright/test";
 import { adminLogin, ATELIER, nouveauCode, totpAt } from "./admin-auth";
@@ -18,11 +20,11 @@ async function connexion(page: Page, email: string, motDePasse: string) {
   await page.getByRole("button", { name: "Continuer" }).click();
 }
 
-test("ajouter une personne, son invitation à usage unique, ses droits, puis la retirer", async ({ page, browser }) => {
+test("ajouter un administrateur, son invitation à usage unique, ses droits, puis le retirer", async ({ page, browser }) => {
   test.setTimeout(300_000);
   const email = `lea.${Date.now()}@exemple.fr`;
 
-  // la propriétaire, dans les Réglages
+  // un administrateur, dans les Réglages
   await adminLogin(page);
   await page.goto(`${ATELIER}/reglages#personnes`);
   const ajout = page.locator("form").filter({ has: page.getByRole("heading", { name: "Ajouter une personne" }) });
@@ -41,10 +43,11 @@ test("ajouter une personne, son invitation à usage unique, ses droits, puis la 
   await expect(carte).toContainText(email);
   const invitation = ((await carte.locator(".invitation__code").textContent()) ?? "").trim();
   expect(invitation).toMatch(/^[0-9A-Z]{4}(-[0-9A-Z]{4}){3}$/);
-  // l'adresse donnée est celle où la propriétaire se trouve
+  // l'adresse donnée est celle où l'on se trouve
   await expect(carte).toContainText(`${new URL(page.url()).host}${ATELIER}`);
   await expect(page.getByRole("row", { name: new RegExp(email.replace(/\./g, "\\.")) })).toContainText("Invitation valable");
-  await expect.poll(() => outbox().some((m) => m.subject === "Personne ajoutée à l’Atelier" && !m.text.includes(invitation))).toBeTruthy();
+  // tous les administrateurs sont prévenus, sans le code
+  await expect.poll(() => outbox().some((m) => m.subject === "Accès ajouté à l’Atelier" && m.to.includes("bloquee@exemple.fr") && !m.text.includes(invitation))).toBeTruthy();
 
   // la personne, sur son propre appareil : son code d'invitation à la place du mot de passe
   const ctx = await browser.newContext();
@@ -72,24 +75,37 @@ test("ajouter une personne, son invitation à usage unique, ses droits, puis la 
   await expect(intruse.getByText("Adresse ou mot de passe incorrect.")).toBeVisible();
   await autre.close();
 
-  // elle ne gère pas les personnes : ni formulaire, ni route
+  // elle gère tout à son tour (ajouter, remettre à zéro un autre compte), mais rien sur son propre accès
   await elle.goto(`${ATELIER}/reglages#personnes`);
-  await expect(elle.getByText("Seule la propriétaire de l’Atelier")).toBeVisible();
-  await expect(elle.getByRole("heading", { name: "Ajouter une personne" })).toHaveCount(0);
-  const refus = await elle.request.post(`${ATELIER}/api/personnes`, { data: { action: "ajouter", email: "autre@exemple.fr", code: "123456" } });
-  expect(refus.status()).toBe(403);
+  await expect(elle.getByRole("heading", { name: "Ajouter une personne" })).toBeVisible();
+  const moi = elle.getByRole("row", { name: new RegExp(email.replace(/\./g, "\\.")) });
+  await expect(moi.getByRole("button")).toHaveCount(0);
+  await expect(elle.getByRole("row", { name: /contact@awreaparis\.com/ }).getByRole("button", { name: "Remettre à zéro" })).toBeVisible();
+  const refus = await elle.request.post(`${ATELIER}/api/personnes`, { data: { action: "retirer", email, code: "123456" } });
+  expect(refus.status()).toBe(400);
+  expect((await refus.json()).error).toContain("propre accès");
 
-  // la propriétaire la retire : son code, puis plus rien ne s'ouvre pour elle
+  // le premier administrateur la retire : son code, puis plus rien ne s'ouvre pour elle
   await page.reload();
   const ligne = page.getByRole("row", { name: new RegExp(email.replace(/\./g, "\\.")) });
   await ligne.getByRole("button", { name: "Retirer" }).click();
   await ligne.getByLabel("Votre code à six chiffres").fill(await nouveauCode(page));
-  await ligne.getByRole("button", { name: "Retirer cette personne" }).click();
+  await ligne.getByRole("button", { name: "Retirer cet accès" }).click();
   await expect(page.getByRole("row", { name: new RegExp(email.replace(/\./g, "\\.")) })).toHaveCount(0);
-  await expect.poll(() => outbox().some((m) => m.subject === "Personne retirée de l’Atelier")).toBeTruthy();
+  await expect.poll(() => outbox().some((m) => m.subject === "Accès retiré de l’Atelier")).toBeTruthy();
 
+  // qui a fait le geste reste connecté ; elle, non
+  await expect(page.getByRole("heading", { name: "Ajouter une personne" })).toBeVisible();
   await elle.goto(ATELIER);
   await expect(elle).toHaveURL(new RegExp(`${ATELIER}/connexion`));
+  await connexion(elle, email, MOT_DE_PASSE);
+  await expect(elle.getByText("Adresse ou mot de passe incorrect.")).toBeVisible();
+
+  // ajoutée de nouveau : son ancien mot de passe ne rouvre rien, seule la nouvelle invitation compte
+  await ajout.getByLabel("Son adresse e-mail").fill(email);
+  await ajout.getByLabel("Votre code à six chiffres").fill(await nouveauCode(page));
+  await ajout.getByRole("button", { name: "Ajouter cette personne" }).click();
+  await expect(page.locator(".invitation")).toContainText(email);
   await connexion(elle, email, MOT_DE_PASSE);
   await expect(elle.getByText("Adresse ou mot de passe incorrect.")).toBeVisible();
   await ctx.close();

@@ -5,7 +5,7 @@ import { ACCOUNT_GUARD, checkAccountPassword, emailKey, getAccount, hasTotp, has
 import { personneAjoutee, utiliserInvitation } from "@/lib/auth/personnes";
 import { sessionsConfigured } from "@/lib/auth/session";
 import { clientIp, loginGuard } from "@/lib/security/rate-limit";
-import { alertLocked, logSecurityEvent } from "@/lib/security/audit";
+import { alertInvitationUtilisee, alertLocked, logSecurityEvent } from "@/lib/security/audit";
 import { verifyTurnstile } from "@/lib/security/turnstile";
 
 /**
@@ -41,9 +41,14 @@ export async function POST(req: Request) {
   if (account?.passwordHash) {
     if (await checkAccountPassword(account, password)) stage = hasTotp(account) ? "totp" : "enroll";
   } else if (account && (await personneAjoutee(email))) {
-    if (await utiliserInvitation(email, password)) stage = "setup";
+    await hashPassword(password); // même durée de réponse qu'un compte qui a son mot de passe
+    if (await utiliserInvitation(email, password)) {
+      stage = "setup";
+      await alertInvitationUtilisee(email, req, ip);
+    }
   } else if (account) {
     if (!adminPassword()) return NextResponse.json({ error: "Le mot de passe d’installation de l’Atelier n’est pas configuré (ATELIER_PASSWORD)." }, { status: 503 });
+    await hashPassword(password);
     if (checkSetupPassword(password)) stage = "setup";
   } else {
     await hashPassword(password); // même durée de réponse qu'un compte existant

@@ -145,16 +145,27 @@ demandent le plan Pro de Supabase).
   alerte de connexion que le mot de passe. Résistant à l'hameçonnage : la clé est liée à l'adresse
   du site. « Ce n'était pas moi » et la remise à zéro d'un compte effacent ses clés. Le mot de passe
   et le code restent en secours.
-- **Personnes de l'Atelier** (`lib/auth/personnes.ts`, `app/api/gestion/personnes`, 09/11) : en plus
-  des adresses de Vercel (`ATELIER_ACCOUNTS`), la propriétaire (la première de ces adresses), et
-  elle seule, ajoute ou retire une personne depuis Réglages › Sécurité, en redonnant à chaque geste
-  son code à six chiffres (anti-rejeu, cinq codes faux bloquent son compte une demi-heure). La
-  personne entre une première fois avec un code d'invitation de 80 bits, à usage unique (jeton
-  atomique), valable 72 heures, dont seule l'empreinte SHA-256 est gardée ; le mot de passe
-  d'installation ne lui ouvre rien. Cinq personnes ajoutées au plus ; les adresses de Vercel ne se
-  retirent pas d'ici. Une personne retirée ne passe plus dès la requête suivante (adresse revérifiée
-  à chaque requête) : compte, clés Face ID et appareils notifiés effacés. Chaque geste prévient la
-  propriétaire (e-mail avec « Ce n'était pas moi », application) et s'inscrit au journal.
+- **Accès à l'Atelier** (`lib/auth/personnes.ts`, `app/api/gestion/personnes`, 09/11, relu par
+  l'Agent Sécurité) : en plus des adresses de Vercel (`ATELIER_ACCOUNTS`), tout administrateur
+  connecté (deux administrateurs à égalité, choix de la créatrice) ajoute un accès, donne un nouveau
+  code d'invitation, retire un accès ajouté ou remet à zéro un compte de Vercel, depuis Réglages ›
+  Sécurité. Chaque geste redemande son propre code à six chiffres (anti-rejeu sous verrou ; essais
+  comptés avant la vérification, dix par demi-heure et par compte comme par réseau, que « Débloquer »
+  ne remet pas à zéro ; au dixième, toutes les sessions se ferment et une alerte part). Aucun geste
+  sur son propre accès. La personne ajoutée entre une première fois avec un code d'invitation de
+  80 bits, à usage unique (jeton atomique), valable 72 heures, dont seule l'empreinte SHA-256 est
+  gardée ; le mot de passe d'installation ne lui ouvre rien ; son premier usage prévient les autres
+  administrateurs. Un ajout efface tout ancien compte de la même adresse (mot de passe, Face ID,
+  appareils). Cinq personnes ajoutées au plus, revérifié sous verrou ; les adresses de Vercel ne se
+  retirent pas d'ici. Retrait, nouveau code et remise à zéro ferment toutes les autres sessions, y
+  compris les connexions à moitié faites (le cookie de l'étape porte la génération des sessions),
+  et oublient les appareils notifiés de la personne ; une personne retirée ne passe plus dès la
+  requête suivante (adresse revérifiée à chaque requête). Alertes : la personne qui fait le geste
+  reçoit son lien « Ce n'était pas moi » ; les autres administrateurs, un avis sans lien ; la personne
+  concernée, un avis quand son accès change. Chaque appareil notifié ne peut être renouvelé que par
+  qui l'a abonné.
+- **Lien « Ce n'était pas moi »** : valable une seule fois, et plus du tout pour une adresse qui n'a
+  plus accès à l'Atelier.
 - **Blocage** : cinq échecs (mot de passe ou code) bloquent une adresse une demi-heure, même
   inconnue (rien ne révèle quels comptes existent), et préviennent la titulaire par e-mail ; huit
   échecs par quart d'heure bloquent l'adresse IP.

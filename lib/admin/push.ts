@@ -54,10 +54,11 @@ export async function appareils(): Promise<Appareil[]> {
   return (await kv.get<Appareil[]>(CLE).catch(() => null)) ?? [];
 }
 
-const visible = (a: Appareil): AppareilVisible => ({ id: a.id, nom: a.nom, types: a.types, ajouteLe: a.ajouteLe, dernierEnvoi: a.dernierEnvoi, dernierEchec: a.dernierEchec, finPoint: a.endpoint });
+/** L'adresse technique d'un appareil n'est montrée qu'à qui l'a abonné (pour reconnaître « cet appareil »). */
+const visible = (a: Appareil, moi?: string): AppareilVisible => ({ id: a.id, nom: a.nom, types: a.types, ajouteLe: a.ajouteLe, dernierEnvoi: a.dernierEnvoi, dernierEchec: a.dernierEchec, finPoint: !moi || a.par === moi ? a.endpoint : "" });
 
-export async function appareilsVisibles(): Promise<AppareilVisible[]> {
-  return (await appareils()).map(visible);
+export async function appareilsVisibles(moi: string): Promise<AppareilVisible[]> {
+  return (await appareils()).map((a) => visible(a, moi));
 }
 
 /** Enregistre (ou met à jour) l'abonnement de cet appareil ; garde ses réglages s'il est déjà connu. */
@@ -70,11 +71,11 @@ export async function enregistrerAppareil(abonnement: Abonnement, nom: string, p
   return visible(appareil);
 }
 
-/** Abonnement renouvelé par le navigateur (service worker, `pushsubscriptionchange`). */
-export async function remplacerAbonnement(ancien: string, abonnement: Abonnement): Promise<boolean> {
+/** Abonnement renouvelé par le navigateur (service worker, `pushsubscriptionchange`) : ses propres appareils seulement. */
+export async function remplacerAbonnement(ancien: string, abonnement: Abonnement, par: string): Promise<boolean> {
   const liste = await appareils();
   const a = liste.find((x) => x.endpoint === ancien);
-  if (!a) return false;
+  if (!a || a.par !== par) return false;
   await kv.set(CLE, liste.map((x) => (x.endpoint === ancien ? { ...x, ...abonnement } : x)));
   return true;
 }

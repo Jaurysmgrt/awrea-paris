@@ -13,7 +13,7 @@ import { boutiqueReelle, paiementEnLigne, raisonPaiementFerme, stripeEnTest } fr
 import { services as providers } from "@/lib/config/providers";
 import { turnstileEnabled } from "@/lib/security/turnstile";
 import { currentAdmin, usingDemoPassword } from "@/lib/auth/admin";
-import { ACCOUNT_GUARD, emailKey, hasTotp, listAccounts, proprietaire, recoveryLeft } from "@/lib/auth/accounts";
+import { ACCOUNT_GUARD, emailKey, hasTotp, listAccounts, recoveryLeft } from "@/lib/auth/accounts";
 import { personnesAjoutees } from "@/lib/auth/personnes";
 import { AjouterPersonne, GestePersonne } from "@/components/admin/PersonnesAtelier";
 import { loginGuard } from "@/lib/security/rate-limit";
@@ -41,9 +41,11 @@ const EVENT_LABELS: Record<SecurityEventType, string> = {
   admin_passkey_added: "Face ID ou empreinte ajouté sur un appareil",
   admin_passkey_removed: "Face ID ou empreinte retiré d’un appareil",
   admin_passkey_fail: "Face ID ou empreinte refusé",
-  admin_person_added: "Personne ajoutée à l’Atelier",
-  admin_person_removed: "Personne retirée de l’Atelier",
+  admin_person_added: "Accès ajouté à l’Atelier",
+  admin_person_removed: "Accès retiré de l’Atelier",
   admin_person_invited: "Nouveau code d’invitation donné",
+  admin_account_reset: "Compte remis à zéro",
+  admin_invitation_used: "Invitation utilisée pour une première entrée",
 };
 
 /** Une invitation est-elle encore valable ? (hors du rendu : l’heure change à chaque appel) */
@@ -75,8 +77,6 @@ export default async function ReglagesPage() {
     autonomies(),
     personnesAjoutees(),
   ]);
-  const proprio = proprietaire();
-  const estProprio = me === proprio;
   const ajoutee = (email: string) => ajoutees.find((p) => p.email === email);
   const jour = (iso: string) => new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" }).format(new Date(iso));
   const toConfirm = [
@@ -222,7 +222,7 @@ export default async function ReglagesPage() {
           </tbody>
         </table></div>
         </details>
-        <h3 className="t-label" id="personnes">Les personnes de l’Atelier</h3>
+        <h3 className="t-label" id="personnes">Accès à l’Atelier</h3>
         <div className="table-scroll"><table className="table">
           <thead><tr><th scope="col">Adresse</th><th scope="col">Accès</th><th scope="col">État</th><th scope="col">Dernière connexion</th><th scope="col">Actions</th></tr></thead>
           <tbody>
@@ -232,7 +232,7 @@ export default async function ReglagesPage() {
               return (
                 <tr key={a.email}>
                   <th scope="row">{a.email}{a.email === me ? " (vous)" : ""}</th>
-                  <td className="t-note">{p ? `Ajoutée le ${jour(p.ajouteeLe)}` : a.email === proprio ? "Propriétaire (Vercel)" : "Réglée dans Vercel"}</td>
+                  <td className="t-note">{p ? `Ajouté le ${jour(p.ajouteeLe)}` : "Réglé dans Vercel"}</td>
                   <td>
                     <span className={`status status--${a.passwordHash && hasTotp(a) && !locked[i] ? "done" : "info"}`}>
                       {locked[i]
@@ -251,27 +251,21 @@ export default async function ReglagesPage() {
                   <td>{a.lastLoginAt ? <When iso={a.lastLoginAt} /> : "Jamais"}</td>
                   <td className="proposal__actions">
                     {locked[i] ? <ActionButton endpoint={atelierApi("/comptes")} body={{ action: "debloquer", email: a.email }} label="Débloquer" variant="quiet" /> : null}
-                    {estProprio && p ? (
+                    {a.email !== me && p ? (
                       <>
                         <GestePersonne email={a.email} action="nouveau-code" />
                         <GestePersonne email={a.email} action="retirer" />
                       </>
                     ) : null}
-                    {estProprio && !p ? (
-                      <ActionButton endpoint={atelierApi("/comptes")} body={{ action: "remettre-a-zero", email: a.email }} label="Remettre à zéro" variant="quiet" confirm={`Remettre à zéro le compte ${a.email} ? Son mot de passe et sa double authentification seront à refaire avec le mot de passe d’installation, et toutes les sessions seront fermées.`} />
-                    ) : null}
+                    {a.email !== me && !p ? <GestePersonne email={a.email} action="remettre-a-zero" /> : null}
                   </td>
                 </tr>
               );
             })}
           </tbody>
         </table></div>
-        {estProprio ? (
-          <AjouterPersonne />
-        ) : (
-          <p className="t-note">Seule la propriétaire de l’Atelier ({proprio}) peut ajouter ou retirer une personne.</p>
-        )}
-        <p className="t-note">Chaque personne a son propre mot de passe, son propre code et son propre Face ID. Les adresses réglées dans Vercel (ATELIER_ACCOUNTS) ne se retirent pas d’ici. Chaque connexion envoie un e-mail à la titulaire du compte.</p>
+        <AjouterPersonne />
+        <p className="t-note">Chaque personne ajoutée peut tout faire dans l’Atelier, comme vous, avec son propre mot de passe, son propre code et son propre Face ID. Chaque ajout ou retrait vous demande votre code et prévient tout le monde par e-mail. Les adresses réglées dans Vercel (ATELIER_ACCOUNTS) ne se retirent pas d’ici.</p>
         {sitePrive() ? (
           <>
             <h3 className="t-label">Lien privé du site</h3>

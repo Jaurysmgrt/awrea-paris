@@ -2,13 +2,14 @@
  * Comptes autorisés de l'Atelier.
  *
  * Peuvent entrer : les adresses listées dans ATELIER_ACCOUNTS (séparées par des virgules ; à
- * défaut, l'adresse ATELIER_EMAIL, puis celle de la Maison), et les personnes que la propriétaire
- * (la première de ces adresses) a ajoutées depuis l'Atelier (lib/auth/personnes.ts, demande du 09/11).
+ * défaut, l'adresse ATELIER_EMAIL, puis celle de la Maison), et les personnes ajoutées depuis
+ * l'Atelier par l'une ou l'autre (lib/auth/personnes.ts, demande du 09/11 : deux administrateurs à
+ * égalité, qui peuvent tout faire).
  * Chaque compte a son propre mot de passe (scrypt, jamais stocké en clair) et sa propre double
  * authentification (TOTP chiffré, codes de secours à usage unique).
  *
  * Première connexion : pour une adresse de Vercel, le mot de passe d'installation (ATELIER_PASSWORD,
- * connu de la seule propriétaire) ; pour une personne ajoutée, son code d'invitation à usage unique.
+ * gardé dans Vercel) ; pour une personne ajoutée, son code d'invitation à usage unique.
  * Il ouvre la création du mot de passe personnel, puis l'enrôlement de la double authentification.
  * Ensuite, seul le mot de passe personnel est accepté. Une personne retirée ne peut plus entrer, et
  * ses sessions ouvertes cessent aussitôt (lib/auth/admin.ts vérifie l'adresse à chaque requête).
@@ -20,6 +21,7 @@
 import "server-only";
 import { createHash, randomBytes, scrypt as scryptCb, timingSafeEqual, type ScryptOptions } from "node:crypto";
 import { kv } from "@/lib/store";
+import { avecVerrou } from "@/lib/store/verrou";
 import { identity } from "@/content/brand/identity";
 import { base32Encode, decryptSecret, encryptSecret, hashRecoveryCode, matchCounter, otpauthUri } from "./totp";
 import { personnesAjoutees } from "./personnes";
@@ -63,9 +65,6 @@ export function allowedEmails(): string[] {
   return [...new Set(raw.split(/[\s,;]+/).map((e) => e.trim().toLowerCase()).filter((e) => EMAIL.test(e)))];
 }
 
-/** La propriétaire : la première adresse de Vercel, seule à pouvoir ajouter ou retirer une personne. */
-export const proprietaire = (): string | null => allowedEmails()[0] ?? null;
-
 /** Toutes les adresses qui peuvent entrer : celles de Vercel, puis les personnes ajoutées. */
 export async function adressesAutorisees(): Promise<string[]> {
   const vercel = allowedEmails();
@@ -90,9 +89,16 @@ export async function getAccount(email: string): Promise<AtelierAccount | null> 
   return (await all())[e] ?? { email: e, createdAt: new Date().toISOString() };
 }
 
+/**
+ * Enregistre un compte, sous verrou (deux écritures ne s'écrasent jamais) ; jamais celui d'une
+ * adresse qui n'a plus accès (une connexion Face ID en cours ne ressuscite pas un compte retiré).
+ */
 export async function saveAccount(a: AtelierAccount) {
-  const list = await all();
-  await kv.set(ACCOUNTS_KEY, { ...list, [a.email]: a });
+  await avecVerrou("atelier:accounts", async () => {
+    if (!(await estAutorisee(a.email))) return;
+    const list = await all();
+    await kv.set(ACCOUNTS_KEY, { ...list, [a.email]: a });
+  });
 }
 
 /** Tous les comptes autorisés, avec leur état (pour les Réglages). */
@@ -104,12 +110,14 @@ export async function listAccounts(): Promise<AtelierAccount[]> {
 /** Efface le compte d'une personne retirée : mot de passe, double authentification et Face ID. */
 export async function supprimerCompte(email: string) {
   const e = email.trim().toLowerCase();
-  const list = await all();
-  if (e in list) {
-    const { [e]: _retire, ...reste } = list;
-    void _retire;
-    await kv.set(ACCOUNTS_KEY, reste);
-  }
+  await avecVerrou("atelier:accounts", async () => {
+    const list = await all();
+    if (e in list) {
+      const { [e]: _retire, ...reste } = list;
+      void _retire;
+      await kv.set(ACCOUNTS_KEY, reste);
+    }
+  });
   await kv.del(enrollKey(e));
 }
 
@@ -155,8 +163,18 @@ function secretOf(a: AtelierAccount): string | null {
 
 export const hasTotp = (a: AtelierAccount) => Boolean(secretOf(a));
 
-/** Vérifie un code de l'application, ou un code de secours (consommé). Un code déjà utilisé est refusé. */
-export async function verifyAccountCode(a: AtelierAccount, code: string): Promise<boolean> {
+/**
+ * Vérifie un code de l'application, ou un code de secours (consommé). Un code déjà utilisé est refusé,
+ * même par deux demandes simultanées : le compte est relu et réécrit sous verrou.
+ */
+export async function verifyAccountCode(compte: AtelierAccount, code: string): Promise<boolean> {
+  return avecVerrou(`atelier:code:${emailKey(compte.email)}`, async () => {
+    const a = await getAccount(compte.email);
+    return a ? verifierCode(a, code) : false;
+  });
+}
+
+async function verifierCode(a: AtelierAccount, code: string): Promise<boolean> {
   const secret = secretOf(a);
   if (!secret) return false;
   const t = a.totp ?? { secret: "", createdAt: new Date().toISOString(), lastCounter: -1, recovery: [] };

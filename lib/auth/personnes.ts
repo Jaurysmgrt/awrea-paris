@@ -1,6 +1,6 @@
 /**
  * Personnes ajoutées à l'Atelier depuis l'Atelier (règles : lib/auth/personnes-regles.ts). Stockage
- * seulement : les droits (propriétaire, code à six chiffres) se vérifient dans la route
+ * seulement : les droits (session, code à six chiffres) se vérifient dans la route
  * app/api/gestion/personnes, et lib/auth/accounts.ts les ajoute aux adresses de Vercel.
  */
 import "server-only";
@@ -19,10 +19,20 @@ export async function personneAjoutee(email: string): Promise<Personne | null> {
   return (await personnesAjoutees()).find((p) => p.email === e) ?? null;
 }
 
-/** Ajoute une personne ; renvoie le code d'invitation, montré une seule fois à la propriétaire. */
-export async function ajouterPersonne(email: string, par: string): Promise<{ code: string; expire: string }> {
+/**
+ * Ajoute une personne ; renvoie le code d'invitation, montré une seule fois à qui l'ajoute, ou la
+ * raison du refus. Les règles (doublon, plafond) sont revérifiées sous le verrou : deux ajouts
+ * simultanés ne dépassent jamais le plafond.
+ */
+export async function ajouterPersonne(
+  email: string,
+  par: string,
+  probleme: (ajoutees: Personne[]) => string | null,
+): Promise<{ code: string; expire: string } | { probleme: string }> {
   return avecVerrou("atelier:personnes", async () => {
     const liste = await personnesAjoutees();
+    const refus = probleme(liste);
+    if (refus) return { probleme: refus };
     const { code, invitation } = inviter();
     const personne: Personne = { email: normaliserEmail(email), ajouteePar: par, ajouteeLe: new Date().toISOString(), invitation };
     await kv.set(CLE, [...liste.filter((p) => p.email !== personne.email), personne]);

@@ -5,7 +5,7 @@
  * lib/auth/personnes.ts, les droits et les alertes dans app/api/gestion/personnes/route.ts.
  *
  * - Les adresses réglées dans Vercel (ATELIER_ACCOUNTS) restent la base : elles ne se retirent pas
- *   depuis l'Atelier. La première est la propriétaire, seule à pouvoir ajouter ou retirer.
+ *   depuis l'Atelier. Tous les administrateurs sont égaux : chacun peut ajouter ou retirer.
  * - Une personne ajoutée reçoit un code d'invitation à usage unique, valable 72 heures, à la place du
  *   mot de passe d'installation ; seule son empreinte (SHA-256) est conservée.
  * - Cinq personnes ajoutées au plus : un accès volé ne peut pas ouvrir l'Atelier à la terre entière.
@@ -17,7 +17,7 @@ export const INVITATION_DUREE_MS = 72 * 60 * 60 * 1000;
 
 export interface Personne {
   email: string;
-  /** adresse de la propriétaire qui l'a ajoutée */
+  /** adresse de l'administrateur qui l'a ajoutée */
   ajouteePar: string;
   ajouteeLe: string;
   /** invitation en attente : empreinte du code (jamais le code) et date de fin */

@@ -1,9 +1,9 @@
 "use client";
 /**
- * Les personnes de l'Atelier (Réglages), demande de la créatrice du 09/11 : ajouter une personne,
- * lui donner un nouveau code d'invitation, la retirer. Réservé à la propriétaire ; chaque geste
- * redemande son code à six chiffres (app/api/gestion/personnes/route.ts). Le code d'invitation
- * s'affiche une seule fois, avec le message tout prêt à envoyer à la personne.
+ * Accès à l'Atelier (Réglages), demande de la créatrice du 09/11 : ajouter une personne, lui donner un
+ * nouveau code d'invitation, la retirer. Tout administrateur peut le faire ; chaque geste redemande
+ * son code à six chiffres (app/api/gestion/personnes/route.ts). Le code d'invitation s'affiche une
+ * seule fois, avec le message tout prêt à envoyer à la personne.
  */
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -111,14 +111,14 @@ export function AjouterPersonne() {
 }
 
 /** Nouveau code d'invitation, ou retrait, d'une personne ajoutée : votre code avant le geste. */
-export function GestePersonne({ email, action }: { email: string; action: "nouveau-code" | "retirer" }) {
+export function GestePersonne({ email, action }: { email: string; action: "nouveau-code" | "retirer" | "remettre-a-zero" }) {
   const { api } = useAtelier();
   const router = useRouter();
   const [ouvert, setOuvert] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [inv, setInv] = useState<Invitation | null>(null);
-  const libelle = action === "retirer" ? "Retirer" : "Nouveau code d’invitation";
+  const libelle = { retirer: "Retirer", "nouveau-code": "Nouveau code d’invitation", "remettre-a-zero": "Remettre à zéro" }[action];
   const id = `geste-${action}-${email.replace(/[^a-z0-9]/gi, "-")}`;
   if (inv) return <CarteInvitation inv={inv} />;
   if (!ouvert)
@@ -142,9 +142,14 @@ export function GestePersonne({ email, action }: { email: string; action: "nouve
       }}
     >
       <p className="t-note t-left">
-        {action === "retirer"
-          ? `${email} ne pourra plus entrer : ses sessions, son mot de passe, son code, son Face ID et les notifications de ses appareils seront supprimés.`
-          : `L’accès actuel de ${email} ne servira plus : elle entrera de nouveau avec le code d’invitation, puis refera son mot de passe et son code.`}
+        {
+          {
+            retirer: `${email} ne pourra plus entrer : ses sessions, son mot de passe, son code, son Face ID et les notifications de ses appareils seront supprimés.`,
+            "nouveau-code": `L’accès actuel de ${email} ne servira plus : cette personne entrera de nouveau avec le code d’invitation, puis refera son mot de passe et son code.`,
+            "remettre-a-zero": `Le mot de passe, le code et le Face ID de ${email} seront effacés : cette personne entrera de nouveau avec le mot de passe d’installation.`,
+          }[action]
+        }{" "}
+        Les autres sessions ouvertes se fermeront, sauf la vôtre.
       </p>
       <ChampCode id={id} />
       {error ? (
@@ -154,7 +159,7 @@ export function GestePersonne({ email, action }: { email: string; action: "nouve
       ) : null}
       <span className="proposal__actions">
         <button type="submit" className="btn btn--outline" disabled={busy}>
-          {busy ? "Un instant…" : action === "retirer" ? "Retirer cette personne" : "Donner un nouveau code"}
+          {busy ? "Un instant…" : { retirer: "Retirer cet accès", "nouveau-code": "Donner un nouveau code", "remettre-a-zero": "Remettre ce compte à zéro" }[action]}
         </button>
         <button type="button" className="btn btn--link" onClick={() => setOuvert(false)} disabled={busy}>
           Annuler

@@ -1004,17 +1004,26 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
 - À deux : chaque personne a son compte (`ATELIER_ACCOUNTS`), son mot de passe, son code et son
   Face ID ; marche à suivre dans le guide.
 
-## Atelier : ajouter une personne sans passer par Vercel (09/11)
+## Atelier : deux administrateurs, accès ajoutés sans passer par Vercel (09/11)
 
 - Demande de la créatrice : deux personnes dans l’Atelier, sans dépendre de Vercel ni partager le
-  même code. Réglages › Sécurité › « Les personnes de l’Atelier » : la propriétaire ajoute une
-  personne (son adresse et son propre code à six chiffres), lui donne un code d’invitation à usage
-  unique (72 heures, message prêt à copier), peut lui redonner un code ou la retirer.
-- Garde-fous : propriétaire seule (première adresse de Vercel), code redemandé à chaque geste,
-  invitation gardée en empreinte seulement, cinq personnes au plus, adresses de Vercel intouchables,
-  retrait immédiat (sessions, compte, Face ID, notifications), alerte e-mail et application, journal.
-  « Remettre à zéro » un compte de Vercel devient réservé à la propriétaire ; l’étape de choix du
-  mot de passe refuse un compte qui en a déjà un.
+  même code, « juste deux admins qui peuvent tout gérer ». Réglages › Sécurité › « Accès à
+  l’Atelier » : tout administrateur ajoute une personne (son adresse et son propre code à six
+  chiffres), lui donne un code d’invitation à usage unique (72 heures, message prêt à copier), peut
+  lui redonner un code ou la retirer.
+- Garde-fous : code redemandé à chaque geste, aucun geste sur son propre accès, invitation gardée en
+  empreinte seulement, cinq personnes au plus, adresses de Vercel intouchables, retrait immédiat
+  (sessions, compte, Face ID, notifications), alerte à tous les administrateurs, journal.
+- Relecture de l’Agent Sécurité (attaquant éthique), corrigée avant livraison : un ajout efface tout
+  ancien compte de la même adresse ; essais de code comptés avant la vérification et jamais remis à
+  zéro par « Débloquer », sessions fermées au dixième ; retrait, nouveau code et remise à zéro ferment
+  les autres sessions (connexions à moitié faites comprises) et oublient les appareils notifiés ; lien
+  « Ce n’était pas moi » à usage unique, refusé après un retrait ; lien envoyé seulement à qui a fait
+  le geste ; remise à zéro d’un compte de Vercel sous code ; enrôlement refusé sans mot de passe ;
+  écritures des comptes et anti-rejeu sous verrou ; adresse validée comme à la connexion ; temps de
+  réponse égal ; premier usage d’une invitation signalé ; appareils notifiés renouvelés par leur
+  seule titulaire.
 - Application : les onglets du téléphone ne coupent plus « Commandes » en plein mot.
 - Tests : règles (unitaires), parcours complet (ajout, code faux refusé, invitation à usage unique,
-  mot de passe d’installation refusé, droits, retrait et session coupée, alertes).
+  mot de passe d’installation refusé, droits égaux mais rien sur son propre accès, retrait et
+  session coupée, ancien mot de passe refusé après un nouvel ajout, alertes à tous).

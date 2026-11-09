@@ -23,8 +23,9 @@ const lire = async (req: Request) => req.json().catch(() => null);
 const SERVICE_INCONNU = "Ce navigateur passe par un service de notification inconnu : il ne peut pas recevoir les notifications de l’Atelier.";
 
 export async function GET() {
-  if (!(await currentAdmin())) return refus("Non autorisé", 401);
-  return NextResponse.json({ config: pushConfig(), types: NOTIFICATIONS, appareils: await appareilsVisibles() });
+  const moi = await currentAdmin();
+  if (!moi) return refus("Non autorisé", 401);
+  return NextResponse.json({ config: pushConfig(), types: NOTIFICATIONS, appareils: await appareilsVisibles(moi) });
 }
 
 export async function POST(req: Request) {
@@ -46,12 +47,13 @@ export async function POST(req: Request) {
 
 /** Abonnement renouvelé par le navigateur lui-même (service worker). */
 export async function PUT(req: Request) {
-  if (!(await currentAdmin())) return refus("Non autorisé", 401);
+  const moi = await currentAdmin();
+  if (!moi) return refus("Non autorisé", 401);
   const parsed = Put.safeParse(await lire(req));
   if (!parsed.success) return refus("Demande illisible.");
   const { endpoint, keys } = parsed.data.abonnement;
   if (!serviceAutorise(endpoint)) return refus(SERVICE_INCONNU);
-  if (!(await remplacerAbonnement(parsed.data.ancien, { endpoint, keys }))) return refus("Cet appareil ne reçoit plus les notifications.", 404);
+  if (!(await remplacerAbonnement(parsed.data.ancien, { endpoint, keys }, moi))) return refus("Cet appareil ne reçoit plus les notifications.", 404);
   return NextResponse.json({ ok: true });
 }
 

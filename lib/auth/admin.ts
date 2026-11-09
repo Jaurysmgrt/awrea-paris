@@ -103,13 +103,18 @@ export async function clearAdminCookie() {
 export type PreAuthStage = "setup" | "enroll" | "totp";
 
 export async function setPreAuthCookie(email: string, stage: PreAuthStage) {
-  (await cookies()).set(ADMIN_PRE_COOKIE, sign({ email, stage }, PRE_MAX_AGE), { httpOnly: true, sameSite: "strict", secure: secure(), path: loginPath(), maxAge: PRE_MAX_AGE });
+  (await cookies()).set(ADMIN_PRE_COOKIE, sign({ email, stage, g: await sessionGeneration() }, PRE_MAX_AGE), { httpOnly: true, sameSite: "strict", secure: secure(), path: loginPath(), maxAge: PRE_MAX_AGE });
 }
 
-/** Étape en cours de la connexion (mot de passe déjà vérifié), ou null. */
+/**
+ * Étape en cours de la connexion (mot de passe déjà vérifié), ou null. Elle porte la génération des
+ * sessions : fermer toutes les sessions (retrait d'un accès, nouveau code d'invitation, « Ce n'était
+ * pas moi ») annule aussi une connexion à moitié faite.
+ */
 export async function preAuth(): Promise<{ email: string; stage: PreAuthStage } | null> {
-  const p = verify<{ email: string; stage: PreAuthStage }>((await cookies()).get(ADMIN_PRE_COOKIE)?.value);
-  return p?.email && (await estAutorisee(p.email)) ? p : null;
+  const p = verify<{ email: string; stage: PreAuthStage; g?: number }>((await cookies()).get(ADMIN_PRE_COOKIE)?.value);
+  if (!p?.email || (p.g ?? 0) !== (await sessionGeneration())) return null;
+  return (await estAutorisee(p.email)) ? { email: p.email, stage: p.stage } : null;
 }
 
 export async function clearPreAuth() {
