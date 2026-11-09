@@ -95,6 +95,9 @@
   /* Atelier seulement : tailles et interlignages d'interface, avec la police système (une
      lecture d'outil, pas d'affiche) : texte 16 px sur 24, chapeau 18, titres 20, 24 et 32 px */
   --ui-text-sm: 0.875rem; /* barre d'onglets du téléphone seulement */
+  --ui-weight-medium: 500; /* entrées du menu de l'Atelier, entre romain et demi-gras */
+  --ui-icon: 1.25rem; /* icônes du menu de l'Atelier : 20 px */
+  --ui-icon-lg: 1.5rem; /* icônes de la barre d'onglets du téléphone : 24 px */
   --ui-text: 1rem;
   --ui-text-lg: 1.125rem;
   --ui-title-sm: 1.25rem;

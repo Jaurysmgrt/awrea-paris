@@ -2,18 +2,20 @@
 import Link from "@/components/ui/Link";
 import { usePathname } from "next/navigation";
 import { useAtelier } from "./AtelierContext";
+import { AtelierIcone, type NomIcone } from "./AtelierIcone";
 
 /**
  * Sur téléphone et tablette (application installée comprise), les cinq gestes les plus fréquents à
  * portée de pouce, en bas de l'écran. Le menu complet reste en haut, derrière « Menu ». Masqué sur
- * ordinateur, où la colonne de gauche montre tout.
+ * ordinateur, où la colonne de gauche montre tout. Chaque onglet a son icône au-dessus du mot, comme
+ * dans les applications du téléphone (retour du 09/11 : « intuitif, aussi sur téléphone »).
  */
-const ONGLETS: { href: string; label: string; compte?: string }[] = [
-  { href: "/", label: "Accueil" },
-  { href: "/commandes", label: "Commandes" },
-  { href: "/catalogue", label: "Produits" },
-  { href: "/clientes", label: "Clientes" },
-  { href: "/validations", label: "À valider", compte: "à valider" },
+const ONGLETS: { href: string; label: string; icone: NomIcone; compte?: string }[] = [
+  { href: "/", label: "Accueil", icone: "accueil" },
+  { href: "/commandes", label: "Commandes", icone: "commandes" },
+  { href: "/catalogue", label: "Produits", icone: "produits" },
+  { href: "/clientes", label: "Clientes", icone: "clientes" },
+  { href: "/validations", label: "À valider", icone: "valider", compte: "à valider" },
 ];
 
 export function AdminTabs({ counts }: { counts: Record<string, number> }) {
@@ -31,13 +33,16 @@ export function AdminTabs({ counts }: { counts: Record<string, number> }) {
           return (
             <li key={o.href}>
               <Link href={atelier.href(o.href)} className="admin-tabs__lien" aria-current={actif(o.href) ? "page" : undefined}>
-                <span>{o.label}</span>
-                {n ? (
-                  <span className="admin-tabs__compte">
-                    {n}
-                    {o.compte ? <span className="sr-only"> {o.compte}</span> : null}
-                  </span>
-                ) : null}
+                <span className="admin-tabs__icone">
+                  <AtelierIcone nom={o.icone} />
+                  {n ? (
+                    <span className="admin-tabs__compte">
+                      {n}
+                      {o.compte ? <span className="sr-only"> {o.compte}</span> : null}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="admin-tabs__mot">{o.label}</span>
               </Link>
             </li>
           );
