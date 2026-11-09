@@ -1,32 +1,28 @@
 /**
  * Réglages d'une pièce par la créatrice, depuis le tableau de bord Atelier : prix, délai de
  * fabrication et indicateurs « prix provisoire », « délai provisoire », « nouveau ».
- * Shopify Admin quand il est branché (prix des tailles et métachamps `awrea.*`), surcouches du
- * catalogue de démonstration sinon. Les deux pilotes donnent le même résultat à l'écran.
+ * Écrits dans la base de la boutique, par-dessus le catalogue de départ de la collection.
  *
  * Seuls les réglages qui changent sont écrits : décocher « provisoire » ne réécrit jamais le prix,
- * et une pièce Shopify dont les tailles ont des prix différents garde ces prix (le changement de
- * prix est alors refusé, avec une explication).
+ * et une pièce dont les tailles ont des prix différents garde ces prix (le changement de prix est
+ * alors refusé, avec une explication).
  */
 import "server-only";
 import { kv } from "@/lib/store";
-import { adminEnabled, MixedPricesError, shopifyUpdatePiece } from "@/lib/shopify/admin";
 import { formatPrice } from "@/lib/format";
 import { DEMO_KEYS, type DemoPieceSettings } from "./catalog-demo";
 import { LEAD_TIME_BOUNDS, leadTimeText } from "./availability";
-import { catalogueModifiable, lirePiece, MESSAGE_LECTURE_SEULE, rafraichirCatalogue } from "./atelier-catalogue";
+import { lirePiece, rafraichirCatalogue } from "./atelier-catalogue";
 import { changedSettings, type PieceSettings } from "./piece-settings";
 
 export { changedSettings, type PieceSettings };
 
 export class PieceError extends Error {}
 
-/** Message de l'Atelier quand les tailles d'une pièce Shopify n'ont pas toutes le même prix. */
-export const MIXED_PRICES_MESSAGE = "Les tailles de cette pièce n’ont pas toutes le même prix dans Shopify. Pour ne pas les écraser, modifiez ces prix directement dans Shopify.";
+/** Message de l'Atelier quand les tailles d'une pièce n'ont pas toutes le même prix. */
+export const MIXED_PRICES_MESSAGE = "Les tailles de cette pièce n’ont pas toutes le même prix : un prix unique les écraserait, il n’est donc pas appliqué.";
 
 export async function updatePiece(handle: string, settings: PieceSettings): Promise<{ summary: string; title: string }> {
-  // Shopify sans accès Admin : rien ne s'écrit dans la démonstration, que le site ne lit pas
-  if (!catalogueModifiable()) throw new PieceError(MESSAGE_LECTURE_SEULE);
   // en ligne, en brouillon ou archivée : une pièce se règle avant d'être mise en ligne
   const p = await lirePiece(handle);
   if (!p) throw new PieceError("Cette pièce n’existe pas.");
@@ -38,19 +34,11 @@ export async function updatePiece(handle: string, settings: PieceSettings): Prom
   }
   const s = changedSettings(p, settings);
   if (!Object.keys(s).length) return { title: p.title, summary: `${p.title} : aucun changement` };
-  // tailles à des prix différents (Shopify) : jamais remplacées par un prix unique
+  // tailles à des prix différents : jamais remplacées par un prix unique
   if (s.price !== undefined && p.priceVaries) throw new PieceError(MIXED_PRICES_MESSAGE);
 
-  if (adminEnabled) {
-    try {
-      await shopifyUpdatePiece(handle, s);
-    } catch (e) {
-      if (e instanceof MixedPricesError) throw new PieceError(MIXED_PRICES_MESSAGE);
-      throw e;
-    }
-  } else {
-    // démonstration : prix dans sa surcouche, délai et indicateurs dans celle des fiches
-    // (effacées ensemble par la remise à zéro de la démonstration)
+  {
+    // prix dans sa surcouche, délai et indicateurs dans celle des fiches
     const [prices, patches] = await Promise.all([kv.get<Record<string, number>>(DEMO_KEYS.price), kv.get<Record<string, DemoPieceSettings>>(DEMO_KEYS.patches)]);
     const writes: Promise<unknown>[] = [];
     if (s.price !== undefined) writes.push(kv.set(DEMO_KEYS.price, { ...(prices ?? {}), [handle]: s.price }));
@@ -64,7 +52,6 @@ export async function updatePiece(handle: string, settings: PieceSettings): Prom
     await Promise.all(writes);
   }
 
-  // caches des pièces et des collections compris (étiquettes de lib/shopify/storefront.ts)
   rafraichirCatalogue(handle);
 
   const parts = [

@@ -49,7 +49,7 @@ await db.query(`insert into public.reviews (customer_id, order_id, product_handl
 assert(true, "avis accepté pour une pièce achetée");
 const refused = async (sql, params) => db.query(sql, params).then(() => false, () => true);
 assert(await refused(`insert into public.reviews (customer_id, order_id, product_handle, author_name, body) values ($1, $2, 'body-gaia', 'Camille M.', 'Je n''ai pas acheté cette pièce mais je donne mon avis.')`, ['11111111-1111-1111-1111-111111111111', oid]), "avis refusé pour une pièce non achetée");
-assert(await refused(`update public.customers set shopify_customer_id = 'x'`), "colonnes protégées non modifiables par la cliente");
+assert(await refused(`update public.customers set email = 'autre@exemple.fr'`), "colonnes protégées non modifiables par la cliente");
 assert(await refused(`insert into public.browsing_events (customer_id, kind, product_handle) values ('11111111-1111-1111-1111-111111111111', 'view', 'robe-odessa')`), "navigation refusée sans consentement");
 await db.exec(`update public.customers set personalization = true`);
 await db.exec(`insert into public.browsing_events (customer_id, kind, product_handle) values ('11111111-1111-1111-1111-111111111111', 'view', 'robe-odessa')`);

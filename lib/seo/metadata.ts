@@ -23,7 +23,7 @@ export const siteDefaults = {
   image: { url: "/opengraph-image.png", width: 1200, height: 630 },
 } as const;
 
-/** Image Open Graph absolue (WebP/JPG locaux ou CDN Shopify) */
+/** Image Open Graph absolue (WebP/JPG locaux ou adresse complète) */
 function ogImage(src?: string) {
   if (!src) return absolute(siteDefaults.image.url);
   if (src.startsWith("http")) return src;

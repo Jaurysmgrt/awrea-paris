@@ -3,24 +3,24 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { resolveService } from "@/lib/config/providers";
 
-const shopify = { SHOPIFY_STORE_DOMAIN: "awrea.myshopify.com", SHOPIFY_STOREFRONT_ACCESS_TOKEN: "jeton" };
+const upstash = { KV_REST_API_URL: "https://kv", KV_REST_API_TOKEN: "jeton" };
 
 test("sans interrupteur : le vrai prestataire dès que ses clés sont là, la simulation sinon", () => {
-  assert.equal(resolveService("commerce", {}).provider, "mock");
-  assert.equal(resolveService("commerce", shopify).provider, "shopify");
-  assert.equal(resolveService("commerce", { SHOPIFY_STORE_DOMAIN: "awrea.myshopify.com" }).provider, "mock");
+  assert.equal(resolveService("store", {}).provider, "mock");
+  assert.equal(resolveService("store", upstash).provider, "upstash");
+  assert.equal(resolveService("store", { KV_REST_API_URL: "https://kv" }).provider, "mock");
 });
 
 test("« mock » force la simulation, même avec toutes les clés", () => {
-  assert.equal(resolveService("commerce", { ...shopify, COMMERCE_PROVIDER: "mock" }).provider, "mock");
+  assert.equal(resolveService("store", { ...upstash, STORE_PROVIDER: "mock" }).provider, "mock");
   assert.equal(resolveService("ai", { ANTHROPIC_API_KEY: "cle", AI_PROVIDER: " Mock " }).provider, "mock");
 });
 
 test("prestataire demandé sans ses clés : simulation, et les clés manquantes sont nommées", () => {
-  const s = resolveService("commerce", { COMMERCE_PROVIDER: "shopify", SHOPIFY_STORE_DOMAIN: "awrea.myshopify.com" });
+  const s = resolveService("store", { STORE_PROVIDER: "upstash", KV_REST_API_URL: "https://kv" });
   assert.equal(s.provider, "mock");
-  assert.deepEqual(s.missing, ["SHOPIFY_STOREFRONT_PRIVATE_TOKEN ou SHOPIFY_STOREFRONT_ACCESS_TOKEN"]);
-  assert.equal(s.requested, "shopify");
+  assert.deepEqual(s.missing, ["KV_REST_API_TOKEN ou UPSTASH_REDIS_REST_TOKEN"]);
+  assert.equal(s.requested, "upstash");
 });
 
 test("noms de clés équivalents acceptés (Upstash, Supabase, Anthropic)", () => {
@@ -43,10 +43,6 @@ test("valeur inconnue : traitée comme absente", () => {
 
 test("une clé vide ou faite d'espaces ne compte pas", () => {
   assert.equal(resolveService("email", { RESEND_API_KEY: "  " }).provider, "mock");
-});
-
-test("Shopify : le jeton privé du canal Headless suffit", () => {
-  assert.equal(resolveService("commerce", { SHOPIFY_STORE_DOMAIN: "awrea.myshopify.com", SHOPIFY_STOREFRONT_PRIVATE_TOKEN: "p" }).provider, "shopify");
 });
 
 test("service public sans clé (adresses) : seulement s'il est demandé", () => {

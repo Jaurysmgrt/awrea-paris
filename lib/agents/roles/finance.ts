@@ -10,13 +10,15 @@ import { listInvoices } from "@/lib/invoices";
 import { getLog } from "@/lib/agents/log";
 import { perform } from "@/lib/agents/perform";
 import { OSS_THRESHOLD, suspicion, zoneOf } from "@/lib/agents/roles/regles";
+import { isSale } from "@/lib/admin/dashboard";
 import type { Finding, RoleOutcome } from "./types";
 
 const HOUR = 3_600_000;
 
 export async function runAntiFraude(now = new Date()): Promise<RoleOutcome> {
   const [orders, log] = await Promise.all([getOrders(), getLog(500)]);
-  const recent = orders.filter((o) => (o.status === "paid" || o.status === "pending") && now.getTime() - new Date(o.createdAt).getTime() < 72 * HOUR);
+  // commandes payées seulement : une tentative de paiement abandonnée n'est pas une commande à vérifier
+  const recent = orders.filter((o) => o.status === "paid" && now.getTime() - new Date(o.createdAt).getTime() < 72 * HOUR);
   const findings: Finding[] = [];
   for (const o of recent) {
     const reasons = suspicion(o, orders);
@@ -33,7 +35,7 @@ export async function runComptabilite(now = new Date()): Promise<RoleOutcome> {
   const [orders, invoices] = await Promise.all([getOrders(), listInvoices()]);
   const findings: Finding[] = [];
   // ventes à distance vers les autres pays de l'Union depuis le 1er janvier
-  const eu = orders.filter((o) => o.createdAt.startsWith(String(year)) && zoneOf(o.shipping.country) === "EU" && o.status !== "refunded").reduce((s, o) => s + o.total, 0);
+  const eu = orders.filter((o) => o.createdAt.startsWith(String(year)) && zoneOf(o.shipping.country) === "EU" && isSale(o)).reduce((s, o) => s + o.total, 0);
   const share = eu / OSS_THRESHOLD;
   if (share >= 1) findings.push({ gravite: "urgent", titre: `Seuil européen dépassé, ${formatPrice(eu)} de ventes à distance cette année`, detail: "La TVA du pays de chaque cliente s’applique désormais : inscription au guichet unique OSS à faire avec votre comptable.", lien: "/factures", cible: `oss:${year}` });
   else if (share >= 0.8) findings.push({ gravite: "attention", titre: `Seuil européen bientôt atteint, ${formatPrice(eu)} sur ${formatPrice(OSS_THRESHOLD)}`, detail: "À en parler avec votre comptable avant de le dépasser.", lien: "/factures", cible: `oss:${year}` });

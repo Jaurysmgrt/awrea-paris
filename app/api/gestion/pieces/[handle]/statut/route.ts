@@ -19,7 +19,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ handle:
   try {
     const r = await changerStatut(handle.data, parsed.data.statut as (typeof STATUTS)[number]);
     await logAction({ agent: "systeme", kind: "statut_piece", status: "done", summary: `Par l’atelier · ${r.summary}`, target: { type: "product", id: handle.data, label: r.title, href: `atelier:/catalogue/${handle.data}` } });
-    return NextResponse.json({ ok: true, message: r.summary, canaux: r.canaux });
+    return NextResponse.json({ ok: true, message: r.summary });
   } catch (e) {
     if (e instanceof CatalogueError) return NextResponse.json({ error: e.message }, { status: 400 });
     console.error("[gestion/pieces/statut]", e);

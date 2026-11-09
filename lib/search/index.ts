@@ -1,6 +1,6 @@
 /**
  * Index de recherche : pièces, collections, Journal, pages de la maison et réponses de la FAQ.
- * Construit côté serveur (catalogue Shopify ou démonstration), servi en un seul fichier léger
+ * Construit côté serveur (catalogue de la boutique), servi en un seul fichier léger
  * à la recherche plein écran, qui filtre ensuite instantanément dans le navigateur.
  */
 import "server-only";

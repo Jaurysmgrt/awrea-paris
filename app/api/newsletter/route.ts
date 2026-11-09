@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { kv } from "@/lib/store";
-import { subscribeNewsletter } from "@/lib/shopify/admin";
 import { after } from "next/server";
 import { upsertContact } from "@/lib/marketing/provider";
 import { onNewsletterSignup } from "@/lib/marketing/flows";
@@ -21,7 +20,7 @@ import {
  * Inscription à la lettre de la Maison (maquette NEWSLETTER) : Nom, Prénom et E-mail obligatoires,
  * Téléphone facultatif et vérifié, consentement explicite. La version compacte du pied de page
  * (formule « compacte ») ne demande que l'e-mail et le consentement. Contrôle d'origine
- * (proxy.ts), limitation de débit, Turnstile, validation Zod ; consentement confirmé côté Shopify.
+ * (proxy.ts), limitation de débit, Turnstile, validation Zod ; consentement gardé avec l’inscription.
  * Réponses : { ok: true } ou { error: code, champs? } ; les messages lisibles vivent dans
  * content/site/fr/site.json (lettre.erreurs), affichés par le formulaire.
  */
@@ -126,9 +125,6 @@ export async function POST(req: Request) {
   await kv.set("newsletter:subscribers", list);
 
   const phone = telephoneE164(telephone);
-  await subscribeNewsletter(email, { firstName: prenom, lastName: nom, phone }).catch((e) =>
-    console.error("[newsletter] Shopify", e),
-  );
   after(async () => {
     await upsertContact({
       email,

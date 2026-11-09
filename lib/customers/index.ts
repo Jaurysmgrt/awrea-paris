@@ -11,6 +11,7 @@ import { kv } from "@/lib/store";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/db/supabase";
 import { supabaseServer } from "@/lib/db/server";
 import { getOrders } from "@/lib/commerce/orders";
+import { isSale } from "@/lib/admin/dashboard";
 import { withStages } from "@/lib/store/order-stages";
 import type { LeadTime, Order, OrderStageDates, OrderStatus, Size } from "@/lib/commerce/types";
 import { segmentOf } from "./segments";
@@ -591,7 +592,8 @@ export async function listCustomerStats(): Promise<CustomerStats[]> {
     });
   }
   for (const o of orders) {
-    if (o.status === "refunded") continue;
+    // ventes seulement : ni commande remboursée, ni paiement en attente ou abandonné
+    if (!isSale(o)) continue;
     const key = o.email.toLowerCase();
     const c =
       byEmail.get(key) ??

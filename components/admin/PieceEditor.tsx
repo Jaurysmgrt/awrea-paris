@@ -16,7 +16,7 @@ export interface PieceRow {
   image: string;
   /** centimes */
   price: number;
-  /** tailles à des prix différents dans Shopify : le prix se règle alors dans Shopify */
+  /** tailles à des prix différents : le prix unique ne s'applique pas */
   priceVaries: boolean;
   priceProvisional: boolean;
   leadTime: { min: number; max: number };
@@ -114,7 +114,7 @@ export function PieceEditor({ piece, bounds }: { piece: PieceRow; bounds: { min:
       <td data-titre="Prix">
         {piece.priceVaries ? (
           <p className="t-note" id={`${id}-prix`}>
-            À partir de {formatPrice(piece.price)}. Les tailles n’ont pas toutes le même prix : réglez-les dans Shopify.
+            À partir de {formatPrice(piece.price)}. Les tailles n’ont pas toutes le même prix : un prix unique les écraserait.
           </p>
         ) : (
           <span className="stock-editor">

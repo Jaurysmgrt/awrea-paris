@@ -13,7 +13,7 @@ import { PHOTOS_MAX } from "@/lib/commerce/statut-pieces";
 export const dynamic = "force-dynamic";
 
 const Handle = z.string().regex(/^[a-z0-9][a-z0-9-]{0,119}$/);
-// clé d'une photo : l'identifiant du média Shopify, ou l'adresse de la photo en démonstration
+// clé d'une photo : son adresse
 const Cle = z.string().min(1).max(300).regex(/^[\w:/.\-?=&%]+$/);
 const Body = z.discriminatedUnion("action", [
   z.object({ action: z.literal("ajouter"), mediaIds: z.array(z.string().regex(/^[a-z0-9]{6,40}$/)).min(1).max(PHOTOS_MAX) }).strict(),

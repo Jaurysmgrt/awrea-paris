@@ -1,8 +1,7 @@
 /**
  * Traductions des fiches (pièces et collections) pour la version anglaise du site.
  *
- * Les textes des pièces viennent du catalogue (Shopify, ou data/demo/products.ts en
- * démonstration), en français. Pour /en, leur traduction vit dans le document de contenu
+ * Les textes des pièces viennent du catalogue de la boutique, en français. Pour /en, leur traduction vit dans le document de contenu
  * content/site/en/catalogue-pieces.json, une entrée par identifiant (handle) :
  *
  *   {
@@ -22,9 +21,7 @@
  *   }
  *
  * Chaque champ est facultatif : un champ absent ou vide garde le texte français. Seuls les textes
- * sont traduits ; prix, tailles, délais, photos et identifiants ne changent jamais. Avec Shopify,
- * les traductions de la boutique (application Translate & Adapt, ACTIVATION.md) pourront remplacer
- * ce document.
+ * sont traduits ; prix, tailles, délais, photos et identifiants ne changent jamais.
  *
  * Module pur : aucune lecture ici (lib/commerce/index.ts charge le document).
  */

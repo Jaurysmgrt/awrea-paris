@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAtelier } from "./AtelierContext";
 
 /**
- * Menu de l'Atelier, rangé comme un Shopify simplifié (brief de la créatrice du 03/11 et du 07/11) :
+ * Menu de l'Atelier, simple et clair (brief de la créatrice du 03/11 et du 07/11) :
  * Accueil, Ma boutique, Mon site, Mon activité, Intelligence artificielle, Paramètres. Chaque entrée
  * porte le titre de sa page. Les sous-entrées (Retours sous Commandes, Avis sous Clientes…)
  * n'apparaissent que dans leur rubrique ; ce qui attend d'être traité remonte alors sur la rubrique.
@@ -33,6 +33,7 @@ const GROUPES: { titre?: string; liens: Entree[] }[] = [
         label: "Commandes",
         sous: [
           { href: "/retours", label: "Retours", compte: "à traiter" },
+          { href: "/paiements", label: "Paiements" },
           { href: "/factures", label: "Factures" },
         ],
       },

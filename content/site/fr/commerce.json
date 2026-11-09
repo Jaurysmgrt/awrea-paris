@@ -121,10 +121,29 @@
         "description": "Finaliser votre commande Awrea Paris."
       },
       "titre": "Commande",
-      "chapeau": "Trois étapes, sans création de compte."
+      "chapeau": "Trois étapes, sans création de compte.",
+      "fermee": "Le paiement en ligne n’est pas encore ouvert. Pour toute question sur une pièce, écrivez à la Maison.",
+      "fermeeLien": "Écrire à la Maison",
+      "annule": "Le paiement n’a pas abouti et aucune somme n’a été prélevée. Votre panier vous attend : vous pouvez réessayer."
     },
     "pieces": "{n} pièces",
-    "droitsEtTaxes": "Droits et taxes à l’importation"
+    "droitsEtTaxes": "Droits et taxes à l’importation",
+    "stripe": {
+      "texte": "Vous réglez sur la page sécurisée de Stripe, notre prestataire de paiement : carte bancaire et autres moyens proposés selon votre appareil. Vos coordonnées bancaires ne passent jamais par notre site.",
+      "bouton": "Régler {total}",
+      "redirection": "Ouverture de la page de paiement sécurisée…",
+      "test": "Mode test de Stripe : utilisez une carte de test, aucun argent ne bouge.",
+      "ligneCommande": "Commande {commande}",
+      "ligneLivraison": "Livraison",
+      "ligneTaille": "Taille {taille}",
+      "erreurs": {
+        "fermee": "Le paiement en ligne n’est pas encore ouvert. Pour toute question sur une pièce, écrivez à la Maison.",
+        "moyen": "Merci de choisir un moyen de paiement.",
+        "ouverture": "La page de paiement n’a pas pu s’ouvrir. Réessayez dans un instant : aucune somme n’a été prélevée.",
+        "montantMinimum": "Le montant à régler est trop faible pour un paiement en ligne. Écrivez à la Maison, nous finaliserons votre commande avec vous.",
+        "enCours": "Votre commande est déjà en cours d’envoi. Patientez un instant, la page de paiement va s’ouvrir."
+      }
+    }
   },
   "confirmation": {
     "seo": {
@@ -148,6 +167,16 @@
     "certificats": "Vos certificats d’authenticité",
     "suivre": "Suivre ma commande",
     "facture": "Télécharger la facture",
-    "continuer": "Continuer la visite"
+    "continuer": "Continuer la visite",
+    "echec": "Le paiement de cette commande n’a pas abouti : aucune somme n’a été prélevée.",
+    "attente": {
+      "salutation": "Votre paiement est en cours.",
+      "titre": "Votre paiement est en cours de confirmation",
+      "texte": "Votre commande {commande} sera confirmée dès que votre banque aura validé le paiement. Nous vous écrivons alors à {email}."
+    },
+    "nonAbouti": {
+      "titre": "Votre paiement n’a pas abouti",
+      "texte": "Votre commande {commande} n’est pas enregistrée comme payée. Vos pièces vous attendent dans votre panier."
+    }
   }
 }

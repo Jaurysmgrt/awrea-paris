@@ -13,7 +13,6 @@ import { statusLabel } from "@/lib/commerce/orders";
 import type { Order, OrderStage } from "@/lib/commerce/types";
 import { gestesPossibles, historique, type EvenementHistorique, type GesteCommande, type NoteInterne } from "./commandes";
 import { getOrdersWithSource } from "@/lib/commerce/orders";
-import { adminEnabled } from "@/lib/shopify/admin";
 import { ArgentError } from "@/lib/commerce/argent";
 
 export { gestesPossibles, type GesteCommande };
@@ -67,11 +66,10 @@ export async function historiqueDe(order: Order, notes?: NoteInterne[]): Promise
  * l'assistant ni d'un agent : ils passent par perform() et les propositions à valider. Le verrou et
  * le refus d'un second remboursement sont dans l'exécuteur (lib/commerce/argent.ts), communs à tous
  * les chemins. Ici : la commande est bien celle que la créatrice a sous les yeux (même identifiant,
- * même montant), et jamais un exemple de démonstration quand Shopify est branché.
+ * même montant).
  */
 export async function faireGeste(numero: string, demande: { geste: GesteCommande; id: string; total: number }, par: string): Promise<string> {
-  const { orders, source } = await getOrdersWithSource();
-  if (adminEnabled && source !== "shopify") throw new SuiviError("Shopify ne répond pas : aucun geste d’argent tant que les vraies commandes ne sont pas lues. Réessayez dans un instant.");
+  const { orders } = await getOrdersWithSource();
   const n = numero.trim().toUpperCase();
   const order = orders.find((o) => o.number.toUpperCase() === n);
   if (!order) throw new SuiviError("Cette commande n’existe pas.");
@@ -86,6 +84,6 @@ export async function faireGeste(numero: string, demande: { geste: GesteCommande
     const message = e instanceof Error ? e.message : String(e);
     await logAction({ agent: "systeme", kind: demande.geste === "rembourser" ? "refund_order" : "cancel_order", status: "failed", summary: `Par l’atelier (${par}) · geste sur ${order.number} non confirmé`, detail: message, target: cible }).catch(() => {});
     if (e instanceof ArgentError || /déjà remboursée/.test(message)) throw new SuiviError(message);
-    throw new SuiviError(`Le geste n’a pas pu être confirmé (${message}). Vérifiez la commande${adminEnabled ? " dans Shopify" : ""} avant de réessayer : une commande remboursée ne l’est jamais deux fois.`);
+    throw new SuiviError(`Le geste n’a pas pu être confirmé (${message}). Vérifiez la commande avant de réessayer : une commande remboursée ne l’est jamais deux fois.`);
   }
 }

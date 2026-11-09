@@ -15,6 +15,8 @@ import { PurchaseTracker } from "@/components/analytics/PurchaseTracker";
 import { AtelierNote, type CoulissesTexts } from "@/components/ui/AtelierNote";
 import { certificatesOfOrder } from "@/lib/certificates";
 import { orderAccessToken, orderLink } from "@/lib/commerce/order-access";
+import { confirmerRetour } from "@/lib/paiement/suivi";
+import { ViderPanier } from "@/components/commerce/ViderPanier";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = (await getDoc<CommerceTexts>("commerce", { plain: true })).confirmation;
@@ -25,12 +27,20 @@ export const dynamic = "force-dynamic";
 export default async function ConfirmationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ n?: string; t?: string; a?: string }>;
+  searchParams: Promise<{ n?: string; t?: string; a?: string; s?: string }>;
 }) {
   const sp = await searchParams;
   const locale = await getLocale();
   const token = verify<{ n: string }>(sp.t);
-  const order = token && token.n === sp.n ? await getOrder(token.n) : null;
+  const lue = token && token.n === sp.n ? await getOrder(token.n) : null;
+  // retour de la page de paiement Stripe : si le webhook n'est pas encore arrivé, le paiement est
+  // vérifié auprès de Stripe (jamais cru sur la seule adresse de retour)
+  const order = lue && sp.s ? await confirmerRetour(lue, sp.s).catch(() => lue) : lue;
+  const enAttente = order?.status === "pending" && order.payment?.statut === "en-attente";
+  const echec = order?.status === "pending" && (order.payment?.statut === "echoue" || order.payment?.statut === "expire");
+  // commande payée (ou paiement d'essai) : seule une commande payée a son enveloppe, sa facture et
+  // ses remerciements ; un paiement en attente ou refusé le dit, sans rien annoncer de plus
+  const paye = Boolean(order && order.status !== "pending");
   const first = order?.name.split(" ")[0];
   const certificates = order ? await certificatesOfOrder(order).catch(() => []) : [];
   // la suite de la commande : frise de la confection, délai et fin prévue, e-mails à chaque étape
@@ -47,7 +57,9 @@ export default async function ConfirmationPage({
   return (
     <>
       <Section theme="paper" className="confirmation">
-        {order ? (
+        {/* retour de la page de Stripe, paiement réussi ou en cours de validation : le panier se vide */}
+        {sp.s && order && !echec ? <ViderPanier /> : null}
+        {paye && order ? (
           <PurchaseTracker
             number={order.number}
             value={order.total}
@@ -55,20 +67,30 @@ export default async function ConfirmationPage({
           />
         ) : null}
         <div className="container-prose confirmation__inner">
-          <Envelope
-            greeting={first ? fill(t.salutationPrenom, { prenom: first }) : t.salutation}
-            note={t.mot}
-            signature={t.signature}
-            reference={order ? fill(t.reference, { commande: order.number }) : undefined}
-          />
+          {!order || paye ? (
+            <Envelope
+              greeting={first ? fill(t.salutationPrenom, { prenom: first }) : t.salutation}
+              note={t.mot}
+              signature={t.signature}
+              reference={order ? fill(t.reference, { commande: order.number }) : undefined}
+            />
+          ) : null}
           <div className="confirmation__details stack-m">
             <h1 className="t-h2 t-center">
-              {first ? fill(t.titrePrenom, { prenom: first }) : t.titre}
+              {enAttente ? t.attente.titre : echec ? t.nonAbouti.titre : first ? fill(t.titrePrenom, { prenom: first }) : t.titre}
             </h1>
-            <p className="t-body t-center">
-              {order ? fill(t.texteCommande, { commande: order.number, email: order.email }) : t.texte}
+            <p className="t-body t-center" role={enAttente ? "status" : undefined}>
+              {!order ? t.texte : enAttente ? fill(t.attente.texte, { commande: order.number, email: order.email }) : echec ? fill(t.nonAbouti.texte, { commande: order.number }) : fill(t.texteCommande, { commande: order.number, email: order.email })}
             </p>
-            {order ? (
+            {echec ? (
+              <p className="notice t-body" role="status">
+                {t.echec}{" "}
+                <Link href="/commande" className="link">
+                  {commerce.commande.page.titre}
+                </Link>
+              </p>
+            ) : null}
+            {order && !echec ? (
               <div className="notice stack">
                 <p className="t-label">{statusLabel[order.status]}</p>
                 <ul className="stack">
@@ -119,7 +141,7 @@ export default async function ConfirmationPage({
               <Link href={order ? orderLink(order) : "/suivi"} className="btn">
                 {t.suivre}
               </Link>
-              {order ? (
+              {paye && order ? (
                 <a href={`/api/factures/${encodeURIComponent(order.number)}?t=${encodeURIComponent(orderAccessToken(order))}`} className="link link--quiet">
                   {t.facture}
                 </a>

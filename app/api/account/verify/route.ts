@@ -2,7 +2,6 @@ import { NextResponse, after } from "next/server";
 import { z } from "zod";
 import { verifyEmailLogin } from "@/lib/auth/customer";
 import { ensureProfile } from "@/lib/customers";
-import { syncCustomerToShopify } from "@/lib/customers/shopify-sync";
 import { onCustomerCreated } from "@/lib/marketing/flows";
 import { clientIp, loginGuard } from "@/lib/security/rate-limit";
 
@@ -23,7 +22,6 @@ export async function POST(req: Request) {
   await loginGuard.reset("login", ip, GUARD);
   const profile = await ensureProfile(r.session, { termsVersion: r.termsVersion, marketingEmail: r.marketingEmail });
   after(async () => {
-    await syncCustomerToShopify(profile).catch((e) => console.error("[compte] Shopify", e));
     if (r.created) await onCustomerCreated(profile).catch((e) => console.error("[compte] bienvenue", e));
   });
   return NextResponse.json({ ok: true });

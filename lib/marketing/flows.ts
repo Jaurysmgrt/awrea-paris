@@ -16,7 +16,7 @@
  *
  * Les étapes d'une commande « Commande reçue », « En confection », « Prête » et « Expédiée » ont
  * leurs propres e-mails, modifiables dans l'Atelier (lib/email/commandes.ts) : ce module n'en
- * envoie aucun en double : le webhook d'expédition de Shopify les envoie lui-même.
+ * envoie aucun en double.
  * Les scénarios planifiés passent par `runDailyFlows()` (tâche quotidienne). Chaque envoi est
  * mémorisé pour ne jamais être répété ; chaque lettre porte son lien de désinscription.
  */

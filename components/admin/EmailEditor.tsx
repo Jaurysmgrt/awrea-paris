@@ -3,8 +3,8 @@
  * Éditeur d'e-mails de l'Atelier : composer un e-mail en blocs (glisser-déposer pour les déplacer),
  * écrire ses textes avec le contrôle d'écriture et les garde-fous de l'éditeur visuel, le voir tel
  * qu'il arrive dans Gmail, Apple Mail ou Outlook, sur ordinateur ou téléphone, en clair ou en
- * sombre, s'envoyer un essai, publier, revenir à une version précédente, l'exporter vers Brevo,
- * Klaviyo ou Shopify. Le brouillon s'enregistre tout seul ; rien ne part avant « Publier ».
+ * sombre, s'envoyer un essai, publier, revenir à une version précédente, l'exporter vers Brevo ou
+ * Klaviyo. Le brouillon s'enregistre tout seul ; rien ne part avant « Publier ».
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { EMAIL_BLOCKS, emailBlockDef, createEmailBlock, type EmailBlock, type EmailDoc } from "@/lib/email/blocks";
@@ -463,12 +463,6 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
             <a className="btn btn--outline" href={`${atelier.api("/edition/email/export")}?id=${id}&pour=klaviyo`}>
               Pour Klaviyo
             </a>
-            {/* e-mails de commande (famille « service », documents email-commande-…) : gabarit Liquid pour Shopify */}
-            {doc.famille === "commande" || id.startsWith("email-commande-") ? (
-              <a className="btn btn--outline" href={`${atelier.api("/edition/email/export")}?id=${id}&pour=shopify`}>
-                Pour Shopify
-              </a>
-            ) : null}
           </div>
         </section>
       </div>

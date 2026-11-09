@@ -5,7 +5,7 @@
  * /fonts) avec repli sur Georgia, bouton en pilule « à toute épreuve » pour Outlook, mode sombre
  * (Apple Mail, Outlook.com, iOS), version texte. Le même rendu sert à l'envoi, à l'aperçu de
  * l'éditeur (simulation de Gmail, Apple Mail, Outlook, téléphone, clair et sombre) et à l'export
- * vers Brevo, Klaviyo ou les notifications Shopify (repères convertis dans leur syntaxe).
+ * vers Brevo ou Klaviyo (repères convertis dans leur syntaxe).
  *
  * Module pur : aucune lecture de fichier ni de stockage (le serveur fournit le contexte).
  */
@@ -49,7 +49,7 @@ export interface EmailContext {
   /** aperçu : thème sombre forcé */
   dark?: boolean;
   /** export : syntaxe des repères pour un service d'envoi */
-  syntax?: "brevo" | "klaviyo" | "shopify";
+  syntax?: "brevo" | "klaviyo";
   /** lien d'un e-mail vers l'Atelier (« atelier:/retours ») */
   atelierHref?: (path: string) => string;
 }
@@ -83,8 +83,6 @@ function placeholder(name: string, ctx: EmailContext): string {
       return name === "prenom" ? "{{ contact.PRENOM }}" : `{{ params.${name} }}`;
     case "klaviyo":
       return name === "prenom" ? "{{ first_name|default:'' }}" : `{{ event.${name} }}`;
-    case "shopify":
-      return ({ prenom: "{{ customer.first_name }}", commande: "{{ order.name }}", suivi: "{{ fulfillment.tracking_url }}" } as Record<string, string>)[name] ?? `{{ ${name} }}`;
     default:
       return ctx.vars?.[name] ?? "";
   }
@@ -264,9 +262,6 @@ function orderLoop(ctx: EmailContext, caps: string, body: string): string {
   const c = light;
   const line = (title: string, meta: string, price: string) =>
     `<tr><td class="e-line" style="padding:16px 0;border-bottom:1px solid ${c.line};"><div class="e-ink" style="${body}">${title}</div><div class="e-soft" style="${caps}color:${c.soft};padding-top:8px;">${meta}</div></td><td align="right" class="e-line e-ink" style="padding:16px 0;border-bottom:1px solid ${c.line};${body}">${price}</td></tr>`;
-  if (ctx.syntax === "shopify")
-    return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">{% for line in line_items %}${line("{{ line.title }}", "{{ line.variant.title }}", "{{ line.final_line_price | money }}")}{% endfor %}
-<tr><td style="padding:16px 0 0;${caps}">${esc(ctx.commun.total)}</td><td align="right" style="padding:16px 0 0;${body}">{{ total_price | money }}</td></tr></table>`;
   const root = ctx.syntax === "brevo" ? "params" : "event";
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">{% for item in ${root}.items %}${line("{{ item.title }}", "{{ item.meta }}", "{{ item.price }}")}{% endfor %}</table>`;
 }

@@ -3,7 +3,7 @@
  * - France et Union européenne : prix affichés toutes taxes comprises (TVA française incluse).
  * - Hors Union européenne : la pièce part hors TVA française ; droits de douane et TVA du pays
  *   d'arrivée calculés et payés à la commande (rendu droits acquittés : rien à régler au livreur).
- * En production, Shopify fait ce calcul lui-même (Marchés, droits et taxes à l'importation).
+ * Calcul fait par le site, à la commande, sur la boutique réelle comme en démonstration.
  */
 import { shop } from "@/content/settings";
 import { legalFields } from "@/content/legal/fields";

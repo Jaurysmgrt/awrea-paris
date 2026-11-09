@@ -1,6 +1,7 @@
 /** Règles des rôles, sans accès aux données (testées dans tests/unit/roles.test.ts). Module pur. */
 import { shop } from "@/content/settings";
 import { formatPrice } from "@/lib/format";
+import { isSale } from "@/lib/admin/dashboard";
 import type { Order } from "@/lib/commerce/types";
 
 const HOUR = 3_600_000;
@@ -11,8 +12,10 @@ export const zoneOf = (code: string) => shop.countries.find((c) => c.code === co
 /** Raisons de regarder une commande de plus près (règles simples, expliquées). */
 export function suspicion(o: Order, all: Order[]): string[] {
   const reasons: string[] = [];
-  const mine = all.filter((x) => x.email.toLowerCase() === o.email.toLowerCase());
-  const earlier = mine.filter((x) => x.createdAt < o.createdAt && x.status !== "refunded");
+  // ventes seulement : une tentative de paiement abandonnée ne compte ni comme commande précédente
+  // ni dans les commandes du jour
+  const mine = all.filter((x) => x.email.toLowerCase() === o.email.toLowerCase() && (x.id === o.id || isSale(x)));
+  const earlier = mine.filter((x) => x.createdAt < o.createdAt);
   if (!earlier.length && o.total >= 150_000) reasons.push(`première commande de ${formatPrice(o.total)}`);
   const sameDay = mine.filter((x) => Math.abs(new Date(x.createdAt).getTime() - new Date(o.createdAt).getTime()) < 24 * HOUR);
   if (sameDay.length >= 3) reasons.push(`${sameDay.length} commandes de la même adresse en 24 heures`);

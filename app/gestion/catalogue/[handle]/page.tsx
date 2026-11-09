@@ -1,12 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "@/components/ui/Link";
 import { getCollections } from "@/lib/commerce";
-import {
-  catalogueModifiable,
-  lirePiece,
-  MESSAGE_LECTURE_SEULE,
-  PHOTOS_MAX,
-} from "@/lib/commerce/atelier-catalogue";
+import { lirePiece, PHOTOS_MAX } from "@/lib/commerce/atelier-catalogue";
 import { LEAD_TIME_BOUNDS } from "@/lib/commerce/availability";
 import { LIBELLE_STATUT } from "@/lib/commerce/statut-pieces";
 import { imageAt } from "@/lib/media";
@@ -30,7 +25,7 @@ const CATEGORIES = {
 } as const;
 
 /**
- * Fiche d'une pièce dans l'Atelier (refonte du 07/11, « Shopify simplifié ») : son statut et ses
+ * Fiche d'une pièce dans l'Atelier (refonte du 07/11) : son statut et ses
  * gestes (mettre en ligne, en brouillon, archiver, dupliquer), son prix et son délai, ses textes,
  * ses photos. Une pièce en brouillon ou archivée n'est jamais visible sur le site.
  */
@@ -47,8 +42,6 @@ export default async function PiecePage({
   ]);
   if (!p) notFound();
   const collection = collections.find((c) => c.handle === p.collection)?.title;
-  // Shopify sans accès Admin : la fiche se lit, et ne propose aucun geste qui échouerait
-  const modifiable = catalogueModifiable();
 
   return (
     <div className="admin-page stack-l">
@@ -83,7 +76,7 @@ export default async function PiecePage({
             <Link href={`/boutique/${p.handle}`} className="text-link">
               Voir la pièce sur le site
             </Link>
-          ) : modifiable ? (
+          ) : (
             <>
               Vos clientes ne la voient pas.{" "}
               {/* lien simple, jamais préchargé : il ouvre le mode Édition (lib/commerce/apercu.ts) */}
@@ -91,18 +84,11 @@ export default async function PiecePage({
                 Voir l’aperçu sur le site
               </a>
             </>
-          ) : (
-            "Visible sur le site une fois mise en ligne."
           )}
         </p>
-        {modifiable ? (
-          <PieceGestes handle={p.handle} title={p.title} statut={p.statut} />
-        ) : (
-          <p className="t-note">{MESSAGE_LECTURE_SEULE}</p>
-        )}
+        <PieceGestes handle={p.handle} title={p.title} statut={p.statut} />
       </header>
 
-      {modifiable ? (
         <>
           <section className="panel" aria-labelledby="prix-title">
             <h2 id="prix-title" className="t-h3">
@@ -158,13 +144,11 @@ export default async function PiecePage({
             />
           </section>
         </>
-      ) : null}
 
       <section className="panel" aria-labelledby="photos-title">
         <h2 id="photos-title" className="t-h3">
           Photos ({p.images.length})
         </h2>
-        {modifiable ? (
           <PiecePhotos
             handle={p.handle}
             max={PHOTOS_MAX}
@@ -175,27 +159,6 @@ export default async function PiecePage({
               provisoire: im.provisoire,
             }))}
           />
-        ) : p.images.length ? (
-          <ul className="piece-photos">
-            {p.images.map((im, i) => (
-              <li key={`${im.src}-${i}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={imageAt(im.src, 480)}
-                  alt={im.alt}
-                  width={160}
-                  height={213}
-                  loading="lazy"
-                />
-                {im.provisoire ? (
-                  <span className="t-note">Provisoire</span>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="t-note">Aucune photo pour l’instant.</p>
-        )}
       </section>
 
       <section className="panel" aria-labelledby="infos-title">

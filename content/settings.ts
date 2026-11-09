@@ -1,7 +1,6 @@
 /**
- * Réglages boutique (démonstration). En production, la livraison et les taxes sont
- * calculées par Shopify ; ces valeurs servent à l'affichage, au panier de démo,
- * à l'assistant et aux agents. Montants en centimes.
+ * Réglages de la boutique : livraison, taxes, cadeaux. Ces valeurs servent à l'affichage, au
+ * panier, à la commande, à l'assistant et aux agents. Montants en centimes.
  */
 export const shop = {
   currency: "EUR",
@@ -32,7 +31,7 @@ export const shop = {
    * hors de France n'est livré aujourd'hui) : la pièce partirait hors TVA française, et les droits de
    * douane et la TVA du pays d'arrivée seraient calculés et payés à la commande.
    * Taux INDICATIFS pour des vêtements fabriqués en France (accords de l'Union européenne), à faire
-   * confirmer ; en production, Shopify les calcule (Marchés, droits et taxes : ACTIVATION.md).
+   * confirmer (ACTIVATION.md, droits et taxes).
    */
   importRates: {
     GB: { duty: 0, vat: 0.2, vatLabel: "TVA britannique" },
@@ -49,7 +48,7 @@ export const shop = {
   countries: [{ code: "FR", name: "France", zone: "FR" }] as { code: string; name: string; zone: "FR" | "EU" | "WORLD" }[],
   /** moyens de paiement de l'article 4 des CGV officielles (Stripe est le prestataire de la carte) */
   paymentMethods: ["Carte bancaire", "Apple Pay", "Google Pay", "PayPal"],
-  /** Codes de démonstration (en production : réductions et cartes cadeaux Shopify) */
+  /** Codes de réduction et cartes cadeaux d'essai (démonstration) */
   demoDiscounts: [
     { code: "BIENVENUE", type: "percent" as const, value: 10, label: "Bienvenue, 10 %" },
     { code: "ATELIER", type: "fixed" as const, value: 3000, label: "Atelier, 30 €" },

@@ -1,6 +1,6 @@
 /**
- * Point d'entrée commerce. Choisit le pilote selon la configuration :
- * Shopify (Storefront API) si les variables sont présentes, sinon le catalogue de démonstration.
+ * Point d'entrée commerce : le catalogue de la boutique de la Maison (pièces, collections,
+ * silhouettes), tenu dans sa propre base (lib/commerce/catalog-demo.ts et l'Atelier).
  *
  * Langue : les pièces et les collections destinées aux pages (getProducts, getProduct,
  * getProductsByHandles, getPublicProducts, getCollections, getCollection, getCurrentCollection)
@@ -10,7 +10,6 @@
  * fichiers servis sans requête de page (flux, plan du site, llms.txt) demandent le français.
  */
 import { cache } from "react";
-import { shopifyCollections, shopifyEnabled, shopifyProducts } from "@/lib/shopify/storefront";
 import { demoCollections, demoLooks, demoProducts } from "./catalog-demo";
 import { hideUpcoming } from "@/lib/drops";
 import { findDoc } from "@/lib/edition/read";
@@ -29,25 +28,13 @@ async function inLocale(list: Product[], locale?: Locale): Promise<Product[]> {
   return translatePieces(list, await translationsOf(locale ?? (await getLocale())));
 }
 
-export const commerceMode: "shopify" | "demo" = shopifyEnabled ? "shopify" : "demo";
-
 /**
- * Une pièce se commande dès qu'elle a au moins une taille vendable. Une pièce Shopify dont aucune
- * taille n'est vendable (inventaire suivi sans « continuer à vendre ») reste dans l'Atelier mais
- * sort des listes publiques, plutôt que d'y offrir une fiche sans taille à choisir.
+ * Une pièce se commande dès qu'elle a au moins une taille. Une pièce sans taille reste dans
+ * l'Atelier mais sort des listes publiques, plutôt que d'y offrir une fiche sans taille à choisir.
  */
 const orderable = (p: Product) => p.variants.length > 0;
 
-export const getAllProducts = cache(async (): Promise<Product[]> => {
-  if (shopifyEnabled) {
-    try {
-      return await shopifyProducts();
-    } catch (e) {
-      console.error("[commerce] Shopify indisponible, repli sur la démo :", e);
-    }
-  }
-  return demoProducts();
-});
+export const getAllProducts = cache(async (): Promise<Product[]> => demoProducts());
 
 /**
  * Pièces de la boutique, sans les pièces d'une collection pas encore dévoilée (lib/drops.ts). Chaque pièce est
@@ -79,16 +66,7 @@ export async function getPublicProducts(locale?: Locale): Promise<Product[]> {
   return inLocale((await hideUpcoming(await getAllProducts())).filter(orderable), locale);
 }
 
-const allCollections = cache(async (): Promise<Collection[]> => {
-  if (shopifyEnabled) {
-    try {
-      return await shopifyCollections();
-    } catch (e) {
-      console.error("[commerce] Collections Shopify indisponibles :", e);
-    }
-  }
-  return demoCollections();
-});
+const allCollections = cache(async (): Promise<Collection[]> => demoCollections());
 
 export async function getCollections(locale?: Locale): Promise<Collection[]> {
   return translateCollections(await allCollections(), await translationsOf(locale ?? (await getLocale())));
@@ -104,6 +82,6 @@ export async function getCurrentCollection(locale?: Locale): Promise<Collection 
 }
 
 export async function getLooks(): Promise<Look[]> {
-  // Les silhouettes sont éditoriales : gérées localement (ou via un métaobjet Shopify à brancher ici)
+  // les silhouettes sont éditoriales : tenues par la Maison avec le catalogue
   return demoLooks();
 }

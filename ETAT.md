@@ -12,9 +12,9 @@
 | Point | État |
 | --- | --- |
 | Autonomie, décisions notées | **Fait** : `DECISIONS.md`, dont les décisions des ressources officielles |
-| Adaptateurs réel / simulé, site complet sans clé | **Fait** : commerce (Shopify / démo), base clientes (Supabase / stockage local), e-mails (Resend / boîte simulée), lettres (Brevo, Klaviyo / envoi du site), IA (Claude / réponses simulées), Turnstile, stockage (Upstash / fichier), Instagram ; interrupteurs `*_PROVIDER` (`lib/config/providers.ts`), état visible dans l'Atelier › Réglages |
+| Adaptateurs réel / simulé, site complet sans clé | **Fait** : boutique de la Maison (boutique réelle / démonstration, `lib/config/boutique.ts`, depuis le 08/11), base clientes (Supabase / stockage local), e-mails (Resend / boîte simulée), lettres (Brevo, Klaviyo / envoi du site), IA (Claude / réponses simulées), Turnstile, stockage (Upstash / fichier), Instagram ; interrupteurs `*_PROVIDER` (`lib/config/providers.ts`), état visible dans l'Atelier › Réglages |
 | `.env.example` commenté | **Fait**, avec les interrupteurs |
-| `ACTIVATION.md` | **Fait** : étapes 0 à 14 dans l'ordre, pour une non-développeuse ; pièces créées sur demande, sans suivi de stock, délais et indicateurs provisoires en métachamps |
+| `ACTIVATION.md` | **Fait** : étapes 0 à 14 dans l'ordre, pour une non-développeuse ; boutique de la Maison sans compte à créer (étape 4), pièces créées sur demande, délais et indicateurs provisoires réglés dans l'Atelier ; paiement Stripe : pas à pas complet, mode test puis production (étape 4 bis) |
 | `ETAT.md`, `PLAN.md` priorisé | **Fait** (phase R ajoutée au plan) |
 | Travail par lots en parallèle | **Fait** : règles dans `docs/EQUIPES.md`, registres de contenu par équipe (`content/site/registre/`) |
 | Commits | **En cours** : les lots de la phase R sont dans l'arbre de travail, à valider au contrôle de fin avant d'être enregistrés sur `claude/awrea-site` |
@@ -74,11 +74,11 @@
 | Point | État |
 | --- | --- |
 | Next.js, TS, Tailwind, GSAP, Lenis | **Fait** (OGL retiré avec la transition drapée, 27/10) |
-| Shopify / Supabase / Claude derrière adaptateurs | **Fait** |
+| Supabase / Upstash / Claude derrière adaptateurs ; boutique de la Maison sans plateforme de commerce extérieure (08/11) | **Fait** ; paiement par Stripe Checkout **En cours** (lot suivant) |
 | Sentry | **Fait** : envoi sans bibliothèque, repli local |
 | Klaviyo / Brevo | **Fait** (`lib/marketing/provider`) |
 | Textes et images modifiables sans code | **Fait** : éditeur « Édition », documents `content/site/<langue>/` ; **En cours** : passage des pages refaites aux documents JSON |
-| Régénération des pages | **Fait** : catalogue par webhooks Shopify, contenus à la publication (programmée tous les quarts d'heure) |
+| Régénération des pages | **Fait** : pages des pièces à chaque changement fait dans l'Atelier, contenus à la publication (programmée tous les quarts d'heure) |
 
 ## 6. Pages
 
@@ -102,7 +102,7 @@ d'attente, alerte de retour en stock, « Fait main à Paris » ; **À faire** vu
 
 | Point | État |
 | --- | --- |
-| Panier latéral, tunnel court sans compte, carte, Apple Pay / Google Pay / PayPal, 3 ou 4 fois (simulés) | **Fait** ; suggestions dans le panier et Shop Pay **Fait** |
+| Panier latéral, tunnel court sans compte, carte, Apple Pay / Google Pay / PayPal (paiement d'essai en démonstration) | **Fait** ; suggestions dans le panier **Fait** ; paiement en plusieurs fois **Retiré** (article 4 des CGV) ; paiement réel par Stripe Checkout **En cours** : d'ici là, la boutique réelle ne prend aucune commande payée et la page `/commande` le dit |
 | Autocomplétion d'adresse | **Fait** (adaptateur et simulation) |
 | Création sur demande : aucune quantité, délai de fabrication par pièce, cinq étapes de commande, numéro de création | **En cours** (phase R) ; stocks par taille, liste d'attente, précommande et numéros d'édition **Retiré** |
 | Livraison | **Fait** : Colissimo, Chronopost, DHL, Mondial Relay, retrait, droits et taxes calculés à l'avance, date de livraison d'un cadeau. **À vérifier** : les CGV officielles annoncent une livraison en France métropolitaine, sous 5 à 10 jours ouvrés (`LEGAL-A-COMPLETER.md`) |
@@ -116,7 +116,9 @@ d'attente, alerte de retour en stock, « Fait main à Paris » ; **À faire** vu
 ## 8. Base clientes
 
 **Fait** : Supabase / démo, comptes e-mail, Google, Apple, profils, tailles, adresses, historique,
-envies, consentements, navigation consentie, segments, RGPD, RLS. **En cours** : migration
+envies, consentements, navigation consentie, segments, RGPD, RLS ; commandes de la boutique copiées
+dans la table `orders` sous leur propre référence (08/11, migration
+`20261108000000_boutique_independante`, à appliquer). **En cours** : migration
 `20261018000000_creation_sur_demande` (dates des étapes, séquence des numéros de création) ; listes
 d'attente **Retiré**. **À faire** : export CSV depuis l'Atelier.
 

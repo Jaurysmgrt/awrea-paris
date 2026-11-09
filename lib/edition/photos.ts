@@ -6,7 +6,7 @@
  * description se traduit, lib/edition/merge.ts).
  *
  * Les photos des documents se remplacent sur la page, en mode Édition ; celles des pièces et des
- * collections viennent du catalogue (Shopify, métachamp `awrea.visuels_provisoires`).
+ * collections viennent du catalogue (Atelier › Produits).
  */
 import "server-only";
 import { promises as fs } from "node:fs";

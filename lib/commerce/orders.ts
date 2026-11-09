@@ -1,47 +1,39 @@
-/** Commandes : Shopify Admin en production, démonstration + commandes du tunnel de test sinon. */
+/**
+ * Commandes de la boutique de la Maison, tenues dans sa propre base (stockage du site). En
+ * démonstration (lib/config/boutique.ts), des commandes d'exemple s'y ajoutent, jamais sur la
+ * boutique réelle : aucun exemple n'est présenté comme une vraie commande.
+ */
 import { demoOrders } from "@/data/demo/orders";
 import { kv } from "@/lib/store";
-import { adminEnabled, admin } from "@/lib/shopify/admin";
-import { SHOPIFY_STAGE_TAGS, shopifyStatus } from "./order-status";
+import { boutiqueReelle } from "@/lib/config/boutique";
+import { avecVerrou } from "@/lib/store/verrou";
 import type { Order, OrderStatus } from "./types";
 
-export { SHOPIFY_STAGE_TAGS, shopifyStatus };
-
 export const ORDERS_KEY = "orders";
-export const ORDER_STATUS_KEY = "orders:status"; // surcharges de statut (démo)
-export const ORDER_DELIVERED_KEY = "orders:delivered"; // dates de livraison (démo)
-export const ORDER_TRACKING_KEY = "orders:tracking"; // transporteur et numéro de suivi (démo)
-
-/** Shopify ne renvoie que les dernières commandes : au-delà, les périodes plus anciennes sont incomplètes. */
-export const SHOPIFY_ORDERS_LIMIT = 100;
+export const ORDER_STATUS_KEY = "orders:status"; // étape de chaque commande
+export const ORDER_DELIVERED_KEY = "orders:delivered"; // dates de livraison
+export const ORDER_TRACKING_KEY = "orders:tracking"; // transporteur et numéro de suivi
 
 export async function getOrders(): Promise<Order[]> {
   return (await getOrdersWithSource()).orders;
 }
 
 /**
- * Les commandes, et d'où elles viennent : « shopify » pour les vraies, « demo » pour les exemples du
- * mode essai, y compris quand Shopify ne répond pas. La Vue d'ensemble le dit alors à la créatrice :
- * jamais un exemple présenté comme une vraie commande.
+ * Les commandes, et d'où elles viennent : « boutique » sur la boutique réelle, « demo » en
+ * démonstration (commandes d'exemple comprises). La Vue d'ensemble le dit à la créatrice.
  */
-export async function getOrdersWithSource(): Promise<{ orders: Order[]; source: "shopify" | "demo" }> {
-  if (adminEnabled) {
-    try {
-      return { orders: await shopifyOrders(), source: "shopify" };
-    } catch (e) {
-      console.error("[orders] Shopify indisponible :", e);
-    }
-  }
+export async function getOrdersWithSource(): Promise<{ orders: Order[]; source: "boutique" | "demo" }> {
+  const reelle = boutiqueReelle();
   const [created, overrides, delivered, tracking] = await Promise.all([
     kv.get<Order[]>(ORDERS_KEY),
     kv.get<Record<string, OrderStatus>>(ORDER_STATUS_KEY),
     kv.get<Record<string, string>>(ORDER_DELIVERED_KEY),
     kv.get<Record<string, { carrier: string; tracking: string }>>(ORDER_TRACKING_KEY),
   ]);
-  const orders = [...(created ?? []), ...demoOrders]
+  const orders = [...(created ?? []), ...(reelle ? [] : demoOrders)]
     .map((o) => ({ ...o, status: overrides?.[o.id] ?? o.status, deliveredAt: delivered?.[o.id] ?? o.deliveredAt, shipping: { ...o.shipping, ...(tracking?.[o.id] ?? {}) } }))
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  return { orders, source: "demo" };
+  return { orders, source: reelle ? "boutique" : "demo" };
 }
 
 export async function getOrder(numberOrId: string): Promise<Order | null> {
@@ -49,111 +41,67 @@ export async function getOrder(numberOrId: string): Promise<Order | null> {
   return (await getOrders()).find((o) => o.number.toUpperCase() === n || o.id === numberOrId) ?? null;
 }
 
+/** Enregistre une commande (nouvelle ou mise à jour), sous verrou : deux écritures ne s'écrasent jamais. */
 export async function saveOrder(order: Order) {
-  const list = (await kv.get<Order[]>(ORDERS_KEY)) ?? [];
-  await kv.set(ORDERS_KEY, [order, ...list.filter((o) => o.id !== order.id)]);
+  await avecVerrou(ORDERS_KEY, async () => {
+    const list = (await kv.get<Order[]>(ORDERS_KEY)) ?? [];
+    await kv.set(ORDERS_KEY, [order, ...list.filter((o) => o.id !== order.id)]);
+  });
 }
 
-/** Démonstration : transporteur et numéro de suivi saisis dans l'Atelier. */
+/** Met à jour une commande enregistrée à partir de sa dernière version (lue sous verrou). */
+export async function updateOrder(id: string, change: (o: Order) => Order): Promise<Order | null> {
+  return avecVerrou(ORDERS_KEY, async () => {
+    const list = (await kv.get<Order[]>(ORDERS_KEY)) ?? [];
+    const o = list.find((x) => x.id === id);
+    if (!o) return null;
+    const maj = change(o);
+    await kv.set(ORDERS_KEY, list.map((x) => (x.id === id ? maj : x)));
+    return maj;
+  });
+}
+
+/**
+ * Retire les tentatives de paiement abandonnées (page Stripe expirée, refusée ou jamais ouverte) depuis
+ * plus de `jours` jours : rien n'a été payé, et l'adresse ou le téléphone saisis ne sont pas gardés
+ * sans raison. Renvoie les numéros retirés.
+ */
+export async function purgerCommandesAbandonnees(jours = 30, maintenant = new Date()): Promise<string[]> {
+  const limite = maintenant.getTime() - jours * 86_400_000;
+  return avecVerrou(ORDERS_KEY, async () => {
+    const list = (await kv.get<Order[]>(ORDERS_KEY)) ?? [];
+    const abandon = (o: Order) => o.status === "pending" && o.payment?.prestataire === "stripe" && (o.payment.statut === "expire" || o.payment.statut === "echoue" || !o.payment.session) && Date.parse(o.createdAt) < limite;
+    const retirees = list.filter(abandon);
+    if (retirees.length) await kv.set(ORDERS_KEY, list.filter((o) => !abandon(o)));
+    return retirees.map((o) => o.number);
+  });
+}
+
+/** Transporteur et numéro de suivi saisis dans l'Atelier. */
 export async function setOrderTracking(id: string, carrier: string, tracking: string) {
   const map = (await kv.get<Record<string, { carrier: string; tracking: string }>>(ORDER_TRACKING_KEY)) ?? {};
   await kv.set(ORDER_TRACKING_KEY, { ...map, [id]: { carrier, tracking } });
 }
 
-/**
- * Étape d'une commande. Pilote Shopify : les étapes de confection (reçue, en confection, prête)
- * sont des étiquettes de la commande (SHOPIFY_STAGE_TAGS), relues par le site et par le webhook
- * « Mise à jour de commande » ; l'expédition et la livraison viennent du traitement Shopify.
- */
+/** Étape d'une commande, réglée depuis l'Atelier (ou par un agent, après validation). */
 export async function setOrderStatus(id: string, status: OrderStatus) {
-  if (adminEnabled && id.startsWith("gid://shopify/Order/") && (status === "paid" || status === "in_production" || status === "ready")) {
-    await shopifySetStage(id, status);
-  }
-  const map = (await kv.get<Record<string, OrderStatus>>(ORDER_STATUS_KEY)) ?? {};
-  map[id] = status;
-  await kv.set(ORDER_STATUS_KEY, map);
-  if (status === "delivered") {
-    const dates = (await kv.get<Record<string, string>>(ORDER_DELIVERED_KEY)) ?? {};
-    await kv.set(ORDER_DELIVERED_KEY, { ...dates, [id]: dates[id] ?? new Date().toISOString() });
-  }
-}
-
-async function shopifyOrders(): Promise<Order[]> {
-  type N = {
-    id: string; name: string; createdAt: string; email: string | null; displayFinancialStatus: string; displayFulfillmentStatus: string;
-    cancelledAt: string | null; tags: string[];
-    customer: { displayName: string } | null; totalPriceSet: { shopMoney: { amount: string } };
-    shippingLine: { title: string; originalPriceSet: { shopMoney: { amount: string } } } | null;
-    shippingAddress: { countryCodeV2: string; firstName: string | null; lastName: string | null; address1: string | null; address2: string | null; zip: string | null; city: string | null; phone: string | null } | null;
-    customAttributes: { key: string; value: string | null }[];
-    totalTaxSet: { shopMoney: { amount: string } } | null;
-    taxLines: { ratePercentage: number | null }[];
-    currentTotalDutiesSet: { shopMoney: { amount: string } } | null;
-    fulfillments: { trackingInfo: { number: string; company: string }[] }[];
-    lineItems: { nodes: { title: string; quantity: number; variantTitle: string | null; originalUnitPriceSet: { shopMoney: { amount: string } }; product: { handle: string } | null }[] };
-    paymentGatewayNames: string[];
-  };
-  const data = await admin<{ orders: { nodes: N[] } }>(`query { orders(first: ${SHOPIFY_ORDERS_LIMIT}, sortKey: CREATED_AT, reverse: true) { nodes {
-    id name createdAt email displayFinancialStatus displayFulfillmentStatus paymentGatewayNames cancelledAt tags
-    customer { displayName } totalPriceSet { shopMoney { amount } }
-    shippingLine { title originalPriceSet { shopMoney { amount } } }
-    shippingAddress { countryCodeV2 firstName lastName address1 address2 zip city phone }
-    customAttributes { key value } totalTaxSet { shopMoney { amount } } taxLines { ratePercentage } currentTotalDutiesSet { shopMoney { amount } }
-    fulfillments(first: 3) { trackingInfo { number company } }
-    lineItems(first: 20) { nodes { title quantity variantTitle originalUnitPriceSet { shopMoney { amount } } product { handle } } }
-  } } }`);
-  const c = (a: string) => Math.round(parseFloat(a) * 100);
-  return data.orders.nodes.map((o) => {
-    const track = o.fulfillments[0]?.trackingInfo[0];
-    const status = shopifyStatus({
-      cancelled: Boolean(o.cancelledAt),
-      financial: o.displayFinancialStatus.toLowerCase(),
-      fulfillment: o.displayFulfillmentStatus.toLowerCase(),
-      tracked: Boolean(track),
-      tags: o.tags,
-    });
-    return {
-      id: o.id,
-      number: o.name.replace("#", "AW-"),
-      createdAt: o.createdAt,
-      email: o.email ?? "",
-      name: o.customer?.displayName ?? "",
-      status,
-      lines: o.lineItems.nodes.map((l) => ({ title: l.title, size: (l.variantTitle ?? "TU") as Order["lines"][number]["size"], quantity: l.quantity, unitPrice: c(l.originalUnitPriceSet.shopMoney.amount), handle: l.product?.handle ?? "" })),
-      total: c(o.totalPriceSet.shopMoney.amount),
-      shipping: { method: o.shippingLine?.title ?? "", price: c(o.shippingLine?.originalPriceSet.shopMoney.amount ?? "0"), country: o.shippingAddress?.countryCodeV2 ?? "", tracking: track?.number, carrier: track?.company },
-      address: o.shippingAddress?.address1
-        ? {
-            firstName: o.shippingAddress.firstName ?? "",
-            lastName: o.shippingAddress.lastName ?? "",
-            line1: o.shippingAddress.address1,
-            line2: o.shippingAddress.address2 ?? undefined,
-            postalCode: o.shippingAddress.zip ?? "",
-            city: o.shippingAddress.city ?? "",
-            country: o.shippingAddress.countryCodeV2,
-            phone: o.shippingAddress.phone ?? undefined,
-          }
-        : undefined,
-      gift: attr(o, "Emballage cadeau") === "Oui"
-        ? { wrap: true, message: attr(o, "Message cadeau"), hidePrices: attr(o, "Prix masqués") !== "Non", deliveryDate: attr(o, "Livraison souhaitée le") || null }
-        : undefined,
-      taxes: { vatRate: (o.taxLines[0]?.ratePercentage ?? 0) / 100, vat: c(o.totalTaxSet?.shopMoney.amount ?? "0"), ...(o.currentTotalDutiesSet ? { duties: c(o.currentTotalDutiesSet.shopMoney.amount) } : {}) },
-      paymentMethod: o.paymentGatewayNames.join(", "),
-    };
+  // sous verrou : l'étape d'une autre commande, réglée au même instant, n'est jamais perdue
+  await avecVerrou(ORDER_STATUS_KEY, async () => {
+    const map = (await kv.get<Record<string, OrderStatus>>(ORDER_STATUS_KEY)) ?? {};
+    map[id] = status;
+    await kv.set(ORDER_STATUS_KEY, map);
   });
+  if (status === "delivered") {
+    await avecVerrou(ORDER_DELIVERED_KEY, async () => {
+      const dates = (await kv.get<Record<string, string>>(ORDER_DELIVERED_KEY)) ?? {};
+      await kv.set(ORDER_DELIVERED_KEY, { ...dates, [id]: dates[id] ?? new Date().toISOString() });
+    });
+  }
 }
 
-const attr = (o: { customAttributes: { key: string; value: string | null }[] }, key: string) => o.customAttributes.find((a) => a.key === key)?.value ?? "";
-
-/** Pilote Shopify : remplace l'étiquette d'étape de la commande (aucune pour « reçue »). */
-async function shopifySetStage(id: string, status: "paid" | "in_production" | "ready") {
-  const keep = status === "in_production" ? SHOPIFY_STAGE_TAGS.inProduction : status === "ready" ? SHOPIFY_STAGE_TAGS.ready : null;
-  const remove = Object.values(SHOPIFY_STAGE_TAGS).filter((t) => t !== keep);
-  type R = { userErrors: { message: string }[] };
-  const removed = await admin<{ tagsRemove: R }>(`mutation R($id: ID!, $tags: [String!]!) { tagsRemove(id: $id, tags: $tags) { userErrors { message } } }`, { id, tags: remove });
-  const added = keep ? await admin<{ tagsAdd: R }>(`mutation A($id: ID!, $tags: [String!]!) { tagsAdd(id: $id, tags: $tags) { userErrors { message } } }`, { id, tags: [keep] }) : null;
-  const errors = [...removed.tagsRemove.userErrors, ...(added?.tagsAdd.userErrors ?? [])];
-  if (errors.length) throw new Error(`Étape de la commande : ${errors.map((e) => e.message).join(" ; ")}`);
+/** Étape réglée à part (Atelier, agent) qui prime sur celle de la commande, s'il y en a une. */
+export async function statutRegle(id: string): Promise<OrderStatus | null> {
+  return (await kv.get<Record<string, OrderStatus>>(ORDER_STATUS_KEY))?.[id] ?? null;
 }
 
 /** Étapes de la commande : reçue, en confection, prête, expédiée, livrée. */

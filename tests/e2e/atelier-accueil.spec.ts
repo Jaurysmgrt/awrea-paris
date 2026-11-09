@@ -2,16 +2,15 @@ import { expect, test } from "@playwright/test";
 import { adminLogin, ATELIER } from "./admin-auth";
 
 /**
- * Vue d'ensemble de l'Atelier et menu clair (brief de la créatrice du 03/11 et du 07/11, « un
- * Shopify simplifié ») : ce qui attend, les gestes courants, quatre chiffres réels, les dernières
+ * Vue d'ensemble de l'Atelier et menu clair (brief de la créatrice du 03/11 et du 07/11) : ce qui attend, les gestes courants, quatre chiffres réels, les dernières
  * commandes ; un menu en six rubriques dont les sous-entrées n'apparaissent que dans leur rubrique.
  */
 test("Vue d'ensemble : priorités, raccourcis, chiffres et dernières commandes mènent quelque part", async ({ page }) => {
   await adminLogin(page);
   await page.goto(ATELIER);
   await expect(page.getByRole("heading", { level: 1, name: "Bonjour." })).toBeVisible();
-  // mode essai : la page le dit, rien n'est présenté comme réel
-  await expect(page.locator("#contenu").getByText(/Boutique en mode essai/)).toBeVisible();
+  // démonstration : la page le dit, rien n'est présenté comme réel
+  await expect(page.locator("#contenu").getByText(/Démonstration.*des exemples, pas des ventes/)).toBeVisible();
 
   await expect(page.getByRole("heading", { name: "À faire en priorité" })).toBeVisible();
   const raccourcis = page.getByRole("navigation", { name: /Que souhaitez-vous faire/ });

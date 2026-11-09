@@ -188,7 +188,7 @@ export type LegalFieldKey = keyof typeof legalFields;
  */
 export const commercialChecks = [
   "Zones, tarifs et délais de livraison (content/settings.ts → shop.shippingRates, freeShippingThreshold) : alignés sur l’article 5 des CGV officielles, livraison en France métropolitaine seulement. L’Europe, l’international et le retrait sur rendez-vous ne sont plus proposés tant que les CGV ne les prévoient pas. Tarifs et seuil de la livraison offerte (250 €) à confirmer.",
-  "Moyens de paiement (content/settings.ts → paymentMethods) : alignés sur l’article 4 des CGV officielles (carte bancaire, Apple Pay, Google Pay, PayPal) ; Shop Pay et le paiement en plusieurs fois ne sont plus proposés. Activer les mêmes moyens dans Shopify.",
+  "Moyens de paiement (content/settings.ts → paymentMethods) : alignés sur l’article 4 des CGV officielles (carte bancaire, Apple Pay, Google Pay, PayPal) ; Shop Pay et le paiement en plusieurs fois ne sont plus proposés. Activer les mêmes moyens dans le compte Stripe de la Maison.",
   "Délai de rétractation et de retour (14 jours minimum légal ; content/settings.ts → returnDays) ; frais de retour à la charge de la cliente (article 7 des CGV officielles).",
   "Délais de fabrication des pièces créées sur demande, indiqués sur chaque fiche, dans le panier et au paiement (provisoires : bodys et tops 2 à 3 semaines, robes 3 à 4 semaines, liste dans `ACTIVATION.md`, étape 4.2 bis), et moment du débit (à la commande, comme le prévoit l’article 4 des CGV officielles).",
   "Durée de validité des cartes cadeaux et règles de cumul des codes de réduction (les CGV officielles n’en parlent pas).",

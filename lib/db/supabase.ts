@@ -1,7 +1,7 @@
 /**
  * Accès à la base clientes Supabase (PostgreSQL + authentification).
  *
- * - `supabaseAdmin()` : client « service » réservé au serveur (synchronisation Shopify,
+ * - `supabaseAdmin()` : client « service » réservé au serveur (copie des commandes,
  *   preuves de consentement, tableau de bord). Il contourne la sécurité par ligne (RLS) :
  *   ne jamais l'exposer au navigateur ni l'utiliser pour servir les données d'une cliente.
  * - les données d'une cliente sont lues avec SA session (lib/db/auth.ts), RLS appliquée.

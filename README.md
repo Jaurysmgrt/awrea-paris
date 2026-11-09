@@ -5,11 +5,34 @@ français, sans stock. Collection en cours : « Hypnotic Lace », sept pièces. 
 ses agents de gestion et le tableau de bord privé « Atelier », où la créatrice modifie le site sans
 toucher au code (éditeur « Édition »).
 
-Next.js 16 · TypeScript · Tailwind CSS v4 · GSAP · Lenis · Shopify (headless) · Supabase ·
-Claude · Vercel.
+Next.js 16 · TypeScript · Tailwind CSS v4 · GSAP · Lenis · Supabase · Upstash Redis · Claude ·
+Vercel. Paiement en ligne : Stripe Checkout (`lib/paiement`).
 
-Sans aucune clé, tout fonctionne en **mode démonstration** : catalogue local des sept pièces, tunnel
-de commande simulé, étapes de commande, comptes clientes et e-mails simulés, agents déterministes.
+## La boutique de la Maison
+
+La boutique est entièrement à la Maison, sans plateforme de commerce extérieure. Tout se gère dans
+l'Atelier :
+
+- **pièces** : le catalogue de départ de la collection (`data/demo/products.ts`), puis les réglages
+  de l'Atelier (prix, délais, textes, photos, statut), écrits dans le stockage du site (Upstash
+  Redis en production) ;
+- **commandes** : dans le stockage du site, copiées dans la table `orders` de Supabase (colonne
+  `reference`) ;
+- **clientes** : Supabase ;
+- **retours, factures et avoirs, certificats** : dans le stockage du site, traités dans l'Atelier ;
+- **e-mails de commande** : envoyés par le site lui-même, modifiables dans l'Atelier › E-mails ;
+- **paiement** : Stripe Checkout, choix de la créatrice, intégré (`lib/paiement`) et à activer avec le compte Stripe de la Maison (`ACTIVATION.md`, étape 4 bis ; webhook signé,
+  clés `STRIPE_SECRET_KEY` et `STRIPE_WEBHOOK_SECRET` dans les variables d'environnement, jamais
+  dans le code). La carte se saisit chez Stripe : aucune donnée bancaire sur le site.
+
+Deux façons de tourner (`lib/config/boutique.ts`) :
+
+- **boutique réelle** (site de production sur Vercel, ou `BOUTIQUE_REELLE=1`) : jamais d'exemple
+  de commande ni d'accès d'essai. Tant que le paiement en ligne n'est pas branché, le site ne prend
+  aucune commande payée, et la page `/commande` le dit ;
+- **démonstration** (développement, prévisualisations, tests) : commandes d'exemple et paiement
+  d'essai, clairement signalés. Sans aucune clé, tout fonctionne : comptes clientes et e-mails
+  simulés, agents déterministes.
 
 ## Démarrer
 
@@ -20,8 +43,8 @@ npm run dev        # http://localhost:3000
 
 - Atelier : `/gestion` en démonstration (en production, l'adresse secrète `ADMIN_PATH`). Adresse
   e-mail de la Maison (`awrea.contact@gmail.com`, ou celles de `ATELIER_ACCOUNTS`), mot de passe
-  d'installation `atelier-demo` (jamais accepté en production ni avec une boutique Shopify), puis
-  mot de passe personnel et double authentification.
+  d'installation `atelier-demo` (accepté seulement en démonstration, jamais sur la boutique réelle),
+  puis mot de passe personnel et double authentification.
 - Variables : copier `.env.example` en `.env.local` et compléter au fur et à mesure
   (`ACTIVATION.md`).
 
@@ -48,10 +71,13 @@ npm run build && npx playwright test   # parcours complets : bureau, mobile, plu
 2. Renseigner les variables d'environnement de `.env.example`, au minimum `SESSION_SECRET`,
    `ADMIN_PATH`, `ATELIER_ACCOUNTS`, `ATELIER_PASSWORD`, `CRON_SECRET`, `NEXT_PUBLIC_SITE_URL`.
 3. Domaines : `www.awreaparis.com` (principal) et `awreaparis.com` redirigé (308).
-4. Brancher les services dans l'ordre d'`ACTIVATION.md` : Shopify (les sept pièces, sans suivi de
-   stock, avec leurs délais de fabrication), Upstash (stockage technique), Supabase (base clientes,
-   région UE, `supabase/migrations`), Resend (e-mails), Brevo ou Klaviyo (lettres), Anthropic (IA),
-   Cloudflare Turnstile (anti-robots), puis mesure d'audience et publicité.
+4. Brancher les services dans l'ordre d'`ACTIVATION.md` : Upstash (stockage du site : réglages des
+   pièces, commandes, retours, factures), Supabase (base clientes et copie des commandes, région UE,
+   toutes les migrations de `supabase/migrations` dans l'ordre, dont
+   `20261108000000_boutique_independante.sql`), Resend (e-mails), Brevo ou Klaviyo (lettres),
+   Anthropic (IA), Cloudflare Turnstile (anti-robots), puis mesure d'audience et publicité. Le
+   paiement en ligne (Stripe, étape 4 bis) demande le compte Stripe de la Maison : sans clé réelle,
+   la boutique réelle ne prend aucune commande payée.
 
 ## GitHub (une fois)
 
@@ -88,4 +114,5 @@ npm run build && npx playwright test   # parcours complets : bureau, mobile, plu
 | `CLAUDE.md` | Règles du projet pour Claude Code |
 
 `docs/VEILLE-DESIGN-2026.md` et `docs/equipes/design/` sont des archives d'avant les ressources
-officielles. L'ancien site statique est archivé dans `legacy/`.
+officielles. L'ancien site statique est archivé dans `legacy/`. Le code d'avant la boutique
+indépendante (08/11/2026) est gardé sur la branche `sauvegarde/avant-suppression-shopify`.

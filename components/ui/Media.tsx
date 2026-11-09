@@ -1,10 +1,10 @@
 import type { Image } from "@/lib/commerce/types";
-import { imageAt, isSized, isStoredEdition } from "@/lib/media";
+import { imageAt, isSized } from "@/lib/media";
 import { ProvisionalNote } from "@/components/commerce/ProvisionalNote";
 
 /**
- * Image responsive. Les visuels locaux existent en 480, 960 et pleine largeur (WebP) ;
- * les visuels Shopify utilisent les paramètres de largeur du CDN.
+ * Image responsive. Les visuels locaux existent en 480, 960 et pleine largeur (WebP) ; une image
+ * venue d'une adresse complète est servie telle quelle.
  *
  * `provisoire` (facultatif) : pour une photo provisoire (image générée en attendant les prises de
  * vue, `image.provisoire`), la mention discrète « visuel provisoire » suit la photo, juste dessous,
@@ -12,7 +12,6 @@ import { ProvisionalNote } from "@/components/commerce/ProvisionalNote";
  * Passer `provisoire={image.provisoire}` là où la page ne l'affiche pas déjà elle-même.
  */
 export function srcSet(src: string): { src: string; srcSet: string } {
-  if (src.startsWith("http") && !isStoredEdition(src)) return { src: imageAt(src, 1200), srcSet: ([480, 960, 1200] as const).map((w) => `${imageAt(src, w)} ${w}w`).join(", ") };
   if (!isSized(src)) return { src, srcSet: "" };
   return { src: imageAt(src, 1200), srcSet: `${imageAt(src, 480)} 480w, ${imageAt(src, 960)} 960w, ${imageAt(src, 1200)} 1200w` };
 }

@@ -13,7 +13,6 @@ import { PrintButton } from "@/components/admin/PrintButton";
 import { Logo } from "@/components/brand/Logo";
 import { When } from "@/components/admin/Status";
 import { OrderStages, type SuiviTexts } from "@/components/commerce/OrderStages";
-import { commerceMode } from "@/lib/commerce";
 import { atelierHref, atelierApi } from "@/lib/admin/path";
 import { getDoc } from "@/lib/edition/read";
 import { delaiText, type CatalogueTexts } from "@/lib/commerce/texts";
@@ -23,7 +22,8 @@ import { OrderStageControl } from "../_components/OrderStageControl";
 import { NotesInternes } from "@/components/admin/NotesInternes";
 import { CommandeGestes } from "@/components/admin/CommandeGestes";
 import { gestesPossibles, historiqueDe, NOTE_MAX, notesDe } from "@/lib/admin/commandes-suivi";
-import { adminEnabled } from "@/lib/shopify/admin";
+import { boutiqueReelle, stripeConfigure } from "@/lib/config/boutique";
+import { PaiementCommande } from "@/components/admin/PaiementCommande";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +34,11 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
   if (!found) notFound();
   const [{ order, timeline }, suivi, catalogue] = await Promise.all([timelineOf(found), getDoc<SuiviTexts>("suivi-commande", "fr", { plain: true }), getDoc<CatalogueTexts>("catalogue", "fr", { plain: true })]);
   const next = nextStage(order.status);
-  const viaShopify = commerceMode !== "demo" && (next === "shipped" || next === "delivered");
+  // remboursement possible d'ici : par Stripe pour une commande payée par Stripe (Stripe configuré),
+  // simulé pour un paiement d'essai de la démonstration ; jamais pour une commande sans paiement en ligne
+  const parStripe = order.payment?.prestataire === "stripe";
+  const demonstration = !parStripe && !boutiqueReelle();
+  const paiementBranche = parStripe ? stripeConfigure() : demonstration;
   const a = order.address;
   const hide = Boolean(order.gift?.wrap && order.gift.hidePrices !== false);
   const url = trackingUrl(order.shipping.carrier, order.shipping.tracking);
@@ -72,20 +76,23 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
         <OrderStages timeline={timeline} t={suivi.frise} delai={timeline.leadTime ? delaiText(catalogue, timeline.leadTime) : null} />
         {timeline.late ? <p className="t-body"><span className="status status--pending">En retard</span> La confection dépasse le délai annoncé à la cliente. Un mot de votre part la rassurera.</p> : null}
         {next && next !== "paid" ? (
-          viaShopify ? (
-            <p className="t-note">L’expédition et la livraison se déclarent dans Shopify : le site suit seul, et la cliente reçoit l’e-mail de l’étape.</p>
-          ) : (
-            <OrderStageControl number={order.number} next={next} />
-          )
+          <OrderStageControl number={order.number} next={next} />
         ) : (
           <p className="t-note">
             {order.status === "pending"
-              ? "Le paiement n’est pas encore confirmé. La confection pourra commencer dès que Shopify le confirme."
+              ? "Le paiement n’est pas encore confirmé. La confection pourra commencer dès qu’il le sera."
               : order.status === "blocked"
                 ? "Commande en attente de vérification. Elle reprend son cours une fois la vérification faite."
                 : "Cette commande a franchi sa dernière étape."}
           </p>
         )}
+      </section>
+
+      <section className="panel no-print stack-m" aria-labelledby="paiement-title">
+        <h2 id="paiement-title" className="t-h3">
+          Paiement
+        </h2>
+        <PaiementCommande paiement={order.payment} moyenAncien={order.paymentMethod} />
       </section>
 
       <section className="panel no-print" aria-labelledby="client-title">
@@ -192,8 +199,12 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
           Annulation et remboursement
         </h2>
         <p className="t-note">
-          {gestes.length
-            ? `Le remboursement passe par le moyen de paiement de la cliente${adminEnabled ? "" : " (démonstration\u00a0: aucun argent ne bouge)"}. Chaque geste est demandé une seule fois et consigné au journal.`
+          {gestes.length && !paiementBranche
+            ? parStripe
+              ? "Stripe n’est pas configuré sur ce site : aucun remboursement ne peut partir d’ici."
+              : "Cette commande n’a pas été payée en ligne : aucun remboursement ne peut partir d’ici."
+            : gestes.length
+            ? `Le remboursement ${parStripe ? "part par Stripe, " : "passe par le moyen de paiement de la cliente"}${parStripe ? "sur le moyen de paiement de la cliente" : ""}${demonstration ? " (démonstration\u00a0: aucun argent ne bouge)" : ""}. Chaque geste est demandé une seule fois et consigné au journal.`
             : order.status === "refunded"
               ? "Commande remboursée : il n’y a plus rien à faire ici."
               : order.status === "returned"
@@ -202,7 +213,7 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
                   ? "La pièce est en route : rien ne s’annule plus d’ici. Un retour éventuel se rembourse depuis Retours."
                   : "Aucun geste d’argent n’est possible à cette étape."}
         </p>
-        <CommandeGestes numero={order.number} id={order.id} total={order.total} montant={formatPrice(order.total)} gestes={gestes} demonstration={!adminEnabled} />
+        {paiementBranche ? <CommandeGestes numero={order.number} id={order.id} total={order.total} montant={formatPrice(order.total)} gestes={gestes} demonstration={demonstration} /> : null}
       </section>
 
       {/* bon de livraison : glissé dans le colis */}

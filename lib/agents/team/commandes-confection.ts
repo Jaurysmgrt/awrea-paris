@@ -2,6 +2,8 @@
  * AGENT COMMANDES ET CONFECTION — chaque pièce est créée sur demande, après la commande, par des
  * artisans français : il n'y a ni stock, ni rupture, ni liste d'attente à surveiller.
  * L'agent suit les commandes :
+ *  0. il reprend la finalisation d'une commande payée restée « en attente » (étape coupée), et
+ *     retire les tentatives de paiement abandonnées depuis plus de trente jours ;
  *  1. il signale les commandes bloquées et les paiements en attente ;
  *  2. il compare chaque confection au délai annoncé à la commande et prévient la créatrice quand
  *     la date approche, quand elle est passée, ou quand une commande reçue tarde à entrer en
@@ -20,7 +22,7 @@ import { aiEnabled } from "@/lib/ai/client";
 import { generateStructured } from "@/lib/ai/structured";
 import { FENCE_NOTE, fence } from "@/lib/ai/guard";
 import { getAllProducts } from "@/lib/commerce";
-import { getOrders } from "@/lib/commerce/orders";
+import { getOrders, purgerCommandesAbandonnees } from "@/lib/commerce/orders";
 import { leadTimeText } from "@/lib/commerce/availability";
 import { withStages } from "@/lib/store/order-stages";
 import { formatPrice } from "@/lib/format";
@@ -61,15 +63,45 @@ export async function runCommandesConfectionAgent(trigger: AgentRun["trigger"] =
     const [products, orders, proposals, envois] = await Promise.all([getAllProducts(), getOrders().then(withStages), getProposals(), envoisFaits()]);
     const now = new Date();
 
+    // 0. Paiements : une commande payée restée « en attente » (finalisation coupée) est reprise ;
+    // les tentatives de paiement abandonnées depuis plus de trente jours sont retirées, avec
+    // l'adresse et le téléphone qu'elles gardaient
+    for (const o of orders) {
+      const p = o.payment;
+      if (p?.prestataire !== "stripe" || p.statut !== "reussi" || o.status !== "pending") continue;
+      if (now.getTime() - new Date(o.createdAt).getTime() < 10 * 60_000) continue;
+      const { dejaFinalisee, finaliserCommande } = await import("@/lib/commerce/finalisation");
+      if (await dejaFinalisee(o.id)) continue;
+      const reprise = await finaliserCommande(o).then(
+        () => "reprise",
+        (e: unknown) => `toujours incomplète (${e instanceof Error ? e.message : String(e)})`,
+      );
+      findings.push(`Commande ${o.number} payée mais pas encore reçue : finalisation ${reprise}.`);
+    }
+    const retirees = await purgerCommandesAbandonnees(30, now);
+    if (retirees.length) findings.push(`${retirees.length} tentative${retirees.length > 1 ? "s" : ""} de paiement abandonnée${retirees.length > 1 ? "s" : ""} depuis plus de trente jours retirée${retirees.length > 1 ? "s" : ""} (${retirees.join(", ")}).`);
+
     // 1. Commandes bloquées, paiements en attente
     for (const o of orders) {
-      if (memory.flagged.includes(o.id)) continue;
+      if (memory.flagged.includes(o.id) || retirees.includes(o.number)) continue;
       const age = (now.getTime() - new Date(o.createdAt).getTime()) / DAY;
-      const reason = o.status === "blocked" ? "Commande en attente : paiement à vérifier ou adresse incomplète." : o.status === "pending" && age > 2 ? "Paiement en attente depuis plus de 48 heures." : null;
+      const p = o.payment;
+      const stripe = p?.prestataire === "stripe";
+      // une page de paiement Stripe abandonnée, expirée, refusée ou jamais ouverte n'est pas une
+      // commande à vérifier : Stripe ne prélève rien, elle reste « en attente de paiement » sans alerte
+      const abandon = o.status === "pending" && stripe && (p.statut === "expire" || p.statut === "echoue" || !p.session);
+      if (o.status === "pending" && stripe && p.statut === "en-attente" && !abandon && age > 2) {
+        // paiement différé (prélèvement, virement) encore en validation : la créatrice le voit dans
+        // la synthèse, sans que la commande soit mise de côté (elle passera « reçue » au paiement)
+        memory.flagged.push(o.id);
+        findings.push(`Commande ${o.number} : paiement Stripe en cours de validation depuis plus de 48 heures.`);
+        continue;
+      }
+      const reason = o.status === "blocked" ? "Commande en attente : paiement à vérifier ou adresse incomplète." : o.status === "pending" && !stripe && age > 2 ? "Paiement en attente depuis plus de 48 heures." : null;
       if (!reason) continue;
       await rec.act("flag_order", { orderId: o.id, reason }, { summary: `Commande ${o.number} à vérifier`, rationale: reason });
       memory.flagged.push(o.id);
-      findings.push(`Commande ${o.number} : ${reason}`);
+      findings.push(`Commande ${o.number} : ${reason}`);
     }
 
     // 2. Confections : la date annoncée approche, elle est passée, ou la confection tarde à commencer
