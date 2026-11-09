@@ -5,6 +5,69 @@
     white-space: pre-line;
   }
 
+  /* ======================================== INTERFACE SIMPLE ET LISIBLE (09/11)
+     Demande de la créatrice : l'Atelier « trop compliqué, trop de texte, brouillon », « une
+     bonne typo bien lisible, du Arial ». Dans l'Atelier seulement (le site garde ses deux polices
+     officielles) : la police système de l'appareil, des tailles d'outil (16 px), des titres nets
+     en demi-gras, des étiquettes en bas de casse, et chaque bloc posé comme une carte. Les classes
+     de texte du site (.t-h1, .t-label…) lisent ces variables : rien d'autre à changer. */
+  .admin,
+  .admin-login-shell {
+    --font-display: var(--font-ui);
+    --font-body: var(--font-ui);
+    --font-sans: var(--font-ui);
+    --font-style-title: normal;
+    --font-style-display: normal;
+    --font-weight-title: var(--font-weight-semibold);
+    --tracking-display: 0;
+    --tracking-label: 0;
+    --tracking-snug: 0;
+    --tracking-wide: 0;
+    --text-step--2: var(--ui-text);
+    --text-step--1: var(--ui-text);
+    --text-step-0: var(--ui-text);
+    --text-step-1: var(--ui-text-lg);
+    --text-step-2: var(--ui-title-sm);
+    --text-step-3: var(--ui-title);
+    --text-step-4: var(--ui-title-lg);
+    --text-step-5: var(--ui-title-lg);
+    --text-step-6: var(--ui-title-lg);
+    --lh-step-1: var(--ui-leading);
+    --lh-step-2: var(--ui-leading-title);
+    --lh-step-3: var(--ui-leading-title);
+    --lh-step-4: var(--ui-leading-title-lg);
+    --lh-step-5: var(--ui-leading-title-lg);
+    --lh-step-6: var(--ui-leading-title-lg);
+    --leading-text: var(--ui-leading);
+    --leading-note: var(--ui-leading);
+    --leading-label: var(--ui-leading);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+  }
+  /* étiquettes, surtitres et petits titres : bas de casse et demi-gras, plus de capitales espacées */
+  .admin :is(.t-label, .eyebrow),
+  .admin-login-shell :is(.t-label, .eyebrow) {
+    text-transform: none;
+    font-weight: var(--font-weight-semibold);
+  }
+  .admin .t-h4,
+  .admin-login-shell .t-h4 {
+    font-weight: var(--font-weight-semibold);
+  }
+  .admin .admin-nav__titre {
+    font-weight: var(--font-weight-semibold);
+  }
+  /* chaque bloc est une carte : on voit d'un coup d'œil ce qui va ensemble */
+  .admin__main {
+    background: color-mix(in oklab, var(--fg) 4%, var(--bg));
+  }
+  .admin .panel {
+    padding: var(--spacing-m);
+    border: var(--border-width-hair) solid var(--line);
+    border-radius: var(--radius-soft);
+    background: var(--bg);
+  }
+
   .admin {
     min-height: 100dvh;
     display: grid;
@@ -1715,5 +1778,140 @@
     gap: var(--spacing-3xs);
     margin: 0;
     padding-left: var(--spacing-m);
+  }
+}
+
+/* Atelier simple (09/11), placé en dernier pour l'emporter sur les règles du site à poids égal :
+   plus aucune capitale espacée (en-têtes de tableau, adresses, pastilles, intitulés des cartes sur
+   téléphone), un menu de gauche qui tient dans l'écran d'un ordinateur portable, et une barre
+   d'onglets du téléphone où les cinq mots tiennent, même sur 360 px. */
+@layer components {
+  .admin :is(.table th, .table td, .t-label, .eyebrow, .admin-nav__titre, .status, .totals__total, .envelope__ref),
+  .admin td[data-titre]::before,
+  .admin-login-shell :is(.t-label, .eyebrow) {
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .admin .table thead th {
+    font-weight: var(--font-weight-semibold);
+  }
+  @media (min-width: 64rem) {
+    .admin .admin__side {
+      padding-block: var(--spacing-m);
+    }
+    .admin .admin-nav__link {
+      min-height: var(--spacing-line);
+      padding-block: 0;
+    }
+  }
+  /* menu de l'Atelier, retour du 09/11 (« inverser la graisse, que ce soit intuitif, aussi sur
+     téléphone ») : intitulés de groupe discrets (petits, gris, romains), entrées en medium avec leur
+     icône, la page en cours en noir plein (on voit d'un coup d'œil où l'on est), sous-entrées
+     alignées sur le mot de leur rubrique */
+  .admin .admin-nav__titre {
+    font-weight: var(--font-weight-regular);
+    font-size: var(--ui-text-sm);
+    color: var(--fg-soft);
+  }
+  .admin .admin-nav__link {
+    font-weight: var(--ui-weight-medium);
+  }
+  .admin .admin-nav__libelle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2xs);
+    min-width: 0;
+  }
+  .admin .atelier-icone {
+    flex: none;
+    width: var(--ui-icon);
+    height: var(--ui-icon);
+  }
+  .admin .admin-nav__link[aria-current="page"] {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .admin .admin-nav__link[aria-current="page"] > span:first-child {
+    text-decoration: none;
+  }
+  .admin .admin-nav__link[aria-current="page"] .admin-nav__count {
+    background: var(--bg);
+    color: var(--fg);
+  }
+  .admin .admin-nav__link--sous {
+    padding-inline-start: calc(var(--spacing-xs) + var(--ui-icon) + var(--spacing-2xs));
+    font-weight: var(--font-weight-regular);
+  }
+  @media (max-width: 63.99rem) {
+    .admin .admin-nav__toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-2xs);
+      font-weight: var(--ui-weight-medium);
+    }
+  }
+  /* barre d'onglets du téléphone : l'icône au-dessus du mot, comme dans les applications ; l'onglet
+     en cours avec son icône sur une pastille teintée et son mot en demi-gras ; les cinq mots tiennent
+     sur 360 px */
+  .admin .admin-tabs__lien {
+    grid-template-rows: auto auto;
+    align-content: center;
+    gap: calc(var(--spacing-3xs) / 2);
+    padding: calc(var(--spacing-3xs) / 2);
+    font-size: var(--ui-text-sm);
+    line-height: var(--ui-leading);
+  }
+  .admin .admin-tabs__lien[aria-current="page"] {
+    background: none;
+    font-weight: var(--font-weight-semibold);
+  }
+  .admin .admin-tabs__lien[aria-current="page"] > span {
+    text-decoration: none;
+  }
+  .admin .admin-tabs__icone {
+    position: relative;
+    display: grid;
+    place-items: center;
+    padding: calc(var(--spacing-3xs) / 2) calc(var(--spacing-3xs) * 1.5);
+    border-radius: var(--radius-pill);
+  }
+  .admin .admin-tabs__icone .atelier-icone {
+    width: var(--ui-icon-lg);
+    height: var(--ui-icon-lg);
+  }
+  .admin .admin-tabs__lien[aria-current="page"] .admin-tabs__icone {
+    background: color-mix(in oklab, var(--fg) 12%, transparent);
+  }
+  /* le nombre se pose en haut à droite de l'icône (il suit le mot dans le code, pour la lecture) */
+  .admin .admin-tabs__compte {
+    top: calc(var(--spacing-3xs) / 2);
+    right: auto;
+    left: calc(50% + var(--spacing-2xs));
+    font-size: var(--ui-text-sm);
+    line-height: var(--spacing-xs);
+    min-width: var(--spacing-xs);
+  }
+  /* pastilles d'état : petits cartouches aux coins doux (les pilules restent aux boutons, qu'on
+     touche) ; « à faire » en fond gris plein au lieu de la barre noire collée au texte */
+  .admin .status {
+    padding: 0 var(--spacing-2xs);
+    border-radius: var(--radius-soft);
+    line-height: var(--spacing-line);
+  }
+  .admin .table--commandes .status {
+    padding-block: var(--spacing-3xs);
+    line-height: var(--leading-label);
+  }
+  /* « Les autres rôles » de la page Agents : repliés dans leur carte, « + » pour les voir */
+  .admin .equipe-roles > summary {
+    padding-block: 0;
+  }
+  .admin .equipe-roles[open] > summary {
+    margin-bottom: var(--spacing-m);
+  }
+  .admin :is(.status--proposed, .status--pending) {
+    border-color: transparent;
+    box-shadow: none;
+    background: color-mix(in oklab, var(--fg) 10%, transparent);
   }
 }

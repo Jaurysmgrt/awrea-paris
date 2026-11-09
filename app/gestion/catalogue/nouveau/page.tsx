@@ -19,7 +19,7 @@ export default async function NouvellePiecePage() {
           </Link>
         </p>
         <h1 className="t-h1">Nouvelle pièce</h1>
-        <p className="t-lead">Quelques photos et vos notes suffisent : la fiche est rédigée à partir de ce que vous indiquez, rien de plus. La pièce reste en brouillon tant que vous ne l’avez pas mise en ligne.</p>
+        <p className="t-lead">Quelques photos et vos notes suffisent. Elle reste en brouillon jusqu’à sa mise en ligne.</p>
       </header>
       <section className="panel" id="nouvelle-piece" aria-label="Nouvelle pièce">
         <NouvellePiece collections={collections.map((c) => ({ handle: c.handle, title: c.title }))} />

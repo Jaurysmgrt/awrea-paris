@@ -22,6 +22,7 @@ import { cspMode } from "@/lib/security/headers";
 import { headers } from "next/headers";
 import { PREVIEW_PARAM, previewKey, sitePrive } from "@/lib/security/private-site";
 import { securityDigest, securityEvents, type SecurityEventType } from "@/lib/security/audit";
+import { compte } from "@/lib/admin/dashboard";
 import { isSupabaseConfigured } from "@/lib/db/supabase";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { When } from "@/components/admin/Status";
@@ -53,6 +54,21 @@ const encoreValable = (expire: string) => Date.parse(expire) > Date.now();
 
 /** Ordre des catégories dans le tableau des délais par défaut. */
 const CATEGORIES: Category[] = ["body", "top", "robe", "jupe", "accessoire"];
+
+/** Les dernières 24 heures en une phrase : seulement ce qui s'est passé, au bon nombre (retour du 09/11 : « trop de texte »). */
+function resumeSecurite(d: Awaited<ReturnType<typeof securityDigest>>): string {
+  const suspectes = d.csrfBlocked + d.rateLimited;
+  const faits = [
+    d.adminLogins ? compte(d.adminLogins, "connexion", "connexions") : "",
+    d.unusualLogins ? compte(d.unusualLogins, "connexion inhabituelle", "connexions inhabituelles") : "",
+    d.adminFailures ? compte(d.adminFailures, "essai manqué", "essais manqués") : "",
+    d.adminBlocked ? compte(d.adminBlocked, "blocage", "blocages") : "",
+    suspectes ? compte(suspectes, "requête suspecte refusée", "requêtes suspectes refusées") : "",
+  ].filter(Boolean);
+  if (!faits.length) return "Rien à signaler ces dernières 24 heures.";
+  const liste = faits.length > 1 ? `${faits.slice(0, -1).join(", ")} et ${faits.at(-1)}` : faits[0];
+  return `Ces dernières 24 heures : ${liste}.`;
+}
 
 /** Lien privé du site (SITE_PRIVE_CLE), à l'adresse où l'Atelier est ouvert. */
 async function privateLink(): Promise<string | null> {
@@ -140,15 +156,12 @@ export default async function ReglagesPage() {
           ))}
         </ul>
         <p className="t-note t-left">
-          Toujours votre décision : {Object.values(POLICY).filter((x) => x.approval).map((x) => x.label.toLowerCase()).join(", ")}. Coupée, une autonomie redevient une proposition dans « À valider ».
+          Toujours votre décision : {Object.values(POLICY).filter((x) => x.approval).map((x) => x.label.toLowerCase()).join(", ")}.
         </p>
       </section>
       <section className="panel" aria-labelledby="delais-title">
         <h2 id="delais-title" className="t-h3">Délais de fabrication</h2>
-        <p className="t-body">
-          Chaque pièce est créée sur demande, sans stock, par des artisans français. Son délai de fabrication s’affiche sur sa fiche, dans le panier, au paiement et dans le suivi de la
-          commande. Il se règle pièce par pièce dans Produits.
-        </p>
+        <p className="t-note">Il se règle pièce par pièce dans Produits.</p>
         <div className="table-scroll"><table className="table">
           <thead><tr><th scope="col">Catégorie</th><th scope="col">Délai par défaut</th><th scope="col">Pièces</th></tr></thead>
           <tbody>
@@ -164,10 +177,6 @@ export default async function ReglagesPage() {
             })}
           </tbody>
         </table></div>
-        <p className="t-note">
-          Le délai par défaut d’une catégorie sert à une nouvelle pièce tant que le sien n’est pas réglé, et à une pièce dont le délai n’est pas renseigné. Ces délais par
-          défaut sont provisoires, en attendant leur confirmation par la Maison (ACTIVATION.md).
-        </p>
         <h3 className="t-label">À confirmer</h3>
         {toConfirm.length ? (
           <ul className="stack-s">
@@ -202,14 +211,13 @@ export default async function ReglagesPage() {
       </section>
       <section className="panel" id="face-id" aria-labelledby="faceid-title">
         <h2 id="faceid-title" className="t-h3">Face ID</h2>
-        <p className="t-note t-left">Les appareils qui ouvrent l’Atelier d’un geste, avec Face ID ou l’empreinte. Le mot de passe et le code restent possibles, en secours.</p>
+        <p className="t-note t-left">Vos appareils qui ouvrent l’Atelier d’un geste.</p>
         <FaceIdManager cles={(accounts.find((a) => a.email === me)?.passkeys ?? []).map(({ id, label, createdAt, lastUsedAt }) => ({ id, label, createdAt, lastUsedAt }))} />
       </section>
       <section className="panel" aria-labelledby="sec-title">
         <h2 id="sec-title" className="t-h3">Sécurité</h2>
         <p className="t-body">
-          Dernières 24 heures : {digest.adminLogins} connexion(s), {digest.adminFailures} échec(s), {digest.adminBlocked} blocage(s), {digest.unusualLogins} connexion(s)
-          inhabituelle(s), {digest.csrfBlocked} requête(s) d’origine étrangère et {digest.rateLimited} excès de débit refusés.
+          {resumeSecurite(digest)}
         </p>
         <details className="replie">
           <summary className="t-label">Les protections du site</summary>
@@ -265,16 +273,13 @@ export default async function ReglagesPage() {
           </tbody>
         </table></div>
         <AjouterPersonne />
-        <p className="t-note">Chaque personne ajoutée peut tout faire dans l’Atelier, comme vous, avec son propre mot de passe, son propre code et son propre Face ID. Chaque ajout ou retrait vous demande votre code et prévient tout le monde par e-mail. Les adresses réglées dans Vercel (ATELIER_ACCOUNTS) ne se retirent pas d’ici.</p>
+        <p className="t-note">Chaque personne ajoutée peut tout faire, comme vous, avec son propre accès.</p>
         {sitePrive() ? (
           <>
             <h3 className="t-label">Lien privé du site</h3>
             {lien ? (
               <>
-                <p className="t-body">
-                  Ce lien ouvre directement tout le site, sans passer par l’Atelier, pendant 30 jours, dans le navigateur où il est ouvert. Il n’ouvre ni l’Atelier ni l’Édition, et les autres
-                  visiteuses voient toujours la page d’attente. Donnez-le seulement aux personnes de confiance. Pour le retirer à tout le monde, changez SITE_PRIVE_CLE dans Vercel.
-                </p>
+                <p className="t-note">Il ouvre tout le site pendant 30 jours, jamais l’Atelier. À ne donner qu’aux personnes de confiance.</p>
                 <p className="t-note">
                   <code className="lien-prive">{lien}</code>
                 </p>

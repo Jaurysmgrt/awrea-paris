@@ -1033,3 +1033,26 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
   passe, avis aux seuls comptes actifs, appareils notifiés gérés par leur seule titulaire. Restent
   assumés (administrateurs égaux) et documentés : remise à zéro du compte d’un autre, puis changement
   du mot de passe d’installation conseillé.
+
+## Atelier plus simple et plus lisible (09/11)
+
+- Demande de la créatrice : l’Atelier « trop compliqué, trop de texte, brouillon », « une bonne typo
+  bien lisible, du Arial », pour l’Atelier seulement.
+- Police système de l’appareil et tailles d’outil dans l’Atelier (16 px sur 24 px), titres en
+  demi-gras, plus aucune capitale espacée, chaque bloc posé comme une carte, pastilles d’état aux
+  coins doux.
+- Textes coupés : accueil (« 5 choses à faire aujourd’hui. », détail des priorités retiré),
+  Réglages, Clientes, Rendez-vous, Agents, Certificats, Nouvelle pièce, Avis, Instagram, Paiements,
+  Référencement, Messages, À valider ; résumé de sécurité limité à ce qui s’est passé ; les
+  22 rôles secondaires des agents repliés sous « Les autres rôles » (ouverts d’office en cas
+  d’urgence).
+- Menu de gauche resserré (il tient dans un écran d’ordinateur portable jusqu’à « Se déconnecter »),
+  barre d’onglets du téléphone où « À valider » ne se coupe plus.
+- Second retour de la créatrice : « inverser la graisse des titres à gauche, que ce soit intuitif, même
+  dans la barre de menu et sur téléphone ». Intitulés de groupe discrets (petits, gris, romains),
+  entrées en medium avec une icône simple, la page en cours en noir plein ; sur téléphone, icône
+  au-dessus de chaque mot de la barre d’onglets et bouton « Menu » avec son icône.
+- Vérifié sur captures (ordinateur 1440 px, téléphone 390 px, mode Jour et mode Nuit) et parcours de
+  l’Atelier (77 parcours avant le menu à icônes, 14 parcours du menu, de l’application, des commandes et
+  des agents après).
+

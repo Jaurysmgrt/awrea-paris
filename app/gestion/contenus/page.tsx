@@ -14,7 +14,7 @@ export default async function ContenusPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Instagram</h1>
-        <p className="t-lead">Les posts préparés chaque semaine par l’agent Contenu. Ses idées de lettre sont dans E-mails › La lettre.</p>
+        <p className="t-lead">Les posts préparés chaque semaine.</p>
         <ActionButton endpoint={atelierApi("/agents/contenu")} label="Préparer de nouveaux contenus" busyLabel="L’agent écrit…" />
       </header>
       <section className="panel" aria-labelledby="ig-title">

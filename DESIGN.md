@@ -146,6 +146,30 @@ et les animations apaisées par la durée unique (`--dur`).
   75 caractères par ligne au plus, et
   chaque texte aligné sur le bord de son titre (2 px près).
 
+## Atelier : interface d'outil (09/11)
+
+Demande de la créatrice : l'Atelier « trop compliqué, trop de texte, brouillon », « une bonne typo
+bien lisible, du Arial, je parle que pour l'Atelier ». Le site public ne change pas. Dans l'Atelier
+seulement (`.admin` et `.admin-login-shell`, bloc « INTERFACE SIMPLE ET LISIBLE » en tête de
+`styles/admin.css`, dernier bloc du même fichier) :
+
+- police système de l'appareil (`--font-ui` : San Francisco sur iPhone et Mac, Segoe sur Windows,
+  Roboto sur Android, Arial en dernier recours), sans téléchargement ; titres en demi-gras droits ;
+- tailles d'outil (`--ui-*` dans `styles/tokens.css`) : texte à 16 px sur 24 px, titres de 20, 24 et
+  32 px ; 14 px pour les seuls mots de la barre d'onglets du téléphone, pour que les cinq tiennent
+  sur 360 px ;
+- aucune capitale espacée (menu, en-têtes de tableau, étiquettes, pastilles d'état) ;
+- menu : intitulés de groupe discrets (14 px, gris, romains), entrées en medium (500) avec une icône
+  au trait (`components/admin/AtelierIcone.tsx`), la page en cours en noir plein ; sur téléphone,
+  l'icône au-dessus de chaque mot de la barre d'onglets, l'onglet en cours sur une pastille teintée ;
+- chaque bloc posé comme une carte claire sur un fond gris très doux ; pastilles d'état en petits
+  cartouches aux coins arrondis (les pilules restent aux boutons, qu'on touche) ;
+- textes d'aide coupés au plus court, détails repliés (« Les autres rôles » des agents, protections,
+  journal des connexions).
+
+Les classes de texte du site (`.t-h1`, `.t-label`…) lisent les variables redéfinies : aucun
+composant n'a sa propre police. `tests/e2e/homogeneite.spec.ts` ne contrôle que le site public.
+
 ## Propositions de design antérieures
 
 Les trois directions artistiques d'octobre 2026 (dentelle, atelier, édition) restent documentées

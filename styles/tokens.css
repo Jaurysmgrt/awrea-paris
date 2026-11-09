@@ -46,6 +46,10 @@
   --font-body: var(--font-cormorant), "Cormorant Garamond", Garamond, Georgia, serif;
   /* ancien nom, gardé pour les feuilles existantes : c'est la police des textes */
   --font-sans: var(--font-body);
+  /* Atelier seulement (tableau de bord privé, jamais le site public) : la police système de
+     l'appareil, très lisible, sans fichier à charger (demande de la créatrice du 09/11 : « une
+     bonne typo bien lisible, du Arial ») ; styles/admin.css la pose sur tout l'Atelier. */
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   /* Échelle : valeurs mobiles ici, paliers tablette et ordinateur plus bas (:root).
      Cormorant Garamond a un petit œil : rien sous 16 px, texte courant à 20 px. Les tailles de
@@ -85,6 +89,23 @@
   --font-weight-light: 400;
   --font-weight-regular: 400;
   --font-weight-medium: 400;
+  /* Atelier seulement : titres et étiquettes de l'interface, avec la police système */
+  --font-weight-semibold: 600;
+
+  /* Atelier seulement : tailles et interlignages d'interface, avec la police système (une
+     lecture d'outil, pas d'affiche) : texte 16 px sur 24, chapeau 18, titres 20, 24 et 32 px */
+  --ui-text-sm: 0.875rem; /* barre d'onglets du téléphone seulement */
+  --ui-weight-medium: 500; /* entrées du menu de l'Atelier, entre romain et demi-gras */
+  --ui-icon: 1.25rem; /* icônes du menu de l'Atelier : 20 px */
+  --ui-icon-lg: 1.5rem; /* icônes de la barre d'onglets du téléphone : 24 px */
+  --ui-text: 1rem;
+  --ui-text-lg: 1.125rem;
+  --ui-title-sm: 1.25rem;
+  --ui-title: 1.5rem;
+  --ui-title-lg: 2rem;
+  --ui-leading: 1.5rem;
+  --ui-leading-title: 2rem;
+  --ui-leading-title-lg: 2.5rem;
 
   /* ------------------------------------------------------------ ESPACEMENTS
      Grille de 8 px : toutes les valeurs sont des multiples de 8 (0,5 rem).

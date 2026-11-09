@@ -140,7 +140,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
 
       <section className="panel" aria-labelledby="sources-title">
         <h2 id="sources-title" className="t-h3">Ventes par source · 90 jours</h2>
-        <p className="t-note">Canal d’origine de chaque commande (lien suivi jusqu’à la commande, ou mesure d’audience acceptée sur le site). Les commandes sans information sont classées « non renseignée ».</p>
+        <p className="t-note">D’où vient chaque commande.</p>
         <div className="table-scroll">
           <table className="table">
             <thead>
@@ -170,8 +170,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
       <section className="panel" aria-labelledby="flows-title">
         <h2 id="flows-title" className="t-h3">E-mails automatiques</h2>
         <p className="t-note">
-          Outil : {marketingProvider === "brevo" ? "Brevo" : marketingProvider === "klaviyo" ? "Klaviyo pour les évènements, envoi par le site" : "envoi par le site (aucun outil marketing configuré)"}. Tous les e-mails partagent le même gabarit, noir et blanc cassé, dans les
-          caractères du site. Un évènement n’en déclenche qu’un seul.
+          Envoi par {marketingProvider === "brevo" ? "Brevo" : marketingProvider === "klaviyo" ? "Klaviyo et le site" : "le site"}.
         </p>
         <div className="table-scroll">
           <table className="table">

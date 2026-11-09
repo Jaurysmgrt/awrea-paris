@@ -40,7 +40,7 @@ export default async function MessagesPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Messages</h1>
-        <p className="t-lead">Les cas délicats, avec un brouillon prêt. Le reste, l’agent y répond seul.</p>
+        <p className="t-lead">Les messages qui vous attendent, avec un brouillon prêt.</p>
         <ActionButton endpoint={atelierApi("/agents/service-client")} label="Traiter les nouveaux messages" busyLabel="L’agent lit les messages…" />
       </header>
       <section className="panel" aria-labelledby="mine-title">

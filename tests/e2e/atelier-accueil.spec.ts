@@ -13,7 +13,7 @@ test("Vue d'ensemble : priorités, raccourcis, chiffres et dernières commandes 
   await expect(page.locator("#contenu").getByText(/Démonstration.*des exemples, pas des ventes/)).toBeVisible();
 
   await expect(page.getByRole("heading", { name: "À faire en priorité" })).toBeVisible();
-  const raccourcis = page.getByRole("navigation", { name: /Que souhaitez-vous faire/ });
+  const raccourcis = page.getByRole("navigation", { name: "Raccourcis" });
   for (const name of ["Ajouter un produit", "Voir les commandes", "Modifier mon site", "Changer une photo", "Écrire une lettre", "Voir le site"]) await expect(raccourcis.getByRole("link", { name })).toBeVisible();
 
   const kpis = page.locator(".kpis");

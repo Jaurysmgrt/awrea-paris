@@ -145,13 +145,11 @@ export default async function GestionHome() {
         <h1 className="t-h1">Bonjour.</h1>
         <p className="t-lead">
           {todo.length
-            ? `${compte(todo.length, "chose vous attend", "choses vous attendent")} aujourd’hui, dans l’ordre où les faire.`
-            : "Rien ne presse aujourd’hui : tout est à jour."}
+            ? `${compte(todo.length, "chose à faire", "choses à faire")} aujourd’hui.`
+            : "Tout est à jour."}
         </p>
         {source === "demo" ? (
-          <p className="t-note">
-            Démonstration : les commandes et les chiffres ci-dessous sont des exemples, pas des ventes.
-          </p>
+          <p className="t-note">Démonstration : des exemples, pas des ventes.</p>
         ) : null}
       </header>
 
@@ -164,24 +162,20 @@ export default async function GestionHome() {
             <ol className="a-faire">
               {todo.map((t) => (
                 <li key={t.titre}>
-                  <Link href={atelierHref(t.href)} className="a-faire__item">
+                  <Link href={atelierHref(t.href)} className="a-faire__item" title={t.detail}>
                     <span className="a-faire__titre">{t.titre}</span>
-                    <span className="t-note">{t.detail}</span>
                   </Link>
                 </li>
               ))}
             </ol>
           ) : (
-            <p className="t-note">
-              Aucune commande, aucun message ni aucune validation n’attend.
-              Profitez-en pour préparer la suite.
-            </p>
+            <p className="t-note">Rien n’attend.</p>
           )}
         </section>
 
         <nav className="panel" aria-labelledby="raccourcis-title">
           <h2 id="raccourcis-title" className="t-h3">
-            Que souhaitez-vous faire ?
+            Raccourcis
           </h2>
           <ul className="raccourcis">
             {RACCOURCIS.map((r) => (
