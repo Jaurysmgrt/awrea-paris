@@ -18,6 +18,7 @@ import { sendEmail } from "@/lib/email/send";
 import { signaler } from "@/lib/admin/push";
 import { sign } from "@/lib/auth/session";
 import { sessionGeneration } from "@/lib/auth/admin";
+import { adressesActives } from "@/lib/auth/accounts";
 import { atelierHref } from "@/lib/admin/path";
 import { absolute } from "@/lib/seo/metadata";
 
@@ -34,7 +35,12 @@ export type SecurityEventType =
   | "admin_revoked"
   | "admin_passkey_added"
   | "admin_passkey_removed"
-  | "admin_passkey_fail";
+  | "admin_passkey_fail"
+  | "admin_person_added"
+  | "admin_person_removed"
+  | "admin_person_invited"
+  | "admin_account_reset"
+  | "admin_invitation_used";
 
 export interface SecurityEvent {
   at: string;
@@ -150,6 +156,59 @@ export async function alertPasskeyAdded(email: string, req: Request, ip: string)
     signature: "La sécurité du site Awrea Paris",
   });
   await sendEmail({ to: recipients(email).join(","), subject: "Face ID ajouté à l’Atelier", html, text, tag: "securite" }).catch((e) => console.error("[sécurité] alerte d’ajout de clé non envoyée", e));
+}
+
+/**
+ * Un accès ajouté, retiré, un nouveau code d'invitation ou un compte remis à zéro : tous les
+ * administrateurs sont prévenus (application, e-mail). Seule la personne qui a fait le geste reçoit
+ * le lien « Ce n'était pas moi » (le sien) ; les autres reçoivent un avis sans lien, et la personne
+ * concernée est prévenue quand son accès change sans qu'elle l'ait demandé. Le code d'invitation
+ * n'est jamais envoyé.
+ */
+export async function alertPersonne(action: "ajout" | "retrait" | "invitation" | "remise", personne: string, par: string, req: Request, ip: string) {
+  const type = { ajout: "admin_person_added", retrait: "admin_person_removed", invitation: "admin_person_invited", remise: "admin_account_reset" } as const;
+  const ev = await logSecurityEvent(type[action], req, ip, `${personne} (par ${par})`);
+  const titre = { ajout: "Accès ajouté à l’Atelier", retrait: "Accès retiré de l’Atelier", invitation: "Nouveau code d’invitation", remise: "Compte de l’Atelier remis à zéro" }[action];
+  const fait = {
+    ajout: `${par} a ajouté un accès pour ${personne}. Cette personne entrera une première fois avec son code d’invitation, puis choisira son mot de passe et son code.`,
+    retrait: `${par} a retiré l’accès de ${personne}. Ses sessions, son mot de passe, sa double authentification, son Face ID et les notifications de ses appareils sont supprimés.`,
+    invitation: `${par} a donné un nouveau code d’invitation à ${personne}. Son ancien mot de passe, sa double authentification, son Face ID et ses notifications ne servent plus.`,
+    remise: `${par} a remis à zéro le compte ${personne}. Son mot de passe, sa double authentification, son Face ID et ses notifications ne servent plus ; il faudra entrer de nouveau avec le mot de passe d’installation.`,
+  }[action];
+  const quand = `Le ${when(ev.at)}, depuis ${ev.device} (réseau ${ev.network}${place(req)}) : ${fait}`;
+  await signaler({ type: "securite", titre, texte: action === "ajout" ? "Une personne peut maintenant entrer dans l’Atelier." : "Un accès à l’Atelier a changé.", chemin: "/reglages", etiquette: "personnes" });
+
+  const envoyer = (to: string[], paragraphs: string[], cta?: { label: string; href: string }) => {
+    if (!to.length) return Promise.resolve();
+    const { html, text } = brandEmail({ preheader: titre, title: titre, paragraphs, cta, signature: "La sécurité du site Awrea Paris" });
+    return sendEmail({ to: to.join(","), subject: titre, html, text, tag: "securite" }).catch((e) => console.error("[sécurité] alerte sur les accès non envoyée", e));
+  };
+  // qui a fait le geste : son propre lien « Ce n'était pas moi »
+  await envoyer([par], [quand, "Si c’est bien vous, il n’y a rien à faire.", `Sinon, ouvrez le lien ci-dessous : toutes les sessions seront fermées et votre compte remis à zéro.`], { label: "Ce n’était pas moi", href: await revokeLink(par) });
+  // les autres administrateurs (et l'adresse de sécurité) : un avis, sans lien
+  const admins = await adressesActives().catch(() => [] as string[]);
+  const autres = [...new Set([...admins, process.env.SECURITY_ALERT_EMAIL].filter((x): x is string => Boolean(x)))].filter((x) => x !== par && x !== personne);
+  await envoyer(autres, [quand, "Si vous êtes au courant, il n’y a rien à faire.", `Sinon, ouvrez l’Atelier, Réglages › Sécurité : fermez toutes les sessions et retirez ou remettez à zéro l’accès en cause.`]);
+  // la personne concernée, quand son accès change sans qu'elle l'ait fait
+  if (action === "invitation" || action === "remise") {
+    await envoyer([personne], [quand, `Si vous n’êtes pas au courant, prévenez sans attendre l’autre personne qui gère l’Atelier.`]);
+  }
+}
+
+/** Première entrée d'une personne invitée : tous les administrateurs sont prévenus. */
+export async function alertInvitationUtilisee(personne: string, req: Request, ip: string) {
+  const ev = await logSecurityEvent("admin_invitation_used", req, ip, personne);
+  await signaler({ type: "securite", titre: "Invitation utilisée", texte: "Une personne invitée vient d’entrer pour la première fois.", chemin: "/reglages", etiquette: "personnes" });
+  const admins = (await adressesActives().catch(() => [] as string[])).filter((x) => x !== personne);
+  if (!admins.length) return;
+  const titre = "Invitation à l’Atelier utilisée";
+  const { html, text } = brandEmail({
+    preheader: titre,
+    title: titre,
+    paragraphs: [`Le ${when(ev.at)}, depuis ${ev.device} (réseau ${ev.network}${place(req)}) : ${personne} a utilisé son code d’invitation et choisit son mot de passe.`, `Si ce n’est pas cette personne, ouvrez l’Atelier, Réglages › Sécurité : retirez cet accès.`],
+    signature: "La sécurité du site Awrea Paris",
+  });
+  await sendEmail({ to: admins.join(","), subject: titre, html, text, tag: "securite" }).catch((e) => console.error("[sécurité] alerte d’invitation non envoyée", e));
 }
 
 /** Compte bloqué après plusieurs échecs : la titulaire est prévenue. */

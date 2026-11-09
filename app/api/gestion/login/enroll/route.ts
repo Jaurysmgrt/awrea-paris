@@ -15,7 +15,8 @@ export async function GET() {
   const pre = await preAuth();
   if (!pre || pre.stage !== "enroll") return expired();
   const account = await getAccount(pre.email);
-  if (!account) return expired();
+  // jamais d'enrôlement sans mot de passe personnel (compte remis à zéro entre-temps)
+  if (!account?.passwordHash) return expired();
   if (hasTotp(account)) return NextResponse.json({ error: "La double authentification est déjà configurée pour ce compte." }, { status: 409 });
   const { secret, uri } = await startAccountEnrollment(account);
   const svg = await QRCode.toString(uri, { type: "svg", margin: 0, color: { dark: palette.ink, light: palette.ivory }, errorCorrectionLevel: "M" });
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
   const pre = await preAuth();
   if (!pre || pre.stage !== "enroll") return expired();
   const account = await getAccount(pre.email);
-  if (!account) return expired();
+  if (!account?.passwordHash) return expired();
   const parsed = z.object({ code: z.string().trim().regex(/^\d{6}$/) }).safeParse(await req.json().catch(() => null));
   const recovery = parsed.success ? await confirmAccountEnrollment(account, parsed.data.code) : null;
   if (!recovery) {

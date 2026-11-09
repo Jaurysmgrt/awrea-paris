@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { ADMIN_LOGIN_GUARD as GUARD, adminPassword, checkSetupPassword, setPreAuthCookie } from "@/lib/auth/admin";
 import { ACCOUNT_GUARD, checkAccountPassword, emailKey, getAccount, hasTotp, hashPassword } from "@/lib/auth/accounts";
+import { personneAjoutee, verifierInvitation } from "@/lib/auth/personnes";
 import { sessionsConfigured } from "@/lib/auth/session";
 import { clientIp, loginGuard } from "@/lib/security/rate-limit";
 import { alertLocked, logSecurityEvent } from "@/lib/security/audit";
@@ -9,8 +10,10 @@ import { verifyTurnstile } from "@/lib/security/turnstile";
 
 /**
  * Étape 1 : adresse e-mail et mot de passe. Seuls les comptes autorisés passent. À la première
- * connexion d'un compte, le mot de passe d'installation ouvre la création du mot de passe
- * personnel. La session n'est ouverte qu'après la double authentification (étape 2).
+ * connexion d'un compte, le mot de passe d'installation (adresse de Vercel) ou le code d'invitation à
+ * usage unique (personne ajoutée depuis l'Atelier, jamais le mot de passe d'installation) ouvre la
+ * création du mot de passe personnel. La session n'est ouverte qu'après la double authentification
+ * (étape 2).
  */
 export async function POST(req: Request) {
   const ip = clientIp(req);
@@ -35,10 +38,16 @@ export async function POST(req: Request) {
 
   const account = await getAccount(email);
   let stage: "setup" | "enroll" | "totp" | null = null;
+  let invitation: string | undefined;
   if (account?.passwordHash) {
     if (await checkAccountPassword(account, password)) stage = hasTotp(account) ? "totp" : "enroll";
+  } else if (account && (await personneAjoutee(email))) {
+    await hashPassword(password); // même durée de réponse qu'un compte qui a son mot de passe
+    invitation = (await verifierInvitation(email, password)) ?? undefined;
+    if (invitation) stage = "setup";
   } else if (account) {
     if (!adminPassword()) return NextResponse.json({ error: "Le mot de passe d’installation de l’Atelier n’est pas configuré (ATELIER_PASSWORD)." }, { status: 503 });
+    await hashPassword(password);
     if (checkSetupPassword(password)) stage = "setup";
   } else {
     await hashPassword(password); // même durée de réponse qu'un compte existant
@@ -52,6 +61,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Adresse ou mot de passe incorrect." }, { status: 401 });
   }
   await logSecurityEvent("admin_password_ok", req, ip, email);
-  await setPreAuthCookie(email, stage);
+  await setPreAuthCookie(email, stage, invitation);
   return NextResponse.json({ ok: true, step: stage });
 }

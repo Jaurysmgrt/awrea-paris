@@ -16,7 +16,7 @@ import { cookies } from "next/headers";
 import { kv } from "@/lib/store";
 import { atelierBase, ATELIER_INTERNAL } from "@/lib/admin/path";
 import { boutiqueReelle } from "@/lib/config/boutique";
-import { isAllowed } from "./accounts";
+import { estAutorisee } from "./accounts";
 import { sign, verify } from "./session";
 
 export const ADMIN_COOKIE = "awrea_admin";
@@ -54,9 +54,9 @@ export async function sessionGeneration(): Promise<number> {
   return (await kv.get<number>(GENERATION_KEY).catch(() => null)) ?? 0;
 }
 
-/** Ferme toutes les sessions de l'Atelier, sur tous les appareils. */
-export async function revokeAdminSessions() {
-  await kv.set(GENERATION_KEY, (await sessionGeneration()) + 1);
+/** Ferme toutes les sessions de l'Atelier, sur tous les appareils ; renvoie la nouvelle génération (incrément atomique). */
+export async function revokeAdminSessions(): Promise<number> {
+  return kv.next(GENERATION_KEY);
 }
 
 interface AdminPayload {
@@ -65,13 +65,13 @@ interface AdminPayload {
   g?: number;
 }
 
-export async function adminToken(email: string): Promise<string> {
-  return sign({ role: "atelier", email, g: await sessionGeneration() }, MAX_AGE);
+export async function adminToken(email: string, g?: number): Promise<string> {
+  return sign({ role: "atelier", email, g: g ?? (await sessionGeneration()) }, MAX_AGE);
 }
 
 async function adminPayload(token: string | undefined | null): Promise<AdminPayload | null> {
   const payload = verify<AdminPayload>(token);
-  if (payload?.role !== "atelier" || !payload.email || !isAllowed(payload.email)) return null;
+  if (payload?.role !== "atelier" || !payload.email || !(await estAutorisee(payload.email))) return null;
   return (payload.g ?? 0) === (await sessionGeneration()) ? payload : null;
 }
 
@@ -92,8 +92,9 @@ const secure = () => process.env.NODE_ENV === "production";
 /** chemin public des routes de connexion (le cookie intermédiaire ne sort jamais de là) */
 const loginPath = () => `${atelierBase() ?? ATELIER_INTERNAL}/api/login`;
 
-export async function setAdminCookie(email: string) {
-  (await cookies()).set(ADMIN_COOKIE, await adminToken(email), { httpOnly: true, sameSite: "strict", secure: secure(), path: "/", maxAge: MAX_AGE });
+/** Ouvre la session ; `g` : la génération rendue par revokeAdminSessions, pour garder ouverte la seule session de qui vient de fermer les autres. */
+export async function setAdminCookie(email: string, g?: number) {
+  (await cookies()).set(ADMIN_COOKIE, await adminToken(email, g), { httpOnly: true, sameSite: "strict", secure: secure(), path: "/", maxAge: MAX_AGE });
 }
 
 export async function clearAdminCookie() {
@@ -102,14 +103,20 @@ export async function clearAdminCookie() {
 
 export type PreAuthStage = "setup" | "enroll" | "totp";
 
-export async function setPreAuthCookie(email: string, stage: PreAuthStage) {
-  (await cookies()).set(ADMIN_PRE_COOKIE, sign({ email, stage }, PRE_MAX_AGE), { httpOnly: true, sameSite: "strict", secure: secure(), path: loginPath(), maxAge: PRE_MAX_AGE });
+/** `inv` : l'empreinte du code d'invitation vérifié, consommé seulement quand le mot de passe est choisi. */
+export async function setPreAuthCookie(email: string, stage: PreAuthStage, inv?: string) {
+  (await cookies()).set(ADMIN_PRE_COOKIE, sign({ email, stage, g: await sessionGeneration(), ...(inv ? { inv } : {}) }, PRE_MAX_AGE), { httpOnly: true, sameSite: "strict", secure: secure(), path: loginPath(), maxAge: PRE_MAX_AGE });
 }
 
-/** Étape en cours de la connexion (mot de passe déjà vérifié), ou null. */
-export async function preAuth(): Promise<{ email: string; stage: PreAuthStage } | null> {
-  const p = verify<{ email: string; stage: PreAuthStage }>((await cookies()).get(ADMIN_PRE_COOKIE)?.value);
-  return p?.email && isAllowed(p.email) ? p : null;
+/**
+ * Étape en cours de la connexion (mot de passe déjà vérifié), ou null. Elle porte la génération des
+ * sessions : fermer toutes les sessions (retrait d'un accès, nouveau code d'invitation, « Ce n'était
+ * pas moi ») annule aussi une connexion à moitié faite.
+ */
+export async function preAuth(): Promise<{ email: string; stage: PreAuthStage; inv?: string } | null> {
+  const p = verify<{ email: string; stage: PreAuthStage; g?: number; inv?: string }>((await cookies()).get(ADMIN_PRE_COOKIE)?.value);
+  if (!p?.email || (p.g ?? 0) !== (await sessionGeneration())) return null;
+  return (await estAutorisee(p.email)) ? { email: p.email, stage: p.stage, inv: p.inv } : null;
 }
 
 export async function clearPreAuth() {

@@ -145,6 +145,36 @@ demandent le plan Pro de Supabase).
   alerte de connexion que le mot de passe. Résistant à l'hameçonnage : la clé est liée à l'adresse
   du site. « Ce n'était pas moi » et la remise à zéro d'un compte effacent ses clés. Le mot de passe
   et le code restent en secours.
+- **Accès à l'Atelier** (`lib/auth/personnes.ts`, `app/api/gestion/personnes`, 09/11, relu par
+  l'Agent Sécurité) : en plus des adresses de Vercel (`ATELIER_ACCOUNTS`), tout administrateur
+  connecté (deux administrateurs à égalité, choix de la créatrice) ajoute un accès, donne un nouveau
+  code d'invitation, retire un accès ajouté ou remet à zéro un compte de Vercel, depuis Réglages ›
+  Sécurité. Chaque geste redemande son propre code à six chiffres (anti-rejeu sous verrou ; essais
+  comptés avant la vérification, dix par demi-heure et par compte comme par réseau, que « Débloquer »
+  ne remet pas à zéro ; au dixième, toutes les sessions se ferment et une alerte part). Aucun geste
+  sur son propre accès. La personne ajoutée entre une première fois avec un code d'invitation de
+  80 bits, à usage unique (jeton atomique), valable 72 heures, dont seule l'empreinte SHA-256 est
+  gardée ; le mot de passe d'installation ne lui ouvre rien ; son premier usage prévient les autres
+  administrateurs. Un ajout efface tout ancien compte de la même adresse (mot de passe, Face ID,
+  appareils). Cinq personnes ajoutées au plus, revérifié sous verrou ; les adresses de Vercel ne se
+  retirent pas d'ici. Retrait, nouveau code et remise à zéro ferment toutes les autres sessions, y
+  compris les connexions à moitié faites (le cookie de l'étape porte la génération des sessions),
+  et oublient les appareils notifiés de la personne ; une personne retirée ne passe plus dès la
+  requête suivante (adresse revérifiée à chaque requête). Alertes : la personne qui fait le geste
+  reçoit son lien « Ce n'était pas moi » ; les autres administrateurs, un avis sans lien ; la personne
+  concernée, un avis quand son accès change. Chaque appareil notifié ne peut être renouvelé que par
+  qui l'a abonné.
+- **Lien « Ce n'était pas moi »** : valable une seule fois, et plus du tout pour une adresse qui n'a
+  plus accès à l'Atelier. Un jeton signé n'a qu'une écriture (`corps.signature`, exactement deux
+  segments) : il ne se rejoue pas sous une autre forme.
+- **Seconde relecture (09/11)** : fermeture des sessions par incrément atomique, la session de qui
+  fait le geste signée avec la nouvelle génération (une fermeture simultanée la ferme aussi) ;
+  sessions fermées aussi à l'ajout ; vingt codes faux sur douze heures ferment tout ; l'invitation
+  n'est consommée qu'au choix du mot de passe (une session fermée entre deux étapes ne la brûle pas) ;
+  avis de sécurité envoyés aux seuls comptes actifs ; chacun ne voit et ne règle que ses propres
+  appareils notifiés. Reste assumé : un administrateur peut remettre à zéro le compte d'un autre
+  (le mot de passe d'installation est alors à changer, guide) ; adresse de l'invitation prise sur
+  l'hôte de la requête ; invitation valable 72 heures.
 - **Blocage** : cinq échecs (mot de passe ou code) bloquent une adresse une demi-heure, même
   inconnue (rien ne révèle quels comptes existent), et préviennent la titulaire par e-mail ; huit
   échecs par quart d'heure bloquent l'adresse IP.

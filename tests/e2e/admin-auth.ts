@@ -55,6 +55,12 @@ async function freshCode(page: Page, secret: string): Promise<string> {
   return totpAt(secret, counter);
 }
 
+/** Un code à six chiffres neuf du compte de test, pour les gestes qui le redemandent (personnes). */
+export async function nouveauCode(page: Page): Promise<string> {
+  const secret = process.env.ATELIER_TOTP_SECRET ?? fs.readFileSync(SECRET_FILE, "utf8").trim();
+  return freshCode(page, secret);
+}
+
 /**
  * `faceId` : après le code, l'Atelier propose d'ajouter Face ID sur l'appareil ; les autres tests ne
  * la voient pas (l'appareil est marqué comme déjà sollicité), le test de Face ID choisit sa réponse.

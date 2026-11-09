@@ -31,7 +31,11 @@ export function sign<T extends object>(payload: T, maxAgeSeconds: number): strin
 
 export function verify<T extends object>(token: string | undefined | null): (T & { exp: number }) | null {
   if (!token || !sessionsConfigured()) return null;
-  const [body, sig] = token.split(".");
+  // exactement « corps.signature » : un segment de plus ferait un autre jeton pour la même
+  // signature (et contournerait l'usage unique d'un lien)
+  const parts = token.split(".");
+  if (parts.length !== 2) return null;
+  const [body, sig] = parts;
   if (!body || !sig) return null;
   const expected = createHmac("sha256", sessionSecret()).update(body).digest("base64url");
   const a = Buffer.from(sig);
