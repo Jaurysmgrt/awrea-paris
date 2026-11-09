@@ -18,7 +18,7 @@ import { sendEmail } from "@/lib/email/send";
 import { signaler } from "@/lib/admin/push";
 import { sign } from "@/lib/auth/session";
 import { sessionGeneration } from "@/lib/auth/admin";
-import { adressesAutorisees } from "@/lib/auth/accounts";
+import { adressesActives } from "@/lib/auth/accounts";
 import { atelierHref } from "@/lib/admin/path";
 import { absolute } from "@/lib/seo/metadata";
 
@@ -186,7 +186,7 @@ export async function alertPersonne(action: "ajout" | "retrait" | "invitation" |
   // qui a fait le geste : son propre lien « Ce n'était pas moi »
   await envoyer([par], [quand, "Si c’est bien vous, il n’y a rien à faire.", `Sinon, ouvrez le lien ci-dessous : toutes les sessions seront fermées et votre compte remis à zéro.`], { label: "Ce n’était pas moi", href: await revokeLink(par) });
   // les autres administrateurs (et l'adresse de sécurité) : un avis, sans lien
-  const admins = await adressesAutorisees().catch(() => [] as string[]);
+  const admins = await adressesActives().catch(() => [] as string[]);
   const autres = [...new Set([...admins, process.env.SECURITY_ALERT_EMAIL].filter((x): x is string => Boolean(x)))].filter((x) => x !== par && x !== personne);
   await envoyer(autres, [quand, "Si vous êtes au courant, il n’y a rien à faire.", `Sinon, ouvrez l’Atelier, Réglages › Sécurité : fermez toutes les sessions et retirez ou remettez à zéro l’accès en cause.`]);
   // la personne concernée, quand son accès change sans qu'elle l'ait fait
@@ -199,7 +199,7 @@ export async function alertPersonne(action: "ajout" | "retrait" | "invitation" |
 export async function alertInvitationUtilisee(personne: string, req: Request, ip: string) {
   const ev = await logSecurityEvent("admin_invitation_used", req, ip, personne);
   await signaler({ type: "securite", titre: "Invitation utilisée", texte: "Une personne invitée vient d’entrer pour la première fois.", chemin: "/reglages", etiquette: "personnes" });
-  const admins = (await adressesAutorisees().catch(() => [] as string[])).filter((x) => x !== personne);
+  const admins = (await adressesActives().catch(() => [] as string[])).filter((x) => x !== personne);
   if (!admins.length) return;
   const titre = "Invitation à l’Atelier utilisée";
   const { html, text } = brandEmail({

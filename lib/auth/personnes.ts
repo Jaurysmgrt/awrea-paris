@@ -7,6 +7,7 @@ import "server-only";
 import { kv } from "@/lib/store";
 import { avecVerrou } from "@/lib/store/verrou";
 import { INVITATION_DUREE_MS, empreinteInvitation, invitationAccepte, inviter, normaliserEmail, type Personne } from "./personnes-regles";
+import { timingSafeEqual } from "node:crypto";
 
 const CLE = "atelier:personnes";
 
@@ -53,13 +54,28 @@ export async function renouvelerInvitation(email: string): Promise<{ code: strin
 }
 
 /**
- * Première connexion d'une personne ajoutée : le code d'invitation ne sert qu'une fois, même si deux
- * demandes arrivent en même temps (la première prend le jeton, la seconde est refusée).
+ * Première connexion d'une personne ajoutée, étape 1 : le code d'invitation est-il bon ? Renvoie son
+ * empreinte (gardée dans le cookie de l'étape suivante), sans le consommer : une session fermée entre
+ * deux étapes ne brûle pas l'invitation.
  */
-export async function utiliserInvitation(email: string, code: string): Promise<boolean> {
+export async function verifierInvitation(email: string, code: string): Promise<string | null> {
   const p = await personneAjoutee(email);
-  if (!p || !invitationAccepte(p, code)) return false;
-  if (!(await kv.prendre(`atelier:invitation-utilisee:${empreinteInvitation(code)}`, "1", INVITATION_DUREE_MS))) return false;
+  return p && invitationAccepte(p, code) ? empreinteInvitation(code) : null;
+}
+
+/**
+ * Étape du mot de passe : l'invitation est consommée, une seule fois, même si deux demandes arrivent
+ * en même temps (la première prend le jeton, la seconde est refusée), et seulement si elle est
+ * toujours celle en attente (un nouveau code annule l'ancien).
+ */
+export async function consommerInvitation(email: string, empreinte: string): Promise<boolean> {
+  const p = await personneAjoutee(email);
+  const attendue = p?.invitation;
+  if (!p || !attendue || Date.parse(attendue.expire) <= Date.now()) return false;
+  const a = Buffer.from(attendue.empreinte, "hex");
+  const b = Buffer.from(empreinte, "hex");
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return false;
+  if (!(await kv.prendre(`atelier:invitation-utilisee:${empreinte}`, "1", INVITATION_DUREE_MS))) return false;
   await avecVerrou("atelier:personnes", async () => {
     const liste = await personnesAjoutees();
     await kv.set(CLE, liste.map((x) => (x.email === p.email ? { ...x, invitation: undefined } : x)));

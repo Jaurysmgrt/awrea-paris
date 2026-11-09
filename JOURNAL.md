@@ -1027,3 +1027,9 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
 - Tests : règles (unitaires), parcours complet (ajout, code faux refusé, invitation à usage unique,
   mot de passe d’installation refusé, droits égaux mais rien sur son propre accès, retrait et
   session coupée, ancien mot de passe refusé après un nouvel ajout, alertes à tous).
+- Seconde relecture de l’Agent Sécurité, corrigée : lien « Ce n’était pas moi » impossible à
+  rejouer (jeton à deux segments exactement), fermeture des sessions atomique, sessions fermées aussi
+  à l’ajout, vingt codes faux sur douze heures, invitation consommée seulement au choix du mot de
+  passe, avis aux seuls comptes actifs, appareils notifiés gérés par leur seule titulaire. Restent
+  assumés (administrateurs égaux) et documentés : remise à zéro du compte d’un autre, puis changement
+  du mot de passe d’installation conseillé.

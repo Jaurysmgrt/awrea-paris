@@ -165,7 +165,16 @@ demandent le plan Pro de Supabase).
   concernée, un avis quand son accès change. Chaque appareil notifié ne peut être renouvelé que par
   qui l'a abonné.
 - **Lien « Ce n'était pas moi »** : valable une seule fois, et plus du tout pour une adresse qui n'a
-  plus accès à l'Atelier.
+  plus accès à l'Atelier. Un jeton signé n'a qu'une écriture (`corps.signature`, exactement deux
+  segments) : il ne se rejoue pas sous une autre forme.
+- **Seconde relecture (09/11)** : fermeture des sessions par incrément atomique, la session de qui
+  fait le geste signée avec la nouvelle génération (une fermeture simultanée la ferme aussi) ;
+  sessions fermées aussi à l'ajout ; vingt codes faux sur douze heures ferment tout ; l'invitation
+  n'est consommée qu'au choix du mot de passe (une session fermée entre deux étapes ne la brûle pas) ;
+  avis de sécurité envoyés aux seuls comptes actifs ; chacun ne voit et ne règle que ses propres
+  appareils notifiés. Reste assumé : un administrateur peut remettre à zéro le compte d'un autre
+  (le mot de passe d'installation est alors à changer, guide) ; adresse de l'invitation prise sur
+  l'hôte de la requête ; invitation valable 72 heures.
 - **Blocage** : cinq échecs (mot de passe ou code) bloquent une adresse une demi-heure, même
   inconnue (rien ne révèle quels comptes existent), et préviennent la titulaire par e-mail ; huit
   échecs par quart d'heure bloquent l'adresse IP.

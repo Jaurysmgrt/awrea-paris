@@ -39,6 +39,8 @@ const Corps = z.object({
 
 /** Essais de code pour ces gestes : comptés avant la vérification, jamais remis à zéro. */
 const GESTES = { limit: 10, windowSeconds: 30 * 60 };
+/** Échecs sur une journée de session (12 h, sans fenêtre glissante à contourner) : au vingtième, tout se ferme. */
+const ECHECS = { limit: 20, windowSeconds: 12 * 60 * 60 };
 
 const refus = (error: string, status: number) => NextResponse.json({ error }, { status });
 
@@ -49,10 +51,13 @@ function adresseAtelier(req: Request): string {
   return /^[a-z0-9.-]+(:\d+)?$/i.test(hote) ? `${protocole === "http" ? "http" : "https"}://${hote}${atelierHref("/")}` : absolute(atelierHref("/"));
 }
 
-/** Ferme toutes les sessions, sauf celle de qui fait le geste. */
+/**
+ * Ferme toutes les sessions, sauf celle de qui fait le geste : son cookie est signé avec la génération
+ * rendue par l'incrément atomique (une fermeture lancée au même instant par quelqu'un d'autre la
+ * ferme aussi).
+ */
 async function fermerLesAutresSessions(me: string) {
-  await revokeAdminSessions();
-  await setAdminCookie(me);
+  await setAdminCookie(me, await revokeAdminSessions());
 }
 
 export async function POST(req: Request) {
@@ -65,12 +70,14 @@ export async function POST(req: Request) {
   if (action !== "ajouter" && email === me) return refus("Vous ne pouvez pas faire ce geste sur votre propre accès.", 400);
 
   // son propre code, à chaque geste ; l'essai compte avant la vérification
+  if (await loginGuard.blocked("atelier-geste-echecs", emailKey(me), ECHECS)) return refus("Trop de codes faux aujourd’hui : reconnectez-vous demain, ou demandez à l’autre administrateur.", 429);
   const [parCompte, parReseau] = await Promise.all([hit("atelier-geste", emailKey(me), GESTES), hit("atelier-geste-ip", ip, GESTES)]);
   if (!parCompte.allowed || !parReseau.allowed) return refus("Trop d’essais. Réessayez dans une demi-heure.", 429);
   const compte = await getAccount(me);
   if (!compte || !(await verifyAccountCode(compte, code))) {
     await logSecurityEvent("admin_code_fail", req, ip, `${me} (accès)`);
-    if (parCompte.count >= GESTES.limit || parReseau.count >= GESTES.limit) {
+    const echecs = await loginGuard.fail("atelier-geste-echecs", emailKey(me), ECHECS);
+    if (parCompte.count >= GESTES.limit || parReseau.count >= GESTES.limit || echecs >= ECHECS.limit) {
       await revokeAdminSessions();
       await alertLocked(me, req, ip);
     }
@@ -87,6 +94,8 @@ export async function POST(req: Request) {
     await loginGuard.reset("admin-compte", emailKey(email), ACCOUNT_GUARD);
     const r = await ajouterPersonne(email, me, (ajoutees) => problemeAjout(email, { vercel, ajoutees }));
     if ("probleme" in r) return refus(r.probleme, 400);
+    // d'anciennes sessions de cette adresse (retirée de Vercel sans fermer les sessions) ne reviennent pas
+    await fermerLesAutresSessions(me);
     await alertPersonne("ajout", email, me, req, ip);
     await logAction({ agent: "systeme", kind: "sécurité", status: "done", summary: `Accès ajouté pour ${email} par ${me}` }).catch(() => {});
     return NextResponse.json({ ok: true, email, invitation: r.code, expire: r.expire, adresse: adresseAtelier(req) });

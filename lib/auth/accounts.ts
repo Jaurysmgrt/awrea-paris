@@ -72,6 +72,11 @@ export async function adressesAutorisees(): Promise<string[]> {
   return [...vercel, ...ajoutees];
 }
 
+/** Adresses des comptes actifs (mot de passe choisi) : les seules à recevoir les avis de sécurité des autres. */
+export async function adressesActives(): Promise<string[]> {
+  return (await listAccounts()).filter((a) => a.passwordHash).map((a) => a.email);
+}
+
 /** L'adresse peut-elle entrer ? Lue à chaque requête : une personne retirée ne passe plus. */
 export async function estAutorisee(email: string): Promise<boolean> {
   const e = email.trim().toLowerCase();

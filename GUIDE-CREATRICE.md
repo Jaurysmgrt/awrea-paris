@@ -122,7 +122,10 @@ votre code, ferme les autres sessions ouvertes (vous restez connectée) et prév
 e-mail. Personne ne fait de geste sur son propre accès.
 
 Si vous retirez quelqu’un après un désaccord, demandez aussi à la personne qui s’occupe du site de
-changer l’adresse secrète de l’Atelier (`ADMIN_PATH` dans Vercel) : elle ne la connaîtra plus.
+changer l’adresse secrète de l’Atelier (`ADMIN_PATH` dans Vercel) : elle ne la connaîtra plus. De
+même, une fois chacun installé, faites changer le mot de passe d’installation (`ATELIER_PASSWORD`) :
+après une remise à zéro, c’est lui qui rouvre le compte, et seule la personne qui gère Vercel doit le
+connaître.
 
 Sur un téléphone où l’empreinte n’a pas encore été ajoutée, l’Atelier demande d’abord l’adresse et
 le mot de passe : c’est normal. Si vous touchez quand même « Entrer avec Face ID ou l’empreinte », le

@@ -58,11 +58,12 @@ export async function PUT(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-  if (!(await currentAdmin())) return refus("Non autorisé", 401);
+  const moi = await currentAdmin();
+  if (!moi) return refus("Non autorisé", 401);
   const parsed = Patch.safeParse(await lire(req));
   if (!parsed.success) return refus("Demande illisible.");
   try {
-    return NextResponse.json({ ok: true, appareil: await changerTypes(parsed.data.id, parsed.data.types) });
+    return NextResponse.json({ ok: true, appareil: await changerTypes(parsed.data.id, parsed.data.types, moi) });
   } catch (e) {
     if (e instanceof PushError) return refus(e.message, 404);
     throw e;
@@ -70,9 +71,10 @@ export async function PATCH(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  if (!(await currentAdmin())) return refus("Non autorisé", 401);
+  const moi = await currentAdmin();
+  if (!moi) return refus("Non autorisé", 401);
   const parsed = Delete.safeParse(await lire(req));
   if (!parsed.success) return refus("Demande illisible.");
-  await retirerAppareil(parsed.data.id);
+  await retirerAppareil(parsed.data.id, moi);
   return NextResponse.json({ ok: true });
 }

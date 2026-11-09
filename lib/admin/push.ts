@@ -57,8 +57,9 @@ export async function appareils(): Promise<Appareil[]> {
 /** L'adresse technique d'un appareil n'est montrée qu'à qui l'a abonné (pour reconnaître « cet appareil »). */
 const visible = (a: Appareil, moi?: string): AppareilVisible => ({ id: a.id, nom: a.nom, types: a.types, ajouteLe: a.ajouteLe, dernierEnvoi: a.dernierEnvoi, dernierEchec: a.dernierEchec, finPoint: !moi || a.par === moi ? a.endpoint : "" });
 
+/** Les appareils de la personne connectée seulement : chacun gère les siens. */
 export async function appareilsVisibles(moi: string): Promise<AppareilVisible[]> {
-  return (await appareils()).map((a) => visible(a, moi));
+  return (await appareils()).filter((a) => a.par === moi).map((a) => visible(a, moi));
 }
 
 /** Enregistre (ou met à jour) l'abonnement de cet appareil ; garde ses réglages s'il est déjà connu. */
@@ -80,17 +81,17 @@ export async function remplacerAbonnement(ancien: string, abonnement: Abonnement
   return true;
 }
 
-export async function changerTypes(id: string, types: TypeNotification[]): Promise<AppareilVisible> {
+export async function changerTypes(id: string, types: TypeNotification[], par: string): Promise<AppareilVisible> {
   const liste = await appareils();
-  const a = liste.find((x) => x.id === id);
+  const a = liste.find((x) => x.id === id && x.par === par);
   if (!a) throw new PushError("Cet appareil ne reçoit plus les notifications.");
   const maj = { ...a, types: TYPES_NOTIFICATION.filter((t) => types.includes(t)) };
   await kv.set(CLE, liste.map((x) => (x.id === id ? maj : x)));
   return visible(maj);
 }
 
-export async function retirerAppareil(id: string): Promise<void> {
-  await kv.set(CLE, (await appareils()).filter((a) => a.id !== id));
+export async function retirerAppareil(id: string, par: string): Promise<void> {
+  await kv.set(CLE, (await appareils()).filter((a) => !(a.id === id && a.par === par)));
 }
 
 /** « Fermer toutes les sessions » : plus aucun appareil ne reçoit rien. */

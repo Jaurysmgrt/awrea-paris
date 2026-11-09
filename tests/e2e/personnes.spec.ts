@@ -46,8 +46,10 @@ test("ajouter un administrateur, son invitation à usage unique, ses droits, pui
   // l'adresse donnée est celle où l'on se trouve
   await expect(carte).toContainText(`${new URL(page.url()).host}${ATELIER}`);
   await expect(page.getByRole("row", { name: new RegExp(email.replace(/\./g, "\\.")) })).toContainText("Invitation valable");
-  // tous les administrateurs sont prévenus, sans le code
-  await expect.poll(() => outbox().some((m) => m.subject === "Accès ajouté à l’Atelier" && m.to.includes("bloquee@exemple.fr") && !m.text.includes(invitation))).toBeTruthy();
+  // l'administrateur qui l'a fait est prévenu (avec son lien « Ce n'était pas moi »), sans le code ;
+  // rien ne part vers l'adresse invitée ni vers un compte jamais activé
+  await expect.poll(() => outbox().some((m) => m.subject === "Accès ajouté à l’Atelier" && m.to.includes("contact@awreaparis.com") && !m.text.includes(invitation))).toBeTruthy();
+  expect(outbox().some((m) => m.subject === "Accès ajouté à l’Atelier" && (m.to.includes(email) || m.to.includes("bloquee@exemple.fr")))).toBe(false);
 
   // la personne, sur son propre appareil : son code d'invitation à la place du mot de passe
   const ctx = await browser.newContext();
