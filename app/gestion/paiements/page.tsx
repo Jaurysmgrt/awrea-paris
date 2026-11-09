@@ -29,7 +29,7 @@ export default async function PaiementsPage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Paiements</h1>
-        <p className="t-lead">Chaque paiement, son état et son historique. Stripe encaisse, la boutique suit.</p>
+        <p className="t-lead">Chaque paiement et son état.</p>
         {paiementEnLigne() ? (
           <p className="t-note">{stripeEnTest() ? "Stripe en mode test : aucun argent réel ne bouge." : "Stripe encaisse les paiements de la boutique."}</p>
         ) : raison ? (

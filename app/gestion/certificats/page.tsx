@@ -15,9 +15,7 @@ export default async function CertificatsPage({ searchParams }: { searchParams: 
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Certificats</h1>
-        <p className="t-lead">
-          Chaque pièce vendue reçoit un certificat numérique. Imprimez-le avec son étiquette avant l’envoi : le QR code mène à sa page, le code permet à la propriétaire de le rattacher à son compte.
-        </p>
+        <p className="t-lead">Un certificat par pièce vendue, à imprimer avant l’envoi.</p>
         {commande ? (
           <p className="t-note">
             Commande {commande} · <Link href={atelierHref("/certificats")} className="text-link">voir tous les certificats</Link>

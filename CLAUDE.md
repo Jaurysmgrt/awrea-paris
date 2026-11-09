@@ -46,7 +46,8 @@ base, compilation et parcours Playwright doivent être verts.
   les petits titres de 25 px, et Cormorant Garamond 400 pour les textes, la navigation, les boutons et les formulaires (texte courant
   20 px sur 32 px, jamais sous 16 px). Aucune autre police ; la police du logo (Croisan, licence
   personnelle) n'est jamais chargée : le logo vient des fichiers officiels (`content/brand/assets.ts`).
-  Ni faux italique ni faux gras.
+  Ni faux italique ni faux gras. Seule exception : l'Atelier, outil privé, en police système
+  lisible (choix de la créatrice du 09/11, `DESIGN.md` › Atelier).
 - Langage des maquettes (`ressources-awrea/DA PRÉSENTATION`, référence) étendu à tout le site : filets
   noirs très fins, champs sans cadre soulignés d'un filet, boutons noirs en pilule (`.btn`), pastille
   « Nouveau » (`.badge`), photos des cartes aux angles arrondis ; détail dans `DESIGN.md`.

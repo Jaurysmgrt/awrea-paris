@@ -1033,3 +1033,20 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
   passe, avis aux seuls comptes actifs, appareils notifiés gérés par leur seule titulaire. Restent
   assumés (administrateurs égaux) et documentés : remise à zéro du compte d’un autre, puis changement
   du mot de passe d’installation conseillé.
+
+## Atelier plus simple et plus lisible (09/11)
+
+- Demande de la créatrice : l’Atelier « trop compliqué, trop de texte, brouillon », « une bonne typo
+  bien lisible, du Arial », pour l’Atelier seulement.
+- Police système de l’appareil et tailles d’outil dans l’Atelier (16 px sur 24 px), titres en
+  demi-gras, plus aucune capitale espacée, chaque bloc posé comme une carte, pastilles d’état aux
+  coins doux.
+- Textes coupés : accueil (« 5 choses à faire aujourd’hui. », détail des priorités retiré),
+  Réglages, Clientes, Rendez-vous, Agents, Certificats, Nouvelle pièce, Avis, Instagram, Paiements,
+  Référencement, Messages, À valider ; résumé de sécurité limité à ce qui s’est passé ; les
+  22 rôles secondaires des agents repliés sous « Les autres rôles » (ouverts d’office en cas
+  d’urgence).
+- Menu de gauche resserré (il tient dans un écran d’ordinateur portable jusqu’à « Se déconnecter »),
+  barre d’onglets du téléphone où « À valider » ne se coupe plus.
+- Vérifié sur captures (ordinateur 1440 px, téléphone 390 px) et parcours de l’Atelier.
+

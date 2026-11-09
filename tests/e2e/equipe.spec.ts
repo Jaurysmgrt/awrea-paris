@@ -3,9 +3,15 @@
  * Contrôle relit son passage. (L'anti-fraude, qui met de côté des commandes, a ses règles testées à
  * part : tests/unit/roles.test.ts.)
  */
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { adminLogin, ATELIER } from "./admin-auth";
 import { outbox } from "./helpers";
+
+/** « Les autres rôles » sont repliés, sauf quand l'un d'eux signale une urgence : on les déplie. */
+async function ouvrirLesRoles(page: Page) {
+  const roles = page.locator("details.equipe-roles");
+  if (!(await roles.evaluate((d) => (d as HTMLDetailsElement).open))) await roles.locator("summary").click();
+}
 
 const ROLES = ["gardien-editeur", "avis", "retours", "logistique", "comptabilite", "rgpd", "cercle", "drops", "sur-mesure", "rendez-vous", "production", "presse", "instagram", "publicite", "accessibilite", "performance", "sauvegarde", "design"];
 
@@ -33,6 +39,8 @@ test("Équipe : chaque rôle passe, rend un résumé, et apparaît dans l'Atelie
   }
   await page.goto(`${ATELIER}/equipe`);
   await expect(page.getByRole("heading", { level: 1, name: "Agents" })).toBeVisible();
+  // les rôles du quotidien sont repliés sous « Les autres rôles »
+  await ouvrirLesRoles(page);
   await expect(page.getByText(/Dernier passage le/).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "Gardien de l’éditeur" })).toBeVisible();
   // modèle « sur demande » : les rôles parlent d'avant-premières et de confection, jamais de stock
@@ -47,6 +55,7 @@ test("Équipe : on voit l'agent travailler, étape par étape, puis son compte r
   test.setTimeout(240_000);
   await adminLogin(page);
   await page.goto(`${ATELIER}/equipe`);
+  await ouvrirLesRoles(page);
   // le rôle Design relit les pages du site, une à une
   const design = page.locator(".team__agent", { has: page.getByRole("heading", { name: "Design", exact: true }) });
   await design.getByRole("button", { name: "Lancer maintenant" }).click();

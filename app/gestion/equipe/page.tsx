@@ -24,7 +24,7 @@ export default async function EquipePage() {
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Agents</h1>
-        <p className="t-lead">Ils font le quotidien seuls, dans les règles des Réglages. Ce qui touche à l’argent vous attend dans « À valider ».</p>
+        <p className="t-lead">Ils font le quotidien. L’argent attend toujours votre accord.</p>
       </header>
 
       <section className="panel" aria-labelledby="agents-title">
@@ -96,7 +96,7 @@ export default async function EquipePage() {
             ) : null}
           </div>
         ) : (
-          <p className="t-note">L’agent de maintenance passe chaque nuit : vérifications, corrections testées, déploiement seulement si tout est vert.</p>
+          <p className="t-note">Il passe chaque nuit.</p>
         )}
       </section>
 
@@ -112,7 +112,12 @@ export default async function EquipePage() {
         <LogList items={log} names={names} />
       </section>
 
-      <h2 className="t-h3">Les rôles de gestion</h2>
+      {/* les rôles du quotidien, repliés (retour du 09/11 : « trop de texte ») ; ouverts d'office
+          quand l'un d'eux signale une urgence */}
+      <details className="panel disclosure equipe-roles" open={reports.some((rep) => rep?.findings.some((f) => f.gravite === "urgent"))}>
+        <summary>
+          <h2 className="t-h3">Les autres rôles ({ROLES.length})</h2>
+        </summary>
       <ul className="team">
         {ROLES.map((r, i) => {
           const rep = reports[i];
@@ -160,6 +165,7 @@ export default async function EquipePage() {
           );
         })}
       </ul>
+      </details>
     </div>
   );
 }
