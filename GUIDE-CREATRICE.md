@@ -60,9 +60,16 @@ les accès déjà donnés se ferment.
 
 ### Langue et mode Nuit
 
-À sa première visite, chaque personne voit le site dans la langue de son téléphone ou de son
-ordinateur : en anglais si ses réglages sont en anglais (ou dans une langue que le site ne parle
-pas), en français sinon. Ensuite, le choix fait avec « FR · EN » est retenu.
+Le site n’a plus de bouton « FR · EN » : la langue se choisit toute seule, dès la première
+visite, sans page intermédiaire. Depuis la France (outre-mer compris), le site s’ouvre en
+français ; depuis le Royaume-Uni, les États-Unis, l’Irlande, l’Australie et les autres pays
+anglophones, en anglais ; ailleurs, dans la langue du téléphone ou de l’ordinateur si le site la
+parle, sinon en anglais. Le pays vient de l’adresse internet de la visiteuse, jamais de sa
+position. La langue trouvée est retenue d’une visite à l’autre.
+
+Pour changer de langue, il suffit de modifier l’adresse : ajouter /en (awreaparis.com/en) pour
+l’anglais, /fr pour le français. Ce choix est retenu à son tour. Vous-même, connectée à l’Atelier,
+passez d’une langue à l’autre sans que rien ne soit retenu.
 
 En mode Nuit, le site est noir, et l’alternance s’inverse : les sections noires du mode Jour
 passent en blanc cassé, texte noir, puis la page redevient noire.
@@ -158,8 +165,8 @@ Le menu de gauche est rangé comme une journée de la Maison (sur téléphone, i
    faite, une apostrophe droite). Il propose, vous gardez le dernier mot : **Corriger la
    typographie** applique la correction, **Garder tel quel** garde votre texte.
 6. Sous votre texte, la case **Version anglaise** reçoit la traduction, celle que lisent les
-   visiteuses de la version anglaise du site (les adresses qui commencent par /en, et le choix
-   **FR · EN** en haut des pages). Laissée vide, le français s’affiche à la place.
+   visiteuses de la version anglaise du site (les adresses qui commencent par /en, ouvertes
+   d’elles-mêmes pour les visiteuses anglophones). Laissée vide, le français s’affiche à la place.
 7. **Enregistrer**. Votre texte part en brouillon : vos clientes ne voient rien tant que vous
    n’avez pas appuyé sur **Publier** (partie 4).
 

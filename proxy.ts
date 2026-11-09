@@ -13,9 +13,14 @@
  *    valeur envoyée par le navigateur est écrasée). L'Atelier, l'API et les fichiers (plan du site,
  *    llms.txt, images) n'existent qu'en un exemplaire : sous /en, ils répondent 404 comme toute
  *    adresse inconnue.
- *  - Première arrivée (pas encore de cookie de langue) : une visiteuse dont le navigateur préfère
- *    l'anglais, arrivée sur une adresse française, est menée à la même page sous /en. Ensuite la
- *    langue de chaque page est retenue (LOCALE_COOKIE) : le sélecteur FR · EN garde la main.
+ *  - Langue automatique (brief du 09/11, aucun sélecteur) : à la première arrivée sur une adresse
+ *    française, la langue est choisie d'après le pays (adresse IP, sans géolocalisation précise),
+ *    puis le navigateur, puis l'anglais (langueAuto), et retenue (LOCALE_COOKIE) ; la visiteuse
+ *    est menée à la même page sous /en si besoin, avant tout affichage, et l'est encore aux visites
+ *    suivantes (langueVoulue). Elle ne change de langue qu'en modifiant l'adresse : une page
+ *    /en/… retient l'anglais, /fr/… retient le français et mène à l'adresse française habituelle.
+ *    Les robots d'indexation ne sont jamais redirigés (estRobot) : les deux versions restent
+ *    indexables, déclarées par hreflang.
  *  - Site privé (SITE_PRIVE=1, lib/security/private-site.ts) : sans session de l'Atelier ni accès
  *    donné par le lien privé (SITE_PRIVE_CLE), toute page du site montre la page d'attente et toute
  *    API répond 404 (sauf webhooks et tâches planifiées) ; aucune réponse n'est indexée.
@@ -27,7 +32,7 @@ import { contentSecurityPolicy, cspEnabled, cspMode, newNonce } from "@/lib/secu
 import { countRefusal } from "@/lib/security/rate-limit";
 import { providerOf } from "@/lib/config/providers";
 import { atelierBase, isInternalAtelierPath, toInternal } from "@/lib/admin/path";
-import { DEFAULT_LOCALE, LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, LOCALE_HEADER, isLocalizable, localizePath, preferredLocale, splitLocale, type Locale } from "@/lib/i18n/routing";
+import { DEFAULT_LOCALE, LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, LOCALE_HEADER, adresseFrancaise, estRobot, isLocale, isLocalizable, langueVoulue, localizePath, splitLocale, type Locale } from "@/lib/i18n/routing";
 import { PREVIEW_COOKIE, PREVIEW_MAX_AGE, PREVIEW_PARAM, PRIVATE_PAGE, isPreviewKey, isPreviewToken, openWhilePrivate, previewToken, sitePrive } from "@/lib/security/private-site";
 
 const secureCookie = process.env.NODE_ENV === "production";
@@ -210,18 +215,34 @@ export async function proxy(request: NextRequest) {
   const atelier = Boolean(base && toInternal(pathname, base)) || isInternalAtelierPath(pathname);
   if (sitePrive() && !atelier && request.nextUrl.searchParams.has(PREVIEW_PARAM)) return grantPreview(request);
 
-  // pages publiques : la langue du navigateur à la première arrivée, puis celle de chaque page
+  const langueCookie = { httpOnly: true, sameSite: "lax", secure: secureCookie, path: "/", maxAge: LOCALE_COOKIE_MAX_AGE } as const;
+  // /fr/… : le français choisi en modifiant l'adresse, retenu, puis l'adresse française habituelle
+  const francais = adresseFrancaise(pathname);
+  if (francais && !(base && toInternal(francais, base)) && !isInternalAtelierPath(francais)) {
+    const url = request.nextUrl.clone();
+    url.pathname = francais;
+    const redirect = NextResponse.redirect(url, 307);
+    redirect.cookies.set(LOCALE_COOKIE, DEFAULT_LOCALE, langueCookie);
+    redirect.headers.set("Cache-Control", "private, no-store");
+    return redirect;
+  }
+
+  // pages publiques en français : la langue retenue, sinon celle du pays puis du navigateur
+  // (jamais pour un robot d'indexation)
   const publicPage = isDocument(request) && !atelier && isLocalizable(path);
   const remembered = request.cookies.get(LOCALE_COOKIE)?.value;
-  if (publicPage && !remembered && !translated) {
-    const wanted = preferredLocale(request.headers.get("accept-language"));
+  const retenue = remembered && isLocale(remembered) ? remembered : undefined;
+  // la créatrice connectée (Atelier, Édition) passe d'une langue à l'autre sans rien retenir
+  const creatrice = publicPage && request.cookies.has(ADMIN_COOKIE) && (await isAdminToken(request.cookies.get(ADMIN_COOKIE)?.value));
+  if (publicPage && !translated && !creatrice && !estRobot(request.headers.get("user-agent"))) {
+    const wanted = langueVoulue(retenue, request.headers.get("x-vercel-ip-country"), request.headers.get("accept-language"));
     if (wanted && wanted !== locale) {
       const url = request.nextUrl.clone();
       url.pathname = localizePath(path, wanted);
       const redirect = NextResponse.redirect(url, 307);
-      redirect.cookies.set(LOCALE_COOKIE, wanted, { httpOnly: true, sameSite: "lax", secure: secureCookie, path: "/", maxAge: LOCALE_COOKIE_MAX_AGE });
+      if (retenue !== wanted) redirect.cookies.set(LOCALE_COOKIE, wanted, langueCookie);
       redirect.headers.set("Cache-Control", "private, no-store");
-      redirect.headers.set("Vary", "Accept-Language, Cookie");
+      redirect.headers.set("Vary", "Accept-Language, Cookie, X-Vercel-IP-Country, User-Agent");
       return redirect;
     }
   }
@@ -234,7 +255,8 @@ export async function proxy(request: NextRequest) {
   else if (path.startsWith("/compte") || pathname.startsWith("/api/account")) response = await refreshCustomerSession(request, nonce, locale, target);
   else response = forward(request, nonce, locale, target);
 
-  if (publicPage && remembered !== locale) response.cookies.set(LOCALE_COOKIE, locale, { httpOnly: true, sameSite: "lax", secure: secureCookie, path: "/", maxAge: LOCALE_COOKIE_MAX_AGE });
+  // langue retenue : la première trouvée, puis l'anglais d'une page /en/… ouverte
+  if (publicPage && !creatrice && retenue !== locale && (translated || !retenue)) response.cookies.set(LOCALE_COOKIE, locale, langueCookie);
 
   // site privé : aucune réponse n'est indexée, même pour la créatrice connectée
   if (sitePrive()) response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");

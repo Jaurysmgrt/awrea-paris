@@ -876,3 +876,24 @@ Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/
   erreur 500 de Next.js avant d’atteindre le site, publique comme privée.
 - Tests : règle des gestes (unitaires), parcours remboursement fait une seule fois même avec deux
   demandes simultanées, confirmation qui dit ce qui va se passer.
+
+## Brief de la créatrice : langue automatique, Savoir-faire, étapes de confection (09/11)
+
+- Langue : le sélecteur « FR · EN » quitte l’en-tête et le menu du téléphone ; l’en-tête garde ses
+  proportions (navigation exactement au centre). À la première visite, le pays (adresse IP) puis
+  le navigateur puis l’anglais choisissent la langue, avant tout affichage ; elle est retenue et
+  appliquée aux visites suivantes (`langueVoulue`). Changer de langue : modifier l’adresse (/en/…,
+  /fr/…), choix retenu. Robots jamais redirigés, hreflang et adresses /en inchangés. Page cookies
+  et politique de confidentialité mises à jour (pays non conservé).
+- Menu : « À la demande » devient « Savoir-faire » (français et anglais), sous-menus et animations
+  inchangés.
+- Étapes de confection : chronologie verticale de cinq étapes (textes validés, mot pour mot),
+  ligne fine révélée au défilement, numéros posés sur la ligne, photos en noir et blanc, texte à
+  gauche et photo à droite sur ordinateur ; « Le temps de la création » centré, hauts et bodies
+  2 à 3 semaines, robes 3 à 4 semaines (lus dans le catalogue), lien vers les CGV ; engagement,
+  suivi et conseil en trois colonnes à filets sur ordinateur, carrousel aimanté à trois points sur
+  téléphone et tablette, liens typographiques à petite flèche, mêmes destinations.
+- Modes Jour et Nuit suivis comme partout ; animations apaisées respectées.
+- Tests : langue (unitaires et parcours : première visite, retour, /fr, /en, robots), menu,
+  chronologie, délais, trois espaces sur ordinateur et téléphone, accessibilité, responsive,
+  homogénéité.

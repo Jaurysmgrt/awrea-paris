@@ -1,6 +1,6 @@
 /**
  * En-tête du site (maquette EN-TÊTE DU SITE) : logo entier centré, navigation centrée dessous,
- * cinq entrées au plus (Accueil, À la demande, Collections, Contact, Mon Panier), aucune bannière.
+ * cinq entrées au plus (Accueil, Savoir-faire, Collections, Contact, Mon Panier), aucune bannière.
  * Composant serveur : il lit les entrées dans le document « navigation »
  * (content/site/fr/navigation.json, modifiable dans l'éditeur Édition) et les confie à la barre
  * interactive (HeaderBar, components/layout/Menu.tsx).

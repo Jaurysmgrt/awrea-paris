@@ -148,7 +148,7 @@ test.describe("Pages de la Maison", () => {
     await expect(page.locator("main").getByText(/numéro d’édition|fait main à Paris|atelier parisien/i)).toHaveCount(0);
   });
 
-  test("à la demande : le chapeau centré, la frise des étapes de confection, les délais du catalogue, le suivi et le rendez-vous", async ({ page }) => {
+  test("étapes de confection : le chapeau centré, la chronologie, le temps de la création et les trois espaces", async ({ page }) => {
     await open(page, "/sur-commande");
     await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(surCommande.titre);
     // le chapeau, centré sur l'axe du titre, jamais au fer à gauche (dossier du 02/11), 650 px au plus
@@ -159,20 +159,28 @@ test.describe("Pages de la Maison", () => {
     expect(texte!.width).toBeLessThanOrEqual(650);
     await expect(page.locator("main .eyebrow").first()).toHaveText(surCommande.etapes.surtitre);
     await expect(page.getByRole("heading", { level: 2, name: "Le parcours d’une création singulière" })).toBeVisible();
-    // la frise : six étapes, chacune son nom, sa phrase, son texte mot pour mot et sa photographie
+    // la chronologie : cinq étapes (brief du 09/11), chacune son nom, sa phrase, son texte mot pour
+    // mot et sa photographie
     const etapes = page.locator("#frise-etapes > li");
-    await expect(etapes).toHaveCount(6);
+    await expect(etapes).toHaveCount(5);
     await expect(etapes.locator("h3")).toHaveText(surCommande.etapes.frise.map((e) => e.titre));
-    await expect(etapes.locator(".t-label")).toHaveText(surCommande.etapes.frise.map((e) => `${e.numero} ${e.nom}`));
+    await expect(etapes.locator(".t-label")).toHaveText(surCommande.etapes.frise.map((e) => e.nom));
     for (const [i, e] of surCommande.etapes.frise.entries()) {
       await expect(etapes.nth(i).locator("p.t-note")).toHaveText(e.texte);
       await expect(etapes.nth(i).locator("img")).toHaveAttribute("alt", e.image.alt);
     }
-    await expect(page.locator("main dl dd")).toHaveCount(2);
-    for (const dd of await page.locator("main dl dd").all()) await expect(dd).toHaveText(/\d+(\s| )(à(\s| )\d+(\s| ))?semaines?/);
-    await expect(page.locator('main a[href="/suivi"]')).toBeVisible();
-    await expect(page.locator('main a[href="/rendez-vous"]')).toBeVisible();
-    expect(await officialText(page)).toContain(plain(surCommande.ethique.citation.texte));
+    // le temps de la création : deux familles, leur délai lu dans le catalogue, tout centré
+    await expect(page.getByRole("heading", { level: 2, name: surCommande.delais.titre })).toBeVisible();
+    const delais = page.locator("main dl dd.t-h3");
+    await expect(delais).toHaveCount(2);
+    for (const dd of await delais.all()) {
+      await expect(dd).toHaveText(/\d+(\s| )(à(\s| )\d+(\s| ))?semaines?/);
+      await expect(dd).toHaveCSS("text-align", "center");
+    }
+    await expect(page.locator("main dl dt")).toHaveText(Object.values(surCommande.delais.groupes));
+    await expect(page.locator('main a[href="/cgv"]')).toHaveText(surCommande.delais.fin.lien.label);
+    // l'engagement, le suivi et le conseil : leurs destinations de toujours
+    for (const e of surCommande.espaces.liste) await expect(page.locator(`main a[href="${e.lien.href}"]`, { hasText: e.lien.label })).toBeVisible();
   });
 
   test("guide des tailles : le tableau des réglages et le chemin vers « Trouver ma taille »", async ({ page }) => {
@@ -223,21 +231,24 @@ test.describe("Pages de la Maison", () => {
   });
 });
 
-test.describe("frise des étapes de confection", () => {
-  test("ordinateur : une ligne horizontale, les étapes alternées au-dessus et au-dessous, sans chevauchement", async ({ page, isMobile }) => {
-    test.skip(isMobile, "frise horizontale sur ordinateur");
+test.describe("chronologie des étapes de confection", () => {
+  test("ordinateur : une chronologie verticale, le texte à gauche et la photographie à droite", async ({ page, isMobile }) => {
+    test.skip(isMobile, "mise en page de l'ordinateur");
     await page.setViewportSize({ width: 1440, height: 900 });
     await open(page, "/sur-commande");
     const etapes = page.locator("#frise-etapes > li");
     await etapes.first().scrollIntoViewIfNeeded();
     const boites = await etapes.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
-    // 1, 3, 5 au-dessus, 2, 4, 6 au-dessous ; de gauche à droite
-    for (const i of [0, 2, 4]) expect(boites[i].bottom).toBeLessThan(boites[1].top);
-    for (let i = 1; i < 6; i++) expect(boites[i].left).toBeGreaterThan(boites[i - 1].left);
-    // aucune étape ne chevauche sa voisine du même côté
-    for (const [a, b] of [[0, 2], [2, 4], [1, 3], [3, 5]]) expect(boites[a].right).toBeLessThanOrEqual(boites[b].left + 1);
+    // de haut en bas, sans chevauchement, alignées sur la même ligne
+    for (let i = 1; i < boites.length; i++) {
+      expect(boites[i].top).toBeGreaterThanOrEqual(boites[i - 1].bottom);
+      expect(Math.abs(boites[i].left - boites[0].left)).toBeLessThan(2);
+    }
+    const premiere = etapes.first();
+    const [texte, photo] = await Promise.all([premiere.locator("h3").boundingBox(), premiere.locator("img").boundingBox()]);
+    expect(photo!.x).toBeGreaterThan(texte!.x + texte!.width - 1);
     // photographies en noir et blanc
-    await expect(etapes.first().locator("img")).toHaveCSS("filter", "grayscale(1)");
+    await expect(premiere.locator("img")).toHaveCSS("filter", "grayscale(1)");
   });
 
   test("téléphone : chronologie verticale, étapes empilées, sans débordement", async ({ page }) => {
@@ -245,7 +256,7 @@ test.describe("frise des étapes de confection", () => {
     await open(page, "/sur-commande");
     const etapes = page.locator("#frise-etapes > li");
     const boites = await etapes.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
-    for (let i = 1; i < 6; i++) expect(boites[i].top).toBeGreaterThanOrEqual(boites[i - 1].bottom);
+    for (let i = 1; i < boites.length; i++) expect(boites[i].top).toBeGreaterThanOrEqual(boites[i - 1].bottom);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   });
 
@@ -254,5 +265,38 @@ test.describe("frise des étapes de confection", () => {
     await open(page, "/sur-commande");
     await expect(page.locator("#frise-etapes")).not.toHaveAttribute("data-anime", /.*/);
     await expect(page.locator("#frise-etapes > li").last()).toHaveCSS("opacity", "1");
+  });
+});
+
+test.describe("l'engagement, le suivi et le conseil", () => {
+  test("ordinateur : trois colonnes côte à côte, séparées de filets ; aucun point de carrousel", async ({ page, isMobile }) => {
+    test.skip(isMobile, "mise en page de l'ordinateur");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await open(page, "/sur-commande");
+    const espaces = page.locator("main ul[aria-label] > li");
+    await expect(espaces).toHaveCount(3);
+    const boites = await espaces.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
+    for (let i = 1; i < 3; i++) {
+      expect(Math.abs(boites[i].top - boites[0].top)).toBeLessThan(2);
+      expect(boites[i].left).toBeGreaterThanOrEqual(boites[i - 1].right - 1);
+    }
+    await expect(espaces.nth(1)).toHaveCSS("border-left-style", "solid");
+    await expect(page.getByRole("button", { name: /Aller à l’espace/ }).first()).toBeHidden();
+  });
+
+  test("téléphone : un carrousel horizontal, trois points discrets, sans débordement de la page", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await open(page, "/sur-commande");
+    await waitForHydration(page);
+    const espaces = page.locator("main ul[aria-label] > li");
+    const [premier, second] = await Promise.all([espaces.nth(0).boundingBox(), espaces.nth(1).boundingBox()]);
+    expect(second!.x).toBeGreaterThan(premier!.x + premier!.width - 1);
+    expect(Math.abs(second!.y - premier!.y)).toBeLessThan(2);
+    const points = page.getByRole("button", { name: /Aller à l’espace/ });
+    await expect(points).toHaveCount(3);
+    await expect(points.first()).toHaveAttribute("aria-current", "true");
+    await points.nth(2).click();
+    await expect(points.nth(2)).toHaveAttribute("aria-current", "true");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   });
 });

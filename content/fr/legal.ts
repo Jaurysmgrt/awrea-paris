@@ -301,6 +301,7 @@ export const legalPages = {
                 ["Contact, rendez-vous, sur-mesure", "Nom, e-mail, message, créneau, mesures communiquées", "Mesures précontractuelles ; intérêt légitime", "{{delaiConservationDevis}}"],
                 ["Certificats d’authenticité", "Numéro de création, code de vérification, pièce, commande, rattachement au compte", "Exécution du contrat", "Durée de vie du compte ; le certificat reste consultable sans donnée personnelle"],
                 ["Notifications (application installée)", "Abonnement technique du navigateur, thèmes choisis", "Consentement", "Jusqu’au désabonnement"],
+                ["Langue du site", "Pays déduit de l’adresse IP (jamais votre position précise), langue de votre navigateur", "Intérêt légitime (vous présenter le site dans votre langue)", "Le pays n’est pas conservé ; la langue retenue l’est 13 mois (cookie « awrea_langue »)"],
                 ["Sécurité, prévention de la fraude et des robots", "Adresse IP, journaux techniques et d’erreurs", "Intérêt légitime (sécurité du site)", "Quelques minutes (limitation de débit) ; 90 jours (journaux d’erreurs)"],
                 ["Preuves de consentement aux cookies", "Identifiant aléatoire, choix, date, version de la politique, navigateur", "Obligation légale (preuve du consentement)", "25 mois"],
               ],

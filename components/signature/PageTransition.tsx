@@ -8,7 +8,7 @@
  *
  * Tous les liens internes du site en profitent : un écouteur global intercepte les clics. Sous /en,
  * une adresse sans préfixe de langue y est ramenée (lib/i18n/routing.ts) : la visiteuse reste dans
- * sa langue. Le sélecteur de langue (data-no-transition) recharge la page.
+ * sa langue. Un lien marqué data-no-transition recharge la page.
  */
 import { createContext, useCallback, useContext, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";

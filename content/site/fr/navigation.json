@@ -2,7 +2,7 @@
   "principal": [
     { "label": "Accueil", "href": "/" },
     {
-      "label": "À la demande",
+      "label": "Savoir-faire",
       "sousMenu": [
         { "label": "Étapes de confection", "href": "/sur-commande" },
         { "label": "Le détail du savoir-faire", "href": "/atelier" },
@@ -57,10 +57,5 @@
       "titre": "Nous suivre",
       "liens": [{ "label": "Instagram", "href": "https://www.instagram.com/awrea.paris", "type": "instagram" }]
     }
-  ],
-  "langues": {
-    "titre": "Langue du site",
-    "fr": { "court": "FR", "nom": "Français" },
-    "en": { "court": "EN", "nom": "English" }
-  }
+  ]
 }

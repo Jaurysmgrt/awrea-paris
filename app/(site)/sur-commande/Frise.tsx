@@ -4,13 +4,14 @@ import { FriseApparition } from "./FriseApparition";
 import s from "./frise.module.css";
 
 /**
- * Les étapes de confection en frise (brief de la créatrice du 02/11, capture de référence n° 1) :
- * une ligne fine traverse la page, six étapes s'y accrochent par un petit cercle et un trait,
- * alternativement au-dessus et au-dessous, chacune avec sa photographie en noir et blanc. Sur
- * tablette et téléphone, la frise devient une chronologie verticale, la ligne sur le côté.
- * Apparitions douces au défilement, sur cette page seulement (FriseApparition) ; rien ne bouge en
- * animations apaisées. Textes : content/site/fr/sur-commande.json (etapes.frise). Les textes des étapes
- * sont ceux de la créatrice, mot pour mot : marqués data-officiel, seule la typographie y est contrôlée.
+ * Les étapes de confection en chronologie verticale (brief de la créatrice du 09/11) : cinq étapes de
+ * haut en bas, reliées par une ligne fine ; le numéro de chaque étape est posé sur la ligne, sans
+ * cercle ni carte. Chaque étape : son nom en capitales espacées, sa phrase en italique, son texte, et
+ * sa photographie en noir et blanc. La même chronologie sur ordinateur, tablette et téléphone ; sur
+ * ordinateur, la photographie passe à droite du texte.
+ * Apparition douce au défilement, sur cette page seulement (FriseApparition) : la ligne se révèle,
+ * chaque étape vient en fondu ; rien ne bouge en animations apaisées. Textes :
+ * content/site/fr/sur-commande.json (etapes.frise), ceux de la créatrice, mot pour mot (data-officiel).
  */
 export interface EtapeFrise {
   numero: string;
@@ -24,17 +25,20 @@ export function Frise({ etapes, officiel, id = "frise-etapes", className }: { et
   return (
     <>
       <ol id={id} className={`${s.frise} ${className ?? ""}`}>
-        {etapes.map((e, i) => (
-          <li key={e.numero} className={s.etape} data-cote={i % 2 ? "bas" : "haut"}>
-            <div className={s.texte} data-officiel={officiel ? "" : undefined}>
-              <p className={`t-label ${s.numero}`}>
-                <span aria-hidden="true">{e.numero}</span> {e.nom}
-              </p>
-              <h3 className="t-h4">{e.titre}</h3>
-              <p className="t-note t-left">{e.texte}</p>
-            </div>
-            <div className={s.photo}>
-              <Media image={e.image} ratio="landscape" sizes="(min-width: 64rem) 26vw, 100vw" provisoire={e.image.provisoire} />
+        {etapes.map((e) => (
+          <li key={e.numero} className={s.etape}>
+            <span className={s.numero} aria-hidden="true">
+              {e.numero}
+            </span>
+            <div className={s.contenu}>
+              <div className={s.texte} data-officiel={officiel ? "" : undefined}>
+                <p className={`t-label ${s.nom}`}>{e.nom}</p>
+                <h3 className="t-h4">{e.titre}</h3>
+                <p className="t-note t-left">{e.texte}</p>
+              </div>
+              <div className={s.photo}>
+                <Media image={e.image} ratio="landscape" sizes="(min-width: 64rem) 40vw, 100vw" provisoire={e.image.provisoire} />
+              </div>
             </div>
           </li>
         ))}

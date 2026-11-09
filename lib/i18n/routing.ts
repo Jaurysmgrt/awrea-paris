@@ -22,9 +22,9 @@ export type { Locale };
 export const LOCALE_HEADER = "x-awrea-locale";
 
 /**
- * Cookie de la langue de la visiteuse : posé dès sa première page, puis suivi à chaque page (le
- * sélecteur FR · EN le met donc à jour). Tant qu'il est absent, proxy.ts choisit la langue d'après
- * le navigateur (preferredLocale).
+ * Cookie de la langue retenue de la visiteuse (brief du 09/11) : la langue automatique de sa
+ * première visite, puis celle qu'elle choisit en modifiant l'adresse (une page /en/…, ou /fr/…
+ * pour le français). Une adresse française la ramène à cette langue (langueVoulue, proxy.ts).
  */
 export const LOCALE_COOKIE = "awrea_langue";
 /** Durée du cookie de langue : 13 mois, comme les autres préférences. */
@@ -53,6 +53,55 @@ export function preferredLocale(header: string | null | undefined): Locale | nul
   }
   return "en";
 }
+
+/**
+ * Pays de France (métropole et outre-mer), servis en français quelle que soit la langue du
+ * navigateur (brief de la créatrice du 09/11).
+ */
+const PAYS_FRANCE = new Set(["FR", "GP", "MQ", "GF", "RE", "YT", "PM", "BL", "MF", "NC", "PF", "WF", "TF"]);
+/**
+ * Pays anglophones, servis en anglais. Le Canada n'y figure pas : son adresse IP ne dit pas si la
+ * visiteuse est anglophone ou francophone, c'est donc son navigateur qui décide.
+ */
+const PAYS_ANGLOPHONES = new Set(["GB", "US", "IE", "AU", "NZ", "ZA", "SG", "MT", "GI", "IM", "JE", "GG", "BM", "KY", "JM", "BS", "BB", "TT"]);
+
+/**
+ * Langue choisie automatiquement à la première visite (brief du 09/11), sans demander la position :
+ * le pays (géolocalisation approximative par l'adresse IP, en-tête x-vercel-ip-country) d'abord,
+ * puis la langue du navigateur, puis l'anglais. Null sans aucun signal (ni pays ni langue annoncée :
+ * un robot d'indexation), pour que la page demandée soit servie telle quelle.
+ */
+export function langueAuto(pays: string | null | undefined, acceptLanguage: string | null | undefined): Locale | null {
+  const code = pays?.trim().toUpperCase();
+  if (code && PAYS_FRANCE.has(code)) return "fr";
+  if (code && PAYS_ANGLOPHONES.has(code)) return "en";
+  const navigateur = preferredLocale(acceptLanguage);
+  if (navigateur) return navigateur;
+  return code ? "en" : null;
+}
+
+/**
+ * Langue d'une adresse française ouverte par une visiteuse : la langue retenue (cookie), sinon la
+ * langue automatique. Sans sélecteur, la langue reste ainsi la même d'une visite à l'autre, même en
+ * revenant par l'adresse du site.
+ */
+export function langueVoulue(retenue: string | null | undefined, pays: string | null | undefined, acceptLanguage: string | null | undefined): Locale | null {
+  return retenue && isLocale(retenue) ? retenue : langueAuto(pays, acceptLanguage);
+}
+
+/**
+ * Le français choisi en modifiant l'adresse : « /fr/boutique » → « /boutique », « /fr » → « / ».
+ * Le français vit à la racine ; /fr/… ne sert qu'à le choisir (puis à le retenir) sans sélecteur.
+ * Null pour toute autre adresse ou pour un chemin sans version française publique.
+ */
+export function adresseFrancaise(pathname: string): string | null {
+  if (pathname !== "/fr" && !pathname.startsWith("/fr/")) return null;
+  const path = pathname.slice(3) || "/";
+  return isLocalizable(path) && splitLocale(path).locale === DEFAULT_LOCALE ? path : null;
+}
+
+/** Robots d'indexation et d'aperçu : jamais redirigés, chaque version reste indexable. */
+export const estRobot = (userAgent: string | null | undefined) => /bot|crawl|spider|slurp|facebookexternalhit|embedly|quora link preview|whatsapp|telegram|pinterest|bingpreview|lighthouse|pagespeed/i.test(userAgent ?? "");
 
 /** Attribut lang de <html>. */
 export const HTML_LANG: Record<Locale, string> = { fr: "fr", en: "en" };
@@ -106,7 +155,7 @@ export function localizePath(href: string, locale: Locale): string {
   return `${prefixOf(locale)}${path === "/" ? "" : path}${rest}`;
 }
 
-/** Même adresse dans une autre langue (sélecteur de langue, hreflang) : « /en/boutique » → « /boutique ». */
+/** Même adresse dans une autre langue (hreflang, plan du site) : « /en/boutique » → « /boutique ». */
 export function switchLocale(pathname: string, locale: Locale): string {
   const path = stripLocale(pathname);
   return locale === DEFAULT_LOCALE ? path : localizePath(path, locale);

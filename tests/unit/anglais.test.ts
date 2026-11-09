@@ -1,7 +1,7 @@
 /** Version anglaise du site (/en) : adresses, traductions des fiches, formats, noms de pièces. */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isLocalizable, localizeHref, localizePath, preferredLocale, splitLocale, stripLocale, switchLocale } from "@/lib/i18n/routing";
+import { adresseFrancaise, estRobot, isLocalizable, langueAuto, langueVoulue, localizeHref, localizePath, preferredLocale, splitLocale, stripLocale, switchLocale } from "@/lib/i18n/routing";
 import { translateCollection, translatePiece, translatePieces } from "@/lib/commerce/translations";
 import { formatDate, formatPrice } from "@/lib/format";
 import { fill } from "@/lib/edition/fill";
@@ -52,7 +52,56 @@ test("langue à la première arrivée : la première langue du navigateur que le
   assert.equal(preferredLocale("fr;q=0"), null);
 });
 
-test("même page dans l'autre langue (sélecteur, hreflang)", () => {
+test("langue automatique (brief du 09/11) : le pays d'abord, puis le navigateur, puis l'anglais", () => {
+  // France, métropole et outre-mer : le français, même avec un navigateur en anglais
+  assert.equal(langueAuto("FR", "en-US,en;q=0.9"), "fr");
+  assert.equal(langueAuto("re", "en"), "fr");
+  // pays anglophones : l'anglais, même avec un navigateur en français
+  for (const pays of ["GB", "US", "IE", "AU"]) assert.equal(langueAuto(pays, "fr-FR,fr;q=0.9"), "en", pays);
+  // autres pays : la langue du navigateur quand le site la propose, sinon l'anglais
+  assert.equal(langueAuto("BE", "fr-BE,fr;q=0.9"), "fr");
+  assert.equal(langueAuto("CH", "de-CH,de;q=0.9,fr;q=0.8"), "fr");
+  assert.equal(langueAuto("DE", "de-DE,de;q=0.9"), "en");
+  assert.equal(langueAuto("JP", null), "en");
+  // Canada : l'adresse IP ne dit pas la langue, le navigateur décide
+  assert.equal(langueAuto("CA", "fr-CA,fr;q=0.9"), "fr");
+  assert.equal(langueAuto("CA", "en-CA,en;q=0.9"), "en");
+  // pays inconnu (essais, réseau sans géolocalisation) : le navigateur
+  assert.equal(langueAuto(null, "fr-FR"), "fr");
+  assert.equal(langueAuto(undefined, "en-GB"), "en");
+  // aucun signal (robots d'indexation) : la page demandée, telle quelle
+  assert.equal(langueAuto(null, null), null);
+  assert.equal(langueAuto("", ""), null);
+});
+
+test("langue retenue : elle prime sur le pays et le navigateur aux visites suivantes", () => {
+  // une visiteuse anglaise qui revient par l'adresse du site, même depuis la France
+  assert.equal(langueVoulue("en", "FR", "fr-FR"), "en");
+  // une visiteuse qui a choisi le français (/fr/…), même depuis Londres
+  assert.equal(langueVoulue("fr", "GB", "en-GB"), "fr");
+  // pas encore de langue retenue, ou une valeur inconnue : la langue automatique
+  assert.equal(langueVoulue(undefined, "GB", "fr-FR"), "en");
+  assert.equal(langueVoulue("de", "FR", "en-GB"), "fr");
+  assert.equal(langueVoulue(null, null, null), null);
+});
+
+test("le français choisi en modifiant l'adresse : /fr/… mène à l'adresse française habituelle", () => {
+  assert.equal(adresseFrancaise("/fr"), "/");
+  assert.equal(adresseFrancaise("/fr/"), "/");
+  assert.equal(adresseFrancaise("/fr/la-maison"), "/la-maison");
+  assert.equal(adresseFrancaise("/fr/boutique/body-aura"), "/boutique/body-aura");
+  // autres adresses : rien à faire
+  for (const p of ["/", "/la-maison", "/frise", "/francais", "/en/la-maison"]) assert.equal(adresseFrancaise(p), null, p);
+  // ni l'API, ni l'Atelier, ni les fichiers, ni une adresse anglaise glissée derrière /fr
+  for (const p of ["/fr/api/checkout", "/fr/prive-abc/commandes", "/fr/llms.txt", "/fr/en/boutique", "/fr//exemple.com"]) assert.equal(adresseFrancaise(p), null, p);
+});
+
+test("robots d'indexation et d'aperçu reconnus, navigateurs jamais pris pour des robots", () => {
+  for (const ua of ["Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)", "Mozilla/5.0 (compatible; bingbot/2.0)", "facebookexternalhit/1.1", "Mozilla/5.0 (compatible; Applebot/0.1)"]) assert.equal(estRobot(ua), true, ua);
+  for (const ua of ["Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/140.0 Safari/537.36", "", null]) assert.equal(estRobot(ua), false, String(ua));
+});
+
+test("même page dans l'autre langue (hreflang)", () => {
   assert.equal(switchLocale("/boutique", "en"), "/en/boutique");
   assert.equal(switchLocale("/en/boutique", "fr"), "/boutique");
   assert.equal(switchLocale("/en", "fr"), "/");
