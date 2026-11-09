@@ -54,7 +54,7 @@ jobs:
           node scripts/maintenance-check.mjs
           echo "status=$(node -p "require('./maintenance/bilan.json').status")" >> "$GITHUB_OUTPUT"
           cat maintenance/bilan.md >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: bilan
           path: maintenance/
@@ -130,7 +130,7 @@ jobs:
         run: |
           url=$(gh pr list --state open --search "head:maintenance/" --json url,createdAt --jq 'sort_by(.createdAt) | last | .url // ""')
           echo "url=$url" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: rapport-reparation
