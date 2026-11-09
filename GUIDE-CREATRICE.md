@@ -95,6 +95,24 @@ passent en blanc cassé, texte noir, puis la page redevient noire.
 
 ![L’écran de la double authentification avec son code carré](docs/guide/01-double-authentification.png)
 
+### À deux dans l’Atelier
+
+Chaque personne a son propre accès : sa propre adresse e-mail, son propre mot de passe, son propre
+code à six chiffres et son propre Face ID. Ne partagez pas un même compte : le journal de l’Atelier
+dit alors qui a fait quoi, et un téléphone perdu se coupe sans gêner l’autre.
+
+1. La personne qui s’occupe du site ajoute la seconde adresse e-mail dans Vercel, à la suite de la
+   première, séparée par une virgule (variable `ATELIER_ACCOUNTS`, `ACTIVATION.md` étape 2), puis
+   relance le site.
+2. La seconde personne suit « La première fois » ci-dessus avec sa propre adresse et le mot de passe
+   d’installation, puis choisit son mot de passe et installe son code.
+3. Après le code, chacune accepte **Ajouter Face ID** sur son propre téléphone.
+
+Sur un téléphone où l’empreinte n’a pas encore été ajoutée, l’Atelier demande d’abord l’adresse et
+le mot de passe : c’est normal. Si vous touchez quand même « Entrer avec Face ID ou l’empreinte », le
+téléphone répond « Aucune clé d’accès disponible » : entrez avec l’adresse et le mot de passe, puis
+acceptez **Ajouter Face ID**.
+
 ### Les fois suivantes : Face ID ou l’empreinte
 
 Après le code, l’Atelier vous propose **Ajouter Face ID** sur l’appareil où vous êtes (téléphone,

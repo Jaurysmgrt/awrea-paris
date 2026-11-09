@@ -15,13 +15,52 @@ export function useFaceIdPossible(): boolean {
   return useSyncExternalStore(rien, () => browserSupportsWebAuthn(), () => false);
 }
 
+/**
+ * Cet appareil a-t-il déjà ouvert l'Atelier avec Face ID ou l'empreinte (ou ajouté sa clé) ? Retenu
+ * dans ce navigateur seulement, sans rien de secret : la page de connexion ne met en avant Face ID
+ * que là où il sert. Ailleurs, l'adresse et le mot de passe passent d'abord, et Android ou iOS
+ * n'affichent plus « Aucune clé d'accès disponible » à la première visite d'un nouveau téléphone.
+ */
+const CLE_ICI = "awrea-atelier-cle";
+const CHANGE = "awrea-atelier-cle";
+function noterCleIci(oui: boolean) {
+  try {
+    if (oui) localStorage.setItem(CLE_ICI, "1");
+    else localStorage.removeItem(CLE_ICI);
+  } catch {
+    /* navigation privée : rien à retenir */
+  }
+  window.dispatchEvent(new Event(CHANGE));
+}
+function abonner(rappel: () => void) {
+  window.addEventListener("storage", rappel);
+  window.addEventListener(CHANGE, rappel);
+  return () => {
+    window.removeEventListener("storage", rappel);
+    window.removeEventListener(CHANGE, rappel);
+  };
+}
+export function useCleIci(): boolean {
+  return useSyncExternalStore(
+    abonner,
+    () => {
+      try {
+        return localStorage.getItem(CLE_ICI) === "1";
+      } catch {
+        return false;
+      }
+    },
+    () => false,
+  );
+}
+
 async function post(url: string, body: unknown) {
   const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).catch(() => null);
   const json = res ? await res.json().catch(() => ({})) : {};
   return { ok: Boolean(res?.ok), json };
 }
 
-const ANNULE = "Face ID a été annulé. Réessayez, ou entrez avec votre adresse et votre mot de passe.";
+const ANNULE = "Face ID ou l’empreinte n’a pas ouvert l’Atelier. Première fois sur cet appareil ? Entrez avec votre adresse et votre mot de passe : l’Atelier vous proposera ensuite d’ajouter l’empreinte.";
 
 /** Connexion : renvoie null si l'Atelier est ouvert, sinon le message à afficher. */
 export async function entrerAvecFaceId(api: (p: string) => string): Promise<string | null> {
@@ -34,6 +73,8 @@ export async function entrerAvecFaceId(api: (p: string) => string): Promise<stri
     return ANNULE;
   }
   const v = await post(api("/login/passkey"), reponse);
+  // une clé refusée (retirée, compte retiré) : l'adresse et le mot de passe repassent d'abord
+  noterCleIci(v.ok);
   return v.ok ? null : (v.json.error ?? "Face ID n’a pas pu vous reconnaître.");
 }
 
@@ -45,9 +86,14 @@ export async function ajouterCetAppareil(api: (p: string) => string): Promise<st
   try {
     reponse = await startRegistration({ optionsJSON: o.json });
   } catch (e) {
-    return e instanceof Error && e.name === "InvalidStateError" ? "Cet appareil ouvre déjà l’Atelier avec Face ID." : "L’ajout a été annulé.";
+    if (e instanceof Error && e.name === "InvalidStateError") {
+      noterCleIci(true);
+      return "Cet appareil ouvre déjà l’Atelier avec Face ID.";
+    }
+    return "L’ajout a été annulé.";
   }
   const v = await post(api("/securite/passkey"), reponse);
+  if (v.ok) noterCleIci(true);
   return v.ok ? null : (v.json.error ?? "La clé n’a pas pu être enregistrée.");
 }
 
