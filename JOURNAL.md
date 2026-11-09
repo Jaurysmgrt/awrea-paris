@@ -1003,3 +1003,18 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
   message clair si aucune clé ne répond.
 - À deux : chaque personne a son compte (`ATELIER_ACCOUNTS`), son mot de passe, son code et son
   Face ID ; marche à suivre dans le guide.
+
+## Atelier : ajouter une personne sans passer par Vercel (09/11)
+
+- Demande de la créatrice : deux personnes dans l’Atelier, sans dépendre de Vercel ni partager le
+  même code. Réglages › Sécurité › « Les personnes de l’Atelier » : la propriétaire ajoute une
+  personne (son adresse et son propre code à six chiffres), lui donne un code d’invitation à usage
+  unique (72 heures, message prêt à copier), peut lui redonner un code ou la retirer.
+- Garde-fous : propriétaire seule (première adresse de Vercel), code redemandé à chaque geste,
+  invitation gardée en empreinte seulement, cinq personnes au plus, adresses de Vercel intouchables,
+  retrait immédiat (sessions, compte, Face ID, notifications), alerte e-mail et application, journal.
+  « Remettre à zéro » un compte de Vercel devient réservé à la propriétaire ; l’étape de choix du
+  mot de passe refuse un compte qui en a déjà un.
+- Application : les onglets du téléphone ne coupent plus « Commandes » en plein mot.
+- Tests : règles (unitaires), parcours complet (ajout, code faux refusé, invitation à usage unique,
+  mot de passe d’installation refusé, droits, retrait et session coupée, alertes).

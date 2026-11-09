@@ -34,7 +34,10 @@ export type SecurityEventType =
   | "admin_revoked"
   | "admin_passkey_added"
   | "admin_passkey_removed"
-  | "admin_passkey_fail";
+  | "admin_passkey_fail"
+  | "admin_person_added"
+  | "admin_person_removed"
+  | "admin_person_invited";
 
 export interface SecurityEvent {
   at: string;
@@ -150,6 +153,33 @@ export async function alertPasskeyAdded(email: string, req: Request, ip: string)
     signature: "La sécurité du site Awrea Paris",
   });
   await sendEmail({ to: recipients(email).join(","), subject: "Face ID ajouté à l’Atelier", html, text, tag: "securite" }).catch((e) => console.error("[sécurité] alerte d’ajout de clé non envoyée", e));
+}
+
+/**
+ * Une personne ajoutée à l'Atelier, retirée, ou invitée de nouveau : la propriétaire est prévenue
+ * par e-mail (copie à SECURITY_ALERT_EMAIL) et sur l'application, avec le lien « Ce n'était pas
+ * moi » qui ferme tout. Le code d'invitation n'est jamais envoyé.
+ */
+export async function alertPersonne(action: "ajout" | "retrait" | "invitation", personne: string, par: string, req: Request, ip: string) {
+  const type = action === "ajout" ? "admin_person_added" : action === "retrait" ? "admin_person_removed" : "admin_person_invited";
+  const ev = await logSecurityEvent(type, req, ip, `${personne} (par ${par})`);
+  const titre = action === "ajout" ? "Personne ajoutée à l’Atelier" : action === "retrait" ? "Personne retirée de l’Atelier" : "Nouveau code d’invitation";
+  const fait =
+    action === "ajout"
+      ? `${personne} a été ajoutée à l’Atelier. Elle entrera une première fois avec son code d’invitation, puis choisira son mot de passe et son code.`
+      : action === "retrait"
+        ? `${personne} a été retirée de l’Atelier. Ses sessions, son mot de passe, sa double authentification, son Face ID et les notifications de ses appareils sont supprimés.`
+        : `${personne} a reçu un nouveau code d’invitation. Son ancien mot de passe, sa double authentification et son Face ID ne servent plus.`;
+  await signaler({ type: "securite", titre, texte: action === "retrait" ? "Une personne a été retirée de l’Atelier." : "Une personne peut maintenant entrer dans l’Atelier.", chemin: "/reglages", etiquette: "personnes" });
+  const link = await revokeLink(par);
+  const { html, text } = brandEmail({
+    preheader: titre,
+    title: titre,
+    paragraphs: [`Le ${when(ev.at)}, depuis ${ev.device} (réseau ${ev.network}${place(req)}) : ${fait}`, "Si c’est bien vous, il n’y a rien à faire.", "Si ce n’est pas vous, ouvrez le lien ci-dessous : toutes les sessions seront fermées et votre compte remis à zéro."],
+    cta: { label: "Ce n’était pas moi", href: link },
+    signature: "La sécurité du site Awrea Paris",
+  });
+  await sendEmail({ to: recipients(par).join(","), subject: titre, html, text, tag: "securite" }).catch((e) => console.error("[sécurité] alerte sur les personnes non envoyée", e));
 }
 
 /** Compte bloqué après plusieurs échecs : la titulaire est prévenue. */

@@ -145,6 +145,16 @@ demandent le plan Pro de Supabase).
   alerte de connexion que le mot de passe. Résistant à l'hameçonnage : la clé est liée à l'adresse
   du site. « Ce n'était pas moi » et la remise à zéro d'un compte effacent ses clés. Le mot de passe
   et le code restent en secours.
+- **Personnes de l'Atelier** (`lib/auth/personnes.ts`, `app/api/gestion/personnes`, 09/11) : en plus
+  des adresses de Vercel (`ATELIER_ACCOUNTS`), la propriétaire (la première de ces adresses), et
+  elle seule, ajoute ou retire une personne depuis Réglages › Sécurité, en redonnant à chaque geste
+  son code à six chiffres (anti-rejeu, cinq codes faux bloquent son compte une demi-heure). La
+  personne entre une première fois avec un code d'invitation de 80 bits, à usage unique (jeton
+  atomique), valable 72 heures, dont seule l'empreinte SHA-256 est gardée ; le mot de passe
+  d'installation ne lui ouvre rien. Cinq personnes ajoutées au plus ; les adresses de Vercel ne se
+  retirent pas d'ici. Une personne retirée ne passe plus dès la requête suivante (adresse revérifiée
+  à chaque requête) : compte, clés Face ID et appareils notifiés effacés. Chaque geste prévient la
+  propriétaire (e-mail avec « Ce n'était pas moi », application) et s'inscrit au journal.
 - **Blocage** : cinq échecs (mot de passe ou code) bloquent une adresse une demi-heure, même
   inconnue (rien ne révèle quels comptes existent), et préviennent la titulaire par e-mail ; huit
   échecs par quart d'heure bloquent l'adresse IP.

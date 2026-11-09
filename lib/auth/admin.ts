@@ -16,7 +16,7 @@ import { cookies } from "next/headers";
 import { kv } from "@/lib/store";
 import { atelierBase, ATELIER_INTERNAL } from "@/lib/admin/path";
 import { boutiqueReelle } from "@/lib/config/boutique";
-import { isAllowed } from "./accounts";
+import { estAutorisee } from "./accounts";
 import { sign, verify } from "./session";
 
 export const ADMIN_COOKIE = "awrea_admin";
@@ -71,7 +71,7 @@ export async function adminToken(email: string): Promise<string> {
 
 async function adminPayload(token: string | undefined | null): Promise<AdminPayload | null> {
   const payload = verify<AdminPayload>(token);
-  if (payload?.role !== "atelier" || !payload.email || !isAllowed(payload.email)) return null;
+  if (payload?.role !== "atelier" || !payload.email || !(await estAutorisee(payload.email))) return null;
   return (payload.g ?? 0) === (await sessionGeneration()) ? payload : null;
 }
 
@@ -109,7 +109,7 @@ export async function setPreAuthCookie(email: string, stage: PreAuthStage) {
 /** Étape en cours de la connexion (mot de passe déjà vérifié), ou null. */
 export async function preAuth(): Promise<{ email: string; stage: PreAuthStage } | null> {
   const p = verify<{ email: string; stage: PreAuthStage }>((await cookies()).get(ADMIN_PRE_COOKIE)?.value);
-  return p?.email && isAllowed(p.email) ? p : null;
+  return p?.email && (await estAutorisee(p.email)) ? p : null;
 }
 
 export async function clearPreAuth() {

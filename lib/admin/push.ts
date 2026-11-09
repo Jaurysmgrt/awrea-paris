@@ -97,6 +97,14 @@ export async function oublierTousLesAppareils(): Promise<void> {
   await kv.del(CLE).catch(() => {});
 }
 
+/** Personne retirée de l'Atelier : les appareils qu'elle avait abonnés ne reçoivent plus rien. */
+export async function oublierAppareilsDe(email: string): Promise<void> {
+  const e = email.trim().toLowerCase();
+  const liste = await appareils();
+  const reste = liste.filter((a) => a.par.trim().toLowerCase() !== e);
+  if (reste.length !== liste.length) await kv.set(CLE, reste);
+}
+
 const baseAtelier = () => atelierBase() ?? ATELIER_INTERNAL;
 
 /**

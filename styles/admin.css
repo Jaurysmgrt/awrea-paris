@@ -1092,6 +1092,23 @@
     border: var(--border-width-hair) solid var(--line);
   }
 
+  /* invitation d'une personne à l'Atelier (Réglages, PersonnesAtelier.tsx) : montrée une fois */
+  .invitation {
+    padding: var(--spacing-s);
+    border: var(--border-width-hair) solid var(--line);
+  }
+  .invitation__infos {
+    display: grid;
+    gap: var(--spacing-3xs);
+    margin: 0;
+  }
+  .invitation__infos dd {
+    margin: 0 0 var(--spacing-2xs);
+  }
+  .invitation__code {
+    font-size: var(--text-step-1);
+  }
+
   /* ======================================== CERTIFICATS (impression atelier) */
   .certificate-print {
     display: grid;
@@ -1556,9 +1573,12 @@
     color: var(--fg);
     border-top: var(--border-width-hair) solid var(--line);
   }
+  /* colonnes à la mesure de leur mot, réparties sur la largeur : « Commandes » ne se coupe plus en
+     plein mot ; sur un écran très étroit seulement, une césure propre (« Com-mandes ») */
   .admin-tabs ul {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(5, auto);
+    justify-content: space-between;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -1574,7 +1594,7 @@
     line-height: var(--spacing-m);
     text-align: center;
     text-decoration: none;
-    overflow-wrap: anywhere;
+    hyphens: auto;
   }
   .admin-tabs__lien[aria-current="page"] {
     color: var(--fg);

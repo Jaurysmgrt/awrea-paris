@@ -1,14 +1,17 @@
 /**
  * Comptes autorisés de l'Atelier.
  *
- * Seules les adresses listées dans ATELIER_ACCOUNTS (séparées par des virgules) peuvent entrer ; à
- * défaut, l'adresse ATELIER_EMAIL, puis celle de la Maison. Chaque compte a son propre mot de passe
- * (scrypt, jamais stocké en clair) et sa propre double authentification (TOTP chiffré, codes de
- * secours à usage unique).
+ * Peuvent entrer : les adresses listées dans ATELIER_ACCOUNTS (séparées par des virgules ; à
+ * défaut, l'adresse ATELIER_EMAIL, puis celle de la Maison), et les personnes que la propriétaire
+ * (la première de ces adresses) a ajoutées depuis l'Atelier (lib/auth/personnes.ts, demande du 09/11).
+ * Chaque compte a son propre mot de passe (scrypt, jamais stocké en clair) et sa propre double
+ * authentification (TOTP chiffré, codes de secours à usage unique).
  *
- * Première connexion d'une adresse autorisée : le mot de passe d'installation (ATELIER_PASSWORD,
- * connu de la seule propriétaire) ouvre la création du mot de passe personnel, puis l'enrôlement de
- * la double authentification. Ensuite, seul le mot de passe personnel est accepté.
+ * Première connexion : pour une adresse de Vercel, le mot de passe d'installation (ATELIER_PASSWORD,
+ * connu de la seule propriétaire) ; pour une personne ajoutée, son code d'invitation à usage unique.
+ * Il ouvre la création du mot de passe personnel, puis l'enrôlement de la double authentification.
+ * Ensuite, seul le mot de passe personnel est accepté. Une personne retirée ne peut plus entrer, et
+ * ses sessions ouvertes cessent aussitôt (lib/auth/admin.ts vérifie l'adresse à chaque requête).
  *
  * Blocage : cinq échecs (mot de passe ou code) bloquent l'adresse pour une demi-heure et préviennent
  * sa titulaire par e-mail ; une adresse inconnue est traitée de la même façon (rien ne révèle quels
@@ -19,6 +22,7 @@ import { createHash, randomBytes, scrypt as scryptCb, timingSafeEqual, type Scry
 import { kv } from "@/lib/store";
 import { identity } from "@/content/brand/identity";
 import { base32Encode, decryptSecret, encryptSecret, hashRecoveryCode, matchCounter, otpauthUri } from "./totp";
+import { personnesAjoutees } from "./personnes";
 
 /** blocage d'une adresse : cinq échecs (mot de passe ou code) par demi-heure, comptés même pour une adresse inconnue */
 export const ACCOUNT_GUARD = { limit: 5, windowSeconds: 30 * 60 };
@@ -53,13 +57,28 @@ const ACCOUNTS_KEY = "atelier:accounts";
 const enrollKey = (email: string) => `atelier:enroll:${email}`;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** Adresses autorisées, en minuscules. */
+/** Adresses réglées dans Vercel (ATELIER_ACCOUNTS), en minuscules : elles ne se retirent pas depuis l'Atelier. */
 export function allowedEmails(): string[] {
   const raw = process.env.ATELIER_ACCOUNTS || process.env.ATELIER_EMAIL || identity.email;
   return [...new Set(raw.split(/[\s,;]+/).map((e) => e.trim().toLowerCase()).filter((e) => EMAIL.test(e)))];
 }
 
-export const isAllowed = (email: string) => allowedEmails().includes(email.trim().toLowerCase());
+/** La propriétaire : la première adresse de Vercel, seule à pouvoir ajouter ou retirer une personne. */
+export const proprietaire = (): string | null => allowedEmails()[0] ?? null;
+
+/** Toutes les adresses qui peuvent entrer : celles de Vercel, puis les personnes ajoutées. */
+export async function adressesAutorisees(): Promise<string[]> {
+  const vercel = allowedEmails();
+  const ajoutees = (await personnesAjoutees().catch(() => [])).map((p) => p.email).filter((e) => !vercel.includes(e));
+  return [...vercel, ...ajoutees];
+}
+
+/** L'adresse peut-elle entrer ? Lue à chaque requête : une personne retirée ne passe plus. */
+export async function estAutorisee(email: string): Promise<boolean> {
+  const e = email.trim().toLowerCase();
+  if (allowedEmails().includes(e)) return true;
+  return (await personnesAjoutees().catch(() => [])).some((p) => p.email === e);
+}
 
 async function all(): Promise<Record<string, AtelierAccount>> {
   return (await kv.get<Record<string, AtelierAccount>>(ACCOUNTS_KEY)) ?? {};
@@ -67,7 +86,7 @@ async function all(): Promise<Record<string, AtelierAccount>> {
 
 export async function getAccount(email: string): Promise<AtelierAccount | null> {
   const e = email.trim().toLowerCase();
-  if (!isAllowed(e)) return null;
+  if (!(await estAutorisee(e))) return null;
   return (await all())[e] ?? { email: e, createdAt: new Date().toISOString() };
 }
 
@@ -78,8 +97,20 @@ export async function saveAccount(a: AtelierAccount) {
 
 /** Tous les comptes autorisés, avec leur état (pour les Réglages). */
 export async function listAccounts(): Promise<AtelierAccount[]> {
+  const [list, adresses] = await Promise.all([all(), adressesAutorisees()]);
+  return adresses.map((e) => list[e] ?? { email: e, createdAt: "" });
+}
+
+/** Efface le compte d'une personne retirée : mot de passe, double authentification et Face ID. */
+export async function supprimerCompte(email: string) {
+  const e = email.trim().toLowerCase();
   const list = await all();
-  return allowedEmails().map((e) => list[e] ?? { email: e, createdAt: "" });
+  if (e in list) {
+    const { [e]: _retire, ...reste } = list;
+    void _retire;
+    await kv.set(ACCOUNTS_KEY, reste);
+  }
+  await kv.del(enrollKey(e));
 }
 
 // ------------------------------------------------------------------ mots de passe

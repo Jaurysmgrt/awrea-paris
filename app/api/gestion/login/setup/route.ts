@@ -17,6 +17,9 @@ export async function POST(req: Request) {
   if (problem) return NextResponse.json({ error: problem }, { status: 400 });
   const account = await getAccount(pre.email);
   if (!account) return NextResponse.json({ error: "Compte non autorisé." }, { status: 403 });
+  // un mot de passe déjà choisi ne se remplace pas par cette étape (deux onglets, ou un code
+  // d'installation réutilisé) : il faut se reconnecter
+  if (account.passwordHash) return NextResponse.json({ error: "Session expirée : ce compte a déjà son mot de passe, reconnectez-vous." }, { status: 409 });
   await saveAccount({ ...account, passwordHash: await hashPassword(password), createdAt: account.createdAt || new Date().toISOString() });
   await logSecurityEvent("admin_password_set", req, clientIp(req), account.email);
   await setPreAuthCookie(account.email, "enroll");

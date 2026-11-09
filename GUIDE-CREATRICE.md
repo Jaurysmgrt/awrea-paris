@@ -95,18 +95,28 @@ passent en blanc cassé, texte noir, puis la page redevient noire.
 
 ![L’écran de la double authentification avec son code carré](docs/guide/01-double-authentification.png)
 
-### À deux dans l’Atelier
+### À plusieurs dans l’Atelier
 
 Chaque personne a son propre accès : sa propre adresse e-mail, son propre mot de passe, son propre
 code à six chiffres et son propre Face ID. Ne partagez pas un même compte : le journal de l’Atelier
-dit alors qui a fait quoi, et un téléphone perdu se coupe sans gêner l’autre.
+dit alors qui a fait quoi, et un téléphone perdu se coupe sans gêner les autres.
 
-1. La personne qui s’occupe du site ajoute la seconde adresse e-mail dans Vercel, à la suite de la
-   première, séparée par une virgule (variable `ATELIER_ACCOUNTS`, `ACTIVATION.md` étape 2), puis
-   relance le site.
-2. La seconde personne suit « La première fois » ci-dessus avec sa propre adresse et le mot de passe
-   d’installation, puis choisit son mot de passe et installe son code.
-3. Après le code, chacune accepte **Ajouter Face ID** sur son propre téléphone.
+**Ajouter une personne** (vous seule, la propriétaire de l’Atelier) :
+
+1. Atelier › **Réglages** › **Sécurité** › **Les personnes de l’Atelier**.
+2. Dans **Ajouter une personne**, écrivez son adresse e-mail et votre code à six chiffres du
+   moment (s’il vient de servir à vous connecter, attendez le suivant), puis **Ajouter cette
+   personne**.
+3. L’Atelier affiche son **code d’invitation** et l’adresse de l’Atelier. **Copier le message à
+   envoyer** prépare le message tout prêt : envoyez-le-lui, ou dictez-lui le code. Il ne sert
+   qu’une fois, pendant trois jours, et ne s’affichera plus.
+4. Sur son téléphone, elle ouvre l’adresse, écrit son adresse e-mail et, dans « Mot de passe », le
+   code d’invitation. Elle choisit ensuite son mot de passe, installe son propre code à six
+   chiffres, puis accepte **Ajouter Face ID**.
+
+Dans la même liste : **Nouveau code d’invitation** si le code a expiré ou si elle a perdu son
+téléphone (son ancien accès ne sert plus), et **Retirer** pour lui fermer l’Atelier aussitôt. Chaque
+geste vous demande votre code et vous envoie un e-mail. Cinq personnes au plus peuvent être ajoutées.
 
 Sur un téléphone où l’empreinte n’a pas encore été ajoutée, l’Atelier demande d’abord l’adresse et
 le mot de passe : c’est normal. Si vous touchez quand même « Entrer avec Face ID ou l’empreinte », le
