@@ -1048,5 +1048,11 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
   d’urgence).
 - Menu de gauche resserré (il tient dans un écran d’ordinateur portable jusqu’à « Se déconnecter »),
   barre d’onglets du téléphone où « À valider » ne se coupe plus.
-- Vérifié sur captures (ordinateur 1440 px, téléphone 390 px) et parcours de l’Atelier.
+- Second retour de la créatrice : « inverser la graisse des titres à gauche, que ce soit intuitif, même
+  dans la barre de menu et sur téléphone ». Intitulés de groupe discrets (petits, gris, romains),
+  entrées en medium avec une icône simple, la page en cours en noir plein ; sur téléphone, icône
+  au-dessus de chaque mot de la barre d’onglets et bouton « Menu » avec son icône.
+- Vérifié sur captures (ordinateur 1440 px, téléphone 390 px, mode Jour et mode Nuit) et parcours de
+  l’Atelier (77 parcours avant le menu à icônes, 14 parcours du menu, de l’application, des commandes et
+  des agents après).
 

@@ -159,6 +159,9 @@ seulement (`.admin` et `.admin-login-shell`, bloc « INTERFACE SIMPLE ET LISIBLE
   32 px ; 14 px pour les seuls mots de la barre d'onglets du téléphone, pour que les cinq tiennent
   sur 360 px ;
 - aucune capitale espacée (menu, en-têtes de tableau, étiquettes, pastilles d'état) ;
+- menu : intitulés de groupe discrets (14 px, gris, romains), entrées en medium (500) avec une icône
+  au trait (`components/admin/AtelierIcone.tsx`), la page en cours en noir plein ; sur téléphone,
+  l'icône au-dessus de chaque mot de la barre d'onglets, l'onglet en cours sur une pastille teintée ;
 - chaque bloc posé comme une carte claire sur un fond gris très doux ; pastilles d'état en petits
   cartouches aux coins arrondis (les pilules restent aux boutons, qu'on touche) ;
 - textes d'aide coupés au plus court, détails repliés (« Les autres rôles » des agents, protections,
