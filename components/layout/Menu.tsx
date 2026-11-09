@@ -10,8 +10,8 @@
  *   devient compact : le monogramme et la même navigation (styles/layout.css).
  * - Menu : le menu plein écran du téléphone, un dialogue modal (<dialog>) qui reprend les cinq
  *   entrées et leurs sous-entrées.
- * - Aucun sélecteur de langue (brief du 09/11) : la langue est choisie automatiquement à la première
- *   visite (proxy.ts, langueAuto). Sous /en, la page en cours se repère sans le préfixe.
+ * - Aucun sélecteur de langue (brief du 09/11) : le site suit la langue de l'appareil (proxy.ts,
+ *   preferredLocale). Sous /en, la page en cours se repère sans le préfixe.
  * - CookiesButton : « Gérer les cookies » du pied de page (rouvre les préférences).
  *
  * Aucun texte ici : entrées et liens dans content/site/fr/navigation.json, libellés de l'interface

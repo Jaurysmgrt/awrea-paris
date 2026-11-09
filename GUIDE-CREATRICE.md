@@ -60,16 +60,12 @@ les accès déjà donnés se ferment.
 
 ### Langue et mode Nuit
 
-Le site n’a plus de bouton « FR · EN » : la langue se choisit toute seule, dès la première
-visite, sans page intermédiaire. Depuis la France (outre-mer compris), le site s’ouvre en
-français ; depuis le Royaume-Uni, les États-Unis, l’Irlande, l’Australie et les autres pays
-anglophones, en anglais ; ailleurs, dans la langue du téléphone ou de l’ordinateur si le site la
-parle, sinon en anglais. Le pays vient de l’adresse internet de la visiteuse, jamais de sa
-position. La langue trouvée est retenue d’une visite à l’autre.
-
-Pour changer de langue, il suffit de modifier l’adresse : ajouter /en (awreaparis.com/en) pour
-l’anglais, /fr pour le français. Ce choix est retenu à son tour. Vous-même, connectée à l’Atelier,
-passez d’une langue à l’autre sans que rien ne soit retenu.
+Le site n’a plus de bouton « FR · EN » : il s’affiche toujours dans la langue du téléphone ou de
+l’ordinateur de la personne, quelle que soit l’adresse tapée, sans page intermédiaire. Un
+téléphone réglé en français ouvre le site en français ; réglé en anglais, en anglais ; réglé dans
+une autre langue que le site ne parle pas (allemand, japonais…), en anglais. Rien n’est demandé ni
+retenu : ni la position, ni le pays. Vous-même, connectée à l’Atelier, voyez les deux versions
+(les adresses qui commencent par /en sont la version anglaise).
 
 En mode Nuit, le site est noir, et l’alternance s’inverse : les sections noires du mode Jour
 passent en blanc cassé, texte noir, puis la page redevient noire.
@@ -166,7 +162,7 @@ Le menu de gauche est rangé comme une journée de la Maison (sur téléphone, i
    typographie** applique la correction, **Garder tel quel** garde votre texte.
 6. Sous votre texte, la case **Version anglaise** reçoit la traduction, celle que lisent les
    visiteuses de la version anglaise du site (les adresses qui commencent par /en, ouvertes
-   d’elles-mêmes pour les visiteuses anglophones). Laissée vide, le français s’affiche à la place.
+   d’elles-mêmes pour les téléphones et ordinateurs réglés dans une autre langue que le français). Laissée vide, le français s’affiche à la place.
 7. **Enregistrer**. Votre texte part en brouillon : vos clientes ne voient rien tant que vous
    n’avez pas appuyé sur **Publier** (partie 4).
 

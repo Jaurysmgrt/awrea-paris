@@ -33,9 +33,10 @@
   --color-ink-soft: var(--color-taupe-deep);
   --color-ivory-soft: var(--color-taupe);
   --color-pearl-deep: color-mix(in oklab, var(--color-pearl) 82%, var(--color-ink));
-  /* mode nuit : noirs légèrement levés pour garder l'alternance des sections */
-  --color-night: color-mix(in oklab, var(--color-ink) 94%, var(--color-ivory));
-  --color-night-soft: color-mix(in oklab, var(--color-ink) 88%, var(--color-pearl));
+  /* mode nuit : le noir de la Maison lui-même (plus sombre, demande de la créatrice du 09/11) ;
+     les sections gris pierre du mode Jour prennent un noir à peine levé, pour garder l'alternance */
+  --color-night: var(--color-ink);
+  --color-night-soft: color-mix(in oklab, var(--color-ink) 95%, var(--color-pearl));
 
   /* ------------------------------------------------------------ TYPOGRAPHIE
      Les deux polices officielles (app/fonts.ts, next/font/local). Aucune autre famille : ni la
@@ -306,7 +307,8 @@
 /* ================================================================ MODE NUIT
    Version noire complète du site. Activée par le script de <head> (sans flash) selon
    le choix enregistré « Jour · Nuit · Auto », « Auto » suivant le réglage du téléphone.
-   Les sections claires deviennent des noirs légèrement levés : l'alternance demeure. */
+   Les sections claires deviennent noires (le gris pierre, un noir à peine levé) : l'alternance
+   demeure. */
 html[data-mode="dark"] {
   color-scheme: dark;
   --media-bg: var(--color-night-soft);

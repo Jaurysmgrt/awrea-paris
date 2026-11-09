@@ -880,11 +880,12 @@ Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/
 ## Brief de la créatrice : langue automatique, Savoir-faire, étapes de confection (09/11)
 
 - Langue : le sélecteur « FR · EN » quitte l’en-tête et le menu du téléphone ; l’en-tête garde ses
-  proportions (navigation exactement au centre). À la première visite, le pays (adresse IP) puis
-  le navigateur puis l’anglais choisissent la langue, avant tout affichage ; elle est retenue et
-  appliquée aux visites suivantes (`langueVoulue`). Changer de langue : modifier l’adresse (/en/…,
-  /fr/…), choix retenu. Robots jamais redirigés, hreflang et adresses /en inchangés. Page cookies
-  et politique de confidentialité mises à jour (pays non conservé).
+  proportions (navigation exactement au centre). Précision de la créatrice : le site suit toujours
+  la langue de l’appareil, quelle que soit l’adresse tapée, avant tout affichage (anglais si
+  l’appareil parle une autre langue) ; ni pays, ni position, ni cookie de langue (retiré de la
+  page cookies). Robots jamais redirigés, hreflang et adresses /en inchangés ; la créatrice
+  connectée voit les deux versions.
+- Mode Nuit : fond au noir de la Maison (`#0A0A0A`), plus sombre qu’avant.
 - Menu : « À la demande » devient « Savoir-faire » (français et anglais), sous-menus et animations
   inchangés.
 - Étapes de confection : chronologie verticale de cinq étapes (textes validés, mot pour mot),
@@ -894,6 +895,6 @@ Brief de la créatrice (« un Shopify simplifié, intelligent et gratuit », 03/
   suivi et conseil en trois colonnes à filets sur ordinateur, carrousel aimanté à trois points sur
   téléphone et tablette, liens typographiques à petite flèche, mêmes destinations.
 - Modes Jour et Nuit suivis comme partout ; animations apaisées respectées.
-- Tests : langue (unitaires et parcours : première visite, retour, /fr, /en, robots), menu,
-  chronologie, délais, trois espaces sur ordinateur et téléphone, accessibilité, responsive,
-  homogénéité.
+- Tests : langue (unitaires et parcours : appareil en anglais, en français, dans une autre langue,
+  pays ignoré, robots, créatrice connectée), menu, chronologie, délais, trois espaces sur
+  ordinateur et téléphone, accessibilité, responsive, homogénéité.

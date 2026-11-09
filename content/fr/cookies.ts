@@ -54,7 +54,6 @@ export const cookieInventory: CookieEntry[] = [
   { name: "awrea_session", provider: "Awrea Paris", category: "necessary", purpose: "Vous garder connectée à votre compte.", duration: "30 jours", kind: "cookie" },
   { name: "sb-…-auth-token", provider: "Awrea Paris (Supabase)", category: "necessary", purpose: "Session sécurisée de votre compte cliente.", duration: "Durée de la session, 1 an au plus", kind: "cookie" },
   { name: "awrea_admin", provider: "Awrea Paris", category: "necessary", purpose: "Session de l’équipe de l’atelier (espace de gestion uniquement).", duration: "12 heures", kind: "cookie" },
-  { name: "awrea_langue", provider: "Awrea Paris", category: "necessary", purpose: "Retenir la langue du site, choisie à votre première visite d’après votre pays puis votre navigateur, ou en modifiant l’adresse de la page.", duration: "13 mois", kind: "cookie" },
   { name: "awrea_apercu", provider: "Awrea Paris", category: "necessary", purpose: "Ouvrir le site avant son ouverture au public, pour les personnes qui ont reçu le lien privé de la Maison.", duration: "30 jours", kind: "cookie" },
   { name: "awrea_wishlist", provider: "Awrea Paris", category: "necessary", purpose: "Conserver les pièces que vous avez gardées.", duration: "Jusqu’à suppression", kind: "stockage local" },
   { name: "awrea_assistant", provider: "Awrea Paris", category: "necessary", purpose: "Conserver la conversation avec l’assistante pendant votre visite.", duration: "Fin de la visite", kind: "stockage de session" },

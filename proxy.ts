@@ -13,14 +13,12 @@
  *    valeur envoyée par le navigateur est écrasée). L'Atelier, l'API et les fichiers (plan du site,
  *    llms.txt, images) n'existent qu'en un exemplaire : sous /en, ils répondent 404 comme toute
  *    adresse inconnue.
- *  - Langue automatique (brief du 09/11, aucun sélecteur) : à la première arrivée sur une adresse
- *    française, la langue est choisie d'après le pays (adresse IP, sans géolocalisation précise),
- *    puis le navigateur, puis l'anglais (langueAuto), et retenue (LOCALE_COOKIE) ; la visiteuse
- *    est menée à la même page sous /en si besoin, avant tout affichage, et l'est encore aux visites
- *    suivantes (langueVoulue). Elle ne change de langue qu'en modifiant l'adresse : une page
- *    /en/… retient l'anglais, /fr/… retient le français et mène à l'adresse française habituelle.
- *    Les robots d'indexation ne sont jamais redirigés (estRobot) : les deux versions restent
- *    indexables, déclarées par hreflang.
+ *  - Langue de l'appareil (brief et choix de la créatrice du 09/11, aucun sélecteur) : sur toute
+ *    page publique, quelle que soit l'adresse tapée, la visiteuse est menée avant tout affichage à
+ *    la version dans la langue de son ordinateur ou de son téléphone (Accept-Language :
+ *    preferredLocale), l'anglais si le site ne la parle pas. Ni pays, ni position, ni cookie. Les
+ *    robots d'indexation ne sont jamais redirigés (estRobot) : les deux versions restent
+ *    indexables, déclarées par hreflang. La créatrice connectée voit les deux versions.
  *  - Site privé (SITE_PRIVE=1, lib/security/private-site.ts) : sans session de l'Atelier ni accès
  *    donné par le lien privé (SITE_PRIVE_CLE), toute page du site montre la page d'attente et toute
  *    API répond 404 (sauf webhooks et tâches planifiées) ; aucune réponse n'est indexée.
@@ -32,7 +30,7 @@ import { contentSecurityPolicy, cspEnabled, cspMode, newNonce } from "@/lib/secu
 import { countRefusal } from "@/lib/security/rate-limit";
 import { providerOf } from "@/lib/config/providers";
 import { atelierBase, isInternalAtelierPath, toInternal } from "@/lib/admin/path";
-import { DEFAULT_LOCALE, LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, LOCALE_HEADER, adresseFrancaise, estRobot, isLocale, isLocalizable, langueVoulue, localizePath, splitLocale, type Locale } from "@/lib/i18n/routing";
+import { DEFAULT_LOCALE, LOCALE_HEADER, estRobot, isLocalizable, localizePath, preferredLocale, splitLocale, type Locale } from "@/lib/i18n/routing";
 import { PREVIEW_COOKIE, PREVIEW_MAX_AGE, PREVIEW_PARAM, PRIVATE_PAGE, isPreviewKey, isPreviewToken, openWhilePrivate, previewToken, sitePrive } from "@/lib/security/private-site";
 
 const secureCookie = process.env.NODE_ENV === "production";
@@ -215,34 +213,19 @@ export async function proxy(request: NextRequest) {
   const atelier = Boolean(base && toInternal(pathname, base)) || isInternalAtelierPath(pathname);
   if (sitePrive() && !atelier && request.nextUrl.searchParams.has(PREVIEW_PARAM)) return grantPreview(request);
 
-  const langueCookie = { httpOnly: true, sameSite: "lax", secure: secureCookie, path: "/", maxAge: LOCALE_COOKIE_MAX_AGE } as const;
-  // /fr/… : le français choisi en modifiant l'adresse, retenu, puis l'adresse française habituelle
-  const francais = adresseFrancaise(pathname);
-  if (francais && !(base && toInternal(francais, base)) && !isInternalAtelierPath(francais)) {
-    const url = request.nextUrl.clone();
-    url.pathname = francais;
-    const redirect = NextResponse.redirect(url, 307);
-    redirect.cookies.set(LOCALE_COOKIE, DEFAULT_LOCALE, langueCookie);
-    redirect.headers.set("Cache-Control", "private, no-store");
-    return redirect;
-  }
-
-  // pages publiques en français : la langue retenue, sinon celle du pays puis du navigateur
-  // (jamais pour un robot d'indexation)
+  // pages publiques : toujours la langue de l'appareil, quelle que soit l'adresse tapée (/… ou
+  // /en/…), lue à chaque page ; jamais pour un robot d'indexation, ni pour la créatrice connectée
+  // (Atelier, Édition), qui passe librement d'une version à l'autre
   const publicPage = isDocument(request) && !atelier && isLocalizable(path);
-  const remembered = request.cookies.get(LOCALE_COOKIE)?.value;
-  const retenue = remembered && isLocale(remembered) ? remembered : undefined;
-  // la créatrice connectée (Atelier, Édition) passe d'une langue à l'autre sans rien retenir
   const creatrice = publicPage && request.cookies.has(ADMIN_COOKIE) && (await isAdminToken(request.cookies.get(ADMIN_COOKIE)?.value));
-  if (publicPage && !translated && !creatrice && !estRobot(request.headers.get("user-agent"))) {
-    const wanted = langueVoulue(retenue, request.headers.get("x-vercel-ip-country"), request.headers.get("accept-language"));
+  if (publicPage && !creatrice && !estRobot(request.headers.get("user-agent"))) {
+    const wanted = preferredLocale(request.headers.get("accept-language"));
     if (wanted && wanted !== locale) {
       const url = request.nextUrl.clone();
       url.pathname = localizePath(path, wanted);
       const redirect = NextResponse.redirect(url, 307);
-      if (retenue !== wanted) redirect.cookies.set(LOCALE_COOKIE, wanted, langueCookie);
       redirect.headers.set("Cache-Control", "private, no-store");
-      redirect.headers.set("Vary", "Accept-Language, Cookie, X-Vercel-IP-Country, User-Agent");
+      redirect.headers.set("Vary", "Accept-Language, User-Agent");
       return redirect;
     }
   }
@@ -254,9 +237,6 @@ export async function proxy(request: NextRequest) {
   else if (sitePrive() && !openWhilePrivate(path) && !(await canSeePrivateSite(request))) response = privateGate(request, path, nonce, locale);
   else if (path.startsWith("/compte") || pathname.startsWith("/api/account")) response = await refreshCustomerSession(request, nonce, locale, target);
   else response = forward(request, nonce, locale, target);
-
-  // langue retenue : la première trouvée, puis l'anglais d'une page /en/… ouverte
-  if (publicPage && !creatrice && retenue !== locale && (translated || !retenue)) response.cookies.set(LOCALE_COOKIE, locale, langueCookie);
 
   // site privé : aucune réponse n'est indexée, même pour la créatrice connectée
   if (sitePrive()) response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
