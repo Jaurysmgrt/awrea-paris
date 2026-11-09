@@ -993,3 +993,13 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
 - Tests : unitaires (manifeste, service worker, texte discret, liens sûrs, envoi chiffré vers un faux
   service, appareil disparu oublié) et parcours (fichiers servis sans session et sans donnée, page
   Application honnête, onglets sur téléphone).
+
+## Connexion à l’Atelier sur un nouveau téléphone, à deux (09/11)
+
+- Retour de la créatrice (capture Android) : sur un téléphone sans clé, « Entrer avec Face ID »
+  ouvrait la boîte du système « Aucune clé d’accès disponible ». Désormais, Face ID ne passe en
+  premier que sur un appareil où il a déjà servi (repère local, sans rien de secret) ; ailleurs,
+  l’adresse et le mot de passe d’abord, Face ID en simple lien (clé synchronisée possible), et un
+  message clair si aucune clé ne répond.
+- À deux : chaque personne a son compte (`ATELIER_ACCOUNTS`), son mot de passe, son code et son
+  Face ID ; marche à suivre dans le guide.

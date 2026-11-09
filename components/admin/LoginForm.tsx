@@ -9,7 +9,7 @@
 import { useState } from "react";
 import { Turnstile } from "@/components/security/Turnstile";
 import { useAtelier } from "./AtelierContext";
-import { ajouterCetAppareil, entrerAvecFaceId, useFaceIdPossible } from "./FaceId";
+import { ajouterCetAppareil, entrerAvecFaceId, useCleIci, useFaceIdPossible } from "./FaceId";
 
 type Step = "password" | "setup" | "totp" | "enroll" | "recovery" | "faceid";
 
@@ -52,6 +52,8 @@ export function LoginForm({ next }: { next: string }) {
   const [enroll, setEnroll] = useState<{ svg: string; secret: string } | null>(null);
   const [codes, setCodes] = useState<string[]>([]);
   const faceIdPossible = useFaceIdPossible();
+  // Face ID en premier seulement sur un appareil où il a déjà servi (FaceId.tsx, useCleIci)
+  const cleIci = useCleIci();
 
   const startEnroll = async () => {
     const res = await fetch(api("/login/enroll")).catch(() => null);
@@ -240,28 +242,16 @@ export function LoginForm({ next }: { next: string }) {
     );
   }
 
-  return (
-    <div className="stack-m">
-      {faceIdPossible ? (
-        <div className="stack-s admin-login__form">
-          <button
-            type="button"
-            className="btn btn--block"
-            disabled={busy}
-            onClick={async () => {
-              setBusy(true);
-              setError("");
-              const erreur = await entrerAvecFaceId(api);
-              if (!erreur) return void (window.location.href = next);
-              setBusy(false);
-              setError(erreur);
-            }}
-          >
-            Entrer avec Face ID ou l’empreinte
-          </button>
-          <p className="t-note t-center">ou avec votre adresse et votre mot de passe</p>
-        </div>
-      ) : null}
+  const entrerFaceId = async () => {
+    setBusy(true);
+    setError("");
+    const erreur = await entrerAvecFaceId(api);
+    if (!erreur) return void (window.location.href = next);
+    setBusy(false);
+    setError(erreur);
+  };
+
+  const formulaire = (
     <form
       className="stack-m admin-login__form"
       onSubmit={async (e) => {
@@ -293,10 +283,39 @@ export function LoginForm({ next }: { next: string }) {
       </div>
       <Turnstile action="atelier" />
       <ErrorLine error={error} />
-      <button type="submit" className={faceIdPossible ? "btn btn--outline btn--block" : "btn btn--block"} disabled={busy}>
+      <button type="submit" className={faceIdPossible && cleIci ? "btn btn--outline btn--block" : "btn btn--block"} disabled={busy}>
         {busy ? "Connexion…" : "Continuer"}
       </button>
     </form>
+  );
+
+  // appareil où Face ID a déjà servi : un geste, l'adresse et le mot de passe en secours
+  if (faceIdPossible && cleIci) {
+    return (
+      <div className="stack-m">
+        <div className="stack-s admin-login__form">
+          <button type="button" className="btn btn--block" disabled={busy} onClick={entrerFaceId}>
+            Entrer avec Face ID ou l’empreinte
+          </button>
+          <p className="t-note t-center">ou avec votre adresse et votre mot de passe</p>
+        </div>
+        {formulaire}
+      </div>
+    );
+  }
+
+  // nouvel appareil : l'adresse et le mot de passe d'abord ; l'Atelier propose l'empreinte ensuite.
+  // Face ID reste possible pour une clé déjà enregistrée ailleurs et synchronisée (iCloud, Google).
+  return (
+    <div className="stack-m">
+      {formulaire}
+      {faceIdPossible ? (
+        <div className="stack-s admin-login__form">
+          <button type="button" className="btn btn--link" disabled={busy} onClick={entrerFaceId}>
+            Entrer avec Face ID ou l’empreinte
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -17,6 +17,15 @@ test("Face ID : ajouter cet appareil, entrer d'un geste, retirer", async ({ page
     options: { protocol: "ctap2", transport: "internal", hasResidentKey: true, hasUserVerification: true, isUserVerified: true, automaticPresenceSimulation: true },
   });
 
+  // nouvel appareil : l'adresse et le mot de passe d'abord, Face ID en simple lien (une clé
+  // synchronisée depuis un autre appareil reste utilisable), sans boîte « aucune clé » d'emblée
+  await page.goto(ATELIER);
+  const continuer = page.getByRole("button", { name: "Continuer" });
+  const faceIdLien = page.getByRole("button", { name: "Entrer avec Face ID ou l’empreinte" });
+  await expect(continuer).not.toHaveClass(/btn--outline/);
+  await expect(faceIdLien).toHaveClass(/btn--link/);
+  expect(await continuer.evaluate((c, l) => Boolean(c.compareDocumentPosition(l!) & Node.DOCUMENT_POSITION_FOLLOWING), await faceIdLien.elementHandle())).toBe(true);
+
   // après le code, l'Atelier propose Face ID sur cet appareil
   await adminLogin(page, { faceId: "ajouter" });
   await expect.poll(() => outbox().some((m) => m.subject === "Face ID ajouté à l’Atelier")).toBeTruthy();
@@ -27,6 +36,8 @@ test("Face ID : ajouter cet appareil, entrer d'un geste, retirer", async ({ page
   // la session fermée, un geste suffit
   await page.context().clearCookies();
   await page.goto(ATELIER);
+  // appareil où Face ID a servi : il passe en premier, en bouton plein
+  await expect(page.getByRole("button", { name: "Entrer avec Face ID ou l’empreinte" })).not.toHaveClass(/btn--link/);
   await page.getByRole("button", { name: "Entrer avec Face ID ou l’empreinte" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Bonjour." })).toBeVisible();
 
