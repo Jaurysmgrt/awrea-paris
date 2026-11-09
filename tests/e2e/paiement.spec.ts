@@ -52,5 +52,11 @@ test("paiement d'essai : la fiche de la commande et la page Paiements le montren
 test("retour d'un paiement abandonné : la page de commande le dit, le panier est intact", async ({ page }) => {
   await acceptCookies(page);
   await page.goto("/commande?paiement=annule");
-  await expect(page.getByRole("status").filter({ hasText: /aucune somme n’a été prélevée/ })).toBeVisible();
+  const message = page.locator('main p.notice[role="status"]');
+  await expect(message).toBeVisible();
+  // sur ordinateur, la justification du site pose des césures invisibles (U+00AD) dans les mots
+  // longs : elles sont retirées avant de comparer le texte
+  const lu = () => message.evaluate((el) => (el.textContent ?? "").replace(/\u00ad/g, ""));
+  await expect.poll(lu).toContain("aucune somme n’a été prélevée");
+  await expect.poll(lu).toContain("Votre panier vous attend");
 });
