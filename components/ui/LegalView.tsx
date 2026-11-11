@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { legalPages, type LegalSlug } from "@/content/fr/legal";
-import { cookieCategories, cookieInventory } from "@/content/fr/cookies";
+import { categoriesActives, cookiesActifs } from "@/content/fr/cookies";
 import { getDoc } from "@/lib/edition/read";
 import { getLocale } from "@/lib/i18n/server";
 import { fill } from "@/lib/edition/fill";
@@ -38,8 +38,8 @@ export const legalPageView = (slug: LegalSlug): LegalPageView => fromPage(legalP
 function CookieTable({ t }: { t: JuridiqueTexts["cookies"] }) {
   return (
     <>
-      {cookieCategories.map((cat) => {
-        const rows = cookieInventory.filter((c) => c.category === cat.key);
+      {categoriesActives.map((cat) => {
+        const rows = cookiesActifs.filter((c) => c.category === cat.key);
         if (!rows.length) return null;
         return (
           <div key={cat.key} className="table-scroll legal__table">

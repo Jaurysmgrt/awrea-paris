@@ -50,7 +50,7 @@
         { "label": "Mentions légales", "href": "/mentions-legales" },
         { "label": "CGV", "href": "/cgv" },
         { "label": "Confidentialité", "href": "/confidentialite" },
-        { "label": "Gérer les cookies", "type": "cookies" }
+        { "label": "Gérer mes cookies", "type": "cookies" }
       ]
     },
     {

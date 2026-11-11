@@ -1,7 +1,8 @@
 /*
  * Page d'une collection (maquette PAGE PRODUIT) : sous le grand titre centré, le texte officiel de
- * la collection, son accroche centrée puis ses paragraphes alignés à gauche sur la mesure commune,
- * colonne centrée. Tokens seulement.
+ * la collection, son accroche puis ses paragraphes, tous centrés sur l'axe du titre dans une
+ * colonne resserrée (cahier du 10/11 : « centrer, réduire la largeur, éviter les blocs imposants »).
+ * Tokens seulement.
  */
 .texte {
   width: 100%;
@@ -11,4 +12,10 @@
 }
 .accroche {
   max-width: var(--measure);
+}
+/* paragraphes du texte officiel : centrés, sur une colonne plus étroite que l'accroche, jamais
+   justifiés (un texte centré ne se justifie pas) */
+.paragraphe {
+  max-width: var(--container-text);
+  text-wrap: pretty;
 }

@@ -44,8 +44,10 @@
   .page-head__lead {
     max-width: var(--measure);
   }
-  /* titre de page des maquettes : très grand, centré ; le fil d'Ariane, le surtitre et la colonne
-     du chapeau se centrent avec lui (le chapeau reste aligné à gauche) */
+  /* titre de page des maquettes : très grand, centré ; le fil d'Ariane, le surtitre et le chapeau
+     se centrent avec lui. Cahier du 10/11 (« aligner les paragraphes avec leurs titres ») : sous un
+     titre centré, le chapeau se centre lui aussi, sur le même axe, au lieu de partir d'un bord
+     gauche qui ne s'aligne sur rien */
   .page-head--center {
     justify-items: center;
   }
@@ -59,6 +61,8 @@
   }
   .page-head--center .page-head__lead {
     margin-inline: auto;
+    text-align: center;
+    text-wrap: pretty;
   }
   /* chapeau centré sur l'axe du titre (page « À la demande », dossier de la créatrice du 02/11 :
      « jamais aligné à gauche », environ 650 px de large), sur téléphone comme sur ordinateur */
@@ -439,12 +443,10 @@
     .product__grid {
       grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
       gap: var(--spacing-2xl);
-      align-items: stretch;
+      align-items: start;
     }
-    .product__sticky {
-      position: sticky;
-      top: calc(var(--header-h) + var(--spacing-s));
-    }
+    /* plus de colonne collante (cahier du 10/11) : photos et informations défilent ensemble,
+       naturellement, sans qu'une partie reste fixe pendant que l'autre file */
   }
   @media (max-width: 63.99rem) {
     .product__gallery {

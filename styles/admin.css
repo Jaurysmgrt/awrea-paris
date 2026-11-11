@@ -1915,3 +1915,69 @@
     background: color-mix(in oklab, var(--fg) 10%, transparent);
   }
 }
+
+/* cases à cocher de l'Atelier en petits ronds (cahier « évolution de l'Atelier », 10/11) : ce sont
+   toujours des cases (plusieurs choix restent possibles), seul leur dessin change. Non cochée : un
+   rond au filet ; cochée : un rond plein et sa coche ; survol, désactivée et focus clavier
+   distincts. Les interrupteurs (role="switch") gardent leur dessin. Couleurs du thème : le mode Nuit
+   suit. */
+@layer components {
+  .admin input[type="checkbox"]:not([role="switch"]) {
+    appearance: none;
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    inline-size: var(--ui-icon);
+    block-size: var(--ui-icon);
+    margin: 0;
+    border: var(--border-width-hair) solid var(--fg);
+    border-radius: var(--radius-full);
+    background: var(--bg);
+    vertical-align: middle;
+    cursor: pointer;
+    transition:
+      background-color var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease);
+  }
+  .admin input[type="checkbox"]:not([role="switch"])::before {
+    content: none;
+  }
+  .admin input[type="checkbox"]:not([role="switch"])::after {
+    content: "";
+    grid-area: 1 / 1;
+    inline-size: calc(var(--ui-icon) * 0.25);
+    block-size: calc(var(--ui-icon) * 0.5);
+    border: solid var(--bg);
+    border-width: 0 var(--border-width-focus) var(--border-width-focus) 0;
+    background: none;
+    transform: translateY(-10%) rotate(45deg) scale(0);
+    transition: transform var(--dur) var(--ease);
+  }
+  .admin input[type="checkbox"]:not([role="switch"]):checked {
+    background: var(--fg);
+  }
+  .admin input[type="checkbox"]:not([role="switch"]):checked::after {
+    transform: translateY(-10%) rotate(45deg) scale(1);
+  }
+  .admin input[type="checkbox"]:not([role="switch"]):hover:not(:disabled) {
+    box-shadow: 0 0 0 var(--spacing-3xs) color-mix(in oklab, var(--fg) 10%, transparent);
+  }
+  .admin input[type="checkbox"]:not([role="switch"]):focus-visible {
+    outline: var(--border-width-focus) solid var(--fg);
+    outline-offset: var(--border-width-focus);
+  }
+  .admin input[type="checkbox"]:not([role="switch"]):disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  /* chaque rond reste collé à son mot, et loin du suivant : on voit d'un coup d'œil ce qui va
+     ensemble (jours des rendez-vous, tailles d'une pièce…) */
+  .admin .check {
+    align-items: center;
+    gap: var(--spacing-2xs);
+  }
+  .admin .booking__chips {
+    gap: 0 var(--spacing-m);
+  }
+}
+
