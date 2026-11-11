@@ -66,3 +66,71 @@ test("bibliothèque et validation : blocs neufs valides, forme inconnue refusée
   assert.ok(!EmailDocSchema.safeParse({ ...doc, blocs: [{ id: "b-xxxx0001", type: "bouton", lien: { label: "x", href: "javascript:alert(1)" } }] }).success);
   assert.ok(emailTexts(doc).some((t) => t.path === "blocs.1.titre"));
 });
+
+// ------------------------------------------------------------------ éditeur façon Brevo (10/11)
+
+const mis = (blocs: EmailDoc["blocs"]): EmailDoc => ({ ...doc, blocs });
+
+test("mise en forme : police de la Maison, taille, alignement, espaces ; sans réglage, l'allure d'origine", () => {
+  const origine = renderEmail(mis([{ id: "b-test0101", type: "titre", titre: "Bonjour" }]), ctx).html;
+  assert.match(origine, /font-style:italic;font-weight:400;font-size:40px;line-height:48px;[^"]*text-align:center/);
+  assert.match(origine, /padding:0px 48px 32px/);
+  const regle = renderEmail(mis([{ id: "b-test0102", type: "titre", titre: "Bonjour", police: "droite", taille: "grande", align: "gauche", avant: 16, apres: 64 }]), ctx).html;
+  assert.match(regle, /font-style:normal;font-weight:300;font-size:48px;line-height:56px;[^"]*text-align:left/);
+  assert.match(regle, /padding:16px 48px 64px/);
+  assert.match(regle, /fraunces-120pt-light-latin\.woff2/);
+  const texte = renderEmail(mis([{ id: "b-test0103", type: "texte", texte: "Petit mot.", taille: "petite", align: "droite", police: "texte" }]), ctx).html;
+  assert.match(texte, /font-size:16px;line-height:24px;[^"]*text-align:right/);
+});
+
+test("photo : largeur et alignement dans un tableau aligné ; photo et texte côte à côte, empilés sur téléphone", () => {
+  const img = { src: "/media/essai", alt: "Une robe", width: 1200, height: 1500 };
+  const photo = renderEmail(mis([{ id: "b-test0201", type: "image", image: img, largeur: 50, align: "droite" }]), ctx).html;
+  assert.match(photo, /<table role="presentation" align="right" width="252"/);
+  assert.match(photo, /<img src="https:\/\/www\.exemple\.fr\/media\/essai\.webp" width="252"/);
+  const cote = renderEmail(mis([{ id: "b-test0202", type: "photo-texte", image: img, texte: "La dentelle.", cote: "droite" }]), ctx).html;
+  assert.match(cote, /dir="rtl"/);
+  assert.match(cote, /class="e-col"/);
+  assert.match(cote, /\.e-col\{display:block!important/);
+  const deux = renderEmail(mis([{ id: "b-test0203", type: "deux-photos", image: img, image2: { ...img, alt: "Un body" } }]), ctx).html;
+  assert.equal((deux.match(/width="244"/g) ?? []).length >= 2, true);
+  const bouton = renderEmail(mis([{ id: "b-test0204", type: "bouton", lien: { label: "Voir", href: "/boutique" }, style: "contour", align: "gauche" }]), ctx).html;
+  assert.match(bouton, /align="left"[\s\S]*border:1px solid #0a0a0a;border-radius:999px/);
+});
+
+test("liens dans un texte : écrits par la Maison seulement ; une valeur de cliente ne devient jamais un lien", () => {
+  const m = renderEmail(mis([{ id: "b-test0301", type: "texte", texte: "Voir [la boutique](/boutique) ou [nous écrire](mailto:contact@exemple.fr), {prenom}." }]), { ...ctx, vars: { prenom: "[ici](https://piege.example)" } });
+  assert.match(m.html, /<a href="https:\/\/www\.exemple\.fr\/boutique" style="color:inherit;">la boutique<\/a>/);
+  assert.match(m.html, /<a href="mailto:contact@exemple\.fr"/);
+  assert.doesNotMatch(m.html, /href="https:\/\/piege\.example"/);
+  assert.match(m.html, /\[ici\]\(https:\/\/piege\.example\)/);
+  assert.match(m.text, /la boutique : https:\/\/www\.exemple\.fr\/boutique/);
+  const js = renderEmail(mis([{ id: "b-test0302", type: "texte", texte: "[clic](javascript:alert(1))" }]), ctx).html;
+  assert.doesNotMatch(js, /<a href="javascript/);
+});
+
+test("aperçu de l'éditeur : blocs repérés et blocs à écrire visibles ; jamais dans un e-mail envoyé", () => {
+  const blocs: EmailDoc["blocs"] = [
+    { id: "b-test0401", type: "texte", texte: "[Écrire le texte]" },
+    { id: "b-test0402", type: "image", image: { src: "", alt: "[Décrire]", width: 1200, height: 1500 } },
+    { id: "b-test0403", type: "espace", hauteur: 48 },
+  ];
+  const apercu = renderEmail(mis(blocs), { ...ctx, marks: true }).html;
+  assert.match(apercu, /<tbody data-bloc="b-test0401" data-a-ecrire>/);
+  assert.match(apercu, /Écrire le texte/);
+  assert.match(apercu, /data-champ="image"/);
+  assert.match(apercu, /height:48px/);
+  const envoi = renderEmail(mis(blocs), ctx).html;
+  assert.doesNotMatch(envoi, /data-bloc|data-champ|Écrire le texte|Glissez/);
+});
+
+test("validation des réglages : valeurs prévues seulement", () => {
+  const ok = (b: Record<string, unknown>) => EmailDocSchema.safeParse(mis([{ id: "b-test0501", type: "titre", titre: "x", ...b } as EmailDoc["blocs"][number]])).success;
+  assert.ok(ok({ police: "droite", taille: "grande", align: "centre", avant: 8, apres: 64 }));
+  assert.ok(!ok({ police: "comic" }));
+  assert.ok(!ok({ avant: 12 }));
+  assert.ok(!ok({ apres: 72 }));
+  assert.ok(!ok({ largeur: 20 }));
+  assert.ok(!ok({ couleur: "#ff0000" }));
+  for (const type of ["photo-texte", "deux-photos", "espace"]) assert.ok(EmailDocSchema.safeParse(mis([createEmailBlock(type)!])).success, type);
+});

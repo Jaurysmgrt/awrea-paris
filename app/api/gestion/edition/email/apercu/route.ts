@@ -20,6 +20,8 @@ const Body = z.object({
   dark: z.boolean().default(false),
   /** valeurs de l'aperçu : « si » et « sauf » s'essaient en cochant un cas */
   cas: z.record(z.string(), z.boolean()).default({}),
+  /** aperçu de l'éditeur : blocs repérés (choisis d'un clic), blocs à écrire visibles */
+  marks: z.boolean().default(false),
 });
 
 /** Aperçu d'un e-mail en cours de modification (rien n'est enregistré), avec les exemples de l'e-mail. */
@@ -47,6 +49,7 @@ export async function POST(req: Request) {
     vars,
     client: body.data.client,
     dark: body.data.dark,
+    marks: body.data.marks,
     unsubscribe: `${siteUrl}/lettres/desinscription`,
     products: Object.fromEntries(chosen.map((p) => [p.handle, { title: p.title, price: formatPrice(p.price), image: p.images[0]?.src, alt: p.images[0]?.alt, href: `/boutique/${p.handle}` }])),
     items: sample.map((p) => ({ title: p.title, meta: p.variants[0]?.size, price: formatPrice(p.price), image: p.images[0]?.src })),

@@ -1,6 +1,6 @@
 /** Validation d'un e-mail envoyé par l'éditeur (aucune autre forme n'est enregistrée). */
 import { z } from "zod";
-import { EMAIL_BLOCKS } from "@/lib/email/blocks";
+import { EMAIL_BLOCKS, ESPACE_MAX, HAUTEUR_MAX, LARGEUR_MIN } from "@/lib/email/blocks";
 
 const Img = z.object({ src: z.string().max(400), alt: z.string().max(180), width: z.number().int().min(1).max(8000), height: z.number().int().min(1).max(8000), focal: z.object({ x: z.number().min(0).max(100), y: z.number().min(0).max(100) }).optional() });
 const Lien = z.object({ label: z.string().max(32), href: z.string().max(400).regex(/^(\/(?!\/)|https:\/\/|mailto:|atelier:\/)/) });
@@ -19,6 +19,17 @@ const Block = z
     image: Img.optional(),
     lien: Lien.nullable().optional(),
     pieces: z.array(z.string().regex(/^[a-z0-9-]{1,80}$/)).max(1).optional(),
+    // mise en forme (lib/email/blocks.ts, EmailStyle) : des valeurs prévues seulement
+    align: z.enum(["gauche", "centre", "droite"]).optional(),
+    police: z.enum(["italique", "droite", "texte"]).optional(),
+    taille: z.enum(["petite", "normale", "grande"]).optional(),
+    avant: z.number().int().min(0).max(ESPACE_MAX).multipleOf(8).optional(),
+    apres: z.number().int().min(0).max(ESPACE_MAX).multipleOf(8).optional(),
+    largeur: z.number().int().min(LARGEUR_MIN).max(100).multipleOf(5).optional(),
+    cote: z.enum(["gauche", "droite"]).optional(),
+    style: z.enum(["plein", "contour"]).optional(),
+    hauteur: z.number().int().min(8).max(HAUTEUR_MAX).multipleOf(8).optional(),
+    image2: Img.optional(),
   })
   .strict();
 
