@@ -93,7 +93,11 @@ test.describe("Pages légales", () => {
   test("politique cookies : liste par catégorie et gestionnaire de consentement", async ({ page }) => {
     await acceptCookies(page);
     await page.goto("/cookies");
-    for (const cat of ["Nécessaires", "Mesure d’audience", "Personnalisation", "Publicité"]) await expect(page.locator("caption", { hasText: cat })).toHaveCount(1);
+    for (const cat of ["Nécessaires", "Mesure d’audience", "Personnalisation"]) await expect(page.locator("caption", { hasText: cat })).toHaveCount(1);
+    // la politique ne liste que les outils réellement branchés (cahier du 10/11) : sans pixel
+    // publicitaire configuré, aucune catégorie « Publicité »
+    const publicite = Boolean(process.env.NEXT_PUBLIC_META_PIXEL_ID || process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID || process.env.NEXT_PUBLIC_GOOGLE_ADS_ID);
+    await expect(page.locator("caption", { hasText: "Publicité" })).toHaveCount(publicite ? 1 : 0);
     await page.locator("main").getByRole("button", { name: "Gérer mes cookies" }).click();
     await expect(page.getByRole("region", { name: "Cookies" })).toBeVisible();
   });
