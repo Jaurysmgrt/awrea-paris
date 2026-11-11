@@ -564,20 +564,37 @@ Atelier › **E-mails** a quatre onglets.
 - **Automatiques** : les e-mails qui partent seuls (commande, rendez-vous, retard, retour…), à
   modifier comme une page.
 
-Pour modifier un e-mail automatique :
+Pour modifier un e-mail automatique, ou la lettre (l’éditeur est le même, pensé comme Brevo ou
+Mailchimp) :
 
 1. Atelier › **E-mails** › **Automatiques**. Chaque e-mail s’y montre tel qu’il arrive dans la boîte
    de vos clientes, rangé par famille : **Commandes**, **Service**, **Après une inscription**.
-2. **Modifier l’e-mail** : l’**Objet**, la **Ligne d’aperçu** (la phrase qui s’affiche sous l’objet
-   dans la boîte de réception), puis les blocs : en-tête, photographie, texte, pièce, bouton,
-   signature, pied de page. Glissez un bloc pour le déplacer, ou utilisez **Monter le bloc** et
-   **Descendre le bloc**.
-3. À droite, l’aperçu : choisissez la **Messagerie** (Apple Mail, Gmail, Outlook), l’**Écran**
-   (ordinateur ou téléphone) et le **Thème** (clair ou sombre). **Essayer un cas** montre l’e-mail
-   avec un exemple de commande ou de cliente.
-4. **M’envoyer un essai** vous l’envoie, pour le voir dans votre propre boîte.
-5. Le brouillon s’enregistre tout seul. Rien ne part avant **Publier** : les prochains envois partent
-   avec cette version. **Historique** pour revenir à une version précédente.
+2. **Modifier l’e-mail** : l’e-mail s’ouvre au centre, tel qu’il arrivera. **Cliquez sur un bloc**
+   (le titre, un texte, une photo…) : il s’entoure d’un filet, et l’onglet **Réglages**, à côté,
+   montre ses mots et sa mise en forme.
+3. **Réglages** : écrivez le texte. Pour un lien, sélectionnez des mots puis **Ajouter un lien**
+   (une page du site comme /boutique, une adresse qui commence par https:// ou un e-mail). Puis la
+   **Mise en forme** : la **Police**, parmi les trois de la Maison (Fraunces italique, Fraunces
+   droite, Cormorant Garamond), la **Taille** (petite, normale, grande), l’**Alignement** (à gauche,
+   au centre, à droite), l’**Espace au-dessus** et l’**Espace au-dessous**. Pour une photo, sa
+   **Largeur** et son alignement. **Revenir à l’allure d’origine** efface ces réglages.
+4. Une photo : glissez-la depuis votre ordinateur sur l’e-mail. Posée sur une photo, elle prend sa
+   place ; ailleurs, elle s’ajoute à cet endroit. Ou **Choisir une photo** dans les Réglages.
+   Écrivez ensuite ce qu’elle montre.
+5. **Blocs** : l’ordre de l’e-mail (glissez une ligne pour la déplacer) et **Ajouter un bloc** :
+   titre, texte, photographie, **Photo et texte** (côte à côte, l’une sous l’autre sur téléphone),
+   **Deux photos**, pièce, bouton, filet, **Espace**, signature… Le nouveau bloc se place sous celui
+   que vous avez choisi. **Monter**, **Descendre**, **Dupliquer** et **Supprimer** sont en haut des
+   Réglages.
+6. **Annuler** et **Rétablir**, en haut, défont ou refont vos derniers gestes.
+7. Au-dessus de l’aperçu, choisissez la **Messagerie** (Apple Mail, Gmail, Outlook), l’**Écran**
+   (ordinateur ou téléphone) et le **Thème** (clair ou sombre). **Essayer un cas**, sous l’aperçu,
+   montre l’e-mail avec un exemple de commande ou de cliente.
+8. **Envoi** : l’**Objet**, la **Ligne d’aperçu** (la phrase qui s’affiche sous l’objet dans la
+   boîte de réception) et l’export vers un service d’envoi.
+9. **M’envoyer un essai** vous l’envoie, pour le voir dans votre propre boîte.
+10. Le brouillon s’enregistre tout seul. Rien ne part avant **Publier** : les prochains envois
+    partent avec cette version. **Historique** pour revenir à une version précédente.
 
 Les mots entre accolades ({prenom}, {numero}…) sont remplacés à l’envoi. Vous pouvez en retirer un, sauf
 ceux qui portent un lien ou un code dont votre cliente a besoin ({visio}, {suivi}, {lien}…) : le

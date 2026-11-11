@@ -50,6 +50,8 @@ export async function POST(req: Request) {
     client: body.data.client,
     dark: body.data.dark,
     marks: body.data.marks,
+    // photos, logo et polices servis par l'Atelier lui-même : le cadre de l'aperçu n'accepte qu'elle
+    assets: "",
     unsubscribe: `${siteUrl}/lettres/desinscription`,
     products: Object.fromEntries(chosen.map((p) => [p.handle, { title: p.title, price: formatPrice(p.price), image: p.images[0]?.src, alt: p.images[0]?.alt, href: `/boutique/${p.handle}` }])),
     items: sample.map((p) => ({ title: p.title, meta: p.variants[0]?.size, price: formatPrice(p.price), image: p.images[0]?.src })),

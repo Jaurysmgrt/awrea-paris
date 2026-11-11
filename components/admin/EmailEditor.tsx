@@ -1,16 +1,16 @@
 "use client";
 /**
- * Éditeur d'e-mails de l'Atelier, pensé comme Brevo ou Mailchimp (retour du 10/11 : « un truc
+ * Éditeur d'e-mails de l'Atelier, pensé comme Brevo ou Mailchimp (retour du 10/11 : « un truc
  * vraiment intuitif où tu peux écrire, mettre une photo, la décaler à droite, à gauche, en bas, où
- * tu veux, choisir la typo ») :
+ * tu veux, choisir la typo ») :
  * - l'e-mail est au centre, tel qu'il arrive dans Apple Mail, Gmail ou Outlook ; un clic sur un bloc
  *   le choisit ; une photo glissée sur un bloc photo prend sa place, ailleurs elle s'ajoute à cet
  *   endroit ;
- * - à côté, trois onglets : « Blocs » (l'ordre, glisser pour déplacer, ajouter un bloc), « Réglages »
+ * - à côté, trois onglets : « Blocs » (l'ordre, glisser pour déplacer, ajouter un bloc), « Réglages »
  *   (les mots et la photo du bloc choisi, sa police, sa taille, son alignement, ses espaces, la
- *   largeur de la photo) et « Envoi » (objet, ligne d'aperçu, export) ;
+ *   largeur de la photo) et « Envoi » (objet, ligne d'aperçu, export) ;
  * - annuler et rétablir (boutons, ou Ctrl ou Cmd + Z hors d'un champ) ; brouillon enregistré tout
- *   seul ; rien ne part avant « Publier ».
+ *   seul ; rien ne part avant « Publier ».
  * L'identité reste tenue : les trois polices de la Maison, des tailles prévues, des espaces sur la
  * grille de 8 px (lib/email/blocks.ts, EmailStyle). L'aperçu est un cadre sans script : l'éditeur
  * y lit seulement les clics et les photos déposées.
@@ -70,6 +70,12 @@ const ICONE_BLOC: Record<string, NomIcone> = {
 };
 const ICONE_ALIGN: Record<string, NomIcone> = { gauche: "aligner-gauche", centre: "aligner-centre", droite: "aligner-droite" };
 const PHOTOS = new Set(["image", "photo-texte", "deux-photos"]);
+/**
+ * Largeur de la fenêtre simulée : un e-mail de 600 px avec ses marges (au-delà de 620 px, la mise en
+ * page d'ordinateur) ou un téléphone de 375 px. Plus étroite, la colonne réduit l'aperçu à l'échelle
+ * au lieu de basculer dans la mise en page du téléphone.
+ */
+const FENETRE = { ordinateur: 680, telephone: 375 } as const;
 const MAX_BLOCS = 30;
 
 interface Version {
@@ -206,7 +212,7 @@ function TextField({ path, label, value, multiline, liens, onChange }: { path: s
             <AtelierIcone nom="lien" />
             Ajouter un lien
           </button>
-          <span className={s.hint}>Sélectionnez des mots puis « Ajouter un lien ».</span>
+          <span className={s.hint}>Sélectionnez des mots puis « Ajouter un lien ».</span>
         </div>
       ) : null}
       {lien ? (
@@ -222,7 +228,7 @@ function TextField({ path, label, value, multiline, liens, onChange }: { path: s
               Adresse
             </label>
             <input id={`${id}-adresse`} className="field__input" value={lien.adresse} placeholder="/boutique ou https://…" inputMode="url" onChange={(e) => setLien({ ...lien, adresse: e.target.value })} />
-            {lien.adresse && !adresseOk(lien.adresse.trim()) ? <p className={s.issue}>Une page du site (« /boutique »), une adresse qui commence par https:// ou un e-mail (mailto:).</p> : null}
+            {lien.adresse && !adresseOk(lien.adresse.trim()) ? <p className={s.issue}>Une page du site (« /boutique »), une adresse en https ou un e-mail en mailto.</p> : null}
           </div>
           <div className={s.actions}>
             <button type="button" className="btn" onClick={inserer} disabled={!lien.mots.trim() || !adresseOk(lien.adresse.trim())}>
@@ -239,7 +245,7 @@ function TextField({ path, label, value, multiline, liens, onChange }: { path: s
           {presents.map((m, k) => (
             <li key={`${m.index}-${k}`}>
               <span>
-                « {m[1]} » vers {m[2]}
+                « {m[1]} » vers {m[2]}
               </span>
               <button type="button" className="btn btn--link" onClick={() => onChange(value.slice(0, m.index) + m[1] + value.slice((m.index ?? 0) + m[0].length))}>
                 Retirer le lien
@@ -248,7 +254,7 @@ function TextField({ path, label, value, multiline, liens, onChange }: { path: s
           ))}
         </ul>
       ) : null}
-      {isTodoText(value) ? <p className={s.hint}>Texte à écrire : tant qu’il reste entre crochets, ce bloc ne part pas dans l’e-mail.</p> : null}
+      {isTodoText(value) ? <p className={s.hint}>Texte à écrire : tant qu’il reste entre crochets, ce bloc ne part pas dans l’e-mail.</p> : null}
       {blocked && value.trim() ? <p className={s.issue}>{blocked}</p> : null}
       {issues.slice(0, 3).map((i, k) => (
         <p key={k} className={s.issue}>
@@ -388,7 +394,7 @@ function Reglages({
                 Page ouverte
               </label>
               <input id={`${path}-href`} className="field__input" value={l.href} placeholder="/boutique" onChange={(e) => set({ [f.key]: { ...l, href: e.target.value.trim() } }, `${path}.href`)} />
-              {l.href && !adresseOk(l.href) && !l.href.startsWith("atelier:/") ? <p className={s.issue}>Une page du site (« /boutique »), une adresse qui commence par https:// ou un e-mail (mailto:).</p> : null}
+              {l.href && !adresseOk(l.href) && !l.href.startsWith("atelier:/") ? <p className={s.issue}>Une page du site (« /boutique »), une adresse en https ou un e-mail en mailto.</p> : null}
             </div>
           </div>
         );
@@ -532,12 +538,12 @@ function Reglages({
               <option value="">Toujours</option>
               {vars.map((v) => (
                 <option key={`si-${v}`} value={`si:${v}`}>
-                  Seulement quand il y a : {doc.variables[v].description.toLowerCase()}
+                  Seulement quand il y a : {doc.variables[v].description.toLowerCase()}
                 </option>
               ))}
               {vars.map((v) => (
                 <option key={`sauf-${v}`} value={`sauf:${v}`}>
-                  Seulement sans : {doc.variables[v].description.toLowerCase()}
+                  Seulement sans : {doc.variables[v].description.toLowerCase()}
                 </option>
               ))}
             </select>
@@ -581,6 +587,19 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
   const choisi = useRef<string | null>(selected);
   const defiler = useRef(false);
   const dernier = useRef({ cle: "", at: 0 });
+  const boite = useRef<HTMLDivElement>(null);
+  const [taille, setTaille] = useState({ w: 0, h: 0 });
+
+  // la boîte de l'aperçu mesure sa place ; l'e-mail y est posé à sa vraie largeur, réduit au besoin
+  useEffect(() => {
+    const el = boite.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setTaille({ w: e.contentRect.width, h: e.contentRect.height }));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const largeur = mobile ? FENETRE.telephone : FENETRE.ordinateur;
+  const echelle = taille.w && taille.w < largeur ? taille.w / largeur : 1;
 
   /** Toute modification passe ici : un pas d'annulation, sauf la frappe continue dans un même champ. */
   const change = useCallback((fn: (d: EmailDoc) => EmailDoc, regrouper?: Regrouper) => {
@@ -638,7 +657,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
       }
       setError("");
       setDirty(false);
-      setStatus("Brouillon enregistré. Rien ne part avant « Publier ».");
+      setStatus("Brouillon enregistré. Rien ne part avant « Publier ».");
     }, 1200);
     return () => window.clearTimeout(t);
   }, [atelier, dirty, doc, id]);
@@ -694,7 +713,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
         cibleId = nb.id;
         return { ...d, blocs: [...d.blocs.slice(0, at), nb, ...d.blocs.slice(at)] };
       });
-      // le bloc qui a reçu la photo est choisi : sa description est à écrire dans « Réglages »
+      // le bloc qui a reçu la photo est choisi : sa description est à écrire dans « Réglages »
       window.setTimeout(() => cibleId && choisir(cibleId, false), 0);
     },
     [change, choisir, upload],
@@ -760,7 +779,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
     choisir(copie.id, true);
   };
   const supprimer = (b: EmailBlock) => {
-    if (!window.confirm("Supprimer ce bloc ? « Annuler » le remet en place.")) return;
+    if (!window.confirm("Supprimer ce bloc ? « Annuler » le remet en place.")) return;
     const i = doc.blocs.findIndex((x) => x.id === b.id);
     const voisin = doc.blocs[i + 1]?.id ?? doc.blocs[i - 1]?.id ?? null;
     change((d) => ({ ...d, blocs: d.blocs.filter((x) => x.id !== b.id) }));
@@ -861,6 +880,24 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
               </button>
             </div>
           </div>
+          <div className={s.inbox}>
+            <p className={s.subject}>{subjectShown.subject}</p>
+            <p className={s.hint}>{subjectShown.preheader}</p>
+          </div>
+          <div className={s.frameBox}>
+            <div ref={boite} className={s.frameZone}>
+              {/* cadre sans script (« allow-same-origin » seul) : l'éditeur y lit les clics et les photos déposées */}
+              <iframe
+                ref={frame}
+                title="Aperçu de l’e-mail"
+                className={s.frame}
+                sandbox="allow-same-origin"
+                srcDoc={html}
+                onLoad={brancher}
+                style={{ width: `${largeur}px`, height: `${taille.h / echelle}px`, left: `${Math.max(0, (taille.w - largeur * echelle) / 2)}px`, transform: `scale(${echelle})` }}
+              />
+            </div>
+          </div>
           {doc.blocs.some((b) => b.si || b.sauf) ? (
             <fieldset className={s.choices}>
               <legend className="field__label">Essayer un cas</legend>
@@ -873,15 +910,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
                 ))}
             </fieldset>
           ) : null}
-          <div className={s.inbox}>
-            <p className={s.subject}>{subjectShown.subject}</p>
-            <p className={s.hint}>{subjectShown.preheader}</p>
-          </div>
-          <div className={s.frameBox} data-mobile={mobile || undefined}>
-            {/* cadre sans script (« allow-same-origin » seul) : l'éditeur y lit les clics et les photos déposées */}
-            <iframe ref={frame} title="Aperçu de l’e-mail : cliquez sur un bloc pour le modifier" className={s.frame} sandbox="allow-same-origin" srcDoc={html} onLoad={brancher} />
-          </div>
-          <p className={s.hint}>Cliquez sur un bloc pour le modifier ; glissez une photo sur l’e-mail pour la placer. Un essai envoyé à vous-même reste la vérification finale.</p>
+          <p className={s.hint}>Cliquez sur un bloc pour le modifier ; glissez une photo sur l’e-mail pour la placer. Un essai envoyé à vous-même reste la vérification finale.</p>
         </div>
 
         <aside className={s.panel} aria-label="Modifier l’e-mail">
@@ -941,7 +970,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
               </ol>
               <h3 className={s.sectionTitle}>Ajouter un bloc</h3>
               <p className={s.hint}>{selected ? "Il se place sous le bloc choisi." : "Il se place avant le pied de page."}</p>
-              {doc.blocs.length >= MAX_BLOCS ? <p className={s.issue}>Trente blocs au plus : retirez-en un pour en ajouter un autre.</p> : null}
+              {doc.blocs.length >= MAX_BLOCS ? <p className={s.issue}>Trente blocs au plus : retirez-en un pour en ajouter un autre.</p> : null}
               <ul className={s.library} aria-label="Bibliothèque de blocs">
                 {EMAIL_BLOCKS.map((b) => (
                   <li key={b.type}>
@@ -971,7 +1000,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
                 onDelete={() => supprimer(block)}
               />
             ) : (
-              <p className={s.hint}>Cliquez sur un bloc dans l’e-mail, ou choisissez-le dans « Blocs », pour le modifier.</p>
+              <p className={s.hint}>Cliquez sur un bloc dans l’e-mail, ou choisissez-le dans « Blocs », pour le modifier.</p>
             )
           ) : null}
 
@@ -1000,7 +1029,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
                 <h3 id="exporter" className={s.sectionTitle}>
                   Exporter la version publiée
                 </h3>
-                <p className={s.hint}>Pour un service d’envoi : le gabarit garde sa mise en page, et les repères prennent la syntaxe du service.</p>
+                <p className={s.hint}>Pour un service d’envoi : le gabarit garde sa mise en page, et les repères prennent la syntaxe du service.</p>
                 <div className={s.actions}>
                   <a className="btn btn--outline" href={`${atelier.api("/edition/email/export")}?id=${id}&pour=brevo`}>
                     Pour Brevo

@@ -164,7 +164,7 @@ export const EMAIL_BLOCKS: BlockDef[] = [
   {
     type: "photo-texte",
     label: "Photo et texte",
-    description: "Une photographie et quelques lignes côte à côte ; l’une sous l’autre sur téléphone.",
+    description: "Une photographie et quelques lignes côte à côte ; l’une sous l’autre sur téléphone.",
     fields: [
       { key: "image", label: "Photographie", kind: "image" },
       { key: "texte", label: "Texte", kind: "texte-long" },
@@ -174,7 +174,7 @@ export const EMAIL_BLOCKS: BlockDef[] = [
   {
     type: "deux-photos",
     label: "Deux photos",
-    description: "Deux photographies côte à côte ; l’une sous l’autre sur téléphone.",
+    description: "Deux photographies côte à côte ; l’une sous l’autre sur téléphone.",
     fields: [
       { key: "image", label: "Première photographie", kind: "image" },
       { key: "image2", label: "Seconde photographie", kind: "image" },

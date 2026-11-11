@@ -53,6 +53,11 @@ export interface EmailContext {
   /** lien d'un e-mail vers l'Atelier (« atelier:/retours ») */
   atelierHref?: (path: string) => string;
   /**
+   * adresse des photos, du logo et des polices (par défaut celle du site) ; l'aperçu de l'Atelier
+   * les sert depuis sa propre adresse (« » : chemins relatifs), seule permise dans son cadre
+   */
+  assets?: string;
+  /**
    * aperçu de l'éditeur : chaque bloc porte son identifiant (pour le choisir d'un clic), et les blocs
    * encore à écrire ou sans photo paraissent avec leur repère. Jamais dans un e-mail envoyé.
    */
@@ -114,7 +119,7 @@ function href(link: string, ctx: EmailContext): string {
 const imageUrl = (src: string, ctx: EmailContext, width = 1200) => {
   if (!src) return "";
   const s = /\.(webp|jpe?g|png|gif)$/i.test(src) || src.startsWith("http") ? src : `${src}${width <= 480 ? "-480" : ""}.webp`;
-  return s.startsWith("http") ? s : `${ctx.site}${s}`;
+  return s.startsWith("http") ? s : `${ctx.assets ?? ctx.site}${s}`;
 };
 
 // ------------------------------------------------------------------ styles
@@ -136,9 +141,9 @@ function head(ctx: EmailContext, title: string) {
   const fontFace =
     ctx.client === "gmail" || ctx.client === "outlook"
       ? ""
-      : `@font-face{font-family:'Fraunces';font-weight:400;font-style:italic;src:url('${ctx.site}/fonts/fraunces-72pt-italic-latin.woff2') format('woff2');}
-@font-face{font-family:'Fraunces';font-weight:300;font-style:normal;src:url('${ctx.site}/fonts/fraunces-120pt-light-latin.woff2') format('woff2');}
-@font-face{font-family:'Cormorant Garamond';font-weight:400;font-style:normal;src:url('${ctx.site}/fonts/cormorant-garamond-latin-400.woff2') format('woff2');}`;
+      : `@font-face{font-family:'Fraunces';font-weight:400;font-style:italic;src:url('${ctx.assets ?? ctx.site}/fonts/fraunces-72pt-italic-latin.woff2') format('woff2');}
+@font-face{font-family:'Fraunces';font-weight:300;font-style:normal;src:url('${ctx.assets ?? ctx.site}/fonts/fraunces-120pt-light-latin.woff2') format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-weight:400;font-style:normal;src:url('${ctx.assets ?? ctx.site}/fonts/cormorant-garamond-latin-400.woff2') format('woff2');}`;
   const darkRules = `.e-page{background:${dark.page}!important}.e-card{background:${dark.card}!important}.e-ink{color:${dark.ink}!important}.e-soft{color:${dark.soft}!important}.e-line{border-color:${dark.line}!important}.e-btn{background:${dark.btn}!important;border-color:${dark.btn}!important}.e-btn a{color:${dark.onBtn}!important}.e-ink a{color:${dark.ink}!important}.e-logo-day{display:none!important}.e-logo-night{display:block!important;max-height:none!important;overflow:visible!important}`;
   const prefix = (sel: string) => darkRules.replace(/\.e-/g, `${sel} .e-`);
   // le thème sombre forcé de l'aperçu reprend exactement les règles du mode sombre
@@ -175,6 +180,7 @@ function typo(ctx: EmailContext, police: Police, size: [number, number], color: 
   const family = police === "texte" ? f.text : f.display;
   // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
   const face = police === "italique" ? "font-style:italic;font-weight:400;" : police === "droite" ? "font-style:normal;font-weight:300;" : "font-style:normal;font-weight:400;";
+  // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
   return `font-family:${family};${face}font-size:${size[0]}px;line-height:${size[1]}px;color:${color};`;
 }
 
@@ -243,7 +249,7 @@ function blockHtml(b: EmailBlock, ctx: EmailContext, unsubscribe: string): strin
       const bg = ink ? c.band : c.card;
       const fg = ink ? c.onBand : c.ink;
       const logo = (file: string, cls: string, alt: string) =>
-        `<img class="${cls}" src="${ctx.site}/brand/${file}" width="160" alt="Awrea Paris" style="display:block;margin:0 auto;width:160px;height:auto;border:0;font-family:${f.text};font-size:20px;line-height:32px;color:${alt};">`;
+        `<img class="${cls}" src="${ctx.assets ?? ctx.site}/brand/${file}" width="160" alt="Awrea Paris" style="display:block;margin:0 auto;width:160px;height:auto;border:0;font-family:${f.text};font-size:20px;line-height:32px;color:${alt};">`;
       const art = ink
         ? logo("awrea-logo-blanc.png", "", fg)
         : `${logo("awrea-logo.png", "e-logo-day", fg)}<!--[if !mso]><!--><div class="e-logo-night" style="display:none;max-height:0;overflow:hidden;">${logo("awrea-logo-blanc.png", "", c.onBand)}</div><!--<![endif]-->`;

@@ -13,7 +13,8 @@
 }
 @media (min-width: 64rem) {
   .layout {
-    grid-template-columns: minmax(0, 1fr) minmax(var(--container-popover), var(--container-panel));
+    /* l'e-mail d'abord : trois cinquièmes de la place, le panneau le reste */
+    grid-template-columns: minmax(0, 3fr) minmax(var(--container-popover), 2fr);
   }
   .panel {
     position: sticky;
@@ -400,21 +401,22 @@
   text-align: left;
 }
 .frameBox {
-  display: flex;
-  justify-content: center;
   padding: var(--spacing-xs);
   background: var(--media-bg);
 }
-.frame {
-  width: 100%;
-  max-width: calc(var(--container-panel) + var(--container-card));
+/* la place de l'aperçu ; l'e-mail y est posé à sa vraie largeur (EmailEditor, FENETRE), réduit au besoin */
+.frameZone {
+  position: relative;
   height: calc(100svh - var(--spacing-3xl) * 2);
   min-height: var(--container-panel);
+  overflow: hidden;
+}
+.frame {
+  position: absolute;
+  top: 0;
   border: 0;
   background: var(--color-ivory);
-}
-.frameBox[data-mobile] .frame {
-  max-width: calc(var(--container-thumb-l) * 4 - var(--spacing-2xs));
+  transform-origin: top left;
 }
 
 .backdrop {
