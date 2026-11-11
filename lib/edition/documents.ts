@@ -88,6 +88,19 @@ export async function registerPage(modele: Modele, titre: string, slug: string, 
   return info;
 }
 
+/**
+ * Nouvel e-mail créé dans l'Atelier (parcours de vente, lib/marketing/parcours/emails.ts) : déclaré
+ * comme une page créée depuis un modèle, puis écrit et publié dans l'éditeur des e-mails.
+ */
+export async function registerEmail(id: string, label: string, by: string): Promise<DocInfo> {
+  if (!isDocId(id) || !id.startsWith("email-")) throw new Error("Ce nom d’e-mail n’est pas possible.");
+  if (await documentInfo(id)) throw new Error("Un e-mail porte déjà ce nom.");
+  const info: DocInfo = { id, label: label.trim(), kind: "email", createdAt: new Date().toISOString(), createdBy: by };
+  const custom = (await kv.get<DocInfo[]>(CUSTOM_KEY).catch(() => null)) ?? [];
+  await kv.set(CUSTOM_KEY, [...custom, info]);
+  return info;
+}
+
 export async function unregisterPage(id: string) {
   const custom = (await kv.get<DocInfo[]>(CUSTOM_KEY).catch(() => null)) ?? [];
   await kv.set(CUSTOM_KEY, custom.filter((d) => d.id !== id));
