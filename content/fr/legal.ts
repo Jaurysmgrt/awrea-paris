@@ -19,7 +19,7 @@
  *
  * Textes à faire relire par un juriste avant la mise en ligne (voir LEGAL-A-COMPLETER.md).
  */
-import { categoriesActives } from "./cookies";
+import { categoriesActives } from "@/content/fr/cookies";
 import { shop } from "@/content/settings";
 import { legalVersions } from "@/content/legal-versions";
 import { formatPrice } from "@/lib/format";
