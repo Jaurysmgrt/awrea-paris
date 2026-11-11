@@ -147,7 +147,7 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
             <dt className="t-label">Paiement</dt>
             <dd>
               {order.paymentMethod}
-              {exp ? ` · export : droits ${formatPrice(exp.duty)}, taxe du pays ${formatPrice(exp.importVat)}` : order.taxes ? ` · dont TVA ${formatPrice(order.taxes.vat)}` : ""}
+              {exp ? ` · export : droits ${formatPrice(exp.duty)}, taxe du pays ${formatPrice(exp.importVat)}` : order.taxes?.vat ? ` · dont TVA ${formatPrice(order.taxes.vat)}` : ""}
             </dd>
           </div>
         </dl>

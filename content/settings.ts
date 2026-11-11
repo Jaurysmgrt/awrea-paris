@@ -40,8 +40,27 @@ export const shop = {
     CA: { duty: 0, vat: 0.05, vatLabel: "TPS canadienne" },
     JP: { duty: 0, vat: 0.1, vatLabel: "taxe de consommation japonaise" },
   } as Record<string, { duty: number; vat: number; vatLabel: string }>,
-  /** TVA française, incluse dans les prix affichés */
+  /**
+   * Régime de TVA de la Maison : RÉGLAGE UNIQUE, lu par le récapitulatif de commande, les factures,
+   * l'e-mail de confirmation, l'assistante et l'agent de comptabilité (lib/commerce/tva.ts).
+   * - "franchise" : franchise en base (micro-entreprise, confirmée par la Maison le 10/11/2026).
+   *   Aucune TVA facturée, prix affichés = prix payés, mention « TVA non applicable, article 293 B
+   *   du Code général des impôts. » au récapitulatif, sur chaque facture et dans l'e-mail.
+   * - "tva20" : TVA française au taux `vatRate`, incluse dans les prix affichés et détaillée sur
+   *   les factures. Si la Maison dépasse un jour les seuils de la franchise : passer ici à "tva20",
+   *   renseigner le numéro de TVA intracommunautaire (champ `tva` de content/legal/fields.ts),
+   *   récrire la rubrique « TVA » des mentions légales (Édition), et faire relire l'article 2 des CGV.
+   */
+  vatRegime: "franchise" as "franchise" | "tva20",
+  /** taux de la TVA française, appliqué seulement avec le régime "tva20" */
   vatRate: 0.2,
+  /**
+   * Seuil de chiffre d'affaires annuel de la franchise en base pour des ventes de pièces (article
+   * 293 B du CGI), en centimes : 85 000 € (seuil majoré de 93 500 €), valeurs connues pour 2026,
+   * À FAIRE CONFIRMER chaque année par l'expert-comptable. L'agent de comptabilité prévient la
+   * créatrice à 80 % du seuil ; il ne change jamais le régime lui-même.
+   */
+  franchiseThreshold: 8_500_000,
   /** délai minimal avant une date de livraison souhaitée (jours), pour une pièce disponible */
   giftDateMinDays: 7,
   /** pays de livraison : la France métropolitaine (article 5 des CGV officielles) */

@@ -1,16 +1,19 @@
 /**
  * Livraison et taxes selon le pays (calcul partagé par la page de commande et le serveur).
- * - France et Union européenne : prix affichés toutes taxes comprises (TVA française incluse).
+ * - France et Union européenne : le prix affiché est le prix payé. En franchise en base (régime de
+ *   la Maison, lib/commerce/tva.ts), il ne contient aucune TVA ; au régime "tva20", il comprend la
+ *   TVA française.
  * - Hors Union européenne : la pièce part hors TVA française ; droits de douane et TVA du pays
  *   d'arrivée calculés et payés à la commande (rendu droits acquittés : rien à régler au livreur).
+ *   En franchise, aucune TVA française n'est retirée du prix : il n'y en a pas.
  * Calcul fait par le site, à la commande, sur la boutique réelle comme en démonstration.
  */
 import { shop } from "@/content/settings";
-import { legalFields } from "@/content/legal/fields";
+import { tauxTva, vatFranchise } from "./tva";
 import type { OrderTaxes } from "./types";
 
-/** Franchise en base de TVA (mention « art. 293 B du CGI » dans le registre légal) : aucune TVA facturée. */
-export const vatFranchise = () => /293\s*B/i.test(legalFields.tva.value);
+/** Franchise en base de TVA : réexportée ici pour les appels existants (lib/commerce/tva.ts). */
+export { vatFranchise };
 
 export type Zone = "FR" | "EU" | "WORLD";
 export type ShippingRate = (typeof shop.shippingRates)[number];
@@ -37,10 +40,12 @@ const round = (n: number) => Math.round(n);
 export function orderTaxes(country: string, goods: number, shipping: number): { taxes: OrderTaxes; total: number } {
   const zone = zoneOf(country);
   const rates = zone === "WORLD" ? shop.importRates[country] : undefined;
-  const fr = vatFranchise() ? 0 : shop.vatRate;
+  // taux de TVA française contenu dans les prix : 0 en franchise, rien à retirer à l'export
+  const fr = tauxTva();
+  const franchise = vatFranchise() ? { franchise: true } : {};
   if (!rates) {
     const total = goods + shipping;
-    return { taxes: { vatRate: fr, vat: fr ? round(total - total / (1 + fr)) : 0 }, total };
+    return { taxes: { vatRate: fr, vat: fr ? round(total - total / (1 + fr)) : 0, ...franchise }, total };
   }
   const exVat = round(goods / (1 + fr));
   const shippingExVat = round(shipping / (1 + fr));
@@ -48,7 +53,7 @@ export function orderTaxes(country: string, goods: number, shipping: number): { 
   const duty = round((exVat + shippingExVat) * rates.duty);
   const importVat = round((exVat + shippingExVat + duty) * rates.vat);
   return {
-    taxes: { vatRate: 0, vat: 0, export: { exVat: exVat + shippingExVat, duty, dutyRate: rates.duty, importVat, importVatRate: rates.vat } },
+    taxes: { vatRate: 0, vat: 0, ...franchise, export: { exVat: exVat + shippingExVat, duty, dutyRate: rates.duty, importVat, importVatRate: rates.vat } },
     total: exVat + shippingExVat + duty + importVat,
   };
 }
