@@ -25,8 +25,8 @@ test.describe("Accessibilité WCAG 2.1 AA (axe-core)", () => {
     await expect(page.locator(".consent-veil")).toBeVisible();
     await expect(page.locator("main")).toHaveAttribute("inert", "");
     await expect(page.locator("html")).toHaveClass(/consent-bloque/);
-    const refuse = banner.getByRole("button", { name: "Refuser", exact: true });
-    const accept = banner.getByRole("button", { name: "Accepter", exact: true });
+    const refuse = banner.getByRole("button", { name: "Tout refuser", exact: true });
+    const accept = banner.getByRole("button", { name: "Tout accepter", exact: true });
     await expect(refuse).toBeVisible();
     await expect(accept).toBeVisible();
     // même poids visuel : même classe, même taille
@@ -53,19 +53,22 @@ test.describe("Accessibilité WCAG 2.1 AA (axe-core)", () => {
     await expect(page.locator("main")).not.toHaveAttribute("inert", "");
   });
 
-  test("cookies : choix par catégorie et « Gérer les cookies »", async ({ page }) => {
+  test("cookies : choix par catégorie et « Gérer mes cookies »", async ({ page }) => {
     await page.goto("/la-maison");
     const banner = page.getByRole("dialog", { name: "Cookies" });
-    await banner.getByRole("button", { name: "Choisir" }).click();
-    await expect(banner.getByRole("switch")).toHaveCount(4);
+    await banner.getByRole("button", { name: "Personnaliser" }).click();
+    // seules les catégories qui déposent réellement quelque chose : aucun outil publicitaire n'est
+    // branché ici, la catégorie « Publicité » ne se propose donc pas
+    await expect(banner.getByRole("switch")).toHaveCount(3);
+    await expect(banner.getByRole("switch", { name: "Publicité" })).toHaveCount(0);
     await expect(banner.getByRole("switch", { name: "Nécessaires" })).toBeDisabled();
     await banner.getByRole("switch", { name: "Mesure d’audience" }).check();
     await banner.getByRole("button", { name: "Enregistrer mes choix" }).click();
     await expect(banner).toBeHidden();
     let consent = (await page.context().cookies()).find((c) => c.name === "awrea_consent");
     expect(consent!.value).toMatch(/\.100\./);
-    // rouvrir depuis le pied de page (colonne LÉGAL, « Gérer les cookies ») : un choix existe, pas de voile
-    await page.locator("footer").getByRole("button", { name: "Gérer les cookies" }).click();
+    // rouvrir depuis le pied de page (colonne LÉGAL, « Gérer mes cookies ») : un choix existe, pas de voile
+    await page.locator("footer").getByRole("button", { name: "Gérer mes cookies" }).click();
     const reglages = page.getByRole("region", { name: "Cookies" });
     await expect(reglages).toBeVisible();
     await expect(page.locator(".consent-veil")).toHaveCount(0);

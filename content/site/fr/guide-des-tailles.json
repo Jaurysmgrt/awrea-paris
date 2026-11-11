@@ -4,10 +4,10 @@
     "description": "Le guide des tailles d’Awrea Paris : tour de poitrine, de taille et de hanches en centimètres, la façon de prendre vos mesures et l’aide pour trouver votre taille."
   },
   "titre": "Guide des tailles",
-  "chapeau": "Chaque pièce est confectionnée dans la taille que vous choisissez. Vos mesures, prises à même la peau, vous mènent à la bonne.",
+  "chapeau": "Retrouvez nos indications de tailles afin de choisir celle qui vous correspond. Prenez vos mesures à l’aide de notre guide pour identifier la taille la plus adaptée à votre silhouette.",
   "tableau": {
-    "titre": "Les tailles de la Maison",
-    "legende": "Mesures du corps, en centimètres",
+    "titre": "Nos mesures de référence",
+    "legende": "Toutes les mesures sont exprimées en centimètres.",
     "aConfirmer": "Tableau à confirmer par la Maison : ces mesures peuvent encore changer avant les premières livraisons."
   },
   "mesures": {

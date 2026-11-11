@@ -13,6 +13,8 @@ import styles from "./guide-des-tailles.module.css";
  * sur chaque fiche et pour « Trouver ma taille »), la façon de prendre ses mesures, et le chemin
  * vers « Trouver ma taille ». Tant que la Maison n'a pas confirmé le tableau, une mention le dit.
  * Aucune mesure de pièce : seulement des mesures du corps. Textes : content/site/fr/guide-des-tailles.json.
+ * Cahier du 10/11 : tout sur un même axe. Dès la tablette, titres, intro, légende et mention se
+ * centrent sur la colonne du tableau ; sur téléphone, tout reste au fer à gauche.
  */
 type GuideDesTailles = typeof import("@/content/site/fr/guide-des-tailles.json");
 
@@ -26,12 +28,12 @@ export default async function GuideDesTaillesPage() {
   const guide = shop.sizeGuide;
   return (
     <>
-      <PageHeader title={t.titre} lead={t.chapeau} crumbs={[{ name: t.titre, path: "/guide-des-tailles" }]} />
+      <PageHeader title={t.titre} lead={t.chapeau} leadCentre crumbs={[{ name: t.titre, path: "/guide-des-tailles" }]} />
 
       {/* ------------------------------------------------ LE TABLEAU */}
       <Section theme="ivory" className="section section--flush-top" labelledBy="tailles-tableau">
         <div className="container-prose">
-          <h2 id="tailles-tableau" className="t-h2">
+          <h2 id="tailles-tableau" className={`t-h2 ${styles.titre}`}>
             {t.tableau.titre}
           </h2>
           {/* zone qui défile sur téléphone : atteignable au clavier, nommée par le titre du tableau */}
@@ -75,11 +77,11 @@ export default async function GuideDesTaillesPage() {
       {/* ------------------------------------------------ PRENDRE SES MESURES */}
       <Section theme="pearl" className="section--tall" labelledBy="tailles-mesures">
         <div className="container-prose">
-          <div className={ed.tete}>
+          <div className={`${ed.tete} ${styles.tete}`}>
             <h2 id="tailles-mesures" className="t-h2">
               {t.mesures.titre}
             </h2>
-            <p className="t-body">{t.mesures.conseil}</p>
+            <p className="t-body t-left">{t.mesures.conseil}</p>
           </div>
           <dl className={`${styles.mesures} ${ed.apresTete}`}>
             {t.mesures.liste.map((m) => (

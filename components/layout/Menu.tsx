@@ -12,7 +12,7 @@
  *   entrées et leurs sous-entrées.
  * - Aucun sélecteur de langue (brief du 09/11) : le site suit la langue de l'appareil (proxy.ts,
  *   preferredLocale). Sous /en, la page en cours se repère sans le préfixe.
- * - CookiesButton : « Gérer les cookies » du pied de page (rouvre les préférences).
+ * - CookiesButton : « Gérer mes cookies » du pied de page (rouvre les préférences).
  *
  * Aucun texte ici : entrées et liens dans content/site/fr/navigation.json, libellés de l'interface
  * dans content/site/fr/site.json (modifiables dans l'éditeur Édition).
@@ -430,7 +430,7 @@ export function Menu({ open, onClose, nav, actions }: { open: boolean; onClose: 
 
 /* ------------------------------------------------------------ pied de page */
 
-/** « Gérer les cookies » : rouvre le gestionnaire de cookies (évènement de lib/consent). */
+/** « Gérer mes cookies » : rouvre le gestionnaire de cookies (évènement de lib/consent). */
 export function CookiesButton({ label, className }: { label: string; className?: string }) {
   return (
     <button type="button" className={className} onClick={() => window.dispatchEvent(new Event(CONSENT_OPEN_EVENT))}>

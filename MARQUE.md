@@ -320,7 +320,7 @@ pastille « Nouveau », photos des cartes aux angles arrondis. Primitives et cla
   cours reste soulignée.
 - Pied de page : filet centré, quatre colonnes en capitales : LA MARQUE (Contact, À propos),
   SERVICE CLIENT (Guide des tailles, Livraison & retours, Suivre ma commande), LÉGAL (Mentions
-  légales, CGV, Confidentialité, Gérer les cookies), NOUS SUIVRE (Instagram, pastille noire) ;
+  légales, CGV, Confidentialité, Gérer mes cookies), NOUS SUIVRE (Instagram, pastille noire) ;
   « © Awrea Paris 2026 » centré dessous.
 
 ### Mouvement

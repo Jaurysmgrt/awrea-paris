@@ -19,6 +19,7 @@
  *
  * Textes à faire relire par un juriste avant la mise en ligne (voir LEGAL-A-COMPLETER.md).
  */
+import { categoriesActives } from "./cookies";
 import { shop } from "@/content/settings";
 import { legalVersions } from "@/content/legal-versions";
 import { formatPrice } from "@/lib/format";
@@ -383,7 +384,7 @@ export const legalPages = {
         id: "choix",
         title: "Votre choix",
         blocks: [
-          "À votre première visite, un bandeau vous propose d’accepter ou de refuser les cookies non nécessaires, avec la même simplicité, ou de choisir catégorie par catégorie : mesure d’audience, personnalisation, publicité. Aucun cookie non nécessaire n’est déposé avant votre choix.",
+          "À votre première visite, un bandeau vous propose trois choix, avec la même simplicité : « Tout accepter », « Tout refuser » ou « Personnaliser », catégorie par catégorie. Aucun cookie non nécessaire n’est déposé avant votre choix. Vous pouvez le modifier ou retirer votre accord à tout moment depuis « Gérer mes cookies », en bas de chaque page, ou juste ici.",
           "Votre choix est conservé treize mois, puis vous est redemandé ; il l’est aussi à chaque évolution importante de cette politique. Une preuve de chaque choix est conservée, sans donnée d’identification directe. Lorsque vous retirez votre accord, les traceurs concernés sont effacés.",
           { widget: "cookie-settings" },
         ],
@@ -391,16 +392,7 @@ export const legalPages = {
       {
         id: "categories",
         title: "Les catégories",
-        blocks: [
-          {
-            list: [
-              "**Nécessaires.** Le panier, la connexion au compte, la sécurité, la mémorisation de vos choix. Toujours actifs : le site ne peut fonctionner sans eux.",
-              "**Mesure d’audience.** Compter les visites et les pièces consultées, de façon agrégée, pour améliorer le site.",
-              "**Personnalisation.** Se souvenir des pièces et des collections que vous avez regardées, pour vous proposer une sélection à votre retour. Garder votre panier en attente, pour vous le rappeler.",
-              "**Publicité.** Mesurer l’efficacité de nos campagnes sur Instagram, Facebook, TikTok et Google, et vous y montrer nos pièces.",
-            ],
-          },
-        ],
+        blocks: [{ list: categoriesActives.map((c) => `**${c.label}.** ${c.summary}`) }],
       },
       { id: "liste", title: "La liste complète", blocks: [{ widget: "cookie-table" }] },
       {
