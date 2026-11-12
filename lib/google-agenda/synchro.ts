@@ -95,7 +95,7 @@ export function moteurGoogle(o: MoteurOptions) {
     if (!c?.jeton || c.etat !== "connecte") throw new ErreurGoogle("Google Agenda n’est pas connecté.", { code: "deconnecte", revoque: c?.etat === "a-reconnecter" });
     const refresh = dechiffrer(c.jeton, o.secret);
     if (!refresh) {
-      const erreur = "La clé de chiffrement a changé : reconnectez Google Agenda.";
+      const erreur = "La clé de chiffrement a changé : reconnectez Google Agenda.";
       await o.coffre.ecrire({ ...c, etat: "a-reconnecter", jeton: undefined, erreur });
       throw new ErreurGoogle(erreur, { code: "cle", revoque: true });
     }
