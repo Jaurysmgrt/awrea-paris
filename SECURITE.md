@@ -239,6 +239,42 @@ authentification ; aucune seconde porte d'entrée.
 
 Contrôlé par `tests/unit/atelier-application.test.ts` et `tests/e2e/atelier-application.spec.ts`.
 
+### Google Agenda (connexion directe)
+
+Les rendez-vous confirmés deviennent des événements de l'agenda Google de la Maison
+(`lib/google-agenda`, mode d'emploi : `ACTIVATION.md`, étape 16).
+
+- **Jamais de mot de passe Google** demandé ni gardé : flux OAuth 2.0 « application Web » de Google,
+  la créatrice s'identifie chez Google seulement.
+- **Une seule autorisation**, la plus étroite : `calendar.events.owned` (créer, modifier, supprimer
+  et lire les événements des agendas dont le compte est propriétaire). Les moments occupés sont lus
+  avec elle, en ne demandant que les heures (ni titre, ni description, ni invités).
+- **Connexion réservée aux comptes de l'Atelier** : elle commence par la route de l'Atelier
+  (session, double authentification, contrôle d'origine, Zod, débit limité) ; `state` signé (HMAC,
+  `SESSION_SECRET`, dix minutes, lié au compte connecté) ; PKCE S256 ; le vérificateur et le numéro
+  de la connexion sont gardés dans un cookie chiffré (AES-256-GCM), `HttpOnly`, `SameSite=Strict`,
+  limité à la route de l'Atelier ; un retour ne sert qu'une fois.
+- **Adresse de retour** à l'adresse secrète (`ADMIN_PATH/agenda-google`), seule page de l'Atelier
+  ouverte sans session avec la connexion, le manifeste et le service worker : le cookie
+  `SameSite=Strict` de l'Atelier ne suit pas une arrivée depuis Google. Elle ne montre rien et ne
+  fait rien d'elle-même : elle se recharge une fois depuis le site (le cookie revient), puis la
+  connexion se termine par l'API de l'Atelier, session ouverte, après vérification du `state`, du
+  cookie de connexion et du compte. Pas d'indexation, pas de cache, pas de référent.
+- **Jetons côté serveur seulement** : le jeton de rafraîchissement est chiffré (AES-256-GCM, clé
+  `GOOGLE_CALENDAR_TOKEN_KEY`, ou à défaut tirée de `SESSION_SECRET`) dans le stockage du site ; le
+  jeton d'accès (une heure) reste en mémoire du serveur. Aucun jeton dans une réponse, une page, un
+  journal ou un message d'erreur. **Déconnecter** retire l'accès chez Google puis efface le jeton ;
+  un accès retiré ou expiré chez Google fait passer la connexion à « Reconnecter Google Agenda » et
+  le jeton est effacé.
+- **Agents** : le rôle « Rendez-vous » relance chaque matin les envois en attente, sans jamais voir
+  le jeton ; aucune action d'agent ne passe par Google Agenda.
+- **Données** : l'événement porte le nom, l'e-mail, le téléphone et les notes de la cliente, en
+  visibilité « privée » (un agenda partagé ne montre que « occupé »), sans invité (Google n'écrit
+  jamais à la cliente). Google devient sous-traitant de ces données : à mentionner dans la politique
+  de confidentialité.
+
+Contrôlé par `tests/unit/google-agenda.test.ts` et `tests/e2e/google-agenda.spec.ts`.
+
 ## 5. Données
 
 - **Sécurité par ligne (RLS) partout** : les 14 tables de la base clientes sont protégées ; une
@@ -279,7 +315,7 @@ GitHub.** La liste complète, sans valeurs, est dans
 `.env.example` ; `.env*` est ignoré par git (sauf le modèle).
 
 - `node scripts/secret-scan.mjs` cherche les motifs de clés connus (Anthropic, Supabase, Resend,
-  Brevo, Klaviyo, AWS, GitHub, clés privées…) dans tous les fichiers suivis, à chaque
+  Brevo, Klaviyo, AWS, GitHub, Google OAuth, clés privées…) dans tous les fichiers suivis, à chaque
   modification (intégration continue) et chaque semaine. Historique git vérifié pendant l'audit :
   aucune clé.
 - La clé de service Supabase n'est jamais exposée au navigateur (aucun préfixe `NEXT_PUBLIC_`).

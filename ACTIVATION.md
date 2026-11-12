@@ -63,6 +63,7 @@ fonctionnement.
 | 13 | Maintenance automatique | Agent de nuit, sauvegardes (GitHub Actions) | Inclus dans GitHub ; Claude à l'usage |
 | 14 | Éditeur visuel et e-mails | Modifier textes, photos, pages et e-mails sans code | Inclus (Upstash et Supabase des étapes 3 et 5) |
 | 15 | Application de l'Atelier | L'Atelier sur l'iPhone ou l'Android, avec ses notifications | Gratuit (aucun compte, aucune boutique d'applications) |
+| 16 | Google Agenda | Chaque rendez-vous ajouté seul à l'agenda Google de la Maison | Gratuit |
 
 Les étapes 0 à 5 sont nécessaires avant de prendre de vraies commandes ; les commandes payées
 attendent en plus l'étape 4 bis (Stripe). Les autres étapes peuvent venir ensuite,
@@ -660,6 +661,100 @@ téléphone, Atelier › Réglages › **Application** › **Recevoir les notifi
 **Sécurité** : une notification ne montre jamais le nom, l'adresse ni le téléphone d'une cliente ;
 rien n'est gardé sur le téléphone ; **Fermer toutes les sessions** (Réglages) coupe aussi les
 notifications de tous les appareils, à faire aussitôt si un téléphone est perdu.
+
+## Étape 16 · Google Agenda (les rendez-vous dans votre agenda)
+
+Une fois branché, chaque rendez-vous confirmé s'ajoute tout seul à l'agenda Google de la Maison
+(`awrea.contact@gmail.com`) : intitulé, heure de Paris, coordonnées de la cliente, ses notes et le
+lien de l'appel vidéo. Il se met à jour s'il change et disparaît s'il est annulé. Les moments déjà
+pris dans cet agenda ne sont plus proposés aux clientes. Gratuit ; compter une demi-heure.
+
+**Le mot de passe Google ne passe jamais par le site.** Vous le tapez chez Google, et seulement chez
+Google ; Google donne ensuite au site une autorisation limitée aux événements de vos agendas, que vous
+pouvez retirer à tout moment.
+
+Sans cette étape, rien ne change : l'adresse d'abonnement (Atelier › **Rendez-vous** › **Dans votre
+agenda**) continue de montrer les rendez-vous dans votre agenda, et l'Atelier indique que la
+connexion n'est pas encore branchée.
+
+**1. Créer le projet Google Cloud (gratuit).**
+
+1. Ouvrir [console.cloud.google.com](https://console.cloud.google.com), connectée avec
+   `awrea.contact@gmail.com`, et accepter les conditions. Aucune carte bancaire n'est demandée pour
+   cet usage.
+2. En haut de la page, le sélecteur de projet › **Nouveau projet** › nom « Awrea Paris » › **Créer**.
+   Vérifier ensuite que ce projet est bien sélectionné en haut de la page.
+
+**2. Activer l'API Google Calendar.** Menu ☰ › **API et services** › **Bibliothèque** › chercher
+« Google Calendar API » › l'ouvrir › **Activer**.
+
+**3. Configurer l'écran de consentement** (ce que Google vous montre au moment d'autoriser le site).
+Menu ☰ › **API et services** › **Écran de consentement OAuth** (le menu peut s'appeler **Google
+Auth Platform**) › **Commencer** :
+
+1. Nom de l'application : « Awrea Paris » ; adresse e-mail d'assistance : `awrea.contact@gmail.com`.
+2. Audience : **Externe** (un compte Gmail n'a pas le choix « Interne »).
+3. Coordonnées : `awrea.contact@gmail.com`. Accepter le règlement, puis **Créer**.
+4. Rubrique **Audience** › **Utilisateurs test** › **Add users** › `awrea.contact@gmail.com` ›
+   **Enregistrer**.
+5. Facultatif : rubrique **Accès aux données** › **Ajouter ou supprimer des niveaux d'accès** ›
+   filtrer `calendar.events.owned` › cocher la ligne « See, create, change, and delete events on
+   Google calendars you own » › **Mettre à jour** › **Enregistrer**. C'est la seule autorisation que
+   le site demande.
+
+**4. Créer l'identifiant OAuth « Application Web ».** Menu ☰ › **API et services** › **Identifiants**
+(ou **Google Auth Platform** › **Clients**) › **Créer des identifiants** › **ID client OAuth** :
+
+1. Type d'application : **Application Web** ; nom : « Site Awrea Paris ».
+2. **Origines JavaScript autorisées** : ne rien mettre.
+3. **URI de redirection autorisés** › **Ajouter un URI** : l'adresse exacte affichée dans l'Atelier ›
+   **Rendez-vous** › **Google Agenda**, ligne « Adresse de retour à déclarer chez Google ». Elle a la
+   forme `https://www.awreaparis.com/prive-…/agenda-google` : l'adresse du site, votre adresse
+   secrète de l'Atelier (`ADMIN_PATH`, étape 2), puis `/agenda-google`. Un seul caractère différent
+   et Google refuse la connexion (« redirect_uri_mismatch »). Si l'adresse secrète change un jour,
+   remplacer aussi cet URI.
+4. **Créer** : Google affiche l'**ID client** et le **Code secret du client**. Les ranger aussitôt
+   dans le gestionnaire de mots de passe.
+
+**5. Les variables dans Vercel**, pour **Production**, puis **Redeploy** :
+
+| Variable | Valeur |
+| --- | --- |
+| `GOOGLE_CALENDAR_CLIENT_ID` | l'ID client (il se termine par `.apps.googleusercontent.com`) |
+| `GOOGLE_CALENDAR_CLIENT_SECRET` | le code secret du client |
+| `GOOGLE_CALENDAR_TOKEN_KEY` | conseillée : 64 caractères aléatoires (générateur du gestionnaire de mots de passe). C'est la clé qui chiffre l'accès donné par Google. Sans elle, le site la tire de `SESSION_SECRET`. La changer oblige à reconnecter Google Agenda |
+
+**6. Connecter.** Sur le site en ligne (pas sur une version de test de Vercel : l'adresse de retour
+est celle du site) : Atelier › **Rendez-vous** › **Google Agenda** › **Connecter Google Agenda**.
+Google s'ouvre : choisir `awrea.contact@gmail.com`, passer l'avertissement « application en test »
+ou « non validée » (voir ci-dessous), cocher l'accès aux événements de l'agenda, **Continuer**. De
+retour dans l'Atelier : « Connecté à awrea.contact@gmail.com ». Les rendez-vous à venir partent
+aussitôt dans l'agenda.
+
+**Une connexion qui dure (choix de la Maison).** Tant que l'application reste au statut **Test**
+chez Google, Google retire l'accès au bout de sept jours : l'Atelier affiche alors « Reconnecter
+Google Agenda » et les rendez-vous attendent la reconnexion (rien n'est perdu). Pour ne plus avoir
+à reconnecter : rubrique **Audience** › **Publier l'application** › **Confirmer**, puis reconnecter
+une fois. Google n'exige pas de validation pour un usage personnel (la Maison seule s'y connecte).
+À chaque connexion, il affiche alors « Google n'a pas validé cette application » : **Paramètres
+avancés** › **Accéder à Awrea Paris (non sécurisé)**. C'est votre propre application, et
+l'autorisation reste limitée aux événements de vos agendas.
+
+**Vérifier** : Atelier › **Réglages** › **Connexions** : « Google Agenda » indique « Google
+Agenda ». Atelier › **Rendez-vous** › **Google Agenda** : « Synchronisé ». Prendre un rendez-vous
+d'essai sur le site : il apparaît dans Google Agenda en quelques secondes, avec la cliente, ses
+notes et le lien de l'appel ; l'annuler dans l'Atelier : il disparaît. Un moment occupé ajouté dans
+Google Agenda n'est plus proposé sur le site dans les cinq minutes.
+
+**En cas de souci** : une pastille « À refaire » sur un rendez-vous dit pourquoi ; **Réessayer** le
+renvoie, et le passage de chaque matin (rôle « Rendez-vous ») le renvoie aussi tout seul.
+
+**Retirer l'accès** : Atelier › **Rendez-vous** › **Déconnecter** (l'accès est retiré chez Google
+et effacé du site ; les rendez-vous déjà ajoutés restent dans l'agenda). Depuis Google, à tout
+moment : [myaccount.google.com](https://myaccount.google.com) › **Sécurité** › **Vos connexions à
+des applications et services tiers** › Awrea Paris › **Supprimer tous les accès**.
+
+**Interrupteur** : `GOOGLE_CALENDAR_PROVIDER` (`mock` coupe la connexion sans retirer les clés).
 
 ---
 
