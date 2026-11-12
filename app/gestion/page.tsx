@@ -26,9 +26,11 @@ import {
   prenom,
   previousMonthKey,
   priorites,
+  rappelsLegaux,
   topSold,
 } from "@/lib/admin/dashboard";
 import { atelierHref } from "@/lib/admin/path";
+import { legalFields } from "@/content/legal/fields";
 
 const quand = (iso: string) =>
   new Intl.DateTimeFormat("fr-FR", {
@@ -127,6 +129,8 @@ export default async function GestionHome() {
     provisional: products
       .filter((p) => p.priceProvisional || p.leadTimeProvisional)
       .map((p) => p.title),
+    // domiciliation et médiateur : rappelés tant que le registre légal ne les a pas
+    legal: rappelsLegaux(legalFields),
   });
   const activite = activiteRecente({ messages: inbox, actions: log });
   const greeting = new Intl.DateTimeFormat("fr-FR", {
@@ -162,9 +166,16 @@ export default async function GestionHome() {
             <ol className="a-faire">
               {todo.map((t) => (
                 <li key={t.titre}>
-                  <Link href={atelierHref(t.href)} className="a-faire__item" title={t.detail}>
+                  <Link href={t.site ? t.href : atelierHref(t.href)} className="a-faire__item" title={t.detail}>
                     <span className="a-faire__titre">{t.titre}</span>
                   </Link>
+                  {t.aide ? (
+                    <p className="a-faire__aide t-note">
+                      <a href={t.aide.href} className="text-link" target="_blank" rel="noopener noreferrer">
+                        {t.aide.label}
+                      </a>
+                    </p>
+                  ) : null}
                 </li>
               ))}
             </ol>

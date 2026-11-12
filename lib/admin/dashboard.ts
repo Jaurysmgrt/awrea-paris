@@ -115,6 +115,27 @@ export interface Priorite {
   href: string;
   titre: string;
   detail: string;
+  /** page du site public plutôt qu'une page de l'Atelier */
+  site?: boolean;
+  /** lien d'aide vers une page officielle, affiché sous le titre */
+  aide?: { href: string; label: string };
+}
+
+/**
+ * Liste officielle des médiateurs de la consommation référencés par la CECMC (Commission
+ * d'évaluation et de contrôle de la médiation de la consommation), publiée sur economie.gouv.fr.
+ */
+export const LISTE_MEDIATEURS = "https://www.economie.gouv.fr/mediation-conso/mediateurs-references";
+
+/** Informations légales rappelées dans « À faire en priorité » tant qu'elles manquent (réponses de la créatrice du 12/11). */
+export type RappelLegal = "siege" | "mediateur";
+
+/**
+ * Lit le registre légal (content/legal/fields.ts) : un rappel n'existe que si son champ est vide,
+ * et disparaît tout seul le jour où il est renseigné.
+ */
+export function rappelsLegaux(fields: Record<RappelLegal, { value: string }>): RappelLegal[] {
+  return (["siege", "mediateur"] as const).filter((k) => !fields[k].value.trim());
 }
 
 export interface EtatDuJour {
@@ -134,12 +155,18 @@ export interface EtatDuJour {
   unsellable: string[];
   /** pièces dont le prix ou le délai est encore provisoire */
   provisional: string[];
+  /** informations légales encore vides dans le registre légal (rappelsLegaux) */
+  legal?: RappelLegal[];
 }
 
 /**
  * Ce qui attend la créatrice, dans l'ordre où le faire : ce qui fait attendre une cliente d'abord
  * (retards, rendez-vous du jour, messages, commandes), puis la boutique (retours, propositions,
- * avis), enfin ce qui manque au catalogue. Rien n'est inventé : chaque ligne vient d'un compte réel.
+ * avis), ce qui manque au catalogue, enfin les informations légales que la Maison doit encore
+ * choisir. Rien n'est inventé : chaque ligne vient d'un compte réel ou d'un champ vide du registre.
+ * Aucune page de l'Atelier ne remplit le registre légal : les deux rappels légaux mènent à la page
+ * du site où l'information s'affichera, et l'information se transmet à la personne qui s'occupe du
+ * site (GUIDE-CREATRICE.md, partie 15).
  */
 export function priorites(e: EtatDuJour): Priorite[] {
   const out: Priorite[] = [];
@@ -154,6 +181,15 @@ export function priorites(e: EtatDuJour): Priorite[] {
   if (e.reviews) out.push({ href: "/avis", titre: `${compte(e.reviews, "avis", "avis")} à relire`, detail: "Un avis n’est publié qu’après votre lecture." });
   if (e.unsellable.length) out.push({ href: "/catalogue", titre: e.unsellable.length > 1 ? `${e.unsellable.length} pièces ne peuvent pas être achetées` : `« ${e.unsellable[0]} » ne peut pas être achetée`, detail: "Aucune taille n’est ouverte à la vente." });
   if (e.provisional.length) out.push({ href: "/catalogue", titre: e.provisional.length > 1 ? `${e.provisional.length} pièces ont un prix ou un délai à confirmer` : `Le prix ou le délai de « ${e.provisional[0]} » est à confirmer`, detail: "Une fois confirmé, la mention provisoire disparaît du site." });
+  if (e.legal?.includes("siege")) out.push({ href: "/mentions-legales#editrice", site: true, titre: "Choisir l’adresse de la Maison", detail: "Choisissez une domiciliation, puis envoyez son adresse à la personne qui s’occupe du site." });
+  if (e.legal?.includes("mediateur"))
+    out.push({
+      href: "/mentions-legales#mediation",
+      site: true,
+      titre: "Choisir un médiateur de la consommation",
+      detail: "Obligatoire pour vendre en ligne. Choisissez-le dans la liste officielle, puis envoyez son nom à la personne qui s’occupe du site.",
+      aide: { href: LISTE_MEDIATEURS, label: "Liste officielle des médiateurs" },
+    });
   return out;
 }
 

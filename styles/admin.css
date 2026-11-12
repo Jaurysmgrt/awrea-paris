@@ -321,6 +321,11 @@
     text-decoration-thickness: var(--border-width-hair);
     text-underline-offset: var(--spacing-3xs);
   }
+  /* lien d'aide sous un rappel (liste officielle des médiateurs) : aligné sur le titre */
+  .a-faire__aide {
+    margin: 0;
+    padding: 0 0 var(--spacing-s) var(--spacing-xl);
+  }
   /* Vue d'ensemble (centre de pilotage, brief du 07/11) : ce qui attend et les raccourcis en haut,
      les chiffres, puis les listes courtes ; deux colonnes sur ordinateur, une sur téléphone */
   .pilotage__haut,
