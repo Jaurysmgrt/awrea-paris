@@ -68,10 +68,23 @@ export function outbox(): { to: string; subject: string; text: string }[] {
   return (readStore()["email:outbox"] as { to: string; subject: string; text: string }[] | undefined) ?? [];
 }
 
-/** Lien de l'e-mail « Confirmez votre inscription » reçu par cette adresse (le plus récent), chemin et jeton. */
-export async function lienDeConfirmation(email: string): Promise<string> {
+/**
+ * Adresse IP propre à un appel : les inscriptions à la lettre sont limitées par adresse IP (8 par
+ * 10 minutes en production, inchangé) ; toute la suite part du même poste, chaque inscription d'un
+ * parcours a donc la sienne.
+ */
+export const ipUnique = () => ({ "x-forwarded-for": `10.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250)}` });
+
+/** Inscription à la lettre par l'API, depuis une adresse IP propre au parcours. */
+export function inscrire(page: Page, data: Record<string, unknown>) {
+  return page.request.post("/api/newsletter", { data, headers: ipUnique() });
+}
+
+/** Lien d'un e-mail de la Maison reçu par cette adresse (le plus récent dont le sujet correspond), chemin et jeton. */
+export async function lienRecu(email: string, sujet: RegExp): Promise<string> {
   for (let i = 0; i < 40; i++) {
-    const mail = outbox().find((m) => m.to === email && /Confirmez votre inscription|Confirm your sign-up/.test(m.subject));
+    // la boîte d'envoi garde le plus récent en tête
+    const mail = outbox().find((m) => m.to === email && sujet.test(m.subject));
     const lien = mail?.text.match(/https?:\/\/\S+?\/lettres\/confirmation\?jeton=[^\s)]+/)?.[0];
     if (lien) {
       const u = new URL(lien);
@@ -79,15 +92,21 @@ export async function lienDeConfirmation(email: string): Promise<string> {
     }
     await new Promise((r) => setTimeout(r, 250));
   }
-  throw new Error(`Aucun e-mail de confirmation pour ${email}`);
+  throw new Error(`Aucun e-mail « ${sujet.source} » pour ${email}`);
 }
 
-/** Confirme l'inscription à la lettre comme le ferait la page ouverte depuis l'e-mail. */
+/** Lien de l'e-mail « Confirmez votre inscription » reçu par cette adresse (le plus récent), chemin et jeton. */
+export const lienDeConfirmation = (email: string) => lienRecu(email, /Confirmez votre inscription|Confirm your sign-up/);
+
+/**
+ * Confirme l'inscription à la lettre comme le bouton de la page ouverte depuis l'e-mail (le cookie
+ * du privilège se pose dans le navigateur du parcours).
+ */
 export async function confirmerInscription(page: Page, email: string) {
   const jeton = new URL(await lienDeConfirmation(email), "http://x").searchParams.get("jeton");
-  const r = await page.request.post("/api/newsletter/confirmation", { data: { jeton } });
+  const r = await page.request.post("/api/newsletter/confirmation", { data: { jeton }, headers: ipUnique() });
   if (!r.ok()) throw new Error(`Confirmation refusée : ${await r.text()}`);
-  return (await r.json()) as { ok: true; privilege: { expireLe: string } | null };
+  return (await r.json()) as { ok: true; type: "lettre" | "appareil"; privilege: { expireLe: string } | null };
 }
 
 /** Page hydratée : les composants client ont monté leurs effets (components/layout/HydrationMark.tsx). */

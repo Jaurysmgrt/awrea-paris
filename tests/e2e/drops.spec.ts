@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { acceptCookies, confirmerInscription, outbox } from "./helpers";
+import { acceptCookies, confirmerInscription, inscrire, outbox } from "./helpers";
 import { adminLogin, ATELIER } from "./admin-auth";
 
 /**
@@ -82,7 +82,7 @@ test.describe("Avant-premières des collections", () => {
   test("lettre de la Maison : les inscrites reçoivent leur lien quand la créatrice le choisit", async ({ page }) => {
     await acceptCookies(page);
     const email = `lettre.${Date.now().toString(36)}@exemple.fr`;
-    const signup = await page.request.post("/api/newsletter", { data: { formule: "compacte", email, consent: true, source: "e2e" } });
+    const signup = await inscrire(page, { formule: "compacte", email, consent: true, source: "e2e" });
     expect(signup.ok(), await signup.text()).toBeTruthy();
     // double confirmation : seule une inscription confirmée par le lien de l'e-mail reçoit les lettres
     await confirmerInscription(page, email);

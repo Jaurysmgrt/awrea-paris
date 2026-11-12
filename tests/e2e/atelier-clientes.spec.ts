@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { adminLogin, ATELIER } from "./admin-auth";
-import { confirmerInscription } from "./helpers";
+import { confirmerInscription, inscrire } from "./helpers";
 
 /**
  * Clientes de l'Atelier (lot 3 de la refonte) : recherche, catégories d'activité, fiche avec ses
@@ -58,11 +58,12 @@ test("CRM : une inscrite à la lettre a sa fiche, ses segments, sa preuve, et l'
   test.setTimeout(90_000);
   const email = `prospect.${Date.now().toString(36)}@exemple.fr`;
   // inscription à la lettre (formulaire complet), confirmée par le lien de l'e-mail
-  const r = await page.request.post("/api/newsletter", { data: { nom: "Prospect", prenom: "Ella", email: email.toUpperCase(), consent: true, source: "footer" } });
+  const r = await inscrire(page, { nom: "Prospect", prenom: "Ella", email: email.toUpperCase(), consent: true, source: "footer" });
   expect(r.ok(), await r.text()).toBeTruthy();
   await confirmerInscription(page, email);
   // une seconde inscription de la même adresse ne crée pas de seconde fiche
-  await page.request.post("/api/newsletter", { data: { formule: "compacte", email: ` ${email} `, consent: true, source: "fenetre" } });
+  // et une demande d'un tiers (autre prénom) ne réécrit pas la fiche d'une abonnée
+  await inscrire(page, { nom: "Pirate", prenom: "Autre", email: ` ${email} `, consent: true, source: "fenetre" });
 
   await adminLogin(page);
   await page.goto(`${ATELIER}/clientes?q=${encodeURIComponent(email)}`);
