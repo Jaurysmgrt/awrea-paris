@@ -5,76 +5,75 @@
   },
   "titre": "Conditions générales de vente",
   "chapeau": "Les conditions qui s’appliquent à chaque commande passée auprès de la Maison, article par article.",
-  "misAJour": "2026-10-19",
+  "misAJour": "2026-11-12",
   "sections": [
     {
       "id": "champ-application",
-      "titre": "ARTICLE 1 – Champ d’application",
-      "officiel": true,
+      "titre": "ARTICLE 1. Champ d’application",
       "blocs": [
         {
-          "texte": "Les présentes Conditions Générales de Vente (dites « CGV ») s’appliquent, sans restriction ni réserve à l’ensemble des ventes conclues par le Vendeur auprès d’acheteurs non professionnels (« Les Clients ou le Client »), désirant acquérir les produits proposés à la vente (« Les Produits ») par le Vendeur sur le site https://awreaparis.wixsite.com/awrea-paris. Les Produits proposés à la vente sur le site sont les suivants : vêtements pour femmes adultes. Les caractéristiques principales des Produits et notamment les spécifications, illustrations et indications de dimensions ou de capacité des Produits, sont présentées sur le site https://awreaparis.wixsite.com/awrea-paris ce dont le client est tenu de prendre connaissance avant de commander. Le choix et l’achat d’un Produit sont de la seule responsabilité du Client. Les offres de Produits s’entendent dans la limite des stocks disponibles, tels que précisés lors de la passation de la commande. Ces CGV sont accessibles à tout moment sur le site https://awreaparis.wixsite.com/awrea-paris et prévaudront sur tout autre document. Le Client déclare avoir pris connaissance des présentes CGV et les avoir acceptées en cochant la case prévue à cet effet avant la mise en œuvre de la procédure de commande en ligne du site https://awreaparis.wixsite.com/awrea-paris. Sauf preuve contraire, les données enregistrées dans le système informatique du Vendeur constituent la preuve de l’ensemble des transactions conclues avec le Client. Les coordonnées du Vendeur sont les suivantes :"
+          "texte": "Les présentes Conditions Générales de Vente (dites « CGV ») s’appliquent, sans restriction ni réserve à l’ensemble des ventes conclues par le Vendeur auprès d’acheteurs non professionnels (« Les Clients ou le Client »), désirant acquérir les produits proposés à la vente (« Les Produits ») par le Vendeur sur le site www.awreaparis.com. Les Produits proposés à la vente sur le site sont les suivants : vêtements pour femmes adultes. Ce sont des modèles standards, proposés dans les tailles du guide des tailles. Ils ne sont ni fabriqués à l’avance ni tenus en stock : chaque Produit est fabriqué par des artisans français après la validation de la commande, dans le délai de fabrication indiqué sur sa fiche. Les caractéristiques principales des Produits et notamment les spécifications, illustrations et indications de dimensions ou de capacité des Produits, ainsi que leur délai de fabrication, sont présentées sur le site www.awreaparis.com ce dont le client est tenu de prendre connaissance avant de commander. Le choix et l’achat d’un Produit sont de la seule responsabilité du Client. Ces CGV sont accessibles à tout moment sur le site www.awreaparis.com et prévaudront sur tout autre document. Le Client déclare avoir pris connaissance des présentes CGV et les avoir acceptées en cochant la case prévue à cet effet avant la mise en œuvre de la procédure de commande en ligne du site www.awreaparis.com. Sauf preuve contraire, les données enregistrées dans le système informatique du Vendeur constituent la preuve de l’ensemble des transactions conclues avec le Client. Les coordonnées du Vendeur sont les suivantes :"
         },
         {
           "lignes": [
-            "Léane Soubrier",
-            "Numéro d’immatriculation : 10022292600014",
-            "Email : awrea.contact@gmail.com",
-            "Téléphone : 06 99 55 74 43"
+            "{{raisonSociale}}, {{formeJuridique}}",
+            "Nom commercial : {{nomCommercial}}",
+            "Adresse : {{siege}}",
+            "Numéro SIRET : {{siret}}",
+            "Email : {{email}}",
+            "Téléphone : {{telephone}}"
           ]
         }
       ]
     },
     {
       "id": "prix",
-      "titre": "ARTICLE 2 – Prix",
-      "officiel": true,
+      "titre": "ARTICLE 2. Prix",
       "blocs": [
         {
-          "texte": "Les Produits sont fournis aux tarifs en vigueur figurant sur le site, lors de l’enregistrement de la commande par le Vendeur. Les prix sont exprimés en Euros, HT et TTC. Les tarifs tiennent compte d’éventuelles réductions qui seraient consenties par le Vendeur sur le site. Ces tarifs sont fermes et non révisables pendant leur période de validité mais le Vendeur se réserve le droit, hors période de validité, d’en modifier les prix à tout moment. Les prix ne comprennent pas les frais de traitement, d’expédition, de transport et de livraison, qui sont facturés en supplément, dans les conditions indiquées sur le site et calculés préalablement à la passation de la commande. Le paiement demandé au Client correspond au montant total de l’achat, y compris ces frais. Une facture est établie par le Vendeur et remise au Client lors de la livraison des Produits commandés."
+          "texte": "Les Produits sont fournis aux tarifs en vigueur figurant sur le site, lors de l’enregistrement de la commande par le Vendeur. Les prix sont exprimés en euros, toutes taxes comprises. Le Vendeur relève de la franchise en base de TVA : TVA non applicable, article 293 B du Code général des impôts. Le prix affiché pour chaque Produit est donc le prix payé par le Client, sans TVA ajoutée. Les tarifs tiennent compte d’éventuelles réductions qui seraient consenties par le Vendeur sur le site. Ces tarifs sont fermes et non révisables pendant leur période de validité mais le Vendeur se réserve le droit, hors période de validité, d’en modifier les prix à tout moment. Les prix ne comprennent pas les frais d’expédition, de transport et de livraison, qui sont facturés en supplément, dans les conditions indiquées sur le site et calculés préalablement à la passation de la commande. Le paiement demandé au Client correspond au montant total de l’achat, y compris ces frais. Une facture est établie par le Vendeur dès le paiement de la commande ; elle est adressée au Client avec la confirmation de commande et reste disponible sur la page de suivi de la commande."
         }
       ]
     },
     {
       "id": "commande",
-      "titre": "ARTICLE 3 – Commandes",
-      "officiel": true,
+      "titre": "ARTICLE 3. Commandes",
       "blocs": [
         {
-          "texte": "Il appartient au Client de sélectionner sur le site https://awreaparis.wixsite.com/awrea-paris les Produits qu’il désire commander, selon les modalités suivantes : Le Client sélectionne sur le site les produits qu’il souhaite commander et les ajoute à son panier. Avant toute validation, le Client peut vérifier le détail de sa commande, son prix total et corriger d’éventuelles erreurs. La commande est définitivement validée lorsque le Client confirme celle-ci en cliquant sur le bouton prévu à cet effet et accepte les présentes Conditions Générales de Vente. Cette validation vaut acceptation pleine et entière de la commande et forme le contrat de vente entre le Client et le Vendeur. Une confirmation de commande est ensuite adressée au Client par courrier électronique, récapitulant les éléments essentiels de la commande. Le paiement s’effectue selon les moyens de paiement proposés sur le site. La commande est considérée comme effective après validation du paiement par l’établissement bancaire. Les offres de Produits sont valables tant qu’elles sont visibles sur le site, dans la limite des stocks disponibles. La vente ne sera considérée comme valide qu’après paiement intégral du prix. Il appartient au Client de vérifier l’exactitude de la commande et de signaler immédiatement toute erreur. Toute commande passée sur le site https://awreaparis.wixsite.com/awrea-paris constitue la formation d’un contrat conclu à distance entre le Client et le Vendeur. Le Vendeur se réserve le droit d’annuler ou de refuser toute commande d’un Client avec lequel il existerait un litige relatif au paiement d’une commande antérieure. Le Client pourra suivre l’évolution de sa commande sur le site. Toute annulation de la commande par le Client après son acceptation par le Vendeur ne sera possible que dans les 2 jours au plus après acceptation de la commande par le Vendeur et tant que la livraison n’a pas eu lieu (indépendamment des dispositions relatives à l’application ou non du droit de rétractation légal)."
+          "texte": "Il appartient au Client de sélectionner sur le site www.awreaparis.com les Produits qu’il désire commander, selon les modalités suivantes : Le Client sélectionne sur le site les produits qu’il souhaite commander et les ajoute à son panier. Avant toute validation, le Client peut vérifier le détail de sa commande, son prix total et corriger d’éventuelles erreurs. La commande est définitivement validée lorsque le Client confirme celle-ci en cliquant sur le bouton prévu à cet effet et accepte les présentes Conditions Générales de Vente. Cette validation vaut acceptation pleine et entière de la commande et forme le contrat de vente entre le Client et le Vendeur. Une confirmation de commande est ensuite adressée au Client par courrier électronique, récapitulant les éléments essentiels de la commande, dont le délai de fabrication de chaque Produit. Le paiement s’effectue selon les moyens de paiement proposés sur le site. La commande est considérée comme effective après validation du paiement par l’établissement bancaire. Les offres de Produits sont valables tant qu’elles sont visibles sur le site. Les Produits n’étant pas tenus en stock, chaque taille proposée peut être commandée : la commande effective lance la fabrication du Produit, dans le délai de fabrication indiqué sur sa fiche. La vente ne sera considérée comme valide qu’après paiement intégral du prix. Il appartient au Client de vérifier l’exactitude de la commande et de signaler immédiatement toute erreur. Toute commande passée sur le site www.awreaparis.com constitue la formation d’un contrat conclu à distance entre le Client et le Vendeur. Le Vendeur se réserve le droit d’annuler ou de refuser toute commande d’un Client avec lequel il existerait un litige relatif au paiement d’une commande antérieure. Le Client pourra suivre l’évolution de sa commande sur le site, à chaque étape de sa fabrication et de sa livraison. Toute annulation de la commande par le Client après son acceptation par le Vendeur ne sera possible que dans les 2 jours au plus après acceptation de la commande par le Vendeur et tant que la livraison n’a pas eu lieu (indépendamment des dispositions relatives à l’application ou non du droit de rétractation légal)."
         }
       ]
     },
     {
       "id": "paiement",
-      "titre": "ARTICLE 4 – Conditions de paiement",
-      "officiel": true,
+      "titre": "ARTICLE 4. Conditions de paiement",
       "blocs": [
         {
           "lignes": [
             "Le prix est payé par voie de paiement sécurisé, selon les modalités suivantes :",
-            "paiement par carte bancaire, PayPal, Google Pay, Apple Pay, Stripe"
+            "paiement par carte bancaire, PayPal, Google Pay, Apple Pay, par l’intermédiaire du prestataire de paiement Stripe"
           ]
         },
         {
-          "texte": "Le prix est payable comptant par le Client, en totalité au jour de la passation de la commande. Les données de paiement sont échangées en mode crypté grâce au protocole défini par le prestataire de paiement agréé intervenant pour les transactions bancaires réalisées sur le site https://awreaparis.wixsite.com/awrea-paris. Les paiements effectués par le Client ne seront considérés comme définitifs qu’après encaissement effectif par le Vendeur des sommes dues. Le Vendeur ne sera pas tenu de procéder à la délivrance des Produits commandés par le Client si celui-ci ne lui en paye pas le prix en totalité dans les conditions ci-dessus indiquées."
+          "texte": "Le prix est payable comptant par le Client, en totalité au jour de la passation de la commande. Les données de paiement sont échangées en mode crypté grâce au protocole défini par le prestataire de paiement agréé intervenant pour les transactions bancaires réalisées sur le site www.awreaparis.com. Les paiements effectués par le Client ne seront considérés comme définitifs qu’après encaissement effectif par le Vendeur des sommes dues. Le Vendeur ne sera pas tenu de procéder à la délivrance des Produits commandés par le Client si celui-ci ne lui en paye pas le prix en totalité dans les conditions ci-dessus indiquées."
         }
       ]
     },
     {
       "id": "livraison",
-      "titre": "ARTICLE 5 – Livraisons",
-      "officiel": true,
+      "titre": "ARTICLE 5. Livraisons",
       "blocs": [
         {
-          "texte": "Les Produits commandés par le Client seront livrés en France métropolitaine. Les livraisons interviennent dans un délai de 5 à 10 jours ouvrés à l’adresse indiquée par le Client lors de sa commande sur le site. La livraison est constituée par le transfert au Client de la possession physique ou du contrôle du Produit. Sauf cas particulier ou indisponibilité d’un ou plusieurs Produits, les Produits commandés seront livrés en une seule fois. Le Vendeur s’engage à faire ses meilleurs efforts pour livrer les produits commandés par le Client dans les délais ci-dessus précisés. Si les Produits commandés n’ont pas été livrés dans un délai de 7 jours après la date indicative de livraison, pour toute autre cause que la force majeure ou le fait du Client, la vente pourra être résolue à la demande écrite du Client dans les conditions prévues aux articles L 216-2, L 216-3 et L241-4 du Code de la consommation. Les sommes versées par le Client lui seront alors restituées au plus tard dans les quatorze jours qui suivent la date de dénonciation du contrat, à l’exclusion de toute indemnisation ou retenue. Les livraisons sont assurées par un transporteur indépendant, à l’adresse mentionnée par le Client lors de la commande et à laquelle le transporteur pourra facilement accéder. Lorsque le Client s’est lui-même chargé de faire appel à un transporteur qu’il choisit lui-même, la livraison est réputée effectuée dès la remise des Produits commandés par le Vendeur au transporteur qui les a acceptés sans réserves. Le Client reconnaît donc que c’est au transporteur qu’il appartient d’effectuer la livraison et ne dispose d’aucun recours en garantie contre le Vendeur en cas de défaut de livraison des marchandises transportées. 3 En cas de demande particulière du Client concernant les conditions d’emballage ou de transport des produits commandés, dûment acceptées par écrit par le Vendeur, les coûts y liés feront l’objet d’une facturation spécifique complémentaire, sur devis préalablement accepté par écrit par le Client. Le Client est tenu de vérifier l’état des produits livrés. Il dispose d’un délai de 48 heures (pour colis abîmé) 14 jours (pour problème produit) à compter de la livraison pour formuler des réclamations par Pour toute réclamation relative à une commande (produit manquant, produit endommagé, erreur de livraison ou non-conformité), le Client est invité à contacter le Vendeur dans les meilleurs délais à compter de la réception de la commande. Toute réclamation devra être adressée par courrier électronique à l’adresse suivante : [adresse email]. Le Client devra préciser son numéro de commande et décrire le motif de la réclamation, en joignant, le cas échéant, tout élément utile (photographies, description du problème, etc.). Le Vendeur s’engage à traiter la réclamation dans les meilleurs délais., accompagnées de tous les justificatifs y afférents (photos notamment). Passé ce délai et à défaut d’avoir respecté ces formalités, les Produits seront réputés conformes et exempts de tout vice apparent et aucune réclamation ne pourra être valablement acceptée par le Vendeur. Le Vendeur remboursera ou remplacera dans les plus brefs délais et à ses frais, les Produits livrés dont les défauts de conformité ou les vices apparents ou cachés auront été dûment prouvés par le Client, dans les conditions prévues aux articles L 217-4 et suivants du Code de la consommation et celles prévues aux présentes CGV. Le transfert des risques de perte et de détérioration s’y rapportant, ne sera réalisé qu’au moment où le Client prendra physiquement possession des Produits. Les Produits voyagent donc aux risques et périls du Vendeur sauf lorsque le Client aura lui-même choisi le transporteur. À ce titre, les risques sont transférés au moment de la remise du bien au transporteur."
+          "texte": "Les Produits commandés par le Client seront livrés en France métropolitaine. Chaque Produit étant fabriqué après la commande, le délai de livraison comprend le délai de fabrication indiqué sur la fiche du Produit, dans le panier et avant le paiement, puis un délai d’acheminement de 5 à 10 jours ouvrés à compter de la fin de la fabrication. La date de livraison annoncée au Client résulte de ces deux délais, comptés à partir de la validation de la commande. Les livraisons interviennent à l’adresse indiquée par le Client lors de sa commande sur le site. La livraison est constituée par le transfert au Client de la possession physique ou du contrôle du Produit. Les Produits d’une même commande sont livrés en une seule fois, lorsque le dernier d’entre eux est prêt. Le Vendeur s’engage à livrer les produits commandés par le Client dans les délais ci-dessus précisés, et l’informe par courrier électronique de chaque étape de sa commande. Si les Produits commandés n’ont pas été livrés dans un délai de 7 jours après la date de livraison annoncée, pour toute autre cause que la force majeure ou le fait du Client, la vente pourra être résolue à la demande écrite du Client dans les conditions prévues aux articles L216-1 et suivants et L241-4 du Code de la consommation. Les sommes versées par le Client lui seront alors restituées au plus tard dans les quatorze jours qui suivent la date de dénonciation du contrat, sans aucune retenue. Les livraisons sont assurées par un transporteur indépendant, à l’adresse mentionnée par le Client lors de la commande et à laquelle le transporteur pourra facilement accéder. Lorsque le Client s’est lui-même chargé de faire appel à un transporteur qu’il choisit lui-même, la livraison est réputée effectuée dès la remise des Produits commandés par le Vendeur au transporteur qui les a acceptés sans réserves. Le Client reconnaît donc que c’est au transporteur qu’il appartient d’effectuer la livraison et ne dispose d’aucun recours en garantie contre le Vendeur en cas de défaut de livraison des marchandises transportées. En cas de demande particulière du Client concernant les conditions d’emballage ou de transport des produits commandés, dûment acceptées par écrit par le Vendeur, les coûts y liés feront l’objet d’une facturation spécifique complémentaire, sur devis préalablement accepté par écrit par le Client."
+        },
+        {
+          "texte": "Le Client est invité à vérifier l’état des produits livrés. Pour toute réclamation relative à une commande (produit manquant, produit endommagé, erreur de livraison ou non-conformité), le Client contacte le Vendeur par courrier électronique à l’adresse {{email}}, dans un délai de 48 heures à compter de la livraison pour un colis abîmé et de 14 jours pour un problème sur le produit. Il précise son numéro de commande et le motif de la réclamation, en joignant tout élément utile (photographies notamment). Ces délais permettent au Vendeur d’agir rapidement auprès du transporteur ; ils ne réduisent en rien les garanties légales de conformité et des vices cachés, dont le Client bénéficie dans les conditions de l’article 8. Le Vendeur s’engage à traiter la réclamation dans les meilleurs délais. Le Vendeur répare, remplace ou rembourse à ses frais les Produits livrés affectés d’un défaut de conformité ou d’un vice caché, dans les conditions prévues aux articles L217-3 et suivants du Code de la consommation, aux articles 1641 et suivants du Code civil et à l’article 8 des présentes CGV. Le transfert des risques de perte et de détérioration s’y rapportant, ne sera réalisé qu’au moment où le Client prendra physiquement possession des Produits. Les Produits voyagent donc aux risques et périls du Vendeur sauf lorsque le Client aura lui-même choisi le transporteur. À ce titre, les risques sont transférés au moment de la remise du bien au transporteur."
         }
       ]
     },
     {
       "id": "transfert-propriete",
-      "titre": "ARTICLE 6 – Transfert de propriété",
-      "officiel": true,
+      "titre": "ARTICLE 6. Transfert de propriété",
       "blocs": [
         {
           "texte": "Le transfert de propriété des Produits du Vendeur au Client ne sera réalisé qu’après complet paiement du prix par ce dernier, et ce quelle que soit la date de livraison desdits Produits."
@@ -83,26 +82,33 @@
     },
     {
       "id": "retractation",
-      "titre": "ARTICLE 7 – Droit de rétractation",
-      "officiel": true,
+      "titre": "ARTICLE 7. Droit de rétractation",
       "blocs": [
         {
-          "texte": "Selon les modalités de l’article L221-18 du Code de la Consommation « Pour les contrats prévoyant la livraison régulière de biens pendant une période définie, le délai court à compter de la réception du premier bien. » Le droit de rétractation peut être exercé en ligne, à l’aide du formulaire de rétractation ci-joint et également disponible sur le site ou de toute autre déclaration, dénuée d’ambiguïté, exprimant la volonté de se rétracter et notamment par courrier postal adressé au Vendeur aux coordonnées postales ou mail indiquées à l’ARTICLE 1 des CGV. Les retours sont à effectuer dans leur état d’origine et complets (emballage, accessoires, notice…) permettant leur recommercialisation à l’état neuf, accompagnés de la facture d’achat. Les Produits endommagés, salis ou incomplets ne sont pas repris. Les frais de retour restant à la charge du Client. L’échange (sous réserve de disponibilité) ou le remboursement sera effectué dans un délai de 14 jours à compter de la réception, par le Vendeur, des Produits retournés par le Client dans les conditions prévues au présent article."
+          "texte": "Conformément aux articles L221-18 et suivants du Code de la consommation, le Client dispose d’un délai de quatorze jours pour exercer son droit de rétractation, sans avoir à motiver sa décision ni à supporter d’autres coûts que les frais de retour indiqués ci-dessous. Ce délai court à compter du jour où le Client, ou un tiers autre que le transporteur désigné par lui, prend physiquement possession du Produit ; lorsque les Produits d’une même commande sont livrés séparément, il court à compter de la réception du dernier Produit. La fabrication des Produits après la commande ne prive pas le Client de ce droit : les modèles standards, fabriqués dans les tailles du guide des tailles, en bénéficient. Seule une création réellement personnalisée, confectionnée selon les mesures ou les demandes particulières du Client, en est exclue, conformément à l’article L221-28, 3° du Code de la consommation ; le Vendeur l’indique alors expressément au Client avant la validation de sa commande."
+        },
+        {
+          "texte": "Le droit de rétractation peut être exercé en ligne, à l’aide du formulaire de rétractation ci-joint et également disponible sur le site, ou de toute autre déclaration, dénuée d’ambiguïté, exprimant la volonté de se rétracter et notamment par courrier postal adressé au Vendeur aux coordonnées postales ou mail indiquées à l’ARTICLE 1 des CGV. Une demande faite en ligne reçoit aussitôt un accusé de réception par courrier électronique."
+        },
+        {
+          "texte": "Le Client renvoie les Produits sans retard excessif et au plus tard dans les quatorze jours qui suivent la communication de sa décision de se rétracter. Les retours sont à effectuer dans leur état d’origine et complets (emballage, accessoires, notice…), accompagnés de la facture d’achat. Le Client peut essayer le Produit comme il le ferait en boutique : sa responsabilité n’est engagée qu’en cas de dépréciation du Produit résultant de manipulations autres que celles nécessaires pour établir sa nature, ses caractéristiques et son bon fonctionnement, par exemple s’il a été porté, sali, endommagé ou s’il est incomplet. Le montant de cette dépréciation peut alors être déduit du remboursement. Les frais de retour restent à la charge du Client."
+        },
+        {
+          "texte": "Le Vendeur rembourse au Client la totalité des sommes versées, y compris les frais de livraison, sans retard injustifié et au plus tard dans les quatorze jours à compter du jour où il est informé de la décision du Client de se rétracter. Seul le supplément d’un mode de livraison plus coûteux que le mode standard proposé, lorsque le Client l’a expressément choisi, n’est pas remboursé. Le Vendeur peut différer le remboursement jusqu’à la récupération des Produits ou jusqu’à ce que le Client ait fourni la preuve de leur expédition, la date retenue étant celle du premier de ces faits. Le remboursement est effectué avec le même moyen de paiement que celui utilisé pour la commande, sauf accord exprès du Client pour un autre moyen, et sans frais pour lui. Si le Client le demande, le remboursement peut être remplacé par un échange contre une autre taille : le Produit étant fabriqué après la commande, la nouvelle taille est confectionnée dans le délai de fabrication indiqué sur sa fiche."
         }
       ]
     },
     {
       "id": "garanties",
-      "titre": "ARTICLE 8 – Responsabilité du Vendeur – Garanties",
-      "officiel": true,
+      "titre": "ARTICLE 8. Responsabilité du Vendeur, garanties",
       "blocs": [
         {
           "texte": "Les Produits fournis par le Vendeur bénéficient :"
         },
         {
           "liste": [
-            "De la garantie légale de conformité, pour les Produits défectueux, abîmés ou endommagés ou ne correspondant pas à la commande,",
-            "De la garantie légale contre les vices cachés provenant d’un défaut de matière, de conception ou de fabrication affectant les produits livrés et les rendant impropres à l’utilisation,"
+            "De la garantie légale de conformité, pour les Produits défectueux, abîmés ou endommagés ou ne correspondant pas à la commande, prévue aux articles L217-3 et suivants du Code de la consommation,",
+            "De la garantie légale contre les vices cachés provenant d’un défaut de matière, de conception ou de fabrication affectant les produits livrés et les rendant impropres à l’utilisation, prévue aux articles 1641 à 1649 du Code civil."
           ]
         },
         {
@@ -110,22 +116,23 @@
           "id": "garanties-legales"
         },
         {
-          "sousTitre": "Article L217-4 du Code de la consommation :"
+          "texte": "Le Vendeur reproduit ci-dessous l’information sur les garanties légales prévue par le décret n° 2022-424 du 25 mars 2022 :"
         },
         {
-          "texte": "« Le vendeur est tenu de livrer un bien conforme au contrat et répond des défauts de conformité existant lors de la délivrance. Il répond également des défauts de conformité résultant de l’emballage, des instructions de montage ou de l’installation lorsque celle-ci a été mise à sa charge par le contrat ou a été réalisée sous sa responsabilité. »"
-        },
-        {
-          "sousTitre": "Article L217-5 du Code de la consommation :"
-        },
-        {
-          "texte": "« Le bien est conforme au contrat : 1° S’il est propre à l’usage habituellement attendu d’un bien semblable et, le cas échéant : - s’il correspond à la description donnée par le vendeur et possède les qualités que celui-ci a présentées à l’acheteur sous forme d’échantillon ou de modèle ; - s’il présente les qualités qu’un acheteur peut légitimement attendre eu égard aux déclarations publiques faites par le vendeur, par le producteur ou par son représentant, notamment dans la publicité ou l’étiquetage ; 2° Ou s’il présente les caractéristiques définies d’un commun accord par les parties ou est propre à tout usage spécial recherché par l’acheteur, porté à la connaissance du vendeur et que ce dernier a accepté. »"
-        },
-        {
-          "sousTitre": "Article L217-12 du Code de la consommation :"
-        },
-        {
-          "texte": "« L’action résultant du défaut de conformité se prescrit par deux ans à compter de la délivrance du bien. »"
+          "encadre": {
+            "titre": "Garantie légale de conformité et garantie des vices cachés",
+            "paragraphes": [
+              "Le consommateur dispose d’un délai de deux ans à compter de la délivrance du bien pour obtenir la mise en œuvre de la garantie légale de conformité en cas d’apparition d’un défaut de conformité. Durant ce délai, le consommateur n’est tenu d’établir que l’existence du défaut de conformité et non la date d’apparition de celui-ci.",
+              "La garantie légale de conformité donne au consommateur droit à la réparation ou au remplacement du bien dans un délai de trente jours suivant sa demande, sans frais et sans inconvénient majeur pour lui.",
+              "Si le bien est réparé dans le cadre de la garantie légale de conformité, le consommateur bénéficie d’une extension de six mois de la garantie initiale. Si le consommateur demande la réparation du bien, mais que le vendeur impose le remplacement, la garantie légale de conformité est renouvelée pour une période de deux ans à compter de la date de remplacement du bien.",
+              "Le consommateur peut obtenir une réduction du prix d’achat en conservant le bien ou mettre fin au contrat en se faisant rembourser intégralement contre restitution du bien, si : 1° le professionnel refuse de réparer ou de remplacer le bien ; 2° la réparation ou le remplacement du bien intervient après un délai de trente jours ; 3° la réparation ou le remplacement du bien occasionne un inconvénient majeur pour le consommateur, notamment lorsque le consommateur supporte définitivement les frais de reprise ou d’enlèvement du bien non conforme, ou s’il supporte les frais d’installation du bien réparé ou de remplacement ; 4° la non-conformité du bien persiste en dépit de la tentative de mise en conformité du vendeur restée infructueuse.",
+              "Le consommateur a également droit à une réduction du prix du bien ou à la résolution du contrat lorsque le défaut de conformité est si grave qu’il justifie que la réduction du prix ou la résolution du contrat soit immédiate. Le consommateur n’est alors pas tenu de demander la réparation ou le remplacement du bien au préalable. Le consommateur n’a pas droit à la résolution de la vente si le défaut de conformité est mineur.",
+              "Toute période d’immobilisation du bien en vue de sa réparation ou de son remplacement suspend la garantie qui restait à courir jusqu’à la délivrance du bien remis en état.",
+              "Les droits mentionnés ci-dessus résultent de l’application des articles L. 217-1 à L. 217-32 du code de la consommation.",
+              "Le vendeur qui fait obstacle de mauvaise foi à la mise en œuvre de la garantie légale de conformité encourt une amende civile d’un montant maximal de 300 000 euros, qui peut être porté jusqu’à 10 % du chiffre d’affaires moyen annuel (article L. 242-18-1 du code de la consommation).",
+              "Le consommateur bénéficie également de la garantie légale des vices cachés en application des articles 1641 à 1649 du code civil, pour une durée de deux ans à compter de la découverte du défaut. Cette garantie donne droit à une réduction de prix si le bien est conservé ou à un remboursement intégral contre restitution du bien."
+            ]
+          }
         },
         {
           "sousTitre": "Article 1641 du Code civil :"
@@ -140,33 +147,26 @@
           "texte": "« L’action résultant des vices rédhibitoires doit être intentée par l’acquéreur dans un délai de deux ans à compter de la découverte du vice. »"
         },
         {
-          "sousTitre": "Article L217-16 du Code de la consommation :"
+          "texte": "Afin de faire valoir ses droits, le Client informe le Vendeur, par écrit (mail ou courrier), de la non-conformité des Produits ou de l’existence des vices cachés à compter de leur découverte. Le Vendeur répare ou remplace les Produits ou pièces sous garantie non conformes ou défectueux, ou, dans les cas rappelés ci-dessus, en réduit le prix ou les rembourse. Les frais d’envoi seront remboursés sur la base du tarif facturé et les frais de retour seront remboursés sur présentation des justificatifs. Les remboursements, remplacements ou réparations des Produits non conformes ou défectueux seront effectués dans les meilleurs délais et au plus tard dans les 14 jours suivant la constatation par le Vendeur du défaut de conformité ou du vice caché, sans dépasser, pour une réparation ou un remplacement, trente jours après la demande du Client. Ce remboursement est effectué sur le moyen de paiement utilisé pour la commande. La responsabilité du Vendeur ne saurait être engagée dans les cas suivants :"
         },
         {
-          "texte": "« Lorsque l’acheteur demande au vendeur, pendant le cours de la garantie commerciale qui lui a été consentie lors de l’acquisition ou de la réparation d’un bien meuble, une remise en état couverte par la garantie, toute période d’immobilisation d’au moins sept jours vient s’ajouter à la durée de la garantie qui restait à courir. Cette période court à compter de la demande d’intervention de l’acheteur ou de la mise à disposition pour réparation du bien en cause, si cette mise à disposition est postérieure à la demande d’intervention. »"
-        },
-        {
-          "texte": "Afin de faire valoir ses droits, le Client devra informer le Vendeur, par écrit (mail ou courrier), de la non-conformité des Produits ou de l’existence des vices cachés à compter de leur découverte. Le Vendeur remboursera, remplacera ou fera réparer les Produits ou pièces sous garantie jugés non conformes ou défectueux. Les frais d’envoi seront remboursés sur la base du tarif facturé et les frais de retour seront remboursés sur présentation des justificatifs. Les remboursements, remplacements ou réparations des Produits jugés non conformes ou défectueux seront effectués dans les meilleurs délais et au plus tard dans les 14 jours suivant la constatation par le Vendeur du défaut de conformité ou du vice caché. Ce remboursement pourra être fait par virement ou chèque bancaire. La responsabilité du Vendeur ne saurait être engagée dans les cas suivants :"
-        },
-        {
-          "texte": "Non-respect de la législation du pays dans lequel les produits sont livrés, qu’il appartient au Client de vérifier, en cas de mauvaise utilisation, d’utilisation à des fins professionnelles, négligence ou défaut d’entretien de la part du Client, comme en cas d’usure normale du Produit, d’accident ou de force majeure. Les photographies et graphismes présentés sur le site ne sont pas contractuels et ne sauraient engager la responsabilité du Vendeur. La garantie du Vendeur est, en tout état de cause, limitée au remplacement ou au remboursement des Produits non conformes ou affectés d’un vice."
+          "texte": "Non-respect de la législation du pays dans lequel les produits sont livrés, qu’il appartient au Client de vérifier, en cas de mauvaise utilisation, d’utilisation à des fins professionnelles, négligence ou défaut d’entretien de la part du Client, comme en cas d’usure normale du Produit, d’accident ou de force majeure. Les visuels présentés sur le site illustrent les Produits ; certains sont provisoires et signalés comme tels. Ces dispositions ne limitent en rien les droits que le Client tient des garanties légales rappelées ci-dessus."
         }
       ]
     },
     {
       "id": "donnees",
-      "titre": "ARTICLE 9 – Données personnelles",
-      "officiel": true,
+      "titre": "ARTICLE 9. Données personnelles",
       "blocs": [
         {
-          "texte": "Le Client est informé que la collecte de ses données à caractère personnel est nécessaire à la vente des Produits par le Vendeur ainsi qu’à leur transmission à des tiers à des fins de livraison des Produits. Ces données à caractère personnel sont récoltées uniquement pour l’exécution du contrat de vente."
+          "texte": "Le Client est informé que la collecte de ses données à caractère personnel est nécessaire à la vente des Produits par le Vendeur ainsi qu’à leur transmission à des tiers à des fins de livraison des Produits. Ces données à caractère personnel sont récoltées uniquement pour l’exécution du contrat de vente. La [politique de confidentialité](/confidentialite) détaille l’ensemble des données traitées sur le site, leurs destinataires et leurs durées de conservation."
         },
         {
           "intertitre": "9.1 Collecte des données à caractère personnel",
           "id": "donnees-collecte"
         },
         {
-          "texte": "Les données à caractère personnel qui sont collectées sur le site https://awreaparis.wixsite.com/awrea-paris sont les suivantes :"
+          "texte": "Les données à caractère personnel qui sont collectées sur le site www.awreaparis.com sont les suivantes :"
         },
         {
           "sousTitre": "Commande de Produits"
@@ -178,7 +178,7 @@
           "sousTitre": "Paiement"
         },
         {
-          "texte": "Dans le cadre du paiement des Produits proposés sur le site https://awreaparis.wixsite.com/awreaparis, celui-ci enregistre des données financières relatives au compte bancaire ou à la carte de crédit du Client / utilisateur."
+          "texte": "Dans le cadre du paiement des Produits proposés sur le site www.awreaparis.com, les données de paiement sont saisies sur la page sécurisée du prestataire de paiement Stripe, qui les traite. Le Vendeur n’y a jamais accès et n’enregistre aucune donnée relative au compte bancaire ou à la carte de crédit du Client / utilisateur."
         },
         {
           "intertitre": "9.2 Destinataires des données à caractère personnel",
@@ -198,7 +198,7 @@
           "id": "donnees-responsable"
         },
         {
-          "texte": "Le responsable de traitement des données est le Vendeur, au sens de la loi Informatique et libertés et à compter du 25 mai 2018 du Règlement 2016/679 sur la protection des données à caractère personnel."
+          "texte": "Le responsable de traitement des données est le Vendeur, au sens de la loi Informatique et libertés et à compter du 25 mai 2018 du Règlement 2016/679 sur la protection des données à caractère personnel. Il peut être contacté à l’adresse électronique {{email}} ou à l’adresse postale indiquée à l’article 1."
         },
         {
           "intertitre": "9.4 Limitation du traitement",
@@ -212,7 +212,7 @@
           "id": "donnees-conservation"
         },
         {
-          "texte": "Le Vendeur conservera les données ainsi recueillies pendant un délai de 5 ans, couvrant le temps de la prescription de la responsabilité civile contractuelle applicable."
+          "texte": "Le Vendeur conservera les données ainsi recueillies pendant un délai de 5 ans, couvrant le temps de la prescription de la responsabilité civile contractuelle applicable. Les factures sont conservées dix ans, comme l’exige la loi."
         },
         {
           "intertitre": "9.6 Sécurité et confidentialité",
@@ -226,7 +226,7 @@
           "id": "donnees-droits"
         },
         {
-          "texte": "En application de la règlementation applicable aux données à caractère personnel, les Clients et utilisateurs du site https://awreaparis.wixsite.com/awrea-paris disposent des droits suivants :"
+          "texte": "En application de la règlementation applicable aux données à caractère personnel, les Clients et utilisateurs du site www.awreaparis.com disposent des droits suivants :"
         },
         {
           "liste": [
@@ -243,21 +243,22 @@
     },
     {
       "id": "propriete-intellectuelle",
-      "titre": "ARTICLE 10 – Propriété intellectuelle",
-      "officiel": true,
+      "titre": "ARTICLE 10. Propriété intellectuelle",
       "blocs": [
         {
-          "texte": "Le contenu du site https://awreaparis.wixsite.com/awrea-paris est la propriété du Vendeur et de ses partenaires et est protégé par les lois françaises et internationales relatives à la propriété intellectuelle. Toute reproduction totale ou partielle de ce contenu est strictement interdite et est susceptible de constituer un délit de contrefaçon."
+          "texte": "Le contenu du site www.awreaparis.com est la propriété du Vendeur et de ses partenaires et est protégé par les lois françaises et internationales relatives à la propriété intellectuelle. Toute reproduction totale ou partielle de ce contenu est strictement interdite et est susceptible de constituer un délit de contrefaçon."
         }
       ]
     },
     {
       "id": "droit",
-      "titre": "ARTICLE 11 – Droit applicable – Langue",
-      "officiel": true,
+      "titre": "ARTICLE 11. Droit applicable, langue, médiation",
       "blocs": [
         {
           "texte": "Les présentes CGV et les opérations qui en découlent sont régies et soumises au droit français. Les présentes CGV sont rédigées en langue française. Dans le cas où elles seraient traduites en une ou plusieurs langues étrangères, seul le texte français ferait foi en cas de litige."
+        },
+        {
+          "texte": "En cas de réclamation, le Client s’adresse d’abord au Vendeur, par écrit, aux coordonnées indiquées à l’article 1. Si sa réclamation écrite n’aboutit pas, le Client peut recourir gratuitement au médiateur de la consommation dont relève le Vendeur, dans un délai d’un an à compter de cette réclamation, conformément aux articles L612-1 et suivants du Code de la consommation : {{mediateur}}."
         }
       ]
     },

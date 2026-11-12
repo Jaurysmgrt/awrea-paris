@@ -6,7 +6,7 @@ import { CONSENT_POLICY_VERSION } from "@/lib/consent";
 
 export const legalVersions = {
   cgu: "2026-10",
-  cgv: "2026-10",
+  cgv: "2026-11",
   confidentialite: "2026-11",
   cookies: CONSENT_POLICY_VERSION,
 } as const;

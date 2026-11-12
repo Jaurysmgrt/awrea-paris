@@ -1,10 +1,12 @@
 /**
  * Pages légales : un seul gabarit (components/ui/LegalView.tsx) pour deux sources.
  *
- *  - Les textes officiels de la Maison (conditions générales de vente, mentions légales) : documents
- *    de contenu content/site/fr/<doc>.json, modifiables dans l'éditeur « Édition ». Ils sont repris
- *    mot pour mot des ressources officielles et marqués "officiel": true (section ou préambule) :
- *    le contrôle d'écriture n'y vérifie que la typographie, et la page les rend avec data-officiel.
+ *  - Les textes juridiques de la Maison (conditions générales de vente, mentions légales) : documents
+ *    de contenu content/site/fr/<doc>.json, modifiables dans l'éditeur « Édition ». Un passage repris
+ *    mot pour mot des ressources officielles se marque "officiel": true (section ou préambule) : le
+ *    contrôle d'écriture n'y vérifie que la typographie, et la page le rend avec data-officiel.
+ *    Les mentions légales (réécrites le 11/11/2026) et les CGV (corrigées le 12/11/2026, à la
+ *    demande de la créatrice) n'en ont plus : elles suivent toutes les règles d'écriture.
  *  - Les autres pages légales et pratiques (content/fr/legal.ts), écrites dans la voix de la Maison :
  *    elles reprennent des réglages du site (délais, tarifs) et restent cohérentes avec les CGV.
  *
@@ -55,6 +57,8 @@ export type DocBlock =
   | { fiche: { libelle: string; valeur: string }[] }
   | { intertitre: string; id?: string }
   | { sousTitre: string }
+  /** encadré (information obligatoire sur les garanties légales, article 8 des CGV) */
+  | { encadre: { titre?: string; paragraphes: string[] } }
   | { type: LegalWidget };
 
 export interface DocSection {
@@ -102,6 +106,7 @@ export function blockFromDoc(b: DocBlock): LegalBlock | null {
   if ("fiche" in b) return { dl: b.fiche.map((x) => ({ term: x.libelle, value: x.valeur })) };
   if ("intertitre" in b) return b.id ? { h3: b.intertitre, id: b.id } : { h3: b.intertitre };
   if ("sousTitre" in b) return { h4: b.sousTitre };
+  if ("encadre" in b) return { box: b.encadre.titre ? { title: b.encadre.titre, paragraphs: b.encadre.paragraphes } : { paragraphs: b.encadre.paragraphes } };
   if ("type" in b && WIDGETS.includes(b.type)) return { widget: b.type };
   return null;
 }
