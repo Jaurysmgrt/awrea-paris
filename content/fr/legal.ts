@@ -1,13 +1,12 @@
 /**
  * Pages légales et pratiques écrites dans la voix de la Maison.
  *
- * Les textes officiels de la créatrice, repris mot pour mot, ne sont pas ici : conditions générales
- * de vente (content/site/fr/cgv.json) et mentions légales (content/site/fr/mentions-legales.json),
- * modifiables dans l'éditeur « Édition ». Les pages ci-dessous restent cohérentes avec eux et avec
- * la création sur demande (aucun stock : chaque pièce est confectionnée après la commande, dans le
- * délai de fabrication indiqué sur sa fiche). Elles renvoient aux articles des CGV plutôt que de
- * les reformuler ; les écarts entre les CGV et le fonctionnement du site sont listés dans
- * LEGAL-A-COMPLETER.md.
+ * Les conditions générales de vente (content/site/fr/cgv.json, corrigées le 12/11/2026) et les
+ * mentions légales (content/site/fr/mentions-legales.json) ne sont pas ici : elles se modifient dans
+ * l'éditeur « Édition ». Les pages ci-dessous restent cohérentes avec elles et avec la création sur
+ * demande (aucun stock : chaque pièce est confectionnée après la commande, dans le délai de
+ * fabrication indiqué sur sa fiche). Elles renvoient aux articles des CGV plutôt que de les
+ * reformuler ; ce qui reste à valider est listé dans LEGAL-A-COMPLETER.md.
  *
  * Conventions d'écriture (interprétées par components/legal/LegalText.tsx) :
  *  - {{cle}}            information de l'entreprise (content/legal/fields.ts) : affichée telle quelle
@@ -31,7 +30,7 @@ const UPDATED = "2026-10-19";
 const COMPANY =
   "{{raisonSociale}}, {{formeJuridique}} exerçant sous le nom commercial {{nomCommercial}}, inscrite au {{immatriculation}} sous le numéro SIREN {{siren}} (SIRET {{siret}}), dont l’adresse est {{siege}}";
 const free = formatPrice(shop.freeShippingThreshold);
-/** Les CGV officielles (article 5) prévoient une livraison en France métropolitaine. */
+/** Les CGV (article 5) prévoient une livraison en France métropolitaine. */
 const franceRates = shop.shippingRates.filter((r) => r.zone === "FR");
 
 export const legalPages = {
@@ -43,7 +42,7 @@ export const legalPages = {
       title: "Livraison et retours | Awrea Paris",
       description: `Chaque pièce est créée sur demande, puis livrée en France métropolitaine. Délais de fabrication, tarifs de livraison et retours sous ${shop.returnDays} jours.`,
     },
-    updated: UPDATED,
+    updated: "2026-11-12",
     intro: "Chaque pièce est créée pour vous, sur demande, par des artisans français. Elle quitte l’atelier avec son certificat d’authenticité, qui porte son numéro de création.",
     sections: [
       {
@@ -60,7 +59,7 @@ export const legalPages = {
         title: "Expédition et livraison",
         blocks: [
           "Les pièces sont livrées en France métropolitaine, à l’adresse indiquée lors de la commande, par un transporteur indépendant. Une commande de plusieurs pièces part en une seule fois, quand la dernière est prête.",
-          "Le délai de livraison s’ajoute au délai de fabrication. Les conditions de livraison et de transfert des risques figurent à l’article 5 des [conditions générales de vente](/cgv#livraison).",
+          "Le délai de livraison s’ajoute au délai de fabrication : comptez 5 à 10 jours ouvrés après la fin de la confection. Les conditions de livraison et de transfert des risques figurent à l’article 5 des [conditions générales de vente](/cgv#livraison).",
         ],
       },
       {
@@ -97,9 +96,9 @@ export const legalPages = {
         title: "Retours et échanges",
         blocks: [
           `Vous disposez de ${shop.returnDays} jours à compter de la réception pour vous rétracter, sans avoir à vous justifier. Le plus simple passe par [la rétractation en ligne](/retractation), ou par la rubrique « Commandes » de votre compte.`,
-          "La pièce revient dans son état d’origine et complète, avec son emballage, son certificat d’authenticité et sa facture d’achat. Une pièce abîmée, salie ou incomplète n’est pas reprise. Les frais de retour restent à votre charge.",
-          "Vous êtes remboursée, ou la pièce est échangée si vous le demandez, dans les conditions de l’article 7 des [conditions générales de vente](/cgv#retractation). Une pièce échangée contre une autre taille est créée sur demande, avec son délai de fabrication.",
-          "Les pièces de la boutique, créées sur demande dans les tailles du guide, ouvrent droit à la rétractation. Une pièce confectionnée selon vos mesures en est exclue (article L221-28, 3° du Code de la consommation).",
+          "La pièce revient dans son état d’origine et complète, avec son emballage, son certificat d’authenticité et sa facture d’achat. Vous pouvez l’essayer comme en boutique ; si elle a été portée, salie ou abîmée, ou si elle revient incomplète, sa perte de valeur peut être retenue sur le remboursement. Les frais de retour restent à votre charge.",
+          "Vous êtes remboursée au plus tard quatorze jours après votre demande, frais de livraison compris ; la Maison peut attendre d’avoir reçu la pièce, ou la preuve de son envoi. Si vous le préférez, la pièce est échangée. Le détail figure à l’article 7 des [conditions générales de vente](/cgv#retractation). Une pièce échangée contre une autre taille est créée sur demande, avec son délai de fabrication.",
+          "Les pièces de la boutique, créées sur demande dans les tailles du guide, ouvrent droit à la rétractation, même si elles sont fabriquées après votre commande. Seule une création personnalisée, confectionnée selon vos mesures ou vos demandes particulières, en est exclue (article L221-28, 3° du Code de la consommation) ; la Maison vous le dit avant que vous ne confirmiez la commande.",
         ],
       },
       {
@@ -118,7 +117,7 @@ export const legalPages = {
       title: "Propriété intellectuelle et droits réservés | Awrea Paris",
       description: "Créations, marque, photographies et droit à l’image : ce qui est protégé sur le site Awrea Paris, ce qui est permis et comment signaler une contrefaçon.",
     },
-    updated: UPDATED,
+    updated: "2026-11-12",
     intro: "Chaque pièce Awrea Paris est une création originale de la Maison, dessinée par la créatrice et confectionnée par des artisans français. Les images qui la montrent sont protégées, elles aussi.",
     sections: [
       {
@@ -482,7 +481,7 @@ export const legalPages = {
       title: "Rétractation en ligne | Awrea Paris",
       description: `Exercez votre droit de rétractation de ${shop.returnDays} jours en ligne, en deux étapes, et recevez aussitôt un accusé de réception.`,
     },
-    updated: UPDATED,
+    updated: "2026-11-12",
     intro: "Vous disposez de quatorze jours après la réception de votre pièce pour changer d’avis, sans avoir à vous justifier. Indiquez votre commande ci-dessous : vous recevrez aussitôt un accusé de réception par e-mail, puis le bordereau de retour.",
     sections: [
       { id: "en-ligne", title: "Se rétracter du contrat ici", blocks: [{ widget: "withdrawal-form" }] },
@@ -490,9 +489,9 @@ export const legalPages = {
         id: "conditions",
         title: "Les conditions",
         blocks: [
-          "Renvoyez la pièce au plus tard quatorze jours après votre demande, dans son état d’origine et complète, avec son emballage, son certificat d’authenticité et sa facture d’achat. Une pièce abîmée, salie ou incomplète n’est pas reprise. Les frais de retour restent à votre charge.",
-          "Le remboursement est fait sur le moyen de paiement utilisé pour la commande, dans le délai prévu à l’article 7 des [conditions générales de vente](/cgv#retractation).",
-          "Les pièces de la boutique, créées sur demande dans les tailles du guide, ouvrent droit à la rétractation. Une pièce confectionnée selon vos mesures en est exclue (article L221-28, 3° du Code de la consommation).",
+          "Renvoyez la pièce au plus tard quatorze jours après votre demande, dans son état d’origine et complète, avec son emballage, son certificat d’authenticité et sa facture d’achat. Vous pouvez l’essayer comme en boutique ; si elle a été portée, salie ou abîmée, ou si elle revient incomplète, sa perte de valeur peut être retenue sur le remboursement. Les frais de retour restent à votre charge.",
+          "Le remboursement, frais de livraison compris, est fait sur le moyen de paiement utilisé pour la commande, au plus tard quatorze jours après votre demande ; la Maison peut attendre d’avoir reçu la pièce, ou la preuve de son envoi. Le détail figure à l’article 7 des [conditions générales de vente](/cgv#retractation).",
+          "Les pièces de la boutique, créées sur demande dans les tailles du guide, ouvrent droit à la rétractation, même si elles sont fabriquées après votre commande. Seule une création personnalisée, confectionnée selon vos mesures ou vos demandes particulières, en est exclue (article L221-28, 3° du Code de la consommation) ; la Maison vous le dit avant que vous ne confirmiez la commande.",
         ],
       },
       {

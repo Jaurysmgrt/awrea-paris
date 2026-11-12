@@ -16,6 +16,7 @@ import { leadTimeText } from "@/lib/commerce/availability";
 import { MENTION_FRANCHISE, vatFranchise } from "@/lib/commerce/tva";
 import type { Collection, Product } from "@/lib/commerce/types";
 import { faqVars } from "@/content/fr/faq";
+import { legalFields } from "@/content/legal/fields";
 
 /** Textes officiels de la créatrice (TEASING MARQUE.png, À PROPOS AWREA.pdf), mot pour mot. */
 export const TEXTES_OFFICIELS = {
@@ -45,7 +46,7 @@ export const ETAPES_COMMANDE = ["Commande reçue", "En confection", "Prête", "E
 /** Modes de livraison prévus par les CGV : France métropolitaine, par transporteur (sans retrait ni étranger). */
 export const deliveryModes = () => shop.shippingRates.filter((r) => r.zone === "FR" && !r.pickup);
 
-/** Résumé fidèle des conditions générales de vente officielles ; le texte complet de /cgv fait foi. */
+/** Résumé fidèle des conditions générales de vente (version corrigée le 12/11/2026) ; le texte complet de /cgv fait foi. */
 export function cgvFacts(): string {
   const modes = deliveryModes()
     .map((r) => `${r.label} : ${formatPrice(r.price)}${r.freeAboveThreshold ? `, offerte dès ${formatPrice(shop.freeShippingThreshold)}` : ""}`)
@@ -54,17 +55,18 @@ export function cgvFacts(): string {
   const prix = vatFranchise()
     ? `Prix : en euros. ${MENTION_FRANCHISE} La Maison relève de la franchise en base de TVA : le prix affiché est celui que la cliente paie, sans TVA ajoutée.`
     : "Prix : en euros, toutes taxes comprises (TVA française à 20 % incluse).";
-  return `${prix} Les frais de livraison s’ajoutent au prix ; ils sont affichés avant la commande. Une facture est établie pour chaque commande.
+  return `${prix} Les frais de livraison s’ajoutent au prix ; ils sont affichés avant la commande. Une facture est établie dès le paiement et jointe à l’e-mail de confirmation.
 Paiement : comptant, en totalité, le jour de la commande. Moyens cités par les conditions générales de vente : carte bancaire, PayPal, Google Pay, Apple Pay. La Maison ne voit jamais les données bancaires.
 Commande : la cliente vérifie son panier, confirme et accepte les conditions générales de vente ; une confirmation part par e-mail. La vente est valide après le paiement intégral. La cliente suit sa commande sur le site.
 Annulation : possible dans les deux jours qui suivent l’acceptation de la commande par la Maison, et tant que la livraison n’a pas eu lieu, en écrivant à ${identity.email} avec le numéro de commande. Le droit de rétractation s’applique par ailleurs.
-Livraison : en France métropolitaine seulement, par un transporteur indépendant, à l’adresse indiquée à la commande. Les conditions générales de vente prévoient une livraison en 5 à 10 jours ouvrés ; une pièce créée sur demande part à la fin de sa confection. Modes et tarifs : ${modes}. Pour une autre destination ou un retrait en main propre : la Maison répond elle-même.
-Retard : si la commande n’est pas livrée dans les sept jours qui suivent la date indicative de livraison, hors force majeure ou fait de la cliente, la vente peut être résolue à la demande écrite de la cliente ; les sommes versées sont rendues dans les quatorze jours.
-Réclamations : 48 heures pour un colis abîmé, 14 jours pour un problème sur la pièce, à compter de la livraison, par e-mail à ${identity.email}, avec le numéro de commande, le motif et des photos.
-Rétractation : quatorze jours après la réception de la pièce, en ligne sur la page /retractation ou par toute déclaration claire envoyée par e-mail ou par courrier. La pièce revient dans son état d’origine et complète (emballage, accessoires), avec sa facture ; une pièce abîmée, salie ou incomplète n’est pas reprise. Les frais de retour restent à la charge de la cliente. Échange ou remboursement dans les quatorze jours qui suivent la réception de la pièce par la Maison ; un échange de taille est une nouvelle confection, avec son délai.
-Garanties : garantie légale de conformité (deux ans après la délivrance) et garantie des vices cachés (deux ans après leur découverte). La cliente prévient la Maison par écrit ; remboursement, remplacement ou réparation au plus tard quatorze jours après la constatation du défaut.
-Photographies : non contractuelles. Les visuels actuels des pièces sont provisoires, des images générées en attendant les photographies de la Maison.
-Propriété : transférée au paiement complet. Droit français ; seul le texte français fait foi.`;
+Livraison : en France métropolitaine seulement, par un transporteur indépendant, à l’adresse indiquée à la commande. La pièce est d’abord fabriquée, dans le délai indiqué sur sa fiche, puis livrée en 5 à 10 jours ouvrés après la fin de sa confection, comme le prévoient les conditions générales de vente. Les pièces d’une même commande partent ensemble, quand la dernière est prête. Modes et tarifs : ${modes}. Pour une autre destination ou un retrait en main propre : la Maison répond elle-même.
+Retard : si la commande n’est pas livrée dans les sept jours qui suivent la date de livraison annoncée, hors force majeure ou fait de la cliente, la vente peut être résolue à la demande écrite de la cliente ; les sommes versées sont rendues dans les quatorze jours.
+Réclamations : 48 heures pour un colis abîmé, 14 jours pour un problème sur la pièce, à compter de la livraison, par e-mail à ${identity.email}, avec le numéro de commande, le motif et des photos. Ces délais ne réduisent jamais les garanties légales.
+Rétractation : quatorze jours après la réception de la pièce, y compris pour les modèles standards fabriqués après la commande ; seule une création personnalisée, selon les mesures ou les demandes de la cliente, en est exclue (article L221-28, 3° du Code de la consommation). En ligne sur la page /retractation ou par toute déclaration claire envoyée par e-mail ou par courrier. La pièce revient au plus tard quatorze jours après la demande, dans son état d’origine et complète (emballage, accessoires), avec sa facture ; la cliente peut l’essayer comme en boutique, mais la perte de valeur d’une pièce portée, salie, abîmée ou incomplète peut être retenue sur le remboursement. Les frais de retour restent à la charge de la cliente. Remboursement de la totalité, frais de livraison compris, au plus tard quatorze jours après la demande, sur le moyen de paiement de la commande ; la Maison peut attendre d’avoir reçu la pièce ou la preuve de son envoi. Un échange de taille est une nouvelle confection, avec son délai.
+Garanties : garantie légale de conformité (deux ans après la délivrance) et garantie des vices cachés (deux ans après leur découverte). La cliente prévient la Maison par écrit ; réparation ou remplacement, au plus tard trente jours après la demande, sinon réduction du prix ou remboursement.
+Visuels : les visuels actuels des pièces sont provisoires, des images générées en attendant les photographies de la Maison, et signalés comme tels.
+Propriété : transférée au paiement complet. Droit français ; seul le texte français fait foi.
+Médiation : après une réclamation écrite restée sans suite, la cliente peut saisir gratuitement le médiateur de la consommation de la Maison${legalFields.mediateur.value ? ` : ${legalFields.mediateur.value}` : ", qui n’est pas encore désigné : ne citez aucun nom, la créatrice répond elle-même"}.`;
 }
 
 const rows = () => [shop.sizeGuide.headers.join(" | "), ...shop.sizeGuide.rows.map((r) => r.join(" | "))].join("\n");
