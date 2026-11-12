@@ -4,10 +4,9 @@
  * e-mail de la lettre, un délai, une condition), jusqu'à sa sortie (désinscription, objectif
  * atteint, conditions plus remplies, fin des étapes).
  *
- * Module pur : types, libellés de l'Atelier et validation, partagés par le moteur
+ * Module pur : types et libellés de l'Atelier, partagés par le moteur
  * (lib/marketing/parcours/moteur.ts), le serveur et l'éditeur. Aucune lecture ni écriture ici.
  */
-import { z } from "zod";
 
 export type Statut = "brouillon" | "actif" | "pause";
 export type DeclencheurId = "inscription" | "interet" | "panier" | "premiere-commande" | "commande";
@@ -166,31 +165,8 @@ export const RAISONS: Record<RaisonSortie, string> = {
 
 export const UNITES: Record<Unite, string> = { heures: "heures", jours: "jours" };
 
-// ------------------------------------------------------------------ validation (enregistrement par l'Atelier)
-const ID = z.string().regex(/^[a-z0-9-]{2,40}$/);
-const DOC = z.string().regex(/^email-[a-z0-9-]{1,74}$/);
-const Critere = z.enum(Object.keys(CRITERES) as [CritereId, ...CritereId[]]);
-
-export const EtapeSchema = z.discriminatedUnion("type", [
-  z.object({ id: ID, type: z.literal("email"), email: DOC }).strict(),
-  z.object({ id: ID, type: z.literal("attente"), duree: z.number().int().min(1).max(365), unite: z.enum(["heures", "jours"]) }).strict(),
-  z.object({ id: ID, type: z.literal("condition"), critere: Critere }).strict(),
-]);
-
-/** Ce que l'éditeur envoie : la définition, sans le statut ni les dates (gérés par le serveur). */
-export const DefinitionSchema = z
-  .object({
-    nom: z.string().trim().min(2).max(80),
-    declencheur: z.enum(Object.keys(DECLENCHEURS) as [DeclencheurId, ...DeclencheurId[]]),
-    fenetreJours: z.number().int().min(1).max(90),
-    entree: z.array(Critere).max(8),
-    etapes: z.array(EtapeSchema).min(1).max(20),
-    objectif: z.enum(["achat", "aucun"]),
-    sortieSiConditions: z.boolean(),
-    exclusions: z.array(z.enum(Object.keys(EXCLUSIONS) as [ExclusionId, ...ExclusionId[]])).max(4),
-  })
-  .strict();
-export type Definition = z.infer<typeof DefinitionSchema>;
+/** Ce que l'éditeur envoie : la définition, sans le statut ni les dates (gérés par le serveur ; validée par schema.ts). */
+export type Definition = Pick<Parcours, "nom" | "declencheur" | "fenetreJours" | "entree" | "etapes" | "objectif" | "sortieSiConditions" | "exclusions">;
 
 /** Refus lisible par la créatrice (le message est affiché tel quel dans l’Atelier). */
 export class RefusParcours extends Error {}

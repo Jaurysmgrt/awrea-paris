@@ -50,14 +50,14 @@ export async function POST(req: Request) {
           summary: body.actif ? `Envois réels des parcours autorisés par ${me}` : `Envois réels des parcours coupés par ${me}`,
           detail: JSON.stringify({ variable: variableEnvoisReels(), actifs }),
         });
-        const message = !body.actif ? "Envois réels coupés : les parcours repassent en simulation." : variableEnvoisReels() ? "Envois réels autorisés." : "Votre accord est noté. Les e-mails partiront quand la Maison aura posé PARCOURS_ENVOIS_REELS dans Vercel.";
+        const message = !body.actif ? "Envois réels coupés : les parcours repassent en simulation." : variableEnvoisReels() ? "Envois réels autorisés." : "Votre accord est noté. Les e-mails partiront quand la Maison aura posé PARCOURS_ENVOIS_REELS dans Vercel.";
         return NextResponse.json({ ok: true, message });
       }
       case "lancer": {
         const b = await runParcours();
         if (b.occupe) return NextResponse.json({ error: "Un passage est déjà en cours. Réessayez dans un instant." }, { status: 409 });
         const verbe = b.mode === "reel" ? "envoyé" : "simulé";
-        return NextResponse.json({ ok: true, bilan: b, message: `Passage fait : ${b.entrees} entrée${b.entrees > 1 ? "s" : ""}, ${b.envois} e-mail${b.envois > 1 ? "s" : ""} ${verbe}${b.envois > 1 ? "s" : ""}, ${b.sorties} sortie${b.sorties > 1 ? "s" : ""}.` });
+        return NextResponse.json({ ok: true, bilan: b, message: `Passage fait : ${b.entrees} entrée${b.entrees > 1 ? "s" : ""}, ${b.envois} e-mail${b.envois > 1 ? "s" : ""} ${verbe}${b.envois > 1 ? "s" : ""}, ${b.sorties} sortie${b.sorties > 1 ? "s" : ""}.` });
       }
       case "email": {
         const id = await creerEmail(body.nom, me);

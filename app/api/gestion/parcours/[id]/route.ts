@@ -5,7 +5,8 @@ import { logAction } from "@/lib/agents/log";
 import { essaiEmail } from "@/lib/marketing/parcours/emails";
 import { changerStatut, enregistrer, retirer } from "@/lib/marketing/parcours/gestion";
 import { unParcours } from "@/lib/marketing/parcours/stockage";
-import { DefinitionSchema, RefusParcours } from "@/lib/marketing/parcours/types";
+import { DefinitionSchema } from "@/lib/marketing/parcours/schema";
+import { RefusParcours } from "@/lib/marketing/parcours/types";
 
 const ID = /^p-[a-z0-9]{4,30}$/;
 
@@ -38,7 +39,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
     if (body.action === "statut") {
       const p = await changerStatut(id, body.statut, me);
-      await logAction({ agent: "systeme", kind: "parcours_statut", status: "done", summary: `Parcours « ${p.nom} » ${body.statut === "actif" ? "activé" : "mis en pause"} par ${me}` });
+      await logAction({ agent: "systeme", kind: "parcours_statut", status: "done", summary: `Parcours « ${p.nom} » ${body.statut === "actif" ? "activé" : "mis en pause"} par ${me}` });
       return NextResponse.json({ ok: true, message: body.statut === "actif" ? "Parcours actif." : "Parcours en pause." });
     }
     if (!(await unParcours(id))) return NextResponse.json({ error: "Parcours inconnu." }, { status: 404 });
