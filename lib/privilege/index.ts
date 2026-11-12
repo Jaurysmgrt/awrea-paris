@@ -84,8 +84,9 @@ export async function reserverPrivilege(email: string, commande: string, fermerA
     if (d.action === "refuser") return { ok: false, raison: d.raison } as const;
     if (d.action === "autre") {
       const autre = await getOrder(d.commande).catch(() => null);
-      const etat = commandeEncorePayable(autre, maintenant);
+      const etat = commandeEncorePayable(autre, maintenant, p.reservation?.le);
       if (etat === "payee") return { ok: false, raison: "utilise" } as const;
+      if (etat === "en-cours") return { ok: false, raison: "occupe" } as const;
       if (etat === "payable" && !(autre && (await Promise.race([fermerAutre(autre).catch(() => false), new Promise<boolean>((r) => setTimeout(() => r(false), 8000))])))) return { ok: false, raison: "occupe" } as const;
     }
     await kv.set(cle(email), reserver(p, commande, maintenant));

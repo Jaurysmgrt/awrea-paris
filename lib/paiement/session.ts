@@ -45,7 +45,9 @@ export function parametresSession(order: Order, o: OptionsSession): Stripe.Check
   if (!Number.isInteger(order.total) || order.total < 50) throw new Error("Montant de commande invalide pour un paiement en ligne.");
   if (!o.retour.includes("{CHECKOUT_SESSION_ID}")) throw new Error("L’adresse de retour doit porter l’identifiant de la session.");
   const metadata = { commande: order.id, numero: order.number };
-  const pieces = order.lines.map((x) => `${x.title} (${x.size})${x.quantity > 1 ? ` × ${x.quantity}` : ""}`).join(", ");
+  // la remise (privilège de bienvenue, code) se lit aussi sur la page de Stripe, sous la ligne unique
+  const remise = order.discount?.amount ? ` · ${order.discount.label} : −${(order.discount.amount / 100).toFixed(2).replace(".", ",")} €` : "";
+  const pieces = order.lines.map((x) => `${x.title} (${x.size})${x.quantity > 1 ? ` × ${x.quantity}` : ""}`).join(", ") + remise;
   const lignes = lignesDetaillees(order, o.libelles) ?? [ligne(o.libelles.commande.replace("{commande}", order.number), order.total, 1, pieces)];
   const maintenant = o.maintenant ?? new Date();
   return {

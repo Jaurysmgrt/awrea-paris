@@ -128,6 +128,12 @@
     },
     "pieces": "{n} pièces",
     "droitsEtTaxes": "Droits et taxes à l’importation",
+    "privilege": {
+      "ligne": "Privilège de bienvenue, 10 % sur {piece}",
+      "nonCumulable": "Votre privilège de bienvenue ne se cumule pas avec un code : retirez le code pour en profiter.",
+      "occupe": "Votre privilège de bienvenue est déjà engagé dans un autre paiement. Merci de réessayer dans quelques minutes.",
+      "change": "Votre privilège de bienvenue a déjà servi pour une autre commande : le total est mis à jour. Vérifiez-le avant de payer."
+    },
     "stripe": {
       "texte": "Vous réglez sur la page sécurisée de Stripe, notre prestataire de paiement : carte bancaire et autres moyens proposés selon votre appareil. Vos coordonnées bancaires ne passent jamais par notre site.",
       "bouton": "Régler {total}",

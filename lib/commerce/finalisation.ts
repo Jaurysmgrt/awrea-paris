@@ -27,6 +27,7 @@ import { getDoc } from "@/lib/edition/read";
 import { formatPrice } from "@/lib/format";
 import { upsertOrder } from "@/lib/customers/commandes-base";
 import { inscrireALaLettre } from "@/lib/crm/lettre";
+import { consommerPrivilege } from "@/lib/privilege";
 import { issueInvoice } from "@/lib/invoices";
 import { invoicePdf } from "@/lib/invoices/pdf";
 import { issueCertificates } from "@/lib/certificates";
@@ -99,6 +100,15 @@ async function etapes(commande: Order): Promise<string[]> {
 
   // base clientes : commande recopiée et rattachée au compte de même e-mail
   ensuite(() => upsertOrder({ ...order, source: order.source }).catch((e) => console.error("[commande] base clientes", e)));
+  // privilège de bienvenue : utilisé par cette commande, pour toujours (rejouer ne change rien) ; si
+  // une autre commande l'avait déjà utilisé, la créatrice le sait
+  if (order.privilege) {
+    const payee = order;
+    const r = await consommerPrivilege(payee.email, payee.id, payee.number).catch(noter("privilège de bienvenue"));
+    if (r?.conflit)
+      await signaler({ type: "intervention", titre: `Privilège de la commande ${payee.number}`, texte: "Le privilège de bienvenue de cette adresse avait déjà servi pour une autre commande : vérifiez la remise accordée.", chemin: `/commandes/${encodeURIComponent(payee.number)}`, etiquette: `privilege-${payee.number}` }).catch(() => {});
+  }
+
   // case « Recevoir la lettre » cochée à la commande : inscription demandée dans la fiche (lib/crm) et
   // e-mail de confirmation, une seule fois par commande ; la bienvenue suit le clic sur son lien
   const lettreFaite = `${cle(order.id)}:lettre`;
@@ -139,6 +149,8 @@ async function etapes(commande: Order): Promise<string[]> {
       };
     }),
     totals: [
+      // remise (privilège de bienvenue ou code) : une ligne, sans prix barré
+      ...(order.discount?.amount ? [{ label: order.discount.label, value: `− ${formatPrice(order.discount.amount)}` }] : []),
       { label: fill(tCommerce.confirmation.livraison, { mode: relay ? `${order.shipping.method}, ${relay.name}` : order.shipping.method }), value: order.shipping.price ? formatPrice(order.shipping.price) : tp.offerte },
       ...(order.gift?.wrap ? [{ label: tp.emballage, value: formatPrice(shop.giftWrapPrice) }] : []),
       ...(taxes?.export ? [{ label: tCommerce.commande.droitsEtTaxes, value: formatPrice(taxes.export.duty + taxes.export.importVat) }] : []),

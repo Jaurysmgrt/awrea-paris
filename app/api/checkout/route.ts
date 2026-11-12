@@ -32,6 +32,9 @@ import { finaliserCommande } from "@/lib/commerce/finalisation";
 import { avecEvenement, paiementEnAttente } from "@/lib/paiement/types";
 import { ouvrirPaiement, paiementNonOuvert } from "@/lib/paiement/suivi";
 import { prendreVerrou, rendreVerrou } from "@/lib/store/verrou";
+import { CODE_PRIVILEGE, libererPrivilege, privilegePourPanier, reserverPrivilege } from "@/lib/privilege";
+import { clientStripe } from "@/lib/paiement/stripe";
+import { expirerSession } from "@/lib/paiement/stripe-api";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { siteUrl } from "@/lib/seo/metadata";
 import { getLocale } from "@/lib/i18n/server";
@@ -105,8 +108,12 @@ export async function POST(req: Request) {
   if (rate.relay && !relay) return NextResponse.json({ error: "Merci de choisir un point relais." }, { status: 400 });
   const merchandise = cart.subtotal - (cart.discount?.amount ?? 0);
   const shippingPrice = priceOf(rate, merchandise);
+  // privilège de bienvenue (lib/privilege) : 10 % sur une unité de la pièce la plus chère, retirés
+  // d'office pour une adresse à l'inscription confirmée, jamais avec un autre code ; la livraison
+  // offerte se juge avant lui (un cadeau ne fait jamais payer la livraison)
+  const { remise: privilege } = await privilegePourPanier(d.email, cart.lines.map((l) => ({ handle: l.productHandle, title: l.title, size: l.size, unitPrice: l.unitPrice, quantity: l.quantity })), { code: Boolean(cart.discount) });
   // taxes : TVA française incluse, ou export avec droits et TVA du pays payés à la commande
-  const { taxes, total: gross } = orderTaxes(d.country, merchandise + (cart.gift.wrap ? cart.giftWrapPrice : 0), shippingPrice);
+  const { taxes, total: gross } = orderTaxes(d.country, merchandise - (privilege?.montant ?? 0) + (cart.gift.wrap ? cart.giftWrapPrice : 0), shippingPrice);
 
   // paiement d'essai : carte de test refusée
   if (!stripe && d.paymentMethod === "card") {
@@ -131,17 +138,27 @@ export async function POST(req: Request) {
   // Stripe : la même commande (même panier, même adresse, même livraison) ne s'enregistre qu'une
   // fois ; tant que sa page de paiement est valable, un nouvel essai la reprend
   const empreinte = createHash("sha256")
-    .update(JSON.stringify({ l: cart.lines.map((l) => [l.variantId, l.quantity]), total, e: d.email.toLowerCase(), address, r: rate.id, p: relay?.id ?? null, g: cart.gift, c: [cart.discount?.code ?? null, cart.giftCard?.code ?? null] }))
+    .update(JSON.stringify({ l: cart.lines.map((l) => [l.variantId, l.quantity]), total, e: d.email.toLowerCase(), address, r: rate.id, p: relay?.id ?? null, g: cart.gift, c: [cart.discount?.code ?? null, cart.giftCard?.code ?? null, privilege ? CODE_PRIVILEGE : null] }))
     .digest("hex")
     .slice(0, 32);
   // la commande enregistrée, puis la page de paiement Stripe ou le paiement d'essai
   const enregistrer = async (): Promise<Response> => {
+    const id = `o-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+    // privilège réservé pour cette commande avant tout : deux paiements ne l'utilisent jamais tous
+    // les deux (une page de paiement plus ancienne encore ouverte est fermée chez Stripe)
+    if (privilege) {
+      const r = await reserverPrivilege(d.email, id, async (autre) => {
+        const client = clientStripe();
+        return Boolean(client && autre.payment?.session && (await expirerSession(client, autre.payment.session)));
+      });
+      if (!r.ok) return NextResponse.json({ error: r.raison === "occupe" ? tCommerce.commande.privilege.occupe : tCommerce.commande.privilege.change, privilege: "change" }, { status: 409 });
+    }
     // numéro de commande unique, même pour deux commandes passées au même instant
     let n = 1031 + (await getOrders()).length;
     while ((await kv.incr(`commandes:numero:${n}`, 60 * 60 * 24 * 365 * 20)) !== 1) n++;
     const at = new Date().toISOString();
     const order: Order = {
-      id: `o-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+      id,
       number: `AW-${n}`,
       createdAt: at,
       email: d.email,
@@ -160,6 +177,13 @@ export async function POST(req: Request) {
       address,
       taxes,
       ...(cart.discount ? { discount: cart.discount } : {}),
+      // privilège : une ligne « Privilège de bienvenue, 10 % sur … » (facture, e-mail, paiement)
+      ...(privilege
+        ? {
+            discount: { code: CODE_PRIVILEGE, label: fill(tCommerce.commande.privilege.ligne, { piece: privilege.titre }), amount: privilege.montant },
+            privilege: { handle: privilege.handle, title: privilege.titre, size: privilege.taille as Order["lines"][number]["size"], amount: privilege.montant },
+          }
+        : {}),
       ...(cart.giftCard ? { giftCard: cart.giftCard } : {}),
       gift: cart.gift.wrap ? cart.gift : undefined,
       paymentMethod: stripe ? "Stripe" : PAYMENT_LABEL[d.paymentMethod!],
@@ -188,6 +212,7 @@ export async function POST(req: Request) {
       } catch (e) {
         console.error("[checkout] ouverture du paiement Stripe", e);
         await paiementNonOuvert(order, e instanceof Error ? e.message : String(e));
+        if (privilege) await libererPrivilege(d.email, order.id).catch((x) => console.error("[checkout] privilège", x));
         return NextResponse.json({ error: te.ouverture }, { status: 502 });
       }
     }

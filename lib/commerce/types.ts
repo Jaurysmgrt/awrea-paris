@@ -249,8 +249,13 @@ export interface Order {
   };
   /** adresse de livraison et de facturation */
   address?: Address;
-  /** remise appliquée (code avantage) */
+  /** remise appliquée (code avantage, ou privilège de bienvenue) */
   discount?: { code: string; label: string; amount: number };
+  /**
+   * privilège de bienvenue (inscription confirmée à la lettre) : 10 % sur une unité de la pièce la
+   * plus chère ; la remise est aussi dans `discount` (facture, paiement, remboursements)
+   */
+  privilege?: { handle: string; title: string; size: Size; amount: number };
   /** part payée par carte cadeau */
   giftCard?: { code: string; amount: number };
   taxes?: OrderTaxes;

@@ -104,7 +104,8 @@ function linesOf(order: Order, giftWrapPrice = shop.giftWrapPrice): InvoiceLine[
     quantity: l.quantity,
     unitTtc: l.unitPrice,
   }));
-  if (order.discount?.amount) lines.push({ title: `Remise ${order.discount.code}`, detail: order.discount.label, quantity: 1, unitTtc: -order.discount.amount });
+  // privilège de bienvenue : « Remise », et son libellé (« Privilège de bienvenue, 10 % sur … ») en détail
+  if (order.discount?.amount) lines.push({ title: order.privilege ? "Remise" : `Remise ${order.discount.code}`, detail: order.discount.label, quantity: 1, unitTtc: -order.discount.amount });
   if (order.gift?.wrap) lines.push({ title: "Emballage cadeau", detail: "Mot écrit à la main", quantity: 1, unitTtc: giftWrapPrice });
   if (order.shipping.price) lines.push({ title: "Livraison", detail: order.shipping.method, quantity: 1, unitTtc: order.shipping.price });
   return lines;

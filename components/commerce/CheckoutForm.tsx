@@ -25,6 +25,7 @@ import { orderTaxes, ratesFor, shippingPrice as priceOf } from "@/lib/commerce/i
 import type { RelayPoint } from "@/lib/commerce/relays";
 import { AddressField } from "./AddressField";
 import { ProvisionalNote } from "./ProvisionalNote";
+import { usePrivilege } from "./usePrivilege";
 
 type Pay = "card" | "apple-pay" | "google-pay" | "paypal";
 
@@ -73,6 +74,8 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
   const [terms, setTerms] = useState(false);
   const startedRef = useRef(false);
   const [prefill, setPrefill] = useState<{ email?: string; firstName?: string; lastName?: string; line1?: string; line2?: string; postalCode?: string; city?: string; phone?: string }>({});
+  // privilège de bienvenue de l'adresse de la commande (étapes 4 et 5) : une ligne du récapitulatif
+  const privilege = usePrivilege(prefill.email, (cart?.lines ?? []).map((l) => `${l.variantId}:${l.quantity}`).join(",") + (cart?.discount ? `|${cart.discount.code}` : ""));
 
   // cliente connectée : coordonnées et adresse par défaut préremplies
   useEffect(() => {
@@ -107,7 +110,7 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
   const merchandise = cart ? cart.subtotal - (cart.discount?.amount ?? 0) : 0;
   const shippingPrice = rate ? priceOf(rate, merchandise) : 0;
   // pièces et emballage (remises déduites), puis taxes du pays ; la carte cadeau paie le reste
-  const taxable = merchandise + (cart?.gift.wrap ? cart.giftWrapPrice : 0);
+  const taxable = merchandise - (privilege.remise?.montant ?? 0) + (cart?.gift.wrap ? cart.giftWrapPrice : 0);
   const { taxes, total: gross } = orderTaxes(country, taxable, shippingPrice);
   const total = Math.max(0, gross - (cart?.giftCard?.amount ?? 0));
   const exp = taxes.export;
@@ -161,6 +164,12 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
                 <dd>− {formatPrice(cart.discount.amount, locale)}</dd>
               </div>
             ) : null}
+            {privilege.remise ? (
+              <div className="totals__privilege">
+                <dt>{fill(t.privilege.ligne, { piece: privilege.remise.piece })}</dt>
+                <dd>− {formatPrice(privilege.remise.montant, locale)}</dd>
+              </div>
+            ) : null}
             {cart.gift.wrap ? (
               <div>
                 <dt>{p.emballage}</dt>
@@ -209,6 +218,7 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
             ) : null}
           </dl>
           {exp ? <p className="t-note">{t.taxesPayees}</p> : null}
+          {privilege.nonCumulable ? <p className="t-note">{t.privilege.nonCumulable}</p> : null}
           {cart.gift.wrap && cart.gift.message ? <p className="t-note">{fill(t.messageCadeau, { message: cart.gift.message })}</p> : null}
         </div>
   ) : null;
@@ -261,6 +271,8 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
     if (!res?.ok) {
       setState("error");
       setError(j.error ?? t.erreur);
+      // privilège refusé par la commande (déjà utilisé, engagé ailleurs) : le récapitulatif se met à jour
+      if (j.privilege) privilege.reverifier();
       return;
     }
     // Stripe : la cliente règle sur la page sécurisée de Stripe, puis revient sur la confirmation
@@ -330,7 +342,7 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
               <label className="field__label" htmlFor="co-email">
                 {f.email}
               </label>
-              <input ref={emailRef} className="field__input" id="co-email" name="email" key={`email-${prefill.email ?? ""}`} defaultValue={prefill.email} type="email" required autoComplete="email" />
+              <input ref={emailRef} className="field__input" id="co-email" name="email" key={`email-${prefill.email ?? ""}`} defaultValue={prefill.email} type="email" required autoComplete="email" onBlur={(e) => privilege.saisir(e.currentTarget.value)} />
               <span className="field__hint">{f.emailAide}</span>
             </div>
             <label className="check t-note">

@@ -36,6 +36,18 @@ export async function lireSession(client: ClientStripe, id: string): Promise<Str
 }
 
 /**
+ * Ferme une page de paiement encore ouverte : plus aucun paiement ne peut y passer. True si elle est
+ * fermée (ou l'était déjà sans paiement), false si elle a été payée ou n'a pas pu être fermée.
+ */
+export async function expirerSession(client: ClientStripe, id: string): Promise<boolean> {
+  const s = await client.checkout.sessions.retrieve(id);
+  if (s.status === "expired") return true;
+  if (s.status !== "open") return false;
+  const e = await client.checkout.sessions.expire(id);
+  return e.status === "expired";
+}
+
+/**
  * Rembourse tout ou partie d'un paiement. `cle` distingue chaque remboursement voulu (la commande
  * entière, ou tel retour) : le même remboursement demandé deux fois ne part qu'une fois.
  */

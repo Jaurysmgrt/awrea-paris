@@ -12,6 +12,8 @@
 
 export const TAUX_PRIVILEGE = 10;
 export const JOURS_PRIVILEGE = 14;
+/** code porté par la remise d'une commande au privilège (Order.discount) */
+export const CODE_PRIVILEGE = "PRIVILEGE";
 const JOUR = 86_400_000;
 
 /** État du privilège d'une adresse (clé « privilege:<empreinte de l'adresse> », sans l'adresse en clair). */
@@ -110,8 +112,10 @@ export function consommer(p: EtatPrivilege, commande: string, maintenant: Date):
  * paiement a expiré ou échoué, ou si sa page de paiement a expiré sans paiement envoyé. Une commande
  * payée, ou dont le paiement est parti en attente de la banque, garde le privilège.
  */
-export function commandeEncorePayable(o: { status: string; payment?: { statut: string; expireLe?: string; evenements?: { type: string }[] } } | null, maintenant: Date): "libre" | "payable" | "payee" {
-  if (!o) return "libre";
+export function commandeEncorePayable(o: { status: string; payment?: { statut: string; expireLe?: string; evenements?: { type: string }[] } } | null, maintenant: Date, reserveeLe?: string): "libre" | "payable" | "payee" | "en-cours" {
+  // commande pas encore enregistrée : une réservation de moins de dix minutes est une commande en
+  // train de s'enregistrer (deux paiements simultanés), plus ancienne une commande abandonnée
+  if (!o) return reserveeLe && maintenant.getTime() - Date.parse(reserveeLe) < 10 * 60_000 ? "en-cours" : "libre";
   if (o.status !== "pending") return "payee";
   const p = o.payment;
   if (!p) return "libre";
