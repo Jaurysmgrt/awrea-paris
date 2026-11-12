@@ -55,6 +55,7 @@
     "totalTaxes": "Total, duties and taxes included",
     "totalTtc": "Total including VAT",
     "dontTva": "of which VAT ({taux}%)",
+    "mentionTva": "VAT not applicable, article 293 B of the French General Tax Code.",
     "taxesPayees": "Duties and taxes paid now: nothing to pay on delivery. Indicative estimate in test mode.",
     "messageCadeau": "Gift message: “{message}”",
     "modeTest": "Test mode: nothing is charged. The card 4242 4242 4242 4242 is accepted. The card 4000 0000 0000 0002 is declined.",

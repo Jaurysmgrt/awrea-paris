@@ -5,7 +5,7 @@
     "chemin": "/cgv"
   },
   "mentions-legales": {
-    "label": "Mentions légales (texte officiel de la créatrice et compléments)",
+    "label": "Mentions légales (texte de la Maison, réécrit le 11/11/2026)",
     "kind": "legal",
     "chemin": "/mentions-legales"
   },

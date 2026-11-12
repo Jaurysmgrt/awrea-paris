@@ -1,87 +1,84 @@
 {
   "seo": {
     "title": "Mentions légales | Awrea Paris",
-    "description": "Qui édite le site Awrea Paris, où il est hébergé, ce qui protège ses créations et comment vos données sont traitées."
+    "description": "Qui édite le site Awrea Paris, qui l’héberge, sa mention de TVA, la fabrication à la commande et les textes qui encadrent vos achats."
   },
   "titre": "Mentions légales",
-  "chapeau": "",
-  "misAJour": "2026-10-19",
+  "chapeau": "Qui édite ce site, qui l’héberge, et où trouver les règles de vos achats.",
+  "misAJour": "2026-11-11",
   "preambule": {
-    "officiel": true,
     "blocs": [
       {
-        "texte": "Conformément aux dispositions des articles 6-III et 19 de la Loi n° 2004-575 du 21 juin 2004 pour la Confiance dans l’économie numérique, dite L.C.E.N., nous portons à la connaissance des utilisateurs et visiteurs de ce site les informations suivantes."
-      },
-      {
-        "texte": "Le site internet www.awreaparis.com est géré par Léane Soubrier, exerçant sous le nom commercial Awrea Paris, entreprise individuelle enregistrée en France."
-      },
-      {
-        "texte": "Awrea Paris étant une marque déposée toute reproduction, même partielle, est strictement interdite."
+        "texte": "Le site www.awreaparis.com est édité par Léane Soubrier, créatrice et fondatrice de la Maison Awrea Paris, qu’elle exploite en entreprise individuelle. Les informations ci-dessous sont publiées en application de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l’économie numérique."
       }
     ]
   },
   "sections": [
     {
-      "id": "entreprise",
-      "titre": "Informations légales sur l’entreprise",
-      "officiel": true,
+      "id": "editrice",
+      "titre": "Éditrice du site",
       "blocs": [
         {
-          "intertitre": "Identité",
-          "id": "identite"
-        },
-        {
-          "lignes": [
-            "Société : Awrea Paris",
-            "Nom de la propriétaire & créatrice : Léane Soubrier",
-            "Adresse email : awrea.contact@gmail.com",
-            "Adresse postale : 46 rue Paul Déroulède, 78290 Croissy-sur-Seine",
-            "Téléphone : 06 99 55 74 43",
-            "Forme juridique : Entrepreneur individuel",
-            "Numéro de SIREN : 100 222 926",
-            "Numéro de SIRET : 10022292600014",
-            "Raison sociale : Auto-entrepreneur (Micro-entreprise)",
-            "Catégorisation de l’activité : Industrie & artisanat de fabrication, Industrie du textile, du cuir & de l’habillement",
-            "Date de début d’activité : 01/04/2026",
-            "Commune : Yvelines",
-            "Pays : France"
+          "fiche": [
+            {
+              "libelle": "Nom commercial",
+              "valeur": "{{nomCommercial}}"
+            },
+            {
+              "libelle": "Éditrice et exploitante",
+              "valeur": "{{raisonSociale}}, {{formeJuridique}}"
+            },
+            {
+              "libelle": "Directrice de la publication",
+              "valeur": "{{directricePublication}}"
+            },
+            {
+              "libelle": "Adresse",
+              "valeur": "{{siege}}"
+            },
+            {
+              "libelle": "SIREN",
+              "valeur": "{{siren}}"
+            },
+            {
+              "libelle": "SIRET",
+              "valeur": "{{siret}}"
+            },
+            {
+              "libelle": "Immatriculation",
+              "valeur": "{{immatriculation}}"
+            },
+            {
+              "libelle": "Activité déclarée",
+              "valeur": "{{activite}}"
+            },
+            {
+              "libelle": "E-mail",
+              "valeur": "{{email}}"
+            },
+            {
+              "libelle": "Téléphone",
+              "valeur": "{{telephone}}"
+            }
           ]
-        },
-        {
-          "intertitre": "Hébergement",
-          "id": "hebergement"
-        },
-        {
-          "texte": "Le Site est hébergé par la société Wix Online Platform Limited, située 1 Grant’s Row, Dublin 2 D02HX96, Ireland, (contact téléphonique ou email : (+1) 415 358 0857)."
-        },
-        {
-          "intertitre": "Propriété intellectuelle",
-          "id": "propriete-intellectuelle"
-        },
-        {
-          "texte": "Tout le contenu du présent sur le site, de façon non limitative, les graphismes, images, textes, vidéos, animations, sons, logos, gifs et icônes ainsi que leur mise en forme sont la propriété exclusive de la société à l’exception des marques, logos ou contenus appartenant à d’autres sociétés partenaires ou auteurs. Toute reproduction, distribution, modification, adaptation, retransmission ou publication, même partielle, de ces différents éléments est strictement interdite sans l’accord exprès par écrit de Awrea Paris. Cette représentation ou reproduction, par quelque procédé que ce soit, constitue une contrefaçon sanctionnée par les articles L.335-2 et suivants du Code de la propriété intellectuelle. Le non-respect de cette interdiction constitue une contrefaçon pouvant engager la responsabilité civile et pénale du contrefacteur. En outre, les propriétaires des Contenus copiés pourraient intenter une action en justice à votre encontre."
-        },
-        {
-          "texte": "La société Awrea Paris est enregistrée au registre national des entreprises (RNE) depuis le 05/02/2026."
-        },
-        {
-          "texte": "Toute utilisation quelle qu’elle soit du logo de ce site est interdite sans l’autorisation de la part de la société Awrea Paris."
-        },
-        {
-          "intertitre": "Données personnelles",
-          "id": "donnees-personnelles"
-        },
-        {
-          "texte": "Lors de la visite du site, des données de connexion sont collectées et sont utilisées à des fins uniquement statistiques et de sécurité. Les données transmises via le formulaire ou par voie électronique sont collectées à des fins statistiques et de correspondance. Conformément à la loi n° 78-17 du 6 janvier 1978 relative à l’informatique, aux fichiers et aux libertés vous disposez d’un droit d’accès, de modification, de rectification et d’opposition au traitement des données vous concernant, en nous contactant par courriel à awrea.contact@gmail.com. Le traitement de vos données à caractère personnel est régi par notre Charte du respect de la vie privée, disponible depuis la section « Charte de Protection des Données Personnelles », conformément au Règlement Général sur la Protection des Données 2016/679 du 27 avril 2016 (« RGPD »)."
         }
       ]
     },
     {
-      "id": "publication",
-      "titre": "Directrice de la publication",
+      "id": "hebergement",
+      "titre": "Hébergement",
       "blocs": [
         {
-          "texte": "La directrice de la publication du site est {{directricePublication}}."
+          "fiche": [
+            {
+              "libelle": "Hébergeur",
+              "valeur": "{{hebergeur}}"
+            },
+            {
+              "libelle": "Contact",
+              "valeur": "depuis le site [vercel.com](https://vercel.com)"
+            }
+          ]
         }
       ]
     },
@@ -90,16 +87,58 @@
       "titre": "TVA",
       "blocs": [
         {
-          "texte": "Situation de l’entreprise au regard de la TVA : {{tva}}."
+          "texte": "TVA non applicable, article 293 B du Code général des impôts."
+        },
+        {
+          "texte": "La Maison relève de la franchise en base de TVA. Elle ne facture pas de TVA : le prix indiqué pour chaque pièce est le prix que vous payez, auquel s’ajoutent seulement les frais de livraison affichés avant la commande. La même mention figure au récapitulatif de votre commande, dans l’e-mail qui la confirme et sur chaque facture."
+        }
+      ]
+    },
+    {
+      "id": "fabrication",
+      "titre": "Fabrication à la commande",
+      "blocs": [
+        {
+          "texte": "Awrea Paris propose principalement des modèles standards : chaque pièce est présentée sur sa fiche, dans les tailles du [guide des tailles](/guide-des-tailles). Rien n’est fabriqué d’avance. La pièce est confectionnée après la validation de votre commande, dans le délai de fabrication indiqué sur sa fiche, dans le panier et avant le paiement."
+        },
+        {
+          "texte": "Une pièce fabriquée à la commande dans une taille standard n’est pas une création personnalisée. Pour ces modèles standards, vous disposez du droit de rétractation de quatorze jours prévu par le Code de la consommation, dans les conditions de la page [Droit de rétractation](/retractation)."
+        },
+        {
+          "texte": "Seule une création réellement personnalisée, réalisée selon vos mesures ou selon vos demandes particulières, peut être exclue du droit de rétractation (article L221-28, 3° du Code de la consommation). Dans ce cas, la Maison vous l’indique avant que vous ne confirmiez la commande."
         }
       ]
     },
     {
       "id": "mediation",
-      "titre": "Médiation de la consommation",
+      "titre": "Réclamation et médiation",
       "blocs": [
         {
-          "texte": "En cas de litige, après une réclamation écrite adressée à la Maison, vous pouvez saisir gratuitement le médiateur de la consommation dont elle relève, {{mediateur}}."
+          "texte": "Pour toute réclamation, écrivez d’abord à la Maison à {{email}}, en indiquant votre numéro de commande, le motif de votre demande et, si besoin, des photographies. Les délais pour signaler un colis abîmé ou une pièce non conforme figurent à l’article 5 des [conditions générales de vente](/cgv#livraison), vos garanties à leur [article 8](/cgv#garanties)."
+        },
+        {
+          "texte": "Si votre réclamation écrite n’aboutit pas, vous pouvez saisir gratuitement le médiateur de la consommation dont relève la Maison, dans l’année qui suit cette réclamation : {{mediateur}}."
+        }
+      ]
+    },
+    {
+      "id": "propriete-intellectuelle",
+      "titre": "Propriété intellectuelle",
+      "blocs": [
+        {
+          "texte": "Les textes, photographies, vidéos, dessins des pièces, logos et la mise en forme de ce site appartiennent à Awrea Paris, à l’exception des marques, logos et contenus de partenaires ou d’auteurs, qui restent leur propriété. Toute reproduction, représentation, modification, adaptation, diffusion ou publication, même partielle, sans l’accord écrit de la Maison est interdite. Elle constitue une contrefaçon sanctionnée par les articles L335-2 et suivants du Code de la propriété intellectuelle, et engage la responsabilité civile et pénale de son auteur."
+        },
+        {
+          "texte": "Awrea Paris est une marque déposée. Son nom et son logo ne peuvent être utilisés sans l’autorisation écrite de la Maison. Le détail de ces règles, et ce qui reste permis, figure sur la page [Propriété intellectuelle](/propriete-intellectuelle)."
+        }
+      ]
+    },
+    {
+      "id": "donnees-personnelles",
+      "titre": "Données personnelles et cookies",
+      "blocs": [
+        {
+          "texte": "La Maison traite vos données personnelles conformément au règlement général sur la protection des données (RGPD) et à la loi Informatique et libertés du 6 janvier 1978. Les données collectées, leurs finalités, leur durée de conservation et la façon d’exercer vos droits (accès, rectification, effacement, opposition, limitation, portabilité) sont décrites dans la [politique de confidentialité](/confidentialite). Les cookies et autres traceurs, et la façon de modifier vos choix à tout moment, sont décrits dans la [politique de cookies](/cookies). Pour toute question : {{email}}."
         }
       ]
     },
@@ -123,10 +162,22 @@
     },
     {
       "id": "autres-textes",
-      "titre": "Les autres textes du site",
+      "titre": "Les textes qui encadrent vos achats",
       "blocs": [
         {
-          "texte": "Les achats sont régis par les [conditions générales de vente](/cgv). L’usage du site et du compte suit les [conditions générales d’utilisation](/cgu). Vos données sont traitées selon la [politique de confidentialité](/confidentialite) et la [politique cookies](/cookies). Les créations et les images sont protégées dans les conditions de la page [Propriété intellectuelle](/propriete-intellectuelle)."
+          "texte": "Ces mentions légales disent qui édite et héberge le site. Les règles de vos achats relèvent des conditions générales de vente, que vous acceptez à chaque commande, et des pages qui les précisent :"
+        },
+        {
+          "liste": [
+            "[Conditions générales de vente](/cgv) : la commande, le prix, le paiement et la livraison.",
+            "[Livraison et retours](/livraison-retours) : les délais de fabrication et de livraison, les tarifs, le suivi et les retours.",
+            "[Droit de rétractation](/retractation) : quatorze jours pour changer d’avis, et le formulaire en ligne.",
+            "[Garanties légales](/cgv#garanties) : la garantie légale de conformité et la garantie des vices cachés, à l’article 8 des conditions générales de vente.",
+            "[Réclamation et médiation](/mentions-legales#mediation) : à qui écrire, et le recours gratuit au médiateur de la consommation.",
+            "[Politique de confidentialité](/confidentialite) : vos données personnelles et vos droits.",
+            "[Politique de cookies](/cookies) : les traceurs du site et vos choix.",
+            "[Conditions générales d’utilisation](/cgu) : l’usage du site, du compte et de l’assistante."
+          ]
         }
       ]
     }

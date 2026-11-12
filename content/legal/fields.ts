@@ -1,7 +1,8 @@
 /**
  * Informations légales de l'entreprise — REGISTRE UNIQUE.
  *
- * Les valeurs renseignées viennent des mentions légales officielles de la Maison
+ * Les valeurs renseignées viennent des informations communiquées par la Maison dans le cahier du
+ * site du 10/11/2026 (mentions légales réécrites), de ses premières mentions légales officielles
  * (ressources-awrea/MENTIONS LÉGALES) et de ses conditions générales de vente officielles.
  * Aucune autre information n'est inventée : tant qu'un champ est vide, il s'affiche sur le site sous
  * la forme d'un repère « [À COMPLÉTER : …] » bien visible, et il est listé dans LEGAL-A-COMPLETER.md
@@ -26,6 +27,7 @@ export interface LegalField {
 
 /** Source des informations déjà renseignées. */
 const ML = "Mentions légales officielles de la Maison (ressources-awrea/MENTIONS LÉGALES)";
+const CAHIER = "Informations communiquées par la Maison (cahier du site du 10/11/2026, mentions légales)";
 
 export const legalFields = {
   raisonSociale: {
@@ -44,9 +46,9 @@ export const legalFields = {
   },
   formeJuridique: {
     short: "forme juridique",
-    label: "forme juridique",
-    value: "entrepreneur individuel (micro-entreprise)",
-    source: ML,
+    label: "forme juridique (la mention « entrepreneur individuel » ou « EI » accompagne le nom sur les documents de l’entreprise, article R526-26 du Code de commerce)",
+    value: "entrepreneuse individuelle (EI, micro-entreprise)",
+    source: CAHIER,
     pages: ["mentions-legales", "cgu", "confidentialite"],
   },
   capital: {
@@ -58,10 +60,10 @@ export const legalFields = {
     sansObjet: true,
   },
   siege: {
-    short: "adresse de l’entreprise",
-    label: "adresse postale de l’entreprise",
-    value: "46 rue Paul Déroulède, 78290 Croissy-sur-Seine, France",
-    source: ML,
+    short: "adresse de domiciliation",
+    label: "adresse postale de l’entreprise : la Maison étudie une domiciliation professionnelle (cahier du 10/11/2026) ; l’ancienne adresse n’est plus affichée nulle part sur le site. Une fois le contrat de domiciliation signé : déclarer le transfert de l’adresse sur le guichet unique (formalites.entreprises.gouv.fr), puis renseigner ici l’adresse exacte",
+    value: "",
+    source: "Contrat de domiciliation, puis avis de situation au répertoire SIRENE (avis-situation-sirene.insee.fr) à la nouvelle adresse",
     pages: ["mentions-legales", "cgv", "cgu", "confidentialite", "retractation"],
   },
   immatriculation: {
@@ -80,23 +82,31 @@ export const legalFields = {
   },
   siret: {
     short: "n° SIRET",
-    label: "numéro SIRET",
+    label: "numéro SIRET (il change avec l’adresse de l’établissement : à mettre à jour après la domiciliation)",
     value: "100 222 926 00014",
-    source: ML,
+    source: CAHIER,
     pages: ["mentions-legales", "cgv", "cgu", "confidentialite"],
   },
-  tva: {
-    short: "n° de TVA",
-    label: "numéro de TVA intracommunautaire (la créatrice a confirmé le 25/10/2026 que la Maison facture la TVA : prix TTC, TVA à 20 % détaillée sur les factures)",
-    value: "",
-    source: "Espace professionnel impots.gouv.fr",
+  activite: {
+    short: "activité déclarée",
+    label: "activité déclarée et code APE (le code 7410Z, « Activités spécialisées de design », ne couvre peut-être pas la vente de vêtements : à vérifier auprès de l’URSSAF ou d’un expert-comptable, LEGAL-A-COMPLETER.md)",
+    value: "Activités spécialisées de design (code APE 7410Z)",
+    source: CAHIER,
     pages: ["mentions-legales"],
+  },
+  tva: {
+    short: "n° de TVA intracommunautaire",
+    label: "numéro de TVA intracommunautaire : sans objet tant que la Maison relève de la franchise en base, confirmée le 10/11/2026 (mention « TVA non applicable, article 293 B du Code général des impôts. » sur le site, au récapitulatif de commande, dans l’e-mail de confirmation et sur chaque facture). À renseigner seulement si la Maison sort un jour de la franchise : passer alors `shop.vatRegime` à « tva20 » dans content/settings.ts",
+    value: "",
+    source: "Espace professionnel impots.gouv.fr (seulement en cas de sortie de la franchise en base)",
+    pages: [],
+    sansObjet: true,
   },
   directricePublication: {
     short: "directrice de la publication",
-    label: "nom et prénom de la directrice de la publication (les mentions officielles ne la nomment pas ; pour une entreprise individuelle, c’est en principe l’entrepreneuse elle-même, Léane Soubrier : à confirmer)",
-    value: "",
-    source: "Représentante légale de l’entreprise",
+    label: "nom et prénom de la directrice de la publication",
+    value: "Léane Soubrier",
+    source: CAHIER,
     pages: ["mentions-legales"],
   },
   email: {
@@ -110,21 +120,21 @@ export const legalFields = {
     short: "téléphone",
     label: "numéro de téléphone",
     value: "06 99 55 74 43",
-    source: ML,
+    source: CAHIER,
     pages: ["mentions-legales", "cgv"],
   },
   mediateur: {
     short: "médiateur de la consommation",
-    label: "médiateur de la consommation : nom, adresse postale et site internet (adhésion obligatoire, articles L612-1 et suivants du Code de la consommation ; ni les CGV ni les mentions officielles n’en nomment ; aucune adhésion au 25/10/2026 : démarche à faire avant la mise en ligne)",
+    label: "médiateur de la consommation : nom, adresse postale et site internet (adhésion obligatoire, articles L612-1 et suivants du Code de la consommation ; aucun médiateur désigné au 10/11/2026 : adhérer à un médiateur référencé par la CECMC avant la mise en ligne publique, LEGAL-A-COMPLETER.md)",
     value: "",
     source: "Convention signée avec un médiateur référencé par la CECMC (liste sur economie.gouv.fr)",
     pages: ["mentions-legales"],
   },
   hebergeur: {
     short: "hébergeur du site",
-    label: "hébergeur du nouveau site : dénomination, adresse et téléphone (les mentions officielles nomment Wix Online Platform Limited, hébergeur du site Wix ; le nouveau site est prévu sur Vercel Inc., 440 N Barranca Avenue #4133, Covina, CA 91723, États-Unis)",
-    value: "",
-    source: "Contrat d’hébergement (vercel.com/legal), puis mise à jour des mentions légales officielles",
+    label: "hébergeur du site : dénomination et adresse (le site est déployé sur Vercel ; adresse donnée par la politique de confidentialité de Vercel). Aucun numéro de téléphone public trouvé : le site vercel.com est donné comme moyen de contact",
+    value: "Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis",
+    source: "Configuration technique du site (vercel.json, déploiement Vercel) et politique de confidentialité de Vercel (vercel.com/legal/privacy-policy)",
     pages: ["mentions-legales"],
   },
   marque: {

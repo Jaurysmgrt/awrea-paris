@@ -22,8 +22,11 @@ export const identity = {
   shortDescription:
     "Prêt-à-porter féminin créé sur demande par des artisans français. Dentelle noire, jersey, satin et dorure, sans stock.",
   manifesto: "Consommer plus juste. Une création exclusive n’a pas besoin d’être réservée à l’ultra luxe.",
-  /** commune d'immatriculation de l'entreprise (mentions légales officielles) */
-  foundingLocation: "Croissy-sur-Seine, France",
+  /**
+   * Commune d'immatriculation de l'entreprise, publiée dans les données structurées seulement si elle
+   * est renseignée : vide en attendant la domiciliation (l'ancienne commune n'est plus publiée).
+   */
+  foundingLocation: "" as string,
   /**
    * À COMPLÉTER : année de création de la Maison (non publiée tant qu'elle vaut null). L'entreprise
    * est inscrite au RNE depuis le 05/02/2026 (début d'activité le 01/04/2026) : confirmer l'année à publier.
@@ -32,18 +35,23 @@ export const identity = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.awreaparis.com",
   email: "awrea.contact@gmail.com",
   phone: "06 99 55 74 43",
-  /** forme juridique et immatriculation (mentions légales officielles) */
-  legalForm: "Entrepreneur individuel (micro-entreprise)",
+  /** forme juridique et immatriculation (mentions légales, registre légal content/legal/fields.ts) */
+  legalForm: "Entrepreneuse individuelle (EI, micro-entreprise)",
   siren: "100 222 926",
   siret: "100 222 926 00014",
   /** inscription au registre national des entreprises et début d'activité */
   registeredOn: "2026-02-05",
   activityStart: "2026-04-01",
-  /** adresse de l'entreprise (mentions légales officielles) */
+  /**
+   * À COMPLÉTER : adresse de l'entreprise. La Maison attend une domiciliation professionnelle (cahier
+   * du 10/11/2026) : l'ancienne adresse n'est plus publiée. Tant que la rue est vide, les données
+   * structurées ne donnent que le pays (lib/seo/schema.ts) ; renseigner aussi le champ `siege` du
+   * registre légal (content/legal/fields.ts).
+   */
   legalAddress: {
-    streetAddress: "46 rue Paul Déroulède",
-    postalCode: "78290",
-    addressLocality: "Croissy-sur-Seine",
+    streetAddress: "",
+    postalCode: "",
+    addressLocality: "",
     addressCountry: "FR",
   },
   /**

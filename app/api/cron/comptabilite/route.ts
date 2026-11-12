@@ -9,6 +9,7 @@ import { sendEmail } from "@/lib/email/send";
 import { brandEmail } from "@/lib/email/templates";
 import { formatMonth } from "@/lib/format";
 import { identity } from "@/content/brand/identity";
+import { vatFranchise } from "@/lib/commerce/tva";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,13 @@ export async function GET(req: Request) {
     ...brandEmail({
       preheader: `${count} facture(s) et avoir(s) pour ${formatMonth(month)}.`,
       title: `Comptabilité, ${formatMonth(month)}`,
-      paragraphs: [`Vous trouverez ci-joint l’export du mois : ${count} facture(s) et avoir(s), une ligne par pièce comptable, montants hors taxes, TVA et toutes taxes comprises.`, "Les factures en PDF restent disponibles dans l’Atelier, rubrique Factures."],
+      paragraphs: [
+        // franchise en base (content/settings.ts → shop.vatRegime) : aucune TVA sur les factures
+        vatFranchise()
+          ? `Vous trouverez ci-joint l’export du mois : ${count} facture(s) et avoir(s), une ligne par pièce comptable. La Maison est en franchise en base de TVA (article 293 B du Code général des impôts) : les montants ne comportent aucune TVA.`
+          : `Vous trouverez ci-joint l’export du mois : ${count} facture(s) et avoir(s), une ligne par pièce comptable, montants hors taxes, TVA et toutes taxes comprises.`,
+        "Les factures en PDF restent disponibles dans l’Atelier, rubrique Factures.",
+      ],
       cta: { label: "Ouvrir les factures", href: "atelier:/factures" },
     }),
   });

@@ -13,6 +13,7 @@ import { identity } from "@/content/brand/identity";
 import { shop } from "@/content/settings";
 import { formatPrice } from "@/lib/format";
 import { leadTimeText } from "@/lib/commerce/availability";
+import { MENTION_FRANCHISE, vatFranchise } from "@/lib/commerce/tva";
 import type { Collection, Product } from "@/lib/commerce/types";
 import { faqVars } from "@/content/fr/faq";
 
@@ -49,7 +50,11 @@ export function cgvFacts(): string {
   const modes = deliveryModes()
     .map((r) => `${r.label} : ${formatPrice(r.price)}${r.freeAboveThreshold ? `, offerte dès ${formatPrice(shop.freeShippingThreshold)}` : ""}`)
     .join(" ; ");
-  return `Prix : en euros, toutes taxes comprises. Les frais de livraison s’ajoutent au prix ; ils sont affichés avant la commande. Une facture est établie pour chaque commande.
+  // régime de TVA de la Maison (content/settings.ts → shop.vatRegime) : franchise en base aujourd'hui
+  const prix = vatFranchise()
+    ? `Prix : en euros. ${MENTION_FRANCHISE} La Maison relève de la franchise en base de TVA : le prix affiché est celui que la cliente paie, sans TVA ajoutée.`
+    : "Prix : en euros, toutes taxes comprises (TVA française à 20 % incluse).";
+  return `${prix} Les frais de livraison s’ajoutent au prix ; ils sont affichés avant la commande. Une facture est établie pour chaque commande.
 Paiement : comptant, en totalité, le jour de la commande. Moyens cités par les conditions générales de vente : carte bancaire, PayPal, Google Pay, Apple Pay. La Maison ne voit jamais les données bancaires.
 Commande : la cliente vérifie son panier, confirme et accepte les conditions générales de vente ; une confirmation part par e-mail. La vente est valide après le paiement intégral. La cliente suit sa commande sur le site.
 Annulation : possible dans les deux jours qui suivent l’acceptation de la commande par la Maison, et tant que la livraison n’a pas eu lieu, en écrivant à ${identity.email} avec le numéro de commande. Le droit de rétractation s’applique par ailleurs.

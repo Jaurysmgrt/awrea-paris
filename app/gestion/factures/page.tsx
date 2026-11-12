@@ -43,7 +43,9 @@ export default async function FacturesPage() {
               </div>
               <p className="t-note">
                 {count(list, "facture")}
-                {list.some((i) => i.kind === "avoir") ? `, ${count(list, "avoir")}` : ""} · {formatPrice(sum(list, "ht"))} hors taxes · TVA {formatPrice(sum(list, "vat"))} · {formatPrice(sum(list, "ttc"))} encaissés
+                {list.some((i) => i.kind === "avoir") ? `, ${count(list, "avoir")}` : ""}
+                {/* franchise en base : ni montant hors taxes ni TVA, seulement ce qui a été encaissé */}
+                {list.some((i) => i.regime !== "franchise") ? ` · ${formatPrice(sum(list, "ht"))} hors taxes · TVA ${formatPrice(sum(list, "vat"))}` : ""} · {formatPrice(sum(list, "ttc"))} encaissés
               </p>
               <div className="table-scroll">
                 <table className="table">
