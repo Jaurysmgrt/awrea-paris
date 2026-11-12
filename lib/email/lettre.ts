@@ -11,7 +11,7 @@
  */
 import "server-only";
 import { kv } from "@/lib/store";
-import { isSupabaseConfigured, supabaseAdmin } from "@/lib/db/supabase";
+import { listerContacts, normaliserEmail, peutRecevoirMarketingSelon } from "@/lib/crm";
 import { emailDoc, sendDocEmail } from "@/lib/email/documents";
 import { historyOf } from "@/lib/edition/store";
 import { todos } from "@/lib/edition/blocks";
@@ -30,22 +30,16 @@ export interface EnvoiLettre {
   by: string;
 }
 
-/** Inscrites à la lettre : la liste de la Maison, et les clientes qui l'ont acceptée dans leur compte. */
+/**
+ * Inscrites à la lettre : les abonnées du CRM (lib/crm), c'est-à-dire la liste de la Maison, les
+ * clientes qui l'ont acceptée dans leur compte et les inscriptions confirmées ; jamais une
+ * inscription en attente de confirmation ni une désinscrite.
+ */
 export async function inscrites(): Promise<Inscrite[]> {
-  const list = (await kv.get<{ email: string; date?: string; source?: string; prenom?: string; nom?: string }[]>("newsletter:subscribers").catch(() => null)) ?? [];
-  const parEmail = new Map<string, Inscrite>();
-  for (const s of list) {
-    const email = s.email.trim().toLowerCase();
-    if (email.includes("@") && !parEmail.has(email)) parEmail.set(email, { email, date: s.date ?? null, source: s.source ?? "lettre", prenom: s.prenom, nom: s.nom });
-  }
-  if (isSupabaseConfigured) {
-    const { data } = await supabaseAdmin().from("customers").select("email, first_name, last_name, created_at").eq("marketing_email", true).limit(20_000);
-    for (const c of (data ?? []) as { email: string | null; first_name: string | null; last_name: string | null; created_at: string | null }[]) {
-      const email = c.email?.trim().toLowerCase();
-      if (email?.includes("@") && !parEmail.has(email)) parEmail.set(email, { email, date: c.created_at, source: "compte", prenom: c.first_name ?? undefined, nom: c.last_name ?? undefined });
-    }
-  }
-  return [...parEmail.values()].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
+  const liste = (await listerContacts()).filter((c) => peutRecevoirMarketingSelon(c.lettre));
+  return liste
+    .map((c) => ({ email: normaliserEmail(c.email), date: c.lettre.depuis, source: c.lettre.source ?? "lettre", prenom: c.firstName ?? undefined, nom: c.lastName ?? undefined }))
+    .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 }
 
 export async function envoisLettre(): Promise<EnvoiLettre[]> {

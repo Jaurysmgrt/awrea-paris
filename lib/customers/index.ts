@@ -16,6 +16,7 @@ import { withStages } from "@/lib/store/order-stages";
 import type { LeadTime, Order, OrderStageDates, OrderStatus, Size } from "@/lib/commerce/types";
 import { segmentOf } from "./segments";
 import type { Address, BrowsingEvent, CustomerProfile, CustomerSession, CustomerStats, ProfilePatch, Sizes } from "./types";
+import type { CompteSource } from "@/lib/crm/regles";
 
 export * from "./types";
 export { segmentOf, segmentLabel } from "./segments";
@@ -620,6 +621,53 @@ export async function listCustomerStats(): Promise<CustomerStats[]> {
 }
 
 export const customersMode = isSupabaseConfigured ? "supabase" : "demo";
+
+// ------------------------------------------------------------------ CRM (lib/crm) : comptes et case « lettres »
+type LigneCompteCRM = { id: string; email: string | null; first_name: string | null; last_name: string | null; phone: string | null; created_at: string; cercle_member: boolean; marketing_email: boolean; marketing_email_at: string | null };
+const COLONNES_CRM = "id, email, first_name, last_name, phone, created_at, cercle_member, marketing_email, marketing_email_at";
+
+const compteCRM = (r: LigneCompteCRM): CompteSource | null =>
+  r.email ? { id: r.id, email: r.email, prenom: r.first_name, nom: r.last_name, telephone: r.phone, creeLe: r.created_at, cercle: r.cercle_member, lettre: r.marketing_email, lettreLe: r.marketing_email_at } : null;
+
+const compteDemoCRM = (p: CustomerProfile): CompteSource => ({ id: p.id, email: p.email, prenom: p.firstName, nom: p.lastName, telephone: p.phone, creeLe: p.createdAt, cercle: p.cercleMember, lettre: p.marketingEmail, lettreLe: null });
+
+/** comparaison sans casse mais exacte : « _ » et « % » d'une adresse ne sont pas des jokers */
+const motifEmail = (email: string) => email.trim().toLowerCase().replace(/[\\%_]/g, (m) => `\\${m}`);
+
+/** CRM : tous les comptes, avec la case « lettres » et sa date (clé de service, jamais depuis le navigateur). */
+export async function comptesPourCRM(): Promise<CompteSource[]> {
+  if (isSupabaseConfigured) {
+    const { data, error } = await supabaseAdmin().from("customers").select(COLONNES_CRM).limit(20_000);
+    if (error) throw new Error(`Base clientes : ${error.message}`);
+    return ((data ?? []) as LigneCompteCRM[]).map(compteCRM).filter((c): c is CompteSource => c !== null);
+  }
+  const index = (await kv.get<string[]>("customers:index")) ?? [];
+  const profils = await Promise.all(index.map((id) => kv.get<CustomerProfile>(demoKey(id))));
+  return profils.filter((p): p is CustomerProfile => Boolean(p?.email)).map(compteDemoCRM);
+}
+
+/** CRM : le compte d'une adresse, ou null s'il n'y en a pas. */
+export async function comptePourCRM(email: string): Promise<CompteSource | null> {
+  if (isSupabaseConfigured) {
+    const { data, error } = await supabaseAdmin().from("customers").select(COLONNES_CRM).ilike("email", motifEmail(email)).limit(1).maybeSingle<LigneCompteCRM>();
+    if (error) throw new Error(`Base clientes : ${error.message}`);
+    return data ? compteCRM(data) : null;
+  }
+  const p = await kv.get<CustomerProfile>(demoKey(demoCustomerId(email)));
+  return p ? compteDemoCRM(p) : null;
+}
+
+/** Désinscription : la case « lettres » du compte de cette adresse se décoche (elle vaut partout). */
+export async function retirerLettresDuCompte(email: string): Promise<void> {
+  if (isSupabaseConfigured) {
+    const { error } = await supabaseAdmin().from("customers").update({ marketing_email: false }).ilike("email", motifEmail(email)).eq("marketing_email", true);
+    if (error) throw new Error(`Base clientes : ${error.message}`);
+    return;
+  }
+  const cle = demoKey(demoCustomerId(email));
+  const p = await kv.get<CustomerProfile>(cle);
+  if (p?.marketingEmail) await kv.set(cle, { ...p, marketingEmail: false });
+}
 
 /**
  * Purge quotidienne des données arrivées à échéance (navigation de plus de 13 mois, paniers

@@ -36,6 +36,7 @@ import { accessLinkToken, accessSeconds, dropPhase, dropVars, listDrops, recordD
 import type { AvantPremieresTexts } from "@/components/drops/regles";
 import type { Order } from "@/lib/commerce/types";
 import type { CustomerProfile } from "@/lib/customers/types";
+import { destinatairesMarketing, peutRecevoirMarketing } from "@/lib/crm";
 import { unsubscribeHeaders, unsubscribePage } from "./unsubscribe";
 import { sendFlowEmail, trackEvent, upsertContact } from "./provider";
 
@@ -86,7 +87,9 @@ export async function onCustomerCreated(p: CustomerProfile) {
   });
 }
 
+/** Bienvenue de la lettre : après la confirmation de l'inscription, seulement pour une abonnée. */
 export async function onNewsletterSignup(email: string) {
+  if (!(await peutRecevoirMarketing(email))) return;
   await once("bienvenue", email.toLowerCase(), async () => {
     const mail = brandEmail({
       preheader: "La lettre de la Maison commence ici.",
@@ -105,15 +108,12 @@ export async function onNewsletterSignup(email: string) {
 }
 
 // ------------------------------------------------------------------ avant-première d'une collection
-/** Inscrites à la lettre : la liste de la Maison, et les clientes qui l'ont acceptée dans leur compte. */
+/**
+ * Abonnées à la lettre (lib/crm) : la liste de la Maison, les clientes qui l'ont acceptée dans leur
+ * compte, les inscriptions confirmées ; jamais une inscription en attente ni une désinscrite.
+ */
 async function letterRecipients(): Promise<string[]> {
-  const list = (await kv.get<{ email: string }[]>("newsletter:subscribers")) ?? [];
-  const all = new Set(list.map((s) => s.email.trim().toLowerCase()));
-  if (isSupabaseConfigured) {
-    const { data } = await supabaseAdmin().from("customers").select("email").eq("marketing_email", true).limit(20_000);
-    for (const c of (data ?? []) as { email: string | null }[]) if (c.email) all.add(c.email.trim().toLowerCase());
-  }
-  return [...all].filter((e) => e.includes("@"));
+  return destinatairesMarketing();
 }
 
 /** Au plus tant de lettres par passage : les suivantes partent au passage suivant (tâche quotidienne). */
@@ -246,6 +246,8 @@ export async function runDailyFlows(now = new Date()): Promise<DailyReport> {
       .limit(200);
     for (const c of (carts ?? []) as unknown as { customer_id: string; lines: { title: string; size: string; unitPrice: number; handle: string }[]; customers: { email: string; first_name: string | null; marketing_email: boolean; personalization: boolean } }[]) {
       if (!c.customers.marketing_email || !c.customers.personalization || !c.lines.length) continue;
+      // une désinscription vaut partout (lien de la lettre, compte, atelier) : aucune relance
+      if (!(await peutRecevoirMarketing(c.customers.email))) continue;
       const single = new Set(c.lines.map((l) => l.handle)).size === 1;
       const mail = brandEmail({
         preheader: "Votre sélection vous attend, prenez votre temps.",

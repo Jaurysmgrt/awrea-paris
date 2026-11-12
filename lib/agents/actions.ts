@@ -34,6 +34,7 @@ import { orderLink } from "@/lib/commerce/order-access";
 import { getReturn } from "@/lib/returns";
 import { listReviews, moderateReview } from "@/lib/reviews";
 import { listCustomerStats, updateProfile } from "@/lib/customers";
+import { destinatairesMarketing } from "@/lib/crm";
 import { draftOf, isDocId, publishContent, publishedDoc } from "@/lib/edition/store";
 import { editionStorage, isLocale } from "@/lib/edition/config";
 import { avisPublicable, envoiPermis, envoisFaits, noterEnvoi } from "./autonomie";
@@ -400,7 +401,8 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
   },
 
   async send_newsletter_all({ subject, preheader, paragraphs, cta }) {
-    const subs = (await kv.get<{ email: string }[]>("newsletter:subscribers")) ?? [];
+    // abonnées seulement (lib/crm) : jamais une inscription à confirmer ni une désinscrite
+    const subs = (await destinatairesMarketing()).map((email) => ({ email }));
     for (const s of subs) {
       await sendEmail({ to: s.email, subject, tag: "newsletter", ...brandEmail({ preheader, title: subject, paragraphs, cta, signature: "La Créatrice", footnote: "Vous recevez cette lettre car vous vous êtes inscrite sur awreaparis.com. Désinscription : répondez simplement « stop »." }) });
     }

@@ -9,6 +9,7 @@ import { kv } from "@/lib/store";
 import { sign, verify } from "@/lib/auth/session";
 import { siteUrl } from "@/lib/seo/metadata";
 import { unsubscribeContact } from "@/lib/marketing/provider";
+import { noterDesinscription } from "@/lib/crm";
 
 const YEAR = 60 * 60 * 24 * 365;
 
@@ -27,9 +28,17 @@ export const unsubscribeHeaders = (email: string): Record<string, string> => ({
   "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
 });
 
-export async function unsubscribe(email: string): Promise<void> {
+/**
+ * Désinscription, valable partout : l'ancienne liste des inscrites, la fiche du CRM (statut
+ * « désinscrite », inscription en attente annulée), la case « lettres » du compte de la même adresse
+ * et l'outil d'e-mails. Plus aucun envoi marketing ne part ensuite (lib/crm, peutRecevoirMarketing).
+ * `source` : le lien de la lettre (par défaut), son compte, l'atelier ; `par` : qui, à l'atelier.
+ */
+export async function unsubscribe(email: string, d: { source: string; par?: string } = { source: "lien" }): Promise<void> {
+  const e = email.trim().toLowerCase();
   const list = (await kv.get<{ email: string }[]>("newsletter:subscribers")) ?? [];
-  await kv.set("newsletter:subscribers", list.filter((s) => s.email.toLowerCase() !== email.toLowerCase()));
+  await kv.set("newsletter:subscribers", list.filter((s) => s.email.trim().toLowerCase() !== e));
   await kv.push("newsletter:desinscriptions", { email, date: new Date().toISOString() }, 2000);
-  await unsubscribeContact(email).catch((e) => console.error("[désinscription] e-mails", e));
+  await noterDesinscription(email, d);
+  await unsubscribeContact(email).catch((err) => console.error("[désinscription] e-mails", err));
 }
