@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { currentAdmin, revokeAdminSessions, setAdminCookie } from "@/lib/auth/admin";
-import { ACCOUNT_GUARD, allowedEmails, emailKey, getAccount, resetAccount, supprimerCompte, verifyAccountCode } from "@/lib/auth/accounts";
+import { ACCOUNT_GUARD, allowedEmails, emailKey, resetAccount, supprimerCompte } from "@/lib/auth/accounts";
+import { verifierCodeGeste } from "@/lib/auth/code-geste";
 import { ajouterPersonne, personneAjoutee, personnesAjoutees, renouvelerInvitation, retirerPersonne } from "@/lib/auth/personnes";
 import { problemeAjout } from "@/lib/auth/personnes-regles";
 import { oublierAppareilsDe } from "@/lib/admin/push";
 import { atelierHref } from "@/lib/admin/path";
 import { absolute } from "@/lib/seo/metadata";
 import { logAction } from "@/lib/agents/log";
-import { clientIp, hit, loginGuard } from "@/lib/security/rate-limit";
-import { alertLocked, alertPersonne, logSecurityEvent } from "@/lib/security/audit";
+import { clientIp, loginGuard } from "@/lib/security/rate-limit";
+import { alertPersonne } from "@/lib/security/audit";
 
 /**
  * Les accès à l'Atelier (Réglages), demande de la créatrice du 09/11 : « deux administrateurs qui
@@ -36,11 +37,6 @@ const Corps = z.object({
   email: z.string().trim().toLowerCase().email().max(200),
   code: z.string().trim().min(6).max(12),
 });
-
-/** Essais de code pour ces gestes : comptés avant la vérification, jamais remis à zéro. */
-const GESTES = { limit: 10, windowSeconds: 30 * 60 };
-/** Échecs sur une journée de session (12 h, sans fenêtre glissante à contourner) : au vingtième, tout se ferme. */
-const ECHECS = { limit: 20, windowSeconds: 12 * 60 * 60 };
 
 const refus = (error: string, status: number) => NextResponse.json({ error }, { status });
 
@@ -69,20 +65,9 @@ export async function POST(req: Request) {
   const ip = clientIp(req);
   if (action !== "ajouter" && email === me) return refus("Vous ne pouvez pas faire ce geste sur votre propre accès.", 400);
 
-  // son propre code, à chaque geste ; l'essai compte avant la vérification
-  if (await loginGuard.blocked("atelier-geste-echecs", emailKey(me), ECHECS)) return refus("Trop de codes faux aujourd’hui : reconnectez-vous demain, ou demandez à l’autre administrateur.", 429);
-  const [parCompte, parReseau] = await Promise.all([hit("atelier-geste", emailKey(me), GESTES), hit("atelier-geste-ip", ip, GESTES)]);
-  if (!parCompte.allowed || !parReseau.allowed) return refus("Trop d’essais. Réessayez dans une demi-heure.", 429);
-  const compte = await getAccount(me);
-  if (!compte || !(await verifyAccountCode(compte, code))) {
-    await logSecurityEvent("admin_code_fail", req, ip, `${me} (accès)`);
-    const echecs = await loginGuard.fail("atelier-geste-echecs", emailKey(me), ECHECS);
-    if (parCompte.count >= GESTES.limit || parReseau.count >= GESTES.limit || echecs >= ECHECS.limit) {
-      await revokeAdminSessions();
-      await alertLocked(me, req, ip);
-    }
-    return refus("Code incorrect ou déjà utilisé. Attendez le code suivant de votre application d’authentification, puis réessayez.", 401);
-  }
+  // son propre code, à chaque geste ; l'essai compte avant la vérification (lib/auth/code-geste.ts)
+  const refusCode = await verifierCodeGeste(req, me, code, "accès");
+  if (refusCode) return refus(refusCode.error, refusCode.status);
 
   if (action === "ajouter") {
     const vercel = allowedEmails();
