@@ -9,6 +9,9 @@
  *     des rendez-vous (flux iCal signé, toujours disponible) ;
  *   · `ics` : le site lit l'adresse secrète iCal de son agenda (CALENDAR_ICS_URL) et ne propose
  *     jamais un créneau où elle est déjà prise.
+ * - Google Agenda, connexion directe (OAuth 2.0, lib/google-agenda) : chaque rendez-vous confirmé
+ *   devient un événement de l'agenda de la créatrice, mis à jour ou supprimé avec lui ; les moments
+ *   déjà pris dans cet agenda ne sont plus proposés.
  * - Appel vidéo : salle Jitsi Meet privée (gratuite, sans compte), lien envoyé aux deux.
  */
 import "server-only";
@@ -16,6 +19,8 @@ import { createHmac, randomBytes } from "node:crypto";
 import { kv } from "@/lib/store";
 import { sessionSecret } from "@/lib/auth/session";
 import { providerOf } from "@/lib/config/providers";
+import { occupationsGoogle } from "@/lib/google-agenda";
+import type { LienGoogle } from "@/lib/google-agenda/regles";
 
 export type AppointmentType = "visio" | "sur-mesure";
 
@@ -51,6 +56,8 @@ export interface Appointment {
   status: "confirme" | "annule";
   videoUrl?: string;
   createdAt: string;
+  /** événement de Google Agenda (identifiant gardé : jamais de doublon), lib/google-agenda */
+  google?: LienGoogle;
 }
 
 const KEY = "appointments";
@@ -71,6 +78,31 @@ export async function listAppointments(): Promise<Appointment[]> {
 
 async function saveAll(list: Appointment[]) {
   await kv.set(KEY, list);
+}
+
+/** Verrou des rendez-vous : une réservation, une annulation ou un lien Google à la fois. */
+async function withLock<T>(fn: () => Promise<T>): Promise<T> {
+  const lock = "appointments:lock";
+  for (let i = 0; (await kv.incr(lock, 10)) > 1; i++) {
+    if (i > 50) throw new Error("Réservation occupée, merci de réessayer.");
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  try {
+    return await fn();
+  } finally {
+    await kv.del(lock);
+  }
+}
+
+/** Garde le lien Google d'un rendez-vous (liste relue sous verrou : aucune réservation perdue). */
+export async function noterGoogle(id: string, google: LienGoogle): Promise<void> {
+  await withLock(async () => {
+    const list = await listAppointments();
+    const a = list.find((x) => x.id === id);
+    if (!a) return;
+    a.google = JSON.parse(JSON.stringify(google)) as LienGoogle;
+    await saveAll(list);
+  });
 }
 
 // ------------------------------------------------------------------ heure de Paris
@@ -144,8 +176,8 @@ export async function slotsFor(type: AppointmentType, day: string, now = new Dat
   const noon = parisTime(day, "12:00");
   if (!a.weekdays.includes(parisDay(noon).weekday)) return [];
   const minutes = APPOINTMENT_TYPES[type].minutes;
-  const [taken, busy] = await Promise.all([listAppointments(), busyFromCalendar()]);
-  const blocked = [...taken.filter((x) => x.status === "confirme").map((x) => ({ start: new Date(x.start).getTime(), end: new Date(x.end).getTime() })), ...busy];
+  const [taken, busy, google] = await Promise.all([listAppointments(), busyFromCalendar(), occupationsGoogle(a.maxDaysAhead)]);
+  const blocked = [...taken.filter((x) => x.status === "confirme").map((x) => ({ start: new Date(x.start).getTime(), end: new Date(x.end).getTime() })), ...busy, ...google];
   const earliest = now.getTime() + a.minNoticeHours * 3_600_000;
   const latest = now.getTime() + a.maxDaysAhead * 86_400_000;
   const out: string[] = [];
@@ -161,12 +193,7 @@ export async function slotsFor(type: AppointmentType, day: string, now = new Dat
 
 // ------------------------------------------------------------------ réservation
 export async function book(input: { type: AppointmentType; day: string; time: string; name: string; email: string; phone?: string; message?: string }): Promise<Appointment> {
-  const lock = "appointments:lock";
-  for (let i = 0; (await kv.incr(lock, 10)) > 1; i++) {
-    if (i > 50) throw new Error("Réservation occupée, merci de réessayer.");
-    await new Promise((r) => setTimeout(r, 100));
-  }
-  try {
+  return withLock(async () => {
     if (!(await slotsFor(input.type, input.day)).includes(input.time)) throw new Error("Ce créneau vient d’être pris. Merci d’en choisir un autre.");
     const start = parisTime(input.day, input.time);
     const appt: Appointment = {
@@ -184,18 +211,18 @@ export async function book(input: { type: AppointmentType; day: string; time: st
     };
     await saveAll([...(await listAppointments()), appt]);
     return appt;
-  } finally {
-    await kv.del(lock);
-  }
+  });
 }
 
 export async function cancelAppointment(id: string): Promise<Appointment | null> {
-  const list = await listAppointments();
-  const a = list.find((x) => x.id === id);
-  if (!a || a.status === "annule") return null;
-  a.status = "annule";
-  await saveAll(list);
-  return a;
+  return withLock(async () => {
+    const list = await listAppointments();
+    const a = list.find((x) => x.id === id);
+    if (!a || a.status === "annule") return null;
+    a.status = "annule";
+    await saveAll(list);
+    return a;
+  });
 }
 
 // ------------------------------------------------------------------ iCal
