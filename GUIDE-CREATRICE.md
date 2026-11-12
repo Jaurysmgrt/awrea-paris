@@ -575,7 +575,7 @@ Mailchimp) :
 3. **Réglages** : écrivez le texte. Pour un lien, sélectionnez des mots puis **Ajouter un lien**
    (une page du site comme /boutique, une adresse qui commence par https:// ou un e-mail). Puis la
    **Mise en forme** : la **Police**, parmi les trois de la Maison (Fraunces droite, Fraunces
-   italique, Cormorant Garamond ; sans réglage, comme sur le site, les titres sont en Fraunces
+   italique, Cormorant Garamond ; sans réglage, comme sur le site, les titres sont en Fraunces
    droite, fine, et la signature en Fraunces italique), la **Taille** (petite, normale, grande), l’**Alignement** (à gauche,
    au centre, à droite), l’**Espace au-dessus** et l’**Espace au-dessous**. Pour une photo, sa
    **Largeur** et son alignement. **Revenir à l’allure d’origine** efface ces réglages.
@@ -630,7 +630,9 @@ quelque chose : s’inscrire, s’intéresser à une pièce, laisser un panier,
 
 Rien ne part pour de vrai tant que deux clés ne sont pas réunies : la variable
 `PARCOURS_ENVOIS_REELS=1`, posée dans Vercel, et votre accord, **Autoriser les envois réels**, dans
-l’onglet. Couper l’accord arrête tout aussitôt.
+l’onglet. Par sécurité, l’accord demande votre code à six chiffres, celui de votre application
+d’authentification, comme à la connexion : écrivez-le puis **Confirmer avec ce code**. L’Atelier
+note qui a donné l’accord et quand. Couper l’accord arrête tout aussitôt, sans code.
 
 Les règles qui vous protègent : seules les personnes qui ont accepté la lettre entrent, une seule fois
 par parcours ; un e-mail marketing au plus tous les trois jours par personne (réglable dans

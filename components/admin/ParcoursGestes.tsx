@@ -101,30 +101,64 @@ export function LancerPassage() {
 }
 
 /**
- * Accord de la créatrice aux envois réels (seconde clé). Allumer demande une confirmation qui
- * rappelle les parcours actifs ; couper est immédiat.
+ * Accord de la créatrice aux envois réels (seconde clé). Allumer ouvre une confirmation qui rappelle
+ * les parcours actifs et demande le code à six chiffres de la personne connectée (réponse de la
+ * créatrice du 12/11) ; couper est immédiat, sans code.
  */
 export function AccordEnvoisReels({ actif, parcoursActifs, variable }: { actif: boolean; parcoursActifs: string[]; variable: boolean }) {
   const { busy, retour, envoyer } = useGeste();
+  const [ouvert, setOuvert] = useState(false);
+  const liste = parcoursActifs.length ? `Parcours actifs : ${parcoursActifs.join(", ")}.` : "Aucun parcours n’est actif pour l’instant.";
+  const suite = variable ? "Les e-mails partiront pour de vrai dès le prochain passage." : "Ils partiront quand la Maison aura posé PARCOURS_ENVOIS_REELS dans Vercel.";
   return (
     <div className="parcours-geste">
       <button
         type="button"
         role="switch"
         aria-checked={actif}
+        aria-expanded={actif ? undefined : ouvert}
+        aria-controls={actif ? undefined : "parcours-accord"}
         className="switch"
         disabled={busy}
-        onClick={async () => {
+        onClick={() => {
           if (actif) return void envoyer({ action: "envois-reels", actif: false });
-          const liste = parcoursActifs.length ? `Parcours actifs : ${parcoursActifs.join(", ")}.` : "Aucun parcours n’est actif pour l’instant.";
-          const suite = variable ? "Les e-mails partiront pour de vrai dès le prochain passage." : "Ils partiront quand la Maison aura posé PARCOURS_ENVOIS_REELS dans Vercel.";
-          if (!window.confirm(`Autoriser les envois réels des parcours ? ${liste} ${suite}`)) return;
-          await envoyer({ action: "envois-reels", actif: true, confirme: true });
+          setOuvert((o) => !o);
         }}
       >
         <span className="switch__track" aria-hidden="true" />
         <span className="switch__label">{actif ? "Envois réels autorisés" : "Autoriser les envois réels"}</span>
       </button>
+      {!actif && ouvert ? (
+        <form
+          id="parcours-accord"
+          className="stack-s"
+          aria-label="Confirmer les envois réels"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const code = String(new FormData(e.currentTarget).get("code") ?? "").trim();
+            if (await envoyer({ action: "envois-reels", actif: true, confirme: true, code })) setOuvert(false);
+          }}
+        >
+          <p className="t-note t-left">
+            Autoriser les envois réels des parcours ? {liste} {suite}
+          </p>
+          <div className="field">
+            <label htmlFor="parcours-code" className="field__label">
+              Votre code à six chiffres
+            </label>
+            <input id="parcours-code" name="code" inputMode="numeric" autoComplete="one-time-code" minLength={6} maxLength={12} required className="field__input" />
+            <p className="field__hint">Celui de votre application d’authentification, comme à la connexion.</p>
+          </div>
+          <span className="proposal__actions">
+            <button type="submit" className="btn btn--outline" disabled={busy}>
+              {busy ? "Un instant…" : "Confirmer avec ce code"}
+            </button>
+            <button type="button" className="btn btn--link" onClick={() => setOuvert(false)} disabled={busy}>
+              Annuler
+            </button>
+          </span>
+        </form>
+      ) : null}
       <Retour retour={retour} />
     </div>
   );
