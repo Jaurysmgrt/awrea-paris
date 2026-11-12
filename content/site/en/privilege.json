@@ -1,0 +1,53 @@
+{
+  "fenetre": {
+    "texte": {
+      "titre": "Enjoy your privilege",
+      "paragraphes": [
+        "Sign up for our newsletter and enjoy 10% off your first piece.",
+        "Discover the world of Awrea Paris and receive our news and new pieces before anyone else."
+      ]
+    },
+    "email": "Your email address",
+    "consentement": "I agree to receive the Maison’s letter by email. I can unsubscribe at any time, in one click.",
+    "bouton": "Receive my privilege",
+    "envoi": "One moment…",
+    "fermer": "Close the window",
+    "conditions": "10% off a single piece, the most expensive one in your basket, all pieces included. Valid for 14 days after you confirm your sign-up, for a first order, once per email address, and not combinable with another code.",
+    "confidentialite": {
+      "label": "Privacy policy",
+      "href": "/confidentialite"
+    },
+    "merci": {
+      "titre": "One click left",
+      "texte": "An email from the Maison is on its way. Click its link to confirm your sign-up: your privilege opens at once, for 14 days."
+    },
+    "erreurs": {
+      "email": "Enter a complete email address, for example name@example.com.",
+      "consentement": "Tick the box to receive the letter and your privilege.",
+      "verification": "The anti-robot check did not go through. Please try again.",
+      "limite": "Several attempts in a short time: please try again in a few minutes.",
+      "generale": "Your sign-up could not be saved. Please try again."
+    }
+  },
+  "confirmation": {
+    "seo": {
+      "title": "Confirm your sign-up | Awrea Paris",
+      "description": "Confirmation of your sign-up to the Awrea Paris letter."
+    },
+    "entete": "The Maison’s letter",
+    "attente": "One moment, we are confirming your sign-up…",
+    "titre": "Your sign-up is confirmed",
+    "texte": "The Maison’s letter will reach you a few times a season: a collection in the making, a chosen lace, a glimpse of the atelier.",
+    "privilege": "Your welcome privilege awaits you until {date}: 10% off your first piece, taken off automatically when you pay with this email address.",
+    "bouton": {
+      "label": "See the pieces",
+      "href": "/boutique"
+    },
+    "invalide": {
+      "titre": "This link is no longer valid",
+      "texte": "It has expired, or your sign-up has changed since. Sign up again at the bottom of any page: a new link will be sent to you."
+    },
+    "erreur": "The confirmation did not go through. Try again in a moment.",
+    "reessayer": "Try again"
+  }
+}

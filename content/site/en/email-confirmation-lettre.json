@@ -1,0 +1,20 @@
+{
+  "nom": "Confirmation of the letter sign-up",
+  "quand": "As soon as someone signs up to the letter: clicking the link confirms the sign-up and opens the welcome privilege.",
+  "famille": "service",
+  "sujet": "Confirm your sign-up",
+  "preheader": "One click, and the Maison’s letter is yours.",
+  "variables": {
+    "lien": { "description": "The confirmation link, valid for seven days", "exemple": "https://www.awreaparis.com/lettres/confirmation?jeton=example" },
+    "privilege": { "description": "Filled in when this click opens the welcome privilege", "exemple": "yes" }
+  },
+  "blocs": [
+    { "id": "b-conflet0entete", "type": "entete", "fond": "noir" },
+    { "id": "b-conflet0titre", "type": "titre", "titre": "One last step" },
+    { "id": "b-conflet0texte", "type": "texte", "texte": "Hello,\n\nThank you for wishing to receive the Maison’s letter. To confirm your sign-up, open this link: {lien}" },
+    { "id": "b-conflet0privil", "type": "texte", "texte": "This click also opens your welcome privilege: 10% off your first piece for 14 days, taken off automatically when you pay with this email address.", "si": "privilege" },
+    { "id": "b-conflet0note", "type": "texte", "texte": "The link stays valid for seven days. If you did not ask for anything, simply ignore this email: you will receive nothing else." },
+    { "id": "b-conflet0signe", "type": "signature", "texte": "See you soon,\nthe Maison Awrea Paris" },
+    { "id": "b-conflet0pied", "type": "pied", "note": "" }
+  ]
+}

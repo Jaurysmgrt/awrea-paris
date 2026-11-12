@@ -1,0 +1,54 @@
+{
+  "fenetre": {
+    "texte": {
+      "officiel": true,
+      "titre": "Profitez de votre privilège",
+      "paragraphes": [
+        "Inscrivez-vous à notre newsletter et profitez de 10 % de réduction sur votre première pièce.",
+        "Découvrez l’univers Awrea Paris et recevez nos actualités et nouveautés en avant-première."
+      ]
+    },
+    "email": "Votre adresse e-mail",
+    "consentement": "J’accepte de recevoir la lettre de la Maison par e-mail. Je peux me désinscrire à tout moment, en un clic.",
+    "bouton": "Recevoir mon privilège",
+    "envoi": "Un instant…",
+    "fermer": "Fermer la fenêtre",
+    "conditions": "10 % sur une seule pièce, la plus chère de votre panier, toutes les pièces comprises. Valable 14 jours après la confirmation de votre inscription, pour une première commande, une seule fois par adresse e-mail, sans cumul avec un autre code.",
+    "confidentialite": {
+      "label": "Politique de confidentialité",
+      "href": "/confidentialite"
+    },
+    "merci": {
+      "titre": "Plus qu’un clic",
+      "texte": "Un e-mail de la Maison est en route. Cliquez sur son lien pour confirmer votre inscription : votre privilège s’ouvre aussitôt, pour 14 jours."
+    },
+    "erreurs": {
+      "email": "Indiquez une adresse e-mail complète, par exemple prenom@exemple.fr.",
+      "consentement": "Cochez la case pour recevoir la lettre et votre privilège.",
+      "verification": "La vérification anti-robot n’a pas abouti. Merci de réessayer.",
+      "limite": "Plusieurs essais en peu de temps : merci de réessayer dans quelques minutes.",
+      "generale": "Votre inscription n’a pas pu être enregistrée. Merci de réessayer."
+    }
+  },
+  "confirmation": {
+    "seo": {
+      "title": "Confirmer votre inscription | Awrea Paris",
+      "description": "Confirmation de votre inscription à la lettre de la Maison Awrea Paris."
+    },
+    "entete": "La lettre de la Maison",
+    "attente": "Un instant, nous confirmons votre inscription…",
+    "titre": "Votre inscription est confirmée",
+    "texte": "La lettre de la Maison vous parviendra quelques fois par saison : une collection qui se prépare, une dentelle choisie, les coulisses de l’atelier.",
+    "privilege": "Votre privilège de bienvenue vous attend jusqu’au {date} : 10 % sur votre première pièce, retirés d’eux-mêmes au moment de payer avec cette adresse e-mail.",
+    "bouton": {
+      "label": "Voir les pièces",
+      "href": "/boutique"
+    },
+    "invalide": {
+      "titre": "Ce lien n’est plus valable",
+      "texte": "Il a expiré, ou votre inscription a changé depuis. Inscrivez-vous de nouveau en bas de chaque page : un nouveau lien vous sera envoyé."
+    },
+    "erreur": "La confirmation n’a pas abouti. Réessayez dans un instant.",
+    "reessayer": "Réessayer"
+  }
+}

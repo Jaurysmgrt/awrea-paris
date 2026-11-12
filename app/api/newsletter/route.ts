@@ -1,17 +1,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { kv } from "@/lib/store";
-import { after } from "next/server";
-import { upsertContact } from "@/lib/marketing/provider";
-import { onNewsletterSignup } from "@/lib/marketing/flows";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { verifyTurnstile } from "@/lib/security/turnstile";
+import { CrmError } from "@/lib/crm";
+import { inscrireALaLettre } from "@/lib/crm/lettre";
 import {
   EMAIL_MAX,
   NOM_MAX,
   TELEPHONE_MAX,
   nomValide,
-  telephoneE164,
   telephoneValide,
   type ChampLettre,
 } from "./regles";
@@ -19,8 +16,9 @@ import {
 /**
  * Inscription à la lettre de la Maison (maquette NEWSLETTER) : Nom, Prénom et E-mail obligatoires,
  * Téléphone facultatif et vérifié, consentement explicite. La version compacte du pied de page
- * (formule « compacte ») ne demande que l'e-mail et le consentement. Contrôle d'origine
- * (proxy.ts), limitation de débit, Turnstile, validation Zod ; consentement gardé avec l’inscription.
+ * (formule « compacte ») ne demande que l'e-mail et le consentement, comme la fenêtre « Profitez de
+ * votre privilège » (source « fenetre »). Contrôle d'origine (proxy.ts), limitation de débit,
+ * Turnstile, validation Zod ; consentement gardé avec l’inscription, confirmée par un e-mail.
  * Réponses : { ok: true } ou { error: code, champs? } ; les messages lisibles vivent dans
  * content/site/fr/site.json (lettre.erreurs), affichés par le formulaire.
  */
@@ -46,6 +44,7 @@ const Body = z
       .regex(/^[a-z0-9-]+$/)
       .optional(),
     turnstile: z.string().max(2048).optional(),
+    langue: z.enum(["fr", "en"]).optional(),
   })
   .superRefine((d, ctx) => {
     if (d.formule !== "complete") return;
@@ -74,14 +73,6 @@ const champ = (key: PropertyKey | undefined): ChampLettre | null =>
       ? key
       : null;
 
-interface Abonnee {
-  email: string;
-  date: string;
-  source?: string;
-  nom?: string;
-  prenom?: string;
-  telephone?: string;
-}
 
 export async function POST(req: Request) {
   const limited = await rateLimit(req, "newsletter", {
@@ -100,42 +91,31 @@ export async function POST(req: Request) {
     ];
     return NextResponse.json({ error: "invalide", champs }, { status: 400 });
   }
-  const { email, nom, prenom, telephone, source, turnstile } = parsed.data;
+  const { email, nom, prenom, telephone, source, turnstile, langue } =
+    parsed.data;
   if (!(await verifyTurnstile(turnstile, req)))
     return NextResponse.json({ error: "verification" }, { status: 400 });
 
-  const list = (await kv.get<Abonnee[]>("newsletter:subscribers")) ?? [];
-  const coordonnees = {
-    ...(nom ? { nom } : {}),
-    ...(prenom ? { prenom } : {}),
-    ...(telephone ? { telephone } : {}),
-  };
-  const at = list.findIndex(
-    (s) => s.email.toLowerCase() === email.toLowerCase(),
-  );
-  // une nouvelle inscription complète les coordonnées, sans changer la date du premier consentement
-  if (at === -1)
-    list.push({
+  // double confirmation (lib/crm/lettre.ts) : la fiche note la demande et l'e-mail de confirmation
+  // part ; l'inscription, le privilège et la bienvenue n'arrivent qu'au clic sur son lien. La réponse
+  // est la même que la personne soit nouvelle ou déjà inscrite.
+  try {
+    await inscrireALaLettre({
       email,
-      date: new Date().toISOString(),
-      source,
-      ...coordonnees,
+      prenom,
+      nom,
+      telephone,
+      source: source ?? "site",
+      locale: langue ?? "fr",
     });
-  else list[at] = { ...list[at], ...coordonnees };
-  await kv.set("newsletter:subscribers", list);
-
-  const phone = telephoneE164(telephone);
-  after(async () => {
-    await upsertContact({
-      email,
-      firstName: prenom,
-      lastName: nom,
-      phone,
-      marketing: true,
-    }).catch((e) => console.error("[newsletter] e-mails", e));
-    await onNewsletterSignup(email).catch((e) =>
-      console.error("[newsletter] bienvenue", e),
-    );
-  });
+  } catch (e) {
+    if (e instanceof CrmError)
+      return NextResponse.json(
+        { error: "invalide", champs: ["email"] },
+        { status: 400 },
+      );
+    console.error("[newsletter]", e);
+    return NextResponse.json({ error: "generale" }, { status: 502 });
+  }
   return NextResponse.json({ ok: true });
 }

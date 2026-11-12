@@ -1,0 +1,20 @@
+{
+  "nom": "Confirmation de l’inscription à la lettre",
+  "quand": "Dès qu’une personne s’inscrit à la lettre : le clic sur le lien confirme son inscription et ouvre son privilège de bienvenue.",
+  "famille": "service",
+  "sujet": "Confirmez votre inscription",
+  "preheader": "Un clic, et la lettre de la Maison vous est ouverte.",
+  "variables": {
+    "lien": { "description": "Le lien de confirmation, valable sept jours", "exemple": "https://www.awreaparis.com/lettres/confirmation?jeton=exemple" },
+    "privilege": { "description": "Rempli quand ce clic ouvre le privilège de bienvenue", "exemple": "oui" }
+  },
+  "blocs": [
+    { "id": "b-conflet0entete", "type": "entete", "fond": "noir" },
+    { "id": "b-conflet0titre", "type": "titre", "titre": "Une dernière étape" },
+    { "id": "b-conflet0texte", "type": "texte", "texte": "Bonjour,\n\nMerci de vouloir recevoir la lettre de la Maison. Pour confirmer votre inscription, ouvrez ce lien : {lien}" },
+    { "id": "b-conflet0privil", "type": "texte", "texte": "Ce clic ouvre aussi votre privilège de bienvenue : 10 % sur votre première pièce pendant 14 jours, retirés d’eux-mêmes au moment de payer avec cette adresse e-mail.", "si": "privilege" },
+    { "id": "b-conflet0note", "type": "texte", "texte": "Le lien reste valable sept jours. Si vous n’avez rien demandé, ignorez simplement cet e-mail : vous ne recevrez rien d’autre." },
+    { "id": "b-conflet0signe", "type": "signature", "texte": "À très bientôt,\nla Maison Awrea Paris" },
+    { "id": "b-conflet0pied", "type": "pied", "note": "" }
+  ]
+}

@@ -38,7 +38,7 @@
     },
     "bouton": "Sign up",
     "envoi": "One moment…",
-    "merci": "Thank you. A first email from the Maison is on its way to your inbox.",
+    "merci": "Thank you. An email from the Maison is on its way: click its link to confirm your sign-up.",
     "erreurs": {
       "nom": "Please enter your surname.",
       "prenom": "Please enter your first name.",
