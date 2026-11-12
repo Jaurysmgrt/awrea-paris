@@ -56,6 +56,7 @@ test("sans les clés Google : « pas encore branchée », renvoi au guide, abonn
   // retour de Google simulé, session ouverte : rien ne se connecte sans les clés
   await page.goto(`${ATELIER}/agenda-google?code=4%2Ffaux&state=faux.faux`);
   await waitForHydration(page);
-  await expect(page.getByRole("alert")).toContainText(/pas encore branchée/);
+  // le site a aussi l'annonceur de changement de page de Next (role alert, vide) : on vise le message
+  await expect(page.getByRole("alert").filter({ hasText: /pas encore branchée/ })).toBeVisible();
   await expect(page.getByRole("link", { name: "Revenir aux rendez-vous" })).toHaveAttribute("href", `${ATELIER}/rendez-vous`);
 });

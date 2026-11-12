@@ -60,7 +60,7 @@ test("Parcours : du modèle au journal de simulation, sans aucun envoi réel", a
   await page.getByRole("button", { name: "Activer", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: "Parcours actif." })).toBeVisible();
   await expect(page.getByRole("button", { name: "Mettre en pause" })).toBeVisible();
-  await expect(page.getByText("En simulation")).toBeVisible();
+  await expect(page.getByText("En simulation", { exact: true })).toBeVisible();
 
   // l'accord aux envois réels se confirme ; sans confirmation, rien
   expect((await page.request.post(`${ATELIER}/api/parcours`, { data: { action: "envois-reels", actif: true } })).status()).toBe(400);
