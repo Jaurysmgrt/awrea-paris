@@ -327,6 +327,7 @@ export const legalPages = {
                 ["{{outilEmails}}", "E-mails de la Maison (lettres et scénarios automatiques)", "Selon l’outil retenu"],
                 ["Resend", "E-mails techniques (codes de connexion, confirmations)", "États-Unis"],
                 ["Anthropic PBC", "Assistante IA (modèle Claude) ; données non utilisées pour l’entraînement", "États-Unis"],
+                ["Google Ireland Limited (Google Agenda)", "Agenda de la Maison : vos rendez-vous (nom, coordonnées, notes), seulement si la Maison y relie son agenda", "Union européenne et États-Unis"],
                 ["Cloudflare, Inc.", "Protection des formulaires contre les robots (Turnstile)", "États-Unis et réseau mondial"],
                 ["Sentry (Functional Software, Inc.)", "Suivi des erreurs techniques", "{{regionsPrestataires}}"],
                 ["Plausible Insights OÜ ou Google Ireland Limited", "Mesure d’audience, avec votre consentement", "Union européenne (Plausible) ; Union européenne et États-Unis (Google)"],
