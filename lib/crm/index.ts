@@ -23,10 +23,10 @@ import { comptePourCRM, comptesPourCRM, demoCustomerId, retirerLettresDuCompte }
 import type { Order } from "@/lib/commerce/types";
 import {
   abonnerParCompte,
-  avecCoordonnees,
   avecEvenement,
   confirmer,
   demander,
+  dernieresDesinscriptions,
   desinscrire,
   emailPlausible,
   etatLettre,
@@ -36,6 +36,7 @@ import {
   normaliserEmail,
   nouvelleFiche,
   peutRecevoirMarketingSelon,
+  purgerAttente,
   type AncienneInscrite,
   type CommandeSource,
   type Contact,
@@ -50,7 +51,10 @@ export * from "./regles";
 
 const CLE = "crm:fiches";
 const ANCIENNES = "newsletter:subscribers";
+const DESINSCRIPTIONS = "newsletter:desinscriptions";
 const VERROU = "crm:fiches";
+/** une inscription jamais confirmée s'efface un jour après l'expiration de son lien (7 jours) */
+export const JOURS_AVANT_PURGE = 8;
 
 /** Une écriture du CRM qui ne peut pas se faire (adresse invalide). */
 export class CrmError extends Error {}
@@ -65,14 +69,26 @@ async function lireAnciennes(): Promise<AncienneInscrite[]> {
   return ((await kv.get<AncienneInscrite[]>(ANCIENNES)) ?? []).filter((a) => typeof a?.email === "string");
 }
 
-const commandeSource = (o: Order): CommandeSource => ({
-  number: o.number,
-  email: o.email,
-  createdAt: o.createdAt,
-  total: o.total,
-  status: o.status,
-  ...(o.address ? { prenom: o.address.firstName, nom: o.address.lastName, ...(o.address.phone ? { telephone: o.address.phone } : {}) } : {}),
-});
+/**
+ * Une commande vue par le CRM : prénom, nom et téléphone de son adresse ; sans adresse (anciennes
+ * commandes, démonstration), le prénom du nom affiché (« Inès M. » : le nom n'y est qu'en initiale).
+ */
+const commandeSource = (o: Order): CommandeSource => {
+  const prenomAffiche = o.name?.trim().split(/\s+/)[0];
+  return {
+    number: o.number,
+    email: o.email,
+    createdAt: o.createdAt,
+    total: o.total,
+    status: o.status,
+    ...(o.address ? { prenom: o.address.firstName, nom: o.address.lastName, ...(o.address.phone ? { telephone: o.address.phone } : {}) } : prenomAffiche ? { prenom: prenomAffiche } : {}),
+  };
+};
+
+/** Dernière désinscription de chaque adresse (liste tenue par lib/marketing/unsubscribe.ts). */
+async function lireDesinscriptions(): Promise<Record<string, string>> {
+  return dernieresDesinscriptions(await kv.list<{ email: string; date: string }>(DESINSCRIPTIONS, 2000));
+}
 
 async function lireRendezVous(): Promise<RendezVousSource[]> {
   // une liste illisible ne fait pas tomber les fiches : elles se lisent sans les rendez-vous
@@ -94,8 +110,8 @@ const idSansCompte = (email: string) => demoCustomerId(email);
  * incomplète présentée comme complète).
  */
 export async function listerContacts(maintenant = new Date()): Promise<Contact[]> {
-  const [fiches, anciennes, comptes, commandes, rendezVous] = await Promise.all([lireFiches(), lireAnciennes(), comptesPourCRM(), getOrders(), lireRendezVous()]);
-  return fusionnerContacts({ fiches, anciennes, comptes, commandes: commandes.map(commandeSource), rendezVous }, idSansCompte, maintenant);
+  const [fiches, anciennes, comptes, commandes, rendezVous, desinscriptions] = await Promise.all([lireFiches(), lireAnciennes(), comptesPourCRM(), getOrders(), lireRendezVous(), lireDesinscriptions()]);
+  return fusionnerContacts({ fiches, anciennes, comptes, commandes: commandes.map(commandeSource), rendezVous, desinscriptions }, idSansCompte, maintenant);
 }
 
 /** Les fiches d'un segment (clientes, prospects, abonnées, nouvelles inscrites, désinscrites). */
@@ -134,8 +150,8 @@ export async function ficheBrute(email: string): Promise<FicheCRM | null> {
 /** Statut de la lettre d'une adresse (fiche du CRM, ancienne liste, case de son compte). */
 export async function etatLettreDe(email: string): Promise<EtatLettre> {
   const e = normaliserEmail(email);
-  const [fiches, anciennes, compte] = await Promise.all([lireFiches(), lireAnciennes(), comptePourCRM(e)]);
-  return etatLettre({ fiche: fiches[e], ancienne: anciennes.find((a) => normaliserEmail(a.email) === e), compte });
+  const [fiches, anciennes, compte, desinscriptions] = await Promise.all([lireFiches(), lireAnciennes(), comptePourCRM(e), lireDesinscriptions()]);
+  return etatLettre({ fiche: fiches[e], ancienne: anciennes.find((a) => normaliserEmail(a.email) === e), compte, desinscriteLe: desinscriptions[e] ?? null });
 }
 
 /**
@@ -176,29 +192,25 @@ async function changerFiche(email: string, change: (f: FicheCRM) => FicheCRM): P
 }
 
 /**
- * Inscription demandée (case cochée, puis bouton) : la fiche est créée ou complétée, et attend le clic
- * dans l'e-mail de confirmation. Le statut ne change pas avant ce clic.
+ * Inscription demandée (case cochée, puis bouton) : la demande est notée avec ses coordonnées, et
+ * attend le clic dans l'e-mail de confirmation. Ni le statut ni les coordonnées de la fiche ne
+ * changent avant ce clic (personne ne peut réécrire la fiche d'une autre adresse).
  */
 export async function demanderInscription(d: { email: string; prenom?: string; nom?: string; telephone?: string; source: string; texte: string }): Promise<FicheCRM> {
   const maintenant = new Date();
-  return changerFiche(d.email, (f) => demander(avecCoordonnees(f, d), { source: d.source, texte: d.texte }, maintenant));
+  return changerFiche(d.email, (f) => demander(f, { source: d.source, texte: d.texte, coordonnees: { prenom: d.prenom, nom: d.nom, telephone: d.telephone } }, maintenant));
 }
 
-/** Coordonnées laissées sans nouvelle inscription (personne déjà abonnée qui remplit le formulaire). */
-export async function completerCoordonnees(email: string, c: { prenom?: string; nom?: string; telephone?: string }): Promise<void> {
-  const avant = (await lireFiches())[normaliserEmail(email)];
-  const apres = avecCoordonnees(avant ?? nouvelleFiche(email, new Date()), c);
-  if (avant && apres.prenom === avant.prenom && apres.nom === avant.nom && apres.telephone === avant.telephone) return;
-  if (!avant && !apres.prenom && !apres.nom && !apres.telephone) return;
-  await changerFiche(email, (f) => avecCoordonnees(f, c));
-}
-
-/** Clic dans l'e-mail de confirmation : voir `confirmer` (lib/crm/regles.ts). */
+/**
+ * Clic dans l'e-mail de confirmation : voir `confirmer` (lib/crm/regles.ts). Les coordonnées de la
+ * demande complètent la fiche, sans jamais remplacer une valeur de la fiche ou de son compte.
+ */
 export async function confirmerInscription(email: string): Promise<{ nouvelle: boolean; deja: boolean } | null> {
-  const avant = await etatLettreDe(email);
+  const [avant, compte] = await Promise.all([etatLettreDe(email), comptePourCRM(normaliserEmail(email))]);
+  const duCompte = compte ? { prenom: compte.prenom, nom: compte.nom, telephone: compte.telephone } : null;
   let r: ReturnType<typeof confirmer> = null;
   await changerFiche(email, (f) => {
-    r = confirmer(f, avant, new Date());
+    r = confirmer(f, avant, new Date(), duCompte);
     return r?.fiche ?? f;
   });
   const fait = r as ReturnType<typeof confirmer>;
@@ -217,8 +229,10 @@ export async function abonnerDepuisCompte(email: string, texte: string): Promise
  * l'outil d'e-mails.
  */
 export async function noterDesinscription(email: string, d: { source: string; par?: string }): Promise<void> {
-  await changerFiche(email, (f) => desinscrire(f, d, new Date()));
-  await retirerLettresDuCompte(normaliserEmail(email));
+  // chacune à part : un compte injoignable n'empêche pas la fiche (qui fait foi sur le compte)
+  const [fiche, compte] = await Promise.allSettled([changerFiche(email, (f) => desinscrire(f, d, new Date())), retirerLettresDuCompte(normaliserEmail(email))]);
+  if (compte.status === "rejected") console.error("[crm] désinscription du compte", compte.reason);
+  if (fiche.status === "rejected") throw fiche.reason;
 }
 
 /** Coordonnées corrigées par l'Atelier (prénom, nom, téléphone). */
@@ -253,4 +267,25 @@ export async function effacerFiche(email: string): Promise<boolean> {
     efface = true;
   }
   return efface;
+}
+
+/**
+ * Purge quotidienne (lib/customers, purgeExpired) : les inscriptions jamais confirmées s'effacent un
+ * jour après l'expiration de leur lien, avec leurs coordonnées ; une fiche qui ne gardait rien
+ * d'autre disparaît. Renvoie le nombre d'inscriptions effacées.
+ */
+export async function purgerInscriptionsNonConfirmees(maintenant = new Date()): Promise<number> {
+  return avecVerrou(VERROU, async () => {
+    const toutes = await lireFiches();
+    const gardees: Record<string, FicheCRM> = {};
+    let n = 0;
+    for (const [email, f] of Object.entries(toutes)) {
+      const p = purgerAttente(f, maintenant, JOURS_AVANT_PURGE);
+      if (p) n++;
+      const fiche = p ? p.fiche : f;
+      if (fiche) gardees[email] = fiche;
+    }
+    if (n) await kv.set(CLE, gardees);
+    return n;
+  });
 }

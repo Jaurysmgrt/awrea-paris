@@ -110,10 +110,11 @@ async function etapes(commande: Order): Promise<string[]> {
   }
 
   // case « Recevoir la lettre » cochée à la commande : inscription demandée dans la fiche (lib/crm) et
-  // e-mail de confirmation, une seule fois par commande ; la bienvenue suit le clic sur son lien
+  // e-mail de confirmation dans la langue de la commande, une seule fois par commande ; la bienvenue
+  // suit le clic sur son lien
   const lettreFaite = `${cle(order.id)}:lettre`;
   if (order.consents?.newsletter && (await kv.peek(lettreFaite)) === 0) {
-    await inscrireALaLettre({ email: order.email, prenom: order.address?.firstName, nom: order.address?.lastName, telephone: order.address?.phone, source: "commande" })
+    await inscrireALaLettre({ email: order.email, prenom: order.address?.firstName, nom: order.address?.lastName, telephone: order.address?.phone, source: "commande", locale: order.locale ?? "fr" })
       .then(() => kv.incr(lettreFaite, VINGT_ANS))
       .catch(noter("lettre d’information"));
   }

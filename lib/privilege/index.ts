@@ -1,9 +1,17 @@
 /**
  * Privilège de bienvenue : son état par adresse, sous verrou (règles : lib/privilege/regles.ts).
  *
- * Stockage technique : une clé par adresse, nommée par l'empreinte de l'adresse normalisée (jamais
- * l'adresse en clair). Elle reste après un effacement de la fiche : sans donnée personnelle, elle
- * empêche seulement qu'un même privilège soit ouvert deux fois pour la même adresse.
+ * Stockage technique : une clé par adresse, nommée par l'empreinte de sa clé canonique (« +… » et
+ * points de Gmail ignorés, lib/crm/regles.ts). L'empreinte est un HMAC calculé avec le secret de
+ * session du serveur (SESSION_SECRET) : sans ce secret, on ne peut ni retrouver l'adresse ni tester
+ * une liste d'adresses. Elle reste après un effacement de la fiche : sans donnée personnelle, elle
+ * empêche seulement qu'un même privilège soit ouvert deux fois pour la même adresse. Changer
+ * SESSION_SECRET change les empreintes : un privilège ouvert et pas encore utilisé se perd (une
+ * cliente qui a déjà commandé reste reconnue par ses commandes).
+ *
+ * Preuve de possession de l'adresse (lib/privilege/preuve.ts) : le privilège ne s'affiche et ne se
+ * retire que dans un navigateur où le lien de l'e-mail a été ouvert, ou pour une cliente connectée
+ * sous cette adresse. Sans preuve, rien n'est lu ni révélé.
  *
  * Chemin d'une commande : `privilegePourPanier` (récapitulatif et calcul de la commande) →
  * `reserverPrivilege` (ouverture du paiement : une seule commande à la fois, l'ancienne page de
@@ -11,35 +19,37 @@
  * `libererPrivilege` (paiement expiré, refusé, page non ouverte).
  */
 import "server-only";
-import { createHash } from "node:crypto";
+import { createHmac } from "node:crypto";
 import { kv } from "@/lib/store";
 import { avecVerrou } from "@/lib/store/verrou";
+import { sessionSecret } from "@/lib/auth/session";
 import { getOrder, getOrders } from "@/lib/commerce/orders";
 import type { Order } from "@/lib/commerce/types";
-import { estVente, normaliserEmail, noterEvenement } from "@/lib/crm";
-import { commandeEncorePayable, consommer, decisionReservation, eligibilite, liberer, ouvrir, remisePrivilege, reserver, type EtatPrivilege, type LignePrivilege, type RaisonRefus, type RemisePrivilege } from "./regles";
+import { cleCanonique, noterEvenement } from "@/lib/crm";
+import { commandeEncorePayable, consommer, decisionReservation, dejaCommande, eligibilite, liberer, ouvrir, remisePrivilege, reserver, type EtatPrivilege, type EtatReservation, type LignePrivilege, type RaisonRefus, type RemisePrivilege } from "./regles";
 
 export * from "./regles";
 
-const empreinte = (email: string) => createHash("sha256").update(`privilege:${normaliserEmail(email)}`).digest("hex").slice(0, 40);
-const cle = (email: string) => `privilege:${empreinte(email)}`;
-const verrou = (email: string) => `privilege:${empreinte(email)}`;
+/** Empreinte d'une adresse (HMAC de sa clé canonique avec le secret du serveur), pour un usage donné. */
+export const empreinteAdresse = (email: string, usage = "privilege") => createHmac("sha256", sessionSecret()).update(`${usage}:${cleCanonique(email)}`).digest("hex").slice(0, 40);
+const cle = (email: string) => `privilege:${empreinteAdresse(email)}`;
+const verrou = (email: string) => `privilege:${empreinteAdresse(email)}`;
 
 export async function lirePrivilege(email: string): Promise<EtatPrivilege | null> {
   return kv.get<EtatPrivilege>(cle(email));
 }
 
-/** L'adresse a-t-elle déjà une commande payée (avec ou sans compte) ? */
+/** L'adresse a-t-elle déjà passé une commande (avec ou sans compte, alias compris) ? */
 export async function dejaCliente(email: string, sauf?: string): Promise<boolean> {
-  const e = normaliserEmail(email);
-  return (await getOrders()).some((o) => o.id !== sauf && estVente(o.status) && normaliserEmail(o.email) === e);
+  return dejaCommande(await getOrders(), email, new Date(), sauf);
 }
 
 const dateLongue = (iso: string) => new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" });
 
 /**
- * Clic dans l'e-mail de confirmation : ouvre le privilège pour 14 jours, une seule fois par adresse,
- * et seulement avant une première commande. Renvoie l'état (ouvert maintenant ou déjà) ou null.
+ * Clic dans l'e-mail de confirmation d'une nouvelle inscription : ouvre le privilège pour 14 jours,
+ * une seule fois par adresse, et seulement avant une première commande. Renvoie l'état (ouvert
+ * maintenant ou déjà) ou null.
  */
 export async function ouvrirPrivilege(email: string, maintenant = new Date()): Promise<EtatPrivilege | null> {
   if (await dejaCliente(email)) return null;
@@ -56,14 +66,36 @@ export async function ouvrirPrivilege(email: string, maintenant = new Date()): P
   return etat;
 }
 
+/** Ce que devient la commande qui tient la réservation du privilège, s'il y en a une. */
+async function etatDeLaReservation(p: EtatPrivilege, maintenant: Date): Promise<EtatReservation | null> {
+  if (!p.reservation) return null;
+  const tenante = await getOrder(p.reservation.commande).catch(() => null);
+  return commandeEncorePayable(tenante, maintenant, p.reservation.le);
+}
+
+/**
+ * Privilège encore utilisable pour cette adresse (ouvert, non expiré, jamais utilisé, aucune
+ * commande passée, aucune commande payée ou en cours qui le tient), sans regarder le panier.
+ */
+export async function privilegeOuvert(email: string, maintenant = new Date()): Promise<EtatPrivilege | null> {
+  const p = await lirePrivilege(email);
+  if (!p) return null;
+  const ok = eligibilite(p, { maintenant, dejaCliente: await dejaCliente(email), code: false, reservation: await etatDeLaReservation(p, maintenant) });
+  return ok.ok ? p : null;
+}
+
 /**
  * Remise du privilège pour ce panier et cette adresse, ou la raison de son absence. `code` : un autre
- * code est appliqué (pas de cumul).
+ * code est appliqué (pas de cumul). `preuve` : l'adresse est prouvée dans ce navigateur
+ * (lib/privilege/preuve.ts) ; sans elle, rien n'est lu et la réponse est la même pour toutes les
+ * adresses.
  */
-export async function privilegePourPanier(email: string, lignes: readonly LignePrivilege[], o: { code: boolean; maintenant?: Date }): Promise<{ remise: RemisePrivilege | null; raison?: RaisonRefus }> {
+export async function privilegePourPanier(email: string, lignes: readonly LignePrivilege[], o: { code: boolean; preuve: boolean; maintenant?: Date }): Promise<{ remise: RemisePrivilege | null; raison?: RaisonRefus }> {
+  if (!o.preuve) return { remise: null, raison: "aucun" };
+  const maintenant = o.maintenant ?? new Date();
   const p = await lirePrivilege(email);
   if (!p) return { remise: null, raison: "aucun" };
-  const ok = eligibilite(p, { maintenant: o.maintenant ?? new Date(), dejaCliente: await dejaCliente(email), code: o.code });
+  const ok = eligibilite(p, { maintenant, dejaCliente: await dejaCliente(email), code: o.code, reservation: await etatDeLaReservation(p, maintenant) });
   if (!ok.ok) return { remise: null, raison: ok.raison };
   return { remise: remisePrivilege(lignes) };
 }

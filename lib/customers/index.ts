@@ -674,8 +674,12 @@ export async function retirerLettresDuCompte(email: string): Promise<void> {
  * relancés de plus de 30 jours, preuves de consentement de plus de 25 mois) — tâche planifiée.
  */
 export async function purgeExpired(): Promise<Record<string, number> | null> {
-  if (!isSupabaseConfigured) return null;
+  // inscriptions à la lettre jamais confirmées, un jour après l'expiration de leur lien (lib/crm,
+  // stockage technique, avec ou sans base) ; chargé à la demande : le CRM lit lui-même les comptes
+  const { purgerInscriptionsNonConfirmees } = await import("@/lib/crm");
+  const inscriptions = await purgerInscriptionsNonConfirmees();
+  if (!isSupabaseConfigured) return { inscriptions_non_confirmees: inscriptions };
   const { data, error } = await supabaseAdmin().rpc("purge_expired");
   if (error) throw new Error(`purge_expired : ${error.message}`);
-  return data as Record<string, number>;
+  return { ...(data as Record<string, number>), inscriptions_non_confirmees: inscriptions };
 }

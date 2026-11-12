@@ -38,7 +38,7 @@
     },
     "bouton": "M’inscrire",
     "envoi": "Un instant…",
-    "merci": "Merci. Un e-mail de la Maison est en route : cliquez sur son lien pour confirmer votre inscription.",
+    "merci": "Merci. Si cette adresse n’est pas encore inscrite, un e-mail de la Maison est en route : cliquez sur son lien pour confirmer votre inscription.",
     "erreurs": {
       "nom": "Indiquez votre nom.",
       "prenom": "Indiquez votre prénom.",

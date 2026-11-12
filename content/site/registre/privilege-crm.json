@@ -7,5 +7,9 @@
   "email-confirmation-lettre": {
     "label": "Confirmation de l’inscription à la lettre",
     "kind": "email"
+  },
+  "email-privilege-appareil": {
+    "label": "Privilège de bienvenue sur un autre appareil",
+    "kind": "email"
   }
 }

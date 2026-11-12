@@ -10,6 +10,8 @@
  *   pas ; jamais deux commandes pour le même privilège.
  */
 
+import { cleCanonique } from "@/lib/crm/regles";
+
 export const TAUX_PRIVILEGE = 10;
 export const JOURS_PRIVILEGE = 14;
 /** code porté par la remise d'une commande au privilège (Order.discount) */
@@ -58,21 +60,35 @@ export function remisePrivilege(lignes: readonly LignePrivilege[], taux = TAUX_P
 /** Privilège ouvert par la confirmation de l'inscription, pour 14 jours. */
 export const ouvrir = (maintenant: Date): EtatPrivilege => ({ ouvertLe: maintenant.toISOString(), expireLe: new Date(maintenant.getTime() + JOURS_PRIVILEGE * JOUR).toISOString() });
 
-export type RaisonRefus = "aucun" | "utilise" | "expire" | "deja-cliente" | "code";
+export type RaisonRefus = "aucun" | "utilise" | "expire" | "deja-cliente" | "code" | "occupe";
+
+/** Ce que devient la commande qui tient la réservation (`commandeEncorePayable`). */
+export type EtatReservation = "libre" | "payable" | "payee" | "en-cours";
 
 /**
  * Le privilège s'applique-t-il à une commande de cette adresse ? Ouvert, non expiré, jamais utilisé,
- * pour une première commande, sans autre code. Une réservation par une autre commande n'est pas un
- * refus : elle se règle à l'ouverture du paiement (`decisionReservation`).
+ * pour une première commande, sans autre code. Une réservation par une autre commande encore
+ * payable n'est pas un refus : son ancienne page de paiement sera fermée (`decisionReservation`).
+ * Mais une réservation tenue par une commande payée, ou dont le paiement est parti en attente de la
+ * banque (prélèvement SEPA), ou qui s'enregistre à l'instant, l'est : la remise n'est ni affichée ni
+ * retirée, et la nouvelle commande passe au prix entier (jamais de blocage en boucle).
  */
-export function eligibilite(p: EtatPrivilege | null, c: { maintenant: Date; dejaCliente: boolean; code: boolean }): { ok: true } | { ok: false; raison: RaisonRefus } {
+export function eligibilite(p: EtatPrivilege | null, c: { maintenant: Date; dejaCliente: boolean; code: boolean; reservation?: EtatReservation | null }): { ok: true } | { ok: false; raison: RaisonRefus } {
   if (!p) return { ok: false, raison: "aucun" };
   if (p.utilise) return { ok: false, raison: "utilise" };
   if (c.maintenant.getTime() > Date.parse(p.expireLe)) return { ok: false, raison: "expire" };
   if (c.dejaCliente) return { ok: false, raison: "deja-cliente" };
+  if (c.reservation === "payee") return { ok: false, raison: "utilise" };
+  if (c.reservation === "en-cours") return { ok: false, raison: "occupe" };
   if (c.code) return { ok: false, raison: "code" };
   return { ok: true };
 }
+
+/**
+ * Part de la carte cadeau (démonstration) dans une commande au privilège : elle ne paie jamais plus
+ * que ce qui reste dû pour les pièces et l'emballage une fois la remise retirée.
+ */
+export const partCarteCadeau = (carte: number, du: number): number => Math.max(0, Math.min(carte, du));
 
 /**
  * Réservation pour la commande `commande` : la prendre, la garder (même commande), ou demander si la
@@ -112,7 +128,7 @@ export function consommer(p: EtatPrivilege, commande: string, maintenant: Date):
  * paiement a expiré ou échoué, ou si sa page de paiement a expiré sans paiement envoyé. Une commande
  * payée, ou dont le paiement est parti en attente de la banque, garde le privilège.
  */
-export function commandeEncorePayable(o: { status: string; payment?: { statut: string; expireLe?: string; evenements?: { type: string }[] } } | null, maintenant: Date, reserveeLe?: string): "libre" | "payable" | "payee" | "en-cours" {
+export function commandeEncorePayable(o: { status: string; payment?: { statut: string; expireLe?: string; evenements?: { type: string }[] } } | null, maintenant: Date, reserveeLe?: string): EtatReservation {
   // commande pas encore enregistrée : une réservation de moins de dix minutes est une commande en
   // train de s'enregistrer (deux paiements simultanés), plus ancienne une commande abandonnée
   if (!o) return reserveeLe && maintenant.getTime() - Date.parse(reserveeLe) < 10 * 60_000 ? "en-cours" : "libre";
@@ -124,4 +140,18 @@ export function commandeEncorePayable(o: { status: string; payment?: { statut: s
   if ((p.evenements ?? []).some((e) => e.type === "checkout.session.completed" || e.type === "checkout.session.async_payment_succeeded")) return "payee";
   if (p.expireLe && Date.parse(p.expireLe) <= maintenant.getTime()) return "libre";
   return "payable";
+}
+
+type CommandeVue = NonNullable<Parameters<typeof commandeEncorePayable>[0]> & { id: string; email: string };
+
+/**
+ * L'adresse a-t-elle déjà passé une commande (réponse de la créatrice du 12/11 : le privilège est
+ * refusé à qui a déjà commandé, même si elle s'inscrit ensuite) ? Toute commande dont l'argent est
+ * parti compte : payée, en confection, livrée, retournée, remboursée, mise de côté, ou payée par un
+ * prélèvement encore en attente de la banque. Une commande abandonnée avant le paiement ne compte
+ * pas. Les adresses se comparent par leur clé canonique (« +… » et points de Gmail ignorés).
+ */
+export function dejaCommande(commandes: readonly CommandeVue[], email: string, maintenant: Date, sauf?: string): boolean {
+  const cle = cleCanonique(email);
+  return commandes.some((o) => o.id !== sauf && typeof o.email === "string" && cleCanonique(o.email) === cle && commandeEncorePayable(o, maintenant) === "payee");
 }

@@ -32,7 +32,8 @@ import { finaliserCommande } from "@/lib/commerce/finalisation";
 import { avecEvenement, paiementEnAttente } from "@/lib/paiement/types";
 import { ouvrirPaiement, paiementNonOuvert } from "@/lib/paiement/suivi";
 import { prendreVerrou, rendreVerrou } from "@/lib/store/verrou";
-import { CODE_PRIVILEGE, libererPrivilege, privilegePourPanier, reserverPrivilege } from "@/lib/privilege";
+import { CODE_PRIVILEGE, libererPrivilege, partCarteCadeau, privilegePourPanier, reserverPrivilege } from "@/lib/privilege";
+import { adressePossedee } from "@/lib/privilege/preuve";
 import { clientStripe } from "@/lib/paiement/stripe";
 import { expirerSession } from "@/lib/paiement/stripe-api";
 import { rateLimit } from "@/lib/security/rate-limit";
@@ -65,6 +66,8 @@ const Body = z.object({
   // privilège de bienvenue affiché dans le récapitulatif (centimes) : la commande ne passe que si la
   // cliente a vu la remise qui sera retirée
   privilegeAffiche: z.number().int().min(0).max(10_000_000).optional(),
+  // langue de la page de commande : e-mails qui suivent (confirmation de la lettre), page de Stripe
+  langue: z.enum(["fr", "en"]).optional(),
 });
 
 const PAYMENT_LABEL = { card: "Carte bancaire", "apple-pay": "Apple Pay", "google-pay": "Google Pay", paypal: "PayPal" } as const;
@@ -113,11 +116,24 @@ export async function POST(req: Request) {
   const shippingPrice = priceOf(rate, merchandise);
   // privilège de bienvenue (lib/privilege) : 10 % sur une unité de la pièce la plus chère, retirés
   // d'office pour une adresse à l'inscription confirmée, jamais avec un autre code ; la livraison
-  // offerte se juge avant lui (un cadeau ne fait jamais payer la livraison)
-  const { remise: privilege } = await privilegePourPanier(d.email, cart.lines.map((l) => ({ handle: l.productHandle, title: l.title, size: l.size, unitPrice: l.unitPrice, quantity: l.quantity })), { code: Boolean(cart.discount) });
-  if (d.privilegeAffiche !== undefined && d.privilegeAffiche !== (privilege?.montant ?? 0)) return NextResponse.json({ error: tCommerce.commande.privilege.misAJour, privilege: "change" }, { status: 409 });
+  // offerte se juge avant lui (un cadeau ne fait jamais payer la livraison). Seulement pour une
+  // adresse prouvée dans ce navigateur (lien de l'e-mail ouvert ici, ou cliente connectée sous cette
+  // adresse, lib/privilege/preuve.ts)
+  const tp = tCommerce.commande.privilege;
+  const { remise: privilege, raison: sansPrivilege } = await privilegePourPanier(d.email, cart.lines.map((l) => ({ handle: l.productHandle, title: l.title, size: l.size, unitPrice: l.unitPrice, quantity: l.quantity })), {
+    code: Boolean(cart.discount),
+    preuve: await adressePossedee(d.email),
+  });
+  if (d.privilegeAffiche !== undefined && d.privilegeAffiche !== (privilege?.montant ?? 0)) {
+    // un message juste pour chaque cas : remise apparue, déjà utilisée, expirée, engagée ailleurs
+    const message = privilege ? tp.misAJour : sansPrivilege === "utilise" || sansPrivilege === "deja-cliente" ? tp.change : sansPrivilege === "expire" ? tp.expire : sansPrivilege === "occupe" ? tp.occupe : tp.retire;
+    return NextResponse.json({ error: message, privilege: "change" }, { status: 409 });
+  }
   // taxes : TVA française incluse, ou export avec droits et TVA du pays payés à la commande
-  const { taxes, total: gross } = orderTaxes(d.country, merchandise - (privilege?.montant ?? 0) + (cart.gift.wrap ? cart.giftWrapPrice : 0), shippingPrice);
+  const taxable = merchandise - (privilege?.montant ?? 0) + (cart.gift.wrap ? cart.giftWrapPrice : 0);
+  const { taxes, total: gross } = orderTaxes(d.country, taxable, shippingPrice);
+  // carte cadeau d'essai : jamais plus que ce qui reste dû pour les pièces une fois la remise retirée
+  const carte = cart.giftCard ? { ...cart.giftCard, amount: partCarteCadeau(cart.giftCard.amount, taxable) } : null;
 
   // paiement d'essai : carte de test refusée
   if (!stripe && d.paymentMethod === "card") {
@@ -136,7 +152,9 @@ export async function POST(req: Request) {
     lines.push({ title: p.title, size: v.size, quantity: l.quantity, unitPrice: p.price, handle: p.handle });
   }
 
-  const total = Math.max(0, gross - (cart.giftCard?.amount ?? 0));
+  const total = Math.max(0, gross - (carte?.amount ?? 0));
+  // langue de la page de commande (les routes d'API sont en français par défaut)
+  const locale = d.langue ?? (await getLocale());
   const address = { firstName: d.firstName, lastName: d.lastName, line1: d.address1, line2: d.address2, postalCode: d.zip, city: d.city, country: d.country, phone: d.phone };
 
   // Stripe : la même commande (même panier, même adresse, même livraison) ne s'enregistre qu'une
@@ -155,7 +173,7 @@ export async function POST(req: Request) {
         const client = clientStripe();
         return Boolean(client && autre.payment?.session && (await expirerSession(client, autre.payment.session)));
       });
-      if (!r.ok) return NextResponse.json({ error: r.raison === "occupe" ? tCommerce.commande.privilege.occupe : tCommerce.commande.privilege.change, privilege: "change" }, { status: 409 });
+      if (!r.ok) return NextResponse.json({ error: r.raison === "occupe" ? tp.occupe : r.raison === "utilise" ? tp.change : r.raison === "expire" ? tp.expire : tp.retire, privilege: "change" }, { status: 409 });
     }
     // numéro de commande unique, même pour deux commandes passées au même instant
     let n = 1031 + (await getOrders()).length;
@@ -188,7 +206,8 @@ export async function POST(req: Request) {
             privilege: { handle: privilege.handle, title: privilege.titre, size: privilege.taille as Order["lines"][number]["size"], amount: privilege.montant },
           }
         : {}),
-      ...(cart.giftCard ? { giftCard: cart.giftCard } : {}),
+      ...(carte ? { giftCard: carte } : {}),
+      locale,
       gift: cart.gift.wrap ? cart.gift : undefined,
       paymentMethod: stripe ? "Stripe" : PAYMENT_LABEL[d.paymentMethod!],
       source: d.source ?? null,
@@ -202,7 +221,6 @@ export async function POST(req: Request) {
     if (stripe) {
       await saveOrder(order);
       await noterCommandeOuverte(order.id);
-      const locale = await getLocale();
       const origine = origineDuSite(req);
       const ts = tCommerce.commande.stripe;
       try {

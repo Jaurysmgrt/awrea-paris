@@ -18,8 +18,8 @@
       "href": "/confidentialite"
     },
     "merci": {
-      "titre": "One click left",
-      "texte": "An email from the Maison is on its way. Click its link to confirm your sign-up: your privilege opens at once, for 14 days."
+      "titre": "Thank you",
+      "texte": "If this address is not signed up yet, an email from the Maison is on its way: click its link to confirm your sign-up and open your privilege, valid for 14 days on a first order."
     },
     "erreurs": {
       "email": "Enter a complete email address, for example name@example.com.",
@@ -35,10 +35,12 @@
       "description": "Confirmation of your sign-up to the Awrea Paris letter."
     },
     "entete": "The Maison’s letter",
+    "avant": "One click on the button confirms your sign-up to the Maison’s letter.",
+    "confirmer": "Confirm my sign-up",
     "attente": "One moment, we are confirming your sign-up…",
     "titre": "Your sign-up is confirmed",
     "texte": "The Maison’s letter will reach you a few times a season: a collection in the making, a chosen lace, a glimpse of the atelier.",
-    "privilege": "Your welcome privilege awaits you until {date}: 10% off your first piece, taken off automatically when you pay with this email address.",
+    "privilege": "Your welcome privilege awaits you until {date}: 10% off your first piece, taken off automatically when you pay with this email address, on this device or once signed in to your account.",
     "bouton": {
       "label": "See the pieces",
       "href": "/boutique"
@@ -46,6 +48,22 @@
     "invalide": {
       "titre": "This link is no longer valid",
       "texte": "It has expired, or your sign-up has changed since. Sign up again at the bottom of any page: a new link will be sent to you."
+    },
+    "appareil": {
+      "entete": "Your welcome privilege",
+      "avant": "This link applies your welcome privilege to orders placed from this device.",
+      "bouton": "Apply my privilege here",
+      "attente": "One moment…",
+      "titre": "Your privilege is ready on this device",
+      "privilege": "It awaits you until {date}: 10% off your first piece, taken off automatically when you pay with this email address.",
+      "retour": {
+        "label": "Back to my order",
+        "href": "/commande"
+      },
+      "invalide": {
+        "titre": "This link is no longer valid",
+        "texte": "It has expired, or your privilege has already been used. You can ask for a new one from your order summary."
+      }
     },
     "erreur": "The confirmation did not go through. Try again in a moment.",
     "reessayer": "Try again"

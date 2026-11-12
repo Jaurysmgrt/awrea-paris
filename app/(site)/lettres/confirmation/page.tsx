@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import { getDoc } from "@/lib/edition/read";
 import { pageMetadata } from "@/lib/seo/metadata";
-import { emailDuJeton, type PrivilegeTexts } from "@/lib/crm/lettre";
+import { lienDeLaPage, type PrivilegeTexts } from "@/lib/crm/lettre";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
 import { ConfirmationLettre } from "@/components/marketing/ConfirmationLettre";
 
 /**
- * Confirmation de l'inscription à la lettre (lien de l'e-mail « Confirmez votre inscription ») : la
- * page confirme dans le navigateur, puis annonce le privilège de bienvenue. Jamais indexée.
+ * Page des liens envoyés par la Maison : « Confirmez votre inscription » (lettre et privilège de
+ * bienvenue) et « Votre privilège sur cet appareil ». Le jeton est chiffré : l'adresse n'apparaît
+ * jamais dans l'adresse de la page. Rien ne se fait sans le bouton. Jamais indexée.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getDoc<PrivilegeTexts>("privilege", { plain: true });
@@ -18,12 +19,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ConfirmationLettrePage({ searchParams }: { searchParams: Promise<{ jeton?: string | string[] }> }) {
   const t = (await getDoc<PrivilegeTexts>("privilege")).confirmation;
   const { jeton } = await searchParams;
-  const valable = typeof jeton === "string" && Boolean(emailDuJeton(jeton));
+  const lien = typeof jeton === "string" ? lienDeLaPage(jeton) : null;
+  const type = lien?.k === "privilege-appareil" ? "appareil" : "lettre";
+  const titre = !lien ? t.invalide.titre : type === "appareil" ? t.appareil.entete : t.entete;
   return (
     <>
-      <PageHeader title={valable ? t.entete : t.invalide.titre} lead={valable ? undefined : t.invalide.texte} crumbs={[{ name: valable ? t.entete : t.invalide.titre, path: "/lettres/confirmation" }]} />
+      <PageHeader title={titre} lead={lien ? undefined : t.invalide.texte} crumbs={[{ name: titre, path: "/lettres/confirmation" }]} />
       <Section theme="ivory" className="section">
-        <div className="container-prose stack-l">{valable && typeof jeton === "string" ? <ConfirmationLettre jeton={jeton} t={t} /> : null}</div>
+        <div className="container-prose stack-l">{lien && typeof jeton === "string" ? <ConfirmationLettre jeton={jeton} type={type} t={t} /> : null}</div>
       </Section>
     </>
   );

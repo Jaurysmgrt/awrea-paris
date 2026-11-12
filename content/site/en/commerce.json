@@ -134,7 +134,16 @@
       "nonCumulable": "Your welcome privilege cannot be combined with a code: remove the code to enjoy it.",
       "occupe": "Your welcome privilege is already held by another payment. Please try again in a few minutes.",
       "change": "Your welcome privilege has already been used for another order: the total has been updated. Check it before paying.",
-      "misAJour": "The total has just been updated with your welcome privilege. Check it before paying."
+      "expire": "Your welcome privilege has expired: the total has been updated. Check it before paying.",
+      "retire": "Your welcome privilege does not apply to this order: the total has been updated. Check it before paying.",
+      "misAJour": "The total has just been updated with your welcome privilege. Check it before paying.",
+      "appareil": {
+        "question": "Did you confirm your sign-up on another device?",
+        "bouton": "Receive my privilege on this device",
+        "envoi": "One moment…",
+        "envoye": "If a welcome privilege awaits this address, an email from the Maison is on its way. Open its link on this device, then come back to your order.",
+        "erreur": "The request did not go through. Please try again in a moment."
+      }
     },
     "stripe": {
       "texte": "You pay on Stripe’s secure page, our payment provider: card and other methods offered depending on your device. Your bank details never pass through our site.",

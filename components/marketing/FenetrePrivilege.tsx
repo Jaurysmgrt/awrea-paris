@@ -10,7 +10,7 @@
  * d'une commande (l'Atelier a son propre gabarit). Le souvenir vit dans le stockage local
  * (« awrea_privilege », cookie nécessaire).
  *
- * Accessibilité : <dialog> modal nommé par son titre, le reste de la page inerte, focus gardé dans la
+ * Accessibilité : <dialog> modal nommé par le titre de la créatrice (le même après l'envoi), le reste de la page inerte, focus gardé dans la
  * fenêtre (Tab boucle), Échap et la croix ferment, le focus revient où il était. Mode Nuit par les
  * rôles de couleur ; animations apaisées par la durée unique (--dur).
  */
@@ -143,7 +143,8 @@ export function FenetrePrivilege() {
       ref={ref}
       className="privilege scene"
       data-theme="ivory"
-      aria-labelledby={`${id}-titre`}
+      /* nom stable, avant comme après l'envoi : le titre de la créatrice */
+      aria-label={t.texte.titre}
       aria-describedby={`${id}-texte`}
       onCancel={(e) => {
         e.preventDefault();

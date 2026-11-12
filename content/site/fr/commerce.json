@@ -115,7 +115,7 @@
         "note": "Vous serez redirigée vers PayPal"
       }
     },
-    "plusProposee": "Cette pièce n’est plus proposée : {piece}. Retirez-la du panier pour continuer.",
+    "plusProposee": "Cette pièce n’est plus proposée : {piece}. Retirez-la du panier pour continuer.",
     "page": {
       "seo": {
         "title": "Commande | Awrea Paris",
@@ -134,7 +134,16 @@
       "nonCumulable": "Votre privilège de bienvenue ne se cumule pas avec un code : retirez le code pour en profiter.",
       "occupe": "Votre privilège de bienvenue est déjà engagé dans un autre paiement. Merci de réessayer dans quelques minutes.",
       "change": "Votre privilège de bienvenue a déjà servi pour une autre commande : le total est mis à jour. Vérifiez-le avant de payer.",
-      "misAJour": "Le total vient d’être mis à jour avec votre privilège de bienvenue. Vérifiez-le avant de payer."
+      "expire": "Votre privilège de bienvenue a expiré : le total est mis à jour. Vérifiez-le avant de payer.",
+      "retire": "Votre privilège de bienvenue ne s’applique pas à cette commande : le total est mis à jour. Vérifiez-le avant de payer.",
+      "misAJour": "Le total vient d’être mis à jour avec votre privilège de bienvenue. Vérifiez-le avant de payer.",
+      "appareil": {
+        "question": "Vous avez confirmé votre inscription sur un autre appareil ?",
+        "bouton": "Recevoir mon privilège sur cet appareil",
+        "envoi": "Un instant…",
+        "envoye": "Si un privilège de bienvenue attend cette adresse, un e-mail de la Maison vient de partir. Ouvrez son lien sur cet appareil, puis revenez à votre commande.",
+        "erreur": "La demande n’a pas abouti. Merci de réessayer dans un instant."
+      }
     },
     "stripe": {
       "texte": "Vous réglez sur la page sécurisée de Stripe, notre prestataire de paiement : carte bancaire et autres moyens proposés selon votre appareil. Vos coordonnées bancaires ne passent jamais par notre site.",

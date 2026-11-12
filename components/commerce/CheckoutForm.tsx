@@ -26,6 +26,8 @@ import type { RelayPoint } from "@/lib/commerce/relays";
 import { AddressField } from "./AddressField";
 import { ProvisionalNote } from "./ProvisionalNote";
 import { usePrivilege } from "./usePrivilege";
+import { PrivilegeAppareil } from "./PrivilegeAppareil";
+import { partCarteCadeau } from "@/lib/privilege/regles";
 
 type Pay = "card" | "apple-pay" | "google-pay" | "paypal";
 
@@ -112,7 +114,9 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
   // pièces et emballage (remises déduites), puis taxes du pays ; la carte cadeau paie le reste
   const taxable = merchandise - (privilege.remise?.montant ?? 0) + (cart?.gift.wrap ? cart.giftWrapPrice : 0);
   const { taxes, total: gross } = orderTaxes(country, taxable, shippingPrice);
-  const total = Math.max(0, gross - (cart?.giftCard?.amount ?? 0));
+  // carte cadeau d'essai : jamais plus que ce qui reste dû une fois le privilège retiré (comme la commande)
+  const carte = cart?.giftCard ? partCarteCadeau(cart.giftCard.amount, taxable) : 0;
+  const total = Math.max(0, gross - carte);
   const exp = taxes.export;
   const importLabel = shop.importRates[country]?.vatLabel ?? "TVA à l’importation";
   // chaque pièce est créée sur demande : la commande part quand la dernière est prête
@@ -179,7 +183,7 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
             {cart.giftCard ? (
               <div>
                 <dt>{p.carteCadeau}</dt>
-                <dd>− {formatPrice(cart.giftCard.amount, locale)}</dd>
+                <dd>− {formatPrice(carte, locale)}</dd>
               </div>
             ) : null}
             <div>
@@ -262,6 +266,7 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
       acceptTerms: form.get("terms") === "on",
       source: readSource(),
       privilegeAffiche: privilege.remise?.montant ?? 0,
+      langue: locale === "en" ? "en" : "fr",
     };
     if (rate?.relay && !relayId) {
       setState("error");
@@ -347,6 +352,7 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
               <input ref={emailRef} className="field__input" id="co-email" name="email" key={`email-${prefill.email ?? ""}`} defaultValue={prefill.email} type="email" required autoComplete="email" onChange={(e) => privilege.saisir(e.currentTarget.value)} />
               <span className="field__hint">{f.emailAide}</span>
             </div>
+            {privilege.sansPreuve ? <PrivilegeAppareil email={privilege.email} langue={locale === "en" ? "en" : "fr"} t={t.privilege.appareil} /> : null}
             <label className="check t-note">
               <input type="checkbox" name="newsletter" />
               <span>{f.lettres}</span>

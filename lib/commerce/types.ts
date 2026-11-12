@@ -262,6 +262,8 @@ export interface Order {
    * plus chère ; la remise est aussi dans `discount` (facture, paiement, remboursements)
    */
   privilege?: { handle: string; title: string; size: Size; amount: number };
+  /** langue de la page de commande (e-mails qui suivent la commande, comme la confirmation de la lettre) */
+  locale?: "fr" | "en";
   /** part payée par carte cadeau */
   giftCard?: { code: string; amount: number };
   taxes?: OrderTaxes;

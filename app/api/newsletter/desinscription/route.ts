@@ -11,6 +11,11 @@ export async function POST(req: Request) {
   if (limited) return limited;
   const email = emailOfToken(new URL(req.url).searchParams.get("jeton"));
   if (!email) return NextResponse.json({ error: "Lien invalide ou expiré." }, { status: 400 });
-  await unsubscribe(email);
+  try {
+    await unsubscribe(email);
+  } catch (e) {
+    console.error("[désinscription]", e);
+    return NextResponse.json({ error: "La désinscription n’a pas abouti. Merci de réessayer dans un instant." }, { status: 502 });
+  }
   return NextResponse.json({ ok: true });
 }

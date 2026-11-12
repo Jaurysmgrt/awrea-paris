@@ -1,0 +1,18 @@
+{
+  "nom": "Privilège de bienvenue sur un autre appareil",
+  "quand": "Quand une cliente demande son privilège sur un autre appareil, depuis le récapitulatif de sa commande : le bouton de la page du lien l’applique à cet appareil.",
+  "famille": "service",
+  "sujet": "Votre privilège sur cet appareil",
+  "preheader": "Un clic, et votre privilège vous suit.",
+  "variables": {
+    "lien": { "description": "Le lien à ouvrir sur l’appareil de la commande, valable vingt-quatre heures", "exemple": "https://www.awreaparis.com/lettres/confirmation?jeton=exemple" }
+  },
+  "blocs": [
+    { "id": "b-privapp0entete", "type": "entete", "fond": "noir" },
+    { "id": "b-privapp0titre", "type": "titre", "titre": "Votre privilège, ici" },
+    { "id": "b-privapp0texte", "type": "texte", "texte": "Bonjour,\n\nVous souhaitez profiter de votre privilège de bienvenue depuis un autre appareil. Ouvrez ce lien sur l’appareil de votre commande : {lien}" },
+    { "id": "b-privapp0note", "type": "texte", "texte": "Le lien reste valable vingt-quatre heures. Si vous n’avez rien demandé, ignorez simplement cet e-mail : rien ne change." },
+    { "id": "b-privapp0signe", "type": "signature", "texte": "À très bientôt,\nla Maison Awrea Paris" },
+    { "id": "b-privapp0pied", "type": "pied", "note": "" }
+  ]
+}

@@ -1,10 +1,12 @@
 "use client";
 /**
- * Confirmation de l'inscription à la lettre, ouverte depuis l'e-mail : la page confirme d'elle-même
- * dans le navigateur (un robot qui suit les liens sans exécuter la page ne confirme rien), puis dit
- * jusqu'à quand le privilège de bienvenue attend. Textes : document « privilege » (confirmation).
+ * Page d'un lien envoyé par la Maison (/lettres/confirmation) : confirmation de l'inscription à la
+ * lettre, ou privilège de bienvenue demandé sur un autre appareil. Rien ne se fait au chargement (les
+ * antivirus des messageries ouvrent les liens à la place des personnes) : la personne appuie sur le
+ * bouton, puis la page dit jusqu'à quand le privilège attend et où il s'applique. Textes : document
+ * « privilege » (confirmation).
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "@/components/ui/Link";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { formatDate } from "@/lib/format";
@@ -12,15 +14,18 @@ import { fill } from "@/lib/edition/fill";
 import { noterInscription } from "./memoire-privilege";
 
 type Texts = typeof import("@/content/site/fr/privilege.json")["confirmation"];
-type Etat = { nom: "attente" } | { nom: "confirmee"; expireLe: string | null } | { nom: "invalide" } | { nom: "erreur" };
+type Etat = { nom: "pret" } | { nom: "attente" } | { nom: "confirmee"; expireLe: string | null } | { nom: "invalide" } | { nom: "erreur" };
 
-export function ConfirmationLettre({ jeton, t }: { jeton: string; t: Texts }) {
+export function ConfirmationLettre({ jeton, type, t }: { jeton: string; type: "lettre" | "appareil"; t: Texts }) {
   const locale = useLocale();
-  const [etat, setEtat] = useState<Etat>({ nom: "attente" });
-  const titre = useRef<HTMLHeadingElement>(null);
-  const essai = useRef(0);
+  const [etat, setEtat] = useState<Etat>({ nom: "pret" });
+  const titre = useRef<HTMLHeadingElement & HTMLParagraphElement>(null);
+  const appareil = type === "appareil";
+  const ta = t.appareil;
 
-  const envoyer = useCallback(async () => {
+  async function envoyer() {
+    if (etat.nom === "attente") return;
+    setEtat({ nom: "attente" });
     const res = await fetch("/api/newsletter/confirmation", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jeton }) }).catch(() => null);
     const j: { ok?: boolean; error?: string; privilege?: { expireLe: string } | null } = res ? await res.json().catch(() => ({})) : {};
     if (res?.ok && j.ok) {
@@ -28,34 +33,30 @@ export function ConfirmationLettre({ jeton, t }: { jeton: string; t: Texts }) {
       setEtat({ nom: "confirmee", expireLe: j.privilege?.expireLe ?? null });
     } else setEtat({ nom: j.error === "invalide" ? "invalide" : "erreur" });
     requestAnimationFrame(() => titre.current?.focus());
-  }, [jeton]);
+  }
 
-  // une seule confirmation au chargement (même en double montage) ; « Réessayer » relance ensuite
-  useEffect(() => {
-    if (essai.current++) return;
-    void envoyer();
-  }, [envoyer]);
-
-  const confirmer = () => {
-    setEtat({ nom: "attente" });
-    void envoyer();
-  };
-
-  if (etat.nom === "attente")
+  if (etat.nom === "pret" || etat.nom === "attente")
     return (
-      <p className="t-lead" role="status">
-        {t.attente}
-      </p>
+      <div className="stack-m">
+        <p className="t-lead t-left">{appareil ? ta.avant : t.avant}</p>
+        <div>
+          <button type="button" className="btn" onClick={() => void envoyer()} aria-disabled={etat.nom === "attente" || undefined}>
+            {etat.nom === "attente" ? (appareil ? ta.attente : t.attente) : appareil ? ta.bouton : t.confirmer}
+          </button>
+        </div>
+      </div>
     );
-  if (etat.nom === "invalide")
+  if (etat.nom === "invalide") {
+    const ti = appareil ? ta.invalide : t.invalide;
     return (
       <div className="stack-m" role="status">
         <h2 ref={titre} tabIndex={-1} className="t-h3">
-          {t.invalide.titre}
+          {ti.titre}
         </h2>
-        <p className="t-body">{t.invalide.texte}</p>
+        <p className="t-body">{ti.texte}</p>
       </div>
     );
+  }
   if (etat.nom === "erreur")
     return (
       <div className="stack-m">
@@ -63,7 +64,7 @@ export function ConfirmationLettre({ jeton, t }: { jeton: string; t: Texts }) {
           {t.erreur}
         </p>
         <div>
-          <button type="button" className="btn" onClick={() => void confirmer()}>
+          <button type="button" className="btn" onClick={() => void envoyer()}>
             {t.reessayer}
           </button>
         </div>
@@ -72,13 +73,13 @@ export function ConfirmationLettre({ jeton, t }: { jeton: string; t: Texts }) {
   return (
     <div className="stack-m" role="status">
       <h2 ref={titre} tabIndex={-1} className="t-h3">
-        {t.titre}
+        {appareil ? ta.titre : t.titre}
       </h2>
-      {etat.expireLe ? <p className="t-body">{fill(t.privilege, { date: formatDate(etat.expireLe, locale) })}</p> : null}
-      <p className="t-body">{t.texte}</p>
+      {etat.expireLe ? <p className="t-body">{fill(appareil ? ta.privilege : t.privilege, { date: formatDate(etat.expireLe, locale) })}</p> : null}
+      {appareil ? null : <p className="t-body">{t.texte}</p>}
       <div>
-        <Link href={t.bouton.href} className="btn">
-          {t.bouton.label}
+        <Link href={appareil ? ta.retour.href : t.bouton.href} className="btn">
+          {appareil ? ta.retour.label : t.bouton.label}
         </Link>
       </div>
     </div>

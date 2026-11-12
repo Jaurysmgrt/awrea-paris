@@ -174,6 +174,13 @@ function dashSuggestion(s: string, i: number): string {
 /** Ponctuation haute (; : ! ? ») sans espace insécable devant : espace ordinaire, ou rien du tout. */
 const SPACE_BEFORE = /(?:[ \t]+|(?<=[\p{L}\d)”…%€›]))([;:!?»])(?=[\s\u00a0]|$|[»”)\]"'’,.;:!?‹])/gu;
 
+/**
+ * Ponctuation haute précédée de son espace insécable mais collée au mot suivant (« inscription :votre »,
+ * « ce lien :{lien} ») : il manque l'espace après. Jamais une adresse (« https:// »), une heure
+ * (« 14:30 ») ou une requête (« ?jeton= ») : elles n'ont pas d'insécable devant.
+ */
+const SPACE_AFTER = /\xa0([;:!?])(?=[\p{L}\d{«(])/gu;
+
 /** Vérifie un texte. Ne modifie rien : renvoie les problèmes trouvés, avec une suggestion. */
 export function checkText(text: string, ctx: TextContext = {}): WritingIssue[] {
   const lang = ctx.lang ?? "fr";
@@ -212,6 +219,7 @@ export function checkText(text: string, ctx: TextContext = {}): WritingIssue[] {
     for (const m of text.matchAll(/\.\.\.(?!\.)/g)) add("suspension", "erreur", "Trois points : utiliser le caractère « … ».", m.index!, 3, "…", true);
     if (lang === "fr") {
       for (const m of text.matchAll(SPACE_BEFORE)) add("espace-insecable", "erreur", `Espace insécable attendue avant « ${m[1]} ».`, m.index!, m[0].length, `${NBSP}${m[1]}`, true);
+      for (const m of text.matchAll(SPACE_AFTER)) add("espace-insecable", "erreur", `Espace attendue après « ${m[1]} ».`, m.index!, m[0].length, `${NBSP}${m[1]} `, true);
       for (const m of text.matchAll(/«(?!\u00a0)/g)) add("espace-insecable", "erreur", "Espace insécable attendue après « .", m.index!, 1, `«${NBSP}`, true);
       for (const [re] of ACCENTED_CAPS) {
         for (const m of text.matchAll(re)) add("majuscule", "erreur", "Majuscule sans accent.", m.index! + (m[1]?.length ?? 0), 4, "Mettre l’accent sur la majuscule (À, É, Ê).", true);
@@ -258,6 +266,7 @@ export function fixTypography(text: string, lang: Lang = "fr"): string {
     s = s.replace(/[ \t]+([;:!?»])(?=[\s\u00a0]|$|[»”)\]"'’,.;:!?])/gu, `${NBSP}$1`);
     s = s.replace(/(?<=[\p{L}\d)”…%€])([;:!?»])(?=[\s\u00a0]|$|[»”)\]"'’,.;:!?])/gu, `${NBSP}$1`);
     s = s.replace(/«(?!\u00a0)[ \t]*/g, `«${NBSP}`);
+    s = s.replace(SPACE_AFTER, `${NBSP}$1 `);
     for (const [re, to] of ACCENTED_CAPS) s = s.replace(re, to);
   }
   return s;
