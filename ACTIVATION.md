@@ -695,12 +695,20 @@ Auth Platform**) › **Commencer** :
 1. Nom de l'application : « Awrea Paris » ; adresse e-mail d'assistance : `awrea.contact@gmail.com`.
 2. Audience : **Externe** (un compte Gmail n'a pas le choix « Interne »).
 3. Coordonnées : `awrea.contact@gmail.com`. Accepter le règlement, puis **Créer**.
-4. Rubrique **Audience** › **Utilisateurs test** › **Add users** › `awrea.contact@gmail.com` ›
-   **Enregistrer**.
+4. **Publier l'application (choix conseillé, connexion durable)** : rubrique **Audience** ›
+   **Statut de publication** › **Publier l'application** (« Publish app ») › **Confirmer**. Le statut
+   passe de « Test » à « En production ». Google peut prévenir qu'une validation est nécessaire
+   pour une autorisation sensible : pour un usage personnel, elle ne l'est pas (voir « Publiée ou
+   en test » plus bas), **Confirmer** suffit.
+   Autre possibilité, garder le statut « Test » : rubrique **Audience** › **Utilisateurs test** ›
+   **Add users** › `awrea.contact@gmail.com` › **Enregistrer**. Il faudra alors reconnecter Google
+   Agenda tous les sept jours.
 5. Facultatif : rubrique **Accès aux données** › **Ajouter ou supprimer des niveaux d'accès** ›
    filtrer `calendar.events.owned` › cocher la ligne « See, create, change, and delete events on
    Google calendars you own » › **Mettre à jour** › **Enregistrer**. C'est la seule autorisation que
-   le site demande.
+   le site demande : la console indique sur cette ligne si Google la range parmi les autorisations
+   « sensibles », ce qui fait paraître l'écran « Google n'a pas validé cette application » (plus
+   bas).
 
 **4. Créer l'identifiant OAuth « Application Web ».** Menu ☰ › **API et services** › **Identifiants**
 (ou **Google Auth Platform** › **Clients**) › **Créer des identifiants** › **ID client OAuth** :
@@ -726,19 +734,46 @@ Auth Platform**) › **Commencer** :
 
 **6. Connecter.** Sur le site en ligne (pas sur une version de test de Vercel : l'adresse de retour
 est celle du site) : Atelier › **Rendez-vous** › **Google Agenda** › **Connecter Google Agenda**.
-Google s'ouvre : choisir `awrea.contact@gmail.com`, passer l'avertissement « application en test »
-ou « non validée » (voir ci-dessous), cocher l'accès aux événements de l'agenda, **Continuer**. De
+Google s'ouvre : choisir `awrea.contact@gmail.com`, passer l'écran « Google n'a pas validé cette
+application » s'il paraît (voir ci-dessous), cocher l'accès aux événements de l'agenda, **Continuer**. De
 retour dans l'Atelier : « Connecté à awrea.contact@gmail.com ». Les rendez-vous à venir partent
 aussitôt dans l'agenda.
 
-**Une connexion qui dure (choix de la Maison).** Tant que l'application reste au statut **Test**
-chez Google, Google retire l'accès au bout de sept jours : l'Atelier affiche alors « Reconnecter
-Google Agenda » et les rendez-vous attendent la reconnexion (rien n'est perdu). Pour ne plus avoir
-à reconnecter : rubrique **Audience** › **Publier l'application** › **Confirmer**, puis reconnecter
-une fois. Google n'exige pas de validation pour un usage personnel (la Maison seule s'y connecte).
-À chaque connexion, il affiche alors « Google n'a pas validé cette application » : **Paramètres
-avancés** › **Accéder à Awrea Paris (non sécurisé)**. C'est votre propre application, et
-l'autorisation reste limitée aux événements de vos agendas.
+**Publiée ou en test : le choix conseillé est de publier.** La Maison n'a pas encore tranché ;
+voici les deux possibilités.
+
+- **Publiée, statut « En production » (conseillé)** : la connexion dure. Il ne faut reconnecter
+  que si l'accès est retiré (**Déconnecter** dans l'Atelier, ou depuis le compte Google) ou s'il
+  n'a pas servi pendant six mois, ce qui n'arrive pas : le site s'en sert chaque jour. Google
+  n'exige aucune validation pour un usage personnel, c'est-à-dire une application qui ne sert qu'à
+  la Maison et à moins de 100 comptes Google : il suffit de passer l'écran décrit ci-dessous.
+- **En test, l'autre possibilité** : rien à valider non plus, mais Google retire l'accès sept
+  jours après chaque connexion. L'Atelier affiche alors « Reconnecter Google Agenda » chaque
+  semaine, et les rendez-vous attendent la reconnexion (rien n'est perdu). Pour passer ensuite à la
+  publication : rubrique **Audience** › **Publier l'application** › **Confirmer**, puis reconnecter
+  une fois.
+
+**L'écran « Google n'a pas validé cette application ».** Pour une autorisation que Google range
+parmi les autorisations sensibles (c'est la console qui l'indique, point 3.5), Google montre cet
+écran avant celui de l'accord, à chaque connexion, tant qu'il n'a pas examiné l'application, en
+test comme une fois publiée. Ce n'est pas une alerte sur votre compte : Google dit seulement qu'il
+n'a pas validé l'application, et c'est la vôtre. Pour continuer : **Paramètres avancés**
+(« Advanced » en anglais) › **Accéder à Awrea Paris (non sécurisé)** (« Go to Awrea Paris
+(unsafe) »), puis cocher l'accès aux événements de l'agenda et **Continuer**. L'autorisation reste
+limitée aux événements des agendas dont le compte est propriétaire. La validation par Google (un
+examen de l'application, à demander dans la console) ne servirait que si l'application devait
+accueillir d'autres comptes que celui de la Maison, au-delà de 100.
+
+Règles de Google relevées le 12/11/2026 dans sa documentation (en anglais) ; Google les change
+parfois, et l'écran de la console fait foi en cas d'écart :
+
+- durée de sept jours en test, et fin de l'accès après six mois sans usage : [Using OAuth 2.0 to
+  Access Google APIs, « Refresh token expiration »](https://developers.google.com/identity/protocols/oauth2#expiration)
+  et [Manage App Audience](https://support.google.com/cloud/answer/15549945) ;
+- écran « non validée » et limite de 100 comptes : [Unverified apps](https://support.google.com/cloud/answer/7454865) ;
+- usage personnel, sans validation : [When is verification not needed](https://support.google.com/cloud/answer/13464323) ;
+- autorisation `calendar.events.owned` : [Choose Google Calendar API scopes](https://developers.google.com/workspace/calendar/api/auth),
+  et ce qu'est une autorisation sensible : [OAuth 2.0 Scopes for Google APIs](https://developers.google.com/identity/protocols/oauth2/scopes).
 
 **Vérifier** : Atelier › **Réglages** › **Connexions** : « Google Agenda » indique « Google
 Agenda ». Atelier › **Rendez-vous** › **Google Agenda** : « Synchronisé ». Prendre un rendez-vous

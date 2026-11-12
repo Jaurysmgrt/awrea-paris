@@ -663,6 +663,10 @@ Le lien de l’appel part avec la confirmation, sans rien à installer.
    votre téléphone, chaque rendez-vous y apparaît.
 4. **Google Agenda** (une fois branché, voir le guide d’activation, étape 16) : **Connecter Google
    Agenda**. Google s’ouvre et vous demande votre accord, jamais votre mot de passe sur ce site.
+   Si Google affiche « Google n’a pas validé cette application », ce n’est pas une alerte sur votre
+   compte : c’est votre propre application, que Google n’a pas examinée. Touchez **Paramètres
+   avancés**, puis **Accéder à Awrea Paris (non sécurisé)**, cochez l’accès aux événements de
+   l’agenda et **Continuer**.
    Ensuite, chaque rendez-vous confirmé s’ajoute seul à votre agenda Google, avec la cliente, ses
    notes et le lien de l’appel ; il se met à jour s’il change et disparaît s’il est annulé. Les
    moments déjà pris dans votre agenda Google ne sont plus proposés aux clientes.
@@ -672,6 +676,9 @@ Le lien de l’appel part avec la confirmation, sans rien à installer.
    sinon il repart seul le lendemain matin).
    Si **Reconnecter Google Agenda** apparaît, Google a retiré l’accès ou il a expiré : touchez-le, rien
    n’est perdu. **Déconnecter** retire l’accès ; les rendez-vous déjà ajoutés restent dans votre agenda.
+   Si **Reconnecter Google Agenda** revient chaque semaine, l’application Google est restée en mode
+   test, qui coupe l’accès tous les sept jours. Le choix conseillé est de la publier, pour une
+   connexion durable : le guide d’activation, étape 16, explique comment.
 
 Chaque cliente reçoit une confirmation avec l’invitation pour son agenda, puis un rappel la veille.
 Ces e-mails se modifient dans Atelier › **E-mails**.
