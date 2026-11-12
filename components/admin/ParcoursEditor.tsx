@@ -31,6 +31,8 @@ export function ParcoursEditor({ id, statut, initial, emails }: { id: string; st
   const [retour, setRetour] = useState<Retour | null>(null);
   const [essai, setEssai] = useState<Record<string, Retour>>({});
   const actif = statut === "actif";
+  /** actif : on regarde, on s'envoie un essai, mais on ne modifie pas (mettre en pause d'abord) */
+  const ro = actif || busy;
   const modifie = JSON.stringify(def) !== enregistre;
   const parId = useMemo(() => Object.fromEntries(emails.map((e) => [e.id, e])), [emails]);
 
@@ -93,7 +95,7 @@ export function ParcoursEditor({ id, statut, initial, emails }: { id: string; st
           void enregistrer();
         }}
       >
-        <fieldset className="parcours-editeur stack-l" disabled={actif || busy}>
+        <fieldset className="parcours-editeur stack-l">
           <section className="panel stack-m" aria-labelledby="pe-depart">
             <h2 id="pe-depart" className="t-h3">
               Départ
@@ -102,14 +104,14 @@ export function ParcoursEditor({ id, statut, initial, emails }: { id: string; st
               <label className="field__label" htmlFor="pe-nom">
                 Nom du parcours
               </label>
-              <input id="pe-nom" className="field__input" required minLength={2} maxLength={80} value={def.nom} onChange={(e) => set({ nom: e.target.value })} />
+              <input disabled={ro} id="pe-nom" className="field__input" required minLength={2} maxLength={80} value={def.nom} onChange={(e) => set({ nom: e.target.value })} />
             </div>
             <div className="form__row">
               <div className="field">
                 <label className="field__label" htmlFor="pe-declencheur">
                   Ce qui la fait entrer
                 </label>
-                <select id="pe-declencheur" className="field__input" value={def.declencheur} onChange={(e) => set({ declencheur: e.target.value as DeclencheurId })} aria-describedby="pe-declencheur-aide">
+                <select disabled={ro} id="pe-declencheur" className="field__input" value={def.declencheur} onChange={(e) => set({ declencheur: e.target.value as DeclencheurId })} aria-describedby="pe-declencheur-aide">
                   {(Object.keys(DECLENCHEURS) as DeclencheurId[]).map((d) => (
                     <option key={d} value={d}>
                       {DECLENCHEURS[d].label}
@@ -125,7 +127,7 @@ export function ParcoursEditor({ id, statut, initial, emails }: { id: string; st
                   Depuis moins de
                 </label>
                 <div className="parcours-ligne">
-                  <input id="pe-fenetre" className="field__input parcours-nombre" type="number" inputMode="numeric" min={1} max={90} required value={def.fenetreJours} onChange={(e) => set({ fenetreJours: Number(e.target.value) })} />
+                  <input disabled={ro} id="pe-fenetre" className="field__input parcours-nombre" type="number" inputMode="numeric" min={1} max={90} required value={def.fenetreJours} onChange={(e) => set({ fenetreJours: Number(e.target.value) })} />
                   <span>jours</span>
                 </div>
               </div>
@@ -135,7 +137,7 @@ export function ParcoursEditor({ id, statut, initial, emails }: { id: string; st
               <p className="field__hint">Seulement les personnes qui ont accepté les e-mails de la Maison. Une seule fois par parcours.</p>
               {(Object.keys(CRITERES) as CritereId[]).map((c) => (
                 <label key={c} className="check">
-                  <input type="checkbox" checked={def.entree.includes(c)} onChange={(e) => set({ entree: basculer(def.entree, c, e.target.checked) })} />
+                  <input disabled={ro} type="checkbox" checked={def.entree.includes(c)} onChange={(e) => set({ entree: basculer(def.entree, c, e.target.checked) })} />
                   <span>{CRITERES[c]}</span>
                 </label>
               ))}
@@ -144,7 +146,7 @@ export function ParcoursEditor({ id, statut, initial, emails }: { id: string; st
               <legend className="field__label">Ne pas faire entrer</legend>
               {(Object.keys(EXCLUSIONS) as ExclusionId[]).map((x) => (
                 <label key={x} className="check">
-                  <input type="checkbox" checked={def.exclusions.includes(x)} onChange={(e) => set({ exclusions: basculer(def.exclusions, x, e.target.checked) })} />
+                  <input disabled={ro} type="checkbox" checked={def.exclusions.includes(x)} onChange={(e) => set({ exclusions: basculer(def.exclusions, x, e.target.checked) })} />
                   <span>{EXCLUSIONS[x]}</span>
                 </label>
               ))}
@@ -169,7 +171,7 @@ export function ParcoursEditor({ id, statut, initial, emails }: { id: string; st
                           <label className="field__label" htmlFor={`${e.id}-email`}>
                             E-mail
                           </label>
-                          <select id={`${e.id}-email`} className="field__input" required value={e.email} onChange={(ev) => setEtape(i, { ...e, email: ev.target.value })}>
+                          <select disabled={ro} id={`${e.id}-email`} className="field__input" required value={e.email} onChange={(ev) => setEtape(i, { ...e, email: ev.target.value })}>
                             <option value="">Choisir un e-mail</option>
                             {emails.map((m) => (
                               <option key={m.id} value={m.id}>
@@ -201,11 +203,11 @@ export function ParcoursEditor({ id, statut, initial, emails }: { id: string; st
                         <label className="sr-only" htmlFor={`${e.id}-duree`}>
                           Durée
                         </label>
-                        <input id={`${e.id}-duree`} className="field__input parcours-nombre" type="number" inputMode="numeric" min={1} max={365} required value={e.duree} onChange={(ev) => setEtape(i, { ...e, duree: Number(ev.target.value) })} />
+                        <input disabled={ro} id={`${e.id}-duree`} className="field__input parcours-nombre" type="number" inputMode="numeric" min={1} max={365} required value={e.duree} onChange={(ev) => setEtape(i, { ...e, duree: Number(ev.target.value) })} />
                         <label className="sr-only" htmlFor={`${e.id}-unite`}>
                           Unité
                         </label>
-                        <select id={`${e.id}-unite`} className="field__input parcours-unite" value={e.unite} onChange={(ev) => setEtape(i, { ...e, unite: ev.target.value as "heures" | "jours" })}>
+                        <select disabled={ro} id={`${e.id}-unite`} className="field__input parcours-unite" value={e.unite} onChange={(ev) => setEtape(i, { ...e, unite: ev.target.value as "heures" | "jours" })}>
                           <option value="jours">jours</option>
                           <option value="heures">heures</option>
                         </select>
@@ -216,7 +218,7 @@ export function ParcoursEditor({ id, statut, initial, emails }: { id: string; st
                         <label className="field__label" htmlFor={`${e.id}-critere`}>
                           Elle continue si
                         </label>
-                        <select id={`${e.id}-critere`} className="field__input" value={e.critere} onChange={(ev) => setEtape(i, { ...e, critere: ev.target.value as CritereId })}>
+                        <select disabled={ro} id={`${e.id}-critere`} className="field__input" value={e.critere} onChange={(ev) => setEtape(i, { ...e, critere: ev.target.value as CritereId })}>
                           {(Object.keys(CRITERES) as CritereId[]).map((c) => (
                             <option key={c} value={c}>
                               {CRITERES[c]}
@@ -227,13 +229,13 @@ export function ParcoursEditor({ id, statut, initial, emails }: { id: string; st
                       </div>
                     ) : null}
                     <div className="parcours-ligne">
-                      <button type="button" className="btn btn--link" disabled={i === 0} onClick={() => deplacer(i, i - 1)}>
+                      <button type="button" className="btn btn--link" disabled={ro || i === 0} onClick={() => deplacer(i, i - 1)}>
                         Monter
                       </button>
-                      <button type="button" className="btn btn--link" disabled={i === def.etapes.length - 1} onClick={() => deplacer(i, i + 1)}>
+                      <button type="button" className="btn btn--link" disabled={ro || i === def.etapes.length - 1} onClick={() => deplacer(i, i + 1)}>
                         Descendre
                       </button>
-                      <button type="button" className="btn btn--link" disabled={def.etapes.length === 1} onClick={() => set({ etapes: def.etapes.filter((_, j) => j !== i) })}>
+                      <button type="button" className="btn btn--link" disabled={ro || def.etapes.length === 1} onClick={() => set({ etapes: def.etapes.filter((_, j) => j !== i) })}>
                         Retirer l’étape
                       </button>
                     </div>
@@ -242,13 +244,13 @@ export function ParcoursEditor({ id, statut, initial, emails }: { id: string; st
               })}
             </ol>
             <div className="parcours-ligne">
-              <button type="button" className="btn btn--outline" onClick={() => set({ etapes: [...def.etapes, nouvelleEtape("email", emails[0]?.id)] })}>
+              <button type="button" className="btn btn--outline" disabled={ro} onClick={() => set({ etapes: [...def.etapes, nouvelleEtape("email", emails[0]?.id)] })}>
                 Ajouter un e-mail
               </button>
-              <button type="button" className="btn btn--outline" onClick={() => set({ etapes: [...def.etapes, nouvelleEtape("attente")] })}>
+              <button type="button" className="btn btn--outline" disabled={ro} onClick={() => set({ etapes: [...def.etapes, nouvelleEtape("attente")] })}>
                 Ajouter un délai
               </button>
-              <button type="button" className="btn btn--outline" onClick={() => set({ etapes: [...def.etapes, nouvelleEtape("condition")] })}>
+              <button type="button" className="btn btn--outline" disabled={ro} onClick={() => set({ etapes: [...def.etapes, nouvelleEtape("condition")] })}>
                 Ajouter une condition
               </button>
             </div>
@@ -261,11 +263,11 @@ export function ParcoursEditor({ id, statut, initial, emails }: { id: string; st
             </h2>
             <p className="t-note t-left">Si elle se désinscrit, elle sort aussitôt. Toujours.</p>
             <label className="check">
-              <input type="checkbox" checked={def.objectif === "achat"} onChange={(e) => set({ objectif: e.target.checked ? "achat" : "aucun" })} />
+              <input disabled={ro} type="checkbox" checked={def.objectif === "achat"} onChange={(e) => set({ objectif: e.target.checked ? "achat" : "aucun" })} />
               <span>Dès qu’elle achète (objectif atteint)</span>
             </label>
             <label className="check">
-              <input type="checkbox" checked={def.sortieSiConditions} onChange={(e) => set({ sortieSiConditions: e.target.checked })} />
+              <input disabled={ro} type="checkbox" checked={def.sortieSiConditions} onChange={(e) => set({ sortieSiConditions: e.target.checked })} />
               <span>Dès qu’elle ne remplit plus les conditions d’entrée</span>
             </label>
           </section>
