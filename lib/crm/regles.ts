@@ -181,7 +181,7 @@ const LIBELLE_SOURCE: Record<string, string> = {
   home: "Page d’accueil",
   accueil: "Page d’accueil",
   page: "Formulaire d’une page",
-  bientot: "Page « Bientôt »",
+  bientot: "Page « Bientôt »",
   compte: "Son compte",
   commande: "À la commande",
   "rendez-vous": "Rendez-vous",

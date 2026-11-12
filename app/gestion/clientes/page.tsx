@@ -1,4 +1,5 @@
-import { listCustomerStats, customersMode } from "@/lib/customers";
+import { customersMode } from "@/lib/customers";
+import { compterParSegment, estSegmentCRM, libelleLettre, listerContacts, SEGMENTS_CRM, type SegmentCRM } from "@/lib/crm";
 import { consentStats } from "@/lib/consent/store";
 import { flowCatalog } from "@/lib/marketing/flows";
 import { marketingProvider } from "@/lib/marketing/provider";
@@ -17,17 +18,20 @@ export const dynamic = "force-dynamic";
 const AFFICHEES = 200;
 
 /**
- * Clientes de l'Atelier : chercher une cliente, la retrouver par catégorie d'activité (nouvelle,
- * régulière, fidèle, inactive), ouvrir sa fiche ; consentements, ventes par source, e-mails
- * automatiques et registre RGPD.
+ * Clientes de l'Atelier : chercher une personne, la retrouver par catégorie d'activité (nouvelle,
+ * régulière, fidèle, inactive) ou par segment du CRM (clientes, prospects, abonnées, nouvelles
+ * inscrites, désinscrites), ouvrir sa fiche ; consentements, ventes par source, e-mails automatiques
+ * et registre RGPD. Une fiche par adresse e-mail : comptes, commandes, inscrites à la lettre et
+ * rendez-vous réunis (lib/crm).
  */
-export default async function ClientesPage({ searchParams }: { searchParams: Promise<{ q?: string | string[]; categorie?: string | string[] }> }) {
+export default async function ClientesPage({ searchParams }: { searchParams: Promise<{ q?: string | string[]; categorie?: string | string[]; segment?: string | string[] }> }) {
   const sp = await searchParams;
   // une seule valeur texte (?q=a&q=b donne un tableau)
   const q = (typeof sp.q === "string" ? sp.q : "").slice(0, 80);
   const categorie: CategorieActivite | "toutes" = estCategorie(sp.categorie) ? sp.categorie : "toutes";
+  const segment: SegmentCRM | null = estSegmentCRM(sp.segment) ? sp.segment : null;
   const [customers, consent, sources, sent, rgpd] = await Promise.all([
-    listCustomerStats(),
+    listerContacts(),
     consentStats(),
     salesBySource(90),
     kv.list<{ to: string; subject: string; flow: string; date: string; provider: string }>("marketing:sent", 12),
@@ -35,20 +39,22 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
   ]);
   const maintenant = new Date();
   const cherchees = filtrerClientes(customers, { q }, maintenant);
-  const counts = compterParCategorie(cherchees, maintenant);
-  const shown = filtrerClientes(cherchees, { categorie }, maintenant);
+  const parSegment = segment ? cherchees.filter((c) => c.segments.includes(segment)) : cherchees;
+  const counts = compterParCategorie(parSegment, maintenant);
+  const countsSegments = compterParSegment(cherchees);
+  const shown = filtrerClientes(parSegment, { categorie }, maintenant);
   const totalSources = sources.reduce((s, r) => s + r.revenue, 0);
-  const lien = (c: CategorieActivite | "toutes") => {
-    const p = new URLSearchParams({ ...(q ? { q } : {}), ...(c !== "toutes" ? { categorie: c } : {}) }).toString();
+  const lien = (c: CategorieActivite | "toutes", s: SegmentCRM | null = segment) => {
+    const p = new URLSearchParams({ ...(q ? { q } : {}), ...(s ? { segment: s } : {}), ...(c !== "toutes" ? { categorie: c } : {}) }).toString();
     return atelierHref(`/clientes${p ? `?${p}` : ""}`);
   };
-  const filtre = Boolean(q || categorie !== "toutes");
+  const filtre = Boolean(q || categorie !== "toutes" || segment);
 
   return (
     <div className="admin-page stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Clientes</h1>
-        <p className="t-lead">Chaque cliente, ses commandes et vos notes{customersMode === "supabase" ? "" : " (mode démonstration)"}.</p>
+        <p className="t-lead">Chaque cliente et chaque inscrite à la lettre, ses commandes et vos notes{customersMode === "supabase" ? "" : " (mode démonstration)"}.</p>
       </header>
 
       <section className="panel stack-m" aria-labelledby="customers-title">
@@ -63,13 +69,24 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
             <input id="clientes-q" name="q" type="search" className="field__input" defaultValue={q} placeholder="Prénom, nom ou adresse" autoComplete="off" />
           </div>
           {categorie !== "toutes" ? <input type="hidden" name="categorie" value={categorie} /> : null}
+          {segment ? <input type="hidden" name="segment" value={segment} /> : null}
           <button type="submit" className="btn btn--outline">
             Chercher
           </button>
         </form>
+        <nav className="produits__filtres" aria-label="Lettre et commandes">
+          <Link href={lien(categorie, null)} className="chip" aria-current={!segment ? "true" : undefined}>
+            Tout le monde ({cherchees.length})
+          </Link>
+          {SEGMENTS_CRM.map((s) => (
+            <Link key={s.id} href={lien(categorie, s.id)} className="chip" aria-current={segment === s.id ? "true" : undefined}>
+              {s.label} ({countsSegments[s.id]})
+            </Link>
+          ))}
+        </nav>
         <nav className="produits__filtres" aria-label="Catégories de clientes">
           <Link href={lien("toutes")} className="chip" aria-current={categorie === "toutes" ? "true" : undefined}>
-            Toutes ({cherchees.length})
+            Toutes ({parSegment.length})
           </Link>
           {CATEGORIES.map((c) => (
             <Link key={c.id} href={lien(c.id)} className="chip" aria-current={categorie === c.id ? "true" : undefined}>
@@ -78,6 +95,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
           ))}
         </nav>
         <p className="t-note">{CATEGORIES.map((c) => `${c.label.toLowerCase()} : ${c.regle}`).join(" · ")}. VIP à partir de {formatPrice(rules.vipMinSpent)} d’achats ou {rules.vipMinOrders} commandes.</p>
+        <p className="t-note">{SEGMENTS_CRM.map((s) => `${s.label.toLowerCase()} : ${s.regle}`).join(" · ")}.</p>
         {filtre ? (
           <p className="t-note">
             <Link href={atelierHref("/clientes")} className="text-link">
@@ -97,7 +115,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
                   <th scope="col" role="columnheader">Commandes</th>
                   <th scope="col" role="columnheader">Montant</th>
                   <th scope="col" role="columnheader">Dernière commande</th>
-                  <th scope="col" role="columnheader">Lettres</th>
+                  <th scope="col" role="columnheader">Lettre</th>
                 </tr>
               </thead>
               <tbody role="rowgroup">
@@ -118,7 +136,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
                     <td role="cell" data-titre="Commandes">{c.ordersCount}</td>
                     <td role="cell" data-titre="Montant">{formatPrice(c.totalSpent)}</td>
                     <td role="cell" data-titre="Dernière commande">{c.lastOrderAt ? <When iso={c.lastOrderAt} /> : "Aucune"}</td>
-                    <td role="cell" data-titre="Lettres">{c.marketingEmail ? "Oui" : "Non"}</td>
+                    <td role="cell" data-titre="Lettre">{libelleLettre(c.lettre)}</td>
                   </tr>
                 ))}
               </tbody>

@@ -638,7 +638,7 @@ const motifEmail = (email: string) => email.trim().toLowerCase().replace(/[\\%_]
 export async function comptesPourCRM(): Promise<CompteSource[]> {
   if (isSupabaseConfigured) {
     const { data, error } = await supabaseAdmin().from("customers").select(COLONNES_CRM).limit(20_000);
-    if (error) throw new Error(`Base clientes : ${error.message}`);
+    if (error) throw new Error(`Base clientes : ${error.message}`);
     return ((data ?? []) as LigneCompteCRM[]).map(compteCRM).filter((c): c is CompteSource => c !== null);
   }
   const index = (await kv.get<string[]>("customers:index")) ?? [];
@@ -650,7 +650,7 @@ export async function comptesPourCRM(): Promise<CompteSource[]> {
 export async function comptePourCRM(email: string): Promise<CompteSource | null> {
   if (isSupabaseConfigured) {
     const { data, error } = await supabaseAdmin().from("customers").select(COLONNES_CRM).ilike("email", motifEmail(email)).limit(1).maybeSingle<LigneCompteCRM>();
-    if (error) throw new Error(`Base clientes : ${error.message}`);
+    if (error) throw new Error(`Base clientes : ${error.message}`);
     return data ? compteCRM(data) : null;
   }
   const p = await kv.get<CustomerProfile>(demoKey(demoCustomerId(email)));
@@ -661,7 +661,7 @@ export async function comptePourCRM(email: string): Promise<CompteSource | null>
 export async function retirerLettresDuCompte(email: string): Promise<void> {
   if (isSupabaseConfigured) {
     const { error } = await supabaseAdmin().from("customers").update({ marketing_email: false }).ilike("email", motifEmail(email)).eq("marketing_email", true);
-    if (error) throw new Error(`Base clientes : ${error.message}`);
+    if (error) throw new Error(`Base clientes : ${error.message}`);
     return;
   }
   const cle = demoKey(demoCustomerId(email));

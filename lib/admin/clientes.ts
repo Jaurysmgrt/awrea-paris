@@ -15,7 +15,7 @@ export const CATEGORIES: readonly { id: CategorieActivite; label: string; regle:
   { id: "reguliere", label: "Régulières", regle: "deux ou trois commandes" },
   { id: "fidele", label: "Fidèles", regle: "quatre commandes ou plus" },
   { id: "inactive", label: "Inactives", regle: "aucune commande depuis un an" },
-  { id: "sans-commande", label: "Sans commande", regle: "un compte, pas encore de commande" },
+  { id: "sans-commande", label: "Sans commande", regle: "un compte ou une inscription, pas encore de commande" },
 ];
 
 export const LIBELLE_CATEGORIE: Record<CategorieActivite, string> = {

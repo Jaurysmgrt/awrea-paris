@@ -1,11 +1,17 @@
-import { atelierApi } from "@/lib/admin/path";
+import { atelierApi, atelierHref } from "@/lib/admin/path";
 import { inscrites } from "@/lib/email/lettre";
+import { libelleSource } from "@/lib/crm";
 import { EmailsTabs } from "@/components/admin/EmailsTabs";
 import { When } from "@/components/admin/Status";
+import Link from "@/components/ui/Link";
 
-const ORIGINE: Record<string, string> = { lettre: "Formulaire du site", commande: "À la commande", compte: "Son compte", "pied-de-page": "Formulaire du site", accueil: "Formulaire du site" };
+const ORIGINE = (source: string) => libelleSource(source) || "Formulaire du site";
 
-/** E-mails › Inscrites : qui reçoit la lettre, depuis quand, et le tableur à télécharger. */
+/**
+ * E-mails › Inscrites : qui reçoit la lettre (les abonnées du CRM), depuis quand, d'où, et le tableur
+ * à télécharger. Chaque fiche, et les inscriptions à confirmer ou les désinscrites, s'ouvrent dans
+ * Clientes.
+ */
 export default async function InscritesPage() {
   const liste = await inscrites();
   return (
@@ -25,6 +31,13 @@ export default async function InscritesPage() {
             </a>
           ) : null}
         </div>
+        <p className="t-note">
+          Seules les abonnées reçoivent la lettre. Les fiches, les inscriptions à confirmer et les désinscrites :{" "}
+          <Link href={atelierHref("/clientes?segment=abonnees")} className="text-link">
+            ouvrir les abonnées dans Clientes
+          </Link>
+          .
+        </p>
         {liste.length ? (
           <div className="table-scroll">
             <table className="table">
@@ -42,7 +55,7 @@ export default async function InscritesPage() {
                     <th scope="row">{i.email}</th>
                     <td>{[i.prenom, i.nom].filter(Boolean).join(" ")}</td>
                     <td>{i.date ? <When iso={i.date} /> : null}</td>
-                    <td>{ORIGINE[i.source] ?? "Formulaire du site"}</td>
+                    <td>{ORIGINE(i.source)}</td>
                   </tr>
                 ))}
               </tbody>
