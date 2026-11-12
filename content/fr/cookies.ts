@@ -46,24 +46,60 @@ export interface CookieEntry {
   kind: "cookie" | "stockage local" | "stockage de session";
   /** préfixe à effacer lors d'un retrait de consentement (traceurs tiers) */
   clearPrefix?: string;
+  /** outil tiers : l'entrée n'est montrée que si l'outil est réellement branché (variable publique) */
+  outil?: Outil;
 }
+
+type Outil = "plausible" | "ga4" | "clarity" | "meta" | "tiktok" | "googleAds" | "supabase";
+
+/**
+ * Outils réellement branchés (cahier du 10/11 : « une politique de cookies correspondant aux
+ * véritables outils installés »). Les variables publiques sont lues à la compilation, côté serveur
+ * comme dans le navigateur ; le compte cliente sur Supabase dépend de sa propre variable publique.
+ */
+const branche = (v: string | undefined) => Boolean(v?.trim());
+export const OUTILS_ACTIFS: Record<Outil, boolean> = {
+  plausible: branche(process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN),
+  ga4: branche(process.env.NEXT_PUBLIC_GA4_ID),
+  clarity: branche(process.env.NEXT_PUBLIC_CLARITY_ID),
+  meta: branche(process.env.NEXT_PUBLIC_META_PIXEL_ID),
+  tiktok: branche(process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID),
+  googleAds: branche(process.env.NEXT_PUBLIC_GOOGLE_ADS_ID),
+  supabase: branche(process.env.NEXT_PUBLIC_SUPABASE_URL) && branche(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+};
 
 export const cookieInventory: CookieEntry[] = [
   { name: "awrea_consent", provider: "Awrea Paris", category: "necessary", purpose: "Mémoriser vos choix en matière de cookies.", duration: "13 mois", kind: "cookie" },
   { name: "awrea_cart", provider: "Awrea Paris", category: "necessary", purpose: "Conserver le contenu de votre panier.", duration: "30 jours", kind: "cookie" },
   { name: "awrea_session", provider: "Awrea Paris", category: "necessary", purpose: "Vous garder connectée à votre compte.", duration: "30 jours", kind: "cookie" },
-  { name: "sb-…-auth-token", provider: "Awrea Paris (Supabase)", category: "necessary", purpose: "Session sécurisée de votre compte cliente.", duration: "Durée de la session, 1 an au plus", kind: "cookie" },
+  { name: "sb-…-auth-token", provider: "Awrea Paris (Supabase)", category: "necessary", purpose: "Session sécurisée de votre compte cliente.", duration: "Durée de la session, 1 an au plus", kind: "cookie", outil: "supabase" },
   { name: "awrea_admin", provider: "Awrea Paris", category: "necessary", purpose: "Session de l’équipe de l’atelier (espace de gestion uniquement).", duration: "12 heures", kind: "cookie" },
   { name: "awrea_apercu", provider: "Awrea Paris", category: "necessary", purpose: "Ouvrir le site avant son ouverture au public, pour les personnes qui ont reçu le lien privé de la Maison.", duration: "30 jours", kind: "cookie" },
   { name: "awrea_wishlist", provider: "Awrea Paris", category: "necessary", purpose: "Conserver les pièces que vous avez gardées.", duration: "Jusqu’à suppression", kind: "stockage local" },
   { name: "awrea_assistant", provider: "Awrea Paris", category: "necessary", purpose: "Conserver la conversation avec l’assistante pendant votre visite.", duration: "Fin de la visite", kind: "stockage de session" },
   { name: "awrea_prefs", provider: "Awrea Paris", category: "necessary", purpose: "Retenir la langue, la devise et vos préférences d’affichage (jour, nuit ou automatique ; son ; animations).", duration: "13 mois", kind: "stockage local" },
   { name: "awrea_view_…", provider: "Awrea Paris", category: "analytics", purpose: "Ne compter qu’une fois la consultation d’une pièce pendant une visite.", duration: "Fin de la visite", kind: "stockage de session" },
-  { name: "Plausible", provider: "Plausible Analytics (UE)", category: "analytics", purpose: "Mesure d’audience agrégée, sans cookie ni donnée personnelle.", duration: "Aucun cookie", kind: "cookie" },
-  { name: "_ga, _ga_…", provider: "Google Analytics 4", category: "analytics", purpose: "Mesure d’audience (seulement si Google Analytics est utilisé à la place de Plausible).", duration: "13 mois", kind: "cookie", clearPrefix: "_ga" },
-  { name: "_clck, _clsk", provider: "Microsoft Clarity", category: "analytics", purpose: "Comprendre comment les pages sont parcourues (cartes de chaleur, visites rejouées, toutes les saisies masquées).", duration: "1 an au plus", kind: "cookie", clearPrefix: "_cl" },
+  { name: "Plausible", provider: "Plausible Analytics (UE)", category: "analytics", purpose: "Mesure d’audience agrégée, sans cookie ni donnée personnelle.", duration: "Aucun cookie", kind: "cookie", outil: "plausible" },
+  { name: "_ga, _ga_…", provider: "Google Analytics 4", category: "analytics", purpose: "Mesure d’audience des pages et des pièces consultées.", duration: "13 mois", kind: "cookie", clearPrefix: "_ga", outil: "ga4" },
+  { name: "_clck, _clsk", provider: "Microsoft Clarity", category: "analytics", purpose: "Comprendre comment les pages sont parcourues (cartes de chaleur, visites rejouées, toutes les saisies masquées).", duration: "1 an au plus", kind: "cookie", clearPrefix: "_cl", outil: "clarity" },
   { name: "awrea_seen", provider: "Awrea Paris", category: "personalization", purpose: "Pièces et collections consultées, pour personnaliser l’accueil et les recommandations.", duration: "13 mois", kind: "stockage local" },
-  { name: "_fbp, _fbc", provider: "Meta (Instagram, Facebook)", category: "advertising", purpose: "Mesurer les visites issues de nos publicités et vous montrer nos pièces sur Instagram et Facebook.", duration: "3 mois", kind: "cookie", clearPrefix: "_fb" },
-  { name: "_ttp", provider: "TikTok", category: "advertising", purpose: "Mesurer les visites et les achats issus de nos publicités TikTok.", duration: "13 mois", kind: "cookie", clearPrefix: "_tt" },
-  { name: "_gcl_au", provider: "Google Ads", category: "advertising", purpose: "Mesurer les achats issus de nos annonces Google.", duration: "3 mois", kind: "cookie", clearPrefix: "_gcl" },
+  { name: "_fbp, _fbc", provider: "Meta (Instagram, Facebook)", category: "advertising", purpose: "Mesurer les visites issues de nos publicités et vous montrer nos pièces sur Instagram et Facebook.", duration: "3 mois", kind: "cookie", clearPrefix: "_fb", outil: "meta" },
+  { name: "_ttp", provider: "TikTok", category: "advertising", purpose: "Mesurer les visites et les achats issus de nos publicités TikTok.", duration: "13 mois", kind: "cookie", clearPrefix: "_tt", outil: "tiktok" },
+  { name: "_gcl_au", provider: "Google Ads", category: "advertising", purpose: "Mesurer les achats issus de nos annonces Google.", duration: "3 mois", kind: "cookie", clearPrefix: "_gcl", outil: "googleAds" },
 ];
+
+/** Ce que le site dépose vraiment : nos propres traceurs, et ceux des outils tiers branchés. */
+export const cookiesActifs: CookieEntry[] = cookieInventory.filter((e) => !e.outil || OUTILS_ACTIFS[e.outil]);
+
+/** Plateformes publicitaires branchées, dites en clair dans la catégorie « Publicité ». */
+const plateformes = [OUTILS_ACTIFS.meta ? "Instagram et Facebook" : "", OUTILS_ACTIFS.tiktok ? "TikTok" : "", OUTILS_ACTIFS.googleAds ? "Google" : ""].filter(Boolean);
+const enumerer = (l: string[]) => (l.length > 1 ? `${l.slice(0, -1).join(", ")} et ${l.at(-1)}` : (l[0] ?? ""));
+
+/**
+ * Catégories proposées dans le bandeau et décrites dans la politique : seulement celles qui
+ * déposent réellement quelque chose (une catégorie sans outil ne se propose pas).
+ */
+export const categoriesActives: CookieCategoryInfo[] = cookieCategories
+  .filter((c) => c.always || cookiesActifs.some((e) => e.category === c.key))
+  .map((c) => (c.key === "advertising" && plateformes.length ? { ...c, summary: `Mesurer l’efficacité de nos campagnes sur ${enumerer(plateformes)}, et vous y montrer nos pièces.` } : c));
+

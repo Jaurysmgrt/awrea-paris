@@ -72,6 +72,22 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   // textes du document « catalogue » : affichés (marques du mode Édition) et sans marques (données structurées)
   const [t, tPlain, tf] = await Promise.all([getDoc<CatalogueTexts>("catalogue"), getDoc<CatalogueTexts>("catalogue", undefined, { plain: true }), getDoc<FicheTexts>("fiche-piece")]);
   const delai = delaiText(t, product.leadTime);
+  // dans la fenêtre du guide des tailles, à côté des tailles : le guide complet et le conseil en
+  // rendez-vous (anciennement dans « Coupe et taille », retirée le 10/11)
+  const aideTaille = (
+    <>
+      <p className="t-note">
+        {tf.mesures.avant}
+        <Link href="/guide-des-tailles">{tf.mesures.lien}</Link>
+        {tf.mesures.apres}
+      </p>
+      <p className="t-note">
+        {tf.conseil.avant}
+        <Link href="/rendez-vous">{tf.conseil.lien}</Link>
+        {tf.conseil.apres}
+      </p>
+    </>
+  );
   const reference = product.variants[0]?.sku.replace(/-[A-Z]+$/, "");
 
   return (
@@ -94,7 +110,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
           </div>
 
           <div className="product__info">
-            <div className="product__sticky stack-m">
+            <div className="product__colonne stack-m">
               <Breadcrumbs items={[{ name: tf.filAriane, path: "/boutique" }, { name: product.title, path: `/boutique/${product.handle}` }]} />
               <header className={s.tete}>
                 {collection || product.isNew ? (
@@ -125,11 +141,11 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
               {apercu ? (
                 // aperçu : les tailles se voient, rien ne s'ajoute au panier
                 <fieldset disabled className="apercu-commande">
-                  <ProductForm product={product} />
+                  <ProductForm product={product} aide={aideTaille} />
                 </fieldset>
               ) : (
                 <DropGate drop={dropInfo}>
-                  <ProductForm product={product} stickyBar />
+                  <ProductForm product={product} stickyBar aide={aideTaille} />
                 </DropGate>
               )}
 
@@ -147,6 +163,10 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                         ))}
                       </ul>
                     ) : null}
+                    {/* « Coupe et taille » retirée (cahier du 10/11) : la coupe, le guide complet et le
+                        rendez-vous de conseil passent dans la fenêtre du guide des tailles ; la taille
+                        portée par le modèle reste ici */}
+                    {product.model ? <p>{product.model}</p> : null}
                   </div>
                 </details>
                 <details className="disclosure">
@@ -173,23 +193,6 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                   </div>
                 </details>
                 <Traceability product={product} lien={tf.surDemande.lien} />
-                <details className="disclosure">
-                  <summary>{tf.sections.coupe}</summary>
-                  <div className="disclosure__body prose">
-                    <p>{product.fit}</p>
-                    {product.model ? <p>{product.model}</p> : null}
-                    <p>
-                      {tf.mesures.avant}
-                      <Link href="/guide-des-tailles">{tf.mesures.lien}</Link>
-                      {tf.mesures.apres}
-                    </p>
-                    <p>
-                      {tf.conseil.avant}
-                      <Link href="/rendez-vous">{tf.conseil.lien}</Link>
-                      {tf.conseil.apres}
-                    </p>
-                  </div>
-                </details>
                 <details className="disclosure">
                   <summary>{tf.sections.livraison}</summary>
                   <div className="disclosure__body prose">

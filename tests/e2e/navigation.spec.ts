@@ -234,8 +234,8 @@ test.describe("Pied de page de la maquette et lettre de la Maison", () => {
     await expect(copy).toBeVisible();
     expect(await copy.evaluate((el) => getComputedStyle(el).textAlign)).toBe("center");
 
-    // « Gérer les cookies » rouvre les préférences
-    await cols.getByRole("button", { name: "Gérer les cookies" }).click();
+    // « Gérer mes cookies » rouvre les préférences
+    await cols.getByRole("button", { name: "Gérer mes cookies" }).click();
     await expect(page.getByRole("region", { name: "Cookies" })).toBeVisible();
   });
 

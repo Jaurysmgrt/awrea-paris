@@ -1,6 +1,8 @@
 /*
  * Guide des tailles : le tableau, la mention « à confirmer », la façon de prendre ses mesures
- * (l’intitulé à gauche, le geste à droite dès la tablette). Tokens seulement.
+ * (l’intitulé à gauche, le geste à droite dès la tablette). Cahier du 10/11 : un seul axe ; dès la
+ * tablette, titres, légende, conseil et mention sont centrés sur la colonne du tableau ; sur
+ * téléphone, fer à gauche et tableau sans défilement de côté. Tokens seulement.
  */
 .tableau {
   margin-top: var(--space-title);
@@ -38,3 +40,30 @@
 .mesure dd {
   margin: 0;
 }
+
+/* sur téléphone, les cinq colonnes tiennent dans l'écran : moins d'air de part et d'autre */
+@media (max-width: 47.99rem) {
+  .tableau table :is(th, td) {
+    padding-inline: var(--spacing-3xs);
+  }
+}
+/* dès la tablette, un seul axe : celui du titre de la page */
+@media (min-width: 48rem) {
+  h2.titre,
+  .tete :is(h2, p) {
+    text-align: center;
+    margin-inline: auto;
+  }
+  .tete p {
+    max-width: var(--container-text);
+  }
+  .legende {
+    text-align: center;
+  }
+  .aConfirmer {
+    max-width: var(--container-text);
+    margin-inline: auto;
+    text-align: center;
+  }
+}
+

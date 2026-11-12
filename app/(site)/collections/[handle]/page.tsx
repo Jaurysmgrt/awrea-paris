@@ -98,7 +98,9 @@ export default async function CollectionPage({ params, searchParams }: { params:
           <div className={s.texte} data-officiel={official}>
             {c.lead.trim() ? <p className={`t-lead t-center ${s.accroche}`}>{c.lead}</p> : null}
             {c.intention.map((p) => (
-              <p key={p}>{p}</p>
+              <p key={p} className={`t-body t-center ${s.paragraphe}`}>
+                {p}
+              </p>
             ))}
           </div>
         ) : null}
