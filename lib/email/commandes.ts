@@ -13,7 +13,8 @@ import { absolute } from "@/lib/seo/metadata";
 import { formatDate, formatPrice } from "@/lib/format";
 import { orderLink } from "@/lib/commerce/order-access";
 import { trackingUrl } from "@/lib/commerce/orders";
-import { delaiText, type CatalogueTexts } from "@/lib/commerce/texts";
+import { delaiText, type CatalogueTexts, type CommerceTexts } from "@/lib/commerce/texts";
+import { vatFranchise } from "@/lib/commerce/tva";
 import { readDoc } from "@/lib/edition/store";
 import { withStage } from "@/lib/store/order-stages";
 import { estimatedReady } from "@/lib/customers/order-timeline";
@@ -45,6 +46,9 @@ const firstName = (o: Pick<Order, "name">) => o.name.trim().split(/\s+/)[0] ?? "
 export async function stageEmailVars(order: Order, stage: MailedStage): Promise<Record<string, string>> {
   const full = await withStage(order);
   const catalogue = (await readDoc("catalogue", "fr").catch(() => null)) as Pick<CatalogueTexts, "delai"> | null;
+  // franchise en base de TVA (réglage de la Maison) : mention légale en note sous le détail de la
+  // commande (document « commerce », commande.mentionTva) ; vide au régime de TVA à 20 %
+  const commerce = vatFranchise() ? ((await readDoc("commerce", "fr").catch(() => null)) as Pick<CommerceTexts, "commande"> | null) : null;
   const lead = full.leadTime ?? null;
   // la fin de confection prévue n'a de sens qu'avant que la pièce soit prête
   const estimate = stage === "paid" || stage === "in_production" ? estimatedReady(full, lead) : null;
@@ -66,6 +70,7 @@ export async function stageEmailVars(order: Order, stage: MailedStage): Promise<
     numeroSuivi: full.shipping.tracking ?? "",
     lienColis: url ?? "",
     relais: full.shipping.relay ? `${full.shipping.relay.name}, ${full.shipping.relay.address}` : "",
+    mentionTva: commerce?.commande?.mentionTva ?? "",
   };
 }
 

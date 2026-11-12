@@ -1,0 +1,60 @@
+{
+  "nom": "La Maison en quelques mots",
+  "quand": "Envoyé dans un parcours de vente, quand le parcours est actif.",
+  "famille": "lettre",
+  "sujet": "Awrea Paris, en quelques mots",
+  "preheader": "Comment naissent les pièces de la Maison.",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la personne, quand il est connu",
+      "exemple": "Camille"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-maison01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-maison02",
+      "type": "titre",
+      "titre": "La Maison en quelques mots"
+    },
+    {
+      "id": "b-maison03",
+      "type": "texte",
+      "texte": "Bonjour {prenom},",
+      "si": "prenom"
+    },
+    {
+      "id": "b-maison04",
+      "type": "texte",
+      "texte": "Bonjour,",
+      "sauf": "prenom"
+    },
+    {
+      "id": "b-maison05",
+      "type": "texte",
+      "texte": "Vous recevez la lettre d’Awrea Paris depuis quelques jours. Voici la Maison en quelques mots.\n\nChaque pièce est créée sur demande, dans votre taille, par des artisans français. Rien n’est fabriqué d’avance : votre commande lance la confection, et la pièce vous est envoyée une fois terminée.\n\nLa collection Hypnotic Lace réunit sept pièces, entre dentelle noire, drapés et dorure."
+    },
+    {
+      "id": "b-maison06",
+      "type": "bouton",
+      "lien": {
+        "label": "Voir la collection",
+        "href": "/collections/hypnotic-lace"
+      }
+    },
+    {
+      "id": "b-maison07",
+      "type": "signature",
+      "texte": "Avec toute notre attention,\nla Maison Awrea Paris"
+    },
+    {
+      "id": "b-maison08",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

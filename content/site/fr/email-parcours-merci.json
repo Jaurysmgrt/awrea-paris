@@ -1,0 +1,60 @@
+{
+  "nom": "Merci de votre confiance",
+  "quand": "Envoyé dans un parcours de vente, quand le parcours est actif.",
+  "famille": "lettre",
+  "sujet": "Merci de votre confiance",
+  "preheader": "Quelques mots de la Maison, quelques semaines après votre commande.",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la personne, quand il est connu",
+      "exemple": "Camille"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-merci01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-merci02",
+      "type": "titre",
+      "titre": "Merci de votre confiance"
+    },
+    {
+      "id": "b-merci03",
+      "type": "texte",
+      "texte": "Bonjour {prenom},",
+      "si": "prenom"
+    },
+    {
+      "id": "b-merci04",
+      "type": "texte",
+      "texte": "Bonjour,",
+      "sauf": "prenom"
+    },
+    {
+      "id": "b-merci05",
+      "type": "texte",
+      "texte": "Votre pièce vous accompagne depuis quelques semaines. Elle a été confectionnée pour vous, sur demande, par des artisans français, et la Maison tenait à vous remercier.\n\nLe certificat d’authenticité de votre pièce vous attend dans votre compte. Pour toute question d’entretien, la Maison vous répond volontiers."
+    },
+    {
+      "id": "b-merci06",
+      "type": "bouton",
+      "lien": {
+        "label": "Retrouver mes certificats",
+        "href": "/compte"
+      }
+    },
+    {
+      "id": "b-merci07",
+      "type": "signature",
+      "texte": "Avec toute notre attention,\nla Maison Awrea Paris"
+    },
+    {
+      "id": "b-merci08",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

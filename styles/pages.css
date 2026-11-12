@@ -1085,6 +1085,33 @@
   .legal__section:first-child h2 {
     margin-top: 0;
   }
+  /* fiche (éditrice du site, hébergeur) : un intitulé en petites capitales et sa valeur par ligne,
+     entre deux filets fins ; l'intitulé au-dessus de sa valeur sur téléphone, à sa gauche au-delà */
+  .legal__fiche {
+    display: grid;
+    margin-bottom: 0;
+    border-top: var(--border-width-hair) solid var(--line);
+  }
+  .legal__fiche > div {
+    display: grid;
+    gap: var(--spacing-3xs);
+    padding-block: var(--spacing-xs);
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  .legal__fiche dt {
+    color: var(--fg-soft);
+  }
+  .legal__fiche dd {
+    margin: 0;
+    text-align: left;
+  }
+  @media (min-width: 48rem) {
+    .legal__fiche > div {
+      grid-template-columns: minmax(0, var(--container-card)) minmax(0, 1fr);
+      column-gap: var(--spacing-m);
+      align-items: baseline;
+    }
+  }
   .legal__box {
     display: grid;
     gap: var(--spacing-xs);

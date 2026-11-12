@@ -1,22 +1,29 @@
 /**
  * Rendez-vous : la veille, un rappel part à chaque cliente (e-mail « Rappel de rendez-vous »,
  * modifiable dans l'Atelier › E-mails) ; le matin, la créatrice reçoit le programme du jour.
+ * Google Agenda (s'il est connecté) : ce qui n'a pas pu partir est renvoyé chaque matin
+ * (lib/google-agenda) ; le rôle ne voit jamais le jeton, il ne fait que relancer l'envoi.
  */
 import { kv } from "@/lib/store";
 import { APPOINTMENT_TYPES, listAppointments } from "@/lib/appointments";
 import { cancelLink, whenOf } from "@/lib/appointments-notify";
 import { sendDocEmail } from "@/lib/email/documents";
 import { logAction } from "@/lib/agents/log";
+import { synchroniserGoogle } from "@/lib/google-agenda";
 import type { Finding, RoleOutcome } from "./types";
 
 const paris = (iso: string, opts: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", ...opts }).format(new Date(iso));
 const dayKey = (d: Date) => paris(d.toISOString(), { year: "numeric", month: "2-digit", day: "2-digit" });
 
 export async function runRendezVous(now = new Date()): Promise<RoleOutcome> {
+  const findings: Finding[] = [];
+  // reprise de Google Agenda avant tout : ce qui attend, ou ce qui a échoué la veille
+  const google = await synchroniserGoogle();
+  if (google.aReconnecter) findings.push({ gravite: "attention", titre: "Google Agenda est à reconnecter", detail: "Google a retiré l’accès du site, ou il a expiré. Rendez-vous › Reconnecter Google Agenda.", lien: "/rendez-vous", cible: "google-agenda:reconnecter" });
+  else if (google.echecs) findings.push({ gravite: "attention", titre: "Des rendez-vous n’ont pas pu partir dans Google Agenda", detail: google.erreur, lien: "/rendez-vous", cible: "google-agenda:a-refaire" });
   const list = (await listAppointments()).filter((a) => a.status === "confirme");
   const today = dayKey(now);
   const tomorrow = dayKey(new Date(now.getTime() + 86_400_000));
-  const findings: Finding[] = [];
   let sent = 0;
   for (const a of list) {
     const day = dayKey(new Date(a.start));
@@ -39,5 +46,5 @@ export async function runRendezVous(now = new Date()): Promise<RoleOutcome> {
     }
   }
   const todayCount = findings.filter((f) => f.gravite === "info").length;
-  return { resume: `${todayCount ? `${todayCount} rendez-vous aujourd’hui` : "Aucun rendez-vous aujourd’hui"}, ${sent ? `${sent} rappel${sent > 1 ? "s" : ""} envoyé${sent > 1 ? "s" : ""} pour demain` : "aucun rappel à envoyer"}.`, findings };
+  return { resume: `${todayCount ? `${todayCount} rendez-vous aujourd’hui` : "Aucun rendez-vous aujourd’hui"}, ${sent ? `${sent} rappel${sent > 1 ? "s" : ""} envoyé${sent > 1 ? "s" : ""} pour demain` : "aucun rappel à envoyer"}${google.faits ? `, Google Agenda mis à jour pour ${google.faits} rendez-vous` : ""}.`, findings };
 }

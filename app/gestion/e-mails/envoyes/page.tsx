@@ -38,6 +38,8 @@ const TYPES: Record<string, string> = {
   "accuse-reception": "Accusé de réception",
   "avant-premiere-inscription": "Avant-première",
   essai: "Essai",
+  parcours: "Parcours de vente",
+  "parcours-essai": "Essai d’un parcours",
 };
 
 /**

@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { z } from "zod";
 import { currentAdmin } from "@/lib/auth/admin";
 import { APPOINTMENT_TYPES, cancelAppointment, setAvailability } from "@/lib/appointments";
 import { whenOf } from "@/lib/appointments-notify";
 import { sendDocEmail } from "@/lib/email/documents";
 import { logAction } from "@/lib/agents/log";
+import { synchroniserGoogle } from "@/lib/google-agenda";
 
 const Hour = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 const Body = z.discriminatedUnion("action", [
@@ -36,6 +37,8 @@ export async function POST(req: Request) {
   }
   const a = await cancelAppointment(d.id);
   if (!a) return NextResponse.json({ error: "Ce rendez-vous est déjà annulé." }, { status: 404 });
+  // l'événement de Google Agenda est supprimé, s'il existe
+  after(() => synchroniserGoogle(a.id).then(() => undefined));
   await sendDocEmail("email-annulation-rendez-vous", a.email, { vars: { prenom: a.name.split(" ")[0] ?? "", quand: whenOf(a.start), rendezvous: APPOINTMENT_TYPES[a.type].label }, tag: "rendez-vous-annule" }).catch((e) => console.error("[rendez-vous] annulation", e));
   await logAction({ agent: "rendez-vous", kind: "annulation", status: "done", summary: `Rendez-vous de ${a.name} annulé par ${who}, cliente prévenue` }).catch(() => {});
   return NextResponse.json({ ok: true, message: "Rendez-vous annulé, la cliente est prévenue." });

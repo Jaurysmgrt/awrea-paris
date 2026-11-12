@@ -1,8 +1,10 @@
 /**
  * Anti-fraude et comptabilité. L'anti-fraude met de côté une commande inhabituelle (elle reste
- * intacte, la créatrice décide) ; la comptabilité vérifie la suite des factures et suit le seuil
+ * intacte, la créatrice décide) ; la comptabilité vérifie la suite des factures, suit le seuil
  * européen des ventes à distance (10 000 € par an, au-delà duquel la TVA du pays de la cliente
- * s'applique, déclarée par le guichet unique OSS).
+ * s'applique, déclarée par le guichet unique OSS) et, tant que la Maison est en franchise en base
+ * (content/settings.ts → shop.vatRegime), le seuil de chiffre d'affaires de la franchise : elle
+ * prévient seulement, le régime ne change jamais sans la créatrice et son comptable.
  */
 import { formatPrice } from "@/lib/format";
 import { getOrders } from "@/lib/commerce/orders";
@@ -11,6 +13,8 @@ import { getLog } from "@/lib/agents/log";
 import { perform } from "@/lib/agents/perform";
 import { OSS_THRESHOLD, suspicion, zoneOf } from "@/lib/agents/roles/regles";
 import { isSale } from "@/lib/admin/dashboard";
+import { vatFranchise } from "@/lib/commerce/tva";
+import { shop } from "@/content/settings";
 import type { Finding, RoleOutcome } from "./types";
 
 const HOUR = 3_600_000;
@@ -39,11 +43,20 @@ export async function runComptabilite(now = new Date()): Promise<RoleOutcome> {
   const share = eu / OSS_THRESHOLD;
   if (share >= 1) findings.push({ gravite: "urgent", titre: `Seuil européen dépassé, ${formatPrice(eu)} de ventes à distance cette année`, detail: "La TVA du pays de chaque cliente s’applique désormais : inscription au guichet unique OSS à faire avec votre comptable.", lien: "/factures", cible: `oss:${year}` });
   else if (share >= 0.8) findings.push({ gravite: "attention", titre: `Seuil européen bientôt atteint, ${formatPrice(eu)} sur ${formatPrice(OSS_THRESHOLD)}`, detail: "À en parler avec votre comptable avant de le dépasser.", lien: "/factures", cible: `oss:${year}` });
+  // franchise en base : chiffre d'affaires de l'année face au seuil de la franchise (à confirmer chaque année)
+  const franchise = vatFranchise();
+  const ventes = orders.filter((o) => o.createdAt.startsWith(String(year)) && isSale(o)).reduce((s, o) => s + o.total, 0);
+  const part = ventes / shop.franchiseThreshold;
+  if (franchise && part >= 1)
+    findings.push({ gravite: "urgent", titre: `Seuil de la franchise de TVA atteint, ${formatPrice(ventes)} de ventes cette année`, detail: "La TVA va devoir s’appliquer : voyez votre comptable, puis demandez à la personne qui s’occupe du site de passer au régime de TVA.", lien: "/factures", cible: `franchise:${year}` });
+  else if (franchise && part >= 0.8)
+    findings.push({ gravite: "attention", titre: `Seuil de la franchise de TVA bientôt atteint, ${formatPrice(ventes)} sur ${formatPrice(shop.franchiseThreshold)}`, detail: "À en parler avec votre comptable avant de le dépasser.", lien: "/factures", cible: `franchise:${year}` });
   // suite des numéros de factures de l'année, sans trou
   for (const kind of ["facture", "avoir"] as const) {
     const nums = invoices.filter((i) => i.kind === kind && i.issuedAt.startsWith(String(year))).map((i) => Number(i.number.split("-").pop())).filter((n) => Number.isFinite(n)).sort((a, b) => a - b);
     const holes = nums.filter((n, i) => i > 0 && n !== nums[i - 1] + 1);
     if (holes.length) findings.push({ gravite: "urgent", titre: `Numérotation des ${kind}s interrompue`, detail: `Après le numéro ${nums[nums.indexOf(holes[0]) - 1]}, la suite reprend à ${holes[0]}. Une facture ne se supprime jamais : une erreur se corrige par un avoir.`, lien: "/factures", cible: `${kind}:${year}` });
   }
-  return { resume: `Ventes à distance dans l’Union cette année : ${formatPrice(eu)} (${Math.round(share * 100)} % du seuil). ${invoices.length} facture${invoices.length > 1 ? "s" : ""} et avoir${invoices.length > 1 ? "s" : ""} au registre.`, findings };
+  const resumeFranchise = franchise ? `Franchise en base de TVA : ${formatPrice(ventes)} de ventes cette année (${Math.round(part * 100)} % du seuil). ` : "";
+  return { resume: `${resumeFranchise}Ventes à distance dans l’Union cette année : ${formatPrice(eu)} (${Math.round(share * 100)} % du seuil). ${invoices.length} facture${invoices.length > 1 ? "s" : ""} et avoir${invoices.length > 1 ? "s" : ""} au registre.`, findings };
 }

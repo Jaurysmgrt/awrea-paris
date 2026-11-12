@@ -7,8 +7,9 @@
  *   jamais modifiée ensuite : un remboursement donne lieu à un avoir.
  * - Mentions obligatoires lues dans le registre légal (content/legal/fields.ts) : tant qu'un champ
  *   manque, la facture affiche un repère « [À COMPLÉTER : …] » bien visible.
- * - Régime de TVA : TVA française incluse (20 %), exportation hors Union européenne exonérée,
- *   ou franchise en base (mention « art. 293 B du CGI » dans le registre légal).
+ * - Régime de TVA lu dans le réglage unique de la Maison (content/settings.ts → shop.vatRegime) :
+ *   franchise en base (aucune TVA, mention de l'article 293 B du CGI), TVA française incluse
+ *   (20 %), ou exportation hors Union européenne exonérée. Calculs : lib/invoices/calcul.ts.
  *
  * - Désignation au modèle de la Maison : chaque pièce est créée sur demande par des artisans
  *   français, sans stock ; la ligne porte la taille et « création sur demande » (plus aucun numéro
@@ -18,37 +19,10 @@
  */
 import "server-only";
 import { kv } from "@/lib/store";
-import { shop } from "@/content/settings";
-import { vatFranchise } from "@/lib/commerce/international";
-import type { Address, Order } from "@/lib/commerce/types";
+import type { Order } from "@/lib/commerce/types";
+import { composeCreditNote, composeInvoice, type Invoice, type InvoiceLine } from "./calcul";
 
-export interface InvoiceLine {
-  title: string;
-  detail?: string;
-  quantity: number;
-  /** prix unitaire toutes taxes comprises, en centimes */
-  unitTtc: number;
-}
-
-export interface Invoice {
-  number: string;
-  kind: "facture" | "avoir";
-  orderNumber: string;
-  /** avoir : facture d'origine */
-  refOf?: string;
-  issuedAt: string;
-  saleDate: string;
-  buyer: { name: string; email: string; address?: Address };
-  lines: InvoiceLine[];
-  /** taux appliqué (0 : exportation ou franchise) */
-  vatRate: number;
-  regime: "tva" | "export" | "franchise";
-  totals: { ht: number; vat: number; ttc: number; duty?: number; importVat?: number };
-  paymentMethod: string;
-  /** part réglée par carte cadeau */
-  giftCard?: number;
-  reason?: string;
-}
+export type { Invoice, InvoiceLine } from "./calcul";
 
 const LIST = "invoices";
 const COUNTERS = "invoices:counters";
@@ -72,15 +46,6 @@ async function nextNumber(kind: Invoice["kind"], year: number): Promise<string> 
   }
 }
 
-const round = (n: number) => Math.round(n);
-
-/** Montants hors taxes et TVA à partir des lignes TTC (la TVA est la différence : le TTC reste exact). */
-function totalsOf(lines: InvoiceLine[], rate: number): Invoice["totals"] {
-  const ttc = lines.reduce((s, l) => s + l.unitTtc * l.quantity, 0);
-  const ht = rate ? round(ttc / (1 + rate)) : ttc;
-  return { ht, vat: ttc - ht, ttc };
-}
-
 /** La facture (ou le dernier avoir) d'une commande. */
 export async function invoiceOf(orderNumber: string, kind: Invoice["kind"] = "facture"): Promise<Invoice | null> {
   return (await listInvoices()).filter((i) => i.orderNumber === orderNumber && i.kind === kind).at(-1) ?? null;
@@ -96,21 +61,6 @@ async function store(invoice: Invoice) {
   await kv.set(LIST, [...all, invoice]);
 }
 
-/** Lignes de la facture d'une commande : pièces, emballage, livraison (prix TTC payés). */
-function linesOf(order: Order, giftWrapPrice = shop.giftWrapPrice): InvoiceLine[] {
-  const lines: InvoiceLine[] = order.lines.map((l) => ({
-    title: l.title,
-    detail: `${l.size === "TU" ? "Taille unique" : `Taille ${l.size}`} · création sur demande`,
-    quantity: l.quantity,
-    unitTtc: l.unitPrice,
-  }));
-  // privilège de bienvenue : « Remise », et son libellé (« Privilège de bienvenue, 10 % sur … ») en détail
-  if (order.discount?.amount) lines.push({ title: order.privilege ? "Remise" : `Remise ${order.discount.code}`, detail: order.discount.label, quantity: 1, unitTtc: -order.discount.amount });
-  if (order.gift?.wrap) lines.push({ title: "Emballage cadeau", detail: "Mot écrit à la main", quantity: 1, unitTtc: giftWrapPrice });
-  if (order.shipping.price) lines.push({ title: "Livraison", detail: order.shipping.method, quantity: 1, unitTtc: order.shipping.price });
-  return lines;
-}
-
 /** Émet la facture d'une commande payée (une seule fois). */
 export async function issueInvoice(order: Order): Promise<Invoice> {
   const existing = await invoiceOf(order.number);
@@ -122,20 +72,8 @@ export async function issueInvoice(order: Order): Promise<Invoice> {
     if (again) return again;
   }
   try {
-    const exp = order.taxes?.export;
-    const franchise = vatFranchise();
-    const regime: Invoice["regime"] = franchise ? "franchise" : exp ? "export" : "tva";
-    const rate = regime === "tva" ? (order.taxes?.vatRate ?? shop.vatRate) : 0;
-    // exportation : pièces et livraison facturées hors TVA française, au centime près de ce qui a été payé
-    const fr = franchise ? 0 : shop.vatRate;
-    const lines = linesOf(order).map((l) => (regime === "export" ? { ...l, unitTtc: round(l.unitTtc / (1 + fr)) } : l));
-    if (exp && lines.length) {
-      const diff = exp.exVat - lines.reduce((s, l) => s + l.unitTtc * l.quantity, 0);
-      const last = lines.findLast((l) => l.quantity === 1);
-      if (last) last.unitTtc += diff;
-    }
-    const totals = totalsOf(lines, rate);
-    if (exp) Object.assign(totals, { duty: exp.duty, importVat: exp.importVat, ttc: totals.ttc + exp.duty + exp.importVat });
+    // lignes, régime de TVA (franchise en base, TVA française ou exportation) et totaux
+    const { lines, vatRate, regime, totals } = composeInvoice(order);
     const now = new Date();
     const invoice: Invoice = {
       number: await nextNumber("facture", now.getFullYear()),
@@ -145,7 +83,7 @@ export async function issueInvoice(order: Order): Promise<Invoice> {
       saleDate: order.createdAt,
       buyer: { name: order.address ? `${order.address.firstName} ${order.address.lastName}` : order.name, email: order.email, address: order.address },
       lines,
-      vatRate: rate,
+      vatRate,
       regime,
       totals,
       paymentMethod: order.paymentMethod,
@@ -164,7 +102,6 @@ export async function issueInvoice(order: Order): Promise<Invoice> {
  */
 export async function issueCreditNote(order: Order, lines: InvoiceLine[], reason: string): Promise<Invoice> {
   const invoice = await issueInvoice(order);
-  const regimeRate = invoice.vatRate;
   const now = new Date();
   const note: Invoice = {
     number: await nextNumber("avoir", now.getFullYear()),
@@ -174,10 +111,9 @@ export async function issueCreditNote(order: Order, lines: InvoiceLine[], reason
     issuedAt: now.toISOString(),
     saleDate: order.createdAt,
     buyer: invoice.buyer,
-    lines: invoice.regime === "export" ? lines.map((l) => ({ ...l, unitTtc: round(l.unitTtc / (1 + shop.vatRate)) })) : lines,
-    vatRate: regimeRate,
+    ...composeCreditNote(invoice, lines),
+    vatRate: invoice.vatRate,
     regime: invoice.regime,
-    totals: totalsOf(lines, regimeRate),
     paymentMethod: invoice.paymentMethod,
     reason,
   };
