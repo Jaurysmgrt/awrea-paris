@@ -98,7 +98,7 @@ export const legalPages = {
           `Vous disposez de ${shop.returnDays} jours à compter de la réception pour vous rétracter, sans avoir à vous justifier. Le plus simple passe par [la rétractation en ligne](/retractation), ou par la rubrique « Commandes » de votre compte.`,
           "La pièce revient dans son état d’origine et complète, avec son emballage, son certificat d’authenticité et sa facture d’achat. Vous pouvez l’essayer comme en boutique ; si elle a été portée, salie ou abîmée, ou si elle revient incomplète, sa perte de valeur peut être retenue sur le remboursement. Les frais de retour restent à votre charge.",
           "Vous êtes remboursée au plus tard quatorze jours après votre demande, frais de livraison compris ; la Maison peut attendre d’avoir reçu la pièce, ou la preuve de son envoi. Si vous le préférez, la pièce est échangée. Le détail figure à l’article 7 des [conditions générales de vente](/cgv#retractation). Une pièce échangée contre une autre taille est créée sur demande, avec son délai de fabrication.",
-          "Les pièces de la boutique, créées sur demande dans les tailles du guide, ouvrent droit à la rétractation, même si elles sont fabriquées après votre commande. Seule une création personnalisée, confectionnée selon vos mesures ou vos demandes particulières, en est exclue (article L221-28, 3° du Code de la consommation) ; la Maison vous le dit avant que vous ne confirmiez la commande.",
+          "Les pièces de la boutique, créées sur demande dans les tailles du guide, ouvrent droit à la rétractation, même si elles sont fabriquées après votre commande. Seule une création personnalisée, confectionnée selon vos mesures ou vos demandes particulières, en est exclue (article L221-28, 3° du Code de la consommation) ; la Maison vous le dit avant que vous ne confirmiez la commande.",
         ],
       },
       {
@@ -491,7 +491,7 @@ export const legalPages = {
         blocks: [
           "Renvoyez la pièce au plus tard quatorze jours après votre demande, dans son état d’origine et complète, avec son emballage, son certificat d’authenticité et sa facture d’achat. Vous pouvez l’essayer comme en boutique ; si elle a été portée, salie ou abîmée, ou si elle revient incomplète, sa perte de valeur peut être retenue sur le remboursement. Les frais de retour restent à votre charge.",
           "Le remboursement, frais de livraison compris, est fait sur le moyen de paiement utilisé pour la commande, au plus tard quatorze jours après votre demande ; la Maison peut attendre d’avoir reçu la pièce, ou la preuve de son envoi. Le détail figure à l’article 7 des [conditions générales de vente](/cgv#retractation).",
-          "Les pièces de la boutique, créées sur demande dans les tailles du guide, ouvrent droit à la rétractation, même si elles sont fabriquées après votre commande. Seule une création personnalisée, confectionnée selon vos mesures ou vos demandes particulières, en est exclue (article L221-28, 3° du Code de la consommation) ; la Maison vous le dit avant que vous ne confirmiez la commande.",
+          "Les pièces de la boutique, créées sur demande dans les tailles du guide, ouvrent droit à la rétractation, même si elles sont fabriquées après votre commande. Seule une création personnalisée, confectionnée selon vos mesures ou vos demandes particulières, en est exclue (article L221-28, 3° du Code de la consommation) ; la Maison vous le dit avant que vous ne confirmiez la commande.",
         ],
       },
       {

@@ -174,7 +174,7 @@ export const legalFields = {
   },
   paiementFractionne: {
     short: "prestataire du paiement fractionné",
-    label: "prestataire du paiement en plusieurs fois (sans objet : le site ne le propose pas, l’article 4 des CGV officielles prévoit un paiement comptant, en totalité, à la commande)",
+    label: "prestataire du paiement en plusieurs fois (sans objet : le site ne le propose pas, l’article 4 des CGV prévoit un paiement comptant, en totalité, à la commande)",
     value: "",
     source: "Sans objet",
     pages: [],

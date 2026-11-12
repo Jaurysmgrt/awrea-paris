@@ -223,8 +223,9 @@ l’affichage. Vous pouvez les retirer si votre texte n’en a pas besoin, sauf 
 ou un code utile à votre cliente (comme {lien} ou {visio}) : le panneau vous le dit.
 
 Les textes officiels que vous avez écrits (À propos, texte de la collection, présentation de la
-Maison, conditions générales de vente, mentions légales) sont repris mot pour mot. Le panneau n’y
-signale que la typographie.
+Maison) sont repris mot pour mot. Le panneau n’y signale que la typographie. Les mentions légales,
+réécrites le 11/11, et les conditions générales de vente, corrigées le 12/11 à votre demande, suivent
+désormais les mêmes règles que les autres textes.
 
 ![Un paragraphe en cours de modification, avec son panneau](docs/guide/04-modifier-un-texte.png)
 
@@ -484,7 +485,9 @@ reste à leur charge.
    aucun remboursement ne part de l’Atelier sur le site en ligne : l’Atelier vous le dit.
 4. Pour un échange : **Expédier la nouvelle taille**.
 5. Si la pièce revient portée ou sans son certificat : **Refuser**. La cliente est prévenue par
-   e-mail.
+   e-mail. Vos CGV corrigées (article 7) disent qu’une pièce portée, salie ou incomplète peut voir sa
+   perte de valeur retenue sur le remboursement : avant de refuser, parlez-en à la personne qui
+   s’occupe du site, le bouton doit encore suivre cette règle.
 
 Les conditions de retour sont celles de vos conditions générales de vente.
 
@@ -722,11 +725,30 @@ intellectuelle), et sur les fiches des pièces pour les matières, la compositio
 mesures. Dans Atelier › **Pages**, la famille **Pages légales** les rappelle. Chaque matin, le
 Gardien de l’éditeur (Atelier › **Équipe**) signale les textes encore entre crochets.
 
-**La liste complète** est dans le fichier `LEGAL-A-COMPLETER.md`. Aujourd’hui, onze informations y
-attendent, notamment : le numéro de TVA (ou la mention de la franchise de TVA), la directrice de la
-publication, le médiateur de la consommation, l’hébergeur du nouveau site, le numéro
-d’enregistrement de la marque, les crédits des photographes, la durée de conservation des demandes
-sans suite. S’y ajoutent les éléments listés dans `RESSOURCES.md` : vos vraies photos, le logo en
+**Dans l’Atelier.** Les deux informations les plus urgentes sont rappelées dans la Vue d’ensemble,
+liste **À faire en priorité**, tant qu’elles manquent :
+
+1. **Choisir l’adresse de la Maison** : la domiciliation. Le lien montre la page des mentions
+   légales, où l’adresse s’affichera.
+2. **Choisir un médiateur de la consommation** : obligatoire pour vendre en ligne. Le lien
+   **Liste officielle des médiateurs** ouvre la liste des médiateurs référencés, sur
+   economie.gouv.fr.
+
+Une fois l’adresse ou le médiateur choisi, envoyez-le à la personne qui s’occupe du site : il
+s’affiche partout d’un coup (mentions légales, conditions générales de vente, factures) et le rappel
+disparaît tout seul.
+
+**La liste complète** est dans le fichier `LEGAL-A-COMPLETER.md`. Aujourd’hui, sept informations y
+attendent : l’adresse de domiciliation, le médiateur de la consommation, les crédits des
+photographes, les régions d’hébergement de la base clientes et des outils techniques, l’outil
+d’e-mails et la durée de conservation des demandes sans suite. Le code APE, la franchise de TVA et le
+numéro de la marque à l’INPI (5225836) sont renseignés.
+
+**Vos conditions générales de vente** ont été corrigées le 12/11 à votre demande : pièces fabriquées
+après la commande et sans stock, prix sans TVA (franchise), délai de fabrication puis de livraison,
+rétractation de quatorze jours maintenue pour les modèles standards, médiation. Relisez-les avant la
+mise en ligne : Atelier › **Pages** › Pages légales › Conditions générales de vente › **Modifier**.
+Le détail de chaque changement, article par article, est dans `LEGAL-A-COMPLETER.md`. S’y ajoutent les éléments listés dans `RESSOURCES.md` : vos vraies photos, le logo en
 SVG, la licence de la police du logo, le crédit de votre portrait, les prix et délais définitifs,
 les matières et l’entretien de chaque pièce.
 
