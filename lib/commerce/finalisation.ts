@@ -26,8 +26,7 @@ import { delaiText, fill, type CatalogueTexts, type CommerceTexts } from "@/lib/
 import { getDoc } from "@/lib/edition/read";
 import { formatPrice } from "@/lib/format";
 import { upsertOrder } from "@/lib/customers/commandes-base";
-import { upsertContact } from "@/lib/marketing/provider";
-import { onNewsletterSignup } from "@/lib/marketing/flows";
+import { inscrireALaLettre } from "@/lib/crm/lettre";
 import { issueInvoice } from "@/lib/invoices";
 import { invoicePdf } from "@/lib/invoices/pdf";
 import { issueCertificates } from "@/lib/certificates";
@@ -100,20 +99,13 @@ async function etapes(commande: Order): Promise<string[]> {
 
   // base clientes : commande recopiée et rattachée au compte de même e-mail
   ensuite(() => upsertOrder({ ...order, source: order.source }).catch((e) => console.error("[commande] base clientes", e)));
-  if (order.consents?.newsletter) {
-    const inscrite = order;
-    // inscrite une fois : une finalisation reprise ne renvoie pas l'e-mail de bienvenue
-    const nouvelle = await (async () => {
-      const list = (await kv.get<{ email: string; date: string; source?: string }[]>("newsletter:subscribers")) ?? [];
-      if (list.some((s) => s.email === inscrite.email)) return false;
-      await kv.set("newsletter:subscribers", [...list, { email: inscrite.email, date: inscrite.createdAt, source: "commande" }]);
-      return true;
-    })().catch(noter("lettre d’information"));
-    if (nouvelle)
-      ensuite(async () => {
-        await upsertContact({ email: inscrite.email, firstName: inscrite.address?.firstName, lastName: inscrite.address?.lastName, marketing: true }).catch((e) => console.error("[commande] e-mails", e));
-        await onNewsletterSignup(inscrite.email).catch(() => {});
-      });
+  // case « Recevoir la lettre » cochée à la commande : inscription demandée dans la fiche (lib/crm) et
+  // e-mail de confirmation, une seule fois par commande ; la bienvenue suit le clic sur son lien
+  const lettreFaite = `${cle(order.id)}:lettre`;
+  if (order.consents?.newsletter && (await kv.peek(lettreFaite)) === 0) {
+    await inscrireALaLettre({ email: order.email, prenom: order.address?.firstName, nom: order.address?.lastName, telephone: order.address?.phone, source: "commande" })
+      .then(() => kv.incr(lettreFaite, VINGT_ANS))
+      .catch(noter("lettre d’information"));
   }
 
   // facture émise dès le paiement (numérotation continue), jointe à l'e-mail de confirmation

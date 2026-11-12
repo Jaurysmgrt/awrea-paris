@@ -507,3 +507,76 @@
     }
   }
 }
+
+/*
+ * Fenêtre « Profitez de votre privilège » (components/marketing/FenetrePrivilege.tsx) : une feuille
+ * de papier au filet très fin, centrée sur un voile, la croix en haut à droite. Au téléphone, 16 px de
+ * marge de chaque côté ; elle défile seule si l'écran est bas. Fondu à la durée unique (--dur, quasi
+ * nulle en animations apaisées) ; couleurs par les rôles (--fg, --bg, --line), donc le mode Nuit.
+ */
+@layer components {
+  .privilege {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: min(100% - 2 * var(--spacing-s), var(--container-panel));
+    max-width: 100%;
+    height: fit-content;
+    max-height: calc(100dvh - 2 * var(--spacing-s));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0;
+    border: var(--border-width-hair) solid var(--line);
+    color: var(--fg);
+    background: var(--bg);
+    opacity: 0;
+    transform: translateY(var(--spacing-xs));
+    transition:
+      opacity var(--dur) var(--ease),
+      transform var(--dur) var(--ease),
+      overlay var(--dur) allow-discrete,
+      display var(--dur) allow-discrete;
+  }
+  .privilege[open] {
+    opacity: 1;
+    transform: none;
+  }
+  @starting-style {
+    .privilege[open] {
+      opacity: 0;
+      transform: translateY(var(--spacing-xs));
+    }
+  }
+  .privilege::backdrop {
+    background: color-mix(in oklab, var(--color-ink) 55%, transparent);
+    opacity: 0;
+    transition:
+      opacity var(--dur) var(--ease),
+      overlay var(--dur) allow-discrete,
+      display var(--dur) allow-discrete;
+  }
+  .privilege[open]::backdrop {
+    opacity: 1;
+  }
+  @starting-style {
+    .privilege[open]::backdrop {
+      opacity: 0;
+    }
+  }
+  .privilege__panel {
+    position: relative;
+    padding: var(--spacing-l) var(--spacing-m) var(--spacing-m);
+  }
+  .privilege__fermer {
+    position: absolute;
+    top: var(--spacing-2xs);
+    right: var(--spacing-2xs);
+  }
+  /* le titre ne passe jamais sous la croix */
+  .privilege__titre {
+    padding-right: var(--spacing-l);
+  }
+  .privilege__conditions {
+    color: var(--fg-soft);
+  }
+}

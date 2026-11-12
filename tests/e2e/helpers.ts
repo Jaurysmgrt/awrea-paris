@@ -3,11 +3,23 @@ import path from "node:path";
 import type { Page } from "@playwright/test";
 import { CONSENT_COOKIE, encodeConsent } from "../../lib/consent";
 
-/** Pose le cookie de consentement (tout refusé) pour que le bandeau ne gêne pas les tests (il est testé à part). */
-export async function acceptCookies(page: Page) {
+/**
+ * Pose le cookie de consentement (tout refusé) pour que le bandeau ne gêne pas les tests (il est testé à
+ * part). La fenêtre « Profitez de votre privilège » est aussi notée déjà vue, pour qu'elle ne s'ouvre
+ * pas au milieu d'un parcours (elle est testée à part, avec `{ privilege: true }`).
+ */
+export async function acceptCookies(page: Page, o: { privilege?: boolean } = {}) {
   const base = test_base();
   const value = encodeConsent({ id: "e2etests01", analytics: false, personalization: false, advertising: false, date: Date.now(), policy: "2026-10" });
   await page.context().addCookies([{ name: CONSENT_COOKIE, value, url: base }]);
+  if (!o.privilege)
+    await page.addInitScript(() => {
+      try {
+        if (!localStorage.getItem("awrea_privilege")) localStorage.setItem("awrea_privilege", JSON.stringify({ vu: new Date().toISOString() }));
+      } catch {
+        /* stockage indisponible */
+      }
+    });
 }
 
 export function test_base() {
@@ -54,6 +66,28 @@ export function readStore(): Record<string, unknown> {
 /** Boîte d'envoi simulée du mode démonstration. */
 export function outbox(): { to: string; subject: string; text: string }[] {
   return (readStore()["email:outbox"] as { to: string; subject: string; text: string }[] | undefined) ?? [];
+}
+
+/** Lien de l'e-mail « Confirmez votre inscription » reçu par cette adresse (le plus récent), chemin et jeton. */
+export async function lienDeConfirmation(email: string): Promise<string> {
+  for (let i = 0; i < 40; i++) {
+    const mail = outbox().find((m) => m.to === email && /Confirmez votre inscription|Confirm your sign-up/.test(m.subject));
+    const lien = mail?.text.match(/https?:\/\/\S+?\/lettres\/confirmation\?jeton=[^\s)]+/)?.[0];
+    if (lien) {
+      const u = new URL(lien);
+      return u.pathname + u.search;
+    }
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  throw new Error(`Aucun e-mail de confirmation pour ${email}`);
+}
+
+/** Confirme l'inscription à la lettre comme le ferait la page ouverte depuis l'e-mail. */
+export async function confirmerInscription(page: Page, email: string) {
+  const jeton = new URL(await lienDeConfirmation(email), "http://x").searchParams.get("jeton");
+  const r = await page.request.post("/api/newsletter/confirmation", { data: { jeton } });
+  if (!r.ok()) throw new Error(`Confirmation refusée : ${await r.text()}`);
+  return (await r.json()) as { ok: true; privilege: { expireLe: string } | null };
 }
 
 /** Page hydratée : les composants client ont monté leurs effets (components/layout/HydrationMark.tsx). */

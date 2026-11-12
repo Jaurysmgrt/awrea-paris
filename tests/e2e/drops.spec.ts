@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { acceptCookies, outbox } from "./helpers";
+import { acceptCookies, confirmerInscription, outbox } from "./helpers";
 import { adminLogin, ATELIER } from "./admin-auth";
 
 /**
@@ -84,6 +84,8 @@ test.describe("Avant-premières des collections", () => {
     const email = `lettre.${Date.now().toString(36)}@exemple.fr`;
     const signup = await page.request.post("/api/newsletter", { data: { formule: "compacte", email, consent: true, source: "e2e" } });
     expect(signup.ok(), await signup.text()).toBeTruthy();
+    // double confirmation : seule une inscription confirmée par le lien de l'e-mail reçoit les lettres
+    await confirmerInscription(page, email);
     await adminLogin(page);
     const slug = `lettre-${Date.now().toString(36)}`;
     await createDrop(page, { slug, title: "Collection de la lettre", teaser: "Une collection annoncée aux inscrites à la lettre de la Maison.", products: [PIECE], earlyAccessAt: at(24), publicAt: at(72), privateSale: false, notifyLetters: true });

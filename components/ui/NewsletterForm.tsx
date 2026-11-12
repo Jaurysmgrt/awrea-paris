@@ -17,6 +17,8 @@ import Link from "@/components/ui/Link";
 import { Turnstile } from "@/components/security/Turnstile";
 import { useTexts } from "@/components/content/Texts";
 import { track } from "@/lib/analytics/track";
+import { useLocale } from "@/components/providers/LocaleProvider";
+import { noterInscription } from "@/components/marketing/memoire-privilege";
 import { EMAIL_MAX, NOM_MAX, TELEPHONE_MAX, champsEnErreur, type ChampLettre } from "@/app/api/newsletter/regles";
 
 type SiteTexts = typeof import("@/content/site/fr/site.json");
@@ -27,6 +29,7 @@ const ORDRE: ChampLettre[] = ["nom", "prenom", "email", "telephone", "consenteme
 /** Formulaire seul (les pages qui ont déjà leur titre l'utilisent tel quel). */
 export function NewsletterForm({ source = "site", compact = false }: { source?: string; compact?: boolean }) {
   const t = useTexts<SiteTexts>("site").lettre;
+  const locale = useLocale();
   const id = useId();
   const merciRef = useRef<HTMLParagraphElement>(null);
   const [etat, setEtat] = useState<Etat>("repos");
@@ -74,12 +77,15 @@ export function NewsletterForm({ source = "site", compact = false }: { source?: 
         telephone: saisie.telephone.trim() || undefined,
         consent: saisie.consentement,
         source,
+        langue: locale,
         turnstile: form.get("cf-turnstile-response") || undefined,
       }),
     }).catch(() => null);
     const json: { error?: string; champs?: ChampLettre[] } = res ? await res.json().catch(() => ({})) : {};
     if (res?.ok) {
       track({ name: "newsletter" });
+      // la fenêtre « Profitez de votre privilège » ne revient plus dans ce navigateur
+      noterInscription();
       setEtat("merci");
       requestAnimationFrame(() => merciRef.current?.focus());
       return;

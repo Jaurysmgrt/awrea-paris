@@ -20,13 +20,13 @@
     },
     "merci": {
       "titre": "Plus qu’un clic",
-      "texte": "Un e-mail de la Maison est en route. Cliquez sur son lien pour confirmer votre inscription : votre privilège s’ouvre aussitôt, pour 14 jours."
+      "texte": "Un e-mail de la Maison est en route. Cliquez sur son lien pour confirmer votre inscription :votre privilège s’ouvre aussitôt, pour 14 jours."
     },
     "erreurs": {
       "email": "Indiquez une adresse e-mail complète, par exemple prenom@exemple.fr.",
       "consentement": "Cochez la case pour recevoir la lettre et votre privilège.",
       "verification": "La vérification anti-robot n’a pas abouti. Merci de réessayer.",
-      "limite": "Plusieurs essais en peu de temps : merci de réessayer dans quelques minutes.",
+      "limite": "Plusieurs essais en peu de temps :merci de réessayer dans quelques minutes.",
       "generale": "Votre inscription n’a pas pu être enregistrée. Merci de réessayer."
     }
   },
@@ -38,15 +38,15 @@
     "entete": "La lettre de la Maison",
     "attente": "Un instant, nous confirmons votre inscription…",
     "titre": "Votre inscription est confirmée",
-    "texte": "La lettre de la Maison vous parviendra quelques fois par saison : une collection qui se prépare, une dentelle choisie, les coulisses de l’atelier.",
-    "privilege": "Votre privilège de bienvenue vous attend jusqu’au {date} : 10 % sur votre première pièce, retirés d’eux-mêmes au moment de payer avec cette adresse e-mail.",
+    "texte": "La lettre de la Maison vous parviendra quelques fois par saison :une collection qui se prépare, une dentelle choisie, les coulisses de l’atelier.",
+    "privilege": "Votre privilège de bienvenue vous attend jusqu’au {date} :10 % sur votre première pièce, retirés d’eux-mêmes au moment de payer avec cette adresse e-mail.",
     "bouton": {
       "label": "Voir les pièces",
       "href": "/boutique"
     },
     "invalide": {
       "titre": "Ce lien n’est plus valable",
-      "texte": "Il a expiré, ou votre inscription a changé depuis. Inscrivez-vous de nouveau en bas de chaque page : un nouveau lien vous sera envoyé."
+      "texte": "Il a expiré, ou votre inscription a changé depuis. Inscrivez-vous de nouveau en bas de chaque page :un nouveau lien vous sera envoyé."
     },
     "erreur": "La confirmation n’a pas abouti. Réessayez dans un instant.",
     "reessayer": "Réessayer"

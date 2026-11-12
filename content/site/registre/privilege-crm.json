@@ -1,6 +1,6 @@
 {
   "privilege": {
-    "label": "Privilège de bienvenue (fenêtre « Profitez de votre privilège », confirmation de l’inscription)",
+    "label": "Privilège de bienvenue (fenêtre « Profitez de votre privilège », confirmation de l’inscription)",
     "kind": "textes",
     "chemin": "/"
   },

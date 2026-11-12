@@ -7,6 +7,7 @@ import { CartProvider } from "@/components/commerce/CartProvider";
 import { CartDrawerLazy } from "@/components/commerce/CartDrawerLazy";
 import { WishlistProvider } from "@/components/commerce/WishlistProvider";
 import { Assistant } from "@/components/assistant/Assistant";
+import { Privilege } from "@/components/marketing/Privilege";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Trackers } from "@/components/analytics/Trackers";
 import { Suspense } from "react";
@@ -40,6 +41,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
               <Footer />
               <CartDrawerLazy />
               <Assistant />
+              {/* fenêtre « Profitez de votre privilège » : jamais en mode Édition */}
+              {editing ? null : <Privilege />}
               <Justification active={!editing} />
               <Suspense fallback={null}>
                 {/* mode Édition et aperçu des brouillons : aucune mesure d'audience (pièces non dévoilées) */}
