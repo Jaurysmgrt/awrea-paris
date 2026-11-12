@@ -62,6 +62,9 @@ const Body = z.object({
   testOutcome: z.enum(["accepted", "declined", "incomplete"]).optional(),
   acceptTerms: z.literal(true),
   source: z.string().max(40).nullable().optional(),
+  // privilège de bienvenue affiché dans le récapitulatif (centimes) : la commande ne passe que si la
+  // cliente a vu la remise qui sera retirée
+  privilegeAffiche: z.number().int().min(0).max(10_000_000).optional(),
 });
 
 const PAYMENT_LABEL = { card: "Carte bancaire", "apple-pay": "Apple Pay", "google-pay": "Google Pay", paypal: "PayPal" } as const;
@@ -112,6 +115,7 @@ export async function POST(req: Request) {
   // d'office pour une adresse à l'inscription confirmée, jamais avec un autre code ; la livraison
   // offerte se juge avant lui (un cadeau ne fait jamais payer la livraison)
   const { remise: privilege } = await privilegePourPanier(d.email, cart.lines.map((l) => ({ handle: l.productHandle, title: l.title, size: l.size, unitPrice: l.unitPrice, quantity: l.quantity })), { code: Boolean(cart.discount) });
+  if (d.privilegeAffiche !== undefined && d.privilegeAffiche !== (privilege?.montant ?? 0)) return NextResponse.json({ error: tCommerce.commande.privilege.misAJour, privilege: "change" }, { status: 409 });
   // taxes : TVA française incluse, ou export avec droits et TVA du pays payés à la commande
   const { taxes, total: gross } = orderTaxes(d.country, merchandise - (privilege?.montant ?? 0) + (cart.gift.wrap ? cart.giftWrapPrice : 0), shippingPrice);
 

@@ -260,6 +260,7 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
       ...(stripe ? {} : { paymentMethod: pay, testOutcome: pay === "card" ? testOutcome(String(form.get("cardNumber") ?? "")) : undefined }),
       acceptTerms: form.get("terms") === "on",
       source: readSource(),
+      privilegeAffiche: privilege.remise?.montant ?? 0,
     };
     if (rate?.relay && !relayId) {
       setState("error");
@@ -342,7 +343,7 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
               <label className="field__label" htmlFor="co-email">
                 {f.email}
               </label>
-              <input ref={emailRef} className="field__input" id="co-email" name="email" key={`email-${prefill.email ?? ""}`} defaultValue={prefill.email} type="email" required autoComplete="email" onBlur={(e) => privilege.saisir(e.currentTarget.value)} />
+              <input ref={emailRef} className="field__input" id="co-email" name="email" key={`email-${prefill.email ?? ""}`} defaultValue={prefill.email} type="email" required autoComplete="email" onChange={(e) => privilege.saisir(e.currentTarget.value)} />
               <span className="field__hint">{f.emailAide}</span>
             </div>
             <label className="check t-note">

@@ -132,7 +132,8 @@
       "ligne": "Welcome privilege, 10% off {piece}",
       "nonCumulable": "Your welcome privilege cannot be combined with a code: remove the code to enjoy it.",
       "occupe": "Your welcome privilege is already held by another payment. Please try again in a few minutes.",
-      "change": "Your welcome privilege has already been used for another order: the total has been updated. Check it before paying."
+      "change": "Your welcome privilege has already been used for another order: the total has been updated. Check it before paying.",
+      "misAJour": "The total has just been updated with your welcome privilege. Check it before paying."
     },
     "stripe": {
       "texte": "You pay on Stripe’s secure page, our payment provider: card and other methods offered depending on your device. Your bank details never pass through our site.",
