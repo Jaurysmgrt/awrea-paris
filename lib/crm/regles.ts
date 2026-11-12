@@ -28,6 +28,25 @@ export const normaliserEmail = (email: string): string =>
     .replace(/[\s​-‍⁠﻿]+/gu, "")
     .toLowerCase();
 
+/**
+ * Clé de comparaison d'une adresse pour le privilège de bienvenue et « déjà cliente » : l'adresse
+ * normalisée, sans le « +… » de la partie locale (une même boîte reçoit « jeanne+2@ » et « jeanne@ »),
+ * et pour Gmail sans les points de la partie locale, « googlemail.com » ramené à « gmail.com ».
+ * Elle ne sert qu'à comparer : les e-mails partent toujours à l'adresse donnée.
+ */
+export function cleCanonique(email: string): string {
+  const e = normaliserEmail(email);
+  const at = e.lastIndexOf("@");
+  if (at <= 0) return e;
+  let local = e.slice(0, at);
+  let domaine = e.slice(at + 1);
+  const plus = local.indexOf("+");
+  if (plus > 0) local = local.slice(0, plus);
+  if (domaine === "googlemail.com") domaine = "gmail.com";
+  if (domaine === "gmail.com") local = local.replace(/\./g, "") || local;
+  return `${local}@${domaine}`;
+}
+
 /** Adresse plausible (une seule « @ », un point dans le domaine). */
 export const emailPlausible = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -63,10 +82,20 @@ export interface FicheCRM {
   creeLe: string;
   /** statut de la lettre tenu par le CRM ; absent, il se déduit des sources existantes */
   lettre?: { statut: StatutLettre; depuis: string; source?: string; preuve?: PreuveConsentement };
-  /** inscription demandée, en attente du clic dans l'e-mail de confirmation */
-  attente?: { le: string; source: string; texte: string };
+  /**
+   * inscription demandée, en attente du clic dans l'e-mail de confirmation ; les coordonnées données
+   * avec la demande n'entrent dans la fiche qu'au clic (personne ne réécrit la fiche d'une autre)
+   */
+  attente?: { le: string; source: string; texte: string; coordonnees?: Coordonnees };
   historique: EvenementCRM[];
   modifieeLe?: string;
+}
+
+/** Prénom, nom et téléphone donnés par la personne. */
+export interface Coordonnees {
+  prenom?: string;
+  nom?: string;
+  telephone?: string;
 }
 
 /** Ancienne liste des inscrites (clé « newsletter:subscribers »), lue telle quelle. */
@@ -120,6 +149,8 @@ export interface SourcesCRM {
   comptes: CompteSource[];
   commandes: CommandeSource[];
   rendezVous: RendezVousSource[];
+  /** dernière désinscription notée par adresse normalisée (liste « newsletter:desinscriptions ») */
+  desinscriptions?: Record<string, string>;
 }
 
 /** État de la lettre d'une adresse, tel que l'Atelier et les envois le lisent. */
@@ -153,7 +184,30 @@ export interface Contact extends CustomerStats {
  * Statut de la lettre d'une adresse. Le CRM fait foi dès qu'il a tranché ; sinon l'ancienne liste
  * des inscrites (consentement donné par une case cochée), puis la case « lettres » du compte.
  */
-export function etatLettre(s: { fiche?: FicheCRM | null; ancienne?: AncienneInscrite | null; compte?: Pick<CompteSource, "lettre" | "lettreLe" | "creeLe"> | null }): EtatLettre {
+export function etatLettre(s: { fiche?: FicheCRM | null; ancienne?: AncienneInscrite | null; compte?: Pick<CompteSource, "lettre" | "lettreLe" | "creeLe"> | null; desinscriteLe?: string | null }): EtatLettre {
+  const e = etatSelonSources(s);
+  // filet de sécurité : une désinscription notée dans la liste des désinscriptions, plus récente que
+  // l'accord (ou qu'un accord sans date), l'emporte même si la fiche n'a pas pu être mise à jour
+  const d = s.desinscriteLe;
+  if (e.statut !== "abonnee" || !d) return e;
+  const accord = e.preuve?.confirmeLe ?? e.depuis;
+  if (accord && accord > d) return e;
+  return { ...e, statut: "desinscrite", depuis: d, source: "lien", confirmee: false };
+}
+
+/** Dernière désinscription de chaque adresse normalisée, dans la liste « newsletter:desinscriptions ». */
+export function dernieresDesinscriptions(liste: readonly { email?: unknown; date?: unknown }[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const d of liste) {
+    if (typeof d?.email !== "string" || typeof d.date !== "string" || !Number.isFinite(Date.parse(d.date))) continue;
+    const e = normaliserEmail(d.email);
+    const le = new Date(d.date).toISOString();
+    if (!out[e] || out[e] < le) out[e] = le;
+  }
+  return out;
+}
+
+function etatSelonSources(s: { fiche?: FicheCRM | null; ancienne?: AncienneInscrite | null; compte?: Pick<CompteSource, "lettre" | "lettreLe" | "creeLe"> | null }): EtatLettre {
   const attente = s.fiche?.attente ? { le: s.fiche.attente.le, source: s.fiche.attente.source } : null;
   const l = s.fiche?.lettre;
   if (l) return { statut: l.statut, depuis: l.depuis, source: l.source ?? null, preuve: l.preuve ?? null, attente, confirmee: l.statut === "abonnee" && Boolean(l.preuve?.confirmeLe) };
@@ -206,18 +260,57 @@ const nettoyer = (v: string | undefined | null) => {
   return t ? t.slice(0, 120) : undefined;
 };
 
-/** Coordonnées données par la personne (formulaire) : elles complètent la fiche, sans rien effacer. */
-export function avecCoordonnees(f: FicheCRM, c: { prenom?: string | null; nom?: string | null; telephone?: string | null }): FicheCRM {
-  const prenom = nettoyer(c.prenom);
-  const nom = nettoyer(c.nom);
-  const telephone = nettoyer(c.telephone);
-  return { ...f, ...(prenom ? { prenom } : {}), ...(nom ? { nom } : {}), ...(telephone ? { telephone } : {}) };
+type CoordonneesSaisies = { prenom?: string | null; nom?: string | null; telephone?: string | null };
+
+/** Coordonnées nettoyées (vides retirées, 120 caractères au plus). */
+export function coordonneesPropres(c: CoordonneesSaisies | null | undefined): Coordonnees {
+  const prenom = nettoyer(c?.prenom);
+  const nom = nettoyer(c?.nom);
+  const telephone = nettoyer(c?.telephone);
+  return { ...(prenom ? { prenom } : {}), ...(nom ? { nom } : {}), ...(telephone ? { telephone } : {}) };
 }
 
-/** Inscription demandée (case cochée) : en attente du clic dans l'e-mail de confirmation. */
-export function demander(f: FicheCRM, d: { source: string; texte: string }, maintenant: Date): FicheCRM {
+/**
+ * Coordonnées données par la personne, appliquées au clic de confirmation : elles complètent la
+ * fiche sans jamais rien remplacer, ni une valeur de la fiche, ni une valeur de son compte (`garder`).
+ */
+export function avecCoordonnees(f: FicheCRM, c: CoordonneesSaisies, garder: CoordonneesSaisies | null = null): FicheCRM {
+  const propres = coordonneesPropres(c);
+  const next: FicheCRM = { ...f };
+  let change = false;
+  for (const k of ["prenom", "nom", "telephone"] as const) {
+    const v = propres[k];
+    if (!v || f[k] || nettoyer(garder?.[k])) continue;
+    next[k] = v;
+    change = true;
+  }
+  return change ? next : f;
+}
+
+/**
+ * Inscription demandée (case cochée) : en attente du clic dans l'e-mail de confirmation. La fiche
+ * elle-même ne change pas : les coordonnées attendent le clic avec la demande.
+ */
+export function demander(f: FicheCRM, d: { source: string; texte: string; coordonnees?: CoordonneesSaisies }, maintenant: Date): FicheCRM {
   const le = maintenant.toISOString();
-  return avecEvenement({ ...f, attente: { le, source: d.source, texte: d.texte } }, { at: le, type: "inscription", detail: d.source });
+  const coordonnees = coordonneesPropres(d.coordonnees);
+  return avecEvenement({ ...f, attente: { le, source: d.source, texte: d.texte, ...(Object.keys(coordonnees).length ? { coordonnees } : {}) } }, { at: le, type: "inscription", detail: d.source });
+}
+
+/** Une inscription attend-elle son clic depuis plus de `jours` jours (lien expiré) ? */
+export const attentePerimee = (f: FicheCRM, maintenant: Date, jours: number): boolean => Boolean(f.attente && maintenant.getTime() - Date.parse(f.attente.le) > jours * 86_400_000);
+
+/**
+ * Purge d'une inscription jamais confirmée (son lien a expiré) : la demande et ses coordonnées
+ * s'effacent ; une fiche qui ne gardait rien d'autre disparaît (aucune trace d'une adresse qui n'a
+ * jamais confirmé). Renvoie null si rien ne change, `{ fiche: null }` si la fiche disparaît.
+ */
+export function purgerAttente(f: FicheCRM, maintenant: Date, jours: number): { fiche: FicheCRM | null } | null {
+  if (!attentePerimee(f, maintenant, jours)) return null;
+  const { attente: _a, ...reste } = f;
+  void _a;
+  const vide = !reste.lettre && !reste.prenom && !reste.nom && !reste.telephone && !reste.modifieeLe && reste.historique.every((e) => e.type === "inscription");
+  return { fiche: vide ? null : reste };
 }
 
 /**
@@ -225,10 +318,12 @@ export function demander(f: FicheCRM, d: { source: string; texte: string }, main
  * encore ; `deja` si son inscription était déjà confirmée (le lien est rouvert) ; null si aucune
  * inscription n'attend (elle s'est désinscrite depuis, ou le lien ne correspond à rien).
  */
-export function confirmer(f: FicheCRM, avant: EtatLettre, maintenant: Date): { fiche: FicheCRM; nouvelle: boolean; deja: boolean } | null {
+export function confirmer(f: FicheCRM, avant: EtatLettre, maintenant: Date, compte: CoordonneesSaisies | null = null): { fiche: FicheCRM; nouvelle: boolean; deja: boolean } | null {
   if (!f.attente) return avant.statut === "abonnee" && avant.confirmee ? { fiche: f, nouvelle: false, deja: true } : null;
   const le = maintenant.toISOString();
-  const { attente, ...reste } = f;
+  const { attente, ...sans } = f;
+  // les coordonnées de la demande entrent dans la fiche, sans rien remplacer (ni la fiche, ni le compte)
+  const reste = avecCoordonnees(sans, attente.coordonnees ?? {}, compte);
   const fiche: FicheCRM = {
     ...reste,
     lettre: { statut: "abonnee", depuis: avant.statut === "abonnee" && avant.depuis ? avant.depuis : le, source: attente.source, preuve: { texte: attente.texte, le: attente.le, source: attente.source, confirmeLe: le } },
@@ -330,7 +425,7 @@ export function fusionnerContacts(s: SourcesCRM, idDe: (email: string) => string
 
   const out: Contact[] = [];
   for (const b of parEmail.values()) {
-    const lettre = etatLettre({ fiche: b.fiche, ancienne: b.ancienne, compte: b.compte });
+    const lettre = etatLettre({ fiche: b.fiche, ancienne: b.ancienne, compte: b.compte, desinscriteLe: s.desinscriptions?.[b.email] ?? null });
     // les commandes, la plus récente d'abord : l'adresse de la dernière donne le nom à défaut d'autre
     const commandes = [...b.commandes].sort((x, y) => y.createdAt.localeCompare(x.createdAt));
     const derniere = commandes[0];
