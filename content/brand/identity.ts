@@ -32,18 +32,23 @@ export const identity = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.awreaparis.com",
   email: "awrea.contact@gmail.com",
   phone: "06 99 55 74 43",
-  /** forme juridique et immatriculation (mentions légales officielles) */
-  legalForm: "Entrepreneur individuel (micro-entreprise)",
+  /** forme juridique et immatriculation (mentions légales, registre légal content/legal/fields.ts) */
+  legalForm: "Entrepreneuse individuelle (EI, micro-entreprise)",
   siren: "100 222 926",
   siret: "100 222 926 00014",
   /** inscription au registre national des entreprises et début d'activité */
   registeredOn: "2026-02-05",
   activityStart: "2026-04-01",
-  /** adresse de l'entreprise (mentions légales officielles) */
+  /**
+   * À COMPLÉTER : adresse de l'entreprise. La Maison attend une domiciliation professionnelle (cahier
+   * du 10/11/2026) : l'ancienne adresse n'est plus publiée. Tant que la rue est vide, les données
+   * structurées ne donnent que le pays (lib/seo/schema.ts) ; renseigner aussi le champ `siege` du
+   * registre légal (content/legal/fields.ts).
+   */
   legalAddress: {
-    streetAddress: "46 rue Paul Déroulède",
-    postalCode: "78290",
-    addressLocality: "Croissy-sur-Seine",
+    streetAddress: "",
+    postalCode: "",
+    addressLocality: "",
     addressCountry: "FR",
   },
   /**

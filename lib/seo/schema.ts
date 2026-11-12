@@ -35,8 +35,11 @@ export function organizationSchema() {
     founder: { "@type": "Person", jobTitle: "Créatrice et fondatrice", name: identity.founderTitle },
     email: identity.email,
     telephone: identity.phone,
-    // adresse de l'entreprise (mentions légales officielles) et numéro SIRET
-    address: { "@type": "PostalAddress", ...identity.legalAddress },
+    // adresse de l'entreprise (en attente de domiciliation : le pays seulement tant que la rue manque)
+    // et numéro SIRET
+    address: identity.legalAddress.streetAddress
+      ? { "@type": "PostalAddress", ...identity.legalAddress }
+      : { "@type": "PostalAddress", addressCountry: identity.legalAddress.addressCountry },
     identifier: { "@type": "PropertyValue", propertyID: "SIRET", value: identity.siret },
     // livraison en France métropolitaine (article 5 des CGV officielles)
     areaServed: "FR",
