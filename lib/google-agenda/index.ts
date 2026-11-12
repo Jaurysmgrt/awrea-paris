@@ -131,7 +131,12 @@ export async function occupationsGoogle(jours: number): Promise<Plage[]> {
   const t = Date.now();
   if (occupe && occupe.jusqua > t && occupe.jours >= jours) return occupe.plages;
   const c = await kv.get<ConnexionGoogle>(CONNEXION).catch(() => null);
-  if (c?.etat !== "connecte") return [];
+  if (c?.etat !== "connecte") {
+    // non connecté : gardé une minute (la liste des jours relit sinon le stockage jour par jour) ;
+    // une connexion ou une déconnexion efface ce cache
+    occupe = { jusqua: t + 60_000, jours, plages: Promise.resolve([]) };
+    return [];
+  }
   const entree: Cache = { jusqua: t + 5 * 60_000, jours, plages: Promise.resolve([]) };
   entree.plages = m.moteur.occupations(jours + 1).catch((e: unknown): Plage[] => {
     console.error("[google-agenda] moments occupés", e instanceof Error ? e.message : "erreur");
