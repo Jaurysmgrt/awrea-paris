@@ -22,6 +22,10 @@ const PATTERNS = [
   ["Jeton Upstash", /\bA[A-Za-z0-9]{40,}=?\b(?=.*upstash)/i],
   ["Clé privée", /-----BEGIN (?:RSA |EC |OPENSSH |)PRIVATE KEY-----/],
   ["Jeton Slack", /xox[abposr]-[A-Za-z0-9-]{10,}/],
+  // Google Agenda (ACTIVATION.md, étape 16) : secret du client OAuth, jetons d'accès et de rafraîchissement
+  ["Secret de client OAuth Google", /GOCSPX-[A-Za-z0-9_-]{20,}/],
+  ["Jeton d'accès Google", /\bya29\.[A-Za-z0-9_-]{20,}/],
+  ["Jeton de rafraîchissement Google", /\b1\/\/0[A-Za-z0-9_-]{20,}/],
 ];
 const SKIP = /(^|\/)(package-lock\.json|.*\.(png|jpe?g|webp|avif|gif|ico|mp4|webm|woff2?|pdf|zip))$/i;
 

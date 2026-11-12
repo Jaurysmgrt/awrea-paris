@@ -5,11 +5,24 @@ import { siteUrl } from "@/lib/seo/metadata";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { CopyButton } from "@/components/admin/CopyButton";
 import { AvailabilityForm } from "@/components/admin/AvailabilityForm";
+import { ConnecterGoogleAgenda } from "@/components/admin/GoogleAgenda";
+import { adresseRetour, etatRendezVous, vueGoogle } from "@/lib/google-agenda";
+import { LIBELLES_ETAT, type EtatSynchro } from "@/lib/google-agenda/regles";
 
-/** Agenda de l'atelier : rendez-vous à venir, disponibilités, abonnement de l'agenda personnel. */
-export default async function RendezVousAtelier() {
-  const [upcoming, availability] = await Promise.all([upcomingAppointments(), getAvailability()]);
+/** pastilles d'état de Google Agenda : fait (plein), en attente (gris), à refaire (filet) */
+const PASTILLE: Record<EtatSynchro, string> = { synchronise: "status status--done", "en-attente": "status status--pending", "a-refaire": "status" };
+
+const jour = (iso: string) => new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", timeZone: "Europe/Paris" }).format(new Date(iso));
+
+/** Agenda de l'atelier : rendez-vous à venir, disponibilités, Google Agenda, abonnement de l'agenda personnel. */
+export default async function RendezVousAtelier({ searchParams }: { searchParams: Promise<{ google?: string }> }) {
+  const [upcoming, availability, google, { google: retour }] = await Promise.all([upcomingAppointments(), getAvailability(), vueGoogle(), searchParams]);
   const feed = `${siteUrl}/api/rendez-vous/agenda?jeton=${agendaToken()}`;
+  const api = atelierApi("/agenda-google");
+  // pastilles par rendez-vous dès qu'une connexion existe (même à refaire)
+  const suivi = google.etat === "connecte" || google.etat === "a-reconnecter";
+  const attente = google.enAttente + google.aRefaire;
+  const global: EtatSynchro = google.aRefaire ? "a-refaire" : google.enAttente ? "en-attente" : "synchronise";
   return (
     <div className="admin-page stack-l">
       <header className="admin-page__head">
@@ -31,7 +44,9 @@ export default async function RendezVousAtelier() {
                 </tr>
               </thead>
               <tbody>
-                {upcoming.map((a) => (
+                {upcoming.map((a) => {
+                  const etat = suivi ? etatRendezVous(a) : null;
+                  return (
                   <tr key={a.id}>
                     <th scope="row">{whenOf(a.start)}</th>
                     <td>
@@ -40,6 +55,13 @@ export default async function RendezVousAtelier() {
                         <>
                           {" · "}
                           <a className="link" href={a.videoUrl} target="_blank" rel="noopener noreferrer">appel vidéo</a>
+                        </>
+                      ) : null}
+                      {etat ? (
+                        <>
+                          <br />
+                          <span className={PASTILLE[etat]} title="Google Agenda">{LIBELLES_ETAT[etat]}</span>
+                          {etat === "a-refaire" && a.google?.erreur ? <span className="t-note"> {a.google.erreur}</span> : null}
                         </>
                       ) : null}
                     </td>
@@ -51,9 +73,11 @@ export default async function RendezVousAtelier() {
                     </td>
                     <td>
                       <ActionButton endpoint={atelierApi("/rendez-vous")} body={{ action: "annuler", id: a.id }} label="Annuler" variant="quiet" confirm={`Annuler le rendez-vous de ${a.name} ? Elle reçoit un e-mail pour en choisir un autre.`} />
+                      {etat === "a-refaire" && google.etat === "connecte" ? <ActionButton endpoint={api} body={{ action: "reessayer", id: a.id }} label="Réessayer" variant="quiet" /> : null}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -65,6 +89,60 @@ export default async function RendezVousAtelier() {
       <section className="panel stack" aria-labelledby="dispos">
         <h2 id="dispos" className="t-h3">Disponibilités</h2>
         <AvailabilityForm value={availability} />
+      </section>
+
+      <section className="panel stack" aria-labelledby="google">
+        <h2 id="google" className="t-h3">Google Agenda</h2>
+        {retour === "connecte" && google.etat === "connecte" ? (
+          <p className="t-note" role="status">
+            Google Agenda est connecté. Vos rendez-vous à venir y sont ajoutés.
+          </p>
+        ) : null}
+        {google.etat === "non-branche" ? (
+          <p className="t-note">
+            La connexion à Google Agenda n’est pas encore branchée. Le guide d’activation explique comment la brancher, à l’étape Google Agenda. En attendant, l’adresse de la rubrique suivante montre vos rendez-vous dans votre agenda.
+          </p>
+        ) : google.etat === "deconnecte" ? (
+          <>
+            <p className="t-note">Chaque rendez-vous confirmé s’ajoute à votre agenda Google, et s’en retire s’il est annulé. Google vous demande votre accord ; votre mot de passe Google ne passe jamais par ce site.</p>
+            <div className="admin-actions">
+              <ConnecterGoogleAgenda label="Connecter Google Agenda" />
+            </div>
+          </>
+        ) : google.etat === "a-reconnecter" ? (
+          <>
+            <p>
+              <span className="status">À reconnecter</span>
+            </p>
+            <p className="t-note">{google.erreur ?? "Google a retiré l’accès de ce site, ou il a expiré."} Les rendez-vous attendent et partiront dès la reconnexion.</p>
+            <div className="admin-actions">
+              <ConnecterGoogleAgenda label="Reconnecter Google Agenda" />
+              <ActionButton endpoint={api} body={{ action: "deconnecter" }} label="Déconnecter" variant="outline" confirm="Déconnecter Google Agenda ? Les rendez-vous déjà ajoutés restent dans votre agenda." />
+            </div>
+          </>
+        ) : (
+          <>
+            <p>
+              <span className={PASTILLE[global]}>{LIBELLES_ETAT[global]}</span>
+              {attente ? <span className="t-note"> {attente} rendez-vous {google.aRefaire ? "à refaire" : "en attente"}</span> : null}
+            </p>
+            <p className="t-note">
+              Connecté à {google.calendrier ?? "votre agenda Google"}
+              {google.le ? ` depuis le ${jour(google.le)}` : ""}. Les moments déjà pris dans cet agenda ne sont plus proposés aux clientes.
+            </p>
+            {google.fuseau && google.fuseau !== "Europe/Paris" ? <p className="t-note">Votre agenda Google est réglé sur un autre fuseau ({google.fuseau}) : les rendez-vous y gardent l’heure de Paris.</p> : null}
+            {google.aRefaire ? <p className="t-note">Un nouvel essai part chaque matin, ou tout de suite avec Réessayer.</p> : null}
+            <div className="admin-actions">
+              {attente ? <ActionButton endpoint={api} body={{ action: "reessayer" }} label="Réessayer" /> : null}
+              <ActionButton endpoint={api} body={{ action: "deconnecter" }} label="Déconnecter" variant="outline" confirm="Déconnecter Google Agenda ? Les rendez-vous déjà ajoutés restent dans votre agenda, les suivants n’y seront plus ajoutés." />
+            </div>
+          </>
+        )}
+        {google.etat === "non-branche" || google.etat === "deconnecte" ? (
+          <p className="t-note">
+            Adresse de retour à déclarer chez Google : <code className="lien-prive">{adresseRetour()}</code>
+          </p>
+        ) : null}
       </section>
 
       <section className="panel stack" aria-labelledby="agenda">

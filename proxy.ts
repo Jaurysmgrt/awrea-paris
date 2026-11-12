@@ -138,9 +138,12 @@ async function canSeePrivateSite(request: NextRequest): Promise<boolean> {
 /**
  * Pages de l'Atelier ouvertes sans session : connexion, lien « ce n'était pas moi », et les deux
  * fichiers de l'application privée (manifeste et service worker), que le navigateur lit sans cookie
- * et qui ne contiennent aucune donnée (lib/admin/application.ts).
+ * et qui ne contiennent aucune donnée (lib/admin/application.ts). Le retour de Google Agenda aussi :
+ * le cookie de l'Atelier (SameSite=Strict) ne suit pas une arrivée depuis Google ; la page ne montre
+ * rien et ne fait rien d'elle-même, la connexion se termine par l'API de l'Atelier, session ouverte
+ * (app/gestion/agenda-google, lib/google-agenda).
  */
-const OPEN_PAGES = ["/connexion", "/revoquer", "/atelier.webmanifest", "/sw.js"];
+const OPEN_PAGES = ["/connexion", "/revoquer", "/atelier.webmanifest", "/sw.js", "/agenda-google"];
 
 async function protectAtelier(request: NextRequest, base: string, nonce: string | null) {
   const target = toInternal(request.nextUrl.pathname, base)!;
