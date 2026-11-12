@@ -111,6 +111,14 @@ export const SERVICES = {
     // adresse iCal secrète de l'agenda (Google, Apple, Outlook) : ses occupations ferment les créneaux
     providers: { ics: { label: "Agenda iCal (Google, Apple, Outlook)", keys: ["CALENDAR_ICS_URL"] } },
   },
+  googleAgenda: {
+    label: "Google Agenda (rendez-vous ajoutés à l’agenda de la créatrice)",
+    env: "GOOGLE_CALENDAR_PROVIDER",
+    mock: "Pas encore branché : l’adresse d’abonnement de l’agenda reste disponible",
+    // connexion OAuth 2.0 faite ensuite dans l'Atelier › Rendez-vous (lib/google-agenda) ; la clé de
+    // chiffrement GOOGLE_CALENDAR_TOKEN_KEY est conseillée, sinon tirée de SESSION_SECRET
+    providers: { google: { label: "Google Agenda", keys: ["GOOGLE_CALENDAR_CLIENT_ID", "GOOGLE_CALENDAR_CLIENT_SECRET"] } },
+  },
   errors: {
     label: "Suivi des erreurs",
     env: "ERRORS_PROVIDER",
