@@ -106,7 +106,7 @@ async function etapes(commande: Order): Promise<string[]> {
     const payee = order;
     const r = await consommerPrivilege(payee.email, payee.id, payee.number).catch(noter("privilège de bienvenue"));
     if (r?.conflit)
-      await signaler({ type: "intervention", titre: `Privilège de la commande ${payee.number}`, texte: "Le privilège de bienvenue de cette adresse avait déjà servi pour une autre commande : vérifiez la remise accordée.", chemin: `/commandes/${encodeURIComponent(payee.number)}`, etiquette: `privilege-${payee.number}` }).catch(() => {});
+      await signaler({ type: "intervention", titre: `Privilège de la commande ${payee.number}`, texte: "Le privilège de bienvenue de cette adresse avait déjà servi pour une autre commande : vérifiez la remise accordée.", chemin: `/commandes/${encodeURIComponent(payee.number)}`, etiquette: `privilege-${payee.number}` }).catch(() => {});
   }
 
   // case « Recevoir la lettre » cochée à la commande : inscription demandée dans la fiche (lib/crm) et

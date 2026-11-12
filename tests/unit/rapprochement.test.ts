@@ -214,3 +214,32 @@ test("retour : la part réellement payée (remise, carte cadeau, exportation), j
   assert.ok(export1 > 9000, "plus que le prix du catalogue");
   assert.ok(partsPayees(loin, [9000, 7000, 7000]).reduce((t, x) => t + x, 0) <= loin.total - 900);
 });
+
+test("privilège de bienvenue : libéré quand la page de paiement expire, jamais quand le paiement réussit", async () => {
+  const privilege = { handle: "top-kira", title: "Le top Kira", size: "S" as const, amount: 900 };
+  const expire = { id: "cs_test_1", object: "checkout.session", metadata: { commande: "o-1" }, livemode: false };
+  const expiree = [commande({ privilege, discount: { code: "PRIVILEGE", label: "Privilège de bienvenue", amount: 900 }, total: 23000 })];
+  const liberes: string[] = [];
+  const d1 = doublures(expiree);
+  d1.b.libererPrivilege = async (o) => {
+    liberes.push(o.id);
+  };
+  await R.traiterEvenement(d1.b, evt("checkout.session.expired", expire));
+  assert.equal(expiree[0].payment?.statut, "expire");
+  assert.deepEqual(liberes, ["o-1"]);
+  // rejoué : déjà traité, rien de plus
+  await R.traiterEvenement(d1.b, evt("checkout.session.expired", expire));
+  assert.deepEqual(liberes, ["o-1"]);
+
+  const payee = [commande({ privilege, total: 23000 })];
+  const d2 = doublures(payee);
+  d2.b.libererPrivilege = async (o) => {
+    liberes.push(`payee:${o.id}`);
+  };
+  await R.traiterEvenement(d2.b, evt("checkout.session.completed", { ...paye, amount_total: 23000 }));
+  assert.equal(payee[0].payment?.statut, "reussi");
+  // une page expirée après un paiement réussi ne libère rien
+  await R.traiterEvenement(d2.b, evt("checkout.session.expired", expire, "evt_expire_apres"));
+  assert.equal(payee[0].payment?.statut, "reussi");
+  assert.deepEqual(liberes, ["o-1"], "un paiement réussi garde son privilège (consommé à la finalisation)");
+});
