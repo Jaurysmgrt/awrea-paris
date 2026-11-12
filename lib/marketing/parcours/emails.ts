@@ -15,6 +15,7 @@ import { emailDoc, emailIds, sendDocEmail } from "@/lib/email/documents";
 import { LETTRE_DOC } from "@/lib/email/lettre";
 import type { EmailDoc } from "@/lib/email/blocks";
 import type { EmailEtat } from "./moteur";
+import { RefusParcours } from "./types";
 
 export const PREFIXE = "email-parcours-";
 
@@ -57,8 +58,8 @@ export async function etatsEmails(): Promise<Record<string, EmailEtat>> {
 export async function creerEmail(nom: string, by: string): Promise<string> {
   const s = slugOf(nom).slice(0, 40);
   const id = `${PREFIXE}${s}`;
-  if (!s || !isDocId(id)) throw new Error("Ce nom n’est pas possible. Choisissez des lettres et des chiffres.");
-  if (await documentInfo(id)) throw new Error("Un e-mail porte déjà ce nom.");
+  if (!s || !isDocId(id)) throw new RefusParcours("Ce nom n’est pas possible. Choisissez des lettres et des chiffres.");
+  if (await documentInfo(id)) throw new RefusParcours("Un e-mail porte déjà ce nom.");
   const doc: EmailDoc = {
     nom: nom.trim(),
     quand: "Envoyé dans un parcours de vente, quand le parcours est actif.",
@@ -77,7 +78,9 @@ export async function creerEmail(nom: string, by: string): Promise<string> {
       { id: newBlockId(), type: "pied", note: "" },
     ],
   };
-  await registerEmail(id, doc.nom, by);
+  await registerEmail(id, doc.nom, by).catch((e: Error) => {
+    throw new RefusParcours(e.message);
+  });
   await saveDraftContent(id, "fr", doc, by);
   return id;
 }
@@ -90,6 +93,6 @@ export async function envoyerEmailParcours(emailId: string, to: string, prenom: 
 /** « M'envoyer cet e-mail » : la version en cours (brouillon compris), à la seule personne connectée. */
 export async function essaiEmail(emailId: string, moi: string) {
   const doc = await emailDoc(emailId, "fr", true);
-  if (!convient(doc, emailId)) throw new Error("Cet e-mail ne sert pas dans un parcours.");
+  if (!convient(doc, emailId)) throw new RefusParcours("Cet e-mail ne sert pas dans un parcours.");
   await sendDocEmail(emailId, moi, { draft: true, vars: { prenom: doc!.variables.prenom?.exemple ?? "" }, tag: "parcours-essai" });
 }

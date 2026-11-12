@@ -192,6 +192,9 @@ export const DefinitionSchema = z
   .strict();
 export type Definition = z.infer<typeof DefinitionSchema>;
 
+/** Refus lisible par la créatrice (le message est affiché tel quel dans l’Atelier). */
+export class RefusParcours extends Error {}
+
 export const nouvelId = (prefixe: string) => `${prefixe}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
 /** Durée d'une attente, en millisecondes. */
