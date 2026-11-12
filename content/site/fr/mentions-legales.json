@@ -5,7 +5,7 @@
   },
   "titre": "Mentions légales",
   "chapeau": "Qui édite ce site, qui l’héberge, et où trouver les règles de vos achats.",
-  "misAJour": "2026-11-11",
+  "misAJour": "2026-11-12",
   "preambule": {
     "blocs": [
       {
@@ -129,7 +129,7 @@
           "texte": "Les textes, photographies, vidéos, dessins des pièces, logos et la mise en forme de ce site appartiennent à Awrea Paris, à l’exception des marques, logos et contenus de partenaires ou d’auteurs, qui restent leur propriété. Toute reproduction, représentation, modification, adaptation, diffusion ou publication, même partielle, sans l’accord écrit de la Maison est interdite. Elle constitue une contrefaçon sanctionnée par les articles L335-2 et suivants du Code de la propriété intellectuelle, et engage la responsabilité civile et pénale de son auteur."
         },
         {
-          "texte": "Awrea Paris est une marque déposée. Son nom et son logo ne peuvent être utilisés sans l’autorisation écrite de la Maison. Le détail de ces règles, et ce qui reste permis, figure sur la page [Propriété intellectuelle](/propriete-intellectuelle)."
+          "texte": "Awrea Paris est une marque déposée à l’INPI sous le numéro {{marque}}. Son nom et son logo ne peuvent être utilisés sans l’autorisation écrite de la Maison. Le détail de ces règles, et ce qui reste permis, figure sur la page [Propriété intellectuelle](/propriete-intellectuelle)."
         }
       ]
     },

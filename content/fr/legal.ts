@@ -133,7 +133,7 @@ export const legalPages = {
         id: "marque",
         title: "La marque, le logo et le monogramme",
         blocks: [
-          "Le nom « Awrea Paris », le logo et le monogramme « AW » sont des signes distinctifs de la Maison. La marque « Awrea Paris » est déposée, sous le numéro {{marque}}.",
+          "Le nom « Awrea Paris », le logo et le monogramme « AW » sont des signes distinctifs de la Maison. La marque « Awrea Paris » est déposée à l’INPI sous le numéro {{marque}}.",
           "Leur utilisation, seule ou associée à d’autres signes, est interdite sans autorisation écrite préalable.",
         ],
       },

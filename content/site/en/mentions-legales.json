@@ -5,7 +5,7 @@
   },
   "titre": "Legal notice",
   "chapeau": "This English translation is given for information. Only the French version of the legal notice is legally binding.",
-  "misAJour": "2026-11-11",
+  "misAJour": "2026-11-12",
   "preambule": {
     "blocs": [
       {
@@ -129,7 +129,7 @@
           "texte": "The texts, photographs, videos, designs of the pieces, logos and layout of this site belong to Awrea Paris, except for the trademarks, logos and content of partners or authors, which remain their property. Any reproduction, representation, modification, adaptation, distribution or publication, even partial, without the written consent of the Maison is prohibited. It constitutes an infringement punishable under articles L335-2 et seq. of the French Intellectual Property Code, and engages the civil and criminal liability of its author."
         },
         {
-          "texte": "Awrea Paris is a registered trademark. Its name and logo may not be used without the written authorisation of the Maison. The details of these rules, and what remains permitted, are on the page [Intellectual property](/propriete-intellectuelle)."
+          "texte": "Awrea Paris is a trademark filed with the INPI, the French intellectual property office, under number {{marque}}. Its name and logo may not be used without the written authorisation of the Maison. The details of these rules, and what remains permitted, are on the page [Intellectual property](/propriete-intellectuelle)."
         }
       ]
     },
