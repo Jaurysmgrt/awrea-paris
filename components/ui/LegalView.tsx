@@ -124,6 +124,23 @@ function Block({ block, t }: { block: LegalBlock; t: JuridiqueTexts }) {
       </p>
     );
   }
+  if ("dl" in block) {
+    // fiche : l'intitulé en petites capitales, sa valeur à côté (sur ordinateur) ou dessous (téléphone)
+    return (
+      <dl className="legal__fiche">
+        {block.dl.map((row, i) => (
+          <div key={i}>
+            <dt className="t-label">
+              <LegalText text={row.term} />
+            </dt>
+            <dd>
+              <LegalText text={row.value} />
+            </dd>
+          </div>
+        ))}
+      </dl>
+    );
+  }
   if ("h3" in block) {
     return (
       <h3 id={block.id} className={styles.intertitre}>

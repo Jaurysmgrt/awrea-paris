@@ -21,6 +21,8 @@ export type LegalBlock =
   | string
   | { list: string[] }
   | { lines: string[] }
+  /** fiche : un intitulé et sa valeur par ligne (coordonnées de l'éditrice, de l'hébergeur) */
+  | { dl: { term: string; value: string }[] }
   | { h3: string; id?: string }
   | { h4: string }
   | { table: { caption: string; head: string[]; rows: string[][] } }
@@ -50,6 +52,7 @@ export type DocBlock =
   | { texte: string }
   | { lignes: string[] }
   | { liste: string[] }
+  | { fiche: { libelle: string; valeur: string }[] }
   | { intertitre: string; id?: string }
   | { sousTitre: string }
   | { type: LegalWidget };
@@ -96,6 +99,7 @@ export function blockFromDoc(b: DocBlock): LegalBlock | null {
   if ("texte" in b) return b.texte;
   if ("lignes" in b) return { lines: b.lignes };
   if ("liste" in b) return { list: b.liste };
+  if ("fiche" in b) return { dl: b.fiche.map((x) => ({ term: x.libelle, value: x.valeur })) };
   if ("intertitre" in b) return b.id ? { h3: b.intertitre, id: b.id } : { h3: b.intertitre };
   if ("sousTitre" in b) return { h4: b.sousTitre };
   if ("type" in b && WIDGETS.includes(b.type)) return { widget: b.type };
