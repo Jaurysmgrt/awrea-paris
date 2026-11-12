@@ -37,7 +37,7 @@ const ports: Ports = {
   ecrireEtat,
   async envoyer(v: Envoi) {
     // seconde vérification, au moment même de l'envoi
-    if ((await modeActuel()) !== "reel") throw new Error("Envois réels coupés : rien n’est parti.");
+    if ((await modeActuel()) !== "reel") throw new Error("Envois réels coupés : rien n’est parti.");
     await envoyerEmailParcours(v.emailId, v.email, v.prenom);
   },
   journal: ajouterAuJournal,

@@ -29,7 +29,7 @@ export const MODELES: Modele[] = [
     id: "nouvelle-inscrite",
     nom: "Nouvelle inscrite",
     pour: "Faire connaître la Maison aux personnes qui viennent de s’inscrire à la lettre.",
-    note: "Le site envoie déjà un mot de bienvenue à l’inscription : le parcours commence trois jours après.",
+    note: "Le site envoie déjà un mot de bienvenue à l’inscription : le parcours commence trois jours après.",
     definition: () => ({
       nom: "Nouvelle inscrite",
       declencheur: "inscription",
@@ -60,7 +60,7 @@ export const MODELES: Modele[] = [
     id: "panier",
     nom: "Panier non finalisé",
     pour: "Proposer de l’aide à une cliente connectée qui a laissé des pièces dans son panier.",
-    note: "Seuls les paniers des clientes connectées qui ont accepté la personnalisation sont connus. Le site envoie déjà une relance unique après 4 heures : le parcours attend deux jours de plus.",
+    note: "Seuls les paniers des clientes connectées qui ont accepté la personnalisation sont connus. Le site envoie déjà une relance unique après 4 heures : le parcours attend deux jours de plus.",
     definition: () => ({
       nom: "Panier non finalisé",
       declencheur: "panier",
@@ -92,7 +92,7 @@ export const MODELES: Modele[] = [
     id: "cliente",
     nom: "Cliente de la Maison",
     pour: "Garder le lien avec une cliente qui a déjà acheté, quelques semaines après sa dernière commande.",
-    note: "L’e-mail « Nouvelles de l’atelier » est à écrire : tant qu’il garde des crochets, rien ne part.",
+    note: "L’e-mail « Nouvelles de l’atelier » est à écrire : tant qu’il garde des crochets, rien ne part.",
     definition: () => ({
       nom: "Cliente de la Maison",
       declencheur: "commande",

@@ -134,7 +134,7 @@ export const STATUTS: Record<Statut, string> = { brouillon: "Brouillon", actif: 
 export const DECLENCHEURS: Record<DeclencheurId, { label: string; aide: string }> = {
   inscription: { label: "Inscription à la lettre", aide: "Le jour où elle s’inscrit." },
   interet: { label: "Intérêt pour la Maison", aide: "Inscrite à une avant-première, ou rendez-vous de conseil pris." },
-  panier: { label: "Panier non finalisé", aide: "Cliente connectée qui a accepté la personnalisation. Les paniers sans compte restent dans le navigateur : la Maison ne les voit pas." },
+  panier: { label: "Panier non finalisé", aide: "Cliente connectée qui a accepté la personnalisation. Les paniers sans compte restent dans le navigateur : la Maison ne les voit pas." },
   "premiere-commande": { label: "Première commande", aide: "Le jour de sa première commande payée." },
   commande: { label: "Dernière commande", aide: "Le jour de sa dernière commande payée." },
 };

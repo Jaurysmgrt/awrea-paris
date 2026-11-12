@@ -1,0 +1,60 @@
+{
+  "nom": "Comment naît une pièce",
+  "quand": "Envoyé dans un parcours de vente, quand le parcours est actif.",
+  "famille": "lettre",
+  "sujet": "Comment naît une pièce Awrea",
+  "preheader": "De votre commande à la pièce qui vous attend.",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la personne, quand il est connu",
+      "exemple": "Camille"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-savoirfair01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-savoirfair02",
+      "type": "titre",
+      "titre": "Comment naît une pièce"
+    },
+    {
+      "id": "b-savoirfair03",
+      "type": "texte",
+      "texte": "Bonjour {prenom},",
+      "si": "prenom"
+    },
+    {
+      "id": "b-savoirfair04",
+      "type": "texte",
+      "texte": "Bonjour,",
+      "sauf": "prenom"
+    },
+    {
+      "id": "b-savoirfair05",
+      "type": "texte",
+      "texte": "Une pièce Awrea commence le jour où vous la commandez. Elle est coupée puis assemblée dans votre taille, entre les mains d’artisans français.\n\nPendant la confection, vous suivez chaque étape depuis votre compte, de la commande reçue à l’expédition. Le certificat d’authenticité de votre pièce vous attend en ligne."
+    },
+    {
+      "id": "b-savoirfair06",
+      "type": "bouton",
+      "lien": {
+        "label": "Entrer dans l’atelier",
+        "href": "/atelier"
+      }
+    },
+    {
+      "id": "b-savoirfair07",
+      "type": "signature",
+      "texte": "Avec toute notre attention,\nla Maison Awrea Paris"
+    },
+    {
+      "id": "b-savoirfair08",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

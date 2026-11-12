@@ -1,0 +1,60 @@
+{
+  "nom": "Nouvelles de l’atelier",
+  "quand": "Envoyé dans un parcours de vente, quand le parcours est actif.",
+  "famille": "lettre",
+  "sujet": "[Écrire l’objet]",
+  "preheader": "[Écrire la ligne d’aperçu]",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la personne, quand il est connu",
+      "exemple": "Camille"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-nouvelles01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-nouvelles02",
+      "type": "titre",
+      "titre": "[Écrire le titre]"
+    },
+    {
+      "id": "b-nouvelles03",
+      "type": "texte",
+      "texte": "Bonjour {prenom},",
+      "si": "prenom"
+    },
+    {
+      "id": "b-nouvelles04",
+      "type": "texte",
+      "texte": "Bonjour,",
+      "sauf": "prenom"
+    },
+    {
+      "id": "b-nouvelles05",
+      "type": "texte",
+      "texte": "[Écrire les nouvelles de l’atelier]"
+    },
+    {
+      "id": "b-nouvelles06",
+      "type": "bouton",
+      "lien": {
+        "label": "Voir la collection",
+        "href": "/collections/hypnotic-lace"
+      }
+    },
+    {
+      "id": "b-nouvelles07",
+      "type": "signature",
+      "texte": "Avec toute notre attention,\nla Maison Awrea Paris"
+    },
+    {
+      "id": "b-nouvelles08",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

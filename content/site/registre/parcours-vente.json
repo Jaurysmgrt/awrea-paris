@@ -1,0 +1,26 @@
+{
+  "email-parcours-maison": {
+    "label": "La Maison en quelques mots",
+    "kind": "email"
+  },
+  "email-parcours-savoir-faire": {
+    "label": "Comment naît une pièce",
+    "kind": "email"
+  },
+  "email-parcours-conseil": {
+    "label": "Un conseil pour votre taille",
+    "kind": "email"
+  },
+  "email-parcours-panier": {
+    "label": "Une aide pour votre sélection",
+    "kind": "email"
+  },
+  "email-parcours-merci": {
+    "label": "Merci de votre confiance",
+    "kind": "email"
+  },
+  "email-parcours-nouvelles": {
+    "label": "Nouvelles de l’atelier",
+    "kind": "email"
+  }
+}
