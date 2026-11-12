@@ -38,7 +38,11 @@ CONTACT, NEWSLETTER), étendu à toutes les pages.
   (`Fraunces72pt-Italic.ttf`, `CormorantGaramond-Regular.ttf`), lus par pdf-lib, avec le logo
   officiel (`public/brand/awrea-logo.png`) ; `next.config.ts` les joint aux fonctions serveur.
 - E-mails : les WOFF2 servis par `public/fonts/`, déclarés dans `lib/email/render.ts` et
-  `lib/email/templates.ts`, repli sur `Georgia, serif` (Gmail, Outlook).
+  `lib/email/templates.ts`, repli sur `Georgia, serif` (Gmail, Outlook). Même règle que le site
+  (réponse de la créatrice du 12/11) : les titres (28 px et plus) en Fraunces droite fine (300) ; la
+  signature, le nom d'une pièce et la devise du pied (24 px) en Fraunces italique (400). La police
+  d'un bloc reste au choix dans l'éditeur. Outlook pour Windows ne voit pas la déclaration des
+  polices (commentaire conditionnel) et reçoit Georgia, sans quoi il composerait en Times New Roman.
 
 ### Échelle typographique
 
