@@ -1098,3 +1098,20 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
   l’aperçu, police, taille, alignement, espace, annuler, rétablir, photo et texte avec photo, lien,
   brouillon après rechargement), captures ordinateur et téléphone ; guide de la créatrice § 12 mis à
   jour.
+
+## Cahiers du 10/11, étape 6 : Google Agenda en connexion directe (12/11)
+
+- L’Atelier › Rendez-vous propose « Connecter Google Agenda » (OAuth 2.0 « application Web », état signé, PKCE). Le mot de passe Google ne passe jamais par le site ; une seule autorisation est demandée, `calendar.events.owned` (à confirmer au premier essai réel, repli prévu sur `calendar.events`).
+- Chaque rendez-vous confirmé devient un événement privé, sans invité, de l’agenda de la Maison (heure de Paris, cliente, notes, lien de l’appel) ; il est mis à jour s’il change et supprimé s’il est annulé. L’identifiant de l’événement est gardé sur le rendez-vous : jamais de doublon.
+- Pastilles « Synchronisé », « En attente », « À refaire » ; boutons « Réessayer », « Déconnecter » (accès retiré chez Google) et « Reconnecter » si Google retire l’accès. Reprise chaque matin par le rôle « Rendez-vous » de la tâche planifiée existante.
+- Les moments pris dans Google ne sont plus proposés aux clientes (heures seulement, sans titre ni description).
+- Jeton de rafraîchissement chiffré (AES-256-GCM), jamais envoyé au navigateur. Sans clés : « pas encore branchée », et l’abonnement iCal reste.
+- Documentation : `ACTIVATION.md` étape 16, `SECURITE.md`, `GUIDE-CREATRICE.md` § 13. Tests : 17 tests unitaires avec un faux Google, et le parcours `google-agenda.spec.ts`.
+
+## Cahiers du 10/11, étape 7 : parcours de vente, en simulation (12/11)
+
+- Nouvel onglet Atelier › E-mails › « Parcours ». Cinq modèles créés en brouillon (nouvelle inscrite, prospect intéressé, panier non finalisé, première commande, cliente de la Maison) ; un éditeur simple pour le déclencheur, les conditions, les étapes (e-mail, délai, condition), les sorties et les exclusions.
+- Moteur pur branché sur la tâche existante `/api/cron/flows` : un e-mail marketing au plus tous les trois jours (réglable), jamais deux fois le même, sortie aussitôt à la désinscription, à l’achat ou quand les conditions ne sont plus remplies ; un passage rejoué n’envoie rien en double.
+- Rien ne part sans deux clés : `PARCOURS_ENVOIS_REELS=1` dans Vercel et l’accord de la créatrice dans l’Atelier. D’ici là, un journal de simulation (« aurait envoyé… ») et une prévision sur 30 jours.
+- Seuls les e-mails de la lettre, avec leur lien de désinscription, entrent dans un parcours. Clics et ouvertures : « non mesurés ».
+- Contacts lus par un seul adaptateur (`lib/marketing/parcours/contacts.ts`), prêt pour la fiche contact de l’étape 5. 15 tests unitaires, un parcours Playwright.
