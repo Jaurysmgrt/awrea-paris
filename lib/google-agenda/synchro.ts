@@ -26,7 +26,7 @@ import {
   type ConfigGoogle,
   type LienGoogle,
   type RendezVousGoogle,
-} from "./regles";
+} from "@/lib/google-agenda/regles";
 
 type Fetch = typeof fetch;
 

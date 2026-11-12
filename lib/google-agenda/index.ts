@@ -14,8 +14,8 @@ import { sessionSecret } from "@/lib/auth/session";
 import { atelierBase, ATELIER_INTERNAL } from "@/lib/admin/path";
 import { siteUrl } from "@/lib/seo/metadata";
 import { APPOINTMENT_TYPES, listAppointments, noterGoogle, type Appointment } from "@/lib/appointments";
-import { configGoogle, etatSynchro, type ConfigGoogle, type EtatSynchro, type RendezVousGoogle } from "./regles";
-import { moteurGoogle, type Bilan, type ConnexionGoogle, type MoteurGoogle } from "./synchro";
+import { configGoogle, etatSynchro, type ConfigGoogle, type EtatSynchro, type RendezVousGoogle } from "@/lib/google-agenda/regles";
+import { moteurGoogle, type Bilan, type ConnexionGoogle, type MoteurGoogle } from "@/lib/google-agenda/synchro";
 
 const CONNEXION = "agenda-google:connexion";
 
