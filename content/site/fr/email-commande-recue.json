@@ -36,6 +36,10 @@
     "codes": {
       "description": "Le code de rattachement de chaque pièce, à transmettre si elle est offerte",
       "exemple": "Le body Aura : K7QX-M2PA"
+    },
+    "mentionTva": {
+      "description": "La mention de TVA de la Maison sous le détail de la commande (franchise en base ; vide au régime de TVA à 20 %)",
+      "exemple": "TVA non applicable, article 293 B du Code général des impôts."
     }
   },
   "blocs": [
@@ -63,6 +67,13 @@
     {
       "id": "b-cmdrecu05",
       "type": "commande"
+    },
+    {
+      "id": "b-cmdrecu11",
+      "type": "texte",
+      "texte": "{mentionTva}",
+      "si": "mentionTva",
+      "taille": "petite"
     },
     {
       "id": "b-cmdrecu09",

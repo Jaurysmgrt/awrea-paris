@@ -33,7 +33,7 @@ const HAND_DEFAULT = [
   "",
   "- [ ] Nom de domaine du site : variable `NEXT_PUBLIC_SITE_URL` (par défaut « https://www.awreaparis.com », adresse citée par les mentions légales officielles ; les CGV officielles citent encore l’adresse du site Wix).",
   "- [ ] Adresse e-mail de contact : « awrea.contact@gmail.com » (mentions légales officielles), reprise dans `content/brand/identity.ts` → `email`. Les e-mails du site partent de `EMAIL_FROM` : une adresse Gmail ne peut pas servir d’expéditrice vérifiée (Resend) ; prévoir une adresse du domaine pour l’envoi.",
-  "- [ ] Adresse de l’atelier où la créatrice reçoit sur rendez-vous (publiée seulement si elle est renseignée) : `content/brand/identity.ts` → `address` ; l’adresse de l’entreprise est à Croissy-sur-Seine (`legalAddress`).",
+  "- [ ] Adresse de l’atelier où la créatrice reçoit sur rendez-vous (publiée seulement si elle est renseignée) : `content/brand/identity.ts` → `address` ; l’adresse de l’entreprise attend sa domiciliation (`legalAddress`, champ `siege`).",
   "- [ ] Année de création de la Maison (publiée seulement si renseignée) : `content/brand/identity.ts` → `foundingYear`. L’entreprise est inscrite au RNE depuis le 05/02/2026, début d’activité le 01/04/2026.",
   "- [ ] Durée de conservation des demandes de rendez-vous sans suite (champ `delaiConservationDevis`).",
   "",
@@ -64,7 +64,7 @@ lines.push(
   "> Fichier généré par `npm run legal:todo` à partir de `content/legal/fields.ts`. Aucune information sur l’entreprise n’a été inventée :",
   "> tant qu’un champ est vide, il apparaît sur le site sous la forme d’un repère « [À COMPLÉTER : …] ».",
   "> Pour compléter : renseigner la valeur dans `content/legal/fields.ts`, puis relancer `npm run legal:todo`.",
-  "> Les informations déjà renseignées viennent des mentions légales et des CGV officielles de la créatrice (`ressources-awrea/`).",
+  "> Les informations déjà renseignées viennent des informations communiquées par la Maison (cahier du 10/11/2026), de ses premières mentions légales et de ses CGV officielles (`ressources-awrea/`).",
   "",
 );
 lines.push(`**${missing.length} information(s) à fournir** sur ${counted}.`, "");

@@ -3,18 +3,16 @@
 > Fichier généré par `npm run legal:todo` à partir de `content/legal/fields.ts`. Aucune information sur l’entreprise n’a été inventée :
 > tant qu’un champ est vide, il apparaît sur le site sous la forme d’un repère « [À COMPLÉTER : …] ».
 > Pour compléter : renseigner la valeur dans `content/legal/fields.ts`, puis relancer `npm run legal:todo`.
-> Les informations déjà renseignées viennent des mentions légales et des CGV officielles de la créatrice (`ressources-awrea/`).
+> Les informations déjà renseignées viennent des informations communiquées par la Maison (cahier du 10/11/2026), de ses premières mentions légales et de ses CGV officielles (`ressources-awrea/`).
 
-**10 information(s) à fournir** sur 19.
+**8 information(s) à fournir** sur 19.
 
 ## Informations de l’entreprise
 
 | Champ | Information attendue | Où la trouver | Pages concernées |
 |---|---|---|---|
-| `tva` | numéro de TVA intracommunautaire (la créatrice a confirmé le 25/10/2026 que la Maison facture la TVA : prix TTC, TVA à 20 % détaillée sur les factures) | Espace professionnel impots.gouv.fr | Mentions légales (`/mentions-legales`) |
-| `directricePublication` | nom et prénom de la directrice de la publication (les mentions officielles ne la nomment pas ; pour une entreprise individuelle, c’est en principe l’entrepreneuse elle-même, Léane Soubrier : à confirmer) | Représentante légale de l’entreprise | Mentions légales (`/mentions-legales`) |
-| `mediateur` | médiateur de la consommation : nom, adresse postale et site internet (adhésion obligatoire, articles L612-1 et suivants du Code de la consommation ; ni les CGV ni les mentions officielles n’en nomment ; aucune adhésion au 25/10/2026 : démarche à faire avant la mise en ligne) | Convention signée avec un médiateur référencé par la CECMC (liste sur economie.gouv.fr) | Mentions légales (`/mentions-legales`) |
-| `hebergeur` | hébergeur du nouveau site : dénomination, adresse et téléphone (les mentions officielles nomment Wix Online Platform Limited, hébergeur du site Wix ; le nouveau site est prévu sur Vercel Inc., 440 N Barranca Avenue #4133, Covina, CA 91723, États-Unis) | Contrat d’hébergement (vercel.com/legal), puis mise à jour des mentions légales officielles | Mentions légales (`/mentions-legales`) |
+| `siege` | adresse postale de l’entreprise : la Maison étudie une domiciliation professionnelle (cahier du 10/11/2026) ; l’ancienne adresse n’est plus affichée nulle part sur le site. Une fois le contrat de domiciliation signé : déclarer le transfert de l’adresse sur le guichet unique (formalites.entreprises.gouv.fr), puis renseigner ici l’adresse exacte | Contrat de domiciliation, puis avis de situation au répertoire SIRENE (avis-situation-sirene.insee.fr) à la nouvelle adresse | Mentions légales (`/mentions-legales`), CGV (`/cgv`), CGU (`/cgu`), Confidentialité (`/confidentialite`), Rétractation (`/retractation`) |
+| `mediateur` | médiateur de la consommation : nom, adresse postale et site internet (adhésion obligatoire, articles L612-1 et suivants du Code de la consommation ; aucun médiateur désigné au 10/11/2026 : adhérer à un médiateur référencé par la CECMC avant la mise en ligne publique, LEGAL-A-COMPLETER.md) | Convention signée avec un médiateur référencé par la CECMC (liste sur economie.gouv.fr) | Mentions légales (`/mentions-legales`) |
 | `marque` | numéro et date d’enregistrement de la marque « Awrea Paris » (les mentions officielles la disent déposée : INPI ou EUIPO) | Certificat d’enregistrement INPI (data.inpi.fr) ou EUIPO | Propriété intellectuelle (`/propriete-intellectuelle`) |
 | `creditsPhotos` | crédits des photographes, vidéastes et mannequins (portrait de la créatrice, futures prises de vue) et étendue des droits cédés | Contrats de cession de droits et autorisations de droit à l’image signés | Propriété intellectuelle (`/propriete-intellectuelle`), Mentions légales (`/mentions-legales`) |
 | `regionBase` | région d’hébergement du projet Supabase (base clientes), de préférence dans l’Union européenne (Francfort ou Paris) | Réglages du projet Supabase (Project Settings → General) | Confidentialité (`/confidentialite`) |
@@ -26,17 +24,20 @@
 
 - `raisonSociale` — nom de l’entrepreneuse (entreprise individuelle) : Léane Soubrier
 - `nomCommercial` — nom commercial sous lequel l’entreprise exerce : Awrea Paris
-- `formeJuridique` — forme juridique : entrepreneur individuel (micro-entreprise)
-- `siege` — adresse postale de l’entreprise : 46 rue Paul Déroulède, 78290 Croissy-sur-Seine, France
+- `formeJuridique` — forme juridique (la mention « entrepreneur individuel » ou « EI » accompagne le nom sur les documents de l’entreprise, article R526-26 du Code de commerce) : entrepreneuse individuelle (EI, micro-entreprise)
 - `immatriculation` — registre d’immatriculation (inscription au RNE le 05/02/2026, début d’activité le 01/04/2026) : registre national des entreprises (RNE)
 - `siren` — numéro SIREN : 100 222 926
-- `siret` — numéro SIRET : 100 222 926 00014
+- `siret` — numéro SIRET (il change avec l’adresse de l’établissement : à mettre à jour après la domiciliation) : 100 222 926 00014
+- `activite` — activité déclarée et code APE (le code 7410Z, « Activités spécialisées de design », ne couvre peut-être pas la vente de vêtements : à vérifier auprès de l’URSSAF ou d’un expert-comptable, LEGAL-A-COMPLETER.md) : Activités spécialisées de design (code APE 7410Z)
+- `directricePublication` — nom et prénom de la directrice de la publication : Léane Soubrier
 - `email` — adresse e-mail de contact : awrea.contact@gmail.com
 - `telephone` — numéro de téléphone : 06 99 55 74 43
+- `hebergeur` — hébergeur du site : dénomination et adresse (le site est déployé sur Vercel ; adresse donnée par la politique de confidentialité de Vercel). Aucun numéro de téléphone public trouvé : le site vercel.com est donné comme moyen de contact : Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis
 
 ### Sans objet
 
 - `capital` — capital social (sans objet pour une entreprise individuelle : aucune mention à publier)
+- `tva` — numéro de TVA intracommunautaire : sans objet tant que la Maison relève de la franchise en base, confirmée le 10/11/2026 (mention « TVA non applicable, article 293 B du Code général des impôts. » sur le site, au récapitulatif de commande, dans l’e-mail de confirmation et sur chaque facture). À renseigner seulement si la Maison sort un jour de la franchise : passer alors `shop.vatRegime` à « tva20 » dans content/settings.ts
 - `paiementFractionne` — prestataire du paiement en plusieurs fois (sans objet : le site ne le propose pas, l’article 4 des CGV officielles prévoit un paiement comptant, en totalité, à la commande)
 
 ## Conditions commerciales à confirmer
@@ -131,7 +132,7 @@ leurs articles.
 | Article des CGV officielles | Ce que fait le site | Question à faire valider |
 |---|---|---|
 | 1. Champ d’application | Site `www.awreaparis.com` ; pièces créées sur demande, sans stock ; case à cocher des CGV avant le paiement (version enregistrée avec la commande). | Remplacer l’adresse du site Wix par `www.awreaparis.com`. Remplacer « dans la limite des stocks disponibles » par la création sur demande et son délai de fabrication. Ajouter l’adresse postale (l’article 7 renvoie aux « coordonnées postales » de l’article 1, qui n’en donne pas), le nom commercial Awrea Paris et la mention « entrepreneur individuel » ou « EI » ; préciser que le « numéro d’immatriculation » cité est le SIRET. |
-| 2. Prix | Prix affichés TTC (« 70,00 € ») ; frais de livraison calculés avant le paiement, livraison offerte dès 250 € en France ; emballage cadeau payant ; codes de réduction et cartes cadeaux acceptés au panier ; facture PDF émise au paiement. | Situation de TVA tranchée par la créatrice le 25/10/2026 : la Maison facture la TVA (prix TTC, TVA à 20 % détaillée sur les factures, déjà le fonctionnement du site) ; préciser dans l’article que les prix affichés sont TTC et ajouter le numéro de TVA intracommunautaire aux mentions légales. Mentionner l’emballage cadeau, les cartes cadeaux (durée de validité) et les codes de réduction (cumul). Moment de remise de la facture (l’article dit « lors de la livraison »). |
+| 2. Prix | Prix affichés = prix payés (« 70,00 € »), sans TVA : franchise en base (réglage `shop.vatRegime`, mention de l’article 293 B au récapitulatif, dans l’e-mail de confirmation et sur les factures) ; frais de livraison calculés avant le paiement, livraison offerte dès 250 € en France ; emballage cadeau payant ; codes de réduction et cartes cadeaux acceptés au panier ; facture PDF émise au paiement. | Situation de TVA confirmée par la Maison le 10/11/2026 : franchise en base. L’article dit « Les prix sont exprimés en Euros, HT et TTC » : à remplacer par « TVA non applicable, article 293 B du Code général des impôts. » (la Maison avait d’abord indiqué, le 25/10/2026, facturer la TVA à 20 %). Mentionner l’emballage cadeau, les cartes cadeaux (durée de validité) et les codes de réduction (cumul). Moment de remise de la facture (l’article dit « lors de la livraison »). |
 | 3. Commandes | Confirmation par e-mail ; suivi en cinq étapes (« Commande reçue », « En confection », « Prête », « Expédiée », « Livrée ») sur `/suivi` et dans le compte ; aucun bouton d’annulation en ligne (demande par e-mail ou contact). | Retirer « dans la limite des stocks disponibles ». Dire quand la commande est « acceptée par le Vendeur » (point de départ des deux jours d’annulation) et ce que devient une annulation quand la confection a commencé. Prévoir ou non une annulation en ligne. |
 | 4. Conditions de paiement | Paiement intégral à la commande, par Stripe Checkout (choix de la créatrice, en cours d’intégration : d’ici là, le site en ligne ne prend aucune commande payée), avec les moyens de l’article : carte bancaire, Apple Pay, Google Pay, PayPal (`content/settings.ts` → `paymentMethods`, aligné le 25/10/2026 ; le paiement en plusieurs fois n’est plus proposé). | Activer exactement ces moyens dans le compte Stripe de la Maison. L’article cite « Stripe » parmi les moyens de paiement : c’est le prestataire qui encaisse, pas un moyen de paiement ; formulation à revoir. |
 | 5. Livraisons | Délai de fabrication de 2 à 4 semaines selon la pièce (provisoire, réglable dans l’Atelier), puis transport ; livraison en France métropolitaine seulement, comme l’article (`content/settings.ts`, aligné le 25/10/2026 : l’Europe, l’international et le retrait à l’atelier ne sont plus proposés) ; réclamations à `awrea.contact@gmail.com`. | Le délai « 5 à 10 jours ouvrés » ignore la fabrication : indiquer le délai total (fabrication et livraison) ou renvoyer au délai affiché sur la fiche, qui engage la Maison. Pour livrer hors de France ou proposer un retrait sur rendez-vous, étendre d’abord l’article, puis rétablir ces tarifs dans `content/settings.ts`. Réécrire le paragraphe collé et compléter « [adresse email] ». Vérifier la clause « réputés conformes » après 48 heures ou 14 jours : elle ne peut pas écarter la garantie légale de conformité de deux ans. Vérifier les références « L 216-2, L 216-3 et L241-4 » (numérotation modifiée depuis 2021). |
@@ -140,7 +141,7 @@ leurs articles.
 | 8. Responsabilité du Vendeur, garanties | Les pages du site rappellent la garantie légale de conformité et des vices cachés de deux ans. | Les articles cités (L217-4, L217-5, L217-12, L217-16) sont dans leur rédaction d’avant 2022 : mettre à jour et ajouter l’encadré d’information obligatoire sur la garantie légale de conformité (décret n° 2022-424 du 25 mars 2022), présent dans les anciennes CGV du site. La limitation « au remplacement ou au remboursement » écarte la réparation, la réduction du prix et la résolution prévues par la loi. Les photographies « non contractuelles » : les visuels des pièces sont aujourd’hui provisoires et générés, signalés « visuel provisoire ». |
 | 9. Données personnelles | Paiement par Stripe (en cours d’intégration) : la carte se saisit chez Stripe, le site n’enregistre aucune donnée bancaire ; données du compte, de la liste d’envies, des rendez-vous, de l’assistante IA, des avis, des lettres (avec consentement) et des cookies ; prestataires et durées détaillés sur `/confidentialite` (factures gardées 10 ans, obligation comptable). | 9.1 : « celui-ci enregistre des données financières » est inexact pour ce site. 9.1 et 9.2 : la collecte et les destinataires ne couvrent que la commande (ajouter compte, rendez-vous, assistante, lettres, cookies, hébergeurs, prestataire de paiement et transferts hors de l’Union européenne, ou renvoyer à la politique de confidentialité). 9.3 : ajouter les coordonnées du responsable (les droits de 9.7 renvoient à une adresse que 9.3 ne donne pas). 9.4 : les e-mails après achat (conseils d’entretien, demande d’avis) reposent sur l’intérêt légitime, à confirmer. 9.5 : durée unique de 5 ans, alors que les factures se gardent 10 ans et que d’autres données ont des durées plus courtes. |
 | 10. Propriété intellectuelle | Page `/propriete-intellectuelle` cohérente. | Remplacer l’adresse du site Wix. |
-| 11. Droit applicable, langue | Aucun médiateur renseigné. | Les CGV ne nomment aucun médiateur de la consommation : adhésion obligatoire et coordonnées à indiquer dans les CGV et sur le site (champ `mediateur`, affiché pour l’instant « À COMPLÉTER » dans les mentions légales). Vérifier aussi qu’aucun lien vers l’ancienne plateforme européenne de règlement en ligne des litiges n’est encore attendu (fermée en juillet 2025, à confirmer). |
+| 11. Droit applicable, langue | Aucun médiateur renseigné. | Les CGV ne nomment aucun médiateur de la consommation : adhésion obligatoire et coordonnées à indiquer dans les CGV et sur le site (champ `mediateur`, affiché pour l’instant « À COMPLÉTER » dans la rubrique « Réclamation et médiation » des mentions légales ; marche à suivre plus bas). Vérifier aussi qu’aucun lien vers l’ancienne plateforme européenne de règlement en ligne des litiges n’est encore attendu (fermée en juillet 2025, à confirmer). |
 
 ### Ce que les CGV officielles ne disent pas
 
@@ -151,30 +152,67 @@ leurs articles.
   CGU, `/cgu`).
 - Les cartes cadeaux, l’emballage cadeau et les codes de réduction.
 
-### Écarts entre les mentions légales officielles et le site
+### Mentions légales réécrites (cahier du 10/11/2026)
 
-Les mentions légales de la créatrice (`ressources-awrea/MENTIONS LÉGALES`, trois images) sont reprises
-mot pour mot sur `/mentions-legales` (`content/site/fr/mentions-legales.json`), suivies de compléments
-du site marqués « À COMPLÉTER » (directrice de la publication, TVA, médiation, crédits). Corrections
-faites : « Fance » → « France », « ( Mirco-entreprise) » → « (Micro-entreprise) », espace avant la
-virgule de l’adresse, « situé » → « située » (la société Wix), point ajouté après « 05/02/2026 »,
-« loi nº78-17 DU » → « loi n° 78-17 du », « Données Personnelles » → « Données personnelles »,
-typographie française.
+Les mentions légales de `/mentions-legales` (`content/site/fr/mentions-legales.json`, version anglaise
+pour information) sont désormais un texte de la Maison, réécrit à la demande de la créatrice : il n’est
+plus marqué officiel et suit les règles d’écriture. Il remplace le premier texte de la créatrice
+(`ressources-awrea/MENTIONS LÉGALES`), qui annonçait encore Wix comme hébergeur et l’ancienne adresse.
+Ce qui relève des mentions légales (éditrice, directrice de la publication, hébergeur, TVA, propriété
+intellectuelle, médiation) y figure ; les règles de vente restent dans les CGV, auxquelles la page
+renvoie, comme aux pages Livraison et retours, Rétractation, Confidentialité et Cookies.
 
-- [ ] **Hébergeur** : le texte officiel nomme Wix Online Platform Limited (hébergeur de l’ancien site
-  Wix). Le nouveau site est prévu sur Vercel Inc. (440 N Barranca Avenue #4133, Covina, CA 91723,
-  États-Unis) : mettre à jour le paragraphe « Hébergement » (champ `hebergeur`).
-- [ ] « Société : Awrea Paris » et « Raison sociale : Auto-entrepreneur (Micro-entreprise) » : une
-  entreprise individuelle n’a ni société ni raison sociale ; indiquer « Léane Soubrier, entrepreneur
-  individuel (EI), nom commercial Awrea Paris ».
-- [ ] « Commune : Yvelines » : Yvelines est le département, la commune est Croissy-sur-Seine.
-- [ ] « Awrea Paris étant une marque déposée » : numéro et date d’enregistrement à fournir (champ
-  `marque`), ou phrase à retirer si la marque n’est pas enregistrée.
-- [ ] Directrice de la publication (obligatoire) et situation de TVA : absentes du texte officiel.
-- [ ] « Tout le contenu du présent sur le site » : formulation à corriger (« du présent site »).
-- [ ] « Charte de Protection des Données Personnelles » : la page du site s’appelle « Politique de
-  confidentialité » (`/confidentialite`) ; harmoniser le nom, et compléter la liste des droits (le
-  paragraphe cite la loi de 1978 et seulement quatre droits).
+À faire avant la mise en ligne publique :
+
+- [ ] **Adresse de domiciliation** (champ `siege`) : la page, les CGU, la confidentialité, la
+  rétractation, le formulaire type de rétractation et chaque facture affichent « [À COMPLÉTER :
+  adresse de domiciliation] ». L’ancienne adresse n’est plus publiée nulle part (pages, factures,
+  données structurées). Une fois la domiciliation choisie : déclarer le transfert de l’adresse sur le
+  guichet unique (formalites.entreprises.gouv.fr), renseigner `siege` dans `content/legal/fields.ts`
+  et `legalAddress` dans `content/brand/identity.ts`, puis mettre à jour le SIRET s’il change (un
+  nouvel établissement reçoit un nouveau numéro). L’adresse figure sur chaque facture : la renseigner
+  avant de prendre des commandes payées.
+- [ ] **Médiateur de la consommation** (champ `mediateur`) : la rubrique « Réclamation et médiation »
+  affiche « [À COMPLÉTER : médiateur de la consommation] ». Toute entreprise qui vend à des
+  consommateurs doit leur offrir le recours gratuit à un médiateur (articles L612-1 et suivants du
+  Code de la consommation). Il faut choisir un médiateur référencé par la Commission d’évaluation et
+  de contrôle de la médiation de la consommation (CECMC), dont la liste est publiée sur
+  economie.gouv.fr (rubrique « Médiation de la consommation »), et y adhérer avant la mise en ligne
+  publique (cotisation et frais par dossier propres à chaque médiateur). Renseigner ensuite son nom,
+  son adresse postale et son site dans le champ `mediateur`, et les reporter à l’article 11 des CGV.
+- [ ] **Code APE 7410Z** (champ `activite`) : « Activités spécialisées de design » décrit une activité
+  de services de création ; il ne couvre peut-être pas la fabrication et la vente de vêtements. À
+  vérifier auprès de l’URSSAF ou d’un expert-comptable, qui dira s’il faut déclarer une modification
+  de l’activité. La nature de l’activité (ventes de marchandises ou prestations de services) compte
+  aussi pour le seuil de la franchise de TVA et pour les cotisations de la micro-entreprise.
+- [ ] **Hébergeur** (champ `hebergeur`) : Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723,
+  États-Unis, adresse donnée par la politique de confidentialité de Vercel (le site est déployé sur
+  Vercel). Aucun numéro de téléphone public n’a été trouvé : le site vercel.com est indiqué comme
+  moyen de contact. La loi demande en principe le téléphone de l’hébergeur : vérifier s’il figure
+  dans le contrat ou le compte Vercel de la Maison.
+- [ ] **Franchise en base de TVA** : confirmée par la Maison le 10/11/2026 (elle avait indiqué le 25/10
+  facturer la TVA à 20 %). Le réglage unique `shop.vatRegime` (`content/settings.ts`) vaut
+  « franchise » : mention « TVA non applicable, article 293 B du Code général des impôts. » dans les
+  mentions légales, au récapitulatif de commande, dans l’e-mail « Commande reçue » et en bas de chaque
+  facture, qui n’a plus ni colonne ni ligne de TVA. Faire confirmer par l’expert-comptable que ce
+  régime correspond à la situation fiscale de la Maison avant publication. L’agent de comptabilité
+  prévient à 80 % du seuil de la franchise (`shop.franchiseThreshold` : 85 000 € pour des ventes de
+  marchandises, valeur à faire confirmer chaque année). Si la Maison sort de la franchise : passer
+  `shop.vatRegime` à « tva20 », renseigner le numéro de TVA intracommunautaire (champ `tva`) et
+  récrire la rubrique « TVA » des mentions légales.
+- [ ] **Marque** (champ `marque`) : la page dit « Awrea Paris est une marque déposée », phrase reprise
+  du premier texte de la créatrice : numéro et date d’enregistrement à fournir, ou phrase à retirer
+  si la marque n’est pas enregistrée.
+- [ ] **Fabrication à la commande et rétractation** : la page explique que les modèles standards,
+  fabriqués après la commande dans les tailles du guide, ouvrent droit à la rétractation de quatorze
+  jours, et que seule une création réellement personnalisée (mesures ou demandes particulières de la
+  cliente) peut en être exclue (article L221-28, 3°), ce que la Maison annonce avant la confirmation
+  de la commande. L’article 7 des CGV officielles ne le dit pas (tableau plus haut) : à y ajouter.
+- [ ] Retirés du premier texte, car inexacts ou sans objet : « Société » et « Raison sociale » (une
+  entreprise individuelle n’en a pas), « Commune : Yvelines », catégorie « Industrie du textile, du
+  cuir et de l’habillement » (remplacée par l’activité déclarée communiquée), dates d’inscription au
+  RNE et de début d’activité (gardées dans le registre légal, non publiées), lien vers une « Charte
+  de Protection des Données Personnelles » (la page s’appelle « Politique de confidentialité »).
 
 ## Version anglaise
 
@@ -184,15 +222,17 @@ typographie française.
 
 - [ ] Nom de domaine du site : variable `NEXT_PUBLIC_SITE_URL` (par défaut « https://www.awreaparis.com », adresse citée par les mentions légales officielles ; les CGV officielles citent encore l’adresse du site Wix).
 - [ ] Adresse e-mail de contact : « awrea.contact@gmail.com » (mentions légales officielles), reprise dans `content/brand/identity.ts` → `email`. Les e-mails du site partent de `EMAIL_FROM` : une adresse Gmail ne peut pas servir d’expéditrice vérifiée (Resend) ; prévoir une adresse du domaine pour l’envoi.
-- [ ] Adresse de l’atelier où la créatrice reçoit sur rendez-vous et lieu du retrait des commandes (publiés seulement s’ils sont renseignés) : `content/brand/identity.ts` → `address` (ville « Paris » par défaut, à confirmer) ; l’adresse de l’entreprise est à Croissy-sur-Seine (`legalAddress`).
+- [ ] Adresse de l’atelier où la créatrice reçoit sur rendez-vous et lieu du retrait des commandes (publiés seulement s’ils sont renseignés) : `content/brand/identity.ts` → `address` (ville « Paris » par défaut, à confirmer) ; l’adresse de l’entreprise attend sa domiciliation (`legalAddress`, champ `siege`).
 - [ ] Année de création de la Maison (publiée seulement si renseignée) : `content/brand/identity.ts` → `foundingYear`. L’entreprise est inscrite au RNE depuis le 05/02/2026, début d’activité le 01/04/2026.
 - [ ] Durée de conservation des demandes de rendez-vous sans suite (champ `delaiConservationDevis`).
 
 ## Avant la mise en ligne
 
 - [ ] Faire relire l’ensemble des pages légales (CGV, CGU, confidentialité, cookies, mentions légales, propriété intellectuelle, notice de l’assistante IA) par une ou un juriste, en commençant par les écarts listés plus haut.
-- [ ] Mettre à jour les CGV et les mentions légales officielles (adresse du site, hébergeur, création sur demande, délais, rétractation, garanties, médiation), puis les reporter mot pour mot dans l’éditeur « Édition » (documents « Conditions générales de vente » et « Mentions légales »).
-- [ ] Signer la convention avec un médiateur de la consommation et renseigner le champ `mediateur`.
+- [ ] Mettre à jour les CGV officielles (adresse du site, création sur demande, délais, rétractation, garanties, médiation, mention de TVA de la franchise), puis les reporter mot pour mot dans l’éditeur « Édition » (document « Conditions générales de vente »). Les mentions légales, réécrites le 11/11/2026, se modifient dans le même éditeur (document « Mentions légales »).
+- [ ] Signer la convention avec un médiateur de la consommation référencé par la CECMC et renseigner le champ `mediateur`.
+- [ ] Renseigner l’adresse de domiciliation (champ `siege`) avant de prendre des commandes payées : elle figure sur chaque facture.
+- [ ] Faire confirmer la franchise en base de TVA et le code APE par l’expert-comptable.
 - [ ] Vérifier dans le compte Stripe de la Maison les moyens de paiement activés (article 4 des CGV), sans paiement en plusieurs fois, et les zones de livraison du site (article 5, `content/settings.ts`).
 - [ ] Tenir le registre des traitements (RGPD, article 30) : la page Confidentialité en fournit la base.
 - [ ] Conserver les contrats de cession de droits (photographes, vidéastes) et les autorisations de droit à l’image des mannequins.

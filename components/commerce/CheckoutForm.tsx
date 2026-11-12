@@ -198,10 +198,10 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
               </>
             ) : null}
             <div className="totals__total">
-              <dt>{exp ? t.totalTaxes : t.totalTtc}</dt>
+              <dt>{exp ? t.totalTaxes : taxes.vatRate ? t.totalTtc : p.total}</dt>
               <dd>{formatPrice(total, locale)}</dd>
             </div>
-            {!exp ? (
+            {!exp && taxes.vatRate ? (
               <div className="t-soft">
                 <dt>{fill(t.dontTva, { taux: Math.round(taxes.vatRate * 100) })}</dt>
                 <dd>{formatPrice(taxes.vat, locale)}</dd>
@@ -209,6 +209,7 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
             ) : null}
           </dl>
           {exp ? <p className="t-note">{t.taxesPayees}</p> : null}
+          {taxes.franchise ? <p className="t-note">{t.mentionTva}</p> : null}
           {cart.gift.wrap && cart.gift.message ? <p className="t-note">{fill(t.messageCadeau, { message: cart.gift.message })}</p> : null}
         </div>
   ) : null;

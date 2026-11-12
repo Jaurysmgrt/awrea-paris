@@ -3,7 +3,10 @@
  * logo officiel, Fraunces italique pour les titres, Cormorant Garamond pour le texte (polices
  * officielles en TTF dans assets/pdf), filets fins, marges de 48 points.
  * Mentions obligatoires : vendeuse (registre légal), acheteuse, numéro, dates, désignation,
- * quantités, prix unitaires hors taxes, taux et montant de TVA, totaux, paiement, régime de TVA.
+ * quantités, prix unitaires, totaux, paiement, régime de TVA. En franchise en base (réglage de la
+ * Maison, content/settings.ts → shop.vatRegime), ni colonne ni ligne de TVA, total sans TVA, et la
+ * mention de l'article 293 B du CGI en bas ; au régime « tva20 », prix hors taxes, taux et montant
+ * de TVA. Colonnes, totaux et mentions : lib/invoices/calcul.ts (invoiceLayout).
  */
 import "server-only";
 import { promises as fs } from "node:fs";
@@ -16,7 +19,7 @@ import { shop } from "@/content/settings";
 import { brandAssets } from "@/content/brand/assets";
 import { palette } from "@/styles/tokens";
 import { formatDate, formatPrice } from "@/lib/format";
-import type { Invoice } from "./index";
+import { invoiceLayout, type Invoice } from "./calcul";
 
 const hex = (h: string) => rgb(parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255);
 const INK = hex(palette.ink);
@@ -132,7 +135,8 @@ export async function invoicePdf(inv: Invoice): Promise<Uint8Array> {
     legalFields.capital.value ? `Capital de ${legalFields.capital.value}` : "",
     field("siege"),
     `SIRET ${field("siret")} · ${field("immatriculation")}`,
-    /293\s*B/i.test(legalFields.tva.value) ? "" : `TVA intracommunautaire ${field("tva")}`,
+    // numéro de TVA intracommunautaire : seulement hors franchise en base
+    inv.regime === "franchise" ? "" : `TVA intracommunautaire ${field("tva")}`,
     identity.email,
   ].filter(Boolean);
   const a = inv.buyer.address;
@@ -158,30 +162,26 @@ export async function invoicePdf(inv: Invoice): Promise<Uint8Array> {
   }
   y = Math.min(y, leftEnd) - 24;
 
-  // lignes
-  const cols = { qty: W - M - 220, unit: W - M - 150, vat: W - M - 80, total: W - M };
+  // lignes : colonnes selon le régime (en franchise, aucune colonne de TVA)
+  const layout = invoiceLayout(inv, { payment: payment(inv.paymentMethod), saleDate: formatDate(inv.saleDate) });
+  const colX: Record<string, number> = layout.columns.length === 4 ? { qty: W - M - 220, unit: W - M - 150, vat: W - M - 80, total: W - M } : { qty: W - M - 200, unit: W - M - 100, total: W - M };
   rule(0.75, INK);
   y -= 15;
   label("Désignation", M, 9);
-  label("Qté", cols.qty, 9, INK, true);
-  label("PU HT", cols.unit, 9, INK, true);
-  label("TVA", cols.vat, 9, INK, true);
-  label("Total HT", cols.total, 9, INK, true);
+  for (const c of layout.columns) label(c.label, colX[c.key], 9, INK, true);
   y -= 10;
   rule();
-  const rate = inv.vatRate;
-  for (const l of inv.lines) {
+  for (const r of layout.rows) {
     ensure(40);
     y -= 18;
-    const unitHt = rate ? Math.round(l.unitTtc / (1 + rate)) : l.unitTtc;
-    text(l.title, M, 12, body);
-    right(String(l.quantity), cols.qty, 11);
-    right(formatPrice(unitHt), cols.unit, 11);
-    right(`${Math.round(rate * 1000) / 10} %`, cols.vat, 11);
-    right(formatPrice(unitHt * l.quantity), cols.total, 11);
-    if (l.detail) {
+    text(r.title, M, 12, body);
+    right(String(r.quantity), colX.qty, 11);
+    right(formatPrice(r.unit), colX.unit, 11);
+    if (r.vatRate !== undefined) right(`${Math.round(r.vatRate * 1000) / 10} %`, colX.vat, 11);
+    right(formatPrice(r.total), colX.total, 11);
+    if (r.detail) {
       y -= 14;
-      text(l.detail, M, 10, body, SOFT);
+      text(r.detail, M, 10, body, SOFT);
     }
     y -= 8;
     rule();
@@ -191,27 +191,16 @@ export async function invoicePdf(inv: Invoice): Promise<Uint8Array> {
   ensure(140);
   y -= 20;
   // une seule graisse, et Fraunces seulement en grand (titre) : le total se distingue par sa taille
-  const totalsRow = (label: string, value: string, strong = false) => {
-    text(label, cols.vat - 160, strong ? 14 : 11, body);
-    right(value, cols.total, strong ? 14 : 11, body);
+  const totalsX = W - M - 240;
+  for (const t of layout.totals) {
+    text(t.label, totalsX, t.strong ? 14 : 11, body);
+    right(formatPrice(t.amount), colX.total, t.strong ? 14 : 11, body);
     y -= 17;
-  };
-  totalsRow("Total hors taxes", formatPrice(inv.totals.ht));
-  if (inv.regime === "tva") totalsRow(`TVA ${Math.round(rate * 1000) / 10} %`, formatPrice(inv.totals.vat));
-  if (inv.totals.duty) totalsRow("Droits de douane du pays d’arrivée", formatPrice(inv.totals.duty));
-  if (inv.totals.importVat) totalsRow("Taxe à l’importation du pays d’arrivée", formatPrice(inv.totals.importVat));
-  totalsRow(inv.kind === "facture" ? "Total payé" : "Total remboursé", formatPrice(inv.totals.ttc), true);
-  if (inv.giftCard) totalsRow("dont carte cadeau", formatPrice(inv.giftCard));
+  }
 
-  // mentions
+  // mentions du bas : paiement, régime de TVA (« TVA non applicable, article 293 B… » en franchise)
   y -= 12;
-  const notes = [
-    inv.kind === "facture" ? `Réglée le ${formatDate(inv.saleDate)} par ${payment(inv.paymentMethod)}.` : `Remboursement par ${payment(inv.paymentMethod)}${inv.reason ? `, ${inv.reason}` : ""}.`,
-    inv.regime === "franchise" ? "TVA non applicable, article 293 B du code général des impôts." : "",
-    inv.regime === "export" ? "Exonération de TVA, article 262 I du code général des impôts (livraison hors de l’Union européenne). Droits et taxes du pays d’arrivée réglés à la commande." : "",
-    "Pièces créées sur demande par des artisans français. Facture conservée dix ans par la Maison.",
-  ].filter(Boolean);
-  for (const n of notes) for (const w of wrap(n, body, 10, W - 2 * M)) {
+  for (const n of layout.notes) for (const w of wrap(n, body, 10, W - 2 * M)) {
     ensure(20);
     text(w, M, 10, body, SOFT);
     y -= 14;

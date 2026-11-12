@@ -55,6 +55,7 @@
     "totalTaxes": "Total, droits et taxes compris",
     "totalTtc": "Total TTC",
     "dontTva": "dont TVA ({taux} %)",
+    "mentionTva": "TVA non applicable, article 293 B du Code général des impôts.",
     "taxesPayees": "Droits et taxes payés dès maintenant : rien à régler à la livraison. Estimation indicative en mode test.",
     "messageCadeau": "Message cadeau : « {message} »",
     "modeTest": "Mode test : rien n’est débité. La carte 4242 4242 4242 4242 est acceptée. La carte 4000 0000 0000 0002 est refusée.",

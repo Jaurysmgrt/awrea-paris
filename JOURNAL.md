@@ -369,6 +369,7 @@ seulement, son paragraphe « savoir-faire » mis en place, « Toutes les collect
   espace au-delà de 2. Le testeur homogénéité mesure maintenant ces espaces lui-même.
 
 ## Maintenance quotidienne
+- 2026-11-12 — 3 contrôle(s) en échec que l'agent n'a pas pu corriger seul : votre attention est requise. (Sécurité du site en ligne (TLS, HTTPS, en-têtes, vulnérabilités, intrusions) ; Parcours du site en ligne (sans rien modifier) ; Textes des agents et de l'assistante (à relire dans l'Atelier)) — https://github.com/Jaurysmgrt/awrea-paris/actions/runs/43203667285
 - 2026-11-11 — 3 contrôle(s) en échec que l'agent n'a pas pu corriger seul : votre attention est requise. (Sécurité du site en ligne (TLS, HTTPS, en-têtes, vulnérabilités, intrusions) ; Parcours du site en ligne (sans rien modifier) ; Textes des agents et de l'assistante (à relire dans l'Atelier)) — https://github.com/Jaurysmgrt/awrea-paris/actions/runs/43004855964
 - 2026-11-10 — 3 contrôle(s) en échec que l'agent n'a pas pu corriger seul : votre attention est requise. (Sécurité du site en ligne (TLS, HTTPS, en-têtes, vulnérabilités, intrusions) ; Parcours du site en ligne (sans rien modifier) ; Textes des agents et de l'assistante (à relire dans l'Atelier)) — https://github.com/Jaurysmgrt/awrea-paris/actions/runs/42803123097
 - 2026-11-09 — 3 contrôle(s) en échec que l'agent n'a pas pu corriger seul : votre attention est requise. (Sécurité du site en ligne (TLS, HTTPS, en-têtes, vulnérabilités, intrusions) ; Parcours du site en ligne (sans rien modifier) ; Textes des agents et de l'assistante (à relire dans l'Atelier)) — https://github.com/Jaurysmgrt/awrea-paris/actions/runs/42606954422
@@ -1098,6 +1099,13 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
   l’aperçu, police, taille, alignement, espace, annuler, rétablir, photo et texte avec photo, lien,
   brouillon après rechargement), captures ordinateur et téléphone ; guide de la créatrice § 12 mis à
   jour.
+
+## Cahiers du 10/11, étape 2 : mentions légales et franchise de TVA (12/11)
+
+- Mentions légales réécrites : un texte de la Maison remplace le premier texte officiel, qui annonçait encore Wix. L’éditrice et l’hébergeur (Vercel Inc.) sont présentés en fiches, avec la directrice de la publication, le code APE 7410Z et la TVA. Une rubrique « Fabrication à la commande » précise que les modèles standards gardent la rétractation de 14 jours et que seule une création personnalisée en est exclue (L221-28, 3°). S’y ajoutent « Réclamation et médiation » et des liens vers les CGV, les garanties, la livraison, la rétractation, la confidentialité et les cookies. L’adresse de Croissy n’apparaît plus nulle part ; l’adresse de domiciliation et le médiateur sont en « À COMPLÉTER ».
+- Franchise en base de TVA : un seul réglage, `shop.vatRegime`, réglé sur « franchise », avec le retour à « tva20 » prévu. Les factures n’ont plus de ligne de TVA et portent « TVA non applicable, article 293 B du Code général des impôts. » en bas. La même mention paraît au récapitulatif et dans l’e-mail « Commande reçue ». Les montants payés ne changent pas. L’agent de comptabilité suit le seuil de la franchise (85 000 €, à confirmer par l’expert-comptable).
+- Données structurées des pièces corrigées : les retours y étaient annoncés gratuits, alors que les CGV et la page Livraison et retours laissent leurs frais à la charge de la cliente.
+- À faire par la Maison : domiciliation, adhésion à un médiateur référencé par la CECMC, vérification du code APE et de la franchise avec l’expert-comptable, et mise à jour des articles 1, 2, 3, 5, 7 et 11 des CGV officielles (stocks, prix « HT et TTC », facture « à la livraison », délai de 14 jours, médiateur).
 
 ## Cahiers du 10/11, étape 6 : Google Agenda en connexion directe (12/11)
 

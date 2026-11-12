@@ -31,12 +31,15 @@ export function organizationSchema() {
     description: identity.description,
     slogan: identity.tagline,
     ...(identity.foundingYear ? { foundingDate: String(identity.foundingYear) } : {}),
-    foundingLocation: { "@type": "Place", name: identity.foundingLocation },
+    ...(identity.foundingLocation ? { foundingLocation: { "@type": "Place", name: identity.foundingLocation } } : {}),
     founder: { "@type": "Person", jobTitle: "Créatrice et fondatrice", name: identity.founderTitle },
     email: identity.email,
     telephone: identity.phone,
-    // adresse de l'entreprise (mentions légales officielles) et numéro SIRET
-    address: { "@type": "PostalAddress", ...identity.legalAddress },
+    // adresse de l'entreprise (en attente de domiciliation : le pays seulement tant que la rue manque)
+    // et numéro SIRET
+    address: identity.legalAddress.streetAddress
+      ? { "@type": "PostalAddress", ...identity.legalAddress }
+      : { "@type": "PostalAddress", addressCountry: identity.legalAddress.addressCountry },
     identifier: { "@type": "PropertyValue", propertyID: "SIRET", value: identity.siret },
     // livraison en France métropolitaine (article 5 des CGV officielles)
     areaServed: "FR",
@@ -131,7 +134,8 @@ export function productSchema(p: Product, delai?: LeadTimeTemplates, locale: Loc
         returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
         merchantReturnDays: 14,
         returnMethod: "https://schema.org/ReturnByMail",
-        returnFees: "https://schema.org/FreeReturn",
+        // frais de retour à la charge de la cliente (CGV, article 7 ; page Livraison et retours)
+        returnFees: "https://schema.org/ReturnFeesCustomerResponsibility",
       },
     },
   };

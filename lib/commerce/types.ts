@@ -161,10 +161,16 @@ export interface Address {
   phone?: string;
 }
 
-/** Taxes de la commande : TVA française incluse, ou export (hors TVA française, droits et TVA du pays payés à la commande). */
+/**
+ * Taxes de la commande : franchise en base (aucune TVA, régime de la Maison), TVA française incluse
+ * (régime « tva20 »), ou export (hors TVA française, droits et TVA du pays payés à la commande).
+ */
 export interface OrderTaxes {
+  /** taux de TVA française contenu dans le prix (0 en franchise et à l'export) */
   vatRate: number;
   vat: number;
+  /** franchise en base de TVA au moment de la commande : « TVA non applicable, article 293 B du CGI » */
+  franchise?: boolean;
   /** droits et taxes à l'importation */
   duties?: number;
   export?: { exVat: number; duty: number; dutyRate: number; importVat: number; importVatRate: number };
