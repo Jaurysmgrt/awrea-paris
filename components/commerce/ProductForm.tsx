@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Product, Variant } from "@/lib/commerce/types";
 import { useCart } from "./CartProvider";
 import { SizePicker } from "./SizePicker";
@@ -18,8 +18,10 @@ import { prefersReducedMotion } from "@/lib/motion";
  * choix de la taille (toutes se commandent), l'ajout au panier et le guide des tailles.
  * `stickyBar` : sur téléphone et tablette, une barre d'achat reste en bas de l'écran tant que le
  * bouton principal n'est pas visible (même taille choisie, même panier).
+ * `aide` : liens vers le guide complet et le rendez-vous de conseil, donnés par la page (ils
+ * vivaient dans la rubrique « Coupe et taille », retirée le 10/11).
  */
-export function ProductForm({ product, stickyBar = false }: { product: Product; stickyBar?: boolean }) {
+export function ProductForm({ product, stickyBar = false, aide }: { product: Product; stickyBar?: boolean; aide?: ReactNode }) {
   const t = useTexts<CatalogueTexts>("catalogue");
   const locale = useLocale();
   const { dispatch, busy } = useCart();
@@ -136,6 +138,7 @@ export function ProductForm({ product, stickyBar = false }: { product: Product; 
           </div>
           <p className="t-body">{product.fit}</p>
           <p className="t-note">{shop.sizeGuide.note}</p>
+          {aide}
           {product.variants.length > 1 ? (
             <SizeFinder
               product={product}

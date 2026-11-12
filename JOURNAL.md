@@ -1058,6 +1058,19 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
   l’Atelier (77 parcours avant le menu à icônes, 14 parcours du menu, de l’application, des commandes et
   des agents après).
 
+## Cahiers du 10/11, étape 1 : retouches du site (11/11)
+
+- Deux cahiers reçus (site et évolution de l’Atelier) : état des lieux, plan en sept étapes et
+  questions ; réponses consignées dans DECISIONS.md.
+- Fiche d’une pièce : la colonne des informations n’est plus collante, tout défile ensemble ;
+  rubriques « Description », « Composition & entretien », « Fabrication », « Livraison et retours » ;
+  « Coupe et taille » retirée sans perdre d’information.
+- Guide des tailles : textes validés, un seul axe, tableau lisible sur téléphone sans défilement.
+- Collection Hypnotic Lace : texte officiel centré sur une colonne resserrée.
+- Partout : sous un titre de page centré, le chapeau se centre sur le même axe.
+- Cookies : « Tout accepter », « Tout refuser », « Personnaliser », « Gérer mes cookies » ; bandeau
+  et politique limités aux outils réellement branchés.
+- Atelier : cases à cocher en petits ronds, chaque rond collé à son mot.
 
 ## Cahiers du 10/11, étape 3 : éditeur d’e-mails façon Brevo (11/11)
 

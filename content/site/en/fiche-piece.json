@@ -1,10 +1,9 @@
 {
   "filAriane": "All pieces",
   "sections": {
-    "piece": "The piece",
-    "matieres": "Materials and care",
+    "piece": "Description",
+    "matieres": "Composition & care",
     "entretien": "Care",
-    "coupe": "Fit and size",
     "livraison": "Delivery and returns"
   },
   "surDemande": {

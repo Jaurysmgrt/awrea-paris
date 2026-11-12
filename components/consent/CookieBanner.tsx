@@ -3,11 +3,13 @@
  * Bandeau cookies : un filet noir très fin, du papier blanc cassé, une typographie fine.
  * Il apparaît en fondu au bas de l'écran ; tant qu'aucun choix n'est fait, il est une fenêtre
  * (blocking : voile sur la page, ConsentProvider) dont il faut sortir par un choix ;
- * « Refuser » et « Accepter » ont exactement le même poids visuel.
+ * « Tout refuser » et « Tout accepter » ont exactement le même poids visuel, « Personnaliser » est un
+ * bouton à part entière (cahier du 10/11 : trois choix également accessibles). Seules les catégories
+ * qui déposent réellement quelque chose sont proposées (content/fr/cookies.ts).
  */
 import { useEffect, useRef, useState } from "react";
 import Link from "@/components/ui/Link";
-import { cookieCategories } from "@/content/fr/cookies";
+import { categoriesActives } from "@/content/fr/cookies";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import type { ConsentChoices } from "@/lib/consent";
 
@@ -55,7 +57,7 @@ export function CookieBanner({ blocking, details, current, onDetails, onAcceptAl
           </h2>
           <p className="t-note consent__text">
             Les cookies nécessaires font fonctionner le site. Avec votre accord, d’autres mesurent l’audience, personnalisent votre visite et nous aident à faire
-            connaître la maison. Vous pouvez changer d’avis à tout moment.{" "}
+            connaître la maison. Vous pouvez changer d’avis à tout moment depuis « Gérer mes cookies », en bas de chaque page.{" "}
             <Link href="/cookies" className="text-link">
               Politique cookies
             </Link>
@@ -66,7 +68,7 @@ export function CookieBanner({ blocking, details, current, onDetails, onAcceptAl
           <fieldset className="consent__choices">
             <legend className="sr-only">Choisir les cookies par catégorie</legend>
             <ul ref={listRef} className="consent__list">
-              {cookieCategories.map((c) => {
+              {categoriesActives.map((c) => {
                 const checked = c.always ? true : draft[c.key as keyof ConsentChoices];
                 return (
                   <li key={c.key} className="consent__row">
@@ -94,18 +96,18 @@ export function CookieBanner({ blocking, details, current, onDetails, onAcceptAl
 
         <div className="consent__actions">
           <button type="button" className="btn consent__btn" onClick={onRefuseAll}>
-            Refuser
+            Tout refuser
           </button>
           <button type="button" className="btn consent__btn" onClick={onAcceptAll}>
-            Accepter
+            Tout accepter
           </button>
           {details ? (
             <button type="button" className="btn consent__btn consent__save" onClick={() => onSave(draft)}>
               Enregistrer mes choix
             </button>
           ) : (
-            <button type="button" className="link link--quiet consent__more" aria-expanded="false" onClick={onDetails}>
-              Choisir
+            <button type="button" className="btn btn--outline consent__btn consent__more" aria-expanded="false" onClick={onDetails}>
+              Personnaliser
             </button>
           )}
         </div>

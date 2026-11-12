@@ -1,10 +1,9 @@
 {
   "filAriane": "Toutes les pièces",
   "sections": {
-    "piece": "La pièce",
-    "matieres": "Matières et entretien",
+    "piece": "Description",
+    "matieres": "Composition & entretien",
     "entretien": "Entretien",
-    "coupe": "Coupe et taille",
     "livraison": "Livraison et retours"
   },
   "surDemande": {

@@ -190,9 +190,17 @@ test.describe("Fiche d'une pièce", () => {
     await fabrication.locator("summary").click();
     await expect(fabrication.getByText(catalogue.fabrication.certificatTexte)).toBeVisible();
     await expect(fabrication.getByRole("link", { name: fiche.surDemande.lien })).toHaveAttribute("href", "/sur-commande");
-    const coupe = main.locator("details", { has: page.locator("summary", { hasText: fiche.sections.coupe }) });
-    await coupe.locator("summary").click();
-    await expect(coupe.getByRole("link", { name: fiche.mesures.lien })).toHaveAttribute("href", "/guide-des-tailles");
+    // « Coupe et taille » retirée (cahier du 10/11) : trois rubriques seulement, et la coupe, le guide
+    // complet et le rendez-vous de conseil dans la fenêtre du guide des tailles, à côté des tailles
+    await expect(main.locator("details summary", { hasText: /Coupe et taille/ })).toHaveCount(0);
+    await expect(main.locator("details summary", { hasText: fiche.sections.piece }).first()).toBeVisible();
+    await expect(main.locator("details summary", { hasText: fiche.sections.matieres }).first()).toBeVisible();
+    await main.getByRole("button", { name: catalogue.taille.trouver }).first().click();
+    const guide = page.getByRole("dialog", { name: catalogue.taille.guideTitre });
+    await expect(guide).toBeVisible();
+    await expect(guide.getByRole("link", { name: fiche.mesures.lien })).toHaveAttribute("href", "/guide-des-tailles");
+    await expect(guide.getByRole("link", { name: fiche.conseil.lien })).toHaveAttribute("href", "/rendez-vous");
+    await page.keyboard.press("Escape");
     await expect(main.getByText(catalogue.visuelProvisoire).first()).toBeVisible();
 
     // photos aux angles arrondis, comme les cartes de la collection
