@@ -1981,3 +1981,63 @@
   }
 }
 
+
+/* E-mails › Parcours (cahier de l'Atelier du 10/11) : les étapes en cartes numérotées, des lignes
+   de gestes qui passent à la ligne sur téléphone, des champs de nombre courts */
+@layer components {
+  .parcours-geste {
+    display: grid;
+    gap: var(--spacing-s);
+    justify-items: start;
+  }
+  .parcours-ligne {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-xs) var(--spacing-m);
+  }
+  .parcours-nombre {
+    inline-size: calc(var(--spacing-2xl) * 2);
+  }
+  .parcours-unite {
+    inline-size: auto;
+  }
+  .parcours-editeur {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-inline-size: 0;
+  }
+  .parcours-editeur fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .parcours-etapes {
+    display: grid;
+    gap: var(--spacing-s);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .parcours-etape {
+    padding: var(--spacing-s);
+    border: var(--border-width-hair) solid var(--line);
+    border-radius: var(--radius-soft);
+  }
+  .parcours-modele {
+    display: grid;
+    gap: var(--spacing-s);
+    padding-block: var(--spacing-s);
+    border-bottom: var(--border-width-hair) solid var(--line);
+  }
+  @media (min-width: 48rem) {
+    .parcours-modele {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+    }
+  }
+  .parcours-journal .liste-simple__ligne {
+    overflow-wrap: anywhere;
+  }
+}

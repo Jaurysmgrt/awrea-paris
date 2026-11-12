@@ -4,6 +4,7 @@ import { APPOINTMENT_TYPES, availableDays, book, slotsFor, type AppointmentType 
 import { notifyBooked, whenOf } from "@/lib/appointments-notify";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { verifyTurnstile } from "@/lib/security/turnstile";
+import { synchroniserGoogle } from "@/lib/google-agenda";
 
 const Type = z.enum(Object.keys(APPOINTMENT_TYPES) as [AppointmentType, ...AppointmentType[]]);
 
@@ -44,6 +45,8 @@ export async function POST(req: Request) {
   try {
     const a = await book(parsed.data);
     after(() => notifyBooked(a).catch((e) => console.error("[rendez-vous] e-mails", e)));
+    // Google Agenda de la créatrice, s'il est connecté (sinon rien : l'abonnement iCal suffit)
+    after(() => synchroniserGoogle(a.id).then(() => undefined));
     return NextResponse.json({ ok: true, id: a.id, quand: whenOf(a.start), rendezvous: APPOINTMENT_TYPES[a.type].label });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : "Ce moment n’est plus libre." }, { status: 409 });

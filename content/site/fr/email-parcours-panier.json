@@ -1,0 +1,60 @@
+{
+  "nom": "Une aide pour votre sélection",
+  "quand": "Envoyé dans un parcours de vente, quand le parcours est actif.",
+  "famille": "lettre",
+  "sujet": "Une aide pour votre sélection",
+  "preheader": "Le guide des tailles, ou un appel avec la créatrice.",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la personne, quand il est connu",
+      "exemple": "Camille"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-panier01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-panier02",
+      "type": "titre",
+      "titre": "Une aide pour votre sélection"
+    },
+    {
+      "id": "b-panier03",
+      "type": "texte",
+      "texte": "Bonjour {prenom},",
+      "si": "prenom"
+    },
+    {
+      "id": "b-panier04",
+      "type": "texte",
+      "texte": "Bonjour,",
+      "sauf": "prenom"
+    },
+    {
+      "id": "b-panier05",
+      "type": "texte",
+      "texte": "Quelques pièces vous attendent dans votre panier, sans aucune obligation. Rien ne presse : chaque pièce est créée sur demande, une fois votre commande passée.\n\nSi une taille vous fait hésiter, le guide des tailles vous aide à choisir. Vous pouvez aussi en parler avec la créatrice, en appel vidéo."
+    },
+    {
+      "id": "b-panier06",
+      "type": "bouton",
+      "lien": {
+        "label": "Trouver ma taille",
+        "href": "/guide-des-tailles"
+      }
+    },
+    {
+      "id": "b-panier07",
+      "type": "signature",
+      "texte": "Avec toute notre attention,\nla Maison Awrea Paris"
+    },
+    {
+      "id": "b-panier08",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

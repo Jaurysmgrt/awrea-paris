@@ -1,0 +1,60 @@
+{
+  "nom": "Un conseil pour votre taille",
+  "quand": "Envoyé dans un parcours de vente, quand le parcours est actif.",
+  "famille": "lettre",
+  "sujet": "Un conseil pour votre taille",
+  "preheader": "La créatrice vous répond, en appel vidéo.",
+  "variables": {
+    "prenom": {
+      "description": "Le prénom de la personne, quand il est connu",
+      "exemple": "Camille"
+    }
+  },
+  "blocs": [
+    {
+      "id": "b-conseil01",
+      "type": "entete",
+      "fond": "noir"
+    },
+    {
+      "id": "b-conseil02",
+      "type": "titre",
+      "titre": "Un conseil pour votre taille"
+    },
+    {
+      "id": "b-conseil03",
+      "type": "texte",
+      "texte": "Bonjour {prenom},",
+      "si": "prenom"
+    },
+    {
+      "id": "b-conseil04",
+      "type": "texte",
+      "texte": "Bonjour,",
+      "sauf": "prenom"
+    },
+    {
+      "id": "b-conseil05",
+      "type": "texte",
+      "texte": "Une pièce créée sur demande se choisit avec soin. Si vous hésitez sur une taille, un tombé ou une matière, la créatrice vous répond volontiers.\n\nUn appel vidéo de trente minutes, depuis votre téléphone ou votre ordinateur, au jour et à l’heure qui vous conviennent."
+    },
+    {
+      "id": "b-conseil06",
+      "type": "bouton",
+      "lien": {
+        "label": "Prendre rendez-vous",
+        "href": "/rendez-vous"
+      }
+    },
+    {
+      "id": "b-conseil07",
+      "type": "signature",
+      "texte": "Avec toute notre attention,\nla Maison Awrea Paris"
+    },
+    {
+      "id": "b-conseil08",
+      "type": "pied",
+      "note": ""
+    }
+  ]
+}

@@ -192,7 +192,7 @@ Le menu de gauche est rangé comme une journée de la Maison (sur téléphone, i
 | **Certificats** | Les certificats d’authenticité et leurs numéros de création |
 | *Le site* : **Pages** | Toutes les pages du site, pour les modifier |
 | **Photos** | Toutes les photos du site, avec la page où chacune paraît, et les photos provisoires à remplacer |
-| **E-mails** | La lettre à écrire et envoyer, les inscrites, les e-mails partis, les e-mails automatiques |
+| **E-mails** | La lettre à écrire et envoyer, les inscrites, les e-mails partis, les e-mails automatiques, les parcours |
 | *Gestion* : **À valider** | Accepter ou refuser ce que les agents proposent (argent, gestes définitifs) |
 | **Factures** | Les factures, les avoirs et l’export du mois |
 | **Réglages** | Ce que les agents font seuls, les délais, les services branchés, le lien privé du site, la sécurité |
@@ -552,7 +552,7 @@ reste le même.
 
 ## 12. Les e-mails et la lettre
 
-Atelier › **E-mails** a quatre onglets.
+Atelier › **E-mails** a cinq onglets.
 
 - **La lettre** : la lettre de la Maison telle qu’elle arrivera. **Écrire la lettre** ouvre son
   éditeur (titre, texte, photo, bouton), comme pour une page ; publiez-la quand elle est prête.
@@ -613,6 +613,35 @@ cliente. Les e-mails qui suivent la livraison (« Votre pièce est arrivée »
 l’entretien, la demande d’avis) ne sont pas dans la liste : pour l’instant, leur texte ne se modifie
 pas depuis l’Atelier.
 
+### Les parcours de vente
+
+Un parcours envoie quelques e-mails de la lettre, dans l’ordre, à une personne qui vient de faire
+quelque chose : s’inscrire, s’intéresser à une pièce, laisser un panier, commander.
+
+1. Atelier › **E-mails** › **Parcours** › **Partir d’un modèle** : **Créer ce brouillon**. Un
+   modèle n’est jamais actif tout seul.
+2. Relisez le parcours : ce qui fait entrer, qui peut entrer, les **Étapes** (un e-mail, un délai,
+   une condition), la **Sortie**. **Monter**, **Descendre**, **Retirer l’étape**, **Ajouter un
+   e-mail**. **M’envoyer cet e-mail** vous l’envoie, à vous seule. **Enregistrer**.
+3. **Activer**. Pour le modifier ensuite : **Mettre en pause**, modifier, **Activer**.
+4. **Lancer un passage maintenant**, ou attendre le matin. Le **Journal de simulation** dit ce qui
+   serait parti, à qui et quel jour ; **Les 30 prochains jours** montre la suite.
+
+Rien ne part pour de vrai tant que deux clés ne sont pas réunies : la variable
+`PARCOURS_ENVOIS_REELS=1`, posée dans Vercel, et votre accord, **Autoriser les envois réels**, dans
+l’onglet. Couper l’accord arrête tout aussitôt.
+
+Les règles qui vous protègent : seules les personnes qui ont accepté la lettre entrent, une seule fois
+par parcours ; un e-mail marketing au plus tous les trois jours par personne (réglable dans
+**Rythme**), lettre comprise ; jamais deux fois le même e-mail ; chaque e-mail porte le lien de
+désinscription. Une personne sort aussitôt si elle se désinscrit, si elle achète, ou si elle ne
+remplit plus les conditions. Les e-mails de commande et de rendez-vous ne vont jamais dans un
+parcours. Les clics et les ouvertures ne sont pas mesurés : aucun outil de suivi n’est branché.
+
+Les e-mails des parcours sont en bas de l’onglet : **Créer l’e-mail** en ajoute un, à écrire puis
+publier comme les autres. Tant qu’un e-mail garde des crochets ou n’est pas publié, son étape
+attend.
+
 ![L’éditeur d’un e-mail avec son aperçu](docs/guide/12-e-mails.png)
 
 ## 13. Les rendez-vous
@@ -629,6 +658,17 @@ Le lien de l’appel part avec la confirmation, sans rien à installer.
    fermés** (un par ligne). Puis **Enregistrer les disponibilités**.
 3. **Dans votre agenda** › **Copier l’adresse de l’agenda** : ajoutez cette adresse à l’agenda de
    votre téléphone, chaque rendez-vous y apparaît.
+4. **Google Agenda** (une fois branché, voir le guide d’activation, étape 16) : **Connecter Google
+   Agenda**. Google s’ouvre et vous demande votre accord, jamais votre mot de passe sur ce site.
+   Ensuite, chaque rendez-vous confirmé s’ajoute seul à votre agenda Google, avec la cliente, ses
+   notes et le lien de l’appel ; il se met à jour s’il change et disparaît s’il est annulé. Les
+   moments déjà pris dans votre agenda Google ne sont plus proposés aux clientes.
+   Sous chaque rendez-vous, une pastille :
+   **Synchronisé** (il est dans votre agenda), **En attente** (il part dans un instant),
+   **À refaire** (Google n’a pas répondu : la raison est écrite à côté ; **Réessayer** le renvoie,
+   sinon il repart seul le lendemain matin).
+   Si **Reconnecter Google Agenda** apparaît, Google a retiré l’accès ou il a expiré : touchez-le, rien
+   n’est perdu. **Déconnecter** retire l’accès ; les rendez-vous déjà ajoutés restent dans votre agenda.
 
 Chaque cliente reçoit une confirmation avec l’invitation pour son agenda, puis un rappel la veille.
 Ces e-mails se modifient dans Atelier › **E-mails**.

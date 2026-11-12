@@ -6,6 +6,7 @@ import { When } from "@/components/admin/Status";
 import Link from "@/components/ui/Link";
 import { EmailsTabs } from "@/components/admin/EmailsTabs";
 import { LETTRE_DOC } from "@/lib/email/lettre";
+import { PREFIXE as PARCOURS } from "@/lib/marketing/parcours/emails";
 
 const FAMILLES = [
   { id: "commande", title: "Commandes", intro: "Envoyés par le site à chaque étape de la commande." },
@@ -15,10 +16,11 @@ const FAMILLES = [
 
 /**
  * E-mails automatiques : chacun tel qu'il arrive, avec ses exemples, et son état. La lettre elle-même
- * s'écrit et part depuis l'onglet « La lettre ».
+ * s'écrit et part depuis l'onglet « La lettre » ; les e-mails des parcours de vente vivent dans
+ * l'onglet « Parcours ».
  */
 export default async function EmailsAutomatiquesPage() {
-  const [ids, commun] = await Promise.all([emailIds().then((l) => l.filter((x) => x.id !== LETTRE_DOC)), emailCommon("fr", true)]);
+  const [ids, commun] = await Promise.all([emailIds().then((l) => l.filter((x) => x.id !== LETTRE_DOC && !x.id.startsWith(PARCOURS))), emailCommon("fr", true)]);
   const list = (
     await Promise.all(
       ids.map(async ({ id, label }) => {
