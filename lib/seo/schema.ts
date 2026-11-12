@@ -134,7 +134,8 @@ export function productSchema(p: Product, delai?: LeadTimeTemplates, locale: Loc
         returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
         merchantReturnDays: 14,
         returnMethod: "https://schema.org/ReturnByMail",
-        returnFees: "https://schema.org/FreeReturn",
+        // frais de retour à la charge de la cliente (CGV, article 7 ; page Livraison et retours)
+        returnFees: "https://schema.org/ReturnFeesCustomerResponsibility",
       },
     },
   };
