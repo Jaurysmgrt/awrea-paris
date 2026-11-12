@@ -629,6 +629,17 @@ Le lien de l’appel part avec la confirmation, sans rien à installer.
    fermés** (un par ligne). Puis **Enregistrer les disponibilités**.
 3. **Dans votre agenda** › **Copier l’adresse de l’agenda** : ajoutez cette adresse à l’agenda de
    votre téléphone, chaque rendez-vous y apparaît.
+4. **Google Agenda** (une fois branché, voir le guide d’activation, étape 16) : **Connecter Google
+   Agenda**. Google s’ouvre et vous demande votre accord, jamais votre mot de passe sur ce site.
+   Ensuite, chaque rendez-vous confirmé s’ajoute seul à votre agenda Google, avec la cliente, ses
+   notes et le lien de l’appel ; il se met à jour s’il change et disparaît s’il est annulé. Les
+   moments déjà pris dans votre agenda Google ne sont plus proposés aux clientes.
+   Sous chaque rendez-vous, une pastille :
+   **Synchronisé** (il est dans votre agenda), **En attente** (il part dans un instant),
+   **À refaire** (Google n’a pas répondu : la raison est écrite à côté ; **Réessayer** le renvoie,
+   sinon il repart seul le lendemain matin).
+   Si **Reconnecter Google Agenda** apparaît, Google a retiré l’accès ou il a expiré : touchez-le, rien
+   n’est perdu. **Déconnecter** retire l’accès ; les rendez-vous déjà ajoutés restent dans votre agenda.
 
 Chaque cliente reçoit une confirmation avec l’invitation pour son agenda, puis un rappel la veille.
 Ces e-mails se modifient dans Atelier › **E-mails**.
