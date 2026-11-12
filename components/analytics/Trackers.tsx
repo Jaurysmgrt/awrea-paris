@@ -10,6 +10,7 @@ import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useConsent } from "@/components/consent/ConsentProvider";
 import { captureSource } from "./source";
+import { adresseMesuree } from "@/lib/analytics/adresse";
 
 const PLAUSIBLE_DOMAIN = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
 const PLAUSIBLE_SRC = process.env.NEXT_PUBLIC_PLAUSIBLE_SRC ?? "https://plausible.io/js/script.manual.revenue.js";
@@ -140,7 +141,10 @@ export function Trackers() {
   // page vue à chaque navigation
   useEffect(() => {
     const w = window as W;
-    const url = window.location.href;
+    // adresse sans paramètres ni fragment (jeton d'un lien, numéro de commande) : pour les pages vues
+    // et, chez Google, pour tous les évènements qui suivent (achat, panier)
+    const url = adresseMesuree(window.location.href);
+    if ((analytics && loaded.current.ga) || (advertising && loaded.current.ads)) w.gtag?.("set", { page_location: url });
     if (analytics && loaded.current.plausible) w.plausible?.("pageview", { u: url });
     if (analytics && loaded.current.ga && GA4_ID) w.gtag?.("event", "page_view", { page_location: url, page_title: document.title });
     if (advertising && loaded.current.meta) w.fbq?.("track", "PageView");

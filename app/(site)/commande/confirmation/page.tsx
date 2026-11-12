@@ -103,6 +103,13 @@ export default async function ConfirmationPage({
                   ))}
                 </ul>
                 <dl className="totals">
+                  {/* remise (privilège de bienvenue ou code) : une ligne, sans prix barré, comme l'e-mail et la facture */}
+                  {order.discount?.amount ? (
+                    <div className={order.privilege ? "totals__privilege" : undefined}>
+                      <dt>{order.discount.label}</dt>
+                      <dd>− {formatPrice(order.discount.amount, locale)}</dd>
+                    </div>
+                  ) : null}
                   <div>
                     <dt>{fill(t.livraison, { mode: order.shipping.method })}</dt>
                     <dd>{order.shipping.price ? formatPrice(order.shipping.price, locale) : t.offerte}</dd>

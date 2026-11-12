@@ -7,9 +7,13 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   abonnerParCompte,
+  avecCoordonnees,
+  cleCanonique,
   confirmer,
   demander,
+  dernieresDesinscriptions,
   desinscrire,
+  purgerAttente,
   etatLettre,
   fusionnerContacts,
   historique,
@@ -145,6 +149,65 @@ test("segments : clientes, prospects, abonnées, nouvelles inscrites, désinscri
   const n = compterParSegment([{ segments: ["clientes", "abonnees"] }, { segments: ["prospects", "abonnees"] }]);
   assert.equal(n.abonnees, 2);
   assert.equal(n.desinscrites, 0);
+});
+
+test("clé canonique du privilège : « +… » partout, points et googlemail chez Gmail seulement", () => {
+  assert.equal(cleCanonique(" Jeanne+2@Gmail.com "), "jeanne@gmail.com");
+  assert.equal(cleCanonique("j.e.anne@gmail.com"), "jeanne@gmail.com");
+  assert.equal(cleCanonique("j.eanne+promo@googlemail.com"), "jeanne@gmail.com");
+  assert.equal(cleCanonique("jeanne+boutique@exemple.fr"), "jeanne@exemple.fr");
+  assert.equal(cleCanonique("j.eanne@exemple.fr"), "j.eanne@exemple.fr", "ailleurs, un point change l'adresse");
+  assert.equal(cleCanonique("+tout@exemple.fr"), "+tout@exemple.fr", "un « + » en tête n'est pas un alias");
+});
+
+test("personne ne réécrit la fiche d'une autre : coordonnées gardées dans la demande, appliquées au clic sans rien écraser", () => {
+  const abonnee = confirmer(demander({ ...nouvelleFiche("ines@exemple.fr", T0), prenom: "Inès" }, { source: "footer", texte: "Oui", coordonnees: { prenom: "Inès", nom: "Martin" } }, T0), etatLettre({}), T0)!.fiche;
+  assert.equal(abonnee.nom, "Martin");
+  // un tiers remplit le formulaire avec son adresse : la fiche ne change pas avant le clic
+  const demande = demander(abonnee, { source: "fenetre", texte: "Oui", coordonnees: { prenom: "Pirate", nom: "X", telephone: "0600000000" } }, T1);
+  assert.equal(demande.prenom, "Inès");
+  assert.equal(demande.nom, "Martin");
+  assert.equal(demande.telephone, undefined);
+  assert.deepEqual(demande.attente?.coordonnees, { prenom: "Pirate", nom: "X", telephone: "0600000000" });
+  // une demande confirmée complète seulement ce qui manque, jamais une valeur de la fiche ou du compte
+  const nouvelle = demander(nouvelleFiche("lea@exemple.fr", T0), { source: "fenetre", texte: "Oui", coordonnees: { prenom: "Léa", nom: "Bernard", telephone: "0611111111" } }, T0);
+  const c = confirmer(nouvelle, etatLettre({ fiche: nouvelle }), T1, { prenom: "Léa-Marie", nom: null, telephone: null })!.fiche;
+  assert.equal(c.prenom, undefined, "le prénom du compte prime");
+  assert.equal(c.nom, "Bernard");
+  assert.equal(c.telephone, "0611111111");
+  assert.equal(c.attente, undefined);
+  assert.equal(avecCoordonnees(c, { nom: "Autre" }), c, "rien n'est remplacé");
+});
+
+test("filet des désinscriptions : une désinscription plus récente que l'accord l'emporte, une nouvelle inscription confirmée aussi", () => {
+  const f = confirmer(demander(nouvelleFiche("a@b.fr", T0), { source: "footer", texte: "Oui" }, T0), etatLettre({}), T1)!.fiche;
+  // la fiche n'a pas pu être mise à jour, mais la liste des désinscriptions a noté le clic
+  const e = etatLettre({ fiche: f, desinscriteLe: T2.toISOString() });
+  assert.equal(e.statut, "desinscrite");
+  assert.equal(peutRecevoirMarketingSelon(e), false);
+  // désinscription plus ancienne que la confirmation : abonnée
+  assert.equal(etatLettre({ fiche: f, desinscriteLe: T0.toISOString() }).statut, "abonnee");
+  // ancienne liste sans date : la désinscription l'emporte
+  assert.equal(etatLettre({ ancienne: { email: "a@b.fr" }, desinscriteLe: T0.toISOString() }).statut, "desinscrite");
+  assert.deepEqual(dernieresDesinscriptions([{ email: "A@B.fr ", date: T0.toISOString() }, { email: "a@b.fr", date: T2.toISOString() }, { email: 3, date: "x" }]), { "a@b.fr": T2.toISOString() });
+  const s = vide();
+  s.fiches["a@b.fr"] = f;
+  s.desinscriptions = { "a@b.fr": T2.toISOString() };
+  const [k] = fusionnerContacts(s, idDe, T2);
+  assert.equal(k.lettre.statut, "desinscrite");
+  assert.ok(k.segments.includes("desinscrites"));
+});
+
+test("inscription jamais confirmée : effacée un jour après l'expiration de son lien", () => {
+  const demande = demander(nouvelleFiche("a@b.fr", T0), { source: "fenetre", texte: "Oui", coordonnees: { prenom: "Ana" } }, T0);
+  const jours = (n: number) => new Date(T0.getTime() + n * 86_400_000);
+  assert.equal(purgerAttente(demande, jours(7), 8), null, "le lien vaut encore");
+  assert.deepEqual(purgerAttente(demande, jours(8.1), 8), { fiche: null }, "rien d'autre : la fiche disparaît");
+  // une désinscrite qui redemande sans confirmer : la demande s'efface, la désinscription reste
+  const desinscrite = demander(desinscrire(nouvelleFiche("a@b.fr", T0), { source: "lien" }, T0), { source: "fenetre", texte: "Oui" }, T0);
+  const p = purgerAttente(desinscrite, jours(9), 8)!;
+  assert.equal(p.fiche?.attente, undefined);
+  assert.equal(p.fiche?.lettre?.statut, "desinscrite");
 });
 
 test("historique : inscription, confirmation, commandes et rendez-vous, du plus récent au plus ancien", () => {

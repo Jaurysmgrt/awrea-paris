@@ -5,6 +5,8 @@
  */
 import Link from "@/components/ui/Link";
 import { listReturns, reasonLabel, statusLabel } from "@/lib/returns";
+import { getOrders } from "@/lib/commerce/orders";
+import { partsDuRetour } from "@/lib/commerce/remboursement";
 import { formatDate, formatPrice } from "@/lib/format";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { LabelUpload } from "@/components/admin/LabelUpload";
@@ -13,7 +15,14 @@ import { atelierHref, atelierApi } from "@/lib/admin/path";
 export const dynamic = "force-dynamic";
 
 export default async function RetoursPage() {
-  const all = await listReturns();
+  const [all, commandes] = await Promise.all([listReturns(), getOrders()]);
+  // montant annoncé = montant remboursé : ce que la cliente a payé pour ces pièces (remise, privilège
+  // sur une seule unité, taxes, carte cadeau), le même calcul que le remboursement (lib/returns-flow.ts)
+  const partsDe = (r: (typeof all)[number]): number[] => {
+    const o = commandes.find((x) => x.id === r.orderId) ?? commandes.find((x) => x.number === r.orderNumber);
+    const refund = r.items.filter((i) => i.wish === "remboursement");
+    return o ? partsDuRetour(o, r, all.filter((x) => x.orderNumber === r.orderNumber)) : refund.map((i) => i.unitPrice);
+  };
   const open = all.filter((r) => r.status === "demande" || r.status === "recu");
   const done = all.filter((r) => !open.includes(r));
   return (
@@ -30,7 +39,8 @@ export default async function RetoursPage() {
           <ul className="stack-l">
             {open.map((r) => {
               const refund = r.items.filter((i) => i.wish === "remboursement");
-              const total = refund.reduce((s, i) => s + i.unitPrice, 0);
+              const parts = partsDe(r);
+              const total = parts.reduce((s, x) => s + x, 0);
               return (
                 <li key={r.id} className="stack-s">
                   <p className="t-h4">
@@ -46,7 +56,7 @@ export default async function RetoursPage() {
                   <ul className="stack-s">
                     {r.items.map((i, k) => (
                       <li key={k} className="t-body">
-                        {i.title}, taille {i.size} · {reasonLabel[i.reason]} · {i.wish === "echange" ? `échange en ${i.exchangeSize}` : `remboursement ${formatPrice(i.unitPrice)}`}
+                        {i.title}, taille {i.size} · {reasonLabel[i.reason]} · {i.wish === "echange" ? `échange en ${i.exchangeSize}` : `remboursement ${formatPrice(parts[refund.indexOf(i)] ?? i.unitPrice)}`}
                       </li>
                     ))}
                   </ul>

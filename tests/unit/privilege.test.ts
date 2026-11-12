@@ -6,7 +6,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { commandeEncorePayable, consommer, decisionReservation, eligibilite, liberer, ouvrir, remisePrivilege, reserver } from "@/lib/privilege/regles";
+import { commandeEncorePayable, consommer, decisionReservation, dejaCommande, eligibilite, liberer, ouvrir, partCarteCadeau, remisePrivilege, reserver } from "@/lib/privilege/regles";
 import { pageExclue, peutAfficher } from "@/components/marketing/memoire-privilege";
 import { parametresSession } from "@/lib/paiement/session";
 import type { Order } from "@/lib/commerce/types";
@@ -105,7 +105,49 @@ test("Stripe : le montant demandé est le total réduit, et la remise se lit sou
   const p = parametresSession(order, { locale: "fr", retour: "https://x/{CHECKOUT_SESSION_ID}", abandon: "https://x", libelles: { commande: "Commande {commande}", livraison: "Livraison", emballage: "Emballage", taille: "Taille {taille}" } });
   assert.equal(p.line_items!.length, 1);
   assert.equal(p.line_items![0].price_data!.unit_amount, 23400);
-  assert.match(p.line_items![0].price_data!.product_data!.description!, /Privilège de bienvenue, 10 % sur Robe Odessa : −26,00 €/);
+  // montant au format de la Maison (espaces insécables, séparateur de milliers)
+  assert.match(p.line_items![0].price_data!.product_data!.description!, /Privilège de bienvenue, 10\s%\ssur Robe Odessa\xa0: −26,00\xa0€/);
+  const cher = parametresSession({ ...order, total: 1_080_000, discount: { ...order.discount!, amount: 120_000 } } as Order, { locale: "fr", retour: "https://x/{CHECKOUT_SESSION_ID}", abandon: "https://x", libelles: { commande: "Commande {commande}", livraison: "Livraison", emballage: "Emballage", taille: "Taille {taille}" } });
+  assert.match(cher.line_items![0].price_data!.product_data!.description!, /−1\xa0200,00\xa0€/);
+  assert.doesNotMatch(p.line_items![0].price_data!.product_data!.description!,/Privilège de bienvenue, 10 % sur Robe Odessa : −26,00 €/);
+});
+
+test("réservation tenue par une commande payée ou en attente de la banque : la remise ne s'affiche plus (jamais de blocage)", () => {
+  const p = reserver(ouvrir(T0), "o-sepa", jours(1));
+  const ok = (reservation: Parameters<typeof eligibilite>[1]["reservation"]) => eligibilite(p, { maintenant: jours(1), dejaCliente: false, code: false, reservation });
+  // prélèvement SEPA parti (session terminée, paiement en attente de la banque) : déjà engagé
+  assert.deepEqual(ok("payee"), { ok: false, raison: "utilise" });
+  // commande en train de s'enregistrer à l'instant : refus net, jamais de boucle
+  assert.deepEqual(ok("en-cours"), { ok: false, raison: "occupe" });
+  // ancienne page de paiement encore ouverte : la nouvelle commande la remplacera
+  assert.deepEqual(ok("payable"), { ok: true });
+  assert.deepEqual(ok("libre"), { ok: true });
+  assert.deepEqual(ok(null), { ok: true });
+  // le cas réel : commande A en SEPA (pending, session terminée), commande B de la même adresse
+  const sepa = { status: "pending", payment: { statut: "en-attente", expireLe: jours(0.5).toISOString(), evenements: [{ type: "checkout.session.completed" }] } };
+  assert.equal(commandeEncorePayable(sepa, jours(1), p.reservation!.le), "payee");
+});
+
+test("déjà cliente : toute commande payée, même remboursée ou au prélèvement en attente, alias compris", () => {
+  const o = (email: string, status: string, payment?: { statut: string; evenements?: { type: string }[] }) => ({ id: `o-${email}-${status}`, email, status, ...(payment ? { payment } : {}) });
+  const maintenant = jours(1);
+  assert.equal(dejaCommande([o("jeanne@gmail.com", "delivered")], "j.e.anne+promo@googlemail.com", maintenant), true, "alias Gmail et « +… » reconnus");
+  assert.equal(dejaCommande([o("jeanne+2@exemple.fr", "paid")], "Jeanne@Exemple.fr", maintenant), true);
+  assert.equal(dejaCommande([o("jeanne@exemple.fr", "refunded")], "jeanne@exemple.fr", maintenant), true, "une commande remboursée a été passée");
+  assert.equal(dejaCommande([o("jeanne@exemple.fr", "pending", { statut: "en-attente", evenements: [{ type: "checkout.session.completed" }] })], "jeanne@exemple.fr", maintenant), true, "prélèvement en attente de la banque");
+  assert.equal(dejaCommande([o("jeanne@exemple.fr", "pending", { statut: "expire" })], "jeanne@exemple.fr", maintenant), false, "paiement abandonné");
+  assert.equal(dejaCommande([o("jeanne@exemple.fr", "pending")], "jeanne@exemple.fr", maintenant), false);
+  assert.equal(dejaCommande([o("j.eanne@exemple.fr", "paid")], "jeanne@exemple.fr", maintenant), false, "les points ne comptent que chez Gmail");
+  const seule = o("jeanne@exemple.fr", "paid");
+  assert.equal(dejaCommande([seule], "jeanne@exemple.fr", maintenant, seule.id), false, "la commande en cours ne compte pas");
+});
+
+test("carte cadeau d'essai : jamais plus que ce qui reste dû une fois la remise retirée", () => {
+  // panier 204 € ; carte de 500 € ramenée par le panier à 204 € ; privilège −20,40 € : la carte paie 183,60 €
+  assert.equal(partCarteCadeau(20400, 20400 - 2040), 18360);
+  assert.equal(partCarteCadeau(5000, 18360), 5000);
+  assert.equal(partCarteCadeau(5000, 0), 0);
+  assert.equal(partCarteCadeau(5000, -10), 0);
 });
 
 test("fenêtre : jamais pour une inscrite, au plus une fois tous les 30 jours, jamais sur les pages d'achat", () => {

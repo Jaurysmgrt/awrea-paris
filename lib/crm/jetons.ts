@@ -8,7 +8,7 @@
  */
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
 import { sessionSecret, sessionsConfigured } from "@/lib/auth/session";
-import { normaliserEmail } from "./regles";
+import { normaliserEmail } from "@/lib/crm/regles";
 
 export type TypeJeton = "lettre-confirmation" | "privilege-appareil" | "desinscription";
 

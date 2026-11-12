@@ -11,7 +11,7 @@ import type Stripe from "stripe";
 import * as R from "@/lib/paiement/rapprochement";
 import { suivreEvenement } from "@/lib/paiement/evenements";
 import { paiementEnAttente, type EvenementPaiement } from "@/lib/paiement/types";
-import { partsPayees } from "@/lib/commerce/remboursement";
+import { partsDuRetour, partsPayees } from "@/lib/commerce/remboursement";
 import type { Order } from "@/lib/commerce/types";
 
 const commande = (x: Partial<Order> = {}): Order => ({
@@ -213,6 +213,50 @@ test("retour : la part réellement payée (remise, carte cadeau, exportation), j
   const export1 = partsPayees(loin, [9000])[0];
   assert.ok(export1 > 9000, "plus que le prix du catalogue");
   assert.ok(partsPayees(loin, [9000, 7000, 7000]).reduce((t, x) => t + x, 0) <= loin.total - 900);
+});
+
+test("retour d'une commande au privilège : la remise porte sur la seule unité de la facture, une seule fois", () => {
+  // robe Aria 204 € −20,40 € (privilège) + body Aura 70 €, livraison offerte : 253,60 € payés
+  const privilege = { handle: "robe-aria", title: "La robe Aria", size: "M" as const, amount: 2040 };
+  const o = commande({
+    lines: [
+      { title: "La robe Aria", size: "M", quantity: 1, unitPrice: 20400, handle: "robe-aria" },
+      { title: "Le body Aura", size: "XS", quantity: 1, unitPrice: 7000, handle: "body-aura" },
+    ],
+    discount: { code: "PRIVILEGE", label: "Privilège de bienvenue, 10 % sur La robe Aria", amount: 2040 },
+    privilege,
+    shipping: { method: "Colissimo", price: 0, country: "FR" },
+    total: 25360,
+  });
+  const robe = { handle: "robe-aria", size: "M", unitPrice: 20400 };
+  const body = { handle: "body-aura", size: "XS", unitPrice: 7000 };
+  // le body rendu : 70 €, pas 64,79 € (la remise n'est pas sur lui)
+  assert.deepEqual(partsPayees(o, [body]), [7000]);
+  // la robe rendue : 183,60 €
+  assert.deepEqual(partsPayees(o, [robe]), [18360]);
+  // les deux : exactement ce qui a été payé
+  assert.equal(partsPayees(o, [robe, body]).reduce((t, x) => t + x, 0), 25360);
+  // la remise déjà retirée d'un retour précédent : la robe suivante à son prix
+  assert.deepEqual(partsPayees(o, [robe], undefined, true), [20400]);
+  // deux robes de même taille rendues ensemble : la remise sur une seule
+  const deux = commande({ ...o, lines: [{ title: "La robe Aria", size: "M", quantity: 2, unitPrice: 20400, handle: "robe-aria" }], total: 38760 });
+  assert.deepEqual(partsPayees(deux, [robe, robe]), [18360, 20400]);
+  // même pièce dans une autre taille : pas la remise
+  assert.deepEqual(partsPayees(o, [{ ...robe, size: "S" }]), [20400]);
+
+  // retours successifs de la même commande : le second ne retire plus la remise
+  const r1 = { id: "R-1", status: "rembourse", items: [{ ...robe, wish: "remboursement" }] };
+  const r2 = { id: "R-2", status: "recu", items: [{ ...robe, wish: "remboursement" }, { ...body, wish: "echange" }] };
+  assert.deepEqual(partsDuRetour(deux, r2, [r1, r2]), [20400]);
+  assert.deepEqual(partsDuRetour(deux, r1, [r1]), [18360]);
+  // un premier retour seulement échangé ne compte pas
+  assert.deepEqual(partsDuRetour(deux, r2, [{ ...r1, status: "echange-expedie", items: [{ ...robe, wish: "echange" }] }, r2]), [18360]);
+
+  // carte cadeau ou exportation : la même proportion que la commande, la remise sur la seule robe
+  const carte = commande({ ...o, giftCard: { code: "CADEAU", amount: 5072 }, total: 20288 });
+  const [pr, pb] = partsPayees(carte, [robe, body]);
+  assert.equal(pr, Math.round(18360 * 0.8));
+  assert.equal(pb, Math.round(7000 * 0.8));
 });
 
 test("privilège de bienvenue : libéré quand la page de paiement expire, jamais quand le paiement réussit", async () => {
