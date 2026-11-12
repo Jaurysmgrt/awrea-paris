@@ -31,7 +31,7 @@ export function organizationSchema() {
     description: identity.description,
     slogan: identity.tagline,
     ...(identity.foundingYear ? { foundingDate: String(identity.foundingYear) } : {}),
-    foundingLocation: { "@type": "Place", name: identity.foundingLocation },
+    ...(identity.foundingLocation ? { foundingLocation: { "@type": "Place", name: identity.foundingLocation } } : {}),
     founder: { "@type": "Person", jobTitle: "Créatrice et fondatrice", name: identity.founderTitle },
     email: identity.email,
     telephone: identity.phone,

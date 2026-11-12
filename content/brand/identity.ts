@@ -22,8 +22,11 @@ export const identity = {
   shortDescription:
     "Prêt-à-porter féminin créé sur demande par des artisans français. Dentelle noire, jersey, satin et dorure, sans stock.",
   manifesto: "Consommer plus juste. Une création exclusive n’a pas besoin d’être réservée à l’ultra luxe.",
-  /** commune d'immatriculation de l'entreprise (mentions légales officielles) */
-  foundingLocation: "Croissy-sur-Seine, France",
+  /**
+   * Commune d'immatriculation de l'entreprise, publiée dans les données structurées seulement si elle
+   * est renseignée : vide en attendant la domiciliation (l'ancienne commune n'est plus publiée).
+   */
+  foundingLocation: "" as string,
   /**
    * À COMPLÉTER : année de création de la Maison (non publiée tant qu'elle vaut null). L'entreprise
    * est inscrite au RNE depuis le 05/02/2026 (début d'activité le 01/04/2026) : confirmer l'année à publier.

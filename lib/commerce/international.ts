@@ -9,7 +9,7 @@
  * Calcul fait par le site, à la commande, sur la boutique réelle comme en démonstration.
  */
 import { shop } from "@/content/settings";
-import { tauxTva, vatFranchise } from "./tva";
+import { tauxTva, vatFranchise } from "@/lib/commerce/tva";
 import type { OrderTaxes } from "./types";
 
 /** Franchise en base de TVA : réexportée ici pour les appels existants (lib/commerce/tva.ts). */

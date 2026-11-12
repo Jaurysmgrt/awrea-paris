@@ -62,23 +62,40 @@ test.describe("Pages légales", () => {
     await expect(page.locator("#retractation")).toContainText("Les frais de retour restant à la charge du Client.");
   });
 
-  test("mentions légales : texte officiel, informations de l’entreprise, repères « À COMPLÉTER » des compléments", async ({ page }) => {
+  test("mentions légales : éditrice et hébergeur en fiches, TVA, fabrication à la commande, repères « À COMPLÉTER »", async ({ page }) => {
     await acceptCookies(page);
     await page.goto("/mentions-legales");
-    const entreprise = page.locator("section#entreprise[data-officiel]");
-    await expect(entreprise).toContainText("Léane Soubrier");
-    await expect(entreprise).toContainText("100 222 926");
-    await expect(entreprise).toContainText("46 rue Paul Déroulède, 78290 Croissy-sur-Seine");
-    await expect(page.locator("main .legal__body > [data-officiel]").first()).toContainText("loi n° 2004-575", { ignoreCase: true });
-    // sommaire à deux niveaux : les intertitres du texte officiel y sont repris
+    // texte de la Maison réécrit le 11/11 : plus aucun passage officiel
+    await expect(page.locator("main .legal__body [data-officiel]")).toHaveCount(0);
+    // fiche de l'éditrice : intitulés et valeurs du registre légal
+    const editrice = page.locator("section#editrice");
+    const fiche = editrice.locator("dl.legal__fiche");
+    await expect(fiche.locator("dt")).toHaveText(["Nom commercial", "Éditrice et exploitante", "Directrice de la publication", "Adresse", "SIREN", "SIRET", "Immatriculation", "Activité déclarée", "E-mail", "Téléphone"], { ignoreCase: true });
+    await expect(editrice).toContainText("Léane Soubrier, entrepreneuse individuelle (EI, micro-entreprise)");
+    await expect(editrice).toContainText("100 222 926 00014");
+    await expect(editrice).toContainText("Activités spécialisées de design (code APE 7410Z)");
+    await expect(editrice).toContainText("06 99 55 74 43");
+    // adresse en attente de domiciliation : repère visible, l'ancienne adresse n'apparaît plus
+    await expect(editrice.locator("mark.todo")).toHaveText("[À COMPLÉTER : adresse de domiciliation]");
+    const text = (await page.locator("main").innerText()).replace(/\u00ad/g, "");
+    expect(text).not.toMatch(/Croissy|Déroulède|Wix/);
+    // hébergeur réel, contact par son site
+    await expect(page.locator("section#hebergement")).toContainText("Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis");
+    await expect(page.locator('section#hebergement a[href="https://vercel.com"]')).toHaveCount(1);
+    // franchise en base de TVA
+    await expect(page.locator("section#tva")).toContainText("TVA non applicable, article 293 B du Code général des impôts.");
+    // fabrication à la commande : les modèles standards gardent la rétractation
+    await expect(page.locator("section#fabrication")).toContainText("droit de rétractation de quatorze jours");
+    await expect(page.locator("section#fabrication")).toContainText("article L221-28, 3°");
+    // médiateur pas encore désigné : jamais inventé
+    await expect(page.locator("section#mediation mark.todo")).toHaveText("[À COMPLÉTER : médiateur de la consommation]");
+    // liens vers les autres textes, et sommaire à jour
+    for (const href of ["/cgv", "/confidentialite", "/cookies", "/cgv#garanties", "/livraison-retours", "/retractation", "/mentions-legales#mediation"]) await expect(page.locator(`section#autres-textes a[href="${href}"]`)).toHaveCount(1);
     const toc = page.getByRole("navigation", { name: "Sommaire" });
     await expect(toc.getByRole("link", { name: "Hébergement" })).toHaveAttribute("href", "#hebergement");
-    await expect(toc.getByRole("link", { name: "Données personnelles" })).toHaveAttribute("href", "#donnees-personnelles");
-    // compléments demandés par la loi, absents du texte officiel : jamais inventés
-    for (const id of ["publication", "mediation"]) {
-      await expect(page.locator(`#${id} mark.todo`)).toBeVisible();
-      await expect(page.locator(`#${id} mark.todo`)).toContainText("À COMPLÉTER");
-    }
+    await expect(toc.getByRole("link", { name: "Réclamation et médiation" })).toHaveAttribute("href", "#mediation");
+    await page.locator('section#autres-textes a[href="/mentions-legales#mediation"]').click();
+    await expect(page.locator("#mediation h2")).toBeInViewport();
   });
 
   test("livraison et retours : création sur demande, livraison en France métropolitaine, frais de retour", async ({ page }) => {
