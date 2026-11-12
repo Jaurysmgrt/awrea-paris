@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { adminLogin, ATELIER } from "./admin-auth";
+import { confirmerInscription } from "./helpers";
 
 /**
  * Clientes de l'Atelier (lot 3 de la refonte) : recherche, catégories d'activité, fiche avec ses
@@ -51,6 +52,50 @@ test("clientes : recherche, catégorie, fiche, note interne, données et effacem
   expect(sansCompte.status()).toBe(400);
   expect((await sansCompte.json()).error).toMatch(/pas de compte/);
   await expect(page.getByText(/Sans compte, il n’y a rien à effacer/)).toBeVisible();
+});
+
+test("CRM : une inscrite à la lettre a sa fiche, ses segments, sa preuve, et l'Atelier peut la désinscrire", async ({ page }) => {
+  test.setTimeout(90_000);
+  const email = `prospect.${Date.now().toString(36)}@exemple.fr`;
+  // inscription à la lettre (formulaire complet), confirmée par le lien de l'e-mail
+  const r = await page.request.post("/api/newsletter", { data: { nom: "Prospect", prenom: "Ella", email: email.toUpperCase(), consent: true, source: "footer" } });
+  expect(r.ok(), await r.text()).toBeTruthy();
+  await confirmerInscription(page, email);
+  // une seconde inscription de la même adresse ne crée pas de seconde fiche
+  await page.request.post("/api/newsletter", { data: { formule: "compacte", email: ` ${email} `, consent: true, source: "fenetre" } });
+
+  await adminLogin(page);
+  await page.goto(`${ATELIER}/clientes?q=${encodeURIComponent(email)}`);
+  const segments = page.getByRole("navigation", { name: "Lettre et commandes" });
+  await expect(segments.getByRole("link", { name: "Prospects (1)" })).toBeVisible();
+  await expect(segments.getByRole("link", { name: "Abonnées (1)" })).toBeVisible();
+  await expect(segments.getByRole("link", { name: "Nouvelles inscrites (1)" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Ella Prospect" })).toHaveCount(1);
+  await expect(page.getByRole("row", { name: /Ella Prospect/ })).toContainText("Abonnée");
+
+  // la fiche : statut, preuve du consentement, histoire
+  await page.getByRole("link", { name: "Ella Prospect" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Ella Prospect" })).toBeVisible();
+  await expect(page.getByText("Oui je souhaite m’inscrire à la Newsletter", { exact: false })).toBeVisible();
+  await expect(page.getByText(/Inscription confirmée par le lien de l’e-mail/)).toBeVisible();
+  await expect(page.getByText(/Privilège de bienvenue ouvert/)).toBeVisible();
+
+  // corriger le téléphone
+  await page.getByLabel("Téléphone").fill("06 12 34 56 78");
+  await page.getByRole("button", { name: "Enregistrer la fiche" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Fiche enregistrée." })).toBeVisible();
+
+  // désinscrire : jamais l'inverse (aucun bouton pour inscrire)
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "Désinscrire de la lettre" }).click();
+  await expect(page.getByText(/Désinscrite\s: elle ne reçoit plus rien/)).toBeVisible();
+  await expect(page.getByRole("button", { name: /inscrire/i })).toHaveCount(0);
+
+  // les inscrites de la lettre ne la comptent plus
+  await page.goto(`${ATELIER}/e-mails/inscrites`);
+  await expect(page.getByRole("row", { name: new RegExp(email.replace(/\./g, "\\.")) })).toHaveCount(0);
+  await page.goto(`${ATELIER}/clientes?segment=desinscrites&q=${encodeURIComponent(email)}`);
+  await expect(page.getByRole("link", { name: "Ella Prospect" })).toBeVisible();
 });
 
 test("clientes : une fiche inconnue n'existe pas, une visiteuse n'a accès à rien", async ({ page, browser }) => {
