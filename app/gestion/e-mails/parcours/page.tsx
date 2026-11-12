@@ -4,14 +4,28 @@ import { EmailsTabs } from "@/components/admin/EmailsTabs";
 import { When } from "@/components/admin/Status";
 import { AccordEnvoisReels, CreerDepuisModele, LancerPassage, NouvelEmail, PlafondForm } from "@/components/admin/ParcoursGestes";
 import { modeActuel, prevision, statsParcours, variableEnvoisReels } from "@/lib/marketing/parcours";
+import type { Bilan } from "@/lib/marketing/parcours/moteur";
 import { lireContacts } from "@/lib/marketing/parcours/contacts";
 import { emailsDesParcours } from "@/lib/marketing/parcours/emails";
 import { MODELES } from "@/lib/marketing/parcours/modeles";
-import { lireInterrupteur, lireJournal, lireReglages, listeParcours } from "@/lib/marketing/parcours/stockage";
+import { derniersPassages, lireInterrupteur, lireJournal, lireReglages, listeParcours } from "@/lib/marketing/parcours/stockage";
 import { DECLENCHEURS, PLAFOND_MAX, PLAFOND_MIN, STATUTS, type LigneJournal, type Statut } from "@/lib/marketing/parcours/types";
 import { JournalParcours } from "@/components/admin/JournalParcours";
 
 const STATUT_CLASSE: Record<Statut, string> = { brouillon: "status status--info", actif: "status status--done", pause: "status status--proposed" };
+const pl = (n: number) => (n > 1 ? "s" : "");
+/** Bilan d'un passage, en une phrase : ce qui est entré, parti (ou simulé), sorti, et ce qui attend. */
+const bilan = (b: Bilan) =>
+  [
+    `${b.entrees} entrée${pl(b.entrees)}`,
+    `${b.envois} e-mail${pl(b.envois)} ${b.mode === "reel" ? "envoyé" : "simulé"}${pl(b.envois)}`,
+    `${b.sorties} sortie${pl(b.sorties)}`,
+    b.reportes ? `${b.reportes} reporté${pl(b.reportes)} pour garder le rythme` : "",
+    b.enAttente ? `${b.enAttente} en attente d’un e-mail à finir` : "",
+    b.erreurs ? `${b.erreurs} en échec` : "",
+  ]
+    .filter(Boolean)
+    .join(", ") + ".";
 const jour = (iso: string) => new Date(iso).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Paris" });
 
 /**
@@ -20,13 +34,14 @@ const jour = (iso: string) => new Date(iso).toLocaleDateString("fr-FR", { weekda
  * partirait dans les 30 prochains jours et le journal de simulation.
  */
 export default async function ParcoursPage() {
-  const [liste, reglages, interrupteur, mode, journal, emails, contacts] = await Promise.all([
+  const [liste, reglages, interrupteur, mode, journal, emails, passages, contacts] = await Promise.all([
     listeParcours(),
     lireReglages(),
     lireInterrupteur(),
     modeActuel(),
     lireJournal(300),
     emailsDesParcours(),
+    derniersPassages(1),
     lireContacts().catch((e: Error) => {
       console.error("[parcours] contacts", e);
       return null;
@@ -146,6 +161,12 @@ export default async function ParcoursPage() {
         <PlafondForm jours={reglages.plafondJours} min={PLAFOND_MIN} max={PLAFOND_MAX} />
         <p className="t-note t-left">Le passage se fait seul chaque matin. Vous pouvez aussi le lancer maintenant.</p>
         <LancerPassage />
+        {passages[0] ? (
+          <p className="t-note t-left">
+            Dernier passage, <When iso={passages[0].at} />
+            {` : ${bilan(passages[0])}`}
+          </p>
+        ) : null}
       </section>
 
       {actifs.length ? (

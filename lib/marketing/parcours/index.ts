@@ -46,7 +46,7 @@ const ports: Ports = {
 /** Un passage : entrées, étapes prêtes, sorties ; e-mails envoyés ou simulés. Rejoué, il n'envoie rien en double. */
 export async function runParcours(maintenant = new Date()): Promise<Bilan> {
   const bilan = await passage(ports, maintenant);
-  if (!bilan.occupe && (bilan.entrees || bilan.envois || bilan.sorties || bilan.erreurs || bilan.reportes || bilan.enAttente)) await noterPassage(bilan);
+  if (!bilan.occupe) await noterPassage(bilan);
   return bilan;
 }
 
