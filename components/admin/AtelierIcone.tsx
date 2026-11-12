@@ -1,8 +1,8 @@
 /**
- * Icônes du menu de l'Atelier (retour de la créatrice du 09/11 : « que ce soit intuitif, même dans
- * la barre de menu et sur téléphone ») : un trait simple et arrondi, sans remplissage, à la couleur
- * du texte. Réservées à l'Atelier ; le site garde ses icônes au fil (components/ui/Icon.tsx).
- * Toujours décoratives : le mot de l'entrée est à côté.
+ * Icônes de l'Atelier (retour de la créatrice du 09/11 : « que ce soit intuitif, même dans la barre
+ * de menu et sur téléphone ») : un trait simple et arrondi, sans remplissage, à la couleur du texte.
+ * Menu, puis outils de l'éditeur d'e-mails (blocs, alignements, annuler). Réservées à l'Atelier ; le
+ * site garde ses icônes au fil (components/ui/Icon.tsx). Toujours décoratives : le mot est à côté.
  */
 const traces = {
   accueil: "M4 11l8-7 8 7M6 9.5V20h4.5v-5.5h3V20H18V9.5",
@@ -21,6 +21,29 @@ const traces = {
   reglages: "M4 7.5h9M17 7.5h3M15 5.5v4M4 16.5h3M11 16.5h9M9 14.5v4",
   menu: "M4 7h16M4 12h16M4 17h16",
   fermer: "M6 6l12 12M18 6L6 18",
+  // éditeur d'e-mails : blocs
+  entete: "M4 4.5h16v6H4v-6zM8 15h8M6 19h12",
+  titre: "M5 6h14M12 6v13",
+  texte: "M4 7h16M4 11h16M4 15h16M4 19h10",
+  "photo-texte": "M3.5 6h8v12h-8V6zM14.5 8h6M14.5 12h6M14.5 16h4",
+  "deux-photos": "M3.5 6H11v12H3.5V6zM13 6h7.5v12H13V6z",
+  bouton: "M7 8.5h10a3.5 3.5 0 010 7H7a3.5 3.5 0 010-7z",
+  filet: "M4 12h16",
+  espace: "M12 4v16M8.5 7.5L12 4l3.5 3.5M8.5 16.5L12 20l3.5-3.5",
+  signature: "M4 16c2.5 0 3.5-8 6-8s1 7 3.5 7 2.5-3.5 4.5-3.5 2 2 2 2M4 20h16",
+  pied: "M8 4.5h8M6 8.5h12M4 13h16v6.5H4V13z",
+  // éditeur d'e-mails : outils
+  "aligner-gauche": "M4 6h16M4 10h10M4 14h16M4 18h10",
+  "aligner-centre": "M4 6h16M7 10h10M4 14h16M7 18h10",
+  "aligner-droite": "M4 6h16M10 10h10M4 14h16M10 18h10",
+  annuler: "M9 7l-4.5 4.5L9 16M4.5 11.5H15a4.5 4.5 0 010 9h-3",
+  retablir: "M15 7l4.5 4.5L15 16M19.5 11.5H9a4.5 4.5 0 000 9h3",
+  monter: "M12 19V5M6.5 10.5L12 5l5.5 5.5",
+  descendre: "M12 5v14M6.5 13.5L12 19l5.5-5.5",
+  dupliquer: "M8.5 8.5h11v11h-11v-11zM15.5 8.5v-4h-11v11h4",
+  supprimer: "M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13",
+  lien: "M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1",
+  ajouter: "M12 5v14M5 12h14",
 } as const;
 
 export type NomIcone = keyof typeof traces;

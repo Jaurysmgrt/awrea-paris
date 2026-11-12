@@ -11,7 +11,7 @@
  */
 import { palette, fontStacks } from "@/styles/tokens";
 import type { Img, Lien } from "@/lib/edition/blocks";
-import { blockShown, type EmailBlock, type EmailDoc } from "@/lib/email/blocks";
+import { blockShown, emailBlockDef, LIEN_TEXTE, styleOf, type Alignement, type EmailBlock, type EmailDoc, type Police, type Taille } from "@/lib/email/blocks";
 
 export interface EmailItem {
   title: string;
@@ -52,6 +52,16 @@ export interface EmailContext {
   syntax?: "brevo" | "klaviyo";
   /** lien d'un e-mail vers l'Atelier (« atelier:/retours ») */
   atelierHref?: (path: string) => string;
+  /**
+   * adresse des photos, du logo et des polices (par défaut celle du site) ; l'aperçu de l'Atelier
+   * les sert depuis sa propre adresse (« » : chemins relatifs), seule permise dans son cadre
+   */
+  assets?: string;
+  /**
+   * aperçu de l'éditeur : chaque bloc porte son identifiant (pour le choisir d'un clic), et les blocs
+   * encore à écrire ou sans photo paraissent avec leur repère. Jamais dans un e-mail envoyé.
+   */
+  marks?: boolean;
 }
 
 export interface RenderedEmail {
@@ -109,7 +119,7 @@ function href(link: string, ctx: EmailContext): string {
 const imageUrl = (src: string, ctx: EmailContext, width = 1200) => {
   if (!src) return "";
   const s = /\.(webp|jpe?g|png|gif)$/i.test(src) || src.startsWith("http") ? src : `${src}${width <= 480 ? "-480" : ""}.webp`;
-  return s.startsWith("http") ? s : `${ctx.site}${s}`;
+  return s.startsWith("http") ? s : `${ctx.assets ?? ctx.site}${s}`;
 };
 
 // ------------------------------------------------------------------ styles
@@ -124,12 +134,16 @@ function fonts(ctx: EmailContext) {
 // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
 const italic = "font-style:italic;";
 
+/** Aperçu de l'éditeur : le bloc survolé et le bloc choisi se voient d'un filet. */
+const marksCss = `tbody[data-bloc]{cursor:pointer}tbody[data-bloc]:hover>tr>td{box-shadow:inset 0 0 0 1px ${palette.taupe}}tbody[data-choisi]>tr>td,tbody[data-choisi]:hover>tr>td{box-shadow:inset 0 0 0 2px ${palette.taupeDeep}}tbody[data-a-ecrire] :is(p,h1){color:${palette.taupeDeep}!important}`;
+
 function head(ctx: EmailContext, title: string) {
   const fontFace =
     ctx.client === "gmail" || ctx.client === "outlook"
       ? ""
-      : `@font-face{font-family:'Fraunces';font-weight:400;font-style:italic;src:url('${ctx.site}/fonts/fraunces-72pt-italic-latin.woff2') format('woff2');}
-@font-face{font-family:'Cormorant Garamond';font-weight:400;font-style:normal;src:url('${ctx.site}/fonts/cormorant-garamond-latin-400.woff2') format('woff2');}`;
+      : `@font-face{font-family:'Fraunces';font-weight:400;font-style:italic;src:url('${ctx.assets ?? ctx.site}/fonts/fraunces-72pt-italic-latin.woff2') format('woff2');}
+@font-face{font-family:'Fraunces';font-weight:300;font-style:normal;src:url('${ctx.assets ?? ctx.site}/fonts/fraunces-120pt-light-latin.woff2') format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-weight:400;font-style:normal;src:url('${ctx.assets ?? ctx.site}/fonts/cormorant-garamond-latin-400.woff2') format('woff2');}`;
   const darkRules = `.e-page{background:${dark.page}!important}.e-card{background:${dark.card}!important}.e-ink{color:${dark.ink}!important}.e-soft{color:${dark.soft}!important}.e-line{border-color:${dark.line}!important}.e-btn{background:${dark.btn}!important;border-color:${dark.btn}!important}.e-btn a{color:${dark.onBtn}!important}.e-ink a{color:${dark.ink}!important}.e-logo-day{display:none!important}.e-logo-night{display:block!important;max-height:none!important;overflow:visible!important}`;
   const prefix = (sel: string) => darkRules.replace(/\.e-/g, `${sel} .e-`);
   // le thème sombre forcé de l'aperçu reprend exactement les règles du mode sombre
@@ -142,10 +156,73 @@ function head(ctx: EmailContext, title: string) {
 body{margin:0;padding:0;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 table{border-collapse:collapse}img{border:0;display:block;height:auto;line-height:100%;outline:none;text-decoration:none}
 a{text-decoration:underline;text-underline-offset:3px}
-@media (max-width:620px){.e-pad{padding-left:24px!important;padding-right:24px!important}.e-title{font-size:32px!important;line-height:40px!important}}
+@media (max-width:620px){.e-pad{padding-left:24px!important;padding-right:24px!important}.e-title{font-size:32px!important;line-height:40px!important}.e-col{display:block!important;width:100%!important;max-width:100%!important;padding:0 0 24px!important}.e-col-last{padding-bottom:0!important}.e-col img{width:100%!important;max-width:100%!important}}
 ${media}
 ${prefix("[data-ogsc]")}
+${ctx.marks ? marksCss : ""}
 </style>${forced}</head>`;
+}
+
+// ------------------------------------------------------------------ mise en forme
+
+const CSS_ALIGN: Record<Alignement, "left" | "center" | "right"> = { gauche: "left", centre: "center", droite: "right" };
+
+/** Tailles prévues, en pixels (taille, interlignage) : Cormorant jamais sous 16 px. */
+const TAILLES_PX: Record<"titre" | "texte" | "signature", Record<Taille, [number, number]>> = {
+  titre: { petite: [28, 36], normale: [40, 48], grande: [48, 56] },
+  texte: { petite: [16, 24], normale: [20, 32], grande: [24, 36] },
+  signature: { petite: [20, 32], normale: [24, 32], grande: [28, 36] },
+};
+
+/** Style en ligne d'un texte : une des trois polices de la Maison, une taille prévue. */
+function typo(ctx: EmailContext, police: Police, size: [number, number], color: string): string {
+  const f = fonts(ctx);
+  const family = police === "texte" ? f.text : f.display;
+  // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
+  const face = police === "italique" ? "font-style:italic;font-weight:400;" : police === "droite" ? "font-style:normal;font-weight:300;" : "font-style:normal;font-weight:400;";
+  // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
+  return `font-family:${family};${face}font-size:${size[0]}px;line-height:${size[1]}px;color:${color};`;
+}
+
+/** Morceau de texte : repères remplacés puis échappé (ou repères du service, à l'export). */
+const textPart = (s: string, ctx: EmailContext) => (ctx.syntax ? fill(s, ctx) : esc(fill(s, ctx, false)));
+
+/**
+ * Paragraphes d'un texte, avec ses liens « [mots](adresse) ». Les liens sont repérés dans le texte
+ * écrit par la Maison, avant le remplacement des repères : une valeur venue d'une cliente (un
+ * prénom…) ne devient jamais un lien. Les repères sont remplis avant le découpage : une réponse de
+ * plusieurs paragraphes les garde.
+ */
+function paragraphs(template: string, ctx: EmailContext, style: string, align: string): string {
+  let html = "";
+  let last = 0;
+  for (const m of template.matchAll(LIEN_TEXTE)) {
+    html += textPart(template.slice(last, m.index), ctx);
+    html += `<a href="${esc(href(m[2], ctx))}" style="color:inherit;">${textPart(m[1], ctx)}</a>`;
+    last = (m.index ?? 0) + m[0].length;
+  }
+  html += textPart(template.slice(last), ctx);
+  return html
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p, i, all) => `<p class="e-ink" lang="fr" style="margin:0 0 ${i === all.length - 1 ? 0 : 24}px;${style}text-align:${align};">${p.replace(/\n/g, "<br>")}</p>`)
+    .join("");
+}
+
+/** Emplacement d'une photo encore à choisir (aperçu de l'éditeur seulement). */
+const photoVide = (w: number, label: string) =>
+  `<div style="width:100%;max-width:${w}px;aspect-ratio:4/5;background:${palette.pearl};color:${palette.taupeDeep};font-family:${fontStacks.text};font-size:16px;line-height:24px;display:flex;align-items:center;justify-content:center;text-align:center;">${esc(label)}</div>`;
+
+/**
+ * Photo d'un bloc à une largeur donnée. Dans l'aperçu de l'éditeur, elle dit quel champ elle remplit
+ * (« image » ou « image2 ») : une photo glissée dessus prend sa place.
+ */
+function photo(img: Img | undefined, w: number, ctx: EmailContext, champ: "image" | "image2" = "image", link?: Lien | null): string {
+  const mark = ctx.marks ? ` data-champ="${champ}"` : "";
+  if (!img?.src) return ctx.marks ? photoVide(w, "Glissez une photographie ici").replace("<div ", `<div${mark} `) : "";
+  const tag = `<img${mark} src="${esc(imageUrl(img.src, ctx, w <= 240 ? 480 : 1200))}" width="${w}" alt="${esc(img.alt ?? "")}" style="width:100%;max-width:${w}px;height:auto;">`;
+  return link?.href ? `<a href="${esc(href(link.href, ctx))}">${tag}</a>` : tag;
 }
 
 // ------------------------------------------------------------------ blocs
@@ -159,6 +236,10 @@ function blockHtml(b: EmailBlock, ctx: EmailContext, unsubscribe: string): strin
   // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
   const body = `font-family:${f.text};font-weight:400;font-size:20px;line-height:32px;color:${c.ink};`;
   const row = (inner: string, pad = "0 48px 32px") => `<tr><td class="e-pad" style="padding:${pad};">${inner}</td></tr>`;
+  // réglages du bloc (sinon son allure d'origine) : espaces au-dessus et au-dessous, alignement
+  const st = styleOf(b);
+  const pad = `${st.avant ?? 0}px 48px ${st.apres ?? 32}px`;
+  const align = CSS_ALIGN[st.align ?? "gauche"];
   switch (b.type) {
     case "entete": {
       // logo officiel en image (jamais imité par une police) : blanc cassé sur la bande noire, noir
@@ -168,7 +249,7 @@ function blockHtml(b: EmailBlock, ctx: EmailContext, unsubscribe: string): strin
       const bg = ink ? c.band : c.card;
       const fg = ink ? c.onBand : c.ink;
       const logo = (file: string, cls: string, alt: string) =>
-        `<img class="${cls}" src="${ctx.site}/brand/${file}" width="160" alt="Awrea Paris" style="display:block;margin:0 auto;width:160px;height:auto;border:0;font-family:${f.text};font-size:20px;line-height:32px;color:${alt};">`;
+        `<img class="${cls}" src="${ctx.assets ?? ctx.site}/brand/${file}" width="160" alt="Awrea Paris" style="display:block;margin:0 auto;width:160px;height:auto;border:0;font-family:${f.text};font-size:20px;line-height:32px;color:${alt};">`;
       const art = ink
         ? logo("awrea-logo-blanc.png", "", fg)
         : `${logo("awrea-logo.png", "e-logo-day", fg)}<!--[if !mso]><!--><div class="e-logo-night" style="display:none;max-height:0;overflow:hidden;">${logo("awrea-logo-blanc.png", "", c.onBand)}</div><!--<![endif]-->`;
@@ -176,26 +257,41 @@ function blockHtml(b: EmailBlock, ctx: EmailContext, unsubscribe: string): strin
 ${art}
 </td></tr>${row("", "48px 48px 0")}`;
     }
-    case "titre":
-      return row(`<h1 class="e-ink e-title" style="margin:0;font-family:${f.display};${italic}font-weight:400;font-size:40px;line-height:48px;color:${c.ink};text-align:center;">${fill(String(b.titre ?? ""), ctx)}</h1>`);
-    case "texte": {
-      // les repères sont remplis avant le découpage : une réponse de plusieurs paragraphes les garde
-      const raw = ctx.syntax ? String(b.texte ?? "") : fill(String(b.texte ?? ""), ctx, false);
+    case "titre": {
+      const size = TAILLES_PX.titre[st.taille ?? "normale"];
+      return row(`<h1 class="e-ink${size[0] > 32 ? " e-title" : ""}" style="margin:0;${typo(ctx, st.police ?? "italique", size, c.ink)}text-align:${align};">${fill(String(b.titre ?? ""), ctx)}</h1>`, pad);
+    }
+    case "texte":
+      return row(paragraphs(String(b.texte ?? ""), ctx, typo(ctx, st.police ?? "texte", TAILLES_PX.texte[st.taille ?? "normale"], c.ink), align), pad);
+    case "image": {
+      // largeur réglable (de 30 à 100 % de l'e-mail) et alignement : un tableau aligné, compris par Outlook
+      const pct = st.largeur ?? 100;
+      const w = Math.round((504 * pct) / 100);
+      const inner = photo(b.image as Img | undefined, w, ctx, "image", b.lien as Lien | null);
+      if (!inner) return "";
+      return row(`<table role="presentation" align="${align}" width="${w}" cellpadding="0" cellspacing="0" style="width:${pct}%;max-width:${w}px;"><tr><td>${inner}</td></tr></table>`, pad);
+    }
+    case "photo-texte": {
+      // deux colonnes ; sur téléphone, la photo d'abord puis le texte (« dir » inverse l'ordre affiché
+      // sur ordinateur quand la photo est à droite, sans changer l'ordre de lecture)
+      const img = photo(b.image as Img | undefined, 228, ctx);
+      const texte = paragraphs(String(b.texte ?? ""), ctx, typo(ctx, st.police ?? "texte", TAILLES_PX.texte[st.taille ?? "normale"], c.ink), "left");
+      const right = st.cote === "droite";
+      const cell = (inner: string, side: "photo" | "texte", last: boolean) =>
+        `<td class="e-col${last ? " e-col-last" : ""}" dir="ltr" width="${side === "photo" ? 228 : 252}" style="width:${side === "photo" ? 228 : 252}px;vertical-align:middle;padding:0 ${side === "photo" && !right ? 24 : 0}px 0 ${side === "photo" && right ? 24 : 0}px;">${inner}</td>`;
+      return row(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" dir="${right ? "rtl" : "ltr"}"><tr>${cell(img, "photo", false)}${cell(texte, "texte", true)}</tr></table>`, pad);
+    }
+    case "deux-photos": {
+      const one = photo(b.image as Img | undefined, 244, ctx);
+      const two = photo(b.image2 as Img | undefined, 244, ctx, "image2");
+      if (!one && !two) return "";
       return row(
-        raw
-          .split(/\n{2,}/)
-          .filter((p) => p.trim())
-          .map((p, i, all) => `<p class="e-ink" lang="fr" style="margin:0 0 ${i === all.length - 1 ? 0 : 24}px;${body}">${(ctx.syntax ? fill(p.trim(), ctx) : esc(p.trim())).replace(/\n/g, "<br>")}</p>`)
-          .join(""),
+        `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td class="e-col" width="244" style="width:244px;vertical-align:top;padding-right:16px;">${one}</td><td class="e-col e-col-last" width="244" style="width:244px;vertical-align:top;">${two}</td></tr></table>`,
+        pad,
       );
     }
-    case "image": {
-      const img = b.image as Img | undefined;
-      if (!img?.src) return "";
-      const tag = `<img src="${esc(imageUrl(img.src, ctx))}" width="504" alt="${esc(img.alt ?? "")}" style="width:100%;max-width:504px;height:auto;">`;
-      const link = b.lien as Lien | null;
-      return row(link?.href ? `<a href="${esc(href(link.href, ctx))}">${tag}</a>` : tag);
-    }
+    case "espace":
+      return `<tr><td style="height:${st.hauteur ?? 32}px;font-size:0;line-height:0;">&nbsp;</td></tr>`;
     case "produit": {
       const handle = Array.isArray(b.pieces) ? String(b.pieces[0] ?? "") : "";
       const p = handle ? ctx.products?.[handle] : undefined;
@@ -204,21 +300,27 @@ ${art}
 ${p.image ? `<td width="168" style="padding-right:24px;vertical-align:top;"><a href="${esc(href(p.href, ctx))}"><img src="${esc(imageUrl(p.image, ctx, 480))}" width="168" alt="${esc(p.alt ?? p.title)}" style="width:168px;"></a></td>` : ""}
 <td style="vertical-align:middle;"><div class="e-ink" style="font-family:${f.display};${italic}font-size:24px;line-height:32px;color:${c.ink};">${esc(p.title)}</div>
 ${p.price ? `<div class="e-soft" style="${body}color:${c.soft};padding-top:8px;">${esc(p.price)}</div>` : ""}
-<div style="padding-top:16px;"><a class="e-ink" href="${esc(href(p.href, ctx))}" style="${caps}color:${c.ink};">${esc(ctx.commun.voirPiece)}</a></div></td></tr></table>`);
+<div style="padding-top:16px;"><a class="e-ink" href="${esc(href(p.href, ctx))}" style="${caps}color:${c.ink};">${esc(ctx.commun.voirPiece)}</a></div></td></tr></table>`, pad);
     }
     case "bouton": {
       const l = b.lien as Lien | null;
       if (!l?.label) return "";
+      if (st.style === "contour")
+        // bouton au filet : le filet sur le lien lui-même (une cellule de tableau le garderait carré)
+        return row(
+          `<table role="presentation" cellpadding="0" cellspacing="0" align="${align}"><tr><td style="border-radius:999px;"><a class="e-ink e-line" href="${esc(href(l.href, ctx))}" style="${body}color:${c.ink};letter-spacing:0.4px;text-decoration:none;display:inline-block;padding:7px 31px;border:1px solid ${c.ink};border-radius:999px;">${fill(l.label, ctx)}</a></td></tr></table>`,
+          pad,
+        );
       return row(
         // bouton des maquettes : noir plein en pilule, texte en bas de casse comme sur le site ; pas de
         // bordure (une cellule de tableau fusionné la garderait carrée) ; Outlook pour Windows ignore
         // l'arrondi : le bouton y reste un rectangle noir lisible
-        `<table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr><td class="e-btn" bgcolor="${c.btn}" style="background:${c.btn};border-radius:999px;padding:8px 32px;"><a href="${esc(href(l.href, ctx))}" style="${body}color:${c.onBtn};letter-spacing:0.4px;text-decoration:none;display:inline-block;border-radius:999px;">${fill(l.label, ctx)}</a></td></tr></table>`,
-        "8px 48px 40px",
+        `<table role="presentation" cellpadding="0" cellspacing="0" align="${align}"><tr><td class="e-btn" bgcolor="${c.btn}" style="background:${c.btn};border-radius:999px;padding:8px 32px;"><a href="${esc(href(l.href, ctx))}" style="${body}color:${c.onBtn};letter-spacing:0.4px;text-decoration:none;display:inline-block;border-radius:999px;">${fill(l.label, ctx)}</a></td></tr></table>`,
+        pad,
       );
     }
     case "commande": {
-      if (ctx.syntax) return row(orderLoop(ctx, caps, body));
+      if (ctx.syntax) return row(orderLoop(ctx, caps, body), pad);
       const items = (ctx.items ?? [])
         .map(
           (it) => `<tr>${it.image ? `<td width="88" style="padding:16px 16px 16px 0;vertical-align:top;"><img src="${esc(imageUrl(it.image, ctx, 480))}" width="72" alt="" style="width:72px;"></td>` : ""}
@@ -234,12 +336,12 @@ ${p.price ? `<div class="e-soft" style="${body}color:${c.soft};padding-top:8px;"
         })
         .join("");
       if (!items && !totals) return "";
-      return row(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${items}${totals}</table>`);
+      return row(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${items}${totals}</table>`, pad);
     }
     case "separateur":
-      return row(`<div class="e-line" style="border-top:1px solid ${c.line};font-size:0;line-height:0;">&nbsp;</div>`);
+      return row(`<div class="e-line" style="border-top:1px solid ${c.line};font-size:0;line-height:0;">&nbsp;</div>`, pad);
     case "signature":
-      return row(`<p class="e-ink" style="margin:0;font-family:${f.display};${italic}font-size:24px;line-height:32px;color:${c.ink};">${fill(String(b.texte ?? ""), ctx).replace(/\n/g, "<br>")}</p>`, "8px 48px 40px");
+      return row(`<p class="e-ink" style="margin:0;${typo(ctx, st.police ?? "italique", TAILLES_PX.signature[st.taille ?? "normale"], c.ink)}text-align:${align};">${fill(String(b.texte ?? ""), ctx).replace(/\n/g, "<br>")}</p>`, pad);
     case "pied": {
       const k = ctx.commun;
       const site = ctx.site.replace(/^https?:\/\//, "");
@@ -273,8 +375,20 @@ export function renderEmail(doc: EmailDoc, ctx: EmailContext): RenderedEmail {
   const preheader = fill(doc.preheader, ctx, false);
   const unsubscribe = doc.famille === "lettre" ? (ctx.syntax === "brevo" ? "{{ unsubscribe }}" : ctx.syntax === "klaviyo" ? "{% unsubscribe_url %}" : ctx.unsubscribe ? esc(ctx.unsubscribe) : "") : "";
   // un texte encore à écrire ([…]) n'apparaît jamais dans un e-mail
-  const blocks = doc.blocs.filter((b) => !Object.values(b).some((v) => typeof v === "string" && isTodoText(v)) && (ctx.syntax ? true : blockShown(b, ctx.vars)));
-  const rows = blocks.map((b) => blockHtml(b, ctx, unsubscribe)).join("\n");
+  const todo = (b: EmailBlock) => Object.values(b).some((v) => typeof v === "string" && isTodoText(v));
+  // l'aperçu de l'éditeur montre aussi les blocs encore à écrire, avec leur repère, pour qu'un bloc
+  // ajouté se voie tout de suite ; un e-mail envoyé ne les contient jamais
+  const shown = (b: EmailBlock) => (ctx.syntax ? true : blockShown(b, ctx.vars));
+  const blocks = doc.blocs.filter((b) => (ctx.marks || !todo(b)) && shown(b));
+  const rows = blocks
+    .map((b) => {
+      const html = blockHtml(b, ctx, unsubscribe);
+      if (!ctx.marks) return html;
+      // bloc encore vide (pièce ou bouton à choisir…) : un emplacement, pour le voir et le choisir
+      const vide = `<tr><td class="e-pad" style="padding:8px 48px 24px;"><div style="border:1px dashed ${palette.taupe};padding:16px;text-align:center;font-family:${fontStacks.text};font-size:16px;line-height:24px;color:${palette.taupeDeep};">${esc(emailBlockDef(b.type)?.label ?? b.type)} à compléter</div></td></tr>`;
+      return `<tbody data-bloc="${esc(b.id)}"${todo(b) ? " data-a-ecrire" : ""}>${html || vide}</tbody>`;
+    })
+    .join("\n");
   const c = light;
   // ecriture-ok : entités HTML du remplissage de l'aperçu (jamais d'espace avant « ; »)
   const spacer = "&#847;&zwnj;&nbsp;".repeat(40);
@@ -293,7 +407,7 @@ ${rows}
 </td></tr></table>
 ${gmailDark ? `<style>img{filter:invert(1) hue-rotate(180deg)}</style>` : ""}
 </body></html>`;
-  return { subject, preheader, html, text: textOf(blocks, ctx, unsubscribe) };
+  return { subject, preheader, html, text: textOf(blocks.filter((b) => !todo(b)), ctx, unsubscribe) };
 }
 
 /** Version texte : les mêmes mots, sans mise en forme (lue par certaines messageries et lecteurs). */
@@ -301,7 +415,11 @@ function textOf(blocks: EmailBlock[], ctx: EmailContext, unsubscribe: string): s
   const out: string[] = [];
   for (const b of blocks) {
     if (b.type === "titre") out.push(fill(String(b.titre ?? ""), ctx, false).toUpperCase(), "");
-    if (b.type === "texte") out.push(...fill(String(b.texte ?? ""), ctx, false).split(/\n{2,}/).map((p) => p.trim()).filter(Boolean), "");
+    if (b.type === "texte" || b.type === "photo-texte") {
+      // un lien s'écrit « mots : adresse » ; les repères sont remplis après, comme dans le HTML
+      const raw = String(b.texte ?? "").replace(LIEN_TEXTE, (_, label: string, url: string) => `${label} : ${href(url, ctx)}`);
+      out.push(...fill(raw, ctx, false).split(/\n{2,}/).map((p) => p.trim()).filter(Boolean), "");
+    }
     if (b.type === "bouton" && (b.lien as Lien | null)?.label) out.push(`${fill((b.lien as Lien).label, ctx, false)} : ${href((b.lien as Lien).href, ctx)}`, "");
     if (b.type === "produit") {
       const p = ctx.products?.[String((b.pieces as string[] | undefined)?.[0] ?? "")];

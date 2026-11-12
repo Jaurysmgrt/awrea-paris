@@ -1072,3 +1072,29 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
   et politique limités aux outils réellement branchés.
 - Atelier : cases à cocher en petits ronds, chaque rond collé à son mot.
 
+## Cahiers du 10/11, étape 3 : éditeur d’e-mails façon Brevo (11/11)
+
+- Demande : « un truc vraiment intuitif où tu peux écrire, mettre une photo, la décaler à droite, à
+  gauche, en bas, où tu veux, choisir la typo », référence choisie : Brevo ou Mailchimp.
+- L’e-mail au centre, à sa vraie largeur (réduit à l’échelle si la colonne est plus étroite) : un
+  clic sur un bloc le choisit et l’entoure d’un filet ; une photo glissée sur une photo prend sa
+  place, ailleurs elle s’ajoute à cet endroit. Panneau en trois onglets : Blocs (ordre, glisser,
+  bibliothèque), Réglages (mots, photo, mise en forme du bloc choisi), Envoi (objet, ligne
+  d’aperçu, export). Annuler et rétablir (boutons, Ctrl ou Cmd + Z hors d’un champ).
+- Mise en forme tenue dans l’identité : les trois polices de la Maison (Fraunces italique,
+  Fraunces droite fine, Cormorant Garamond), trois tailles par rôle (Cormorant jamais sous 16 px),
+  alignement, espaces au-dessus et au-dessous sur la grille de 8 px, largeur de la photo de 30 à
+  100 %, bouton noir plein ou au filet. Sans réglage, chaque bloc garde son allure d’origine.
+- Nouveaux blocs : Photo et texte (côte à côte, l’une sous l’autre sur téléphone, photo à gauche
+  ou à droite), Deux photos, Espace. Liens dans un texte (« Ajouter un lien ») vers une page du site,
+  une adresse https ou un e-mail ; repérés dans le texte écrit par la Maison avant le remplacement
+  des repères : un prénom de cliente ne devient jamais un lien.
+- Défaut trouvé en essayant : l’aperçu se rechargeait en boucle (contexte de l’Atelier recréé à
+  chaque rendu), si bien que le brouillon ne s’enregistrait jamais tout seul ; contexte stabilisé.
+  Les polices et photos de l’aperçu sont servies par l’Atelier lui-même (la politique de sécurité
+  bloquait celles du domaine du site) : l’aperçu montre enfin les vraies polices.
+- Vérifié : tests unitaires du rendu (réglages, colonnes, liens, sécurité des liens, repères de
+  l’aperçu absents des e-mails envoyés, validation), parcours complet de l’éditeur (clic dans
+  l’aperçu, police, taille, alignement, espace, annuler, rétablir, photo et texte avec photo, lien,
+  brouillon après rechargement), captures ordinateur et téléphone ; guide de la créatrice § 12 mis à
+  jour.
