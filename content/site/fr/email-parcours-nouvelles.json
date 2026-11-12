@@ -2,8 +2,8 @@
   "nom": "Nouvelles de l’atelier",
   "quand": "Envoyé dans un parcours de vente, quand le parcours est actif.",
   "famille": "lettre",
-  "sujet": "[Écrire l’objet]",
-  "preheader": "[Écrire la ligne d’aperçu]",
+  "sujet": "Des nouvelles de l’atelier",
+  "preheader": "La collection Hypnotic Lace, créée sur demande par des artisans français.",
   "variables": {
     "prenom": {
       "description": "Le prénom de la personne, quand il est connu",
@@ -19,7 +19,7 @@
     {
       "id": "b-nouvelles02",
       "type": "titre",
-      "titre": "[Écrire le titre]"
+      "titre": "Nouvelles de l’atelier"
     },
     {
       "id": "b-nouvelles03",
@@ -36,7 +36,7 @@
     {
       "id": "b-nouvelles05",
       "type": "texte",
-      "texte": "[Écrire les nouvelles de l’atelier]"
+      "texte": "À l’atelier, chaque pièce de la collection Hypnotic Lace prend forme à partir d’une commande. Rien n’est fabriqué d’avance : la pièce est coupée puis assemblée dans la taille de celle qui l’a choisie, par des artisans français.\n\nDans la collection, la dentelle noire répond aux drapés et à l’éclat de la dorure. Si une autre pièce vous attire, elle sera créée pour vous, sur demande, dans votre taille."
     },
     {
       "id": "b-nouvelles06",

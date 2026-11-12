@@ -92,7 +92,7 @@ export const MODELES: Modele[] = [
     id: "cliente",
     nom: "Cliente de la Maison",
     pour: "Garder le lien avec une cliente qui a déjà acheté, quelques semaines après sa dernière commande.",
-    note: "L’e-mail « Nouvelles de l’atelier » est à écrire : tant qu’il garde des crochets, rien ne part.",
+    note: "L’e-mail « Nouvelles de l’atelier » est écrit : relisez-le avant d’activer le parcours.",
     definition: () => ({
       nom: "Cliente de la Maison",
       declencheur: "commande",
