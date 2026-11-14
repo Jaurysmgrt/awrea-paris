@@ -49,8 +49,9 @@ Chaque texte passe par **Plume** (réécriture dans la voix de la créatrice), l
 contiendrait un tiret de ponctuation, une formulation interdite, un point d'exclamation, un emoji ou
 une apostrophe droite. Chaque passage complet est noté dans `JOURNAL.md`.
 
-Les **textes officiels de la créatrice** (À propos, texte de collection, teasing, CGV, mentions
-légales) ne passent pas par la chaîne : ils sont repris mot pour mot, marqués comme officiels
+Les **textes officiels de la créatrice** (À propos, texte de collection, teasing) ne passent pas
+par la chaîne (les mentions légales et les CGV sont devenues des textes de la Maison les 11 et
+12/11, à sa demande) : ils sont repris mot pour mot, marqués comme officiels
 (`"officiel": true`, `officiel: true`, `data-officiel`), et seule leur typographie est contrôlée
 (`MARQUE.md` § 2).
 

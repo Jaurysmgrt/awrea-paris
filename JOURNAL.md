@@ -369,6 +369,8 @@ seulement, son paragraphe « savoir-faire » mis en place, « Toutes les collect
   espace au-delà de 2. Le testeur homogénéité mesure maintenant ces espaces lui-même.
 
 ## Maintenance quotidienne
+- 2026-11-14 — 3 contrôle(s) en échec que l'agent n'a pas pu corriger seul : votre attention est requise. (Sécurité du site en ligne (TLS, HTTPS, en-têtes, vulnérabilités, intrusions) ; Parcours du site en ligne (sans rien modifier) ; Textes des agents et de l'assistante (à relire dans l'Atelier)) — https://github.com/Jaurysmgrt/awrea-paris/actions/runs/43583076394
+- 2026-11-13 — 3 contrôle(s) en échec que l'agent n'a pas pu corriger seul : votre attention est requise. (Sécurité du site en ligne (TLS, HTTPS, en-têtes, vulnérabilités, intrusions) ; Parcours du site en ligne (sans rien modifier) ; Textes des agents et de l'assistante (à relire dans l'Atelier)) — https://github.com/Jaurysmgrt/awrea-paris/actions/runs/43411532063
 - 2026-11-12 — 3 contrôle(s) en échec que l'agent n'a pas pu corriger seul : votre attention est requise. (Sécurité du site en ligne (TLS, HTTPS, en-têtes, vulnérabilités, intrusions) ; Parcours du site en ligne (sans rien modifier) ; Textes des agents et de l'assistante (à relire dans l'Atelier)) — https://github.com/Jaurysmgrt/awrea-paris/actions/runs/43203667285
 - 2026-11-11 — 3 contrôle(s) en échec que l'agent n'a pas pu corriger seul : votre attention est requise. (Sécurité du site en ligne (TLS, HTTPS, en-têtes, vulnérabilités, intrusions) ; Parcours du site en ligne (sans rien modifier) ; Textes des agents et de l'assistante (à relire dans l'Atelier)) — https://github.com/Jaurysmgrt/awrea-paris/actions/runs/43004855964
 - 2026-11-10 — 3 contrôle(s) en échec que l'agent n'a pas pu corriger seul : votre attention est requise. (Sécurité du site en ligne (TLS, HTTPS, en-têtes, vulnérabilités, intrusions) ; Parcours du site en ligne (sans rien modifier) ; Textes des agents et de l'assistante (à relire dans l'Atelier)) — https://github.com/Jaurysmgrt/awrea-paris/actions/runs/42803123097
@@ -1123,3 +1125,12 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
 - Rien ne part sans deux clés : `PARCOURS_ENVOIS_REELS=1` dans Vercel et l’accord de la créatrice dans l’Atelier. D’ici là, un journal de simulation (« aurait envoyé… ») et une prévision sur 30 jours.
 - Seuls les e-mails de la lettre, avec leur lien de désinscription, entrent dans un parcours. Clics et ouvertures : « non mesurés ».
 - Contacts lus par un seul adaptateur (`lib/marketing/parcours/contacts.ts`), prêt pour la fiche contact de l’étape 5. 15 tests unitaires, un parcours Playwright.
+
+## Réponses de la créatrice du 12/11 : CGV corrigées, marque, rappels légaux, Savoir-faire (14/11)
+
+- CGV corrigées à la demande de la créatrice (version 2026-11, à relire par elle avant publication) : pièces standards fabriquées après la commande, sans stock ; prix toutes taxes comprises, « TVA non applicable, article 293 B du Code général des impôts. » ; délai de fabrication puis 5 à 10 jours ouvrés ; rétractation de quatorze jours maintenue, seule la création personnalisée exclue (L221-28, 3°) ; remboursement selon L221-24 ; encadré des garanties légales ; médiateur et adresse « À COMPLÉTER ». Ce n’est plus un texte officiel : le contrôle d’écriture s’y applique (`CLAUDE.md`, `MARQUE.md` et `docs/EQUIPES.md` mis à jour). Le détail article par article est dans `LEGAL-A-COMPLETER.md`.
+- Marque « Awrea Paris » déposée à l’INPI sous le numéro 5225836 : mentions légales et page Propriété intellectuelle. Code APE 7410Z et franchise confirmés ; le seuil de 85 000 € reste surveillé.
+- Atelier : « Choisir l’adresse de la Maison » et « Choisir un médiateur de la consommation » dans « À faire en priorité », avec la liste officielle des médiateurs. Ils sont lus dans le registre légal et disparaissent quand le champ est rempli.
+- Livraison et retours, Rétractation, FAQ et assistante alignées : remboursement sous quatorze jours après la demande, perte de valeur au lieu d’un refus de reprise.
+- Étapes de confection : « Savoir-faire » dans le fil d’Ariane et le titre de l’onglet, comme dans le menu (réponse 16).
+- À faire : relecture des CGV par la créatrice, domiciliation, médiateur, bouton « Refuser » des retours à aligner sur l’article 7.
