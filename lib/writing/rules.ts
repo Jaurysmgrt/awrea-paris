@@ -141,8 +141,10 @@ export function looksLikeCode(s: string): boolean {
   const t = s.trim();
   if (!t) return true;
   if (/calc\(|var\(--|url\(|rgba?\(|=>|===|&&|\|\||\$\{|^\.?\/|^https?:\/\/|^mailto:|^#[\w-]+$|^[\w-]+:\/\//.test(t)) return true;
-  // requêtes GraphQL, en-têtes HTTP, attributs : accolades ou « nom=valeur »
-  if ((/\{/.test(t) && /\}/.test(t)) || /\w=["'\w]/.test(t) || /^(?:query|mutation|fragment)\b/.test(t)) return true;
+  // requêtes GraphQL, en-têtes HTTP, attributs : accolades ou « nom=valeur » ; les repères d'un
+  // texte (« Bonjour {prenom}, », « ce lien : {lien} ») ne font pas d'un texte du code
+  const sansReperes = t.replace(/\{[\p{L}\d_.]+\}/gu, "x");
+  if ((/\{/.test(sansReperes) && /\}/.test(sansReperes)) || /\w=["'\w]/.test(t) || /^(?:query|mutation|fragment)\b/.test(t)) return true;
   if (/^[a-z0-9_.:/[\]()%#@-]+(?:\s+[a-z0-9_.:/[\]()%#@!-]+)*$/.test(t) && !/[A-ZÀ-ÖØ-Þ]|\p{Ll}{2,}\s\p{Ll}{2,}\s\p{Ll}{2,}\s/u.test(t)) return true;
   if (/^[A-Z0-9_]+$/.test(t)) return true;
   return false;

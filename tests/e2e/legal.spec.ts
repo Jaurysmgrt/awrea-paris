@@ -4,7 +4,7 @@ import { acceptCookies } from "./helpers";
 const PAGES = ["/mentions-legales", "/propriete-intellectuelle", "/cgv", "/cgu", "/confidentialite", "/cookies", "/assistant-ia", "/retractation", "/livraison-retours"];
 /** pages légales reliées au pied de page (maquette BAS DE PAGE : colonnes LÉGAL et SERVICE CLIENT) */
 const FOOTER = ["/mentions-legales", "/cgv", "/confidentialite", "/livraison-retours"];
-/** articles des CGV officielles, dans l'ordre, avec leurs ancres (liens « /cgv#… » des autres pages) */
+/** articles des CGV, dans l'ordre, avec leurs ancres (liens « /cgv#… » des autres pages) */
 const ARTICLES = ["champ-application", "prix", "commande", "paiement", "livraison", "transfert-propriete", "retractation", "garanties", "donnees", "propriete-intellectuelle", "droit"];
 
 test.describe("Pages légales", () => {
@@ -33,22 +33,43 @@ test.describe("Pages légales", () => {
     });
   }
 
-  test("CGV : les onze articles officiels, dans l’ordre, avec leurs ancres", async ({ page }) => {
+  test("CGV corrigées le 12/11 : onze articles dans l’ordre, avec leurs ancres, en texte de la Maison", async ({ page }) => {
     await acceptCookies(page);
     await page.goto("/cgv");
-    const titres = page.locator("main .legal__body > section[data-officiel] > h2");
-    await expect(titres).toHaveCount(ARTICLES.length);
-    const textes = await titres.allInnerTexts();
-    textes.forEach((t, i) => expect(t.trim()).toMatch(new RegExp(`^ARTICLE ${i + 1} `)));
-    await expect(titres.first()).toHaveText("ARTICLE 1 – Champ d’application");
-    for (const id of ARTICLES) await expect(page.locator(`section#${id}[data-officiel]`)).toHaveCount(1);
-    // listes de l'original en vraies listes (article 8 : deux garanties ; article 9 : destinataires et droits)
+    const titres = page.locator("main .legal__body > section > h2");
+    await expect(titres).toHaveCount(ARTICLES.length + 1);
+    const textes = (await titres.allInnerTexts()).slice(0, ARTICLES.length);
+    textes.forEach((t, i) => expect(t.trim()).toMatch(new RegExp(`^ARTICLE ${i + 1}\\. `)));
+    await expect(titres.first()).toHaveText("ARTICLE 1. Champ d’application");
+    for (const id of ARTICLES) await expect(page.locator(`section#${id}`)).toHaveCount(1);
+    // plus aucun passage officiel : la créatrice a demandé la correction, le contrôle d'écriture s'applique
+    await expect(page.locator("main .legal__body [data-officiel]")).toHaveCount(0);
+    // version acceptée à la commande
+    await expect(page.locator("main")).toContainText("version 2026-11");
+    // listes en vraies listes (article 8 : deux garanties ; article 9 : destinataires et droits)
     await expect(page.locator("#garanties ul > li")).toHaveCount(2);
     await expect(page.locator("#donnees ul > li")).toHaveCount(9);
-    // coordonnées de la Maison (article 1)
-    await expect(page.locator("#champ-application")).toContainText("awrea.contact@gmail.com");
-    // annexe de la Maison, hors texte officiel : formulaire type adressé à l'entreprise
-    expect(await page.locator("#annexe").getAttribute("data-officiel")).toBeNull();
+    // coordonnées de la Maison (article 1), tirées du registre légal ; adresse en attente de domiciliation
+    const art1 = page.locator("#champ-application");
+    await expect(art1).toContainText("awrea.contact@gmail.com");
+    await expect(art1).toContainText("Léane Soubrier, entrepreneuse individuelle (EI, micro-entreprise)");
+    await expect(art1.locator("mark.todo")).toHaveText("[À COMPLÉTER : adresse de domiciliation]");
+    await expect(art1).toContainText("ni fabriqués à l’avance ni tenus en stock");
+    // article 2 : franchise en base de TVA
+    await expect(page.locator("#prix")).toContainText("TVA non applicable, article 293 B du Code général des impôts.");
+    // article 5 : fabrication puis livraison
+    await expect(page.locator("#livraison")).toContainText("5 à 10 jours ouvrés à compter de la fin de la fabrication");
+    // article 7 : quatorze jours maintenus pour les modèles standards
+    await expect(page.locator("#retractation")).toContainText("ne prive pas le Client de ce droit");
+    await expect(page.locator("#retractation")).toContainText("article L221-28, 3°");
+    // article 8 : encadré des garanties légales
+    await expect(page.locator("#garanties .legal__box")).toContainText("Garantie légale de conformité et garantie des vices cachés");
+    // article 11 : médiateur pas encore choisi, jamais inventé
+    await expect(page.locator("#droit mark.todo")).toHaveText("[À COMPLÉTER : médiateur de la consommation]");
+    // ni l'ancien site, ni le stock, ni le hors-taxe
+    const text = (await page.locator("main").innerText()).replace(/­/g, "");
+    expect(text).not.toMatch(/wixsite|limite des stocks|HT et TTC/);
+    // annexe de la Maison : formulaire type adressé à l'entreprise
     await expect(page.getByText("Formulaire de rétractation", { exact: true })).toBeVisible();
     await expect(page.locator(".legal__model")).toContainText("Léane Soubrier");
   });
@@ -59,7 +80,7 @@ test.describe("Pages légales", () => {
     await page.locator('main a[href="/cgv#retractation"]').first().click();
     await expect(page).toHaveURL(/\/cgv#retractation$/);
     await expect(page.locator("#retractation h2")).toBeInViewport();
-    await expect(page.locator("#retractation")).toContainText("Les frais de retour restant à la charge du Client.");
+    await expect(page.locator("#retractation")).toContainText("Les frais de retour restent à la charge du Client.");
   });
 
   test("mentions légales : éditrice et hébergeur en fiches, TVA, fabrication à la commande, repères « À COMPLÉTER »", async ({ page }) => {
@@ -89,6 +110,8 @@ test.describe("Pages légales", () => {
     await expect(page.locator("section#fabrication")).toContainText("article L221-28, 3°");
     // médiateur pas encore désigné : jamais inventé
     await expect(page.locator("section#mediation mark.todo")).toHaveText("[À COMPLÉTER : médiateur de la consommation]");
+    // marque déposée à l'INPI, avec son numéro (réponse de la créatrice du 12/11)
+    await expect(page.locator("section#propriete-intellectuelle")).toContainText("Awrea Paris est une marque déposée à l’INPI sous le numéro 5225836.");
     // liens vers les autres textes, et sommaire à jour
     for (const href of ["/cgv", "/confidentialite", "/cookies", "/cgv#garanties", "/livraison-retours", "/retractation", "/mentions-legales#mediation"]) await expect(page.locator(`section#autres-textes a[href="${href}"]`)).toHaveCount(1);
     const toc = page.getByRole("navigation", { name: "Sommaire" });
@@ -105,6 +128,10 @@ test.describe("Pages légales", () => {
     await expect(page.locator("#fabrication")).toContainText("délai de fabrication");
     await expect(page.locator("#delais")).toContainText("France métropolitaine");
     await expect(page.locator("#retours")).toContainText("Les frais de retour restent à votre charge.");
+    // aligné sur l'article 7 des CGV corrigées : rétractation maintenue, remboursement sous quatorze jours
+    await expect(page.locator("#retours")).toContainText("même si elles sont fabriquées après votre commande");
+    await expect(page.locator("#retours")).toContainText("au plus tard quatorze jours après votre demande");
+    await expect(page.locator("#retours")).not.toContainText("n’est pas reprise");
   });
 
   test("politique cookies : liste par catégorie et gestionnaire de consentement", async ({ page }) => {

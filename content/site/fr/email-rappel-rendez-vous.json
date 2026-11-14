@@ -3,7 +3,7 @@
   "quand": "La veille de chaque rendez-vous, à la cliente.",
   "famille": "service",
   "sujet": "À demain, {prenom}",
-  "preheader": "Votre rendez-vous : {quand}.",
+  "preheader": "Votre rendez-vous : {quand}.",
   "variables": {
     "prenom": {
       "description": "Le prénom de la cliente",
@@ -45,13 +45,13 @@
     {
       "id": "b-rdv0visio",
       "type": "texte",
-      "texte": "Le rendez-vous se fait en appel vidéo. Le lien, à ouvrir un peu avant l’heure : {visio}",
+      "texte": "Le rendez-vous se fait en appel vidéo. Le lien, à ouvrir un peu avant l’heure : {visio}",
       "si": "visio"
     },
     {
       "id": "b-rdv0annul",
       "type": "texte",
-      "texte": "Un empêchement ? Vous pouvez annuler ici, la place servira à une autre cliente : {annulation}"
+      "texte": "Un empêchement ? Vous pouvez annuler ici, la place servira à une autre cliente : {annulation}"
     },
     {
       "id": "b-rdv0signe",

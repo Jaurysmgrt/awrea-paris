@@ -17,18 +17,68 @@ const ml = doc("mentions-legales");
 const mlEn = doc("mentions-legales", "en");
 const texts = (v: unknown): string[] => (typeof v === "string" ? [v] : Array.isArray(v) ? v.flatMap(texts) : v && typeof v === "object" ? Object.values(v).flatMap(texts) : []);
 
-test("CGV : les onze articles officiels, dans l’ordre, puis l’annexe de la Maison", () => {
-  const articles = cgv.sections.filter((s) => s.officiel);
+const ARTICLES = ["champ-application", "prix", "commande", "paiement", "livraison", "transfert-propriete", "retractation", "garanties", "donnees", "propriete-intellectuelle", "droit"];
+const cgvEn = doc("cgv", "en");
+const article = (id: string, d = cgv) => texts(d.sections.find((s) => s.id === id)).join(" ");
+
+test("CGV corrigées le 12/11 : onze articles dans l’ordre, puis l’annexe, en texte de la Maison", () => {
+  // à la demande de la créatrice, les CGV ne sont plus un texte officiel : les règles d'écriture s'y appliquent
+  assert.ok(cgv.sections.every((s) => s.officiel !== true));
+  const articles = cgv.sections.slice(0, -1);
   assert.equal(articles.length, 11);
-  articles.forEach((s, i) => assert.match(s.titre, new RegExp(`^ARTICLE ${i + 1} – `), s.titre));
+  articles.forEach((s, i) => assert.match(s.titre, new RegExp(`^ARTICLE ${i + 1}\\. \\S`), s.titre));
   assert.deepEqual(
     articles.map((s) => s.id),
-    ["champ-application", "prix", "commande", "paiement", "livraison", "transfert-propriete", "retractation", "garanties", "donnees", "propriete-intellectuelle", "droit"],
+    ARTICLES,
   );
   const last = cgv.sections.at(-1)!;
   assert.equal(last.id, "annexe");
-  assert.notEqual(last.officiel, true);
   assert.ok(last.blocs.some((b) => "type" in b && b.type === "withdrawal-model"));
+  // version anglaise (pour information) : mêmes articles, mêmes ancres
+  assert.deepEqual(
+    cgvEn.sections.map((s) => s.id),
+    [...ARTICLES, "annexe"],
+  );
+  assert.ok(cgvEn.sections.every((s) => s.officiel !== true));
+});
+
+test("CGV : plus aucune contradiction avec le fonctionnement de la Maison", () => {
+  const all = texts(cgv.sections).join("\n");
+  // ni l'ancien site, ni le stock, ni le hors-taxe, ni la règle des abonnements
+  assert.doesNotMatch(all, /wixsite|limite des stocks|stocks? disponibles?|HT et TTC|sous réserve de disponibilité|livraison régulière/);
+  // article 1 : modèles standards fabriqués après la commande, coordonnées tirées du registre légal
+  assert.match(article("champ-application"), /modèles standards/);
+  assert.match(article("champ-application"), /ni fabriqués à l’avance ni tenus en stock/);
+  for (const champ of ["{{raisonSociale}}", "{{formeJuridique}}", "{{nomCommercial}}", "{{siege}}", "{{siret}}", "{{email}}", "{{telephone}}"]) assert.ok(article("champ-application").includes(champ), champ);
+  // article 2 : franchise en base, prix affiché = prix payé, facture au paiement
+  assert.match(article("prix"), /toutes taxes comprises/);
+  assert.match(article("prix"), /TVA non applicable, article 293 B du Code général des impôts\./);
+  assert.match(article("prix"), /prix payé par le Client/);
+  assert.match(article("prix"), /dès le paiement de la commande/);
+  // article 5 : délai de fabrication, puis 5 à 10 jours ouvrés ; les délais de réclamation ne réduisent pas les garanties
+  assert.match(article("livraison"), /délai de fabrication indiqué sur la fiche du Produit/);
+  assert.match(article("livraison"), /5 à 10 jours ouvrés à compter de la fin de la fabrication/);
+  assert.match(article("livraison"), /ne réduisent en rien les garanties légales/);
+  assert.doesNotMatch(article("livraison"), /réputés conformes|\[adresse email\]|meilleurs efforts/);
+  // article 7 : quatorze jours maintenus pour les modèles standards, exclusion du seul sur-mesure
+  const r = article("retractation");
+  assert.match(r, /délai de quatorze jours pour exercer son droit de rétractation/);
+  assert.match(r, /ne prive pas le Client de ce droit/);
+  assert.match(r, /modèles standards/);
+  assert.match(r, /création réellement personnalisée/);
+  assert.match(r, /article L221-28, 3°/);
+  assert.match(r, /à compter du jour où il est informé de la décision du Client de se rétracter/);
+  assert.match(r, /Les frais de retour restent à la charge du Client\./);
+  assert.doesNotMatch(r, /ne sont pas repris/);
+  // article 8 : encadré des garanties légales (décret du 25 mars 2022), aucune limitation des droits
+  const garanties = cgv.sections.find((s) => s.id === "garanties")!;
+  assert.ok(garanties.blocs.some((b) => "encadre" in b && b.encadre.paragraphes.length >= 8));
+  assert.match(article("garanties"), /L217-3 et suivants/);
+  assert.doesNotMatch(article("garanties"), /L217-12|L217-16|limitée au remplacement/);
+  // article 11 : médiateur à compléter, jamais inventé
+  assert.match(article("droit"), /médiateur de la consommation/);
+  assert.match(article("droit"), /L612-1/);
+  assert.match(article("droit"), /\{\{mediateur\}\}/);
 });
 
 test("CGV : listes en vraies listes, aucune puce tapée dans le texte", () => {
@@ -40,7 +90,7 @@ test("CGV : listes en vraies listes, aucune puce tapée dans le texte", () => {
   for (const t of texts(cgv.sections)) assert.doesNotMatch(t, /^\s*[-–—•]\s/, t);
 });
 
-test("textes officiels : typographie française (apostrophes, guillemets, espaces insécables)", () => {
+test("CGV et mentions légales : typographie française (apostrophes, guillemets, espaces insécables)", () => {
   for (const t of [...texts(cgv), ...texts(ml)]) {
     assert.doesNotMatch(t, /(?<=\p{L})'(?=\p{L})/u, `apostrophe droite : ${t.slice(0, 60)}`);
     assert.doesNotMatch(t, /« |[^ ]»| [:;?!](?=\s|$)/u, `espace insécable manquante : ${t.slice(0, 60)}`);
@@ -96,6 +146,15 @@ test("mentions légales : fiche de l’éditrice tirée du registre légal, adre
   assert.match(hebergement, /\(https:\/\/vercel\.com\)/);
 });
 
+test("marque déposée : le numéro INPI partout où la marque est dite déposée", () => {
+  const pi = texts(ml.sections.find((s) => s.id === "propriete-intellectuelle")).join(" ");
+  assert.match(pi, /marque déposée à l’INPI sous le numéro \{\{marque\}\}/);
+  assert.match(texts(mlEn.sections.find((s) => s.id === "propriete-intellectuelle")).join(" "), /INPI.*\{\{marque\}\}/);
+  assert.match(texts(legalPages["propriete-intellectuelle"]).join(" "), /déposée à l’INPI sous le numéro \{\{marque\}\}/);
+  // aucune autre page ne dit « marque déposée » sans son numéro
+  for (const t of [...texts(cgv), ...texts(legalPages), ...texts(ml)]) if (/marque déposée|est déposée/.test(t)) assert.match(t, /\{\{marque\}\}/, t.slice(0, 80));
+});
+
 test("mentions légales : fabrication à la commande sans priver les modèles standards de la rétractation", () => {
   const t = texts(ml.sections.find((s) => s.id === "fabrication")).join(" ");
   assert.match(t, /modèles standards/);
@@ -134,7 +193,13 @@ test("registre légal : informations réelles reportées, rien d’inventé pour
   assert.equal(identity.foundingLocation, "");
   assert.doesNotMatch(JSON.stringify(legalFields), /Croissy|Déroulède/);
   // pas encore connus : à compléter, jamais devinés
-  for (const k of ["siege", "mediateur", "marque", "creditsPhotos"] as const) assert.equal(legalFields[k].value, "", k);
+  for (const k of ["siege", "mediateur", "creditsPhotos"] as const) assert.equal(legalFields[k].value, "", k);
+  // réponses de la créatrice du 12/11 : marque déposée à l'INPI, code APE et franchise confirmés
+  assert.equal(legalFields.marque.value, "5225836");
+  assert.match(legalFields.marque.label, /INPI/);
+  assert.doesNotMatch(legalFields.activite.label, /vérifier|peut-être/);
+  assert.doesNotMatch(legalFields.tva.label, /vérifier/);
+  assert.match(legalFields.tva.label, /85 000 €/);
   // franchise en base : pas de numéro de TVA intracommunautaire à publier
   assert.equal(legalFields.tva.sansObjet, true);
   // une entreprise individuelle n'a pas de capital : rien à publier

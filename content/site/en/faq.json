@@ -143,17 +143,17 @@
         {
           "id": "retractation",
           "q": "Can I change my mind?",
-          "r": "Yes. You have fourteen days after receiving your piece to withdraw, online on the page [Withdrawal](/retractation), or by any clear statement sent by email or by post."
+          "r": "Yes, even if your piece was made after you ordered it. You have fourteen days after receiving it to withdraw, online on the page [Withdrawal](/retractation), or by any clear statement sent by email or by post. Only a personalised creation, made to your measurements or specific requests, is excluded."
         },
         {
           "id": "renvoyer",
           "q": "How do I send a piece back?",
-          "r": "The piece comes back in its original, complete condition, with its packaging and its invoice. A piece that is damaged, soiled or incomplete cannot be taken back. Return costs are at your expense. Everything is explained on the page [Delivery and returns](/livraison-retours)."
+          "r": "The piece comes back in its original, complete condition, with its packaging and its invoice. You may try it on as you would in a shop; if it has been worn, soiled or damaged, its loss of value may be deducted from the refund. Return costs are at your expense. Everything is explained on the page [Delivery and returns](/livraison-retours)."
         },
         {
           "id": "remboursement",
           "q": "When will I be refunded?",
-          "r": "Within fourteen days of the Maison receiving your piece."
+          "r": "No later than fourteen days after your withdrawal request, delivery costs included, to the means of payment used for your order. The Maison may wait until it has received the piece, or proof that it has been sent."
         },
         {
           "id": "echange",
