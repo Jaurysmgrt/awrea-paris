@@ -195,7 +195,7 @@ test.describe("−10 % retiré d'office au premier achat", () => {
     await expect(confirmation).toContainText(`Privilège de bienvenue, 10 % sur ${chere.title}`);
     await expect(confirmation).toContainText(euros(remise));
     const numero = new URL(page.url()).searchParams.get("n")!;
-    await expect.poll(() => outbox().find((m) => m.to === email && /Votre commande AW-\d+ est reçue/.test(m.subject))?.text ?? "").toContain(`Privilège de bienvenue, 10 % sur ${chere.title}`);
+    await expect.poll(() => outbox().find((m) => m.to === email && /Votre commande AW-\d+ est reçue/.test(m.subject))?.text ?? "").toMatch(new RegExp(`Privilège de bienvenue, 10\\s%\\ssur ${chere.title}`));
 
     // seconde commande (livraison offerte aussi) : plus de réduction
     expect((await page.request.post("/api/cart", { data: { type: "add", variantId: chere.variant, quantity: 2 } })).ok()).toBeTruthy();
