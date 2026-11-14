@@ -113,6 +113,18 @@ contact et les rendez-vous, la liste d'attente, la connexion des clientes, la r�
 ligne et la connexion à l'Atelier. **Limitation de débit** partagée entre instances (Upstash) sur
 les formulaires, la connexion, l'assistante et les preuves de consentement.
 
+**Lettre et privilège de bienvenue** (`lib/crm/lettre.ts`, `lib/privilege`) : liens des e-mails
+(confirmation, privilège sur un autre appareil, désinscription) chiffrés et authentifiés
+(AES-256-GCM, clé tirée de `SESSION_SECRET`, `lib/crm/jetons.ts`) : l'adresse n'apparaît jamais
+dans l'adresse d'une page, et les outils de mesure ne reçoivent que le chemin des pages
+(`lib/analytics/adresse.ts`). La confirmation demande un bouton (un antivirus qui ouvre les liens
+ne confirme rien). Une demande d'inscription ne modifie aucune fiche avant ce bouton. Le −10 %
+ne s'affiche et ne se retire que pour une adresse prouvée dans le navigateur : cookie HttpOnly
+signé posé par le lien de l'e-mail (empreinte HMAC de l'adresse, jamais l'adresse), ou cliente
+connectée sous cette adresse ; sinon la réponse est la même pour toutes les adresses (aucun moyen
+de savoir si une adresse est inscrite ou a déjà commandé). L'état du privilège est rangé sous
+l'empreinte HMAC de l'adresse (alias « +… » et points de Gmail ramenés à la même adresse).
+
 ## 4. Authentification et sessions
 
 **Clientes** (Supabase Auth) : sans mot de passe — code à usage unique par e-mail (6 chiffres,
@@ -321,7 +333,9 @@ GitHub.** La liste complète, sans valeurs, est dans
 - La clé de service Supabase n'est jamais exposée au navigateur (aucun préfixe `NEXT_PUBLIC_`).
 - **En cas de fuite d'une clé** : la révoquer immédiatement chez le fournisseur, en créer une
   nouvelle, la remplacer dans Vercel (et GitHub si elle y est utilisée), redéployer. Pour
-  `SESSION_SECRET` : toutes les sessions et la double authentification sont à refaire.
+  `SESSION_SECRET` : toutes les sessions et la double authentification sont à refaire, les liens
+  déjà envoyés par e-mail (lettre, désinscription) ne s'ouvrent plus et les privilèges de bienvenue
+  ouverts mais pas encore utilisés sont perdus.
 
 ## 7. Code, dépendances, dépôt
 

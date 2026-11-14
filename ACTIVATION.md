@@ -136,7 +136,9 @@ autorisé apparaît avec son état. Cinq essais manqués bloquent un compte une 
 sa titulaire.
 
 Ne jamais changer `SESSION_SECRET` ensuite sans raison : toutes les sessions seraient fermées et la
-double authentification serait à refaire.
+double authentification serait à refaire ; les liens déjà envoyés (confirmation de la lettre,
+désinscription) ne s'ouvriraient plus, et les privilèges de bienvenue ouverts mais pas encore
+utilisés seraient perdus (une cliente qui a déjà commandé reste reconnue par ses commandes).
 
 ## Étape 3 · Upstash Redis (mémoire technique)
 
