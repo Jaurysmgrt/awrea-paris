@@ -13,12 +13,12 @@ const T0 = Date.parse("2026-11-12T10:00:00Z");
 
 test("jeton chiffré : l'adresse n'y paraît jamais, il se relit avec le bon secret et le bon type", () => {
   const jeton = fabriquerJeton("lettre-confirmation", " Jeanne.Durand+lettre@Exemple.fr ", 7 * 86_400, { secret: SECRET, maintenant: T0 });
-  // ni l'adresse, ni sa partie locale, ni son domaine, même décodés en base64
+  // ni l'adresse, ni sa partie locale, ni son domaine, même décodés en base64 ; dans les octets
+  // décodés (aléatoires), on ne cherche que des mots : un caractère isolé comme « @ » (0x40) y
+  // paraît par hasard une fois sur trois environ, sans rien révéler
   const decode = jeton.split(".").map((p) => Buffer.from(p, "base64url").toString("latin1")).join(" ");
-  for (const morceau of ["jeanne", "durand", "exemple", "@"]) {
-    assert.ok(!jeton.toLowerCase().includes(morceau), morceau);
-    assert.ok(!decode.toLowerCase().includes(morceau), morceau);
-  }
+  for (const morceau of ["jeanne", "durand", "exemple", "@"]) assert.ok(!jeton.toLowerCase().includes(morceau), morceau);
+  for (const morceau of ["jeanne", "durand", "exemple", "lettre@"]) assert.ok(!decode.toLowerCase().includes(morceau), morceau);
   assert.deepEqual(lireJeton(jeton, ["lettre-confirmation"], { secret: SECRET, maintenant: T0 }), { k: "lettre-confirmation", e: "jeanne.durand+lettre@exemple.fr" });
   // deux jetons de la même adresse ne se ressemblent pas
   assert.notEqual(fabriquerJeton("lettre-confirmation", "jeanne@exemple.fr", 60, { secret: SECRET }), fabriquerJeton("lettre-confirmation", "jeanne@exemple.fr", 60, { secret: SECRET }));
