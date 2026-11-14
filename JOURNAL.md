@@ -1134,3 +1134,10 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
 - Livraison et retours, Rétractation, FAQ et assistante alignées : remboursement sous quatorze jours après la demande, perte de valeur au lieu d’un refus de reprise.
 - Étapes de confection : « Savoir-faire » dans le fil d’Ariane et le titre de l’onglet, comme dans le menu (réponse 16).
 - À faire : relecture des CGV par la créatrice, domiciliation, médiateur, bouton « Refuser » des retours à aligner sur l’article 7.
+
+## Réponses de la créatrice du 12/11 : e-mails, accord des parcours, Google Agenda (14/11)
+
+- E-mails : la typographie suit celle du site. Titres en Fraunces droite fine (300) ; signature, nom de pièce et devise en Fraunces italique (400), dans l’éditeur comme dans les autres e-mails du site ; la police d’un bloc reste au choix. Outlook pour Windows reçoit Georgia au lieu de Times New Roman ; `/fonts` est ouvert aux messageries (polices sous licence OFL).
+- Parcours : l’accord aux envois réels demande, en plus de la confirmation, le code à six chiffres de la personne connectée (vérification mise en commun avec les gestes sur les accès, `lib/auth/code-geste.ts`, même limite d’essais et même blocage). Couper l’accord reste immédiat, sans code ; le journal note qui, quand, et le code vérifié.
+- « Nouvelles de l’atelier » : e-mail écrit dans la voix des parcours approuvés (Hypnotic Lace, dentelle, pièces créées sur demande par des artisans français), sans aucune nouvelle inventée, à relire par la créatrice avant d’activer « Cliente de la Maison ».
+- Google Agenda : la publication de l’application est présentée comme le choix conseillé (connexion durable), le mode test comme l’autre possibilité (reconnexion tous les sept jours) ; l’écran « Google n’a pas validé cette application » est expliqué dans `ACTIVATION.md`, le guide et l’Atelier. La Maison n’a pas encore choisi (questions 12 et 13).
