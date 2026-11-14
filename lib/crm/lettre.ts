@@ -38,7 +38,7 @@ import { dejaCliente, lirePrivilege, ouvrirPrivilege, privilegeOuvert } from "@/
 import { noterPreuve } from "@/lib/privilege/preuve";
 import type { CommerceTexts } from "@/lib/commerce/texts";
 import { fabriquerJeton, lireJeton, type TypeJeton } from "./jetons";
-import { confirmerInscription, demanderInscription, etatLettreDe, ficheBrute, normaliserEmail } from "./index";
+import { confirmerInscription, demanderInscription, etatLettreDe, ficheBrute, normaliserEmail, privilegeOffert } from "./index";
 
 type SiteTexts = typeof import("@/content/site/fr/site.json");
 export type PrivilegeTexts = typeof import("@/content/site/fr/privilege.json");
@@ -96,7 +96,7 @@ export async function inscrireALaLettre(d: { email: string; prenom?: string; nom
   const [privilege, cliente] = await Promise.all([lirePrivilege(email), dejaCliente(email)]);
   await demanderInscription({ email, prenom: d.prenom, nom: d.nom, telephone: d.telephone, source: d.source, texte: await texteConsentement(d.source, locale) });
   // déjà inscrite avant (ancienne liste) : elle confirme son inscription, sans privilège à la clé
-  const offre = avant.statut !== "abonnee" && !privilege && !cliente;
+  const offre = privilegeOffert(avant, { dejaOuvert: Boolean(privilege), dejaCliente: cliente });
   await sendDocEmail(DOC_CONFIRMATION, email, { locale, vars: { lien: lienConfirmation(email, locale), privilege: offre ? "oui" : "" }, tag: "lettre-confirmation" });
   return "confirmation-envoyee";
 }

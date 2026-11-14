@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { adminLogin, ATELIER } from "./admin-auth";
-import { confirmerInscription, inscrire } from "./helpers";
+import { confirmerInscription, inscrire, outbox } from "./helpers";
 
 /**
  * Clientes de l'Atelier (lot 3 de la refonte) : recherche, catégories d'activité, fiche avec ses
@@ -64,6 +64,8 @@ test("CRM : une inscrite à la lettre a sa fiche, ses segments, sa preuve, et l'
   // une seconde inscription de la même adresse ne crée pas de seconde fiche
   // et une demande d'un tiers (autre prénom) ne réécrit pas la fiche d'une abonnée
   await inscrire(page, { nom: "Pirate", prenom: "Autre", email: ` ${email} `, consent: true, source: "fenetre" });
+  // déjà abonnée et confirmée : aucun nouvel e-mail (ni confirmation, ni privilège proposé)
+  expect(outbox().filter((m) => m.to === email && m.subject === "Confirmez votre inscription")).toHaveLength(1);
 
   await adminLogin(page);
   await page.goto(`${ATELIER}/clientes?q=${encodeURIComponent(email)}`);

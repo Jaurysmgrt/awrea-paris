@@ -223,6 +223,14 @@ function etatSelonSources(s: { fiche?: FicheCRM | null; ancienne?: AncienneInscr
  */
 export const peutRecevoirMarketingSelon = (e: Pick<EtatLettre, "statut">): boolean => e.statut === "abonnee";
 
+/**
+ * Le privilège de bienvenue est-il offert à cette inscription (réponses de la créatrice du 12/11) ?
+ * Seulement à une nouvelle inscrite : jamais à une personne déjà inscrite avant lui (aucun e-mail ne
+ * le lui propose), jamais à qui a déjà commandé, jamais deux fois. Le clic de confirmation ne l'ouvre
+ * que pour une inscription nouvelle (`confirmer` : `nouvelle`).
+ */
+export const privilegeOffert = (avant: Pick<EtatLettre, "statut">, o: { dejaOuvert: boolean; dejaCliente: boolean }): boolean => avant.statut !== "abonnee" && !o.dejaOuvert && !o.dejaCliente;
+
 export const LIBELLE_STATUT: Record<StatutLettre, string> = { abonnee: "Abonnée", "non-abonnee": "Non abonnée", desinscrite: "Désinscrite" };
 
 /** « Abonnée », « Non abonnée · à confirmer »… */

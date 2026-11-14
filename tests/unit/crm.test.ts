@@ -22,6 +22,7 @@ import {
   normaliserEmail,
   nouvelleFiche,
   peutRecevoirMarketingSelon,
+  privilegeOffert,
   segmentsDe,
   compterParSegment,
   type FicheCRM,
@@ -196,6 +197,21 @@ test("filet des désinscriptions : une désinscription plus récente que l'accor
   const [k] = fusionnerContacts(s, idDe, T2);
   assert.equal(k.lettre.statut, "desinscrite");
   assert.ok(k.segments.includes("desinscrites"));
+});
+
+test("privilège offert à une nouvelle inscrite seulement (réponses de la créatrice du 12/11)", () => {
+  const rien = { dejaOuvert: false, dejaCliente: false };
+  assert.equal(privilegeOffert(etatLettre({}), rien), true);
+  // inscrite avant le privilège (ancienne liste, case de son compte) : ni −10 %, ni e-mail qui le propose
+  assert.equal(privilegeOffert(etatLettre({ ancienne: { email: "a@b.fr", date: "2026-01-01T00:00:00Z" } }), rien), false);
+  assert.equal(privilegeOffert(etatLettre({ compte: { lettre: true, lettreLe: null, creeLe: "2026-02-01T00:00:00Z" } }), rien), false);
+  // déjà cliente, même si elle s'inscrit ensuite ; privilège déjà ouvert une fois
+  assert.equal(privilegeOffert(etatLettre({}), { dejaOuvert: false, dejaCliente: true }), false);
+  assert.equal(privilegeOffert(etatLettre({}), { dejaOuvert: true, dejaCliente: false }), false);
+  // l'inscrite d'avant qui confirme : son inscription n'est pas « nouvelle », le clic n'ouvre rien
+  const f = demander(nouvelleFiche("a@b.fr", T0), { source: "fenetre", texte: "Oui" }, T1);
+  const avant = etatLettre({ fiche: f, ancienne: { email: "a@b.fr", date: "2026-01-01T00:00:00Z" } });
+  assert.equal(confirmer(f, avant, T2)!.nouvelle, false);
 });
 
 test("inscription jamais confirmée : effacée un jour après l'expiration de son lien", () => {
