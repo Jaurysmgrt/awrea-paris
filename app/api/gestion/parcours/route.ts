@@ -7,22 +7,25 @@ import { runParcours, variableEnvoisReels } from "@/lib/marketing/parcours";
 import { creerEmail } from "@/lib/marketing/parcours/emails";
 import { creerDepuisModele, RefusParcours } from "@/lib/marketing/parcours/gestion";
 import { MODELES } from "@/lib/marketing/parcours/modeles";
+import { EnvoisReelsSchema, manqueAccord } from "@/lib/marketing/parcours/schema";
+import { verifierCodeGeste } from "@/lib/auth/code-geste";
 import { ecrireInterrupteur, ecrireReglages, listeParcours } from "@/lib/marketing/parcours/stockage";
 import { PLAFOND_MAX, PLAFOND_MIN } from "@/lib/marketing/parcours/types";
 
 const Corps = z.discriminatedUnion("action", [
   z.object({ action: z.literal("creer"), modele: z.enum(MODELES.map((m) => m.id) as [string, ...string[]]) }),
   z.object({ action: z.literal("reglages"), plafondJours: z.number().int().min(PLAFOND_MIN).max(PLAFOND_MAX) }),
-  // allumer demande la confirmation de la créatrice ; couper est immédiat
-  z.object({ action: z.literal("envois-reels"), actif: z.boolean(), confirme: z.literal(true).optional() }),
+  // allumer demande la confirmation et le code à six chiffres de la personne connectée ; couper est immédiat
+  EnvoisReelsSchema,
   z.object({ action: z.literal("lancer") }),
   z.object({ action: z.literal("email"), nom: z.string().trim().min(2).max(60) }),
 ]);
 
 /**
  * Atelier › E-mails › Parcours : créer un parcours depuis un modèle (toujours en brouillon), régler le
- * plafond de fréquence, l'interrupteur des envois réels (seconde clé, avec PARCOURS_ENVOIS_REELS),
- * lancer un passage maintenant, créer un e-mail de parcours.
+ * plafond de fréquence, l'interrupteur des envois réels (seconde clé, avec PARCOURS_ENVOIS_REELS ;
+ * l'allumer demande la confirmation et le code à six chiffres, le couper rien), lancer un passage
+ * maintenant, créer un e-mail de parcours.
  */
 export async function POST(req: Request) {
   const me = await currentAdmin();
@@ -40,15 +43,25 @@ export async function POST(req: Request) {
         await ecrireReglages({ plafondJours: body.plafondJours });
         return NextResponse.json({ ok: true, message: "Réglage enregistré." });
       case "envois-reels": {
-        if (body.actif && body.confirme !== true) return NextResponse.json({ error: "Confirmez d’abord les envois réels." }, { status: 400 });
-        await ecrireInterrupteur(body.actif ? { actif: true, par: me, le: new Date().toISOString() } : { actif: false, par: me, le: new Date().toISOString() });
+        const manque = manqueAccord(body);
+        if (manque === "confirmation") return NextResponse.json({ error: "Confirmez d’abord les envois réels." }, { status: 400 });
+        if (manque === "code") return NextResponse.json({ error: "Écrivez votre code à six chiffres pour autoriser les envois réels." }, { status: 400 });
+        // le code de la double authentification de la personne connectée, avec la limite d'essais et
+        // le blocage des gestes sensibles (lib/auth/code-geste.ts) ; couper n'en demande pas
+        if (body.actif) {
+          const refus = await verifierCodeGeste(req, me, body.code ?? "","envois réels des parcours");
+          if (refus) return NextResponse.json({ error: refus.error }, { status: refus.status });
+        }
+        const le = new Date().toISOString();
+        await ecrireInterrupteur({ actif: body.actif, par: me, le });
         const actifs = (await listeParcours()).filter((p) => p.statut === "actif").map((p) => p.nom);
+        // qui, quand, avec quel contrôle : au journal de l'Atelier
         await logAction({
           agent: "systeme",
           kind: "parcours_envois_reels",
           status: "done",
-          summary: body.actif ? `Envois réels des parcours autorisés par ${me}` : `Envois réels des parcours coupés par ${me}`,
-          detail: JSON.stringify({ variable: variableEnvoisReels(), actifs }),
+          summary: body.actif ? `Envois réels des parcours autorisés par ${me}, code à six chiffres vérifié` : `Envois réels des parcours coupés par ${me}`,
+          detail: JSON.stringify({ par: me, le, code: body.actif ? "vérifié" : "non demandé", variable: variableEnvoisReels(), actifs }),
         });
         const message = !body.actif ? "Envois réels coupés : les parcours repassent en simulation." : variableEnvoisReels() ? "Envois réels autorisés." : "Votre accord est noté. Les e-mails partiront quand la Maison aura posé PARCOURS_ENVOIS_REELS dans Vercel.";
         return NextResponse.json({ ok: true, message });

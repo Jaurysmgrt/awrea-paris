@@ -577,8 +577,9 @@ Mailchimp) :
    montre ses mots et sa mise en forme.
 3. **Réglages** : écrivez le texte. Pour un lien, sélectionnez des mots puis **Ajouter un lien**
    (une page du site comme /boutique, une adresse qui commence par https:// ou un e-mail). Puis la
-   **Mise en forme** : la **Police**, parmi les trois de la Maison (Fraunces italique, Fraunces
-   droite, Cormorant Garamond), la **Taille** (petite, normale, grande), l’**Alignement** (à gauche,
+   **Mise en forme** : la **Police**, parmi les trois de la Maison (Fraunces droite, Fraunces
+   italique, Cormorant Garamond ; sans réglage, comme sur le site, les titres sont en Fraunces
+   droite, fine, et la signature en Fraunces italique), la **Taille** (petite, normale, grande), l’**Alignement** (à gauche,
    au centre, à droite), l’**Espace au-dessus** et l’**Espace au-dessous**. Pour une photo, sa
    **Largeur** et son alignement. **Revenir à l’allure d’origine** efface ces réglages.
 4. Une photo : glissez-la depuis votre ordinateur sur l’e-mail. Posée sur une photo, elle prend sa
@@ -632,7 +633,9 @@ quelque chose : s’inscrire, s’intéresser à une pièce, laisser un panier,
 
 Rien ne part pour de vrai tant que deux clés ne sont pas réunies : la variable
 `PARCOURS_ENVOIS_REELS=1`, posée dans Vercel, et votre accord, **Autoriser les envois réels**, dans
-l’onglet. Couper l’accord arrête tout aussitôt.
+l’onglet. Par sécurité, l’accord demande votre code à six chiffres, celui de votre application
+d’authentification, comme à la connexion : écrivez-le puis **Confirmer avec ce code**. L’Atelier
+note qui a donné l’accord et quand. Couper l’accord arrête tout aussitôt, sans code.
 
 Les règles qui vous protègent : seules les personnes qui ont accepté la lettre entrent, une seule fois
 par parcours ; un e-mail marketing au plus tous les trois jours par personne (réglable dans
@@ -663,6 +666,10 @@ Le lien de l’appel part avec la confirmation, sans rien à installer.
    votre téléphone, chaque rendez-vous y apparaît.
 4. **Google Agenda** (une fois branché, voir le guide d’activation, étape 16) : **Connecter Google
    Agenda**. Google s’ouvre et vous demande votre accord, jamais votre mot de passe sur ce site.
+   Si Google affiche « Google n’a pas validé cette application », ce n’est pas une alerte sur votre
+   compte : c’est votre propre application, que Google n’a pas examinée. Touchez **Paramètres
+   avancés**, puis **Accéder à Awrea Paris (non sécurisé)**, cochez l’accès aux événements de
+   l’agenda et **Continuer**.
    Ensuite, chaque rendez-vous confirmé s’ajoute seul à votre agenda Google, avec la cliente, ses
    notes et le lien de l’appel ; il se met à jour s’il change et disparaît s’il est annulé. Les
    moments déjà pris dans votre agenda Google ne sont plus proposés aux clientes.
@@ -672,6 +679,9 @@ Le lien de l’appel part avec la confirmation, sans rien à installer.
    sinon il repart seul le lendemain matin).
    Si **Reconnecter Google Agenda** apparaît, Google a retiré l’accès ou il a expiré : touchez-le, rien
    n’est perdu. **Déconnecter** retire l’accès ; les rendez-vous déjà ajoutés restent dans votre agenda.
+   Si **Reconnecter Google Agenda** revient chaque semaine, l’application Google est restée en mode
+   test, qui coupe l’accès tous les sept jours. Le choix conseillé est de la publier, pour une
+   connexion durable : le guide d’activation, étape 16, explique comment.
 
 Chaque cliente reçoit une confirmation avec l’invitation pour son agenda, puis un rappel la veille.
 Ces e-mails se modifient dans Atelier › **E-mails**.

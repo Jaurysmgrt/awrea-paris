@@ -29,14 +29,15 @@ test("éditeur d'e-mails : choisir dans l'aperçu, régler, annuler, photo et te
   await expect(panneau.getByLabel("Titre", { exact: true })).toHaveValue("Votre pièce est en route");
   await expect(apercu(page).locator(`tbody[data-bloc='${TITRE}'][data-choisi]`)).toHaveCount(1);
 
-  // allure d'origine : Fraunces italique, 40 px, centré
-  await expect.poll(() => style(page, `tbody[data-bloc='${TITRE}'] h1`)).toMatch(/font-style:italic;font-weight:400;font-size:40px.*text-align:center/);
+  // allure d'origine, comme les grands titres du site (12/11) : Fraunces droite fine, 40 px, centré
+  await expect(panneau.getByRole("radio", { name: /Fraunces droite/ })).toBeChecked();
+  await expect.poll(() => style(page, `tbody[data-bloc='${TITRE}'] h1`)).toMatch(/font-style:normal;font-weight:300;font-size:40px.*text-align:center/);
 
-  // police, taille, alignement : chaque réglage se voit dans l'e-mail
-  await panneau.getByRole("radio", { name: /Fraunces droite/ }).check();
+  // police, taille, alignement : chaque réglage se voit dans l'e-mail (l'italique reste au choix)
+  await panneau.getByRole("radio", { name: /Fraunces italique/ }).check();
   await panneau.getByRole("group", { name: "Taille" }).getByRole("button", { name: "Grande" }).click();
   await panneau.getByRole("group", { name: "Alignement" }).getByRole("button", { name: "À gauche" }).click();
-  await expect.poll(() => style(page, `tbody[data-bloc='${TITRE}'] h1`)).toMatch(/font-style:normal;font-weight:300;font-size:48px.*text-align:left/);
+  await expect.poll(() => style(page, `tbody[data-bloc='${TITRE}'] h1`)).toMatch(/font-style:italic;font-weight:400;font-size:48px.*text-align:left/);
 
   // espace au-dessous : sur la grille de 8 px
   await panneau.getByLabel("Espace au-dessous").fill("64");

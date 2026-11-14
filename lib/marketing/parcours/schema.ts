@@ -25,3 +25,26 @@ export const DefinitionSchema: z.ZodType<Definition> = z
     exclusions: z.array(z.enum(Object.keys(EXCLUSIONS) as [ExclusionId, ...ExclusionId[]])).max(4),
   })
   .strict();
+
+/**
+ * Accord de la créatrice aux envois réels (seconde clé, avec PARCOURS_ENVOIS_REELS) : l'allumer
+ * demande la confirmation et le code à six chiffres de la double authentification de la personne
+ * connectée (réponse de la créatrice du 12/11, code vérifié par lib/auth/code-geste.ts) ; le couper
+ * ne demande rien, pour tout arrêter aussitôt.
+ */
+export const EnvoisReelsSchema = z
+  .object({
+    action: z.literal("envois-reels"),
+    actif: z.boolean(),
+    confirme: z.literal(true).optional(),
+    code: z.string().trim().min(6).max(12).optional(),
+  })
+  .strict();
+
+/** Ce qui manque pour allumer l'accord ; rien pour le couper. */
+export function manqueAccord(b: { actif: boolean; confirme?: true; code?: string }): "confirmation" | "code" | null {
+  if (!b.actif) return null;
+  if (b.confirme !== true) return "confirmation";
+  if (!b.code) return "code";
+  return null;
+}

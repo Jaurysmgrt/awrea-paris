@@ -35,7 +35,11 @@ export type EmailBlock = Block & { si?: string; sauf?: string } & Partial<EmailS
 export interface EmailStyle {
   /** alignement du texte, de la photo ou du bouton */
   align: Alignement;
-  /** police de la Maison : Fraunces italique, Fraunces droite (fine) ou Cormorant Garamond */
+  /**
+   * police de la Maison : Fraunces droite (fine), Fraunces italique ou Cormorant Garamond. Sans
+   * réglage, la règle du site (réponse de la créatrice du 12/11) : grands titres (28 px et plus) en
+   * Fraunces droite fine (300), petits titres et signature en Fraunces italique (400)
+   */
   police: Police;
   taille: Taille;
   /** espace au-dessus et au-dessous du bloc, en pixels (multiples de 8) */
@@ -63,8 +67,8 @@ export const ALIGNEMENTS: { value: Alignement; label: string }[] = [
   { value: "droite", label: "À droite" },
 ];
 export const POLICES: { value: Police; label: string; usage: string }[] = [
-  { value: "italique", label: "Fraunces italique", usage: "titres et signature" },
-  { value: "droite", label: "Fraunces droite", usage: "grands titres, en fin" },
+  { value: "droite", label: "Fraunces droite", usage: "grands titres, en fin, comme sur le site" },
+  { value: "italique", label: "Fraunces italique", usage: "petits titres et signature" },
   { value: "texte", label: "Cormorant Garamond", usage: "texte" },
 ];
 export const TAILLES: { value: Taille; label: string }[] = [
@@ -93,9 +97,13 @@ export const REGLAGES: Record<string, Reglage[]> = {
   espace: ["hauteur"],
 };
 
-/** Allure d'origine de chaque bloc : ce que donne un bloc sans réglage. */
+/**
+ * Allure d'origine de chaque bloc : ce que donne un bloc sans réglage. La typographie suit celle du
+ * site : un titre d'e-mail fait toujours 28 px ou plus (TAILLES_PX, lib/email/render.ts), c'est donc
+ * un grand titre, en Fraunces droite fine ; la signature, petit titre, reste en Fraunces italique.
+ */
 export const STYLE_PAR_DEFAUT: Record<string, Partial<EmailStyle>> = {
-  titre: { police: "italique", taille: "normale", align: "centre", avant: 0, apres: 32 },
+  titre: { police: "droite", taille: "normale", align: "centre", avant: 0, apres: 32 },
   texte: { police: "texte", taille: "normale", align: "gauche", avant: 0, apres: 32 },
   image: { largeur: 100, align: "centre", avant: 0, apres: 32 },
   "photo-texte": { cote: "gauche", police: "texte", taille: "normale", avant: 0, apres: 32 },
