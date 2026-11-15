@@ -389,9 +389,10 @@ pastille « Nouveau », photos des cartes aux angles arrondis. Primitives et cla
 - N'inventer aucune information sur l'entreprise : champs `[À COMPLÉTER]` bien visibles, listés
   dans `LEGAL-A-COMPLETER.md`. Informations connues : celles des mentions légales officielles
   (registre `content/legal/fields.ts`).
-- CGV et mentions légales officielles reprises mot pour mot ; leurs écarts avec le fonctionnement du
-  site (stock, adresse de l'ancien site, réclamations) sont notés dans `LEGAL-A-COMPLETER.md`, pour
-  la créatrice et un professionnel du droit.
+- Mentions légales (réécrites le 11/11/2026) et CGV (corrigées le 12/11/2026, version 2026-11) : à
+  la demande de la créatrice, ce sont désormais des textes de la Maison, alignés sur le
+  fonctionnement réel (fabrication après la commande, franchise de TVA, rétractation) et soumis au
+  contrôle d'écriture ; détail article par article et points à compléter dans `LEGAL-A-COMPLETER.md`.
 
 ## 8. Organisation
 

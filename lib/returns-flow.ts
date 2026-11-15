@@ -9,7 +9,7 @@ import { getOrder, setOrderStatus } from "@/lib/commerce/orders";
 import { boutiqueReelle } from "@/lib/config/boutique";
 import { rembourserParStripe } from "@/lib/paiement/suivi";
 import { issueCreditNote, listInvoices } from "@/lib/invoices";
-import { partsPayees } from "@/lib/commerce/remboursement";
+import { partsDuRetour } from "@/lib/commerce/remboursement";
 import { signaler } from "@/lib/admin/push";
 import { sousVerrouArgent } from "@/lib/commerce/argent";
 import { invoicePdf } from "@/lib/invoices/pdf";
@@ -126,8 +126,9 @@ async function rembourserRetour(id: string): Promise<{ r: ReturnRequest; amount:
   const parStripe = order.payment?.prestataire === "stripe";
   // boutique réelle : seul un paiement passé par Stripe se rembourse d'ici, par Stripe
   if (boutiqueReelle() && !parStripe) throw new Error("Cette commande n’a pas été payée en ligne : aucun remboursement ne peut partir de l’Atelier.");
-  // ce que la cliente a réellement payé pour ces pièces (remise, taxes, carte cadeau au prorata)
-  const parts = partsPayees(order, items.map((i) => i.unitPrice));
+  // ce que la cliente a réellement payé pour ces pièces (remise, taxes, carte cadeau au prorata) ; le
+  // privilège de bienvenue se retire de la seule unité qui le porte, une seule fois par commande
+  const parts = partsDuRetour(order, r, await returnsOf(order.number));
   // l'argent d'abord (Stripe, une seule fois par retour, même redemandé des jours après) ; l'avoir
   // ensuite, du même montant, une seule fois aussi (un essai repris après une coupure ne le double pas)
   if (parStripe) await rembourserParStripe((await getOrder(order.id)) ?? order, parts.reduce((t, x) => t + x, 0), `Retour ${r.id}`, { quoi: "retour", id: r.id });

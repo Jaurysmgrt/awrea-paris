@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { avancer, modeDesEnvois, passage, prevoir, statistiques, type EmailEtat, type Entree, type Envoi, type Ports } from "@/lib/marketing/parcours/moteur";
 import { MODELES } from "@/lib/marketing/parcours/modeles";
-import { DefinitionSchema } from "@/lib/marketing/parcours/schema";
+import { DefinitionSchema, EnvoisReelsSchema, manqueAccord } from "@/lib/marketing/parcours/schema";
 import { etatVide, type Contact, type Etat, type LigneJournal, type Mode, type Parcours } from "@/lib/marketing/parcours/types";
 import { EmailDocSchema } from "@/lib/email/schema";
 import type { EmailDoc } from "@/lib/email/blocks";
@@ -287,6 +287,27 @@ test("envois réels : il faut la variable PARCOURS_ENVOIS_REELS=1 et l'accord de
   assert.equal(modeDesEnvois("1", { actif: false }), "simulation");
   assert.equal(modeDesEnvois("1", null), "simulation");
   assert.equal(modeDesEnvois("1", { actif: true }), "reel");
+});
+
+test("accord aux envois réels : confirmation et code à six chiffres pour l'allumer, rien pour le couper", () => {
+  const lu = (b: unknown) => EnvoisReelsSchema.safeParse(b);
+  // allumer : la confirmation, puis le code
+  assert.equal(manqueAccord({ actif: true }), "confirmation");
+  assert.equal(manqueAccord({ actif: true, code: "123456" }), "confirmation");
+  assert.equal(manqueAccord({ actif: true, confirme: true }), "code");
+  assert.equal(manqueAccord({ actif: true, confirme: true, code: "" }), "code");
+  assert.equal(manqueAccord({ actif: true, confirme: true, code: "123456" }), null);
+  // couper : aucun code, aucune confirmation
+  assert.equal(manqueAccord({ actif: false }), null);
+  assert.ok(lu({ action: "envois-reels", actif: false }).success);
+  // forme du code : six chiffres, ou un code de secours (« ABCD-EFGH ») ; rien d'autre
+  assert.ok(lu({ action: "envois-reels", actif: true, confirme: true, code: " 123456 " }).success);
+  assert.equal(lu({ action: "envois-reels", actif: true, confirme: true, code: " 123456 " }).data?.code, "123456");
+  assert.ok(lu({ action: "envois-reels", actif: true, confirme: true, code: "ABCD-EFGH" }).success);
+  assert.ok(!lu({ action: "envois-reels", actif: true, confirme: true, code: "123" }).success);
+  assert.ok(!lu({ action: "envois-reels", actif: true, confirme: true, code: "1".repeat(13) }).success);
+  assert.ok(!lu({ action: "envois-reels", actif: true, confirme: false, code: "123456" }).success);
+  assert.ok(!lu({ action: "envois-reels", actif: true, confirme: true, code: "123456", par: "autre@exemple.fr" }).success);
 });
 
 test("prévision : les 30 prochains jours, sans rien enregistrer", () => {

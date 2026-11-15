@@ -13,7 +13,8 @@ export const palette = {
 
 /**
  * Les deux polices officielles, pas une de plus (e-mails : repli sur Georgia, puis serif).
- * `display` : titres en Fraunces 72pt Italic (toujours en italique) ; `text` : textes, boutons et
+ * `display` : titres en Fraunces, comme sur le site (grands titres de 28 px et plus en Fraunces 120pt
+ * Light, droite, 300 ; petits titres en Fraunces 72pt Italic, 400) ; `text` : textes, boutons et
  * étiquettes en Cormorant Garamond.
  */
 export const fontStacks = {

@@ -75,7 +75,7 @@ function demoDecision(m: InboxMessage, order: Order | null, products: Product[])
       sensitive_reason: "Demande de retour ou de remboursement : décision de la créatrice.",
       confidence: "moyenne",
       subject: "Votre demande de retour",
-      reply: `${hello}\n\nVous disposez de quatorze jours après la réception de votre pièce pour vous rétracter, en ligne sur la page « Se rétracter » de notre site, ou simplement en nous répondant. La pièce revient dans son état d’origine et complète, avec sa facture ; les frais de retour restent à votre charge.\n\nLe remboursement intervient dans les quatorze jours qui suivent la réception de la pièce par la Maison.\n\n${sign}`,
+      reply: `${hello}\n\nVous disposez de quatorze jours après la réception de votre pièce pour vous rétracter, en ligne sur la page « Se rétracter » de notre site, ou simplement en nous répondant. La pièce revient dans son état d’origine et complète, avec sa facture ; les frais de retour restent à votre charge.\n\nLe remboursement, frais de livraison compris, intervient au plus tard quatorze jours après votre demande ; la Maison peut attendre d’avoir reçu la pièce, ou la preuve de son envoi.\n\n${sign}`,
       refund_requested: /rembours/.test(q),
       note_for_creator: "Vérifier l’état de la commande avant de valider un éventuel remboursement.",
     };

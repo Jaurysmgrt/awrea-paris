@@ -2,17 +2,18 @@
  * Adaptateur des contacts des parcours : la seule porte par laquelle les parcours lisent les
  * personnes, leurs segments, leurs commandes, leur panier et leur désinscription. Lecture seule,
  * sur les fonctions et le stockage existants :
- *  - inscrites à la lettre (stockage « newsletter:subscribers », app/api/newsletter) ;
- *  - désinscriptions (stockage « newsletter:desinscriptions », lib/marketing/unsubscribe.ts) ;
- *  - fiches clientes et leur accord aux lettres (lib/customers : listCustomerStats) ;
+ *  - statut de la lettre de chaque adresse, tel que le CRM le tient (lib/crm : abonnée, non
+ *    abonnée ou désinscrite ; une inscription en attente de confirmation n'est pas un accord) ;
+ *  - désinscriptions par le lien des lettres (stockage « newsletter:desinscriptions »), par
+ *    prudence : une désinscription plus récente que l'accord l'emporte toujours ;
+ *  - fiches clientes (lib/customers : listCustomerStats) : compte, Cercle, segment, panier ;
  *  - commandes payées (lib/commerce/orders) ;
  *  - signes d'intérêt : avant-premières (lib/drops) et rendez-vous de conseil (lib/appointments) ;
  *  - paniers non finalisés des clientes connectées qui ont accepté la personnalisation ;
  *  - e-mails marketing déjà partis hors des parcours (lettre, avant-première, relance du panier).
  *
- * Quand la fiche contact unique (étape 5 : inscrites et clientes réunies, statut abonnée, non
- * abonnée ou désinscrite) sera là, seul ce fichier changera : `peutRecevoirMarketing` et
- * `lireContacts` liront ce statut au lieu de le recalculer.
+ * L'accord aux e-mails marketing suit la règle unique du CRM (`peutRecevoirMarketingSelon`) : la
+ * lettre, les e-mails automatiques et les parcours ne peuvent pas se contredire.
  *
  * Une source illisible fait échouer la lecture entière : un passage sans données sûres ne fait
  * rien (jamais une sortie ni une entrée sur une donnée manquante).
@@ -21,6 +22,7 @@ import "server-only";
 import { kv } from "@/lib/store";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/db/supabase";
 import { listCustomerStats } from "@/lib/customers";
+import { listerContacts, normaliserEmail, peutRecevoirMarketingSelon } from "@/lib/crm";
 import { segmentOf } from "@/lib/customers/segments";
 import { getOrders } from "@/lib/commerce/orders";
 import { isSale } from "@/lib/admin/dashboard";
@@ -41,7 +43,6 @@ const iso = (d: string | null | undefined): string | null => {
 const plusTot = (a: string | null, b: string | null) => (!a ? b : !b ? a : a < b ? a : b);
 const plusTard = (a: string | null, b: string | null) => (!a ? b : !b ? a : a > b ? a : b);
 
-type Inscription = { email: string; date?: string; prenom?: string };
 type Panier = { email: string; le: string };
 
 /** Paniers non finalisés : seulement ceux des clientes connectées qui ont accepté la personnalisation. */
@@ -69,8 +70,8 @@ async function idsDesComptes(): Promise<Set<string> | null> {
 }
 
 export async function lireContacts(): Promise<Contact[]> {
-  const [inscrites, desinscriptions, stats, commandes, drops, rendezVous, partis, lettres, comptesDemo] = await Promise.all([
-    kv.get<Inscription[]>("newsletter:subscribers").then((l) => l ?? []),
+  const [crm, desinscriptions, stats, commandes, drops, rendezVous, partis, lettres, comptesDemo] = await Promise.all([
+    listerContacts(),
     kv.list<{ email: string; date: string }>("newsletter:desinscriptions", 2000),
     listCustomerStats(),
     getOrders(),
@@ -98,18 +99,20 @@ export async function lireContacts(): Promise<Contact[]> {
     return c;
   };
 
-  // inscrites à la lettre : l'inscription vaut accord, sauf désinscription plus récente
-  for (const s of inscrites) {
-    if (!s.email?.includes("@")) continue;
-    const c = contact(s.email);
-    const le = iso(s.date);
+  // statut de la lettre (CRM) : seule une abonnée accepte les e-mails marketing, sauf désinscription
+  // plus récente par le lien d'une lettre ; l'inscription date de l'accord
+  for (const k of crm) {
+    if (!k.email?.includes("@") || !peutRecevoirMarketingSelon(k.lettre)) continue;
+    const c = contact(normaliserEmail(k.email));
+    const le = iso(k.lettre.depuis) ?? iso(k.createdAt);
     const desinscrite = desinscriteLe.get(c.email);
+    c.prenom ??= k.firstName?.trim().split(/\s+/)[0] || null;
+    if (desinscrite && (!le || le <= desinscrite)) continue;
+    c.marketing = true;
     c.inscriteLe = plusTot(c.inscriteLe, le);
-    c.prenom ??= s.prenom?.trim().split(/\s+/)[0] || null;
-    if (!desinscrite || (le && le > desinscrite)) c.marketing = true;
   }
 
-  // fiches clientes : compte, Cercle, segment, accord donné dans le compte
+  // fiches clientes : compte, Cercle, segment
   const comptes = new Map<string, string>();
   for (const s of stats) {
     if (!s.email?.includes("@")) continue;
@@ -121,11 +124,6 @@ export async function lireContacts(): Promise<Contact[]> {
     }
     c.cercle = s.cercleMember;
     c.prenom ??= s.firstName?.trim().split(/\s+/)[0] || null;
-    if (s.marketingEmail && estCompte) {
-      // une désinscription par le lien de la lettre l'emporte sur l'accord du compte (dont la date n'est pas connue)
-      if (!desinscriteLe.has(c.email)) c.marketing = true;
-      c.inscriteLe ??= iso(s.createdAt);
-    }
   }
 
   // commandes payées (ventes seulement), de la plus ancienne à la plus récente
@@ -158,7 +156,7 @@ export async function lireContacts(): Promise<Contact[]> {
   return [...contacts.values()];
 }
 
-/** Cette adresse peut-elle recevoir un e-mail marketing ? (consentement donné, pas de désinscription depuis) */
+/** Cette adresse peut-elle recevoir un e-mail marketing ? (abonnée selon le CRM, pas de désinscription depuis) */
 export async function peutRecevoirMarketing(email: string): Promise<boolean> {
   const e = cle(email);
   return (await lireContacts()).some((c) => c.email === e && c.marketing);

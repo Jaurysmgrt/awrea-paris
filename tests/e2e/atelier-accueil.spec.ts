@@ -33,6 +33,37 @@ test("Vue d'ensemble : priorités, raccourcis, chiffres et dernières commandes 
   await expect(page.getByRole("heading", { level: 1, name: "Nouvelle pièce" })).toBeVisible();
 });
 
+/**
+ * Réponses de la créatrice du 12/11 : la domiciliation et le médiateur de la consommation ne sont
+ * pas encore choisis. Tant que le registre légal ne les a pas, la liste « À faire en priorité » les
+ * rappelle, avec la liste officielle des médiateurs pour le second.
+ */
+test("Vue d'ensemble : domiciliation et médiateur rappelés dans « À faire en priorité »", async ({ page }) => {
+  await adminLogin(page);
+  await page.goto(ATELIER);
+  const todo = page.locator("section").filter({ has: page.getByRole("heading", { name: "À faire en priorité" }) });
+  const adresse = todo.getByRole("link", { name: "Choisir l’adresse de la Maison" });
+  const mediateur = todo.getByRole("link", { name: "Choisir un médiateur de la consommation" });
+  await expect(adresse).toBeVisible();
+  await expect(mediateur).toBeVisible();
+  await expect(adresse).toHaveAttribute("href", "/mentions-legales#editrice");
+  await expect(mediateur).toHaveAttribute("href", "/mentions-legales#mediation");
+  // la liste officielle des médiateurs référencés, dans un nouvel onglet
+  const liste = todo.getByRole("link", { name: "Liste officielle des médiateurs" });
+  await expect(liste).toBeVisible();
+  await expect(liste).toHaveAttribute("href", "https://www.economie.gouv.fr/mediation-conso/mediateurs-references");
+  await expect(liste).toHaveAttribute("target", "_blank");
+
+  // le rappel mène à l'endroit du site où l'adresse manque encore
+  await adresse.click();
+  await expect(page).toHaveURL(/\/mentions-legales#editrice$/);
+  await expect(page.locator("section#editrice mark.todo")).toHaveText("[À COMPLÉTER : adresse de domiciliation]");
+  await page.goto(ATELIER);
+  await todo.getByRole("link", { name: "Choisir un médiateur de la consommation" }).click();
+  await expect(page).toHaveURL(/\/mentions-legales#mediation$/);
+  await expect(page.locator("section#mediation mark.todo")).toHaveText("[À COMPLÉTER : médiateur de la consommation]");
+});
+
 test("menu clair : six rubriques, sous-entrées dans leur rubrique, titres identiques aux pages", async ({ page }) => {
   await adminLogin(page);
   await page.goto(ATELIER);

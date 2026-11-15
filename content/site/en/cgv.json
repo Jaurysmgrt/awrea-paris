@@ -5,22 +5,23 @@
   },
   "titre": "Terms and conditions of sale",
   "chapeau": "This English translation is given for information. Only the French version of the terms and conditions of sale is legally binding. The conditions that apply to every order placed with the Maison, article by article.",
-  "misAJour": "2026-10-19",
+  "misAJour": "2026-11-12",
   "sections": [
     {
       "id": "champ-application",
       "titre": "ARTICLE 1. Scope",
-      "officiel": true,
       "blocs": [
         {
-          "texte": "These General Terms and Conditions of Sale (known as the “GTC”) apply, without restriction or reservation, to all sales concluded by the Seller with non-professional buyers (“The Customers or the Customer”) wishing to acquire the products offered for sale (“The Products”) by the Seller on the site https://awreaparis.wixsite.com/awrea-paris. The Products offered for sale on the site are the following: clothing for adult women. The main characteristics of the Products, and in particular the specifications, illustrations and indications of dimensions or capacity of the Products, are presented on the site https://awreaparis.wixsite.com/awrea-paris, which the customer is required to read before ordering. The choice and purchase of a Product are the sole responsibility of the Customer. Product offers are valid while stocks last, as specified when the order is placed. These GTC are accessible at any time on the site https://awreaparis.wixsite.com/awrea-paris and shall prevail over any other document. The Customer declares that they have read these GTC and accepted them by ticking the box provided for this purpose before carrying out the online ordering procedure of the site https://awreaparis.wixsite.com/awrea-paris. Unless proven otherwise, the data recorded in the Seller’s computer system constitute proof of all the transactions concluded with the Customer. The Seller’s contact details are as follows:"
+          "texte": "These General Terms and Conditions of Sale (known as the “GTC”) apply, without restriction or reservation, to all sales concluded by the Seller with non-professional buyers (“The Customers or the Customer”) wishing to acquire the products offered for sale (“The Products”) by the Seller on the site www.awreaparis.com. The Products offered for sale on the site are the following: clothing for adult women. They are standard models, offered in the sizes of the size guide. They are neither made in advance nor held in stock: each Product is made by French artisans after the order is confirmed, within the making time shown on its page. The main characteristics of the Products, and in particular the specifications, illustrations and indications of dimensions or capacity of the Products, as well as their making time, are presented on the site www.awreaparis.com, which the customer is required to read before ordering. The choice and purchase of a Product are the sole responsibility of the Customer. These GTC are accessible at any time on the site www.awreaparis.com and shall prevail over any other document. The Customer declares that they have read these GTC and accepted them by ticking the box provided for this purpose before carrying out the online ordering procedure of the site www.awreaparis.com. Unless proven otherwise, the data recorded in the Seller’s computer system constitute proof of all the transactions concluded with the Customer. The Seller’s contact details are as follows:"
         },
         {
           "lignes": [
-            "Léane Soubrier",
-            "Registration number: 10022292600014",
-            "Email: awrea.contact@gmail.com",
-            "Telephone: 06 99 55 74 43"
+            "{{raisonSociale}}, {{formeJuridique}}",
+            "Trading name: {{nomCommercial}}",
+            "Address: {{siege}}",
+            "SIRET number: {{siret}}",
+            "Email: {{email}}",
+            "Telephone: {{telephone}}"
           ]
         }
       ]
@@ -28,53 +29,51 @@
     {
       "id": "prix",
       "titre": "ARTICLE 2. Prices",
-      "officiel": true,
       "blocs": [
         {
-          "texte": "The Products are supplied at the rates in force shown on the site when the order is recorded by the Seller. Prices are expressed in Euros, excluding and including VAT. The rates take into account any discounts that may be granted by the Seller on the site. These rates are firm and not subject to revision during their period of validity, but the Seller reserves the right, outside the period of validity, to change the prices at any time. The prices do not include processing, dispatch, transport and delivery costs, which are invoiced in addition, under the conditions indicated on the site and calculated before the order is placed. The payment requested from the Customer corresponds to the total amount of the purchase, including these costs. An invoice is drawn up by the Seller and given to the Customer upon delivery of the Products ordered."
+          "texte": "The Products are supplied at the rates in force shown on the site when the order is recorded by the Seller. Prices are expressed in euros, all taxes included. The Seller is under the VAT exemption scheme for small businesses: VAT not applicable, article 293 B of the French General Tax Code. The price shown for each Product is therefore the price paid by the Customer, with no VAT added. The rates take into account any discounts that may be granted by the Seller on the site. These rates are firm and not subject to revision during their period of validity, but the Seller reserves the right, outside the period of validity, to change the prices at any time. The prices do not include dispatch, transport and delivery costs, which are invoiced in addition, under the conditions indicated on the site and calculated before the order is placed. The payment requested from the Customer corresponds to the total amount of the purchase, including these costs. An invoice is drawn up by the Seller as soon as the order is paid; it is sent to the Customer with the order confirmation and remains available on the order tracking page."
         }
       ]
     },
     {
       "id": "commande",
       "titre": "ARTICLE 3. Orders",
-      "officiel": true,
       "blocs": [
         {
-          "texte": "It is up to the Customer to select on the site https://awreaparis.wixsite.com/awrea-paris the Products they wish to order, in the following manner: The Customer selects on the site the products they wish to order and adds them to their basket. Before any confirmation, the Customer can check the details of their order and its total price and correct any errors. The order is definitively confirmed when the Customer confirms it by clicking on the button provided for this purpose and accepts these General Terms and Conditions of Sale. This confirmation constitutes full and complete acceptance of the order and forms the contract of sale between the Customer and the Seller. An order confirmation is then sent to the Customer by email, summarising the essential elements of the order. Payment is made using the means of payment offered on the site. The order is considered effective after validation of the payment by the bank. Product offers are valid as long as they are visible on the site, while stocks last. The sale will only be considered valid after full payment of the price. It is up to the Customer to check the accuracy of the order and to report any error immediately. Any order placed on the site https://awreaparis.wixsite.com/awrea-paris constitutes the formation of a distance contract between the Customer and the Seller. The Seller reserves the right to cancel or refuse any order from a Customer with whom there is a dispute relating to the payment of a previous order. The Customer will be able to follow the progress of their order on the site. Any cancellation of the order by the Customer after its acceptance by the Seller will only be possible within 2 days at most after acceptance of the order by the Seller and as long as delivery has not taken place (independently of the provisions relating to whether or not the legal right of withdrawal applies)."
+          "texte": "It is up to the Customer to select on the site www.awreaparis.com the Products they wish to order, in the following manner: The Customer selects on the site the products they wish to order and adds them to their basket. Before any confirmation, the Customer can check the details of their order and its total price and correct any errors. The order is definitively confirmed when the Customer confirms it by clicking on the button provided for this purpose and accepts these General Terms and Conditions of Sale. This confirmation constitutes full and complete acceptance of the order and forms the contract of sale between the Customer and the Seller. An order confirmation is then sent to the Customer by email, summarising the essential elements of the order, including the making time of each Product. Payment is made using the means of payment offered on the site. The order is considered effective after validation of the payment by the bank. Product offers are valid as long as they are visible on the site. As the Products are not held in stock, every size offered can be ordered: the effective order starts the making of the Product, within the making time shown on its page. The sale will only be considered valid after full payment of the price. It is up to the Customer to check the accuracy of the order and to report any error immediately. Any order placed on the site www.awreaparis.com constitutes the formation of a distance contract between the Customer and the Seller. The Seller reserves the right to cancel or refuse any order from a Customer with whom there is a dispute relating to the payment of a previous order. The Customer will be able to follow the progress of their order on the site, at each stage of its making and delivery. Any cancellation of the order by the Customer after its acceptance by the Seller will only be possible within 2 days at most after acceptance of the order by the Seller and as long as delivery has not taken place (independently of the provisions relating to whether or not the legal right of withdrawal applies)."
         }
       ]
     },
     {
       "id": "paiement",
       "titre": "ARTICLE 4. Terms of payment",
-      "officiel": true,
       "blocs": [
         {
           "lignes": [
             "The price is paid by secure payment, in the following ways:",
-            "payment by bank card, PayPal, Google Pay, Apple Pay, Stripe"
+            "payment by bank card, PayPal, Google Pay, Apple Pay, through the payment provider Stripe"
           ]
         },
         {
-          "texte": "The price is payable immediately by the Customer, in full on the day the order is placed. Payment data are exchanged in encrypted form using the protocol defined by the approved payment provider involved in the bank transactions carried out on the site https://awreaparis.wixsite.com/awrea-paris. Payments made by the Customer will only be considered final after the Seller has actually received the sums due. The Seller will not be obliged to deliver the Products ordered by the Customer if the Customer does not pay the full price for them under the conditions indicated above."
+          "texte": "The price is payable immediately by the Customer, in full on the day the order is placed. Payment data are exchanged in encrypted form using the protocol defined by the approved payment provider involved in the bank transactions carried out on the site www.awreaparis.com. Payments made by the Customer will only be considered final after the Seller has actually received the sums due. The Seller will not be obliged to deliver the Products ordered by the Customer if the Customer does not pay the full price for them under the conditions indicated above."
         }
       ]
     },
     {
       "id": "livraison",
       "titre": "ARTICLE 5. Deliveries",
-      "officiel": true,
       "blocs": [
         {
-          "texte": "The Products ordered by the Customer will be delivered in metropolitan France. Deliveries take place within 5 to 10 working days to the address indicated by the Customer when ordering on the site. Delivery consists of the transfer to the Customer of physical possession or control of the Product. Except in special cases or where one or more Products are unavailable, the Products ordered will be delivered in a single consignment. The Seller undertakes to use its best efforts to deliver the products ordered by the Customer within the time limits specified above. If the Products ordered have not been delivered within 7 days after the indicative delivery date, for any reason other than force majeure or the act of the Customer, the sale may be cancelled at the written request of the Customer under the conditions provided for in Articles L 216-2, L 216-3 and L241-4 of the Consumer Code. The sums paid by the Customer will then be returned to them no later than fourteen days after the date of termination of the contract, to the exclusion of any compensation or deduction. Deliveries are made by an independent carrier, to the address given by the Customer when ordering and to which the carrier can easily gain access. When the Customer has themselves arranged to use a carrier of their own choosing, delivery is deemed to have taken place as soon as the Products ordered are handed over by the Seller to the carrier, who has accepted them without reservation. The Customer therefore acknowledges that it is the carrier’s responsibility to make the delivery and that they have no recourse under warranty against the Seller in the event of failure to deliver the goods transported. 3 In the event of a special request from the Customer concerning the packaging or transport conditions of the products ordered, duly accepted in writing by the Seller, the related costs will be subject to specific additional invoicing, on the basis of a quotation previously accepted in writing by the Customer. The Customer is required to check the condition of the products delivered. They have a period of 48 hours (for a damaged parcel) 14 days (for a product problem) from delivery to make claims by For any claim relating to an order (missing product, damaged product, delivery error or non-conformity), the Customer is invited to contact the Seller as soon as possible after receiving the order. Any claim must be sent by email to the following address: [email address]. The Customer must specify their order number and describe the reason for the claim, attaching, where applicable, any useful information (photographs, description of the problem, etc.). The Seller undertakes to deal with the claim as soon as possible., accompanied by all the relevant supporting documents (photos in particular). After this period and failing compliance with these formalities, the Products will be deemed to be in conformity and free from any apparent defect and no claim can be validly accepted by the Seller. The Seller will refund or replace as soon as possible and at its own expense the Products delivered whose lack of conformity or apparent or hidden defects have been duly proven by the Customer, under the conditions provided for in Articles L 217-4 et seq. of the Consumer Code and those provided for in these GTC. The transfer of the risks of loss and deterioration relating to them will only take place when the Customer takes physical possession of the Products. The Products therefore travel at the risk of the Seller, except when the Customer has chosen the carrier themselves. In that case, the risks are transferred when the goods are handed over to the carrier."
+          "texte": "The Products ordered by the Customer will be delivered in metropolitan France. As each Product is made after the order, the delivery time includes the making time shown on the Product’s page, in the basket and before payment, followed by a shipping time of 5 to 10 working days from the end of the making. The delivery date announced to the Customer results from these two periods, counted from the confirmation of the order. Deliveries take place at the address indicated by the Customer when ordering on the site. Delivery consists of the transfer to the Customer of physical possession or control of the Product. The Products of a single order are delivered in one consignment, when the last of them is ready. The Seller undertakes to deliver the products ordered by the Customer within the time limits specified above, and informs the Customer by email of each stage of their order. If the Products ordered have not been delivered within 7 days after the announced delivery date, for any reason other than force majeure or the act of the Customer, the sale may be cancelled at the written request of the Customer under the conditions provided for in Articles L216-1 et seq. and L241-4 of the Consumer Code. The sums paid by the Customer will then be returned to them no later than fourteen days after the date of termination of the contract, without any deduction. Deliveries are made by an independent carrier, to the address given by the Customer when ordering and to which the carrier can easily gain access. When the Customer has themselves arranged to use a carrier of their own choosing, delivery is deemed to have taken place as soon as the Products ordered are handed over by the Seller to the carrier, who has accepted them without reservation. The Customer therefore acknowledges that it is the carrier’s responsibility to make the delivery and that they have no recourse under warranty against the Seller in the event of failure to deliver the goods transported. In the event of a special request from the Customer concerning the packaging or transport conditions of the products ordered, duly accepted in writing by the Seller, the related costs will be subject to specific additional invoicing, on the basis of a quotation previously accepted in writing by the Customer."
+        },
+        {
+          "texte": "The Customer is invited to check the condition of the products delivered. For any claim relating to an order (missing product, damaged product, delivery error or non-conformity), the Customer contacts the Seller by email at {{email}}, within 48 hours of delivery for a damaged parcel and within 14 days for a problem with the product. They give their order number and the reason for the claim, attaching any useful information (photographs in particular). These periods allow the Seller to act quickly with the carrier; they in no way reduce the legal guarantees of conformity and against hidden defects, which the Customer enjoys under the conditions of article 8. The Seller undertakes to deal with the claim as soon as possible. The Seller repairs, replaces or refunds at its own expense the Products delivered that are affected by a lack of conformity or a hidden defect, under the conditions provided for in Articles L217-3 et seq. of the Consumer Code, Articles 1641 et seq. of the Civil Code and article 8 of these GTC. The transfer of the risks of loss and deterioration relating to them will only take place when the Customer takes physical possession of the Products. The Products therefore travel at the Seller’s risk except when the Customer has chosen the carrier themselves. In that case, the risks are transferred when the goods are handed over to the carrier."
         }
       ]
     },
     {
       "id": "transfert-propriete",
       "titre": "ARTICLE 6. Transfer of ownership",
-      "officiel": true,
       "blocs": [
         {
           "texte": "The transfer of ownership of the Products from the Seller to the Customer will only take place after full payment of the price by the latter, regardless of the delivery date of the said Products."
@@ -84,25 +83,32 @@
     {
       "id": "retractation",
       "titre": "ARTICLE 7. Right of withdrawal",
-      "officiel": true,
       "blocs": [
         {
-          "texte": "In accordance with the terms of Article L221-18 of the Consumer Code, “For contracts providing for the regular delivery of goods over a defined period, the period runs from receipt of the first item.” The right of withdrawal may be exercised online, using the withdrawal form attached and also available on the site, or by any other unambiguous statement expressing the wish to withdraw, in particular by post sent to the Seller at the postal or email contact details indicated in ARTICLE 1 of the GTC. Returns must be made in their original and complete condition (packaging, accessories, instructions…) allowing them to be resold as new, accompanied by the purchase invoice. Damaged, soiled or incomplete Products will not be taken back. Return costs remain the responsibility of the Customer. The exchange (subject to availability) or the refund will be made within 14 days of receipt, by the Seller, of the Products returned by the Customer under the conditions provided for in this article."
+          "texte": "In accordance with Articles L221-18 et seq. of the Consumer Code, the Customer has fourteen days to exercise their right of withdrawal, without having to give reasons for their decision or to bear any costs other than the return costs indicated below. This period runs from the day on which the Customer, or a third party other than the carrier designated by them, takes physical possession of the Product; where the Products of a single order are delivered separately, it runs from receipt of the last Product. The fact that the Products are made after the order does not deprive the Customer of this right: standard models, made in the sizes of the size guide, benefit from it. Only a truly personalised creation, made to the Customer’s measurements or specific requests, is excluded from it, in accordance with Article L221-28, 3° of the Consumer Code; the Seller then expressly tells the Customer so before the order is confirmed."
+        },
+        {
+          "texte": "The right of withdrawal may be exercised online, using the withdrawal form attached and also available on the site, or by any other unambiguous statement expressing the wish to withdraw, in particular by post sent to the Seller at the postal or email contact details indicated in ARTICLE 1 of the GTC. A request made online immediately receives an acknowledgement of receipt by email."
+        },
+        {
+          "texte": "The Customer sends the Products back without undue delay and at the latest within fourteen days of communicating their decision to withdraw. Returns must be made in their original and complete condition (packaging, accessories, instructions…), accompanied by the purchase invoice. The Customer may try the Product on as they would in a shop: they are only liable for any diminished value of the Product resulting from handling other than what is necessary to establish its nature, characteristics and functioning, for example if it has been worn, soiled, damaged or is incomplete. The amount of this diminished value may then be deducted from the refund. Return costs remain the responsibility of the Customer."
+        },
+        {
+          "texte": "The Seller refunds the Customer all sums paid, including delivery costs, without undue delay and at the latest within fourteen days of the day on which it is informed of the Customer’s decision to withdraw. Only the supplement for a delivery method more expensive than the standard method offered, where the Customer expressly chose it, is not refunded. The Seller may withhold the refund until it has received the Products back or until the Customer has supplied evidence of having sent them, whichever is earlier. The refund is made using the same means of payment as was used for the order, unless the Customer expressly agrees to another means, and at no cost to them. If the Customer asks, the refund may be replaced by an exchange for another size: as the Product is made after the order, the new size is made within the making time shown on its page."
         }
       ]
     },
     {
       "id": "garanties",
       "titre": "ARTICLE 8. Liability of the Seller, Guarantees",
-      "officiel": true,
       "blocs": [
         {
           "texte": "The Products supplied by the Seller benefit from:"
         },
         {
           "liste": [
-            "The legal guarantee of conformity, for Products that are defective, damaged or spoiled or that do not correspond to the order,",
-            "The legal guarantee against hidden defects arising from a defect in material, design or manufacture affecting the products delivered and making them unfit for use,"
+            "The legal guarantee of conformity, for Products that are defective, damaged or spoiled or that do not correspond to the order, provided for in Articles L217-3 et seq. of the Consumer Code,",
+            "The legal guarantee against hidden defects arising from a defect in material, design or manufacture affecting the products delivered and making them unfit for use, provided for in Articles 1641 to 1649 of the Civil Code."
           ]
         },
         {
@@ -110,22 +116,23 @@
           "id": "garanties-legales"
         },
         {
-          "sousTitre": "Article L217-4 of the Consumer Code:"
+          "texte": "The Seller reproduces below the information on the legal guarantees required by decree no. 2022-424 of 25 March 2022:"
         },
         {
-          "texte": "“The seller is required to deliver goods in conformity with the contract and is liable for any lack of conformity existing at the time of delivery. It is also liable for any lack of conformity resulting from the packaging, the assembly instructions or the installation when this has been made its responsibility by the contract or has been carried out under its responsibility.”"
-        },
-        {
-          "sousTitre": "Article L217-5 of the Consumer Code:"
-        },
-        {
-          "texte": "“The goods are in conformity with the contract: 1° If they are fit for the use usually expected of similar goods and, where applicable: if they correspond to the description given by the seller and possess the qualities that the seller presented to the buyer in the form of a sample or model; if they have the qualities that a buyer may legitimately expect having regard to the public statements made by the seller, by the producer or by the producer’s representative, in particular in advertising or labelling; 2° Or if they have the characteristics defined by mutual agreement between the parties or are fit for any special use sought by the buyer, brought to the attention of the seller and accepted by the latter.”"
-        },
-        {
-          "sousTitre": "Article L217-12 of the Consumer Code:"
-        },
-        {
-          "texte": "“Action resulting from a lack of conformity is time-barred two years after delivery of the goods.”"
+          "encadre": {
+            "titre": "Legal guarantee of conformity and guarantee against hidden defects",
+            "paragraphes": [
+              "The consumer has two years from delivery of the goods to obtain the application of the legal guarantee of conformity if a lack of conformity appears. During this period, the consumer only has to establish the existence of the lack of conformity and not the date on which it appeared.",
+              "The legal guarantee of conformity entitles the consumer to have the goods repaired or replaced within thirty days of their request, free of charge and without major inconvenience to them.",
+              "If the goods are repaired under the legal guarantee of conformity, the consumer benefits from a six-month extension of the initial guarantee. If the consumer asks for the goods to be repaired but the seller imposes a replacement, the legal guarantee of conformity is renewed for a period of two years from the date of replacement of the goods.",
+              "The consumer may obtain a reduction in the purchase price while keeping the goods, or end the contract and obtain a full refund against return of the goods, if: 1° the professional refuses to repair or replace the goods; 2° the repair or replacement of the goods takes place after a period of thirty days; 3° the repair or replacement of the goods causes major inconvenience to the consumer, in particular when the consumer permanently bears the costs of taking back or removing the non-conforming goods, or bears the costs of installing the repaired or replacement goods; 4° the lack of conformity of the goods persists despite the seller’s unsuccessful attempt to bring them into conformity.",
+              "The consumer is also entitled to a reduction in the price of the goods or to termination of the contract when the lack of conformity is so serious that it justifies an immediate price reduction or termination. The consumer is then not required to ask for the goods to be repaired or replaced first. The consumer is not entitled to terminate the sale if the lack of conformity is minor.",
+              "Any period during which the goods are immobilised for repair or replacement suspends the remaining guarantee until the repaired goods are delivered.",
+              "The rights mentioned above result from the application of Articles L. 217-1 to L. 217-32 of the Consumer Code.",
+              "A seller who obstructs in bad faith the application of the legal guarantee of conformity is liable to a civil fine of up to 300,000 euros, which may be increased to 10% of average annual turnover (Article L. 242-18-1 of the Consumer Code).",
+              "The consumer also benefits from the legal guarantee against hidden defects under Articles 1641 to 1649 of the Civil Code, for two years from the discovery of the defect. This guarantee entitles the consumer to a price reduction if the goods are kept, or to a full refund against return of the goods."
+            ]
+          }
         },
         {
           "sousTitre": "Article 1641 of the Civil Code:"
@@ -140,33 +147,26 @@
           "texte": "“Action resulting from redhibitory defects must be brought by the purchaser within two years of the discovery of the defect.”"
         },
         {
-          "sousTitre": "Article L217-16 of the Consumer Code:"
+          "texte": "In order to assert their rights, the Customer informs the Seller, in writing (email or letter), of the non-conformity of the Products or of the existence of hidden defects from the time of their discovery. The Seller repairs or replaces the Products or parts under guarantee that are non-conforming or defective or, in the cases set out above, reduces their price or refunds them. Shipping costs will be refunded on the basis of the rate invoiced and return costs will be refunded on presentation of supporting documents. Refunds, replacements or repairs of non-conforming or defective Products will be made as soon as possible and at the latest within 14 days of the Seller’s finding of the lack of conformity or of the hidden defect, and, for a repair or replacement, no later than thirty days after the Customer’s request. This refund is made to the means of payment used for the order. The Seller cannot be held liable in the following cases:"
         },
         {
-          "texte": "“When the buyer asks the seller, during the course of the commercial guarantee granted to the buyer at the time of the acquisition or repair of movable goods, for a repair covered by the guarantee, any period of immobilisation of at least seven days is added to the remaining duration of the guarantee. This period runs from the buyer’s request for intervention or from the time the goods in question are made available for repair, if they are made available after the request for intervention.”"
-        },
-        {
-          "texte": "In order to assert their rights, the Customer must inform the Seller, in writing (email or letter), of the non-conformity of the Products or of the existence of hidden defects from the time of their discovery. The Seller will refund, replace or have repaired the Products or parts under guarantee deemed non-conforming or defective. Shipping costs will be refunded on the basis of the rate invoiced and return costs will be refunded on presentation of supporting documents. Refunds, replacements or repairs of Products deemed non-conforming or defective will be made as soon as possible and at the latest within 14 days of the Seller’s finding of the lack of conformity or of the hidden defect. This refund may be made by bank transfer or by cheque. The Seller cannot be held liable in the following cases:"
-        },
-        {
-          "texte": "Non-compliance with the legislation of the country in which the products are delivered, which it is up to the Customer to check, in the event of misuse, use for professional purposes, negligence or lack of care on the part of the Customer, as well as in the event of normal wear and tear of the Product, accident or force majeure. The photographs and graphics presented on the site are not contractual and cannot engage the liability of the Seller. The Seller’s guarantee is, in any event, limited to the replacement or refund of Products that are non-conforming or affected by a defect."
+          "texte": "Non-compliance with the legislation of the country in which the products are delivered, which it is up to the Customer to check, in the event of misuse, use for professional purposes, negligence or lack of care on the part of the Customer, as well as in the event of normal wear and tear of the Product, accident or force majeure. The visuals presented on the site illustrate the Products; some are provisional and marked as such. These provisions in no way limit the rights the Customer holds under the legal guarantees set out above."
         }
       ]
     },
     {
       "id": "donnees",
       "titre": "ARTICLE 9. Personal data",
-      "officiel": true,
       "blocs": [
         {
-          "texte": "The Customer is informed that the collection of their personal data is necessary for the sale of the Products by the Seller and for their transmission to third parties for the purpose of delivering the Products. These personal data are collected solely for the performance of the contract of sale."
+          "texte": "The Customer is informed that the collection of their personal data is necessary for the sale of the Products by the Seller and for their transmission to third parties for the purpose of delivering the Products. These personal data are collected solely for the performance of the contract of sale. The [privacy policy](/confidentialite) details all the data processed on the site, their recipients and how long they are kept."
         },
         {
           "intertitre": "9.1 Collection of personal data",
           "id": "donnees-collecte"
         },
         {
-          "texte": "The personal data collected on the site https://awreaparis.wixsite.com/awrea-paris are the following:"
+          "texte": "The personal data collected on the site www.awreaparis.com are the following:"
         },
         {
           "sousTitre": "Ordering Products"
@@ -178,7 +178,7 @@
           "sousTitre": "Payment"
         },
         {
-          "texte": "In connection with the payment for the Products offered on the site https://awreaparis.wixsite.com/awreaparis, the site records financial data relating to the bank account or credit card of the Customer / user."
+          "texte": "In connection with the payment for the Products offered on the site www.awreaparis.com, payment data are entered on the secure page of the payment provider Stripe, which processes them. The Seller never has access to them and records no data relating to the bank account or credit card of the Customer / user."
         },
         {
           "intertitre": "9.2 Recipients of personal data",
@@ -198,7 +198,7 @@
           "id": "donnees-responsable"
         },
         {
-          "texte": "The data controller is the Seller, within the meaning of the Informatique et Libertés Act and, from 25 May 2018, of Regulation 2016/679 on the protection of personal data."
+          "texte": "The data controller is the Seller, within the meaning of the Informatique et Libertés Act and, from 25 May 2018, of Regulation 2016/679 on the protection of personal data. It can be contacted at the email address {{email}} or at the postal address indicated in article 1."
         },
         {
           "intertitre": "9.4 Limitation of processing",
@@ -212,7 +212,7 @@
           "id": "donnees-conservation"
         },
         {
-          "texte": "The Seller will keep the data thus collected for a period of 5 years, covering the applicable limitation period for contractual civil liability."
+          "texte": "The Seller will keep the data thus collected for a period of 5 years, covering the applicable limitation period for contractual civil liability. Invoices are kept for ten years, as the law requires."
         },
         {
           "intertitre": "9.6 Security and confidentiality",
@@ -226,7 +226,7 @@
           "id": "donnees-droits"
         },
         {
-          "texte": "In application of the regulations applicable to personal data, the Customers and users of the site https://awreaparis.wixsite.com/awrea-paris have the following rights:"
+          "texte": "In application of the regulations applicable to personal data, the Customers and users of the site www.awreaparis.com have the following rights:"
         },
         {
           "liste": [
@@ -244,20 +244,21 @@
     {
       "id": "propriete-intellectuelle",
       "titre": "ARTICLE 10. Intellectual property",
-      "officiel": true,
       "blocs": [
         {
-          "texte": "The content of the site https://awreaparis.wixsite.com/awrea-paris is the property of the Seller and its partners and is protected by French and international intellectual property laws. Any total or partial reproduction of this content is strictly prohibited and is liable to constitute an offence of infringement."
+          "texte": "The content of the site www.awreaparis.com is the property of the Seller and its partners and is protected by French and international intellectual property laws. Any total or partial reproduction of this content is strictly prohibited and is liable to constitute an offence of infringement."
         }
       ]
     },
     {
       "id": "droit",
-      "titre": "ARTICLE 11. Applicable law, Language",
-      "officiel": true,
+      "titre": "ARTICLE 11. Applicable law, Language, Mediation",
       "blocs": [
         {
           "texte": "These GTC and the transactions arising from them are governed by and subject to French law. These GTC are written in French. In the event that they are translated into one or more foreign languages, only the French text shall prevail in the event of a dispute."
+        },
+        {
+          "texte": "In the event of a complaint, the Customer first contacts the Seller in writing, at the contact details indicated in article 1. If their written complaint is not resolved, the Customer may refer the matter free of charge to the consumer mediator to whom the Seller belongs, within one year of that complaint, in accordance with Articles L612-1 et seq. of the Consumer Code: {{mediateur}}."
         }
       ]
     },

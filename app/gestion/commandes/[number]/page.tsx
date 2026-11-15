@@ -143,6 +143,14 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
               </dd>
             </div>
           ) : null}
+          {order.discount?.amount ? (
+            <div>
+              <dt className="t-label">{order.privilege ? "Privilège" : "Remise"}</dt>
+              <dd>
+                {order.privilege ? `Privilège de bienvenue : ${order.privilege.title}, taille ${order.privilege.size}, − ${formatPrice(order.discount.amount)}` : `Code ${order.discount.code} : − ${formatPrice(order.discount.amount)}`}
+              </dd>
+            </div>
+          ) : null}
           <div>
             <dt className="t-label">Paiement</dt>
             <dd>
