@@ -1126,3 +1126,19 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
 - Rien ne part sans deux clés : `PARCOURS_ENVOIS_REELS=1` dans Vercel et l’accord de la créatrice dans l’Atelier. D’ici là, un journal de simulation (« aurait envoyé… ») et une prévision sur 30 jours.
 - Seuls les e-mails de la lettre, avec leur lien de désinscription, entrent dans un parcours. Clics et ouvertures : « non mesurés ».
 - Contacts lus par un seul adaptateur (`lib/marketing/parcours/contacts.ts`), prêt pour la fiche contact de l’étape 5. 15 tests unitaires, un parcours Playwright.
+
+## Réponses de la créatrice du 12/11 : CGV corrigées, marque, rappels légaux, Savoir-faire (14/11)
+
+- CGV corrigées à la demande de la créatrice (version 2026-11, à relire par elle avant publication) : pièces standards fabriquées après la commande, sans stock ; prix toutes taxes comprises, « TVA non applicable, article 293 B du Code général des impôts. » ; délai de fabrication puis 5 à 10 jours ouvrés ; rétractation de quatorze jours maintenue, seule la création personnalisée exclue (L221-28, 3°) ; remboursement selon L221-24 ; encadré des garanties légales ; médiateur et adresse « À COMPLÉTER ». Ce n’est plus un texte officiel : le contrôle d’écriture s’y applique (`CLAUDE.md`, `MARQUE.md` et `docs/EQUIPES.md` mis à jour). Le détail article par article est dans `LEGAL-A-COMPLETER.md`.
+- Marque « Awrea Paris » déposée à l’INPI sous le numéro 5225836 : mentions légales et page Propriété intellectuelle. Code APE 7410Z et franchise confirmés ; le seuil de 85 000 € reste surveillé.
+- Atelier : « Choisir l’adresse de la Maison » et « Choisir un médiateur de la consommation » dans « À faire en priorité », avec la liste officielle des médiateurs. Ils sont lus dans le registre légal et disparaissent quand le champ est rempli.
+- Livraison et retours, Rétractation, FAQ et assistante alignées : remboursement sous quatorze jours après la demande, perte de valeur au lieu d’un refus de reprise.
+- Étapes de confection : « Savoir-faire » dans le fil d’Ariane et le titre de l’onglet, comme dans le menu (réponse 16).
+- À faire : relecture des CGV par la créatrice, domiciliation, médiateur, bouton « Refuser » des retours à aligner sur l’article 7.
+
+## Réponses de la créatrice du 12/11 : e-mails, accord des parcours, Google Agenda (14/11)
+
+- E-mails : la typographie suit celle du site. Titres en Fraunces droite fine (300) ; signature, nom de pièce et devise en Fraunces italique (400), dans l’éditeur comme dans les autres e-mails du site ; la police d’un bloc reste au choix. Outlook pour Windows reçoit Georgia au lieu de Times New Roman ; `/fonts` est ouvert aux messageries (polices sous licence OFL).
+- Parcours : l’accord aux envois réels demande, en plus de la confirmation, le code à six chiffres de la personne connectée (vérification mise en commun avec les gestes sur les accès, `lib/auth/code-geste.ts`, même limite d’essais et même blocage). Couper l’accord reste immédiat, sans code ; le journal note qui, quand, et le code vérifié.
+- « Nouvelles de l’atelier » : e-mail écrit dans la voix des parcours approuvés (Hypnotic Lace, dentelle, pièces créées sur demande par des artisans français), sans aucune nouvelle inventée, à relire par la créatrice avant d’activer « Cliente de la Maison ».
+- Google Agenda : la publication de l’application est présentée comme le choix conseillé (connexion durable), le mode test comme l’autre possibilité (reconnexion tous les sept jours) ; l’écran « Google n’a pas validé cette application » est expliqué dans `ACTIVATION.md`, le guide et l’Atelier. La Maison n’a pas encore choisi (questions 12 et 13).

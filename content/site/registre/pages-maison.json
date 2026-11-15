@@ -1,6 +1,6 @@
 {
   "sur-commande": {
-    "label": "À la demande",
+    "label": "Étapes de confection",
     "kind": "page",
     "chemin": "/sur-commande"
   },

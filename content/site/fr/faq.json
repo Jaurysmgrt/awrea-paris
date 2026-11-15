@@ -143,17 +143,17 @@
         {
           "id": "retractation",
           "q": "Puis-je changer d’avis ?",
-          "r": "Oui. Vous disposez de quatorze jours après la réception de votre pièce pour vous rétracter, en ligne sur la page [Se rétracter](/retractation), ou par toute déclaration claire envoyée par e-mail ou par courrier."
+          "r": "Oui, même si votre pièce a été fabriquée après votre commande. Vous disposez de quatorze jours après sa réception pour vous rétracter, en ligne sur la page [Se rétracter](/retractation), ou par toute déclaration claire envoyée par e-mail ou par courrier. Seule une création personnalisée, faite selon vos mesures ou vos demandes particulières, en est exclue."
         },
         {
           "id": "renvoyer",
           "q": "Comment renvoyer une pièce ?",
-          "r": "La pièce revient dans son état d’origine et complète, avec son emballage et sa facture. Une pièce abîmée, salie ou incomplète ne peut pas être reprise. Les frais de retour restent à votre charge. Tout est expliqué sur la page [Livraison et retours](/livraison-retours)."
+          "r": "La pièce revient dans son état d’origine et complète, avec son emballage et sa facture. Vous pouvez l’essayer comme en boutique ; si elle a été portée, salie ou abîmée, sa perte de valeur peut être retenue sur le remboursement. Les frais de retour restent à votre charge. Tout est expliqué sur la page [Livraison et retours](/livraison-retours)."
         },
         {
           "id": "remboursement",
           "q": "Quand suis-je remboursée ?",
-          "r": "Dans les quatorze jours qui suivent la réception de votre pièce par la Maison."
+          "r": "Au plus tard quatorze jours après votre demande de rétractation, frais de livraison compris, sur le moyen de paiement de votre commande. La Maison peut attendre d’avoir reçu la pièce, ou la preuve de son envoi."
         },
         {
           "id": "echange",

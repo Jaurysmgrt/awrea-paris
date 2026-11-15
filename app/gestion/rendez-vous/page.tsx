@@ -108,6 +108,7 @@ export default async function RendezVousAtelier({ searchParams }: { searchParams
             <div className="admin-actions">
               <ConnecterGoogleAgenda label="Connecter Google Agenda" />
             </div>
+            <p className="t-note">Si Google affiche « Google n’a pas validé cette application », c’est la vôtre : touchez Paramètres avancés, puis Accéder à Awrea Paris (non sécurisé).</p>
           </>
         ) : google.etat === "a-reconnecter" ? (
           <>
@@ -115,6 +116,7 @@ export default async function RendezVousAtelier({ searchParams }: { searchParams
               <span className="status">À reconnecter</span>
             </p>
             <p className="t-note">{google.erreur ?? "Google a retiré l’accès de ce site, ou il a expiré."} Les rendez-vous attendent et partiront dès la reconnexion.</p>
+            <p className="t-note">Si cela revient chaque semaine, l’application Google est restée en mode test : le guide d’activation, à l’étape Google Agenda, explique comment la publier pour une connexion durable.</p>
             <div className="admin-actions">
               <ConnecterGoogleAgenda label="Reconnecter Google Agenda" />
               <ActionButton endpoint={api} body={{ action: "deconnecter" }} label="Déconnecter" variant="outline" confirm="Déconnecter Google Agenda ? Les rendez-vous déjà ajoutés restent dans votre agenda." />

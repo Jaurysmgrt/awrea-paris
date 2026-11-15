@@ -1,8 +1,10 @@
 /**
  * Rendu d'un e-mail composé de blocs (lib/email/blocks.ts) en HTML compatible avec les messageries :
- * tableaux, styles en ligne, logo officiel en image (public/brand), polices officielles (Fraunces
- * italique pour les titres, jamais sous 24 px ; Cormorant Garamond pour le texte ; servies par
- * /fonts) avec repli sur Georgia, bouton en pilule « à toute épreuve » pour Outlook, mode sombre
+ * tableaux, styles en ligne, logo officiel en image (public/brand), polices officielles comme sur le
+ * site (grands titres en Fraunces 120pt Light, droite, 300 ; petits titres, signature et devise en
+ * Fraunces 72pt Italic, 400, jamais sous 24 px ; Cormorant Garamond pour le texte ; servies par
+ * /fonts) avec repli sur Georgia, puis serif (Outlook pour Windows compris, qui sinon prendrait Times
+ * New Roman), bouton en pilule « à toute épreuve » pour Outlook, mode sombre
  * (Apple Mail, Outlook.com, iOS), version texte. Le même rendu sert à l'envoi, à l'aperçu de
  * l'éditeur (simulation de Gmail, Apple Mail, Outlook, téléphone, clair et sombre) et à l'export
  * vers Brevo ou Klaviyo (repères convertis dans leur syntaxe).
@@ -130,20 +132,32 @@ function fonts(ctx: EmailContext) {
   return fontStacks;
 }
 
-/** Titres : l'italique de la police officielle (Fraunces 72pt Italic), repris par Georgia en repli. */
+/**
+ * Petits titres (nom d'une pièce, devise du pied, 24 px) : l'italique de la police officielle
+ * (Fraunces 72pt Italic), repris par l'italique de Georgia en repli. Les grands titres sont droits.
+ */
 // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
-const italic = "font-style:italic;";
+const italic = "font-style:italic;font-weight:400;";
+
+/**
+ * Outlook pour Windows (moteur de Word) ignore les polices en ligne : s'il voit leur déclaration, il
+ * compose tout en Times New Roman au lieu du repli. Il ne la voit donc pas (commentaire
+ * conditionnel), et ses propres règles lui imposent Georgia, l'italique et la graisse gardés.
+ */
+const msoRepli = `<!--[if mso]><style>h1,p,div,td,a,span{font-family:Georgia,serif!important}</style><![endif]-->`;
 
 /** Aperçu de l'éditeur : le bloc survolé et le bloc choisi se voient d'un filet. */
 const marksCss = `tbody[data-bloc]{cursor:pointer}tbody[data-bloc]:hover>tr>td{box-shadow:inset 0 0 0 1px ${palette.taupe}}tbody[data-choisi]>tr>td,tbody[data-choisi]:hover>tr>td{box-shadow:inset 0 0 0 2px ${palette.taupeDeep}}tbody[data-a-ecrire] :is(p,h1){color:${palette.taupeDeep}!important}`;
 
 function head(ctx: EmailContext, title: string) {
+  // les deux faces de Fraunces (droite fine 300 pour les grands titres, italique 400 pour les petits)
+  // et Cormorant Garamond, servies par le site ; Gmail les ignore et prend Georgia
   const fontFace =
     ctx.client === "gmail" || ctx.client === "outlook"
       ? ""
-      : `@font-face{font-family:'Fraunces';font-weight:400;font-style:italic;src:url('${ctx.assets ?? ctx.site}/fonts/fraunces-72pt-italic-latin.woff2') format('woff2');}
-@font-face{font-family:'Fraunces';font-weight:300;font-style:normal;src:url('${ctx.assets ?? ctx.site}/fonts/fraunces-120pt-light-latin.woff2') format('woff2');}
-@font-face{font-family:'Cormorant Garamond';font-weight:400;font-style:normal;src:url('${ctx.assets ?? ctx.site}/fonts/cormorant-garamond-latin-400.woff2') format('woff2');}`;
+      : `<!--[if !mso]><!--><style>@font-face{font-family:'Fraunces';font-weight:300;font-style:normal;src:url('${ctx.assets ?? ctx.site}/fonts/fraunces-120pt-light-latin.woff2') format('woff2');}
+@font-face{font-family:'Fraunces';font-weight:400;font-style:italic;src:url('${ctx.assets ?? ctx.site}/fonts/fraunces-72pt-italic-latin.woff2') format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-weight:400;font-style:normal;src:url('${ctx.assets ?? ctx.site}/fonts/cormorant-garamond-latin-400.woff2') format('woff2');}</style><!--<![endif]-->`;
   const darkRules = `.e-page{background:${dark.page}!important}.e-card{background:${dark.card}!important}.e-ink{color:${dark.ink}!important}.e-soft{color:${dark.soft}!important}.e-line{border-color:${dark.line}!important}.e-btn{background:${dark.btn}!important;border-color:${dark.btn}!important}.e-btn a{color:${dark.onBtn}!important}.e-ink a{color:${dark.ink}!important}.e-logo-day{display:none!important}.e-logo-night{display:block!important;max-height:none!important;overflow:visible!important}`;
   const prefix = (sel: string) => darkRules.replace(/\.e-/g, `${sel} .e-`);
   // le thème sombre forcé de l'aperçu reprend exactement les règles du mode sombre
@@ -151,8 +165,8 @@ function head(ctx: EmailContext, title: string) {
   const media = ctx.client === "outlook" || ctx.client === "gmail" ? "" : `@media (prefers-color-scheme:dark){${darkRules}}`;
   return `<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark"><title>${esc(title)}</title>
 <!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->
-<style>${fontFace}
-:root{color-scheme:light dark;supported-color-schemes:light dark}
+${fontFace}${msoRepli}
+<style>:root{color-scheme:light dark;supported-color-schemes:light dark}
 body{margin:0;padding:0;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 table{border-collapse:collapse}img{border:0;display:block;height:auto;line-height:100%;outline:none;text-decoration:none}
 a{text-decoration:underline;text-underline-offset:3px}
@@ -259,7 +273,7 @@ ${art}
     }
     case "titre": {
       const size = TAILLES_PX.titre[st.taille ?? "normale"];
-      return row(`<h1 class="e-ink${size[0] > 32 ? " e-title" : ""}" style="margin:0;${typo(ctx, st.police ?? "italique", size, c.ink)}text-align:${align};">${fill(String(b.titre ?? ""), ctx)}</h1>`, pad);
+      return row(`<h1 class="e-ink${size[0] > 32 ? " e-title" : ""}" style="margin:0;${typo(ctx, st.police ?? "droite", size, c.ink)}text-align:${align};">${fill(String(b.titre ?? ""), ctx)}</h1>`, pad);
     }
     case "texte":
       return row(paragraphs(String(b.texte ?? ""), ctx, typo(ctx, st.police ?? "texte", TAILLES_PX.texte[st.taille ?? "normale"], c.ink), align), pad);

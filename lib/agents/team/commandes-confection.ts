@@ -127,7 +127,7 @@ export async function runCommandesConfectionAgent(trigger: AgentRun["trigger"] =
           { orderId: a.orderId },
           {
             summary: `Prévenir ${a.name} d’un retard de confection (commande ${a.number})`,
-            rationale: `${alertLine(a)} L’e-mail « Retard de confection » (modifiable dans l’Atelier › E-mails) part à l’adresse de la commande. Article 5 des conditions générales de vente : sept jours après la date indicative de livraison, la cliente peut demander par écrit la résolution de la vente.`,
+            rationale: `${alertLine(a)} L’e-mail « Retard de confection » (modifiable dans l’Atelier › E-mails) part à l’adresse de la commande. Article 5 des conditions générales de vente : sept jours après la date de livraison annoncée, la cliente peut demander par écrit la résolution de la vente.`,
           },
         );
         if (out.status === "done") findings.push(`${a.name} a été prévenue du retard de sa commande ${a.number}.`);

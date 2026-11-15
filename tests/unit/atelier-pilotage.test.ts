@@ -5,7 +5,8 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { activiteRecente, de, evolution, latestOrders, lienAction, monthRevenue, newCustomers, ordersToHandle, parisMonthKey, prenom, previousMonthKey, priorites, topSold, type EtatDuJour } from "@/lib/admin/dashboard";
+import { activiteRecente, de, evolution, latestOrders, lienAction, LISTE_MEDIATEURS, monthRevenue, newCustomers, ordersToHandle, parisMonthKey, prenom, previousMonthKey, priorites, rappelsLegaux, topSold, type EtatDuJour } from "@/lib/admin/dashboard";
+import { legalFields } from "@/content/legal/fields";
 
 type O = { number: string; status: "pending" | "paid" | "in_production" | "ready" | "shipped" | "delivered" | "refunded" | "blocked" | "returned"; total: number; createdAt: string; name: string; lines: { handle: string; title: string; quantity: number }[] };
 const order = (number: string, createdAt: string, total: number, status: O["status"] = "paid", lines: O["lines"] = []): O => ({ number, status, total, createdAt, name: "Camille Martin", lines });
@@ -82,6 +83,38 @@ test("priorités : rien d'inventé quand tout est à jour, et l'ordre où les fa
   assert.equal(p[2].titre, "Une cliente attend une réponse");
   assert.match(p[3].titre, /^3 commandes attendent d’être mises en confection/);
   assert.match(p[4].titre, /«\sLe top Kira\s»/);
+});
+
+test("priorités : domiciliation et médiateur rappelés tant que le registre légal ne les a pas", () => {
+  // rien de rappelé sans information manquante
+  assert.deepEqual(priorites({ ...calme, legal: [] }), []);
+  const p = priorites({ ...calme, legal: ["siege", "mediateur"], messages: 1 });
+  // ce qui fait attendre une cliente passe avant
+  assert.equal(p[0].href, "/messages");
+  const [adresse, mediateur] = p.slice(1);
+  assert.equal(adresse.titre, "Choisir l’adresse de la Maison");
+  assert.equal(adresse.href, "/mentions-legales#editrice");
+  assert.equal(adresse.site, true);
+  assert.equal(adresse.aide, undefined);
+  assert.equal(mediateur.titre, "Choisir un médiateur de la consommation");
+  assert.equal(mediateur.href, "/mentions-legales#mediation");
+  assert.equal(mediateur.site, true);
+  // la liste officielle des médiateurs référencés par la CECMC
+  assert.deepEqual(mediateur.aide, { href: LISTE_MEDIATEURS, label: "Liste officielle des médiateurs" });
+  assert.match(LISTE_MEDIATEURS, /^https:\/\/www\.economie\.gouv\.fr\/mediation-conso\//);
+  // textes très courts
+  for (const r of [adresse, mediateur]) assert.ok(r.titre.length <= 40, r.titre);
+});
+
+test("rappels légaux : lus dans le registre, ils disparaissent dès que le champ est renseigné", () => {
+  // registre réel : ni domiciliation ni médiateur au 12/11/2026
+  assert.deepEqual(rappelsLegaux(legalFields), ["siege", "mediateur"]);
+  assert.deepEqual(rappelsLegaux({ siege: { value: "" }, mediateur: { value: "  " } }), ["siege", "mediateur"]);
+  assert.deepEqual(rappelsLegaux({ siege: { value: "1 rue de l’Exemple, 75000 Paris" }, mediateur: { value: "" } }), ["mediateur"]);
+  assert.deepEqual(rappelsLegaux({ siege: { value: "1 rue de l’Exemple, 75000 Paris" }, mediateur: { value: "Médiateur de l’exemple" } }), []);
+  // le champ rempli, le rappel quitte la liste « À faire en priorité »
+  const titres = priorites({ ...calme, legal: rappelsLegaux({ siege: { value: "1 rue de l’Exemple, 75000 Paris" }, mediateur: { value: "" } }) }).map((x) => x.titre);
+  assert.deepEqual(titres, ["Choisir un médiateur de la consommation"]);
 });
 
 test("activité récente : messages et gestes des agents, le plus récent d'abord, sans les gestes techniques", () => {

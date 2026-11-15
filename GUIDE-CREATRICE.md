@@ -223,8 +223,9 @@ l’affichage. Vous pouvez les retirer si votre texte n’en a pas besoin, sauf 
 ou un code utile à votre cliente (comme {lien} ou {visio}) : le panneau vous le dit.
 
 Les textes officiels que vous avez écrits (À propos, texte de la collection, présentation de la
-Maison, conditions générales de vente, mentions légales) sont repris mot pour mot. Le panneau n’y
-signale que la typographie.
+Maison) sont repris mot pour mot. Le panneau n’y signale que la typographie. Les mentions légales,
+réécrites le 11/11, et les conditions générales de vente, corrigées le 12/11 à votre demande, suivent
+désormais les mêmes règles que les autres textes.
 
 ![Un paragraphe en cours de modification, avec son panneau](docs/guide/04-modifier-un-texte.png)
 
@@ -484,7 +485,9 @@ reste à leur charge.
    aucun remboursement ne part de l’Atelier sur le site en ligne : l’Atelier vous le dit.
 4. Pour un échange : **Expédier la nouvelle taille**.
 5. Si la pièce revient portée ou sans son certificat : **Refuser**. La cliente est prévenue par
-   e-mail.
+   e-mail. Vos CGV corrigées (article 7) disent qu’une pièce portée, salie ou incomplète peut voir sa
+   perte de valeur retenue sur le remboursement : avant de refuser, parlez-en à la personne qui
+   s’occupe du site, le bouton doit encore suivre cette règle.
 
 Les conditions de retour sont celles de vos conditions générales de vente.
 
@@ -574,8 +577,9 @@ Mailchimp) :
    montre ses mots et sa mise en forme.
 3. **Réglages** : écrivez le texte. Pour un lien, sélectionnez des mots puis **Ajouter un lien**
    (une page du site comme /boutique, une adresse qui commence par https:// ou un e-mail). Puis la
-   **Mise en forme** : la **Police**, parmi les trois de la Maison (Fraunces italique, Fraunces
-   droite, Cormorant Garamond), la **Taille** (petite, normale, grande), l’**Alignement** (à gauche,
+   **Mise en forme** : la **Police**, parmi les trois de la Maison (Fraunces droite, Fraunces
+   italique, Cormorant Garamond ; sans réglage, comme sur le site, les titres sont en Fraunces
+   droite, fine, et la signature en Fraunces italique), la **Taille** (petite, normale, grande), l’**Alignement** (à gauche,
    au centre, à droite), l’**Espace au-dessus** et l’**Espace au-dessous**. Pour une photo, sa
    **Largeur** et son alignement. **Revenir à l’allure d’origine** efface ces réglages.
 4. Une photo : glissez-la depuis votre ordinateur sur l’e-mail. Posée sur une photo, elle prend sa
@@ -629,7 +633,9 @@ quelque chose : s’inscrire, s’intéresser à une pièce, laisser un panier,
 
 Rien ne part pour de vrai tant que deux clés ne sont pas réunies : la variable
 `PARCOURS_ENVOIS_REELS=1`, posée dans Vercel, et votre accord, **Autoriser les envois réels**, dans
-l’onglet. Couper l’accord arrête tout aussitôt.
+l’onglet. Par sécurité, l’accord demande votre code à six chiffres, celui de votre application
+d’authentification, comme à la connexion : écrivez-le puis **Confirmer avec ce code**. L’Atelier
+note qui a donné l’accord et quand. Couper l’accord arrête tout aussitôt, sans code.
 
 Les règles qui vous protègent : seules les personnes qui ont accepté la lettre entrent, une seule fois
 par parcours ; un e-mail marketing au plus tous les trois jours par personne (réglable dans
@@ -660,6 +666,10 @@ Le lien de l’appel part avec la confirmation, sans rien à installer.
    votre téléphone, chaque rendez-vous y apparaît.
 4. **Google Agenda** (une fois branché, voir le guide d’activation, étape 16) : **Connecter Google
    Agenda**. Google s’ouvre et vous demande votre accord, jamais votre mot de passe sur ce site.
+   Si Google affiche « Google n’a pas validé cette application », ce n’est pas une alerte sur votre
+   compte : c’est votre propre application, que Google n’a pas examinée. Touchez **Paramètres
+   avancés**, puis **Accéder à Awrea Paris (non sécurisé)**, cochez l’accès aux événements de
+   l’agenda et **Continuer**.
    Ensuite, chaque rendez-vous confirmé s’ajoute seul à votre agenda Google, avec la cliente, ses
    notes et le lien de l’appel ; il se met à jour s’il change et disparaît s’il est annulé. Les
    moments déjà pris dans votre agenda Google ne sont plus proposés aux clientes.
@@ -669,6 +679,9 @@ Le lien de l’appel part avec la confirmation, sans rien à installer.
    sinon il repart seul le lendemain matin).
    Si **Reconnecter Google Agenda** apparaît, Google a retiré l’accès ou il a expiré : touchez-le, rien
    n’est perdu. **Déconnecter** retire l’accès ; les rendez-vous déjà ajoutés restent dans votre agenda.
+   Si **Reconnecter Google Agenda** revient chaque semaine, l’application Google est restée en mode
+   test, qui coupe l’accès tous les sept jours. Le choix conseillé est de la publier, pour une
+   connexion durable : le guide d’activation, étape 16, explique comment.
 
 Chaque cliente reçoit une confirmation avec l’invitation pour son agenda, puis un rappel la veille.
 Ces e-mails se modifient dans Atelier › **E-mails**.
@@ -722,11 +735,30 @@ intellectuelle), et sur les fiches des pièces pour les matières, la compositio
 mesures. Dans Atelier › **Pages**, la famille **Pages légales** les rappelle. Chaque matin, le
 Gardien de l’éditeur (Atelier › **Équipe**) signale les textes encore entre crochets.
 
-**La liste complète** est dans le fichier `LEGAL-A-COMPLETER.md`. Aujourd’hui, onze informations y
-attendent, notamment : le numéro de TVA (ou la mention de la franchise de TVA), la directrice de la
-publication, le médiateur de la consommation, l’hébergeur du nouveau site, le numéro
-d’enregistrement de la marque, les crédits des photographes, la durée de conservation des demandes
-sans suite. S’y ajoutent les éléments listés dans `RESSOURCES.md` : vos vraies photos, le logo en
+**Dans l’Atelier.** Les deux informations les plus urgentes sont rappelées dans la Vue d’ensemble,
+liste **À faire en priorité**, tant qu’elles manquent :
+
+1. **Choisir l’adresse de la Maison** : la domiciliation. Le lien montre la page des mentions
+   légales, où l’adresse s’affichera.
+2. **Choisir un médiateur de la consommation** : obligatoire pour vendre en ligne. Le lien
+   **Liste officielle des médiateurs** ouvre la liste des médiateurs référencés, sur
+   economie.gouv.fr.
+
+Une fois l’adresse ou le médiateur choisi, envoyez-le à la personne qui s’occupe du site : il
+s’affiche partout d’un coup (mentions légales, conditions générales de vente, factures) et le rappel
+disparaît tout seul.
+
+**La liste complète** est dans le fichier `LEGAL-A-COMPLETER.md`. Aujourd’hui, sept informations y
+attendent : l’adresse de domiciliation, le médiateur de la consommation, les crédits des
+photographes, les régions d’hébergement de la base clientes et des outils techniques, l’outil
+d’e-mails et la durée de conservation des demandes sans suite. Le code APE, la franchise de TVA et le
+numéro de la marque à l’INPI (5225836) sont renseignés.
+
+**Vos conditions générales de vente** ont été corrigées le 12/11 à votre demande : pièces fabriquées
+après la commande et sans stock, prix sans TVA (franchise), délai de fabrication puis de livraison,
+rétractation de quatorze jours maintenue pour les modèles standards, médiation. Relisez-les avant la
+mise en ligne : Atelier › **Pages** › Pages légales › Conditions générales de vente › **Modifier**.
+Le détail de chaque changement, article par article, est dans `LEGAL-A-COMPLETER.md`. S’y ajoutent les éléments listés dans `RESSOURCES.md` : vos vraies photos, le logo en
 SVG, la licence de la police du logo, le crédit de votre portrait, les prix et délais définitifs,
 les matières et l’entretien de chaque pièce.
 
