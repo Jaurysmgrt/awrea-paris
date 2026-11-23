@@ -113,3 +113,33 @@ test("téléphone : menu replié derrière un bouton, Vue d'ensemble sans débor
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(0);
 });
+
+/**
+ * Réglages › Connexions (parcours UX du 23/11) : la page ne s'élargissait plus sur téléphone
+ * (1 239 px) et ne montrait que des noms de variables. Chaque service dit son état en mots simples et
+ * ce qu'il apporte ; les noms techniques restent dans un détail replié, pour la personne qui
+ * s'occupe du site.
+ */
+test("Réglages › Connexions : aucun débordement, des mots simples, le technique replié", async ({ page }) => {
+  await adminLogin(page);
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`${ATELIER}/reglages`);
+    const bloc = page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name: "Connexions" }) });
+    await bloc.getByText("Voir chaque service", { exact: true }).click();
+    const paiement = bloc.locator(".connexion").filter({ has: page.getByText("Paiement en ligne", { exact: true }) });
+    await expect(paiement).toHaveCount(1);
+    await expect(paiement).toContainText(/Branché|Pas encore branché/);
+    await expect(paiement).toContainText("Les clientes règlent leur commande");
+    await expect(bloc.getByRole("heading", { name: "À faire par la personne qui s’occupe du site" })).toBeVisible();
+    // aucun nom de variable visible tant que le détail technique est replié
+    const visible = await bloc.evaluate((el) => (el as HTMLElement).innerText);
+    expect(visible, `${width}`).not.toMatch(/[A-Z]{2,}_[A-Z_]+|ACTIVATION\.md|\.data\/store/);
+    await bloc.getByText("Détail technique", { exact: true }).click();
+    await expect(bloc.getByText(/STRIPE_SECRET_KEY/)).toBeVisible();
+    // toutes les parties repliées ouvertes, la page garde la largeur de l'écran
+    for (const d of await page.locator("details.replie").all()) await d.evaluate((e) => ((e as HTMLDetailsElement).open = true));
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow, `${width}`).toBeLessThanOrEqual(0);
+  }
+});

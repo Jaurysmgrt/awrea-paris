@@ -65,7 +65,7 @@ export function LoginForm({ next }: { next: string }) {
 
   if (step === "recovery") {
     return (
-      <div className="stack-m admin-login__form">
+      <div key="recovery" className="stack-m admin-login__form">
         <h2 className="t-label">Codes de secours</h2>
         <p className="t-body">
           Notez ces huit codes et rangez-les en lieu sûr, dans un gestionnaire de mots de passe ou sur papier. Chacun ouvre l’Atelier une seule fois si votre téléphone n’est pas à
@@ -85,9 +85,12 @@ export function LoginForm({ next }: { next: string }) {
     );
   }
 
+  // chaque étape a sa clé : React ne recycle jamais un champ d'une étape à l'autre (sans quoi le
+  // mot de passe tout juste choisi restait affiché dans le champ du code de l'étape suivante)
   if (step === "setup") {
     return (
       <form
+        key="setup"
         className="stack-m admin-login__form"
         onSubmit={async (e) => {
           e.preventDefault();
@@ -129,6 +132,7 @@ export function LoginForm({ next }: { next: string }) {
   if (step === "enroll") {
     return (
       <form
+        key="enroll"
         className="stack-m admin-login__form"
         onSubmit={async (e) => {
           e.preventDefault();
@@ -163,7 +167,7 @@ export function LoginForm({ next }: { next: string }) {
           <label htmlFor="enroll-code" className="field__label">
             Code à six chiffres
           </label>
-          <input id="enroll-code" name="code" inputMode="numeric" autoComplete="one-time-code" pattern="\d{6}" maxLength={6} required className="field__input" />
+          <input key="enroll-code" id="enroll-code" name="code" type="text" defaultValue="" inputMode="numeric" autoComplete="one-time-code" pattern="\d{6}" maxLength={6} required className="field__input" />
         </div>
         <ErrorLine error={error} />
         <button type="submit" className="btn btn--block" disabled={busy || !enroll}>
@@ -175,7 +179,7 @@ export function LoginForm({ next }: { next: string }) {
 
   if (step === "faceid") {
     return (
-      <div className="stack-m admin-login__form">
+      <div key="faceid" className="stack-m admin-login__form">
         <h2 className="t-label">Entrer plus vite la prochaine fois</h2>
         <p className="t-body t-left">Ajoutez Face ID ou l’empreinte sur cet appareil : vous entrerez d’un geste, sans mot de passe ni code.</p>
         <ErrorLine error={error} />
@@ -212,6 +216,7 @@ export function LoginForm({ next }: { next: string }) {
   if (step === "totp") {
     return (
       <form
+        key="totp"
         className="stack-m admin-login__form"
         onSubmit={async (e) => {
           e.preventDefault();

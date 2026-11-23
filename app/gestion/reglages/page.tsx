@@ -11,6 +11,7 @@ import { getDoc } from "@/lib/edition/read";
 import { MODEL } from "@/lib/ai/client";
 import { boutiqueReelle, paiementEnLigne, raisonPaiementFerme, stripeEnTest } from "@/lib/config/boutique";
 import { services as providers } from "@/lib/config/providers";
+import { connexionsAtelier, lienGuideActivation } from "@/lib/admin/connexions";
 import { turnstileEnabled } from "@/lib/security/turnstile";
 import { currentAdmin, usingDemoPassword } from "@/lib/auth/admin";
 import { ACCOUNT_GUARD, emailKey, hasTotp, listAccounts, recoveryLeft } from "@/lib/auth/accounts";
@@ -110,31 +111,17 @@ export default async function ReglagesPage() {
     { name: "Clé de signature des sessions", ok: Boolean(process.env.SESSION_SECRET), hint: "SESSION_SECRET (64 caractères aléatoires)" },
     { name: "Alertes de sécurité par e-mail", ok: providers.email.provider !== "mock", hint: "RESEND_API_KEY, SECURITY_ALERT_EMAIL" },
   ];
-  // un interrupteur par service (lib/config/providers.ts, mode d'emploi : ACTIVATION.md)
-  const services = [
-    ...Object.values(providers).map((s) => ({
-      name: s.label,
-      ok: s.provider !== "mock",
-      state: s.provider === "mock" ? `Simulation · ${s.providerLabel}` : s.id === "ai" ? `${s.providerLabel} (${MODEL})` : s.providerLabel,
-      hint: s.missing.length
-        ? `${s.env}=${s.requested} demandé : manque ${s.missing.join(", ")}`
-        : `${s.env} · ${Object.values(s.keys).map((k) => k.join(", ")).join(" ou ")}`,
-    })),
-    {
-      name: "Paiement en ligne (Stripe)",
-      ok: paiementEnLigne(),
-      state: paiementEnLigne() ? (stripeEnTest() ? "Branché, mode test de Stripe" : "Branché") : (raisonPaiementFerme() ?? ""),
-      hint: "STRIPE_SECRET_KEY et STRIPE_WEBHOOK_SECRET ; webhook Stripe vers /api/webhooks/stripe (ACTIVATION.md, Stripe)",
-    },
-    {
-      name: "Notifications de l’application",
-      ok: pushConfig().actif,
-      state: pushConfig().actif ? "Branchées" : "À configurer",
-      hint: "VAPID_PUBLIC_KEY et VAPID_PRIVATE_KEY (ACTIVATION.md, application de l’Atelier)",
-    },
-    { name: "Tâches planifiées sécurisées", ok: Boolean(process.env.CRON_SECRET), state: process.env.CRON_SECRET ? "Active" : "À configurer", hint: "CRON_SECRET" },
-    { name: "Mot de passe d’installation de l’Atelier", ok: !usingDemoPassword(), state: usingDemoPassword() ? "Démonstration" : "Personnel", hint: "ATELIER_PASSWORD, sert seulement à la première connexion d’un compte" },
-  ];
+  // un interrupteur par service (lib/config/providers.ts), dit en mots simples (lib/admin/connexions.ts)
+  const services = connexionsAtelier({
+    services: providers,
+    paiement: { enLigne: paiementEnLigne(), enTest: stripeEnTest(), boutiqueReelle: boutiqueReelle(), raison: raisonPaiementFerme() },
+    notifications: pushConfig().actif,
+    tachesPlanifiees: Boolean(process.env.CRON_SECRET),
+    motDePassePersonnel: !usingDemoPassword(),
+    modele: MODEL,
+  });
+  const branches = services.filter((x) => x.branche).length;
+  const guide = lienGuideActivation();
   return (
     <div className="admin-page stack-l">
       <header className="admin-page__head">
@@ -197,17 +184,51 @@ export default async function ReglagesPage() {
       </section>
       <section className="panel" aria-labelledby="svc-title">
         <h2 id="svc-title" className="t-h3">Connexions</h2>
+        <p className="t-body t-left">
+          {branches} service{branches > 1 ? "s" : ""} branché{branches > 1 ? "s" : ""} sur {services.length}. Tant qu’un service n’est pas branché, le site s’en passe ou le simule, sans rien casser.
+        </p>
         <details className="replie">
-          <summary className="t-label">{services.filter((x) => x.ok).length} service{services.filter((x) => x.ok).length > 1 ? "s" : ""} branché{services.filter((x) => x.ok).length > 1 ? "s" : ""} sur {services.length}</summary>
-        <div className="table-scroll"><table className="table">
-          <thead><tr><th scope="col">Service</th><th scope="col">État</th><th scope="col">Variables</th></tr></thead>
-          <tbody>
+          <summary className="t-label">Voir chaque service</summary>
+          <ul className="connexions">
             {services.map((s) => (
-              <tr key={s.name}><th scope="row">{s.name}</th><td><span className={`status status--${s.ok ? "done" : "info"}`}>{s.state}</span></td><td className="t-note">{s.hint}</td></tr>
+              <li key={s.id} className="connexion">
+                <div className="connexion__tete">
+                  <p className="t-h4">{s.nom}</p>
+                  <span className={`status status--${s.branche ? "done" : "info"}`}>{s.etat}</span>
+                </div>
+                <p className="t-note t-left">{s.apporte}</p>
+                {s.precision ? <p className="t-note t-left">{s.precision}</p> : null}
+              </li>
             ))}
-          </tbody>
-        </table></div>
+          </ul>
         </details>
+        <div className="connexions__a-faire stack-s">
+          <h3 className="t-label">À faire par la personne qui s’occupe du site</h3>
+          <p className="t-note t-left">
+            Brancher un service demande un compte chez le prestataire et des clés à ranger dans l’hébergement du site. Transmettez-lui cette page : le guide d’activation donne
+            chaque étape, dans l’ordre.
+          </p>
+          {guide ? (
+            <p>
+              <a href={guide} className="text-link" target="_blank" rel="noopener noreferrer">
+                Ouvrir le guide d’activation
+              </a>
+            </p>
+          ) : null}
+          <details className="replie">
+            <summary className="t-label">Détail technique</summary>
+            <dl className="connexions__technique">
+              {services.map((s) => (
+                <div key={s.id}>
+                  <dt>{s.nom}</dt>
+                  <dd>
+                    <code>{s.technique}</code>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </details>
+        </div>
       </section>
       <section className="panel" id="face-id" aria-labelledby="faceid-title">
         <h2 id="faceid-title" className="t-h3">Face ID</h2>

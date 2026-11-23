@@ -100,7 +100,12 @@ export async function adminLogin(page: Page, opts: { faceId?: "ajouter" | "plus-
     const secret = (await enroll.textContent())!.replace(/\s/g, "");
     fs.mkdirSync(path.dirname(SECRET_FILE), { recursive: true });
     fs.writeFileSync(SECRET_FILE, secret);
-    await page.getByLabel("Code à six chiffres").fill(await freshCode(page, secret));
+    // le code se tape au clavier, comme le ferait la créatrice : le champ est vide (jamais le mot de
+    // passe qu'elle vient de choisir) et n'accepte que six chiffres
+    const code = page.getByLabel("Code à six chiffres");
+    await expect(code).toHaveValue("");
+    await code.click();
+    await code.pressSequentially(await freshCode(page, secret));
     await page.getByRole("button", { name: "Activer et entrer" }).click();
     await expect(page.locator(".recovery-codes li")).toHaveCount(8);
     await page.getByRole("button", { name: /J’ai noté mes codes/ }).click();

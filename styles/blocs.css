@@ -151,9 +151,10 @@
   html[data-edition][data-edition-mode="modifier"] [data-ed-bloc]:hover {
     box-shadow: inset 0 0 0 var(--border-width-hair) var(--line);
   }
-  /* le bandeau des cookies ne recouvre pas la barre d'édition (la créatrice l'a déjà vu) */
-  html[data-edition] .consent,
-  html[data-apercu] .consent {
+  /* le bandeau des cookies ne recouvre pas la barre d'édition (la créatrice l'a déjà vu) : il
+     s'efface avec son voile, jamais l'un sans l'autre (ConsentProvider lève aussi l'inertie) */
+  html[data-edition] :is(.consent, .consent-veil),
+  html[data-apercu] :is(.consent, .consent-veil) {
     display: none;
   }
   /* la barre d'édition ne cache jamais le bas de la page */

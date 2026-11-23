@@ -111,6 +111,35 @@ test.describe("Éditeur visuel", () => {
     await visitor.close();
   });
 
+  test("sans choix des cookies, l’édition reste utilisable : le bandeau et son voile s’effacent ensemble", async ({ page }) => {
+    test.setTimeout(120_000);
+    // appareil neuf : aucun choix de cookies (pas d'acceptCookies)
+    await adminLogin(page);
+    await page.goto(`${ATELIER}/api/edition/entrer?chemin=/`);
+    const guide = page.getByRole("dialog", { name: "Guide de l’édition" });
+    const dock = page.getByRole("region", { name: "Édition de la page" });
+    await expect(dock.or(guide).first()).toBeVisible();
+    if (await guide.isVisible()) await guide.getByRole("button", { name: "Passer le guide" }).click();
+    await expect(dock).toBeVisible();
+    // ni bandeau ni voile, rien d'inerte : un texte de la page se touche et s'ouvre
+    const banner = page.getByRole("dialog", { name: "Cookies" });
+    await expect(banner).toBeHidden();
+    await expect(page.locator(".consent-veil")).toBeHidden();
+    await expect(page.locator("main")).not.toHaveAttribute("inert", "");
+    await page.locator("main [data-ed-src]").first().click({ timeout: 10_000 });
+    const panel = page.getByRole("dialog", { name: /Modifier/ });
+    await expect(panel).toBeVisible();
+    await panel.getByRole("button", { name: "Annuler" }).click();
+    // aucun choix n'a été fait à la place de la créatrice : aucun cookie de consentement posé
+    expect((await page.context().cookies()).some((c) => c.name === "awrea_consent")).toBeFalsy();
+    // hors de l'édition, le bandeau revient, avec son voile
+    await dock.getByText("Plus", { exact: true }).click();
+    await dock.getByRole("button", { name: "Quitter l’édition" }).click();
+    await expect(dock).toBeHidden();
+    await expect(banner).toBeVisible();
+    await expect(page.locator(".consent-veil")).toBeVisible();
+  });
+
   test("photos provisoires : pastille, filtre, remplacement par un envoi", async ({ page, browser }) => {
     test.setTimeout(180_000);
     await adminLogin(page);

@@ -8,7 +8,10 @@
  * - choix obligatoire (choix de la créatrice du 01/11) : tant qu'aucun choix n'est fait, un voile
  *   couvre la page, qui ne défile plus et ne reçoit plus le clavier ; Refuser, Accepter et Choisir
  *   restent aussi simples l'un que l'autre. Les pages à lire avant de choisir (LIRE_AVANT) ne sont
- *   pas voilées.
+ *   pas voilées ;
+ * - en mode Édition et dans le cadre de son aperçu (`html[data-edition]`, `html[data-apercu]`), le
+ *   bandeau et son voile s'effacent ensemble et la page reste vivante : la créatrice touche ses
+ *   textes. Le choix reste à faire (aucun traceur tant qu'il manque) et revient en quittant l'édition.
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
@@ -75,6 +78,16 @@ function subscribeConsent(onChange: () => void) {
   return () => window.removeEventListener(CONSENT_CHANGE_EVENT, onChange);
 }
 
+/** Mode Édition ou aperçu de l'éditeur : le bandeau et son voile s'effacent ensemble. */
+const EDITION_ATTRS = ["data-edition", "data-apercu"];
+const editionSnapshot = () => EDITION_ATTRS.some((a) => document.documentElement.hasAttribute(a));
+const editionServerSnapshot = () => false;
+function subscribeEdition(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: EDITION_ATTRS });
+  return () => observer.disconnect();
+}
+
 function readConsent(): Consent | null {
   return parseConsent(cookieSnapshot());
 }
@@ -106,9 +119,11 @@ export function ConsentProvider({ children }: { children: React.ReactNode }) {
   // rendu ouvert côté serveur ; le script de <head> le masque avant affichage si un choix valide existe
   const [reopened, setReopened] = useState(false);
   const [details, setDetails] = useState(false);
-  const open = reopened || !consent;
+  const edition = useSyncExternalStore(subscribeEdition, editionSnapshot, editionServerSnapshot);
+  const open = (reopened || !consent) && !edition;
   const pathname = usePathname();
-  const blocking = !consent && !LIRE_AVANT.has(stripLocale(pathname));
+  // le voile n'existe jamais sans le bandeau : tous deux s'effacent en mode Édition
+  const blocking = open && !consent && !LIRE_AVANT.has(stripLocale(pathname));
 
   // choix obligatoire : la page ne défile plus et ne reçoit plus le clavier tant qu'il n'est pas fait
   useEffect(() => {

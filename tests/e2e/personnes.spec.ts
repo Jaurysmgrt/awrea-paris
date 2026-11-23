@@ -64,7 +64,10 @@ test("ajouter un administrateur, son invitation à usage unique, ses droits, pui
   await elle.getByRole("button", { name: "Enregistrer et continuer" }).click();
   const cle = ((await elle.locator(".totp-secret").textContent()) ?? "").replace(/\s/g, "");
   expect(cle.length).toBeGreaterThan(10);
-  await elle.getByLabel("Code à six chiffres").fill(totpAt(cle, Math.floor(Date.now() / 30000)));
+  // tapé au clavier dans un champ vide : jamais le mot de passe qu'elle vient de choisir
+  const code = elle.getByLabel("Code à six chiffres");
+  await expect(code).toHaveValue("");
+  await code.pressSequentially(totpAt(cle, Math.floor(Date.now() / 30000)));
   await elle.getByRole("button", { name: "Activer et entrer" }).click();
   await expect(elle.locator(".recovery-codes li")).toHaveCount(8);
   await elle.getByRole("button", { name: /J’ai noté mes codes/ }).click();
