@@ -480,6 +480,7 @@
   }
   .product-form__actions > .btn {
     flex: 1 1 auto;
+    width: auto;
     white-space: nowrap;
   }
   .handmade {

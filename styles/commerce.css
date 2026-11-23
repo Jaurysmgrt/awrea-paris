@@ -334,10 +334,10 @@
   }
 
   /* ======================================================= TROUVER MA TAILLE */
+  /* le calculateur ouvre la fenêtre « Trouver ma taille » ; un filet le sépare du tableau */
   .size-finder {
-    margin-top: var(--spacing-l);
-    padding-top: var(--spacing-l);
-    border-top: var(--border-width-hair) solid var(--line);
+    padding-bottom: var(--spacing-l);
+    border-bottom: var(--border-width-hair) solid var(--line);
   }
   .size-finder > .form__row {
     margin-top: var(--spacing-m);

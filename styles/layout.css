@@ -244,6 +244,16 @@
     align-items: center;
     gap: var(--spacing-m);
   }
+  /* tablette portrait : la navigation, toujours au centre, laisse au monogramme de la bande compacte
+     sa place entière (il touchait « Accueil » à 768 px, parcours UX du 23/11) */
+  @media (min-width: 48rem) and (max-width: 63.99rem) {
+    .site-nav__list {
+      gap: var(--spacing-s);
+    }
+    .site-header__inner {
+      column-gap: var(--spacing-2xs);
+    }
+  }
   @media (min-width: 64rem) {
     .site-nav__list {
       gap: calc(var(--spacing-m) + var(--spacing-3xs)); /* 32 px, l'écart de la maquette */
