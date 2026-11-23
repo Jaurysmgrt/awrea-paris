@@ -979,6 +979,8 @@
      sur ordinateur (cahier des modifications du 27/10) */
   .legal__layout {
     display: grid;
+    /* une colonne qui ne s'élargit jamais au-delà de l'écran (un tableau trop large défile seul) */
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--spacing-l);
     align-items: start;
   }
@@ -1138,6 +1140,10 @@
   .legal__table td,
   .legal__table th {
     vertical-align: top;
+  }
+  /* les noms techniques (awrea_privilege_appareil…) passent à la ligne plutôt que d'élargir le tableau */
+  .legal__table code {
+    overflow-wrap: anywhere;
   }
   .table th .todo {
     text-transform: none;
