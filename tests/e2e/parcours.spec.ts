@@ -7,7 +7,7 @@
  */
 import { expect, test } from "@playwright/test";
 import { adminLogin, ATELIER, ATELIER_EMAIL, nouveauCode } from "./admin-auth";
-import { readStore } from "./helpers";
+import { confirmerInscription, inscrire, readStore } from "./helpers";
 
 type Parti = { to: string; subject: string; tag?: string };
 const partis = () => (readStore()["email:outbox"] as Parti[] | undefined) ?? [];
@@ -15,9 +15,11 @@ const partis = () => (readStore()["email:outbox"] as Parti[] | undefined) ?? [];
 test("Parcours : du modèle au journal de simulation, sans aucun envoi réel", async ({ page }) => {
   test.setTimeout(180_000);
   const email = `parcours-${Date.now()}@exemple.fr`;
-  // une nouvelle inscrite à la lettre (le site lui envoie aussitôt son mot de bienvenue)
-  const inscription = await page.request.post("/api/newsletter", { data: { formule: "compacte", email, consent: true, source: "e2e" } });
+  // une nouvelle inscrite à la lettre, qui confirme son inscription par le lien de l'e-mail
+  // (une inscription en attente de confirmation n'entre dans aucun parcours)
+  const inscription = await inscrire(page, { formule: "compacte", email, consent: true, source: "e2e" });
   expect(inscription.ok()).toBeTruthy();
+  await confirmerInscription(page, email);
 
   await adminLogin(page);
   await page.goto(`${ATELIER}/e-mails/parcours`);

@@ -66,6 +66,16 @@ test("corrections typographiques sûres", () => {
   assert.equal(fixTypography("https://awreaparis.com à 18:30"), "https://awreaparis.com à 18:30");
 });
 
+test("espace après la ponctuation haute : jamais collée au mot suivant, sans toucher aux adresses ni aux heures", () => {
+  assert.ok(rules("Confirmez votre inscription :votre privilège s’ouvre.").includes("espace-insecable"));
+  assert.ok(rules("Ouvrez ce lien :{lien}", { prose: true }).includes("espace-insecable"));
+  assert.ok(rules("Le {date} :10 % sur votre pièce.", { prose: true }).includes("espace-insecable"));
+  assert.deepEqual(rules("Ouvrez ce lien : {lien}"), []);
+  assert.deepEqual(rules("Rendez-vous à 14:30, sur https://www.awreaparis.com/lettres/confirmation?jeton=abc."), []);
+  assert.equal(fixTypography("Plusieurs essais :merci de réessayer ?Oui."), "Plusieurs essais : merci de réessayer ? Oui.");
+  assert.equal(fixTypography("Voir https://awreaparis.com/a?b=c à 18:30"), "Voir https://awreaparis.com/a?b=c à 18:30");
+});
+
 test("textes générés : tirets adoucis, exclamation calmée", () => {
   assert.equal(softenDashes("La robe — en dentelle — est prête"), "La robe, en dentelle, est prête");
   assert.equal(softenDashes("De 10–12 jours"), "De 10 à 12 jours");

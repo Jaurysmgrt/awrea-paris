@@ -10,6 +10,7 @@
 import "server-only";
 import { prendreVerrou, rendreVerrou } from "@/lib/store/verrou";
 import { avancer, modeDesEnvois, passage, prevoir, statistiques, type Bilan, type Envoi, type Ports, type Statistiques } from "./moteur";
+import { peutRecevoirMarketing } from "@/lib/crm";
 import { lireContacts } from "./contacts";
 import { envoyerEmailParcours, etatsEmails } from "./emails";
 import { ajouterAuJournal, ecrireEtat, lireEtat, lireInterrupteur, lireReglages, listeParcours, noterPassage } from "./stockage";
@@ -38,6 +39,8 @@ const ports: Ports = {
   async envoyer(v: Envoi) {
     // seconde vérification, au moment même de l'envoi
     if ((await modeActuel()) !== "reel") throw new Error("Envois réels coupés : rien n’est parti.");
+    // et le statut de la lettre relu à l'instant (CRM) : une désinscription de la dernière minute l'emporte
+    if (!(await peutRecevoirMarketing(v.email))) throw new Error("Plus abonnée à la lettre : rien n’est parti.");
     await envoyerEmailParcours(v.emailId, v.email, v.prenom);
   },
   journal: ajouterAuJournal,

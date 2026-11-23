@@ -14,6 +14,7 @@ import { getAllProducts, getProduct } from "@/lib/commerce";
 import { getOrder, setOrderStatus } from "@/lib/commerce/orders";
 import { dejaRembourse, marquerRembourse, sousVerrouArgent } from "@/lib/commerce/argent";
 import { issueCreditNote } from "@/lib/invoices";
+import { linesOf } from "@/lib/invoices/calcul";
 import { invoicePdf } from "@/lib/invoices/pdf";
 import type { Order, Product } from "@/lib/commerce/types";
 import { boutiqueReelle } from "@/lib/config/boutique";
@@ -34,6 +35,7 @@ import { orderLink } from "@/lib/commerce/order-access";
 import { getReturn } from "@/lib/returns";
 import { listReviews, moderateReview } from "@/lib/reviews";
 import { listCustomerStats, updateProfile } from "@/lib/customers";
+import { destinatairesMarketing } from "@/lib/crm";
 import { draftOf, isDocId, publishContent, publishedDoc } from "@/lib/edition/store";
 import { editionStorage, isLocale } from "@/lib/edition/config";
 import { avisPublicable, envoiPermis, envoisFaits, noterEnvoi } from "./autonomie";
@@ -172,11 +174,9 @@ async function rembourserCommande(o: Order, motif: string, annuler: boolean): Pr
   let avoir: Awaited<ReturnType<typeof issueCreditNote>> | null = null;
   try {
     // une partie déjà remboursée (un retour) : l'avoir porte seulement le solde remboursé ici
-    const lignes =
-      montant < o.total
-        ? [{ title: `Solde de la commande ${o.number}`, detail: motif, quantity: 1, unitTtc: montant }]
-        : o.lines.map((l) => ({ title: l.title, detail: `Taille ${l.size}`, quantity: l.quantity, unitTtc: l.unitPrice }));
-    if (montant >= o.total && o.shipping.price > 0) lignes.push({ title: "Livraison", detail: o.shipping.method, quantity: 1, unitTtc: o.shipping.price });
+    // commande entière : les lignes de sa facture (pièces, remise ou privilège de bienvenue,
+    // emballage, livraison), pour que l'avoir porte exactement ce qui a été payé
+    const lignes = montant < o.total ? [{ title: `Solde de la commande ${o.number}`, detail: motif, quantity: 1, unitTtc: montant }] : linesOf(o);
     avoir = await issueCreditNote(o, lignes, annuler ? "annulation" : "remboursement");
   } catch (e) {
     console.error("[argent] avoir", e);
@@ -400,7 +400,8 @@ export const EXECUTORS: { [T in ActionType]: (params: ActionParams<T>) => Promis
   },
 
   async send_newsletter_all({ subject, preheader, paragraphs, cta }) {
-    const subs = (await kv.get<{ email: string }[]>("newsletter:subscribers")) ?? [];
+    // abonnées seulement (lib/crm) : jamais une inscription à confirmer ni une désinscrite
+    const subs = (await destinatairesMarketing()).map((email) => ({ email }));
     for (const s of subs) {
       await sendEmail({ to: s.email, subject, tag: "newsletter", ...brandEmail({ preheader, title: subject, paragraphs, cta, signature: "La Créatrice", footnote: "Vous recevez cette lettre car vous vous êtes inscrite sur awreaparis.com. Désinscription : répondez simplement « stop »." }) });
     }

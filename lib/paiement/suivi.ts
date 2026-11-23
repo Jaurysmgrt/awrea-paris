@@ -33,6 +33,7 @@ import { avecEvenement, paiementEnAttente, type EvenementPaiement } from "@/lib/
 import { clientPourPayer, clientStripe } from "@/lib/paiement/stripe";
 import * as rapprochement from "@/lib/paiement/rapprochement";
 import { signaler } from "@/lib/admin/push";
+import { libererPrivilege } from "@/lib/privilege";
 
 const JOURNAL = "paiements:journal";
 
@@ -81,6 +82,7 @@ const branchements: rapprochement.Branchements = {
   set: (cle, v) => kv.set(cle, v),
   majCommande: updateOrder,
   jeton: randomUUID,
+  libererPrivilege: (o) => libererPrivilege(o.email, o.id),
   journaliser,
   alerter,
   async finaliser(o, premiere) {
