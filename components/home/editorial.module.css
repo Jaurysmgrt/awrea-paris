@@ -30,13 +30,23 @@
   margin-top: var(--space-block);
 }
 
-/* deux colonnes : la photo et le texte ; une seule sous 768 px, la photo d’abord */
+/* deux colonnes : la photo et le texte ; une seule sous 1024 px, la photo d’abord. Sur tablette
+   portrait, la colonne garde la mesure du texte courant (60 à 70 caractères), centrée : à côté de
+   la photo, elle tombait sous 50 caractères et la justification se repliait au fer à gauche
+   (parcours UX du 23/11) */
 .split {
   display: grid;
   gap: var(--space-block) var(--spacing-gutter);
   align-items: center;
 }
-@media (min-width: 48rem) {
+@media (min-width: 48rem) and (max-width: 63.99rem) {
+  .split > * {
+    width: 100%;
+    max-width: var(--container-text);
+    margin-inline: auto;
+  }
+}
+@media (min-width: 64rem) {
   .split {
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
   }

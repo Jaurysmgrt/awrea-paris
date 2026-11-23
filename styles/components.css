@@ -444,6 +444,12 @@
     text-decoration-thickness: var(--border-width-hair);
     text-underline-offset: 0.2em;
   }
+  /* un bouton écrit dans une phrase (« posez la question à l'assistante ») se lit comme ses liens */
+  button.text-link {
+    display: inline;
+    padding: 0;
+    text-align: inherit;
+  }
 
   /* =============================================================== CHAMPS
      Langage des maquettes : champ sans cadre, étiquette au-dessus (bas de casse, « Prénom * »),
@@ -985,6 +991,45 @@
     position: relative;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+  .table__legende {
+    caption-side: top;
+    padding-bottom: var(--spacing-2xs);
+    text-align: left;
+  }
+  /* tableau des tailles empilé sur téléphone (fenêtre « Trouver ma taille », TableauTailles.tsx) :
+     une taille par bloc, ses mesures côte à côte sous un intitulé court ; les intitulés de colonnes
+     restent lus par les lecteurs d'écran. Plus de colonnes coupées ni de défilement en largeur. */
+  @media (max-width: 47.99rem) {
+    .table--empilee thead {
+      position: absolute;
+      width: 1px; /* token-ok : motif sr-only standard */
+      height: 1px; /* token-ok */
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+    }
+    .table--empilee tr {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0 var(--spacing-2xs);
+      padding-block: var(--spacing-2xs);
+      border-bottom: var(--border-width-hair) solid var(--line);
+    }
+    .table--empilee :is(th, td) {
+      padding: 0;
+      border-bottom: 0;
+    }
+    .table--empilee tbody th {
+      grid-column: 1 / -1;
+    }
+    .table--empilee td::before {
+      content: attr(data-label);
+      display: block;
+      font-size: var(--text-step--2);
+      line-height: var(--leading-label);
+      color: var(--fg-soft);
+    }
   }
 }
 

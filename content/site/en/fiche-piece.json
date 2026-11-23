@@ -13,7 +13,9 @@
   "conseil": {
     "avant": "For advice on your size, ",
     "lien": "book an appointment with the designer",
-    "apres": " by video call, or ask the assistant at the bottom of the screen."
+    "apres": " by video call, or ",
+    "assistante": "ask the assistant",
+    "fin": "."
   },
   "mesures": {
     "avant": "The measurements for each size are gathered in the ",

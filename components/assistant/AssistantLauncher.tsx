@@ -11,9 +11,10 @@
  */
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTexts } from "@/components/content/Texts";
 import { stripLocale } from "@/lib/i18n/routing";
+import { OUVRIR_ASSISTANTE } from "./OuvrirAssistante";
 
 export type AssistantTexts = typeof import("@/content/site/fr/assistante.json");
 
@@ -34,6 +35,17 @@ export function AssistantLauncher() {
   const close = useCallback(() => {
     setOpen(false);
     launcherRef.current?.focus();
+  }, []);
+
+  // ouverture demandée par un lien d'un texte (OuvrirAssistante : fenêtre des tailles de la fiche)
+  useEffect(() => {
+    const ouvrir = () => {
+      void loadPanel();
+      setMounted(true);
+      setOpen(true);
+    };
+    window.addEventListener(OUVRIR_ASSISTANTE, ouvrir);
+    return () => window.removeEventListener(OUVRIR_ASSISTANTE, ouvrir);
   }, []);
 
   if (assistanteMasquee(pathname)) return null;

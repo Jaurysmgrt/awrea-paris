@@ -5,14 +5,15 @@ import type { Product } from "@/lib/commerce/types";
 import { useWishlist } from "./WishlistProvider";
 import { QuickAdd } from "./QuickAdd";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { fill } from "@/lib/edition/fill";
 
 const noop = () => () => {};
 
 /** Textes de la liste, lus par la page dans le document « liste-envies ». */
-export type WishlistViewTexts = { chargement: string; vide: string; videLien: { label: string; href: string } };
+export type WishlistViewTexts = { chargement: string; vide: string; videLien: { label: string; href: string }; retirer: string; retirerPiece: string };
 
 export function WishlistView({ texts }: { texts: WishlistViewTexts }) {
-  const { handles } = useWishlist();
+  const { handles, toggle } = useWishlist();
   const locale = useLocale();
   // la liste n'existe que dans le navigateur : « Chargement… » tant que la page s'hydrate
   const hydrated = useSyncExternalStore(noop, () => true, () => false);
@@ -40,9 +41,10 @@ export function WishlistView({ texts }: { texts: WishlistViewTexts }) {
   const products = !hydrated ? null : !key ? [] : fetched ? fetched.products.filter((p) => handles.includes(p.handle)) : null;
 
   if (products === null) return <p className="t-note">{texts.chargement}</p>;
+  // liste vide : le texte et le bouton centrés sous le titre centré de la page
   if (!products.length)
     return (
-      <div className="stack-m">
+      <div className="stack-m t-center">
         <p className="t-lead">{texts.vide}</p>
         <div>
           <Link href={texts.videLien.href} className="btn">
@@ -55,7 +57,7 @@ export function WishlistView({ texts }: { texts: WishlistViewTexts }) {
     <ul className="complete-look">
       {products.map((p) => (
         <li key={p.handle}>
-          <QuickAdd product={p} />
+          <QuickAdd product={p} retirer={{ label: texts.retirer, aria: fill(texts.retirerPiece, { piece: p.title }), onClick: () => toggle(p.handle) }} />
         </li>
       ))}
     </ul>

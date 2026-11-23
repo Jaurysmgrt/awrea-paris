@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "@/components/ui/Link";
+import { OuvrirAssistante } from "@/components/assistant/OuvrirAssistante";
 import { getAllProducts, getCollection, getProduct, getProductsByHandles } from "@/lib/commerce";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { productSchema } from "@/lib/seo/schema";
@@ -74,19 +75,22 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   const delai = delaiText(t, product.leadTime);
   // dans la fenêtre du guide des tailles, à côté des tailles : le guide complet et le conseil en
   // rendez-vous (anciennement dans « Coupe et taille », retirée le 10/11)
+  // un seul paragraphe d'aide (parcours UX du 23/11) ; l'assistante s'ouvre d'ici, puisque son bouton
+  // s'efface sur la fiche pour ne rien recouvrir
   const aideTaille = (
-    <>
-      <p className="t-note">
-        {tf.mesures.avant}
-        <Link href="/guide-des-tailles">{tf.mesures.lien}</Link>
-        {tf.mesures.apres}
-      </p>
-      <p className="t-note">
-        {tf.conseil.avant}
-        <Link href="/rendez-vous">{tf.conseil.lien}</Link>
-        {tf.conseil.apres}
-      </p>
-    </>
+    <p className="t-note">
+      {tf.mesures.avant}
+      <Link href="/guide-des-tailles" className="text-link">
+        {tf.mesures.lien}
+      </Link>
+      {tf.mesures.apres} {tf.conseil.avant}
+      <Link href="/rendez-vous" className="text-link">
+        {tf.conseil.lien}
+      </Link>
+      {tf.conseil.apres}
+      <OuvrirAssistante>{tf.conseil.assistante}</OuvrirAssistante>
+      {tf.conseil.fin}
+    </p>
   );
   const reference = product.variants[0]?.sku.replace(/-[A-Z]+$/, "");
 

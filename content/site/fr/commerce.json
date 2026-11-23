@@ -35,6 +35,7 @@
     "offerte": "Offerte",
     "calculee": "Calculée à l’étape suivante",
     "total": "Total",
+    "totalHorsLivraison": "Total hors livraison",
     "surDemande": "Chaque pièce est créée sur demande. Votre commande part de l’atelier dès que la dernière pièce est prête, sous {delai} environ.",
     "commander": "Commander",
     "moyens": "Sans compte · Carte · Apple Pay · Google Pay · PayPal",

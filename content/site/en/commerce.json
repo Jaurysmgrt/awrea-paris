@@ -35,6 +35,7 @@
     "offerte": "Complimentary",
     "calculee": "Calculated at the next step",
     "total": "Total",
+    "totalHorsLivraison": "Total before delivery",
     "surDemande": "Each piece is made to order. Your order leaves the atelier as soon as the last piece is ready, in about {delai}.",
     "commander": "Place my order",
     "moyens": "No account needed · Card · Apple Pay · Google Pay · PayPal",

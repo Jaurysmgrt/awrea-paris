@@ -24,9 +24,26 @@
     "manquante": "Please choose a size.",
     "choisie": "Size {taille}: the piece is made for you in this size, in {delai}.",
     "trouver": "Find my size",
-    "guideTitre": "Your size",
+    "guideTitre": "Find my size",
     "fermerGuide": "Close the size guide",
-    "legendePiece": "Size, {piece}"
+    "legendePiece": "Size, {piece}",
+    "tableau": {
+      "colonnes": [
+        "Size",
+        "FR",
+        "Bust",
+        "Waist",
+        "Hips"
+      ],
+      "courtes": [
+        "Size",
+        "FR",
+        "Bust",
+        "Waist",
+        "Hips"
+      ],
+      "legende": "Body measurements, in centimetres."
+    }
   },
   "mesures": {
     "titre": "Find my size",

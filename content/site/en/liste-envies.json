@@ -5,7 +5,9 @@
   },
   "titre": "Wish list",
   "chargement": "Loading…",
-  "vide": "Your wish list is empty. Touch the “Keep” diamond on a piece to find it here again.",
+  "vide": "Your wish list is empty. Touch the “Keep” heart on a piece to find it here again.",
+  "retirer": "Remove from the list",
+  "retirerPiece": "Remove from the list: {piece}",
   "videLien": {
     "label": "See the pieces",
     "href": "/boutique"

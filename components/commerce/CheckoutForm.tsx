@@ -243,8 +243,9 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
 
   if (!cart) return <p className="t-note">{t.chargement}</p>;
   if (!cart.lines.length) {
+    // panier vide : le texte et le bouton centrés sous le titre centré de la page
     return (
-      <div className="stack-m">
+      <div className="stack-m t-center">
         <p className="t-lead">{t.vide}</p>
         <div>
           <Link href="/boutique" className="btn">

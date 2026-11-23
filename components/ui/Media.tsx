@@ -11,9 +11,12 @@ import { ProvisionalNote } from "@/components/commerce/ProvisionalNote";
  * jamais en surimpression : la même mention sur toutes les pages (texte du document « catalogue »).
  * Passer `provisoire={image.provisoire}` là où la page ne l'affiche pas déjà elle-même.
  */
-export function srcSet(src: string): { src: string; srcSet: string } {
+export function srcSet(src: string, width?: number): { src: string; srcSet: string } {
   if (!isSized(src)) return { src, srcSet: "" };
-  return { src: imageAt(src, 1200), srcSet: `${imageAt(src, 480)} 480w, ${imageAt(src, 960)} 960w, ${imageAt(src, 1200)} 1200w` };
+  // le fichier « pleine largeur » garde la largeur de l'original (1536 px pour plusieurs pièces) :
+  // annoncée telle quelle, le navigateur le prend dès qu'il en a besoin (écrans denses)
+  const pleine = width && width > 960 ? width : 1200;
+  return { src: imageAt(src, 1200), srcSet: `${imageAt(src, 480)} 480w, ${imageAt(src, 960)} 960w, ${imageAt(src, 1200)} ${pleine}w` };
 }
 
 type Props = {
@@ -40,7 +43,7 @@ const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAA
 
 // ecriture-ok : requête média, sans espace avant les deux-points (une espace insécable la rendrait invalide)
 export function Media({ image, sizes = "(min-width: 64rem) 50vw, 100vw", priority, className, imgClassName, ratio = "portrait", alt, decorative, hoverOnly, provisoire, eager }: Props) {
-  const { src, srcSet: set } = srcSet(image.src);
+  const { src, srcSet: set } = srcSet(image.src, image.width);
   const img = (
     // eslint-disable-next-line @next/next/no-img-element
     <img

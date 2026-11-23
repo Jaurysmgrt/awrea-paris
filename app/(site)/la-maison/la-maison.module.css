@@ -1,13 +1,22 @@
 /*
  * La Maison : mise en page éditoriale du texte « À propos ». Le portrait de la créatrice reste à
- * côté du texte pendant la lecture (ordinateur) ; sur téléphone il ouvre la page. Tokens seulement.
+ * côté du texte pendant la lecture (ordinateur, dès 1024 px) ; sur téléphone et tablette portrait il
+ * ouvre la page. Tokens seulement.
  */
 .apropos {
   display: grid;
   gap: var(--space-block) var(--spacing-gutter);
   align-items: start;
 }
-@media (min-width: 48rem) {
+/* tablette portrait : le portrait au-dessus, le texte à sa mesure (60 à 70 caractères), centrés */
+@media (min-width: 48rem) and (max-width: 63.99rem) {
+  .apropos > * {
+    width: 100%;
+    max-width: var(--container-text);
+    margin-inline: auto;
+  }
+}
+@media (min-width: 64rem) {
   .apropos {
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
   }
