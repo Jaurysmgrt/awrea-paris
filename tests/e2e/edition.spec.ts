@@ -115,7 +115,7 @@ test.describe("Éditeur visuel", () => {
     test.setTimeout(120_000);
     // appareil neuf : aucun choix de cookies (pas d'acceptCookies)
     await adminLogin(page);
-    await page.goto(`${ATELIER}/api/edition/entrer?chemin=/`);
+    await page.goto(`${ATELIER}/api/edition/entrer?chemin=/contact`);
     const guide = page.getByRole("dialog", { name: "Guide de l’édition" });
     const dock = page.getByRole("region", { name: "Édition de la page" });
     await expect(dock.or(guide).first()).toBeVisible();
@@ -126,7 +126,7 @@ test.describe("Éditeur visuel", () => {
     await expect(banner).toBeHidden();
     await expect(page.locator(".consent-veil")).toBeHidden();
     await expect(page.locator("main")).not.toHaveAttribute("inert", "");
-    await page.locator("main [data-ed-src]").first().click({ timeout: 10_000 });
+    await page.locator("h1 [aria-hidden='true']").click({ timeout: 10_000 });
     const panel = page.getByRole("dialog", { name: /Modifier/ });
     await expect(panel).toBeVisible();
     await panel.getByRole("button", { name: "Annuler" }).click();
