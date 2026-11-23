@@ -212,8 +212,8 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
     const nav = page.getByRole("navigation", { name: "Menu de l’Atelier" });
     // le nombre de choses à traiter peut suivre le nom (« Commandes 1 à traiter »)
     for (const name of ["Vue d’ensemble", "Produits", "Commandes", "Clientes", "Réglages"]) await expect(nav.getByRole("link", { name: new RegExp(`^${name}(\\s|$)`) })).toBeVisible();
-    // les sous-entrées n'apparaissent que dans leur rubrique
-    await expect(nav.getByRole("link", { name: "Avant-premières", exact: true })).toHaveCount(0);
+    // les sous-entrées restent visibles depuis toutes les pages (parcours UX du 23/11)
+    await expect(nav.getByRole("link", { name: "Avant-premières", exact: true })).toBeVisible();
     await expect(nav.getByRole("link", { name: /Drops|Stock/i })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "Réglages", exact: true })).toHaveAttribute("aria-current", "page");
     // délais de fabrication par défaut (provisoires) et ce qui reste à confirmer, réglé pièce par pièce dans le Catalogue

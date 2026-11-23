@@ -55,6 +55,31 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
         </p>
       </header>
 
+      <section className="panel stack-m" aria-labelledby="commandes-title">
+        <h2 id="commandes-title" className="t-h3">
+          Ses commandes ({commandes.length})
+        </h2>
+        {commandes.length ? (
+          <ul className="commande-notes">
+            {commandes.map((o) => (
+              <li key={o.id}>
+                <p className="t-body">
+                  <Link href={atelierHref(`/commandes/${encodeURIComponent(o.number)}`)} className="text-link">
+                    {o.number}
+                  </Link>{" "}
+                  · {statusLabel[o.status]} · {formatPrice(o.total)}
+                </p>
+                <p className="t-note">
+                  <When iso={o.createdAt} /> · {o.lines.map((l) => `${l.title} (${l.size})`).join(", ")}
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="t-note">Aucune commande pour l’instant.</p>
+        )}
+      </section>
+
       <section className="panel" aria-labelledby="coordonnees-title">
         <h2 id="coordonnees-title" className="t-h3">
           Coordonnées et préférences
@@ -157,38 +182,6 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
         <p className="t-note">L’atelier peut désinscrire, jamais inscrire : seule la personne s’inscrit elle-même.</p>
       </section>
 
-      <section className="panel stack-m" aria-labelledby="modifier-title">
-        <h2 id="modifier-title" className="t-h3">
-          Corriger la fiche
-        </h2>
-        <ModifierFiche id={c.id} prenom={c.firstName ?? ""} nom={c.lastName ?? ""} telephone={c.telephone ?? ""} />
-      </section>
-
-      <section className="panel stack-m" aria-labelledby="commandes-title">
-        <h2 id="commandes-title" className="t-h3">
-          Ses commandes ({commandes.length})
-        </h2>
-        {commandes.length ? (
-          <ul className="commande-notes">
-            {commandes.map((o) => (
-              <li key={o.id}>
-                <p className="t-body">
-                  <Link href={atelierHref(`/commandes/${encodeURIComponent(o.number)}`)} className="text-link">
-                    {o.number}
-                  </Link>{" "}
-                  · {statusLabel[o.status]} · {formatPrice(o.total)}
-                </p>
-                <p className="t-note">
-                  <When iso={o.createdAt} /> · {o.lines.map((l) => `${l.title} (${l.size})`).join(", ")}
-                </p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="t-note">Aucune commande pour l’instant.</p>
-        )}
-      </section>
-
       <section className="panel stack-m" aria-labelledby="histoire-title">
         <h2 id="histoire-title" className="t-h3">
           Son histoire ({histoire.length})
@@ -228,6 +221,16 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
           <p className="t-note">Aucune note pour l’instant.</p>
         )}
         <NotesInternes chemin={`/clientes/${encodeURIComponent(c.id)}/notes`} max={NOTE_CLIENTE_MAX} exemple="Préfère être appelée le matin, tour de taille à reprendre…" />
+      </section>
+
+      <section className="panel stack-m" aria-labelledby="modifier-title">
+        <h2 id="modifier-title" className="t-h3">
+          Corriger la fiche
+        </h2>
+        <details className="replie">
+          <summary className="t-label">Prénom, nom ou téléphone à corriger</summary>
+          <ModifierFiche id={c.id} prenom={c.firstName ?? ""} nom={c.lastName ?? ""} telephone={c.telephone ?? ""} />
+        </details>
       </section>
 
       <section className="panel stack-m" aria-labelledby="rgpd-title">

@@ -65,14 +65,14 @@ export default async function CommandesPage({ searchParams }: { searchParams: Pr
   };
   const filtre = Boolean(q || etape !== "toutes" || periode !== "tout");
   return (
-    <div className="admin-page stack-l">
+    <div className="admin-page admin-page--commandes stack-l">
       <header className="admin-page__head">
         <h1 className="t-h1">Commandes</h1>
         <p className="t-lead">Un geste fait avancer une commande, et la cliente reçoit l’e-mail de l’étape.</p>
         <ActionButton endpoint={atelierApi("/agents/commandes-confection")} label="Lancer une vérification" busyLabel="Vérification…" />
       </header>
 
-      <section className="panel" aria-labelledby="late-title">
+      <section className="panel panel--retards" aria-labelledby="late-title">
         <h2 id="late-title" className="t-h3">
           En retard sur le délai annoncé ({late.length})
         </h2>
@@ -96,7 +96,7 @@ export default async function CommandesPage({ searchParams }: { searchParams: Pr
         <h2 id="orders-title" className="t-h3">
           {filtre ? `Commandes trouvées (${trouvees.length})` : "Dernières commandes"}
         </h2>
-        <form className="commandes-filtres" role="search" method="get" action={atelierHref("/commandes")}>
+        <form className="commandes-filtres" role="search" method="get" action={`${atelierHref("/commandes")}#resultats`}>
           <div className="field">
             <label className="field__label" htmlFor="commandes-q">
               Chercher une commande
@@ -136,6 +136,7 @@ export default async function CommandesPage({ searchParams }: { searchParams: Pr
         ) : null}
         {source === "demo" ? <p className="t-note">Démonstration : des commandes d’exemple accompagnent celles passées en essai.</p> : null}
         {trouvees.length > AFFICHEES ? <p className="t-note">Les {AFFICHEES} plus récentes sont affichées : affinez la recherche pour trouver les autres.</p> : null}
+        <span id="resultats" className="ancre-resultats" />
         {!orders.length ? (
           <p className="t-body">{toutes.length ? "Aucune commande ne correspond. Essayez un autre mot, une autre étape ou une autre période." : "Aucune commande pour l’instant."}</p>
         ) : (

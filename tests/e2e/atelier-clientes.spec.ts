@@ -83,7 +83,8 @@ test("CRM : une inscrite à la lettre a sa fiche, ses segments, sa preuve, et l'
   await expect(page.getByText(/Inscription confirmée par le lien de l’e-mail/)).toBeVisible();
   await expect(page.getByText(/Privilège de bienvenue ouvert/)).toBeVisible();
 
-  // corriger le téléphone
+  // corriger le téléphone : la correction est repliée en bas de la fiche, ses commandes en haut (23/11)
+  await page.getByText("Prénom, nom ou téléphone à corriger", { exact: true }).click();
   await page.getByLabel("Téléphone").fill("06 12 34 56 78");
   await page.getByRole("button", { name: "Enregistrer la fiche" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Fiche enregistrée." })).toBeVisible();

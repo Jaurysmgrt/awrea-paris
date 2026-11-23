@@ -61,7 +61,8 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
         <h2 id="customers-title" className="t-h3">
           {filtre ? `Clientes trouvées (${shown.length})` : `Toutes les clientes (${customers.length})`}
         </h2>
-        <form className="commandes-filtres commandes-filtres--deux" role="search" method="get" action={atelierHref("/clientes")}>
+        {/* après une recherche, la page s'ouvre sur les résultats (parcours UX du 23/11) */}
+        <form className="commandes-filtres commandes-filtres--deux" role="search" method="get" action={`${atelierHref("/clientes")}#resultats`}>
           <div className="field">
             <label className="field__label" htmlFor="clientes-q">
               Chercher une cliente
@@ -74,6 +75,9 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
             Chercher
           </button>
         </form>
+        <p className="t-label" aria-hidden="true">
+          Lettre
+        </p>
         <nav className="produits__filtres" aria-label="Lettre et commandes">
           <Link href={lien(categorie, null)} className="chip" aria-current={!segment ? "true" : undefined}>
             Tout le monde ({cherchees.length})
@@ -84,6 +88,9 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
             </Link>
           ))}
         </nav>
+        <p className="t-label" aria-hidden="true">
+          Achats
+        </p>
         <nav className="produits__filtres" aria-label="Catégories de clientes">
           <Link href={lien("toutes")} className="chip" aria-current={categorie === "toutes" ? "true" : undefined}>
             Toutes ({parSegment.length})
@@ -94,8 +101,19 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
             </Link>
           ))}
         </nav>
-        <p className="t-note">{CATEGORIES.map((c) => `${c.label.toLowerCase()} : ${c.regle}`).join(" · ")}. VIP à partir de {formatPrice(rules.vipMinSpent)} d’achats ou {rules.vipMinOrders} commandes.</p>
-        <p className="t-note">{SEGMENTS_CRM.map((s) => `${s.label.toLowerCase()} : ${s.regle}`).join(" · ")}.</p>
+        <details className="replie">
+          <summary className="t-label">Ce que veut dire chaque filtre</summary>
+          <ul className="stack-s">
+            {[...SEGMENTS_CRM, ...CATEGORIES].map((x) => (
+              <li key={x.id} className="t-note t-left">
+                {x.label} : {x.regle}.
+              </li>
+            ))}
+            <li className="t-note t-left">
+              VIP : à partir de {formatPrice(rules.vipMinSpent)} d’achats ou {rules.vipMinOrders} commandes.
+            </li>
+          </ul>
+        </details>
         {filtre ? (
           <p className="t-note">
             <Link href={atelierHref("/clientes")} className="text-link">
@@ -103,6 +121,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
             </Link>
           </p>
         ) : null}
+        <span id="resultats" className="ancre-resultats" />
         {!shown.length ? (
           <p className="t-body">{customers.length ? "Aucune cliente ne correspond. Essayez un autre mot ou une autre catégorie." : "Aucune cliente pour l’instant."}</p>
         ) : (

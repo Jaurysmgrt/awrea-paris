@@ -3,7 +3,7 @@ import { adminLogin, ATELIER } from "./admin-auth";
 
 /**
  * Vue d'ensemble de l'Atelier et menu clair (brief de la créatrice du 03/11 et du 07/11) : ce qui attend, les gestes courants, quatre chiffres réels, les dernières
- * commandes ; un menu en six rubriques dont les sous-entrées n'apparaissent que dans leur rubrique.
+ * commandes ; un menu en six rubriques dont les sous-entrées restent visibles sous leur rubrique.
  */
 test("Vue d'ensemble : priorités, raccourcis, chiffres et dernières commandes mènent quelque part", async ({ page }) => {
   await adminLogin(page);
@@ -64,7 +64,7 @@ test("Vue d'ensemble : domiciliation et médiateur rappelés dans « À faire en
   await expect(page.locator("section#mediation mark.todo")).toHaveText("[À COMPLÉTER : médiateur de la consommation]");
 });
 
-test("menu clair : six rubriques, sous-entrées dans leur rubrique, titres identiques aux pages", async ({ page }) => {
+test("menu clair : six rubriques, sous-entrées toujours visibles, titres identiques aux pages", async ({ page }) => {
   await adminLogin(page);
   await page.goto(ATELIER);
   const side = page.locator(".admin__side");
@@ -74,7 +74,10 @@ test("menu clair : six rubriques, sous-entrées dans leur rubrique, titres ident
   await expect(nav.getByRole("link", { name: "Vue d’ensemble", exact: true })).toHaveAttribute("aria-current", "page");
   // aucune entrée vide ni ancienne rubrique
   await expect(nav.getByText(/Coulisses|Fichier clientes|Aujourd’hui/)).toHaveCount(0);
-  await expect(nav.getByRole("link", { name: /^Retours/ })).toHaveCount(0);
+  // les sous-entrées se voient dès l'accueil : « Où sont mes factures ? » a sa réponse (23/11)
+  for (const name of [/^Retours/, /^Factures/, /^Paiements/, /^Avant-premières/]) await expect(nav.getByRole("link", { name })).toBeVisible();
+  // « Se déconnecter » reste à portée sans faire défiler la colonne
+  await expect(nav.getByRole("button", { name: "Se déconnecter" })).toBeInViewport();
 
   // chaque entrée ouvre la page qui porte son nom
   for (const [name, titre] of [
@@ -93,9 +96,7 @@ test("menu clair : six rubriques, sous-entrées dans leur rubrique, titres ident
     await expect(page.getByRole("heading", { level: 1, name: titre, exact: true }), name).toBeVisible();
   }
 
-  // dans Commandes, ses sous-entrées apparaissent
-  await nav.getByRole("link", { name: /^Commandes(\s|$)/ }).click();
-  for (const name of [/^Retours/, /^Factures/]) await expect(nav.getByRole("link", { name })).toBeVisible();
+  // une sous-entrée ouvre sa page et s'allume
   await nav.getByRole("link", { name: /^Retours/ }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Retours" })).toBeVisible();
   await expect(nav.getByRole("link", { name: /^Retours/ })).toHaveAttribute("aria-current", "page");

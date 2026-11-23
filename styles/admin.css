@@ -2147,3 +2147,175 @@
     font-family: var(--font-ui);
   }
 }
+
+/* Menu de l'Atelier (parcours UX du 23/11) : les sous-entrées toujours visibles sous leur rubrique ;
+   « Se déconnecter » et « Voir le site » restent au bas de la colonne, seule la liste défile ; sur
+   un écran tactile, chaque entrée offre une cible entière ; cases à cocher espacées. */
+@layer components {
+  .admin-nav__compte {
+    display: grid;
+    gap: var(--spacing-3xs);
+    justify-items: start;
+  }
+  @media (max-width: 63.99rem) {
+    .admin-nav:not([data-open="true"]) .admin-nav__compte {
+      display: none;
+    }
+  }
+  @media (min-width: 64rem) {
+    .admin .admin__side {
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      overflow: hidden;
+    }
+    .admin .admin-nav {
+      min-height: 0;
+      grid-template-rows: minmax(0, 1fr) auto;
+    }
+    .admin .admin-nav__groupes {
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .admin .admin-nav__compte {
+      padding-block-start: var(--spacing-2xs);
+      border-top: var(--border-width-hair) solid var(--line);
+    }
+  }
+  @media (pointer: coarse) {
+    .admin .admin-nav__link,
+    .admin .admin-nav__compte .btn {
+      min-height: var(--spacing-touch);
+    }
+  }
+  /* pastille des interrupteurs « Seul / Avec vous » : centrée dans sa piste (règles de l'Atelier
+     seulement ; le dessin de .switch ne change pas) */
+  .admin .switch__track::after {
+    inset-block: auto;
+    inset-block-start: 50%;
+    inline-size: calc(var(--spacing-m) - var(--border-width-hair) * 2 - var(--spacing-3xs));
+    block-size: calc(var(--spacing-m) - var(--border-width-hair) * 2 - var(--spacing-3xs));
+    aspect-ratio: auto;
+    translate: 0 -50%;
+  }
+  .admin .switch[aria-checked="true"] .switch__track::after {
+    translate: var(--spacing-m) -50%;
+  }
+  /* cases à cocher : un espace entre voisines, le libellé à la taille de l'outil */
+  .admin .check {
+    font-size: var(--ui-text);
+    line-height: var(--ui-leading);
+  }
+  .admin fieldset > .check {
+    margin-inline-end: var(--spacing-m);
+  }
+}
+
+/* Commandes et Clientes sur téléphone et tablette (parcours UX du 23/11) : le résultat utile
+   d'abord, des cartes compactes sous 1 440 px, les filtres sur une rangée qui défile, des cibles
+   tactiles entières. */
+@layer components {
+  /* commandes en cartes sous 1 440 px : plus de colonnes écrasées ni de gestes coupés */
+  @media (max-width: 89.99rem) {
+    .admin .table--commandes,
+    .admin .table--commandes tbody {
+      display: block;
+    }
+    .admin .table--commandes thead {
+      display: none;
+    }
+    .admin .table--commandes tr {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-areas:
+        "numero total"
+        "cliente etape"
+        "pieces pieces"
+        "gestes gestes";
+      gap: var(--spacing-2xs) var(--spacing-s);
+      padding-block: var(--spacing-s);
+      border-bottom: var(--border-width-hair) solid var(--line);
+    }
+    .admin .table--commandes :is(th, td) {
+      display: block;
+      padding: 0;
+      border: 0;
+      min-width: 0;
+    }
+    .admin .table--commandes td[data-titre]::before {
+      content: attr(data-titre);
+      display: block;
+      font-size: var(--ui-text-sm);
+      color: var(--fg-soft);
+    }
+    .admin .table--commandes th[role="rowheader"] {
+      grid-area: numero;
+    }
+    .admin .table--commandes td[data-titre="Cliente"] {
+      grid-area: cliente;
+    }
+    .admin .table--commandes td[data-titre="Pièces"] {
+      grid-area: pieces;
+    }
+    .admin .table--commandes td[data-titre="Total"] {
+      grid-area: total;
+      text-align: end;
+    }
+    .admin .table--commandes td[data-titre="Étape"] {
+      grid-area: etape;
+    }
+    .admin .table--commandes td[data-titre="À faire"] {
+      grid-area: gestes;
+    }
+    .admin .table--commandes .table__gestes {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--spacing-2xs) var(--spacing-s);
+    }
+  }
+  @media (min-width: 48rem) and (max-width: 89.99rem) {
+    .admin .table--commandes tr {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1.5fr) minmax(0, 1fr);
+      grid-template-areas:
+        "numero cliente etape total"
+        "gestes pieces pieces pieces";
+    }
+  }
+  /* téléphone : les retards passent après la liste (chaque commande en retard y porte sa pastille),
+     les filtres tiennent sur une rangée qui défile */
+  @media (max-width: 47.99rem) {
+    .admin-page--commandes {
+      display: flex;
+      flex-direction: column;
+    }
+    .admin-page--commandes > .panel--retards {
+      order: 1;
+    }
+    .admin .produits__filtres {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      padding-block-end: var(--spacing-3xs);
+    }
+    .admin .produits__filtres > * {
+      flex: none;
+    }
+  }
+  .ancre-resultats {
+    display: block;
+    scroll-margin-top: var(--spacing-m);
+  }
+  /* cibles tactiles entières : numéros, prénoms, « Modifier », liens d'une ligne, champs */
+  @media (pointer: coarse) {
+    .admin :is(th, td) > a.text-link,
+    .admin .liste-simple a,
+    .admin .btn--link {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--spacing-touch);
+    }
+    .admin .field__input {
+      min-height: var(--spacing-touch);
+    }
+  }
+}
