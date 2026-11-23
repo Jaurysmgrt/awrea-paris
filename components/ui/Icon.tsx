@@ -1,4 +1,14 @@
-/** Icônes au fil : un seul trait fin, sans remplissage. */
+/**
+ * Icônes au fil : un seul trait fin (1 px, quelle que soit la taille), sans remplissage, à la couleur
+ * du texte (noir, taupe, ivoire en mode Nuit : rien à régler). C'est le seul jeu d'icônes du site
+ * public, sans bibliothèque : celles de l'interface (fermer, menu, panier…) et, depuis le cahier de
+ * la créatrice du 23/11, une petite famille de couture, employée seulement là où elle aide à
+ * comprendre (étapes de confection, délais, bloc « Créée pour vous » de la fiche, guide des tailles,
+ * livraison, contact), jamais une icône par ligne. Taille : classe `.icone` (20 px) ou `.icone--l`
+ * (24 px), styles/components.css.
+ * Décorative par défaut (aria-hidden) : le texte voisin porte le sens ; `title` en fait une image
+ * nommée, quand l'icône est seule.
+ */
 const paths = {
   close: "M5 5l14 14M19 5L5 19",
   menu: "M3 8h18M3 16h18",
@@ -14,13 +24,42 @@ const paths = {
   pause: "M8 5v14M16 5v14",
   chat: "M4 5h16v11H9l-5 4V5z",
   sound: "M4 9h4l5-4v14l-5-4H4V9z",
+  // famille de couture (cahier du 23/11) : traits arrondis, formes simples
+  ciseaux: "M8.5 7a2.5 2.5 0 1 1-5 0a2.5 2.5 0 1 1 5 0zM8.5 17a2.5 2.5 0 1 1-5 0a2.5 2.5 0 1 1 5 0zM8.1 15.6L20 7.5M8.1 8.4L20 16.5",
+  horloge: "M20.5 12a8.5 8.5 0 1 1-17 0a8.5 8.5 0 1 1 17 0zM12 7v5l3.5 2",
+  colis: "M12 3.5l8 4.25v8.5L12 20.5l-8-4.25v-8.5L12 3.5zM4 7.75L12 12l8-4.25M12 12v8.5",
+  coche: "M5 12.5l4.5 4.5L19 7.5",
+  etoffe: "M4 7.5a2.5 2.5 0 0 1 5 0v9a2.5 2.5 0 0 1-5 0zM6.5 5H20v10c-1.8 1.2-3.7 1.2-5.5 0S10.8 13.8 9 15",
+  regle: "M3 8.5h18v7H3zM6.5 8.5v3M10 8.5v2M13.5 8.5v3M17 8.5v2",
+  enveloppe: "M3.5 6h17v12h-17zM3.5 6.5L12 13l8.5-6.5",
+  cintre: "M10 6a2 2 0 1 1 2 2v2M12 10l-8.5 7h17z",
+  aiguille: "M4.5 19.5L17 7M17 7l1.6-1.6a1.4 1.4 0 0 1 2 2L19 9zM19.8 6.4c1.2 3.6-1.6 6.1-5.6 7.6S8 17.6 9.5 20",
+  domicile: "M4 11l8-6.5 8 6.5M6 9.5V19.5h12V9.5M10 19.5v-5h4v5",
 } as const;
 
 export type IconName = keyof typeof paths;
 
+/** Icônes de couture : leurs courbes demandent des extrémités et des angles arrondis. */
+const ROUND = new Set<IconName>(["ciseaux", "horloge", "colis", "coche", "etoffe", "regle", "enveloppe", "cintre", "aiguille", "domicile"]);
+
+/** Vrai pour un nom d'icône connu (icônes choisies dans un document de contenu). */
+export const isIconName = (name: unknown): name is IconName => typeof name === "string" && Object.hasOwn(paths, name);
+
 export function Icon({ name, className, title }: { name: IconName; className?: string; title?: string }) {
+  const round = ROUND.has(name);
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="square" className={className} aria-hidden={title ? undefined : true} role={title ? "img" : undefined}>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      strokeLinecap={round ? "round" : "square"}
+      strokeLinejoin={round ? "round" : undefined}
+      className={className}
+      aria-hidden={title ? undefined : true}
+      role={title ? "img" : undefined}
+      focusable="false"
+    >
       {title ? <title>{title}</title> : null}
       <path d={paths[name]} vectorEffect="non-scaling-stroke" />
     </svg>

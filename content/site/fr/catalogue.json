@@ -8,7 +8,7 @@
   },
   "surDemande": {
     "carte": "Sur demande, {delai}",
-    "fiche": "Créée sur demande pour vous, en {delai}.",
+    "fiche": "Délai de confection : {delai}, avant l’expédition.",
     "delaiLabel": "Délai de fabrication",
     "livraison": "La pièce est créée sur demande : comptez {delai} de fabrication avant son expédition.",
     "ethique": "La Maison ne produit que ce qui est désiré, avec attention pour les artisans qui façonnent chaque pièce et pour l’environnement."
@@ -22,7 +22,7 @@
     "legende": "Taille",
     "unique": "Taille unique",
     "manquante": "Merci de choisir une taille.",
-    "choisie": "Taille {taille} : la pièce est confectionnée pour vous dans cette taille, en {delai}.",
+    "choisie": "Taille {taille} : la pièce est confectionnée pour vous dans cette taille.",
     "trouver": "Trouver ma taille",
     "guideTitre": "Votre taille",
     "fermerGuide": "Fermer le guide des tailles",

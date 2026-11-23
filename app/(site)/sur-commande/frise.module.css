@@ -1,59 +1,62 @@
 /*
- * Chronologie verticale des étapes de confection (Frise.tsx, brief du 09/11). Tokens seulement.
- * Une ligne fine descend le long de la page ; le numéro de chaque étape s'y pose, sur le fond de la
- * section (la ligne passe derrière lui). Le texte à droite de la ligne, la photographie dessous
- * (téléphone, tablette) ou à côté (ordinateur). Les couleurs suivent le thème de la section : ligne
- * et numéros ivoire sur le noir du mode Nuit, noirs sur l'ivoire du mode Jour.
+ * Les cinq étapes de confection (Frise.tsx, cahier de la créatrice du 23/11). Tokens seulement.
+ * Téléphone et tablette : les étapes l'une sous l'autre ; à gauche, le repère (numéro, icône) et une
+ * ligne fine qui descend jusqu'au numéro suivant ; le texte à droite, sur sa mesure de lecture.
+ * Ordinateur : les cinq étapes côte à côte ; au-dessus de chacune, le numéro, puis l'icône et la
+ * ligne qui court jusqu'à l'icône suivante ; le texte dessous. Les couleurs suivent la section :
+ * ligne, numéros et icônes noirs sur l'ivoire du mode Jour, ivoire sur le noir du mode Nuit.
  */
 .frise {
-  --rail: var(--spacing-xl);
-  position: relative;
+  --rail: var(--spacing-l);
+  --pas: var(--spacing-l); /* entre deux étapes */
   display: grid;
-  gap: calc(var(--space-block) * 1.5);
+  gap: var(--pas);
   /* l'espace sous la tête de section, comme partout (editorial.module.css, apresTete) */
   margin: var(--space-block) 0 0;
   padding: 0;
   list-style: none;
 }
-/* la ligne, au milieu de la colonne des numéros */
-.frise::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(var(--rail) / 2);
+.etape {
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+  column-gap: var(--spacing-s);
+}
+.repere {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  justify-items: center;
+  row-gap: var(--spacing-2xs);
+  color: var(--fg);
+}
+/* numéro en chiffres alignés, sur la ligne du nom de l'étape */
+.numero {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: var(--text-step--2);
+  line-height: var(--leading-label);
+  letter-spacing: var(--tracking-label);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.icone {
+  display: block;
+  width: var(--size-icon-l);
+  height: var(--size-icon-l);
+}
+/* la ligne : du repère jusqu'au numéro de l'étape suivante (elle traverse l'espace entre deux
+   étapes, à 8 px du numéro) ; la dernière étape n'en a pas */
+.trait {
   width: var(--border-width-hair);
+  margin-bottom: calc(var(--spacing-2xs) - var(--pas));
   background: var(--line);
   transform-origin: top center;
 }
-.etape {
-  position: relative;
-  display: grid;
-  grid-template-columns: var(--rail) minmax(0, 1fr);
-}
-/* le numéro, posé sur la ligne : le fond de la section l'en détache */
-.numero {
-  position: relative;
-  grid-column: 1;
-  justify-self: center;
-  align-self: start;
-  /* sur la même ligne que le nom de l'étape ; le fond dégage la ligne sous le numéro */
-  padding-bottom: var(--spacing-3xs);
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--font-body);
-  font-size: var(--text-step--2);
-  letter-spacing: var(--tracking-label);
-  line-height: var(--leading-label);
-}
-.contenu {
-  grid-column: 2;
-  display: grid;
-  gap: var(--space-paragraph);
+.etape:last-child .trait {
+  visibility: hidden;
 }
 .texte {
   display: grid;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-2xs);
+  align-content: start;
   max-width: var(--container-text);
 }
 .nom {
@@ -62,57 +65,142 @@
 .texte p:last-child {
   color: var(--fg-soft);
 }
-.photo {
-  max-width: var(--container-text);
-}
-/* photographies en noir et blanc, quelle que soit la source */
-.photo img {
-  filter: grayscale(1);
-}
 
+/* ordinateur : les cinq étapes côte à côte */
 @media (min-width: 64rem) {
   .frise {
-    --rail: var(--spacing-3xl);
-    gap: calc(var(--space-block) * 2);
+    --pas: var(--spacing-m);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    column-gap: var(--pas);
   }
-  /* le texte à gauche, la photographie à droite, alignés en haut sur le numéro de l'étape */
-  .contenu {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-    gap: var(--spacing-gutter);
-    align-items: start;
+  .etape {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    row-gap: var(--spacing-s);
   }
-  .photo,
+  .repere {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "numero numero"
+      "icone trait";
+    justify-items: start;
+    align-items: center;
+    column-gap: var(--spacing-2xs);
+  }
+  .numero {
+    grid-area: numero;
+  }
+  .icone {
+    grid-area: icone;
+  }
+  /* la ligne court vers la droite jusqu'à l'icône suivante, à 8 px d'elle */
+  .trait {
+    grid-area: trait;
+    width: auto;
+    height: var(--border-width-hair);
+    margin-bottom: 0;
+    margin-right: calc(var(--spacing-2xs) - var(--pas));
+    transform-origin: left center;
+  }
   .texte {
     max-width: none;
   }
 }
+@media (min-width: 90rem) {
+  .frise {
+    --pas: var(--spacing-l);
+  }
+}
 
-/* apparitions (FriseApparition.tsx) : la ligne se révèle de haut en bas, chaque étape vient en
-   fondu en entrant à l'écran, sans autre effet */
-.frise[data-anime]::before {
-  transform: scaleY(0);
-  transition: transform calc(var(--dur) * 3) var(--ease);
-}
-.frise[data-anime][data-vu]::before {
-  transform: none;
-}
+/* apparitions (FriseApparition.tsx) : chaque étape vient en fondu en entrant à l'écran, et sa ligne
+   se dessine vers l'étape suivante ; rien en animations apaisées */
 .frise[data-anime] .etape {
   opacity: 0;
-  translate: 0 var(--spacing-s);
-  transition:
-    opacity var(--dur) var(--ease),
-    translate var(--dur) var(--ease);
+  transition: opacity var(--dur) var(--ease);
 }
 .frise[data-anime] .etape[data-vu] {
   opacity: 1;
-  translate: none;
+}
+.frise[data-anime] .trait {
+  scale: 1 0;
+  transition: scale calc(var(--dur) * 2) var(--ease) var(--dur);
+}
+.frise[data-anime] .etape[data-vu] .trait {
+  scale: none;
+}
+@media (min-width: 64rem) {
+  .frise[data-anime] .trait {
+    scale: 0 1;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .frise[data-anime] .etape {
     opacity: 1;
-    translate: none;
   }
-  .frise[data-anime]::before {
-    transform: none;
+  .frise[data-anime] .trait {
+    scale: none;
+  }
+}
+
+/* ------------------------------------------------------------------ la séquence de photographies
+   Même hauteur pour toutes, chacune à ses proportions (--ratio, posé par la page). Sous 1440 px, la
+   rangée défile horizontalement, aimantée ; au-delà, elle tient sur la largeur. Noir et blanc. */
+.sequence {
+  --hauteur: calc(var(--spacing-3xl) * 2);
+  display: flex;
+  gap: var(--spacing-s);
+  margin: var(--space-block) calc(-1 * var(--spacing-gutter)) 0;
+  padding: 0 var(--spacing-gutter) var(--spacing-xs);
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--spacing-gutter);
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.sequence::-webkit-scrollbar {
+  display: none;
+}
+.sequence:focus-visible {
+  outline-offset: calc(-1 * var(--border-width-focus));
+}
+.vue {
+  flex: none;
+  width: calc(var(--ratio) * var(--hauteur));
+  display: grid;
+  gap: var(--spacing-2xs);
+  align-content: start;
+  scroll-snap-align: start;
+}
+.photo {
+  height: var(--hauteur);
+}
+.photo img {
+  filter: grayscale(1);
+}
+.repereVue {
+  color: var(--fg-soft);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+@media (min-width: 64rem) {
+  .sequence {
+    --hauteur: var(--spacing-3xl);
+  }
+}
+@media (min-width: 90rem) {
+  .sequence {
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+  }
+  .vue {
+    flex: var(--ratio) 1 0;
+    width: auto;
+    min-width: 0;
+  }
+  .photo {
+    height: auto;
+    aspect-ratio: var(--ratio);
   }
 }

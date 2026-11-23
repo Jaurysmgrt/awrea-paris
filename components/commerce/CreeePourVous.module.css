@@ -1,0 +1,53 @@
+/*
+ * Bloc « Créée pour vous » de la fiche d'une pièce (CreeePourVous.tsx, cahier du 23/11). Tokens
+ * seulement. Entre deux filets très fins (celui du dessous est le filet des rubriques), au fer à
+ * gauche comme le reste de la colonne ; serré, pour rester compact sur téléphone. Les icônes prennent
+ * la couleur du texte : noires en mode Jour, ivoire en mode Nuit.
+ */
+.bloc {
+  display: grid;
+  gap: var(--spacing-xs);
+  justify-items: start;
+  padding-top: var(--spacing-m);
+  border-top: var(--border-width-hair) solid var(--line);
+}
+.titre {
+  margin: 0;
+}
+.points {
+  display: grid;
+  gap: var(--spacing-2xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.point {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-body);
+  font-style: normal;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-step--1);
+  line-height: var(--leading-label);
+  color: var(--fg);
+}
+/* le délai de confection : l'information à retenir, à la couleur du texte ; l'icône reste en face
+   de la première ligne si la phrase passe à la ligne */
+.delai {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+  margin: 0;
+  color: var(--fg);
+}
+.delai > :global(.icone) {
+  margin-top: calc((var(--leading-note) - var(--size-icon)) / 2);
+}
+.lien {
+  margin: 0;
+}
+/* lien discret, mais une vraie cible au doigt (48 px de haut) */
+.lien > :global(.link) {
+  min-height: var(--spacing-touch);
+}

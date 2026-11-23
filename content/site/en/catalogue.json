@@ -8,7 +8,7 @@
   },
   "surDemande": {
     "carte": "Made to order, {delai}",
-    "fiche": "Made to order for you, in {delai}.",
+    "fiche": "Making time: {delai}, before dispatch.",
     "delaiLabel": "Making time",
     "livraison": "The piece is made to order: allow {delai} for the making before it is dispatched.",
     "ethique": "The Maison produces only what is desired, with care for the artisans who shape each piece and for the environment."
@@ -22,7 +22,7 @@
     "legende": "Size",
     "unique": "One size",
     "manquante": "Please choose a size.",
-    "choisie": "Size {taille}: the piece is made for you in this size, in {delai}.",
+    "choisie": "Size {taille}: the piece is made for you in this size.",
     "trouver": "Find my size",
     "guideTitre": "Your size",
     "fermerGuide": "Close the size guide",

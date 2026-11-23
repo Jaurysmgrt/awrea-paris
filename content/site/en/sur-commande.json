@@ -5,7 +5,11 @@
   },
   "nom": "Savoir-faire",
   "titre": "The privilege of a unique piece.",
-  "chapeau": "Each Awrea Paris creation is imagined to take shape the moment you choose it. Attentive making, carried out especially for you, where time, precision and craftsmanship make all the difference.",
+  "chapeau": "How your piece is made, how long it takes and when it reaches you.",
+  "parcours": {
+    "intro": "Each Awrea piece is made to order. Rather than producing in advance, we begin preparing your creation once your order has been placed. A more considered approach to making, where every detail receives the attention it deserves.",
+    "photos": "The steps in pictures"
+  },
   "etapes": {
     "surtitre": "Your experience",
     "titre": "The journey of a singular creation",
@@ -13,6 +17,7 @@
     "frise": [
       {
         "numero": "01",
+        "icon": "cintre",
         "nom": "The selection",
         "titre": "Where your piece begins.",
         "texte": "You choose your design and its details. Every creation is born of your wishes and your sensibility.",
@@ -29,6 +34,7 @@
       },
       {
         "numero": "02",
+        "icon": "etoffe",
         "nom": "The preparation",
         "titre": "Care for every detail.",
         "texte": "Materials, components and finishes are prepared with rigour, to bring to life a piece true to what you expect.",
@@ -45,6 +51,7 @@
       },
       {
         "numero": "03",
+        "icon": "ciseaux",
         "nom": "The making",
         "titre": "The art of the hand.",
         "texte": "In our atelier, each piece is made with precision. Artisanal savoir-faire gradually reveals its shape.",
@@ -57,6 +64,7 @@
       },
       {
         "numero": "04",
+        "icon": "aiguille",
         "nom": "The finishing",
         "titre": "Exacting, down to the last detail.",
         "texte": "Every finish receives particular attention. Your creation is carefully checked before it leaves us.",
@@ -73,6 +81,7 @@
       },
       {
         "numero": "05",
+        "icon": "colis",
         "nom": "The shipping",
         "titre": "All the way to you.",
         "texte": "Your piece is delicately placed in its AWREA PARIS case, then shipped with the greatest care, all the way to you.",
@@ -88,18 +97,43 @@
   },
   "delais": {
     "titre": "The time of creation",
-    "texte": "Each piece is made to order, at the pace of our atelier. The time shown is the making time, before shipping.",
+    "texte": "The time shown on each piece is how long it takes to make. That is not the whole wait: your order is then prepared, dispatched and delivered.",
+    "confection": {
+      "titre": "Making",
+      "icon": "ciseaux",
+      "note": "Each piece shows its own making time on its page."
+    },
     "groupes": {
       "hauts": "Tops & bodies",
       "robes": "Dresses"
     },
     "valeur": "{delai}",
-    "mention": "Making time",
+    "expedition": {
+      "titre": "Preparation and dispatch",
+      "icon": "colis",
+      "texte": "An order of several pieces ships all at once, when the last piece is ready. The moment it ships, an e-mail gives you the carrier’s tracking link."
+    },
+    "livraison": {
+      "titre": "Delivery",
+      "icon": "domicile",
+      "texte": "After dispatch, depending on the method you choose:",
+      "modes": {
+        "fr-colissimo": "Tracked Colissimo",
+        "fr-relay": "Mondial Relay pick-up point",
+        "fr-express": "Chronopost express"
+      },
+      "delai": {
+        "plage": "{min} to {max} working days",
+        "fixe": "{n} working days",
+        "un": "1 working day",
+        "heures": "{n} hours"
+      }
+    },
     "fin": {
-      "avant": "For anything relating to cancellations, shipping and returns, please see our ",
+      "avant": "All in all, allow 5 to 10 working days between the end of the making and delivery, as set out in our ",
       "lien": {
-        "label": "Terms and conditions of sale",
-        "href": "/cgv"
+        "label": "terms and conditions of sale",
+        "href": "/cgv#livraison"
       },
       "apres": "."
     }

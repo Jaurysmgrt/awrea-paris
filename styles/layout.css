@@ -1034,6 +1034,15 @@
   .drawer__empty {
     padding: var(--spacing-xl) var(--spacing-m);
   }
+  /* livraison offerte : le colis en face de la première ligne */
+  .drawer__livraison {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+  .drawer__livraison > .icone {
+    margin-top: calc((var(--leading-note) - var(--size-icon)) / 2);
+  }
   .drawer__progress {
     margin-top: var(--spacing-2xs);
     height: var(--border-width-hair);

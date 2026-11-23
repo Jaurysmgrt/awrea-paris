@@ -7,8 +7,26 @@
     "livraison": "Livraison et retours"
   },
   "surDemande": {
-    "lien": "Voir comment naît votre pièce",
+    "lien": "Voir comment votre pièce est faite",
     "guide": "Guide des tailles"
+  },
+  "pourVous": {
+    "titre": "Créée pour vous",
+    "texte": "Votre pièce est réalisée dans votre taille, par des artisans français.",
+    "points": [
+      {
+        "icon": "bag",
+        "texte": "Faite après votre commande"
+      },
+      {
+        "icon": "ciseaux",
+        "texte": "Confectionnée avec soin"
+      },
+      {
+        "icon": "coche",
+        "texte": "Vérifiée avant son départ"
+      }
+    ]
   },
   "conseil": {
     "avant": "Pour un conseil de taille, ",
