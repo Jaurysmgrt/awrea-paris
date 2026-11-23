@@ -1154,3 +1154,7 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
 - Liens de confirmation et de désinscription chiffrés (l’adresse n’y paraît plus) ; les outils de mesure ne reçoivent que le chemin de la page ; empreinte de l’adresse en HMAC (`SESSION_SECRET`) ; politique de confidentialité et inventaire des cookies à jour.
 - Contrôle d’écriture : espace après les deux-points, et les textes qui contiennent un repère (`{prenom}`, `{lien}`) sont désormais contrôlés (neuf espaces insécables corrigées dans les e-mails de rendez-vous).
 - Relecture indépendante, puis vingt corrections ; 243 tests unitaires et parcours Playwright verts. À valider par la créatrice : une abonnée par la case de son compte n’a pas le privilège ; une commande remboursée compte comme un premier achat ; textes du merci, du bouton de confirmation et de l’e-mail « Votre privilège sur cet appareil ».
+
+## Sécurité : Next.js 16.4.6 (23/11)
+
+- Next.js passe de 16.4.2 à 16.4.6 (et `eslint-config-next` avec lui) : les versions 16.0.0 à 16.4.4 sont touchées par des failles modérées (fuites de cache entre paramètres, contournement du refus des SVG dans l’optimisation des images, exposition de cookies HttpOnly sur les routes Edge, injection de réponses entre clientes en hébergement propre). Plus aucune faille connue dans les dépendances du site ; restent sept alertes modérées dans les seuls outils de vérification du code (typescript-eslint), qui ne partent pas en ligne.
