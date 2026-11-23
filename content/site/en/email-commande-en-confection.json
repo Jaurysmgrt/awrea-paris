@@ -51,7 +51,7 @@
     {
       "id": "b-cmdconf05",
       "type": "texte",
-      "texte": "You can follow your order {commande} here: {suivi}"
+      "texte": "You can [follow your order {commande}]({suivi}) at any time."
     },
     {
       "id": "b-cmdconf06",

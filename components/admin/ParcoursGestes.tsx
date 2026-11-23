@@ -109,7 +109,7 @@ export function AccordEnvoisReels({ actif, parcoursActifs, variable }: { actif: 
   const { busy, retour, envoyer } = useGeste();
   const [ouvert, setOuvert] = useState(false);
   const liste = parcoursActifs.length ? `Parcours actifs : ${parcoursActifs.join(", ")}.` : "Aucun parcours n’est actif pour l’instant.";
-  const suite = variable ? "Les e-mails partiront pour de vrai dès le prochain passage." : "Ils partiront quand la Maison aura posé PARCOURS_ENVOIS_REELS dans Vercel.";
+  const suite = variable ? "Les e-mails partiront pour de vrai dès le prochain passage." : "Ils partiront quand la personne qui s’occupe du site aura aussi donné son feu vert.";
   return (
     <div className="parcours-geste">
       <button

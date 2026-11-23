@@ -51,7 +51,7 @@
     {
       "id": "b-cmdconf05",
       "type": "texte",
-      "texte": "Votre commande {commande} se suit ici : {suivi}"
+      "texte": "Vous pouvez [suivre votre commande {commande}]({suivi}) à tout moment."
     },
     {
       "id": "b-cmdconf06",

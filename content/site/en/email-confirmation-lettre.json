@@ -11,7 +11,7 @@
   "blocs": [
     { "id": "b-conflet0entete", "type": "entete", "fond": "noir" },
     { "id": "b-conflet0titre", "type": "titre", "titre": "One last step" },
-    { "id": "b-conflet0texte", "type": "texte", "texte": "Hello,\n\nThank you for wishing to receive the Maison’s letter. To confirm your sign-up, open this link: {lien}" },
+    { "id": "b-conflet0texte", "type": "texte", "texte": "Hello,\n\nThank you for wishing to receive the Maison’s letter. To confirm your sign-up, [open this link]({lien})." },
     { "id": "b-conflet0privil", "type": "texte", "texte": "This click also opens your welcome privilege: 10% off your first piece for 14 days, taken off automatically when you pay with this email address. Open the link on the device you will order from, or sign in to your account with the same address.", "si": "privilege" },
     { "id": "b-conflet0note", "type": "texte", "texte": "The link stays valid for seven days. If you did not ask for anything, simply ignore this email: you will receive nothing else." },
     { "id": "b-conflet0signe", "type": "signature", "texte": "See you soon,\nthe Maison Awrea Paris" },

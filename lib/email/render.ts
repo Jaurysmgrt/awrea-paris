@@ -13,7 +13,7 @@
  */
 import { palette, fontStacks } from "@/styles/tokens";
 import type { Img, Lien } from "@/lib/edition/blocks";
-import { blockShown, emailBlockDef, LIEN_TEXTE, styleOf, type Alignement, type EmailBlock, type EmailDoc, type Police, type Taille } from "@/lib/email/blocks";
+import { blockShown, emailBlockDef, LIEN_TEXTE, REPERE_ADRESSE, styleOf, type Alignement, type EmailBlock, type EmailDoc, type Police, type Taille } from "@/lib/email/blocks";
 
 export interface EmailItem {
   title: string;
@@ -198,6 +198,20 @@ function typo(ctx: EmailContext, police: Police, size: [number, number], color: 
   return `font-family:${family};${face}font-size:${size[0]}px;line-height:${size[1]}px;color:${color};`;
 }
 
+/**
+ * Adresse d'un lien du texte. Un repère d'adresse (« {suivi} ») prend la valeur posée par le site,
+ * seulement si c'est bien une adresse https ou une page du site ; vide, le lien reste des mots.
+ */
+function adresseDuLien(cible: string, ctx: EmailContext): string {
+  if (!REPERE_ADRESSE.test(cible)) return href(cible, ctx);
+  const nom = cible.slice(1, -1);
+  if (ctx.syntax) return placeholder(nom, ctx);
+  const valeur = (ctx.vars?.[nom] ?? "").trim();
+  if (/^https:\/\/[^\s<>"]+$/.test(valeur) || (ctx.site && valeur.startsWith(`${ctx.site}/`) && !/[\s<>"]/.test(valeur))) return valeur;
+  if (/^\/(?!\/)[^\s<>"]*$/.test(valeur)) return href(valeur, ctx);
+  return "";
+}
+
 /** Morceau de texte : repères remplacés puis échappé (ou repères du service, à l'export). */
 const textPart = (s: string, ctx: EmailContext) => (ctx.syntax ? fill(s, ctx) : esc(fill(s, ctx, false)));
 
@@ -212,7 +226,8 @@ function paragraphs(template: string, ctx: EmailContext, style: string, align: s
   let last = 0;
   for (const m of template.matchAll(LIEN_TEXTE)) {
     html += textPart(template.slice(last, m.index), ctx);
-    html += `<a href="${esc(href(m[2], ctx))}" style="color:inherit;">${textPart(m[1], ctx)}</a>`;
+    const adresse = adresseDuLien(m[2], ctx);
+    html += adresse ? `<a href="${esc(adresse)}" style="color:inherit;">${textPart(m[1], ctx)}</a>` : textPart(m[1], ctx);
     last = (m.index ?? 0) + m[0].length;
   }
   html += textPart(template.slice(last), ctx);
@@ -431,7 +446,10 @@ function textOf(blocks: EmailBlock[], ctx: EmailContext, unsubscribe: string): s
     if (b.type === "titre") out.push(fill(String(b.titre ?? ""), ctx, false).toUpperCase(), "");
     if (b.type === "texte" || b.type === "photo-texte") {
       // un lien s'écrit « mots : adresse » ; les repères sont remplis après, comme dans le HTML
-      const raw = String(b.texte ?? "").replace(LIEN_TEXTE, (_, label: string, url: string) => `${label} : ${href(url, ctx)}`);
+      const raw = String(b.texte ?? "").replace(LIEN_TEXTE, (_, label: string, url: string) => {
+        const adresse = adresseDuLien(url, ctx);
+        return adresse ? `${label} : ${adresse}` : label;
+      });
       out.push(...fill(raw, ctx, false).split(/\n{2,}/).map((p) => p.trim()).filter(Boolean), "");
     }
     if (b.type === "bouton" && (b.lien as Lien | null)?.label) out.push(`${fill((b.lien as Lien).label, ctx, false)} : ${href((b.lien as Lien).href, ctx)}`, "");

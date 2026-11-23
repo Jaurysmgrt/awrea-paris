@@ -2062,6 +2062,11 @@
   .admin .table-scroll {
     max-width: 100%;
   }
+  /* un mot long passe à la ligne au lieu de glisser sous sa voisine (Parcours › Envois, 360 px) */
+  .liste-simple__ligne > * {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
   .connexions {
     display: grid;
     margin: 0;
@@ -2093,6 +2098,9 @@
     margin: 0;
   }
   .connexions__technique dt {
+    font-family: var(--font-ui);
+    font-size: var(--ui-text);
+    line-height: var(--ui-leading);
     font-weight: var(--font-weight-semibold);
   }
   .connexions__technique dd {
@@ -2102,6 +2110,7 @@
   }
   .connexions__technique code {
     font-size: var(--ui-text);
+    line-height: var(--ui-leading);
     white-space: normal;
   }
 }

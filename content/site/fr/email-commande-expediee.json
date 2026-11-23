@@ -53,7 +53,7 @@
     {
       "id": "b-cmdexpe04",
       "type": "texte",
-      "texte": "Elle voyage avec {transporteur}, numéro de suivi {numeroSuivi} : {lienColis}",
+      "texte": "Elle voyage avec {transporteur}, sous le numéro de suivi [{numeroSuivi}]({lienColis}).",
       "si": "numeroSuivi"
     },
     {
@@ -71,7 +71,7 @@
     {
       "id": "b-cmdexpe07",
       "type": "texte",
-      "texte": "Votre commande {commande}, sa facture et son certificat : {suivi}"
+      "texte": "Votre commande {commande}, sa facture et son certificat vous attendent [sur sa page de suivi]({suivi})."
     },
     {
       "id": "b-cmdexpe08",

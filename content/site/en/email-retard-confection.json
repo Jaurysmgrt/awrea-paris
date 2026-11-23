@@ -36,7 +36,7 @@
     },
     {
       "type": "texte",
-      "texte": "We will write as soon as your piece is ready, with its shipping date. If you have a question, simply reply to this message.\n\nYou can follow your order here: {suivi}",
+      "texte": "We will write as soon as your piece is ready, with its shipping date. If you have a question, simply reply to this message.\n\nYou can [follow your order]({suivi}) at any time.",
       "id": "b-retard04"
     },
     {

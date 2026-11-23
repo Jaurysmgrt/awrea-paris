@@ -61,7 +61,7 @@ export default async function EnvoyesPage() {
         <h2 id="envoyes-titre" className="t-h3">
           Derniers e-mails partis
         </h2>
-        {simulation ? <p className="t-note">Aucun service d’envoi n’est encore branché (RESEND_API_KEY) : les e-mails sont gardés ici, sans partir.</p> : null}
+        {simulation ? <p className="t-note">L’envoi des e-mails n’est pas encore branché : ils sont gardés ici, sans partir. La personne qui s’occupe du site le branche (Réglages, Connexions).</p> : null}
         {liste.length ? (
           <ul className="envoyes">
             {liste.map((m, i) => (

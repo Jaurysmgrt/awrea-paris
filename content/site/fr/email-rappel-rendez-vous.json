@@ -45,13 +45,13 @@
     {
       "id": "b-rdv0visio",
       "type": "texte",
-      "texte": "Le rendez-vous se fait en appel vidéo. Le lien, à ouvrir un peu avant l’heure : {visio}",
+      "texte": "Le rendez-vous se fait en appel vidéo : [rejoignez l’appel]({visio}) un peu avant l’heure.",
       "si": "visio"
     },
     {
       "id": "b-rdv0annul",
       "type": "texte",
-      "texte": "Un empêchement ? Vous pouvez annuler ici, la place servira à une autre cliente : {annulation}"
+      "texte": "Un empêchement ? Vous pouvez [annuler le rendez-vous]({annulation}), la place servira à une autre cliente."
     },
     {
       "id": "b-rdv0signe",

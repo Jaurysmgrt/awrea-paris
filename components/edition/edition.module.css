@@ -1,8 +1,9 @@
 /* =====================================================================
    Éditeur visuel « Édition » : outils posés sur la page, visibles de la créatrice seule.
-   Même langage que la Maison : noir, blanc cassé, un filet fin, petites capitales espacées,
-   aucun arrondi, aucune ombre. Uniquement des tokens du design system. Le mode Nuit inverse
-   les couleurs, les animations apaisées n'animent rien.
+   Même langage que la Maison : noir, blanc cassé, un filet fin, aucun arrondi, aucune ombre ; les
+   mots dans la police lisible de l'Atelier, en 16 px, sans capitales (parcours UX du 23/11).
+   Uniquement des tokens du design system. Le mode Nuit inverse les couleurs, les animations
+   apaisées n'animent rien.
    ===================================================================== */
 
 .root {
@@ -12,10 +13,10 @@
   --ed-line: color-mix(in oklab, var(--color-ink) 22%, transparent);
   --ed-strong: var(--color-ink);
   --ed-on-strong: var(--color-ivory);
-  font-family: var(--font-body);
-  font-weight: var(--font-weight-light);
-  font-size: var(--text-step--1);
-  line-height: var(--leading-text);
+  font-family: var(--font-ui);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--ui-text);
+  line-height: var(--ui-leading);
   color: var(--ed-fg);
   text-align: left;
   hyphens: manual;
@@ -54,10 +55,8 @@
   background: var(--ed-bg);
   color: var(--ed-fg);
   font: inherit;
-  font-weight: var(--font-weight-regular);
-  font-size: var(--text-step--2);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  font-weight: var(--ui-weight-medium);
+  font-size: var(--ui-text);
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
@@ -142,19 +141,49 @@
   display: grid;
 }
 .dockTitle {
-  font-family: var(--font-display);
-  font-style: var(--font-style-display);
-  font-size: var(--text-step-1);
-  line-height: var(--lh-step-1);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--ui-title-sm);
+  line-height: var(--ui-leading-title);
 }
 .dockStatus {
   color: var(--ed-soft);
-  font-size: var(--text-step--2);
 }
 .dockActions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-2xs);
+}
+.secondaires {
+  display: contents;
+}
+.menuTelephone {
+  display: none;
+}
+/* téléphone : une seule ligne (Modifier, Naviguer, Publier, Plus), le reste dans « Plus » ; la
+   barre se retire pendant qu'on écrit, pour ne jamais cacher le texte qu'on change */
+@media (max-width: 47.99rem) {
+  .dock {
+    gap: 0 var(--spacing-2xs);
+    padding-block: var(--spacing-3xs);
+  }
+  .dockState {
+    flex-basis: 100%;
+  }
+  .dockTitle {
+    display: none;
+  }
+  .dockActions {
+    flex-wrap: nowrap;
+  }
+  .secondaires {
+    display: none;
+  }
+  .menuTelephone {
+    display: grid;
+  }
+  .dock[data-saisie] {
+    display: none;
+  }
 }
 .notice {
   flex-basis: 100%;
@@ -208,10 +237,21 @@
 .label {
   display: grid;
   gap: var(--spacing-3xs);
+  font-weight: var(--font-weight-semibold);
+}
+.langue {
+  color: var(--ed-soft);
   font-weight: var(--font-weight-regular);
-  font-size: var(--text-step--2);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+}
+.autreLangue {
+  display: grid;
+  gap: var(--spacing-3xs);
+}
+.autreLangue > summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--spacing-touch);
+  cursor: pointer;
 }
 .count {
   color: var(--ed-soft);
@@ -224,7 +264,6 @@
 }
 .hint {
   color: var(--ed-soft);
-  font-size: var(--text-step--2);
 }
 .text {
   font-size: var(--text-step-0);
@@ -238,7 +277,6 @@
   background: var(--ed-bg);
   color: var(--ed-fg);
   font: inherit;
-  font-size: var(--text-step-0);
   resize: vertical;
 }
 .input:focus {
@@ -294,12 +332,9 @@
 }
 .sheetTitle {
   margin: 0;
-  font-family: var(--font-display);
-  font-style: var(--font-style-title);
-  font-weight: var(--font-weight-title);
-  font-size: var(--text-step-3);
-  line-height: var(--lh-step-3);
-  letter-spacing: var(--tracking-display);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--ui-title);
+  line-height: var(--ui-leading-title);
 }
 
 /* aperçu */
@@ -340,9 +375,6 @@
 }
 .current {
   color: var(--ed-soft);
-  font-size: var(--text-step--2);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
 }
 
 /* ------------------------------------------------------------ photo */
@@ -380,10 +412,7 @@
   pointer-events: none;
 }
 .empty {
-  color: var(--color-taupe-deep);
-  font-size: var(--text-step--2);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  color: var(--ed-soft);
 }
 .stack {
   display: grid;
@@ -427,10 +456,6 @@
   background: var(--ed-strong);
   color: var(--ed-on-strong);
   font-weight: var(--font-weight-regular);
-  font-size: var(--text-step--2);
-  line-height: var(--leading-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   white-space: nowrap;
 }
 .pastilleSurPhoto {
@@ -493,10 +518,7 @@
 }
 .photoTitle {
   margin: 0;
-  font-weight: var(--font-weight-regular);
-  font-size: var(--text-step--2);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  font-weight: var(--font-weight-semibold);
 }
 @media (max-width: 47.99rem) {
   .photoItem {
@@ -531,9 +553,6 @@
   padding-inline: var(--spacing-2xs);
   background: var(--ed-strong);
   color: var(--ed-on-strong);
-  font-size: var(--text-step--2);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
 }
 .blockTools .add {
   background: var(--ed-strong);
@@ -564,10 +583,9 @@
   border-color: var(--ed-strong);
 }
 .blockLabel {
-  font-family: var(--font-display);
-  font-style: var(--font-style-display);
-  font-size: var(--text-step-1);
-  line-height: var(--lh-step-1);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--ui-title-sm);
+  line-height: var(--ui-leading-title);
 }
 .fieldset {
   display: grid;

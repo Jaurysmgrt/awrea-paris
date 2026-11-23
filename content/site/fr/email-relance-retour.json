@@ -40,7 +40,7 @@
     },
     {
       "type": "texte",
-      "texte": "L’étiquette de retour vous attend dans le suivi de votre commande : {suivi}\n\nSi vous avez changé d’avis ou si quelque chose vous gêne, répondez simplement à ce message.",
+      "texte": "L’étiquette de retour vous attend [dans le suivi de votre commande]({suivi}).\n\nSi vous avez changé d’avis ou si quelque chose vous gêne, répondez simplement à ce message.",
       "id": "b-relret04"
     },
     {

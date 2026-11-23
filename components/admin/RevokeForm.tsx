@@ -9,7 +9,7 @@ export function RevokeForm({ token }: { token: string }) {
   if (state === "done") {
     return (
       <p className="t-body t-center" role="status">
-        Toutes les sessions sont fermées et le compte est remis à zéro. Changez maintenant le mot de passe d’installation (ATELIER_PASSWORD) dans Vercel.
+        Toutes les sessions sont fermées et le compte est remis à zéro. Demandez maintenant à la personne qui s’occupe du site de changer le mot de passe d’installation.
       </p>
     );
   }

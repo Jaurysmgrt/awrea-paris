@@ -80,7 +80,7 @@ export function connexionsAtelier(e: EtatConnexions): Connexion[] {
           : p.boutiqueReelle
             ? "Tant qu’il n’est pas branché, la boutique ne prend aucune commande payée."
             : "En attendant, la démonstration utilise un paiement d’essai, sans argent réel.",
-        technique: `${technique}${p.raison ? ` · ${p.raison}` : ""} · STRIPE_SECRET_KEY et STRIPE_WEBHOOK_SECRET, webhook vers /api/webhooks/stripe`,
+        technique: `${technique}${p.raison ? ` · ${p.raison}` : ""} · webhook vers /api/webhooks/stripe`,
       };
     }
     const branche = s.provider !== "mock";

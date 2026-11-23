@@ -22,7 +22,7 @@ const nouvelleEtape = (type: Etape["type"], email?: string): Etape => {
 };
 const NOMS: Record<Etape["type"], string> = { email: "Envoyer un e-mail", attente: "Attendre", condition: "Vérifier" };
 
-export function ParcoursEditor({ id, statut, initial, emails }: { id: string; statut: Statut; initial: Definition; emails: EmailChoix[] }) {
+export function ParcoursEditor({ id, statut, initial, emails, simulation = true }: { id: string; statut: Statut; initial: Definition; emails: EmailChoix[]; simulation?: boolean }) {
   const atelier = useAtelier();
   const router = useRouter();
   const [def, setDef] = useState<Definition>(initial);
@@ -285,7 +285,7 @@ export function ParcoursEditor({ id, statut, initial, emails }: { id: string; st
             </button>
           ) : (
             <button type="button" className="btn btn--outline" disabled={busy} onClick={() => void changerStatut("actif")}>
-              Activer
+              {simulation ? "Activer en simulation" : "Activer"}
             </button>
           )}
           {!actif ? (
@@ -294,6 +294,7 @@ export function ParcoursEditor({ id, statut, initial, emails }: { id: string; st
             </button>
           ) : null}
         </div>
+        {simulation ? <p className="t-note t-left">En simulation, rien ne part : le parcours prépare ses e-mails et les note dans le journal.</p> : null}
         {retour?.texte ? (
           <p className={retour.ok ? "t-note t-left" : "field__error"} role={retour.ok ? "status" : "alert"}>
             {retour.texte}

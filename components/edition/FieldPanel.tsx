@@ -123,7 +123,10 @@ export function FieldPanel({ target, docs, api, onClose, onSaved }: { target: Fi
   return (
     <div className={s.panel} style={{ top: pos.top, left: pos.left, transform: pos.below ? undefined : "translateY(-100%)" }} role="dialog" aria-label={`Modifier : ${rule.label}`}>
       <div className={s.panelHead}>
-        <span className={s.label}>{attr ? (attr === "alt" ? "Description de l’image" : "Texte lu par les lecteurs d’écran") : rule.label}</span>
+        <span className={s.label}>
+          {attr ? (attr === "alt" ? "Description de l’image" : "Texte lu par les lecteurs d’écran") : rule.label}
+          {attr ? null : <span className={s.langue}>{src.locale === "en" ? "Version anglaise" : "Texte en français"}</span>}
+        </span>
         <span className={near ? s.countNear : s.count} aria-live="polite">
           {count} / {rule.max}
         </span>
@@ -134,7 +137,7 @@ export function FieldPanel({ target, docs, api, onClose, onSaved }: { target: Fi
         </p>
       ) : null}
       {inline ? (
-        <p className={s.hint}>Écrivez directement dans la page. {rule.multiline ? "Ctrl et Entrée pour enregistrer." : "Entrée pour enregistrer."}</p>
+        <p className={s.hint}>Écrivez directement dans la page, puis touchez « Enregistrer ».</p>
       ) : (
         <textarea
           ref={textarea}
@@ -176,10 +179,19 @@ export function FieldPanel({ target, docs, api, onClose, onSaved }: { target: Fi
         </div>
       ) : null}
 
-      <label className={s.label} htmlFor="ed-traduction">
-        {other === "en" ? "Version anglaise" : "Version française"}
-      </label>
-      <textarea id="ed-traduction" className={s.input} value={translation} rows={rule.multiline ? 4 : 2} placeholder={other === "en" ? "Pas encore traduit : le français s’affiche à la place." : ""} onChange={(e) => setTranslation(e.target.value)} />
+      {/* l'autre langue, repliée : la créatrice écrit d'abord dans la langue de la page (parcours UX du 23/11) */}
+      <details className={s.autreLangue}>
+        <summary className={s.label}>{other === "en" ? "Version anglaise (facultatif)" : "Version française"}</summary>
+        <textarea
+          id="ed-traduction"
+          aria-label={other === "en" ? "Version anglaise" : "Version française"}
+          className={s.input}
+          value={translation}
+          rows={rule.multiline ? 4 : 2}
+          placeholder={other === "en" ? "Pas encore traduit : le français s’affiche à la place." : ""}
+          onChange={(e) => setTranslation(e.target.value)}
+        />
+      </details>
 
       {error ? (
         <p className={s.error} role="alert">

@@ -40,7 +40,7 @@
     },
     {
       "type": "texte",
-      "texte": "Your return label is waiting in your order tracking: {suivi}\n\nIf you have changed your mind or something bothers you, simply reply to this message.",
+      "texte": "Your return label is waiting [in your order tracking]({suivi}).\n\nIf you have changed your mind or something bothers you, simply reply to this message.",
       "id": "b-relret04"
     },
     {

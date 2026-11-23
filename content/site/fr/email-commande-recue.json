@@ -90,7 +90,7 @@
     {
       "id": "b-cmdrecu06",
       "type": "texte",
-      "texte": "Nous vous écrivons à chaque étape, quand la pièce entre en confection, quand elle est prête, puis le jour de son départ. Votre commande se suit ici : {suivi}"
+      "texte": "Nous vous écrivons à chaque étape, quand la pièce entre en confection, quand elle est prête, puis le jour de son départ. Vous pouvez [suivre votre commande]({suivi}) à tout moment."
     },
     {
       "id": "b-cmdrecu07",

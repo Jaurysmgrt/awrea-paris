@@ -36,7 +36,7 @@
     },
     {
       "type": "texte",
-      "texte": "Nous vous écrirons dès que votre pièce sera prête, avec la date d’expédition. Si vous avez une question, répondez simplement à ce message.\n\nVotre commande se suit ici : {suivi}",
+      "texte": "Nous vous écrirons dès que votre pièce sera prête, avec la date d’expédition. Si vous avez une question, répondez simplement à ce message.\n\nVous pouvez [suivre votre commande]({suivi}) à tout moment.",
       "id": "b-retard04"
     },
     {

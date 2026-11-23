@@ -45,13 +45,13 @@
     {
       "id": "b-rdv0visio",
       "type": "texte",
-      "texte": "The appointment takes place by video call. Here is the link, to open a little before the time: {visio}",
+      "texte": "The appointment takes place by video call: [join the call]({visio}) a little before the time.",
       "si": "visio"
     },
     {
       "id": "b-rdv0annul",
       "type": "texte",
-      "texte": "Unable to come? You can cancel here, and the time will go to another client: {annulation}"
+      "texte": "Unable to come? You can [cancel the appointment]({annulation}), and the time will go to another client."
     },
     {
       "id": "b-rdv0signe",

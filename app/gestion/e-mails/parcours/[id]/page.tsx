@@ -41,7 +41,11 @@ export default async function ParcoursEditionPage({ params }: { params: Promise<
         </p>
         <h1 className="t-h1">{p.nom}</h1>
         <p>
-          <span className={STATUT_CLASSE[p.statut]}>{STATUTS[p.statut]}</span> <span className="t-note">{mode === "reel" ? "Envois réels" : "En simulation"}</span>
+          <span className={STATUT_CLASSE[p.statut]}>{STATUTS[p.statut]}</span>{" "}
+          <span className={mode === "reel" ? "status status--done" : "status status--proposed"}>{mode === "reel" ? "Envois réels" : "En simulation"}</span>
+        </p>
+        <p className="t-body t-left">
+          {mode === "reel" ? "Les e-mails de ce parcours partent pour de vrai quand il est actif." : "Simulation : aucun e-mail ne part. Le journal dit ce qui serait parti, à qui et quel jour."}
         </p>
       </header>
 
@@ -69,13 +73,13 @@ export default async function ParcoursEditionPage({ params }: { params: Promise<
         </div>
         {entreraient !== null ? (
           <p className="t-note t-left">
-            Activé aujourd’hui, {entreraient} personne{entreraient > 1 ? "s" : ""} entrerai{entreraient > 1 ? "ent" : "t"}.
+            {p.statut === "brouillon" ? "Brouillon, pas encore activé. " : "En pause. "}S’il était activé aujourd’hui, {entreraient} personne{entreraient > 1 ? "s" : ""} y entrerai{entreraient > 1 ? "ent" : "t"}.
           </p>
         ) : null}
         {!contacts ? <p className="field__error">Les contacts n’ont pas pu être lus : les chiffres reviendront au prochain chargement.</p> : null}
       </section>
 
-      <ParcoursEditor id={p.id} statut={p.statut} initial={definition} emails={emails.map((e) => ({ id: e.id, nom: e.nom, pret: e.pret, raison: e.raison }))} />
+      <ParcoursEditor id={p.id} statut={p.statut} simulation={mode !== "reel"} initial={definition} emails={emails.map((e) => ({ id: e.id, nom: e.nom, pret: e.pret, raison: e.raison }))} />
 
       <JournalParcours titre="Journal du parcours" lignes={lignes} vide={mode === "reel" ? "Rien n’est encore parti." : "Rien encore en simulation."} />
     </div>

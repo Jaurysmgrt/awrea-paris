@@ -29,7 +29,8 @@ test("Parcours : du modèle au journal de simulation, sans aucun envoi réel", a
   // simulation : ni la variable de Vercel, ni l'accord
   const envois = page.locator("section", { has: page.getByRole("heading", { name: "Envois" }) });
   await expect(envois.getByText("Simulation", { exact: true })).toBeVisible();
-  await expect(envois.getByText("Pas posée")).toBeVisible();
+  await expect(envois.getByText("Pas encore donné", { exact: true })).toBeVisible();
+  await expect(envois).not.toContainText("PARCOURS_ENVOIS_REELS");
 
   // créer le brouillon depuis le modèle « Nouvelle inscrite »
   await page.getByRole("button", { name: "Créer le brouillon « Nouvelle inscrite »" }).click();
@@ -60,7 +61,9 @@ test("Parcours : du modèle au journal de simulation, sans aucun envoi réel", a
   expect(commande.status()).toBe(409);
 
   // l'activer : il tourne en simulation
-  await page.getByRole("button", { name: "Activer", exact: true }).click();
+  await expect(page.getByText(/Brouillon, pas encore activé/)).toBeVisible();
+  await expect(page.getByText("Simulation : aucun e-mail ne part.", { exact: false }).first()).toBeVisible();
+  await page.getByRole("button", { name: "Activer en simulation", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: "Parcours actif." })).toBeVisible();
   await expect(page.getByRole("button", { name: "Mettre en pause" })).toBeVisible();
   await expect(page.getByText("En simulation", { exact: true })).toBeVisible();

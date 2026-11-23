@@ -209,7 +209,7 @@ export function ApplicationAtelier() {
     if (!etat.config.actif)
       return (
         <p className="t-body">
-          Les notifications ne sont pas encore branchées : il faut ajouter deux clés dans Vercel, VAPID_PUBLIC_KEY et VAPID_PRIVATE_KEY. La marche à suivre est dans ACTIVATION.md, section « Application de l’Atelier ».
+          Les notifications arriveront quand la personne qui s’occupe du site les aura branchées (Réglages, Connexions).
         </p>
       );
     if (!env.push)

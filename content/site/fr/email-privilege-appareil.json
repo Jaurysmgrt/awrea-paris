@@ -10,7 +10,7 @@
   "blocs": [
     { "id": "b-privapp0entete", "type": "entete", "fond": "noir" },
     { "id": "b-privapp0titre", "type": "titre", "titre": "Votre privilège, ici" },
-    { "id": "b-privapp0texte", "type": "texte", "texte": "Bonjour,\n\nVous souhaitez profiter de votre privilège de bienvenue depuis un autre appareil. Ouvrez ce lien sur l’appareil de votre commande : {lien}" },
+    { "id": "b-privapp0texte", "type": "texte", "texte": "Bonjour,\n\nVous souhaitez profiter de votre privilège de bienvenue depuis un autre appareil. [Ouvrez ce lien]({lien}) sur l’appareil de votre commande." },
     { "id": "b-privapp0note", "type": "texte", "texte": "Le lien reste valable vingt-quatre heures. Si vous n’avez rien demandé, ignorez simplement cet e-mail : rien ne change." },
     { "id": "b-privapp0signe", "type": "signature", "texte": "À très bientôt,\nla Maison Awrea Paris" },
     { "id": "b-privapp0pied", "type": "pied", "note": "" }

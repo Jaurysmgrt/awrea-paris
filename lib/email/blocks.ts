@@ -126,9 +126,13 @@ export function styleOf(b: EmailBlock): Partial<EmailStyle> {
 
 /**
  * Liens dans un texte : « [les mots du lien](https://…) », vers le site (« /boutique »), une adresse
- * https ou un e-mail (mailto:). Rien d'autre n'est reconnu : le reste s'écrit tel quel.
+ * https ou un e-mail (mailto:), ou l'un des repères d'adresse posés par le site lui-même (suivi de la
+ * commande, suivi du colis, lien de confirmation, appel vidéo, annulation) : la cliente lit des mots,
+ * jamais une adresse brute (parcours UX du 23/11). Rien d'autre n'est reconnu : le reste s'écrit tel quel.
  */
-export const LIEN_TEXTE = /\[([^\]\n]{1,80})\]\(((?:https:\/\/|\/(?!\/)|mailto:)[^\s()<>"{}]{0,400})\)/g;
+export const LIEN_TEXTE = /\[([^\]\n]{1,80})\]\(((?:https:\/\/|\/(?!\/)|mailto:)[^\s()<>"{}]{0,400}|\{(?:suivi|lienColis|lien|visio|annulation)\})\)/g;
+/** Repères qui portent une adresse posée par le site (jamais une valeur écrite par une cliente). */
+export const REPERE_ADRESSE = /^\{(suivi|lienColis|lien|visio|annulation)\}$/;
 /** Le texte sans le balisage des liens (contrôle d'écriture, version texte). */
 export const sansLiens = (s: string) => s.replace(LIEN_TEXTE, "$1");
 

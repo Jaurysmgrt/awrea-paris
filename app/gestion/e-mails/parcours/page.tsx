@@ -74,8 +74,8 @@ export default async function ParcoursPage() {
         <p className="t-note t-left">{mode === "reel" ? "Les e-mails des parcours actifs partent pour de vrai." : "Rien ne part. Le journal dit ce qui serait parti, à qui et quel jour."}</p>
         <ul className="liste-simple">
           <li className="liste-simple__ligne">
-            <span>Variable PARCOURS_ENVOIS_REELS dans Vercel</span>
-            <span className="liste-simple__montant">{variable ? "Posée" : "Pas posée"}</span>
+            <span>Feu vert de la personne qui s’occupe du site</span>
+            <span className="liste-simple__montant">{variable ? "Donné" : "Pas encore donné"}</span>
           </li>
           <li className="liste-simple__ligne">
             <span>Votre accord</span>

@@ -11,7 +11,7 @@
   "blocs": [
     { "id": "b-conflet0entete", "type": "entete", "fond": "noir" },
     { "id": "b-conflet0titre", "type": "titre", "titre": "Une dernière étape" },
-    { "id": "b-conflet0texte", "type": "texte", "texte": "Bonjour,\n\nMerci de vouloir recevoir la lettre de la Maison. Pour confirmer votre inscription, ouvrez ce lien : {lien}" },
+    { "id": "b-conflet0texte", "type": "texte", "texte": "Bonjour,\n\nMerci de vouloir recevoir la lettre de la Maison. Pour confirmer votre inscription, [ouvrez ce lien]({lien})." },
     { "id": "b-conflet0privil", "type": "texte", "texte": "Ce clic ouvre aussi votre privilège de bienvenue : 10 % sur votre première pièce pendant 14 jours, retirés d’eux-mêmes au moment de payer avec cette adresse e-mail. Ouvrez le lien sur l’appareil de votre commande, ou connectez-vous à votre compte avec la même adresse.", "si": "privilege" },
     { "id": "b-conflet0note", "type": "texte", "texte": "Le lien reste valable sept jours. Si vous n’avez rien demandé, ignorez simplement cet e-mail : vous ne recevrez rien d’autre." },
     { "id": "b-conflet0signe", "type": "signature", "texte": "À très bientôt,\nla Maison Awrea Paris" },

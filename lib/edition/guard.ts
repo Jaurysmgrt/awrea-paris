@@ -40,7 +40,7 @@ export function ruleFor(path: string): FieldRule {
   if (key === "alt") return { max: 180, multiline: false, required: true, label: "Description de l’image (pour les personnes qui ne la voient pas)" };
   if (/^(h1|titre|title|heading|nom|name|titrepage)$/.test(key)) return { max: 120, role: "titre", multiline: false, required: true, label: "Titre" };
   if (/^(eyebrow|surtitre|kicker|label|etiquette|legende|caption)$/.test(key)) return { max: 80, multiline: false, required: false, label: key === "caption" || key === "legende" ? "Légende" : "Petite ligne au-dessus du titre" };
-  if (/^(lead|chapeau|accroche|tagline|intro)$/.test(key)) return { max: 320, role: "texte", multiline: true, required: false, label: "Chapeau" };
+  if (/^(lead|chapeau|accroche|tagline|intro)$/.test(key)) return { max: 320, role: "texte", multiline: true, required: false, label: "Texte d’introduction" };
   if (/^(citation|quote)$/.test(key)) return { max: 400, role: "texte", multiline: true, required: true, label: "Citation" };
   if (/^(text|texte|body|corps|paragraphe|paragraphes|paragraphs|lines|lignes|note|a|r)$/.test(key)) return { max: 2400, role: "texte", multiline: true, required: false, label: "Texte" };
   if (/^(q|question)$/.test(key)) return { max: 200, role: "titre", multiline: false, required: true, label: "Question" };

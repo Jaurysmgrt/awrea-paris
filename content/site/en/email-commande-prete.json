@@ -53,7 +53,7 @@
     {
       "id": "b-cmdpret06",
       "type": "texte",
-      "texte": "You can follow your order {commande} here: {suivi}"
+      "texte": "You can [follow your order {commande}]({suivi}) at any time."
     },
     {
       "id": "b-cmdpret07",

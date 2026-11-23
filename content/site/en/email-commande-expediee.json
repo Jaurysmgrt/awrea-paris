@@ -53,7 +53,7 @@
     {
       "id": "b-cmdexpe04",
       "type": "texte",
-      "texte": "It is travelling with {transporteur}, tracking number {numeroSuivi}: {lienColis}",
+      "texte": "It is travelling with {transporteur}, under tracking number [{numeroSuivi}]({lienColis}).",
       "si": "numeroSuivi"
     },
     {
@@ -71,7 +71,7 @@
     {
       "id": "b-cmdexpe07",
       "type": "texte",
-      "texte": "Your order {commande}, its invoice and its certificate: {suivi}"
+      "texte": "Your order {commande}, its invoice and its certificate are waiting [on its tracking page]({suivi})."
     },
     {
       "id": "b-cmdexpe08",

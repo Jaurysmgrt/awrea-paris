@@ -338,7 +338,8 @@ export function EditionMode({ base, email, guideDone }: { base: string; email: s
         />
       ) : null}
 
-      <div className={s.dock} role="region" aria-label="Édition de la page">
+      {/* sur téléphone, la barre tient en une ligne et se retire pendant la saisie d'un texte ou d'une photo */}
+      <div className={s.dock} role="region" aria-label="Édition de la page" data-saisie={field || image ? "" : undefined}>
         <div className={s.dockState}>
           <span className={s.dockTitle}>Édition</span>
           <span className={s.dockStatus} role="status">
@@ -354,26 +355,45 @@ export function EditionMode({ base, email, guideDone }: { base: string; email: s
               Naviguer
             </button>
           </div>
-          <button type="button" className={s.btn} onClick={() => setDialog("apercu")}>
-            Aperçu
-          </button>
-          <button type="button" className={s.btn} onClick={() => setDialog("historique")} disabled={!pageDocs.length}>
-            Historique
-          </button>
-          {provisoires?.length ? (
-            <button type="button" className={s.btn} onClick={() => (setDialog("provisoires"), void loadProvisional())} aria-haspopup="dialog">
-              {P.boutonBarre} · {provisoires.length}
+          <span className={s.secondaires}>
+            <button type="button" className={s.btn} onClick={() => setDialog("apercu")}>
+              Aperçu
             </button>
-          ) : null}
-          <button type="button" className={s.btn} onClick={() => setDialog("programmer")} disabled={!pending.length}>
-            Programmer
-          </button>
+            <button type="button" className={s.btn} onClick={() => setDialog("historique")} disabled={!pageDocs.length}>
+              Historique
+            </button>
+            {provisoires?.length ? (
+              <button type="button" className={s.btn} onClick={() => (setDialog("provisoires"), void loadProvisional())} aria-haspopup="dialog">
+                {P.boutonBarre} · {provisoires.length}
+              </button>
+            ) : null}
+            <button type="button" className={s.btn} onClick={() => setDialog("programmer")} disabled={!pending.length}>
+              Programmer
+            </button>
+          </span>
           <button type="button" className={s.btnSolid} onClick={publish} disabled={busy || !pending.length}>
             {busy ? "Un instant…" : "Publier"}
           </button>
           <details className={s.more}>
             <summary className={s.btn}>Plus</summary>
             <div className={s.menu}>
+              {/* sur téléphone, les gestes moins courants passent dans « Plus » */}
+              <span className={s.menuTelephone}>
+                <button type="button" onClick={() => setDialog("apercu")}>
+                  Aperçu
+                </button>
+                <button type="button" onClick={() => setDialog("historique")} disabled={!pageDocs.length}>
+                  Historique
+                </button>
+                {provisoires?.length ? (
+                  <button type="button" onClick={() => (setDialog("provisoires"), void loadProvisional())} aria-haspopup="dialog">
+                    {P.boutonBarre} · {provisoires.length}
+                  </button>
+                ) : null}
+                <button type="button" onClick={() => setDialog("programmer")} disabled={!pending.length}>
+                  Programmer
+                </button>
+              </span>
               <button type="button" onClick={discard} disabled={!pending.length}>
                 Effacer les modifications
               </button>

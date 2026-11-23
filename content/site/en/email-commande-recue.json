@@ -90,7 +90,7 @@
     {
       "id": "b-cmdrecu06",
       "type": "texte",
-      "texte": "We will write to you at each step: when the piece goes into the making, when it is ready, then on the day it leaves. You can follow your order here: {suivi}"
+      "texte": "We will write to you at each step: when the piece goes into the making, when it is ready, then on the day it leaves. You can [follow your order]({suivi}) at any time."
     },
     {
       "id": "b-cmdrecu07",
