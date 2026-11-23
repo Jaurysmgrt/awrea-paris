@@ -7,14 +7,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAtelier } from "./AtelierContext";
+import { useConfirmation } from "./Confirmation";
 
 export function LettreActions({ nombre, prete }: { nombre: number; prete: boolean }) {
   const router = useRouter();
   const atelier = useAtelier();
   const [busy, setBusy] = useState<"essai" | "envoi" | null>(null);
   const [message, setMessage] = useState<{ ok: boolean; texte: string } | null>(null);
+  const { confirmer, fenetre } = useConfirmation();
   const envoyer = async (action: "essai" | "envoi") => {
-    if (action === "envoi" && !window.confirm(`Envoyer la lettre à ${nombre} inscrite${nombre > 1 ? "s" : ""} ? Elle ne pourra pas être rappelée.`)) return;
+    if (action === "envoi" && !(await confirmer(`Envoyer la lettre à ${nombre} inscrite${nombre > 1 ? "s" : ""} ? Elle ne pourra pas être rappelée.`, "Envoyer la lettre"))) return;
     setBusy(action);
     setMessage(null);
     const res = await fetch(atelier.api("/lettre"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(action === "essai" ? { action } : { action, nombre }) }).catch(() => null);
@@ -36,6 +38,7 @@ export function LettreActions({ nombre, prete }: { nombre: number; prete: boolea
           {message.texte}
         </p>
       ) : null}
+      {fenetre}
     </div>
   );
 }

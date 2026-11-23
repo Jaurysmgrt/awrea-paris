@@ -62,6 +62,19 @@ export async function nouveauCode(page: Page): Promise<string> {
 }
 
 /**
+ * Confirmation dans la page de l'Atelier (components/admin/Confirmation.tsx, plus jamais la fenêtre
+ * du navigateur) : renvoie la question posée, puis l'accepte comme le ferait la créatrice.
+ */
+export async function accepterConfirmation(page: Page): Promise<string> {
+  const fenetre = page.getByRole("alertdialog");
+  await expect(fenetre).toBeVisible();
+  const question = (await fenetre.locator("p").first().textContent()) ?? "";
+  await fenetre.locator("[data-oui]").click();
+  await expect(fenetre).toBeHidden();
+  return question;
+}
+
+/**
  * `faceId` : après le code, l'Atelier propose d'ajouter Face ID sur l'appareil ; les autres tests ne
  * la voient pas (l'appareil est marqué comme déjà sollicité), le test de Face ID choisit sa réponse.
  */

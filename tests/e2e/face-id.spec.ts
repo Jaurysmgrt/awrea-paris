@@ -5,7 +5,7 @@
  * d'une réponse fabriquée.
  */
 import { expect, test } from "@playwright/test";
-import { adminLogin, ATELIER } from "./admin-auth";
+import { accepterConfirmation, adminLogin, ATELIER } from "./admin-auth";
 import { outbox } from "./helpers";
 
 test("Face ID : ajouter cet appareil, entrer d'un geste, retirer", async ({ page, browserName }) => {
@@ -54,8 +54,8 @@ test("Face ID : ajouter cet appareil, entrer d'un geste, retirer", async ({ page
 
   // retirée dans les Réglages, la clé n'ouvre plus l'Atelier
   await page.goto(`${ATELIER}/reglages`);
-  page.once("dialog", (d) => d.accept());
   await section.getByRole("button", { name: "Retirer" }).click();
+  await accepterConfirmation(page);
   await expect(section.locator(".faceid-cle")).toHaveCount(0);
   await page.context().clearCookies();
   await page.goto(ATELIER);

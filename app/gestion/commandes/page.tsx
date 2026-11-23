@@ -34,7 +34,7 @@ function NextAction({ order }: { order: Order }) {
   if (next === "shipped" || next === "delivered") {
     if (next === "shipped")
       return (
-        <Link href={atelierHref(`/commandes/${encodeURIComponent(order.number)}#etapes`)} className="text-link">
+        <Link href={atelierHref(`/commandes/${encodeURIComponent(order.number)}#etapes`)} className="btn btn--outline btn--compact">
           Expédier
         </Link>
       );
@@ -182,7 +182,8 @@ export default async function CommandesPage({ searchParams }: { searchParams: Pr
                     <td role="cell" data-titre="À faire">
                       <div className="table__gestes">
                         <NextAction order={o} />
-                        <ActionButton endpoint={atelierApi("/avis/demande")} body={{ number: o.number }} label="Demander un avis" busyLabel="Envoi…" variant="quiet" />
+                        {/* l'avis se demande une fois la pièce reçue (parcours UX du 23/11) */}
+                        {o.status === "delivered" ? <ActionButton endpoint={atelierApi("/avis/demande")} body={{ number: o.number }} label="Demander un avis" busyLabel="Envoi…" variant="quiet" /> : null}
                       </div>
                     </td>
                   </tr>

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import path from "node:path";
-import { adminLogin as login, ATELIER, ATELIER_EMAIL, PERSONAL_PASSWORD, SETUP_PASSWORD } from "./admin-auth";
+import { accepterConfirmation, adminLogin as login, ATELIER, ATELIER_EMAIL, PERSONAL_PASSWORD, SETUP_PASSWORD } from "./admin-auth";
 
 test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
   test("accès protégé", async ({ request }) => {
@@ -153,8 +153,10 @@ test.describe("Tableau de bord Atelier et agents (mode démonstration)", () => {
     await page.goto(`${ATELIER}/validations`);
     const proposal = page.locator(".proposal[data-status=pending]").first();
     await expect(proposal).toBeVisible();
-    page.once("dialog", (d) => d.accept());
     await proposal.getByRole("button", { name: "Valider" }).click();
+    // une proposition d'argent ou irréversible demande une confirmation dans la page
+    await page.getByRole("alertdialog").or(page.locator(".proposal[data-status=approved]").first()).waitFor();
+    if (await page.getByRole("alertdialog").isVisible()) await accepterConfirmation(page);
     await expect(page.locator(".proposal[data-status=approved]").first()).toBeVisible();
     await page.goto(`${ATELIER}/journal`);
     await expect(page.getByText(/Validé par la créatrice/).first()).toBeVisible();

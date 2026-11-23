@@ -9,6 +9,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "@/components/ui/Link";
 import { useAtelier } from "./AtelierContext";
+import { useConfirmation } from "./Confirmation";
 import { CRITERES, DECLENCHEURS, EXCLUSIONS, type CritereId, type DeclencheurId, type Definition, type Etape, type ExclusionId, type Statut } from "@/lib/marketing/parcours/types";
 
 export type EmailChoix = { id: string; nom: string; pret: boolean; raison?: string };
@@ -30,6 +31,7 @@ export function ParcoursEditor({ id, statut, initial, emails, simulation = true 
   const [busy, setBusy] = useState(false);
   const [retour, setRetour] = useState<Retour | null>(null);
   const [essai, setEssai] = useState<Record<string, Retour>>({});
+  const { confirmer, fenetre } = useConfirmation();
   const actif = statut === "actif";
   /** actif : on regarde, on s'envoie un essai, mais on ne modifie pas (mettre en pause d'abord) */
   const ro = actif || busy;
@@ -72,7 +74,7 @@ export function ParcoursEditor({ id, statut, initial, emails, simulation = true 
     if (r.ok) router.refresh();
   };
   const retirer = async () => {
-    if (!window.confirm(`Retirer le parcours « ${def.nom} » ? Ce qu’il a déjà fait reste au journal.`)) return;
+    if (!(await confirmer(`Retirer le parcours « ${def.nom} » ? Ce qu’il a déjà fait reste au journal.`, "Retirer le parcours"))) return;
     setBusy(true);
     const r = await appel({}, "DELETE");
     setBusy(false);
@@ -87,6 +89,7 @@ export function ParcoursEditor({ id, statut, initial, emails, simulation = true 
 
   return (
     <div className="stack-l">
+      {fenetre}
       {actif ? <p className="t-note t-left">Ce parcours est actif. Mettez-le en pause pour le modifier.</p> : null}
       <form
         className="stack-l"

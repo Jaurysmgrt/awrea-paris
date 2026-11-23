@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { getAt, parsePath } from "@/lib/edition/paths";
 import { stegaClean, type Source } from "@/lib/edition/stega";
 import { isProvisional, TEXTES_PROVISOIRES as P, type SitePhoto } from "@/lib/edition/provisoires";
+import { useConfirmation } from "@/components/admin/Confirmation";
 import { call, postJson } from "./client";
 import { editableInPlace, key as sourceKey, parseKey, scan, setEditable } from "./scan";
 import { FieldPanel } from "./FieldPanel";
@@ -86,6 +87,7 @@ export function EditionMode({ base, email, guideDone }: { base: string; email: s
   const [image, setImage] = useState<ImageTarget | null>(null);
   const [dialog, setDialog] = useState<Dialog>(guideDone ? null : "aide");
   const [notice, setNotice] = useState("");
+  const { confirmer, fenetre } = useConfirmation();
   const [busy, setBusy] = useState(false);
   const [provisoires, setProvisoires] = useState<SitePhoto[] | null>(null);
   const ids = useRef<string[]>([]);
@@ -281,7 +283,7 @@ export function EditionMode({ base, email, guideDone }: { base: string; email: s
   };
 
   const discard = async () => {
-    if (!window.confirm("Effacer toutes les modifications non publiées de cette page ? La version en ligne ne change pas.")) return;
+    if (!(await confirmer("Effacer toutes les modifications non publiées de cette page ? La version en ligne ne change pas.", "Effacer les modifications"))) return;
     setBusy(true);
     for (const id of pending) for (const locale of ["fr", "en"] as const) if (docs[id].locales[locale].draft) await postJson(api("/brouillon"), { doc: id, locale, abandon: true });
     setBusy(false);
@@ -302,6 +304,7 @@ export function EditionMode({ base, email, guideDone }: { base: string; email: s
 
   return createPortal(
     <div data-edition-ui="" className={s.root}>
+      {fenetre}
       {mode === "modifier" ? <BlockTools api={api} onChanged={refresh} flash={flash} /> : null}
       {field ? (
         <FieldPanel

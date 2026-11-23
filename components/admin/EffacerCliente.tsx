@@ -7,6 +7,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAtelier } from "./AtelierContext";
+import { useConfirmation } from "./Confirmation";
 
 export function EffacerCliente({ id }: { id: string }) {
   const atelier = useAtelier();
@@ -14,10 +15,11 @@ export function EffacerCliente({ id }: { id: string }) {
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; texte: string } | null>(null);
+  const { confirmer, fenetre } = useConfirmation();
 
   async function effacer(e: React.FormEvent) {
     e.preventDefault();
-    if (!window.confirm("Effacer définitivement le compte de cette cliente ? Ce geste ne se défait pas.")) return;
+    if (!(await confirmer("Effacer définitivement le compte de cette cliente ? Ce geste ne se défait pas.", "Effacer le compte"))) return;
     setBusy(true);
     setMessage(null);
     const res = await fetch(atelier.api(`/clientes/${encodeURIComponent(id)}/effacer`), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) }).catch(() => null);
@@ -50,6 +52,7 @@ export function EffacerCliente({ id }: { id: string }) {
       <p className="field__error" role="alert">
         {message && !message.ok ? message.texte : ""}
       </p>
+      {fenetre}
     </form>
   );
 }

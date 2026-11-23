@@ -6,7 +6,7 @@
  * parcours ne part pour de vrai (la variable PARCOURS_ENVOIS_REELS n'est pas posée pendant les tests).
  */
 import { expect, test } from "@playwright/test";
-import { adminLogin, ATELIER, ATELIER_EMAIL, nouveauCode } from "./admin-auth";
+import { accepterConfirmation, adminLogin, ATELIER, ATELIER_EMAIL, nouveauCode } from "./admin-auth";
 import { confirmerInscription, inscrire, readStore } from "./helpers";
 
 type Parti = { to: string; subject: string; tag?: string };
@@ -113,8 +113,8 @@ test("Parcours : du modèle au journal de simulation, sans aucun envoi réel", a
   await page.goto(adresse);
   await page.getByRole("button", { name: "Mettre en pause" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Parcours en pause." })).toBeVisible();
-  page.once("dialog", (d) => void d.accept());
   await page.getByRole("button", { name: "Retirer le parcours" }).click();
+  await accepterConfirmation(page);
   await page.waitForURL(/\/e-mails\/parcours$/);
 
   // hors de l'Atelier : rien

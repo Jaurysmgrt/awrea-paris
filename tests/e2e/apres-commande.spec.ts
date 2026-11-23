@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { acceptCookies, outbox } from "./helpers";
-import { adminLogin, ATELIER } from "./admin-auth";
+import { accepterConfirmation, adminLogin, ATELIER } from "./admin-auth";
 
 /**
  * Après la commande, sans compte : facture PDF, suivi par numéro et e-mail (frise de la
@@ -60,8 +60,8 @@ test("facture, suivi sans compte, étapes de la confection, expédition, livrais
   await atelierStages.getByRole("button", { name: "Marquer comme prête" }).click();
   await expect(atelierStages.locator('[aria-current="step"]')).toContainText("Prête");
   await atelierStages.getByLabel("Numéro de suivi").fill("6A99999999999");
-  page.once("dialog", (d) => d.accept());
   await atelierStages.getByRole("button", { name: "Marquer comme expédiée" }).click();
+  await accepterConfirmation(page);
   await expect(atelierStages.locator('[aria-current="step"]')).toContainText("Expédiée");
   await atelierStages.getByRole("button", { name: "Marquer comme livrée" }).click();
   await expect(atelierStages.locator('[aria-current="step"]')).toContainText("Livrée");
@@ -96,8 +96,8 @@ test("facture, suivi sans compte, étapes de la confection, expédition, livrais
   const item = page.locator("li").filter({ hasText: number }).first();
   await item.getByRole("button", { name: "Colis reçu" }).click();
   await expect(item.getByText("Colis reçu à l’atelier")).toBeVisible();
-  page.once("dialog", (d) => d.accept());
   await item.getByRole("button", { name: /^Rembourser/ }).click();
+  await accepterConfirmation(page);
   await expect(page.locator("li").filter({ hasText: number }).filter({ hasText: "Remboursée" })).toBeVisible();
   await expect.poll(() => outbox().some((m) => m.to === email && /Remboursement de votre retour/.test(m.subject))).toBeTruthy();
   await page.goto(`${ATELIER}/factures`);

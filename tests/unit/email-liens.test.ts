@@ -1,7 +1,10 @@
 /** Liens des e-mails sans code visible (lib/email/liens.ts, parcours UX du 23/11). */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { adresseComprise, adresseValable, ajouterLien, assembler, decouper, modifierTexte } from "@/lib/email/liens";
+import { renderEmail } from "@/lib/email/render";
+import type { EmailDoc } from "@/lib/email/blocks";
 
 const valeur = "Retrouvez [la boutique](/boutique) et [nos pièces](/collection) dès ce soir.";
 
@@ -46,4 +49,25 @@ test("adresse comprise comme on l’écrit, jamais une adresse dangereuse", () =
   assert.equal(adresseComprise("contact@awreaparis.com"), "mailto:contact@awreaparis.com");
   assert.equal(adresseValable(adresseComprise("javascript:alert(1)")), false);
   assert.equal(adresseValable(adresseComprise("//pirate.exemple")), false);
+});
+
+test("e-mails aux clientes : des liens nommés, jamais une adresse brute, jamais une adresse douteuse", () => {
+  const doc = JSON.parse(readFileSync(new URL("../../content/site/fr/email-commande-expediee.json", import.meta.url), "utf8")) as EmailDoc;
+  const commun = { devise: "Consommer plus juste", lignePied: "Awrea Paris", desinscription: "", mentions: "", voirPiece: "", total: "Total" };
+  const colis = "https://www.laposte.fr/outils/suivre-vos-envois?code=6A123";
+  const vars = { prenom: "Camille", commande: "AW-1042", suivi: "https://www.exemple.fr/suivi/AW-1042", transporteur: "Colissimo", numeroSuivi: "6A123", lienColis: colis, relais: "" };
+  const mail = renderEmail(doc, { site: "https://www.exemple.fr", commun, vars });
+  // l'adresse est dans le lien, jamais écrite dans le texte lu
+  assert.match(mail.html, /<a href="https:\/\/www\.laposte\.fr\/outils\/suivre-vos-envois\?code=6A123"[^>]*>6A123<\/a>/);
+  assert.match(mail.html, /<a href="https:\/\/www\.exemple\.fr\/suivi\/AW-1042"[^>]*>sur sa page de suivi<\/a>/);
+  const corps = mail.html.slice(mail.html.indexOf("<body")).replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ");
+  assert.doesNotMatch(corps, /suivre-vos-envois|\/suivi\/AW-1042/);
+  // la version texte garde « mots : adresse », lisible sans lien
+  assert.match(mail.text, /6A123 : https:\/\/www\.laposte\.fr/);
+  // sans lien de colis, le numéro reste des mots ; une valeur douteuse ne devient jamais un lien
+  const sans = renderEmail(doc, { site: "https://www.exemple.fr", commun, vars: { ...vars, lienColis: "" } });
+  assert.doesNotMatch(sans.html, /<a [^>]*>6A123<\/a>/);
+  assert.match(sans.html, /6A123/);
+  const douteux = renderEmail(doc, { site: "https://www.exemple.fr", commun, vars: { ...vars, lienColis: "javascript:alert(1)" } });
+  assert.doesNotMatch(douteux.html, /javascript:/);
 });

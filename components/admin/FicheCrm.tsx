@@ -7,6 +7,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAtelier } from "./AtelierContext";
+import { useConfirmation } from "./Confirmation";
 
 type Message = { ok: boolean; texte: string } | null;
 
@@ -93,9 +94,10 @@ export function DesinscrireFiche({ id }: { id: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<Message>(null);
+  const { confirmer, fenetre } = useConfirmation();
 
   async function desinscrire() {
-    if (!window.confirm("Désinscrire cette personne de la lettre ? Elle ne recevra plus aucun e-mail de la Maison, hors ses commandes.")) return;
+    if (!(await confirmer("Désinscrire cette personne de la lettre ? Elle ne recevra plus aucun e-mail de la Maison, hors ses commandes.", "Désinscrire"))) return;
     setBusy(true);
     setMessage(null);
     const res = await fetch(atelier.api(`/clientes/${encodeURIComponent(id)}/desinscrire`), { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }).catch(() => null);
@@ -117,6 +119,7 @@ export function DesinscrireFiche({ id }: { id: string }) {
         </button>
       </div>
       <Annonces message={message} />
+      {fenetre}
     </div>
   );
 }

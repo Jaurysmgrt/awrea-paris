@@ -7,6 +7,7 @@ import { useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { browserSupportsWebAuthn, startAuthentication, startRegistration } from "@simplewebauthn/browser";
 import { useAtelier } from "./AtelierContext";
+import { useConfirmation } from "./Confirmation";
 
 const rien = () => () => {};
 
@@ -106,8 +107,10 @@ export function FaceIdManager({ cles }: { cles: { id: string; label: string; cre
   const possible = useFaceIdPossible();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; texte: string } | null>(null);
+  const { confirmer, fenetre } = useConfirmation();
   return (
     <div className="stack-m">
+      {fenetre}
       {cles.length ? (
         <ul className="faceid-cles">
           {cles.map((c) => (
@@ -122,7 +125,7 @@ export function FaceIdManager({ cles }: { cles: { id: string; label: string; cre
                 className="btn btn--link"
                 disabled={busy}
                 onClick={async () => {
-                  if (!window.confirm(`Retirer Face ID pour « ${c.label} » ? Cet appareil devra de nouveau entrer avec le mot de passe et le code.`)) return;
+                  if (!(await confirmer(`Retirer Face ID pour « ${c.label} » ? Cet appareil devra de nouveau entrer avec le mot de passe et le code.`, "Retirer Face ID"))) return;
                   setBusy(true);
                   const r = await post(atelier.api("/securite/passkey/retirer"), { id: c.id });
                   setBusy(false);

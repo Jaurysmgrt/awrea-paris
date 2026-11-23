@@ -15,14 +15,13 @@
  * grille de 8 px (lib/email/blocks.ts, EmailStyle). L'aperçu est un cadre sans script : l'éditeur
  * y lit seulement les clics et les photos déposées.
  */
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import {
   ALIGNEMENTS,
   EMAIL_BLOCKS,
   ESPACE_MAX,
   HAUTEUR_MAX,
   LARGEUR_MIN,
-  LIEN_TEXTE,
   POLICES,
   REGLAGES,
   STYLE_PAR_DEFAUT,
@@ -37,7 +36,9 @@ import {
 import { duplicateBlock, type FieldDef, type Img, type Lien } from "@/lib/edition/blocks";
 import { guardValue, ruleFor, writingFor } from "@/lib/edition/guard";
 import { fixTypography } from "@/lib/writing/rules";
+import { adresseComprise, adresseValable, ajouterLien, assembler, decouper, modifierTexte, type LienPlace } from "@/lib/email/liens";
 import { useAtelier } from "./AtelierContext";
+import { useConfirmation } from "./Confirmation";
 import { AtelierIcone, type NomIcone } from "./AtelierIcone";
 import s from "./email-editor.module.css";
 
@@ -76,6 +77,17 @@ const PHOTOS = new Set(["image", "photo-texte", "deux-photos"]);
  * au lieu de basculer dans la mise en page du téléphone.
  */
 const FENETRE = { ordinateur: 680, telephone: 375 } as const;
+
+/** Sur téléphone, l'aperçu s'ouvre en « Téléphone » et le panneau vient au bloc touché (parcours UX du 23/11). */
+const PETIT_ECRAN = "(max-width: 63.99rem)";
+const ecouterEcran = (fn: () => void) => {
+  const mq = window.matchMedia(PETIT_ECRAN);
+  mq.addEventListener("change", fn);
+  return () => mq.removeEventListener("change", fn);
+};
+const petitEcran = () => window.matchMedia(PETIT_ECRAN).matches;
+const telephone = () => window.matchMedia("(max-width: 47.99rem)").matches;
+const glisserVers = (el: Element | null) => el?.scrollIntoView({ block: "start", behavior: document.documentElement.dataset.motion === "reduce" ? "auto" : "smooth" });
 const MAX_BLOCS = 30;
 
 interface Version {
@@ -94,7 +106,16 @@ const move = <T,>(list: T[], from: number, to: number) => {
 };
 const isTodoText = (v: string) => /^\[[^\]]+\]$/.test(v.trim());
 /** adresses permises pour un lien : une page du site, une adresse https, un e-mail */
-const adresseOk = (a: string) => /^(https:\/\/[^\s()<>"{}]+|\/(?!\/)[^\s()<>"{}]*|mailto:[^\s()<>"{}]+)$/.test(a);
+/** Où mènent les liens posés par le site lui-même, dits en mots (lib/email/blocks.ts, REPERE_ADRESSE). */
+const CIBLES_REPERES: Record<string, string> = {
+  "{suivi}": "la page de suivi de sa commande",
+  "{lienColis}": "le suivi du colis chez le transporteur",
+  "{lien}": "le lien personnel de la cliente",
+  "{visio}": "l’appel vidéo",
+  "{annulation}": "l’annulation du rendez-vous",
+};
+/** Les repères les plus courants, quand l’e-mail ne les décrit pas. */
+const NOMS_REPERES: Record<string, string> = { prenom: "le prénom de la cliente", commande: "le numéro de commande", quand: "la date" };
 
 async function api<T = Record<string, unknown>>(url: string, init?: RequestInit): Promise<{ ok: boolean; data: T & { error?: string } }> {
   const res = await fetch(url, { cache: "no-store", ...init }).catch(() => null);
@@ -168,7 +189,23 @@ function Curseur({ label, value, min, max, step, unite, onChange }: { label: str
 
 // ------------------------------------------------------------------ champ de texte
 
-function TextField({ path, label, value, multiline, liens, onChange }: { path: string; label: string; value: string; multiline?: boolean; liens?: boolean; onChange: (v: string) => void }) {
+function TextField({
+  path,
+  label,
+  value,
+  multiline,
+  liens,
+  variables,
+  onChange,
+}: {
+  path: string;
+  label: string;
+  value: string;
+  multiline?: boolean;
+  liens?: boolean;
+  variables?: EmailDoc["variables"];
+  onChange: (v: string) => void;
+}) {
   const rule = ruleFor(path);
   const plain = sansLiens(value);
   const issues = value && !isTodoText(value) ? writingFor(path, plain).filter((i) => i.severity === "erreur") : [];
@@ -176,18 +213,20 @@ function TextField({ path, label, value, multiline, liens, onChange }: { path: s
   const id = `f-${path}`;
   const area = useRef<HTMLTextAreaElement>(null);
   const [lien, setLien] = useState<{ mots: string; adresse: string; from: number; to: number } | null>(null);
-  const presents = liens ? [...value.matchAll(LIEN_TEXTE)] : [];
+  // le champ ne montre que les mots ; les liens restent en coulisse et se listent dessous (23/11)
+  const { texte: affiche, liens: presents } = liens ? decouper(value) : { texte: value, liens: [] as LienPlace[] };
+  const reperes = [...new Set(affiche.match(/\{[a-zA-Z]\w*\}/g) ?? [])];
+  const adresse = lien ? adresseComprise(lien.adresse) : "";
 
   const ouvrirLien = () => {
     const el = area.current;
-    const from = el?.selectionStart ?? value.length;
-    const to = el?.selectionEnd ?? value.length;
-    setLien({ mots: value.slice(from, to).trim(), adresse: "", from, to });
+    const from = el?.selectionStart ?? affiche.length;
+    const to = el?.selectionEnd ?? affiche.length;
+    setLien({ mots: affiche.slice(from, to).trim(), adresse: "", from, to });
   };
   const inserer = () => {
-    if (!lien || !lien.mots.trim() || !adresseOk(lien.adresse.trim())) return;
-    const md = `[${lien.mots.trim().replace(/[[\]\n]/g, " ")}](${lien.adresse.trim()})`;
-    onChange(value.slice(0, lien.from) + md + value.slice(lien.to));
+    if (!lien || !lien.mots.trim() || !adresseValable(adresse)) return;
+    onChange(ajouterLien(value, lien.from, lien.to, lien.mots, adresse));
     setLien(null);
   };
 
@@ -197,15 +236,20 @@ function TextField({ path, label, value, multiline, liens, onChange }: { path: s
         <label htmlFor={id} className="field__label">
           {label}
         </label>
-        <span className={value.length > rule.max * 0.9 ? s.countNear : s.count}>
-          {value.length} / {rule.max}
+        <span className={affiche.length > rule.max * 0.9 ? s.countNear : s.count}>
+          {affiche.length} / {rule.max}
         </span>
       </div>
       {multiline ? (
-        <textarea ref={area} id={id} className="field__input" rows={6} value={value} maxLength={rule.max} onChange={(e) => onChange(e.target.value)} />
+        <textarea ref={area} id={id} className="field__input" rows={6} value={affiche} maxLength={rule.max} onChange={(e) => onChange(liens ? modifierTexte(value, e.target.value) : e.target.value)} />
       ) : (
-        <input id={id} className="field__input" value={value} maxLength={rule.max} onChange={(e) => onChange(e.target.value.replace(/\n/g, " "))} />
+        <input id={id} className="field__input" value={affiche} maxLength={rule.max} onChange={(e) => onChange(e.target.value.replace(/\n/g, " "))} />
       )}
+      {reperes.length ? (
+        <p className={s.hint}>
+          Remplacé à l’envoi : {reperes.map((r) => `${r} par ${(variables?.[r.slice(1, -1)]?.description ?? NOMS_REPERES[r.slice(1, -1)] ?? "une valeur de la commande").toLowerCase()}`).join(", ")}.
+        </p>
+      ) : null}
       {liens ? (
         <div className={s.toolbar}>
           <button type="button" className={s.tool} onClick={ouvrirLien} aria-expanded={Boolean(lien)}>
@@ -227,11 +271,12 @@ function TextField({ path, label, value, multiline, liens, onChange }: { path: s
             <label className="field__label" htmlFor={`${id}-adresse`}>
               Adresse
             </label>
-            <input id={`${id}-adresse`} className="field__input" value={lien.adresse} placeholder="/boutique ou https://…" inputMode="url" onChange={(e) => setLien({ ...lien, adresse: e.target.value })} />
-            {lien.adresse && !adresseOk(lien.adresse.trim()) ? <p className={s.issue}>Une page du site (« /boutique »), une adresse en https ou un e-mail en mailto.</p> : null}
+            <input id={`${id}-adresse`} className="field__input" value={lien.adresse} placeholder="boutique, ou une adresse https" inputMode="url" onChange={(e) => setLien({ ...lien, adresse: e.target.value })} />
+            {lien.adresse.trim() && adresseValable(adresse) && adresse !== lien.adresse.trim() ? <p className={s.hint}>Le lien mènera à {adresse}.</p> : null}
+            {lien.adresse.trim() && !adresseValable(adresse) ? <p className={s.issue}>Écrivez une page du site (« boutique »), une adresse qui commence par https ou une adresse e-mail.</p> : null}
           </div>
           <div className={s.actions}>
-            <button type="button" className="btn" onClick={inserer} disabled={!lien.mots.trim() || !adresseOk(lien.adresse.trim())}>
+            <button type="button" className="btn" onClick={inserer} disabled={!lien.mots.trim() || !adresseValable(adresse)}>
               Insérer le lien
             </button>
             <button type="button" className="btn btn--link" onClick={() => setLien(null)}>
@@ -242,14 +287,17 @@ function TextField({ path, label, value, multiline, liens, onChange }: { path: s
       ) : null}
       {presents.length ? (
         <ul className={s.links} aria-label="Liens du texte">
-          {presents.map((m, k) => (
-            <li key={`${m.index}-${k}`}>
+          {presents.map((l, k) => (
+            <li key={`${l.from}-${k}`}>
               <span>
-                « {m[1]} » vers {m[2]}
+                « {affiche.slice(l.from, l.to)} » vers {CIBLES_REPERES[l.adresse] ?? l.adresse}
               </span>
-              <button type="button" className="btn btn--link" onClick={() => onChange(value.slice(0, m.index) + m[1] + value.slice((m.index ?? 0) + m[0].length))}>
-                Retirer le lien
-              </button>
+              {/* un lien posé par le site (suivi, annulation…) reste : la cliente en a besoin */}
+              {CIBLES_REPERES[l.adresse] ? null : (
+                <button type="button" className="btn btn--link" onClick={() => onChange(assembler(affiche, presents.filter((_, i) => i !== k)))}>
+                  Retirer le lien
+                </button>
+              )}
             </li>
           ))}
         </ul>
@@ -381,7 +429,18 @@ function Reglages({
     switch (f.kind) {
       case "texte":
       case "texte-long":
-        return <TextField key={f.key} path={path} label={f.label} value={String(block[f.key] ?? "")} multiline={f.kind === "texte-long"} liens={f.key === "texte" && block.type !== "signature"} onChange={(v) => set({ [f.key]: v }, path)} />;
+        return (
+          <TextField
+            key={f.key}
+            path={path}
+            label={f.label}
+            value={String(block[f.key] ?? "")}
+            multiline={f.kind === "texte-long"}
+            liens={f.key === "texte" && block.type !== "signature"}
+            variables={doc.variables}
+            onChange={(v) => set({ [f.key]: v }, path)}
+          />
+        );
       case "image":
         return <ImageField key={f.key} path={path} label={f.label} value={(block[f.key] as Img) ?? { src: "", alt: "", width: 1200, height: 1500 }} onChange={(v) => set({ [f.key]: v }, `${path}.alt`)} />;
       case "lien": {
@@ -393,8 +452,15 @@ function Reglages({
               <label className="field__label" htmlFor={`${path}-href`}>
                 Page ouverte
               </label>
-              <input id={`${path}-href`} className="field__input" value={l.href} placeholder="/boutique" onChange={(e) => set({ [f.key]: { ...l, href: e.target.value.trim() } }, `${path}.href`)} />
-              {l.href && !adresseOk(l.href) && !l.href.startsWith("atelier:/") ? <p className={s.issue}>Une page du site (« /boutique »), une adresse en https ou un e-mail en mailto.</p> : null}
+              <input
+                id={`${path}-href`}
+                className="field__input"
+                value={l.href}
+                placeholder="boutique"
+                onChange={(e) => set({ [f.key]: { ...l, href: e.target.value.trim() } }, `${path}.href`)}
+                onBlur={() => l.href && !l.href.startsWith("atelier:/") && adresseComprise(l.href) !== l.href && set({ [f.key]: { ...l, href: adresseComprise(l.href) } }, `${path}.href`)}
+              />
+              {l.href && !adresseValable(adresseComprise(l.href)) && !l.href.startsWith("atelier:/") ? <p className={s.issue}>Écrivez une page du site (« boutique »), une adresse qui commence par https ou une adresse e-mail.</p> : null}
             </div>
           </div>
         );
@@ -575,7 +641,14 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
   const [error, setError] = useState("");
   const [client, setClient] = useState<Client>("apple");
   const [dark, setDark] = useState(false);
-  const [mobile, setMobile] = useState(false);
+  const petit = useSyncExternalStore(ecouterEcran, telephone, () => false);
+  const empile = useSyncExternalStore(ecouterEcran, petitEcran, () => false);
+  const [ecran, setMobile] = useState<boolean | null>(null);
+  const mobile = ecran ?? petit;
+  const panneau = useRef<HTMLElement>(null);
+  const apercuRef = useRef<HTMLDivElement>(null);
+  const [abandon, setAbandon] = useState(false);
+  const { confirmer, fenetre } = useConfirmation();
   const [cas, setCas] = useState<Record<string, boolean>>({});
   const [html, setHtml] = useState("");
   const [subjectShown, setSubjectShown] = useState({ subject: "", preheader: "" });
@@ -625,11 +698,18 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
   }, []);
 
   /** Choisir un bloc ; depuis le panneau, l'aperçu défile jusqu'à lui. */
-  const choisir = useCallback((blocId: string | null, depuisPanneau: boolean) => {
-    defiler.current = depuisPanneau;
-    setSelected(blocId);
-    if (!depuisPanneau && blocId) setOnglet("reglages");
-  }, []);
+  const choisir = useCallback(
+    (blocId: string | null, depuisPanneau: boolean) => {
+      defiler.current = depuisPanneau;
+      setSelected(blocId);
+      if (!depuisPanneau && blocId) {
+        setOnglet("reglages");
+        // panneau sous l'aperçu (téléphone, tablette) : il vient au bloc touché
+        if (empile) window.setTimeout(() => glisserVers(panneau.current), 50);
+      }
+    },
+    [empile],
+  );
 
   // Ctrl ou Cmd + Z : annuler ; avec Maj, ou Ctrl + Y : rétablir (hors d'un champ, où la saisie garde les siennes)
   useEffect(() => {
@@ -779,11 +859,12 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
     choisir(copie.id, true);
   };
   const supprimer = (b: EmailBlock) => {
-    if (!window.confirm("Supprimer ce bloc ? « Annuler » le remet en place.")) return;
     const i = doc.blocs.findIndex((x) => x.id === b.id);
     const voisin = doc.blocs[i + 1]?.id ?? doc.blocs[i - 1]?.id ?? null;
     change((d) => ({ ...d, blocs: d.blocs.filter((x) => x.id !== b.id) }));
     choisir(voisin, true);
+    // pas de question : « Annuler » remet le bloc en place
+    setStatus("Bloc supprimé. « Annuler » le remet en place.");
   };
 
   const publish = async () => {
@@ -805,13 +886,22 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
     setStatus(r.data.delivered ? `Essai envoyé à ${r.data.to}.` : `Essai rangé dans la boîte d’envoi (aucun service d’envoi branché).`);
   };
 
+  const abandonner = async () => {
+    setBusy("abandon");
+    setDirty(false);
+    const r = await post(atelier.api("/edition/brouillon"), { doc: id, locale: "fr", abandon: true });
+    setBusy("");
+    if (!r.ok) return setError(r.data.error ?? "Le brouillon n’a pas pu être abandonné.");
+    window.location.reload();
+  };
+
   const loadHistory = async () => {
     const r = await api<{ versions: Version[] }>(`${atelier.api("/edition/historique")}?doc=${id}&locale=fr`);
     setHistory(r.ok ? r.data.versions : []);
   };
 
   const restore = async (v: Version) => {
-    if (!window.confirm(`Remettre en service la version du ${when(v.at)} ? La version actuelle reste dans l’historique.`)) return;
+    if (!(await confirmer(`Remettre en service la version du ${when(v.at)} ? La version actuelle reste dans l’historique.`, "Remettre cette version"))) return;
     const r = await post(atelier.api("/edition/historique"), { doc: id, locale: "fr", version: v.id });
     if (!r.ok) return setError(r.data.error ?? "Le retour en arrière n’a pas abouti.");
     window.location.reload();
@@ -821,6 +911,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
 
   return (
     <div className={s.editor}>
+      {fenetre}
       <div className={s.bar}>
         <p className={s.status} role="status">
           {status}
@@ -842,11 +933,27 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
           <button type="button" className="btn btn--outline" onClick={loadHistory}>
             Historique
           </button>
+          <button type="button" className="btn btn--link" onClick={() => setAbandon(true)} disabled={Boolean(busy)} aria-expanded={abandon}>
+            Abandonner le brouillon
+          </button>
           <button type="button" className="btn" onClick={publish} disabled={Boolean(busy)}>
             {busy === "publier" ? "Un instant…" : "Publier"}
           </button>
         </div>
       </div>
+      {abandon ? (
+        <div className={s.confirmation} role="group" aria-label="Abandonner le brouillon">
+          <p>Revenir à la version en service ? Les changements pas encore publiés seront effacés.</p>
+          <div className={s.actions}>
+            <button type="button" className="btn btn--outline" onClick={abandonner} disabled={Boolean(busy)}>
+              {busy === "abandon" ? "Un instant…" : "Oui, abandonner le brouillon"}
+            </button>
+            <button type="button" className="btn btn--link" onClick={() => setAbandon(false)}>
+              Garder mes changements
+            </button>
+          </div>
+        </div>
+      ) : null}
       {error ? (
         <p className={s.issue} role="alert">
           {error}
@@ -854,7 +961,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
       ) : null}
 
       <div className={s.layout}>
-        <div className={s.preview}>
+        <div ref={apercuRef} className={s.preview}>
           <div className={s.previewBar}>
             <div className={s.segmented} role="group" aria-label="Messagerie">
               {CLIENTS.map((c) => (
@@ -913,7 +1020,12 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
           <p className={s.hint}>Cliquez sur un bloc pour le modifier ; glissez une photo sur l’e-mail pour la placer. Un essai envoyé à vous-même reste la vérification finale.</p>
         </div>
 
-        <aside className={s.panel} aria-label="Modifier l’e-mail">
+        <aside ref={panneau} className={s.panel} aria-label="Modifier l’e-mail">
+          {empile ? (
+            <button type="button" className={`btn btn--link ${s.start}`} onClick={() => glisserVers(apercuRef.current)}>
+              Voir l’aperçu
+            </button>
+          ) : null}
           <div className={s.tabs} role="group" aria-label="Panneau">
             {ONGLETS.map((o) => (
               <button key={o.id} type="button" aria-pressed={onglet === o.id} onClick={() => setOnglet(o.id)}>

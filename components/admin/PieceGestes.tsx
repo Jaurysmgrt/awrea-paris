@@ -7,6 +7,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAtelier } from "./AtelierContext";
+import { useConfirmation } from "./Confirmation";
 import type { StatutPiece } from "@/lib/commerce/statut-pieces";
 
 export function PieceGestes({
@@ -24,9 +25,10 @@ export function PieceGestes({
   const [message, setMessage] = useState<{ ok: boolean; texte: string } | null>(
     null,
   );
+  const confirmation = useConfirmation();
 
   async function envoyer(chemin: string, corps: unknown, confirmer?: string) {
-    if (confirmer && !window.confirm(confirmer)) return null;
+    if (confirmer && !(await confirmation.confirmer(confirmer))) return null;
     setBusy(true);
     setMessage(null);
     const res = await fetch(atelier.api(chemin), {
@@ -63,6 +65,7 @@ export function PieceGestes({
 
   return (
     <div className="stack-s">
+      {confirmation.fenetre}
       <div className="piece-gestes">
         {statut === "en-ligne" ? (
           <button type="button" className="btn btn--outline" disabled={busy} onClick={() => statutVers("brouillon", `Passer « ${title} » en brouillon ? Elle ne sera plus visible sur le site.`)}>

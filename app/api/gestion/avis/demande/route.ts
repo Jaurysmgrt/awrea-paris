@@ -11,6 +11,7 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Commande inconnue." }, { status: 400 });
   const order = await getOrder(parsed.data.number);
   if (!order) return NextResponse.json({ error: "Commande inconnue." }, { status: 404 });
+  if (order.status !== "delivered") return NextResponse.json({ error: "La demande d’avis part une fois la pièce livrée." }, { status: 409 });
   await sendReviewRequest(order);
   return NextResponse.json({ ok: true, message: `Demande d’avis envoyée à ${order.email}.` });
 }

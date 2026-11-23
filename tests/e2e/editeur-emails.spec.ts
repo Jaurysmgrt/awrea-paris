@@ -75,6 +75,17 @@ test("éditeur d'e-mails : choisir dans l'aperçu, régler, annuler, photo et te
   await panneau.getByRole("button", { name: "Insérer le lien" }).click();
   await expect(apercu(page).locator(`tbody[data-bloc='${TEXTE}'] a`, { hasText: "la boutique" })).toHaveAttribute("href", /\/boutique$/);
   await expect(panneau.getByRole("list", { name: "Liens du texte" })).toContainText("la boutique");
+  // le champ ne montre que des mots, jamais le code du lien, et le lien n'est pas collé au point (23/11)
+  await expect(texte).toHaveValue(/authenticité\. la boutique$/);
+  await expect(texte).not.toHaveValue(/\]\(|\(\//);
+  // une adresse écrite comme on la dit (« boutique ») devient une page du site
+  await texte.press("Control+End");
+  await panneau.getByRole("button", { name: "Ajouter un lien" }).click();
+  await panneau.getByLabel("Mots du lien").fill("nos pièces");
+  await panneau.getByLabel("Adresse").fill("collection");
+  await expect(panneau.getByText("Le lien mènera à /collection.")).toBeVisible();
+  await panneau.getByRole("button", { name: "Insérer le lien" }).click();
+  await expect(apercu(page).locator(`tbody[data-bloc='${TEXTE}'] a`, { hasText: "nos pièces" })).toHaveAttribute("href", /\/collection$/);
 
   // le brouillon s'enregistre tout seul et tient après un rechargement ; rien n'est publié
   await expect(page.getByRole("status").filter({ hasText: "Brouillon enregistré" })).toBeVisible({ timeout: 15_000 });
@@ -82,7 +93,10 @@ test("éditeur d'e-mails : choisir dans l'aperçu, régler, annuler, photo et te
   await expect(apercu(page).locator(`tbody[data-bloc='${TITRE}'] + tbody[data-bloc] table[dir='rtl']`)).toHaveCount(1);
   await expect.poll(() => style(page, `tbody[data-bloc='${TITRE}'] h1`)).toMatch(/font-size:48px/);
 
-  // le brouillon est abandonné : la version en service reste celle d'origine
-  const abandon = await page.request.post(`${ATELIER}/api/edition/brouillon`, { data: { doc: DOC, locale: "fr", abandon: true } });
-  expect(abandon.ok()).toBeTruthy();
+  // le brouillon s'abandonne d'un bouton, après une confirmation dans la page : la version en
+  // service revient (titre d'origine, 40 px)
+  await page.getByRole("button", { name: "Abandonner le brouillon" }).click();
+  await page.getByRole("group", { name: "Abandonner le brouillon" }).getByRole("button", { name: "Oui, abandonner le brouillon" }).click();
+  await expect.poll(() => style(page, `tbody[data-bloc='${TITRE}'] h1`), { timeout: 15_000 }).toMatch(/font-size:40px/);
+  await expect(apercu(page).locator(`tbody[data-bloc='${TITRE}'] + tbody[data-bloc] table[dir='rtl']`)).toHaveCount(0);
 });

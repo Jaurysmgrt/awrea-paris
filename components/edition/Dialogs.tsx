@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { stegaClean } from "@/lib/edition/stega";
 import { TEXTES_PROVISOIRES as P, type SitePhoto } from "@/lib/edition/provisoires";
+import { useConfirmation } from "@/components/admin/Confirmation";
 import { call, postJson, thumb } from "./client";
 import type { Docs } from "./EditionMode";
 import s from "./edition.module.css";
@@ -103,6 +104,7 @@ export function HistoryDialog({ docs, api, onClose, onRestored }: { docs: Docs; 
   const [versions, setVersions] = useState<VersionInfo[] | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState("");
+  const { confirmer, fenetre } = useConfirmation();
 
   useEffect(() => {
     if (!doc) return;
@@ -118,7 +120,7 @@ export function HistoryDialog({ docs, api, onClose, onRestored }: { docs: Docs; 
   }, [api, doc, locale]);
 
   const restore = async (v: VersionInfo) => {
-    if (!window.confirm(`Remettre en ligne la version du ${when(v.at)} ? La version actuelle reste dans l’historique.`)) return;
+    if (!(await confirmer(`Remettre en ligne la version du ${when(v.at)} ? La version actuelle reste dans l’historique.`, "Remettre cette version"))) return;
     setBusy(v.id);
     const r = await postJson(api("/historique"), { doc, locale, version: v.id });
     setBusy("");
@@ -128,6 +130,7 @@ export function HistoryDialog({ docs, api, onClose, onRestored }: { docs: Docs; 
 
   return (
     <Sheet label="Historique des versions" onClose={onClose}>
+      {fenetre}
       <h2 className={s.sheetTitle}>Historique</h2>
       <p className={s.hint}>Chaque publication est gardée. Un clic remet une ancienne version en ligne, et celle d’aujourd’hui reste ici.</p>
       <div className={s.row}>

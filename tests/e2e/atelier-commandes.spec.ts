@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { adminLogin, ATELIER } from "./admin-auth";
+import { accepterConfirmation, adminLogin, ATELIER } from "./admin-auth";
 import { acceptCookies } from "./helpers";
 
 /**
@@ -107,12 +107,8 @@ test("geste confirmé depuis la fiche : la confirmation dit ce qui va se passer"
   const numero = await commander(page, `confirmation.${Date.now().toString(36)}@exemple.fr`);
   await adminLogin(page);
   await page.goto(`${ATELIER}/commandes/${numero}`);
-  let confirmation = "";
-  page.once("dialog", (d) => {
-    confirmation = d.message();
-    void d.accept();
-  });
   await page.getByRole("button", { name: "Annuler et rembourser" }).click();
+  const confirmation = await accepterConfirmation(page);
   await expect(page.getByRole("status").filter({ hasText: /annulée et remboursée/ })).toBeVisible();
   expect(confirmation).toMatch(new RegExp(`${numero}.*démonstration.*ne se défait pas.*avoir`, "s"));
 });

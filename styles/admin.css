@@ -2062,6 +2062,11 @@
   .admin .table-scroll {
     max-width: 100%;
   }
+  /* geste suivant d'une commande dans la liste : un vrai bouton, compact, cible tactile entière */
+  .btn--compact {
+    padding-inline: var(--spacing-s);
+    white-space: normal;
+  }
   /* un mot long passe à la ligne au lieu de glisser sous sa voisine (Parcours › Envois, 360 px) */
   .liste-simple__ligne > * {
     min-width: 0;
@@ -2112,5 +2117,33 @@
     font-size: var(--ui-text);
     line-height: var(--ui-leading);
     white-space: normal;
+  }
+}
+
+/* Confirmation dans la page (components/admin/Confirmation.tsx), à la place de la fenêtre du
+   navigateur : police de l'Atelier, boutons de l'Atelier, au-dessus de l'éditeur visuel. */
+@layer components {
+  .confirmation-atelier {
+    inline-size: min(var(--container-panel), calc(100vw - var(--spacing-m) * 2));
+    padding: var(--spacing-m);
+    border: var(--border-width-hair) solid var(--line);
+    border-radius: var(--radius-soft);
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-ui);
+    font-size: var(--ui-text);
+    line-height: var(--ui-leading);
+  }
+  .confirmation-atelier::backdrop {
+    background: color-mix(in oklab, var(--color-ink) 40%, transparent);
+  }
+  .confirmation-atelier__gestes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    margin-block-start: var(--spacing-s);
+  }
+  .confirmation-atelier .btn {
+    font-family: var(--font-ui);
   }
 }

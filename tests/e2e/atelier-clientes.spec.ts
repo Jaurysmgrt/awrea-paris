@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { adminLogin, ATELIER } from "./admin-auth";
+import { accepterConfirmation, adminLogin, ATELIER } from "./admin-auth";
 import { confirmerInscription, inscrire, outbox } from "./helpers";
 
 /**
@@ -89,8 +89,8 @@ test("CRM : une inscrite à la lettre a sa fiche, ses segments, sa preuve, et l'
   await expect(page.getByRole("status").filter({ hasText: "Fiche enregistrée." })).toBeVisible();
 
   // désinscrire : jamais l'inverse (aucun bouton pour inscrire)
-  page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "Désinscrire de la lettre" }).click();
+  await accepterConfirmation(page);
   await expect(page.getByText(/Désinscrite\s: elle ne reçoit plus rien/)).toBeVisible();
   await expect(page.getByRole("button", { name: /inscrire/i })).toHaveCount(0);
 

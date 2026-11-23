@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { BLOCKS, blockDef, type Block, type FieldDef, type Lien } from "@/lib/edition/blocks";
 import { stegaClean } from "@/lib/edition/stega";
 import { BOUTON_MAX } from "@/lib/edition/guard";
+import { useConfirmation } from "@/components/admin/Confirmation";
 import { call, postJson } from "./client";
 import s from "./edition.module.css";
 
@@ -25,6 +26,7 @@ export function BlockTools({ api, onChanged, flash }: { api: (p: string) => stri
   const [rect, setRect] = useState<DOMRect | null>(null);
   const [library, setLibrary] = useState<Hover | null>(null);
   const [settings, setSettings] = useState<Hover | null>(null);
+  const { confirmer, fenetre } = useConfirmation();
 
   useEffect(() => {
     const pick = (e: Event) => {
@@ -49,7 +51,7 @@ export function BlockTools({ api, onChanged, flash }: { api: (p: string) => stri
   }, []);
 
   const op = async (h: Hover, kind: "monter" | "descendre" | "dupliquer" | "supprimer" | "ajouter", type?: string) => {
-    if (kind === "supprimer" && !window.confirm("Supprimer cette section ? Elle reste dans l’historique tant que la page n’est pas publiée.")) return;
+    if (kind === "supprimer" && !(await confirmer("Supprimer cette section ? Elle reste dans l’historique tant que la page n’est pas publiée.", "Supprimer la section"))) return;
     const r = await postJson(api("/blocs"), { doc: h.doc, path: h.path, op: kind, index: kind === "ajouter" ? h.index + 1 : h.index, type });
     if (!r.ok) return flash(r.data.error ?? "La section n’a pas été modifiée.");
     setHover(null);
@@ -61,6 +63,7 @@ export function BlockTools({ api, onChanged, flash }: { api: (p: string) => stri
 
   return (
     <>
+      {fenetre}
       {hover && rect && rect.bottom > 0 && rect.top < window.innerHeight ? (
         <div className={s.blockTools} style={{ top, left: Math.max(8, rect.right - 8) }} role="toolbar" aria-label={`Section ${hover.index + 1} : ${def?.label ?? "section"}`}>
           <span className={s.blockName}>{def?.label ?? "Section"}</span>

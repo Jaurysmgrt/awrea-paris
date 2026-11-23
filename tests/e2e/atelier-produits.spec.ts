@@ -1,6 +1,6 @@
 import path from "node:path";
 import { expect, test } from "@playwright/test";
-import { adminLogin, ATELIER } from "./admin-auth";
+import { accepterConfirmation, adminLogin, ATELIER } from "./admin-auth";
 
 /**
  * Produits de l'Atelier (refonte du 07/11) : la liste se cherche et se
@@ -59,8 +59,8 @@ test("une pièce : copie en brouillon, textes, mise en ligne, archive, jamais vi
     await expect(site.getByRole("heading", { level: 1, name: nom })).toBeVisible();
 
     // archivée (après confirmation) : elle quitte le site, et se retrouve dans le filtre des archives
-    page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: "Archiver" }).click();
+    await accepterConfirmation(page);
     await expect(page.locator(".piece-tete .status")).toHaveText("Archivée");
     expect((await site.goto(`/boutique/${handle}`))?.status()).toBe(404);
     await site.goto("/boutique");
@@ -142,8 +142,8 @@ test("photos d'une pièce : ajouter, choisir la principale, décrire, retirer", 
     await page.reload();
     await expect(photos.first().getByLabel("Ce que montre la photo")).toHaveValue(texte);
     // retirer, après confirmation
-    page.once("dialog", (d) => d.accept());
     await photos.first().getByRole("button", { name: "Retirer" }).click();
+    await accepterConfirmation(page);
     await expect(photos).toHaveCount(avant);
     await expect(photos.first().locator("img")).not.toHaveAttribute("src", /\/api\/media\//);
     // une photo inconnue ou un texte trop court sont refusés

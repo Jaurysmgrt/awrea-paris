@@ -8,6 +8,7 @@ import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAtelier } from "@/components/admin/AtelierContext";
 import type { OrderStage } from "@/lib/commerce/types";
+import { useConfirmation } from "@/components/admin/Confirmation";
 import { CARRIERS } from "./transporteurs";
 
 /** Bouton de chaque étape suivante. */
@@ -18,12 +19,20 @@ export const STAGE_ACTIONS: Record<Exclude<OrderStage, "paid">, string> = {
   delivered: "Marquer comme livrée",
 };
 
+/** Ce que reçoit la cliente à chaque étape (objet des e-mails, en mots simples). */
+const STAGE_EMAILS: Record<Exclude<OrderStage, "paid" | "delivered">, string> = {
+  in_production: "pièce en confection",
+  ready: "pièce prête",
+  shipped: "pièce en route",
+};
+
 export function OrderStageControl({ number, next, compact = false }: { number: string; next: Exclude<OrderStage, "paid">; compact?: boolean }) {
   const { api } = useAtelier();
   const router = useRouter();
   const id = useId();
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<{ kind: "error" | "warning"; text: string } | null>(null);
+  const [message, setMessage] = useState<{ kind: "error" | "warning" | "ok"; text: string } | null>(null);
+  const { confirmer, fenetre } = useConfirmation();
 
   async function advance(extra: { carrier?: string; tracking?: string } = {}) {
     setBusy(true);
@@ -33,10 +42,12 @@ export function OrderStageControl({ number, next, compact = false }: { number: s
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ etape: next, ...extra }),
     }).catch(() => null);
-    const json = (res ? await res.json().catch(() => ({})) : {}) as { error?: string; warning?: string };
+    const json = (res ? await res.json().catch(() => ({})) : {}) as { error?: string; warning?: string; mailed?: boolean };
     setBusy(false);
     if (!res?.ok) return setMessage({ kind: "error", text: json.error ?? "L’étape n’a pas pu être enregistrée. Merci de réessayer." });
+    // un retour visible après le geste : l'étape et l'e-mail parti (parcours UX du 23/11)
     if (json.warning) setMessage({ kind: "warning", text: json.warning });
+    else setMessage({ kind: "ok", text: next === "delivered" ? `Commande ${number} livrée.` : `C’est fait. La cliente a reçu l’e-mail « ${STAGE_EMAILS[next]} ».` });
     router.refresh();
   }
 
@@ -45,11 +56,13 @@ export function OrderStageControl({ number, next, compact = false }: { number: s
       {message.text}
     </span>
   ) : null;
+  // le geste suivant ressemble toujours à un bouton, même dans la liste des commandes
+  const classe = compact ? "btn btn--outline btn--compact" : "btn btn--solid";
 
   if (next !== "shipped") {
     return (
       <span className="action-button">
-        <button type="button" className={compact ? "link link--quiet" : "btn btn--solid"} disabled={busy} onClick={() => advance()}>
+        <button type="button" className={classe} disabled={busy} onClick={() => advance()}>
           {busy ? "Enregistrement…" : STAGE_ACTIONS[next]}
         </button>
         {feedback}
@@ -65,8 +78,10 @@ export function OrderStageControl({ number, next, compact = false }: { number: s
         const f = new FormData(e.currentTarget);
         const tracking = String(f.get("tracking") ?? "").trim();
         // l'expédition prévient la cliente : elle se confirme
-        const ok = window.confirm(`Marquer la commande ${number} comme expédiée${tracking ? `, suivi ${tracking}` : ", sans numéro de suivi"} ? La cliente reçoit l’e-mail d’expédition.`);
-        if (ok) void advance({ carrier: String(f.get("carrier") ?? CARRIERS[0]), tracking });
+        const carrier = String(f.get("carrier") ?? CARRIERS[0]);
+        void confirmer(`Marquer la commande ${number} comme expédiée${tracking ? `, suivi ${tracking}` : ", sans numéro de suivi"} ? La cliente reçoit l’e-mail d’expédition.`, "Oui, expédier").then((ok) => {
+          if (ok) void advance({ carrier, tracking });
+        });
       }}
     >
       <div className="field">
@@ -89,6 +104,7 @@ export function OrderStageControl({ number, next, compact = false }: { number: s
         {busy ? "Enregistrement…" : STAGE_ACTIONS.shipped}
       </button>
       {feedback}
+      {fenetre}
     </form>
   );
 }

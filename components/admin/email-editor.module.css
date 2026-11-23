@@ -160,6 +160,15 @@
   font-size: var(--ui-text);
   text-align: left;
 }
+/* confirmation dans la page (jamais la fenêtre du navigateur) */
+.confirmation {
+  display: grid;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-s);
+  border: var(--border-width-hair) solid var(--line);
+  border-radius: var(--radius-soft);
+  text-align: left;
+}
 .pair {
   display: grid;
   gap: var(--spacing-xs);

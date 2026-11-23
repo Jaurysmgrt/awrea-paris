@@ -8,6 +8,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAtelier } from "./AtelierContext";
+import { useConfirmation } from "./Confirmation";
 
 type Geste = "annuler-rembourser" | "rembourser";
 
@@ -18,6 +19,7 @@ export function CommandeGestes({ numero, id, total, montant, gestes, demonstrati
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; texte: string } | null>(null);
+  const { confirmer, fenetre } = useConfirmation();
 
   const argent = demonstration ? "(démonstration\u00a0: aucun argent ne bouge)" : "sur son moyen de paiement d’origine";
   const confirmation: Record<Geste, string> = {
@@ -26,7 +28,7 @@ export function CommandeGestes({ numero, id, total, montant, gestes, demonstrati
   };
 
   async function faire(g: Geste) {
-    if (!window.confirm(confirmation[g])) return;
+    if (!(await confirmer(confirmation[g], LIBELLE[g]))) return;
     setBusy(true);
     setMessage(null);
     const res = await fetch(atelier.api(`/commandes/${encodeURIComponent(numero)}/geste`), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ geste: g, id, total }) }).catch(() => null);
@@ -51,6 +53,7 @@ export function CommandeGestes({ numero, id, total, montant, gestes, demonstrati
       <p className="field__error" role="alert">
         {message && !message.ok ? message.texte : ""}
       </p>
+      {fenetre}
     </div>
   );
 }

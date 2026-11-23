@@ -7,6 +7,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useAtelier } from "./AtelierContext";
+import { useConfirmation } from "./Confirmation";
 import { deposerPhoto } from "./depot-photos";
 
 export interface PhotoFiche {
@@ -24,9 +25,10 @@ export function PiecePhotos({ handle, photos, max }: { handle: string; photos: P
   const [message, setMessage] = useState<{ ok: boolean; texte: string } | null>(null);
   // après un changement d'ordre ou un retrait, le focus reste dans la liste des photos
   const liste = useRef<HTMLUListElement>(null);
+  const confirmation = useConfirmation();
 
   async function envoyer(corps: Record<string, unknown>, confirmer?: string) {
-    if (confirmer && !window.confirm(confirmer)) return false;
+    if (confirmer && !(await confirmation.confirmer(confirmer))) return false;
     setBusy(true);
     setMessage(null);
     const res = await fetch(atelier.api(`/pieces/${handle}/photos`), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corps) }).catch(() => null);
@@ -70,6 +72,7 @@ export function PiecePhotos({ handle, photos, max }: { handle: string; photos: P
 
   return (
     <div className="stack-m">
+      {confirmation.fenetre}
       <ul className="piece-photos-liste" ref={liste} tabIndex={-1} aria-label="Photos de la pièce">
         {photos.map((ph, i) => {
           const texte = textes[ph.cle] ?? ph.alt;
