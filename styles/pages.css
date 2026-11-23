@@ -950,8 +950,11 @@
   .not-found__inner {
     padding-block: calc(var(--header-h) + var(--spacing-xl)) var(--spacing-xl);
   }
-  /* le titre en deux lignes équilibrées sur ordinateur (il en prenait trois dans une colonne étroite) */
+  /* le titre centré, en deux lignes équilibrées sur ordinateur (il en prenait trois dans une
+     colonne étroite) */
   .not-found__inner h1 {
+    text-align: center;
+    margin-inline: auto;
     text-wrap: balance;
   }
   .not-found__actions {
