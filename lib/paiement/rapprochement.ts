@@ -33,6 +33,8 @@ export interface Branchements {
   alerter(o: Order | null, resume: string): Promise<void>;
   journaliser(o: Order, e: EvenementPaiement): Promise<void>;
   jeton(): string;
+  /** paiement expiré ou refusé d'une commande au privilège de bienvenue : il se libère */
+  libererPrivilege?(o: Order): Promise<void>;
 }
 
 /** Un événement est déjà traité par un autre serveur : Stripe le renverra, puis il sera vu traité. */
@@ -92,6 +94,8 @@ export async function appliquer(b: Branchements, event: Stripe.Event): Promise<v
   // la finalisation se décide sur l'état du paiement, pas sur l'événement : une commande payée dont
   // la finalisation a échoué (ou a été coupée) est reprise au prochain événement, sans rien doubler
   if (p.statut === "reussi") await b.finaliser(maj, etat.suite === "finaliser");
+  // paiement qui n'aboutira plus : le privilège réservé pour cette commande redevient disponible
+  if ((p.statut === "expire" || p.statut === "echoue") && maj.privilege) await b.libererPrivilege?.(maj);
   if (etat.suite === "rembourse") await b.rembourseeChezStripe(maj, p.rembourse);
   else if (etat.suite === "alerter" && etat.evenement) await b.alerter(maj, etat.evenement.resume);
 }

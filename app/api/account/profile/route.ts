@@ -4,6 +4,9 @@ import { requireCustomer } from "@/lib/auth/require-customer";
 import { acceptTerms, clearBrowsing, updateProfile } from "@/lib/customers";
 import { upsertContact } from "@/lib/marketing/provider";
 import { legalVersions } from "@/content/legal-versions";
+import { accountCopy } from "@/content/fr/account";
+import { abonnerDepuisCompte } from "@/lib/crm";
+import { unsubscribe } from "@/lib/marketing/unsubscribe";
 
 const size = z.enum(["XS", "S", "M", "L", "XL", "TU"]);
 const cm = z.number().int().min(40).max(220);
@@ -35,6 +38,10 @@ export async function PATCH(req: Request) {
   // retrait de la personnalisation : les données de navigation sont effacées aussitôt
   if (patch.personalization === false) await clearBrowsing(session);
   after(async () => {
+    // CRM : la case « lettres » de son compte abonne (adresse vérifiée par la connexion) ou désinscrit,
+    // et la désinscription vaut partout
+    if (patch.marketingEmail === true) await abonnerDepuisCompte(profile.email, `${accountCopy.profile.marketing} : ${accountCopy.profile.marketingHint}`).catch((e) => console.error("[profil] lettre", e));
+    if (patch.marketingEmail === false) await unsubscribe(profile.email, { source: "compte" }).catch((e) => console.error("[profil] lettre", e));
     if (patch.marketingEmail !== undefined || patch.firstName !== undefined || patch.cercleMember !== undefined || patch.birthday !== undefined) {
       await upsertContact({ email: profile.email, firstName: profile.firstName, lastName: profile.lastName, locale: profile.locale, marketing: profile.marketingEmail, cercle: profile.cercleMember, birthday: profile.birthday }).catch((e) =>
         console.error("[profil] e-mails", e),

@@ -3,6 +3,8 @@ import { z } from "zod";
 import { verifyEmailLogin } from "@/lib/auth/customer";
 import { ensureProfile } from "@/lib/customers";
 import { onCustomerCreated } from "@/lib/marketing/flows";
+import { abonnerDepuisCompte, noterEvenement } from "@/lib/crm";
+import { accountCopy } from "@/content/fr/account";
 import { clientIp, loginGuard } from "@/lib/security/rate-limit";
 
 const Body = z.object({ email: z.email().max(200), code: z.string().regex(/^\d{6,8}$/) });
@@ -22,7 +24,12 @@ export async function POST(req: Request) {
   await loginGuard.reset("login", ip, GUARD);
   const profile = await ensureProfile(r.session, { termsVersion: r.termsVersion, marketingEmail: r.marketingEmail });
   after(async () => {
-    if (r.created) await onCustomerCreated(profile).catch((e) => console.error("[compte] bienvenue", e));
+    if (!r.created) return;
+    // CRM : la fiche de cette adresse note le compte ; la case « lettres » cochée à la création vaut
+    // consentement (l'adresse vient d'être vérifiée par le code)
+    await noterEvenement(profile.email, "compte").catch((e) => console.error("[compte] fiche", e));
+    if (profile.marketingEmail) await abonnerDepuisCompte(profile.email, accountCopy.login.marketing).catch((e) => console.error("[compte] lettre", e));
+    await onCustomerCreated(profile).catch((e) => console.error("[compte] bienvenue", e));
   });
   return NextResponse.json({ ok: true });
 }

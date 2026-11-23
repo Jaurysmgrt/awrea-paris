@@ -32,7 +32,8 @@ env:
 
 jobs:
   verifier:
-    runs-on: ubuntu-latest
+    # Ubuntu 24.04 fixé : Playwright 1.56 n'installe pas Chromium sur ubuntu-latest (26.04)
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     permissions:
       contents: read
@@ -63,7 +64,8 @@ jobs:
   reparer:
     needs: verifier
     if: needs.verifier.outputs.status == 'echec'
-    runs-on: ubuntu-latest
+    # Ubuntu 24.04 fixé : Playwright 1.56 n'installe pas Chromium sur ubuntu-latest (26.04)
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     permissions:
       contents: write

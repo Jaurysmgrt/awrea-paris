@@ -23,7 +23,8 @@ concurrency:
 jobs:
   controler:
     if: github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production'
-    runs-on: ubuntu-latest
+    # Ubuntu 24.04 fixé : Playwright 1.56 n'installe pas Chromium sur ubuntu-latest (26.04)
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       SITE_URL: ${{ vars.SITE_URL || 'https://www.awreaparis.com' }}

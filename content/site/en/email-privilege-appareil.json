@@ -1,0 +1,18 @@
+{
+  "nom": "Welcome privilege on another device",
+  "quand": "When a client asks for her privilege on another device, from her order summary: the button on the link’s page applies it to that device.",
+  "famille": "service",
+  "sujet": "Your privilege on this device",
+  "preheader": "One click, and your privilege follows you.",
+  "variables": {
+    "lien": { "description": "The link to open on the device of the order, valid for twenty-four hours", "exemple": "https://www.awreaparis.com/lettres/confirmation?jeton=example" }
+  },
+  "blocs": [
+    { "id": "b-privapp0entete", "type": "entete", "fond": "noir" },
+    { "id": "b-privapp0titre", "type": "titre", "titre": "Your privilege, here" },
+    { "id": "b-privapp0texte", "type": "texte", "texte": "Hello,\n\nYou would like to enjoy your welcome privilege from another device. Open this link on the device you are ordering from: {lien}" },
+    { "id": "b-privapp0note", "type": "texte", "texte": "The link stays valid for twenty-four hours. If you did not ask for anything, simply ignore this email: nothing changes." },
+    { "id": "b-privapp0signe", "type": "signature", "texte": "See you soon,\nthe Maison Awrea Paris" },
+    { "id": "b-privapp0pied", "type": "pied", "note": "" }
+  ]
+}

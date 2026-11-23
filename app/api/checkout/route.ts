@@ -32,6 +32,10 @@ import { finaliserCommande } from "@/lib/commerce/finalisation";
 import { avecEvenement, paiementEnAttente } from "@/lib/paiement/types";
 import { ouvrirPaiement, paiementNonOuvert } from "@/lib/paiement/suivi";
 import { prendreVerrou, rendreVerrou } from "@/lib/store/verrou";
+import { CODE_PRIVILEGE, libererPrivilege, partCarteCadeau, privilegePourPanier, reserverPrivilege } from "@/lib/privilege";
+import { adressePossedee } from "@/lib/privilege/preuve";
+import { clientStripe } from "@/lib/paiement/stripe";
+import { expirerSession } from "@/lib/paiement/stripe-api";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { siteUrl } from "@/lib/seo/metadata";
 import { getLocale } from "@/lib/i18n/server";
@@ -59,6 +63,11 @@ const Body = z.object({
   testOutcome: z.enum(["accepted", "declined", "incomplete"]).optional(),
   acceptTerms: z.literal(true),
   source: z.string().max(40).nullable().optional(),
+  // privilège de bienvenue affiché dans le récapitulatif (centimes) : la commande ne passe que si la
+  // cliente a vu la remise qui sera retirée
+  privilegeAffiche: z.number().int().min(0).max(10_000_000).optional(),
+  // langue de la page de commande : e-mails qui suivent (confirmation de la lettre), page de Stripe
+  langue: z.enum(["fr", "en"]).optional(),
 });
 
 const PAYMENT_LABEL = { card: "Carte bancaire", "apple-pay": "Apple Pay", "google-pay": "Google Pay", paypal: "PayPal" } as const;
@@ -105,8 +114,26 @@ export async function POST(req: Request) {
   if (rate.relay && !relay) return NextResponse.json({ error: "Merci de choisir un point relais." }, { status: 400 });
   const merchandise = cart.subtotal - (cart.discount?.amount ?? 0);
   const shippingPrice = priceOf(rate, merchandise);
+  // privilège de bienvenue (lib/privilege) : 10 % sur une unité de la pièce la plus chère, retirés
+  // d'office pour une adresse à l'inscription confirmée, jamais avec un autre code ; la livraison
+  // offerte se juge avant lui (un cadeau ne fait jamais payer la livraison). Seulement pour une
+  // adresse prouvée dans ce navigateur (lien de l'e-mail ouvert ici, ou cliente connectée sous cette
+  // adresse, lib/privilege/preuve.ts)
+  const tp = tCommerce.commande.privilege;
+  const { remise: privilege, raison: sansPrivilege } = await privilegePourPanier(d.email, cart.lines.map((l) => ({ handle: l.productHandle, title: l.title, size: l.size, unitPrice: l.unitPrice, quantity: l.quantity })), {
+    code: Boolean(cart.discount),
+    preuve: await adressePossedee(d.email),
+  });
+  if (d.privilegeAffiche !== undefined && d.privilegeAffiche !== (privilege?.montant ?? 0)) {
+    // un message juste pour chaque cas : remise apparue, déjà utilisée, expirée, engagée ailleurs
+    const message = privilege ? tp.misAJour : sansPrivilege === "utilise" || sansPrivilege === "deja-cliente" ? tp.change : sansPrivilege === "expire" ? tp.expire : sansPrivilege === "occupe" ? tp.occupe : tp.retire;
+    return NextResponse.json({ error: message, privilege: "change" }, { status: 409 });
+  }
   // taxes : TVA française incluse, ou export avec droits et TVA du pays payés à la commande
-  const { taxes, total: gross } = orderTaxes(d.country, merchandise + (cart.gift.wrap ? cart.giftWrapPrice : 0), shippingPrice);
+  const taxable = merchandise - (privilege?.montant ?? 0) + (cart.gift.wrap ? cart.giftWrapPrice : 0);
+  const { taxes, total: gross } = orderTaxes(d.country, taxable, shippingPrice);
+  // carte cadeau d'essai : jamais plus que ce qui reste dû pour les pièces une fois la remise retirée
+  const carte = cart.giftCard ? { ...cart.giftCard, amount: partCarteCadeau(cart.giftCard.amount, taxable) } : null;
 
   // paiement d'essai : carte de test refusée
   if (!stripe && d.paymentMethod === "card") {
@@ -125,23 +152,35 @@ export async function POST(req: Request) {
     lines.push({ title: p.title, size: v.size, quantity: l.quantity, unitPrice: p.price, handle: p.handle });
   }
 
-  const total = Math.max(0, gross - (cart.giftCard?.amount ?? 0));
+  const total = Math.max(0, gross - (carte?.amount ?? 0));
+  // langue de la page de commande (les routes d'API sont en français par défaut)
+  const locale = d.langue ?? (await getLocale());
   const address = { firstName: d.firstName, lastName: d.lastName, line1: d.address1, line2: d.address2, postalCode: d.zip, city: d.city, country: d.country, phone: d.phone };
 
   // Stripe : la même commande (même panier, même adresse, même livraison) ne s'enregistre qu'une
   // fois ; tant que sa page de paiement est valable, un nouvel essai la reprend
   const empreinte = createHash("sha256")
-    .update(JSON.stringify({ l: cart.lines.map((l) => [l.variantId, l.quantity]), total, e: d.email.toLowerCase(), address, r: rate.id, p: relay?.id ?? null, g: cart.gift, c: [cart.discount?.code ?? null, cart.giftCard?.code ?? null] }))
+    .update(JSON.stringify({ l: cart.lines.map((l) => [l.variantId, l.quantity]), total, e: d.email.toLowerCase(), address, r: rate.id, p: relay?.id ?? null, g: cart.gift, c: [cart.discount?.code ?? null, cart.giftCard?.code ?? null, privilege ? CODE_PRIVILEGE : null] }))
     .digest("hex")
     .slice(0, 32);
   // la commande enregistrée, puis la page de paiement Stripe ou le paiement d'essai
   const enregistrer = async (): Promise<Response> => {
+    const id = `o-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+    // privilège réservé pour cette commande avant tout : deux paiements ne l'utilisent jamais tous
+    // les deux (une page de paiement plus ancienne encore ouverte est fermée chez Stripe)
+    if (privilege) {
+      const r = await reserverPrivilege(d.email, id, async (autre) => {
+        const client = clientStripe();
+        return Boolean(client && autre.payment?.session && (await expirerSession(client, autre.payment.session)));
+      });
+      if (!r.ok) return NextResponse.json({ error: r.raison === "occupe" ? tp.occupe : r.raison === "utilise" ? tp.change : r.raison === "expire" ? tp.expire : tp.retire, privilege: "change" }, { status: 409 });
+    }
     // numéro de commande unique, même pour deux commandes passées au même instant
     let n = 1031 + (await getOrders()).length;
     while ((await kv.incr(`commandes:numero:${n}`, 60 * 60 * 24 * 365 * 20)) !== 1) n++;
     const at = new Date().toISOString();
     const order: Order = {
-      id: `o-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+      id,
       number: `AW-${n}`,
       createdAt: at,
       email: d.email,
@@ -160,7 +199,15 @@ export async function POST(req: Request) {
       address,
       taxes,
       ...(cart.discount ? { discount: cart.discount } : {}),
-      ...(cart.giftCard ? { giftCard: cart.giftCard } : {}),
+      // privilège : une ligne « Privilège de bienvenue, 10 % sur … » (facture, e-mail, paiement)
+      ...(privilege
+        ? {
+            discount: { code: CODE_PRIVILEGE, label: fill(tCommerce.commande.privilege.ligne, { piece: privilege.titre }), amount: privilege.montant },
+            privilege: { handle: privilege.handle, title: privilege.titre, size: privilege.taille as Order["lines"][number]["size"], amount: privilege.montant },
+          }
+        : {}),
+      ...(carte ? { giftCard: carte } : {}),
+      locale,
       gift: cart.gift.wrap ? cart.gift : undefined,
       paymentMethod: stripe ? "Stripe" : PAYMENT_LABEL[d.paymentMethod!],
       source: d.source ?? null,
@@ -174,7 +221,6 @@ export async function POST(req: Request) {
     if (stripe) {
       await saveOrder(order);
       await noterCommandeOuverte(order.id);
-      const locale = await getLocale();
       const origine = origineDuSite(req);
       const ts = tCommerce.commande.stripe;
       try {
@@ -188,6 +234,7 @@ export async function POST(req: Request) {
       } catch (e) {
         console.error("[checkout] ouverture du paiement Stripe", e);
         await paiementNonOuvert(order, e instanceof Error ? e.message : String(e));
+        if (privilege) await libererPrivilege(d.email, order.id).catch((x) => console.error("[checkout] privilège", x));
         return NextResponse.json({ error: te.ouverture }, { status: 502 });
       }
     }
