@@ -54,6 +54,21 @@ export function ProductForm({ product, stickyBar = false, aide }: { product: Pro
     document.documentElement.dataset.buybar = barVisible ? "true" : "false";
     return () => void delete document.documentElement.dataset.buybar;
   }, [stickyBar, barVisible]);
+  // colonne de la pièce (data-zone-achat, sinon ce formulaire) à l'écran : l'assistante s'efface,
+  // elle ne couvre ni les tailles, ni l'ajout au panier, ni le partage (styles/signature.css)
+  useEffect(() => {
+    const el = formRef.current?.closest<HTMLElement>("[data-zone-achat]") ?? formRef.current;
+    if (!stickyBar || !el) return;
+    const root = document.documentElement;
+    const io = new IntersectionObserver(([e]) => {
+      root.dataset.zoneAchat = e.isIntersecting ? "true" : "false";
+    });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      delete root.dataset.zoneAchat;
+    };
+  }, [stickyBar]);
 
   const barAction = () => {
     const target = !variant ? formRef.current?.querySelector<HTMLElement>(".size-picker") : null;

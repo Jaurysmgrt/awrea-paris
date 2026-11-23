@@ -55,6 +55,7 @@
     "colisAVenir": "Le lien de suivi du transporteur apparaîtra ici dès l’expédition.",
     "pieces": "Pièces",
     "taille": "Taille {taille}",
+    "ligne": "Taille {taille} · Qté {n}",
     "total": "Total {total}",
     "documents": "Documents",
     "facture": "Facture (PDF)",

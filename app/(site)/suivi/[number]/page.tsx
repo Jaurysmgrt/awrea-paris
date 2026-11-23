@@ -104,8 +104,8 @@ export default async function CommandeSuivie({ params, searchParams }: { params:
               {order.lines.map((l, i) => (
                 <li key={`${l.handle}-${i}`} className="confirmation__line">
                   <span className="t-body">{l.title}</span>
-                  <span className="t-label t-soft">{fill(t.taille, { taille: l.size })}</span>
-                  <span className="price">{formatPrice(l.unitPrice, locale)}</span>
+                  <span className="t-label t-soft">{fill(t.ligne, { taille: l.size, n: l.quantity })}</span>
+                  <span className="price">{formatPrice(l.unitPrice * l.quantity, locale)}</span>
                 </li>
               ))}
             </ul>

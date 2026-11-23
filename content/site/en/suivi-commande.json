@@ -55,6 +55,7 @@
     "colisAVenir": "The carrier’s tracking link will appear here once the parcel is dispatched.",
     "pieces": "Pieces",
     "taille": "Size {taille}",
+    "ligne": "Size {taille} · Qty {n}",
     "total": "Total {total}",
     "documents": "Documents",
     "facture": "Invoice (PDF)",

@@ -454,6 +454,12 @@
     display: grid;
     gap: var(--spacing-2xs);
   }
+  /* un champ oublié amené à l'écran (useChampsManquants) : libellé visible sous l'en-tête collant,
+     dont la hauteur est déjà réservée par le scroll-padding-top de la page (styles/base.css) */
+  .field,
+  .check {
+    scroll-margin-top: var(--spacing-m);
+  }
   .field__label {
     font-family: var(--font-body);
     font-style: normal;

@@ -498,10 +498,8 @@
     }
   }
   @media (max-width: 63.99rem) {
-    /* l'assistante monte au-dessus de la barre, la fin de la page n'est jamais masquée */
-    html[data-buybar="true"] .assistant-launcher {
-      bottom: calc(var(--spacing-touch) + var(--spacing-s) * 2 + env(safe-area-inset-bottom));
-    }
+    /* la barre d'achat ne masque jamais la fin de la page (l'assistante s'efface pendant ce temps,
+       styles/signature.css) */
     html[data-buybar] .site-footer {
       padding-bottom: calc(var(--spacing-l) + var(--spacing-touch) + var(--spacing-s) * 2);
     }

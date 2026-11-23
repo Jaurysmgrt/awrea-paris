@@ -47,6 +47,11 @@
     "message": "Ce dont vous aimeriez parler (facultatif)",
     "accord": "J’accepte que mes coordonnées servent à ce rendez-vous, et à rien d’autre."
   },
+  "manquants": {
+    "name": "Indiquez votre nom.",
+    "email": "Indiquez une adresse e-mail complète, par exemple prenom@exemple.fr.",
+    "consent": "Cochez cette case : vos coordonnées ne servent qu’à ce rendez-vous."
+  },
   "bouton": "Réserver ce moment",
   "envoi": "Réservation…",
   "confirme": {

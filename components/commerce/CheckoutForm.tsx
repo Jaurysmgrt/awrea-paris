@@ -1,7 +1,10 @@
 "use client";
 /**
  * Tunnel de commande court, sans compte obligatoire — MODE TEST.
- * Paiement express en tête, puis trois étapes sur une seule page : coordonnées, livraison, paiement.
+ * Trois étapes sur une seule page : coordonnées, livraison, paiement. Les moyens de paiement ne
+ * s'offrent qu'une fois, à l'étape III (le « Paiement express » en tête faisait doublon, parcours UX
+ * du 23/11). Champs obligatoires dits par la Maison sous chaque champ, jamais par les bulles du
+ * navigateur (useChampsManquants).
  * Suggestions d'adresses, points relais, retrait à l'atelier, droits et taxes calculés à l'avance
  * hors Union européenne. Paiement d'essai en démonstration (lib/config/boutique.ts) ; le paiement
  * réel se fera chez Stripe, jamais sur le site.
@@ -28,6 +31,7 @@ import { ProvisionalNote } from "./ProvisionalNote";
 import { usePrivilege } from "./usePrivilege";
 import { PrivilegeAppareil } from "./PrivilegeAppareil";
 import { partCarteCadeau } from "@/lib/privilege/regles";
+import { useChampsManquants } from "@/components/ui/useChampsManquants";
 
 type Pay = "card" | "apple-pay" | "google-pay" | "paypal";
 
@@ -37,8 +41,8 @@ type Pay = "card" | "apple-pay" | "google-pay" | "paypal";
  */
 const PAY_OPTIONS: Pay[] = ["card", "apple-pay", "google-pay", "paypal"];
 
-/** Paiement express : un geste, l'adresse reprise du portefeuille. */
-const EXPRESS: Pay[] = ["apple-pay", "google-pay", "paypal"];
+/** Champs obligatoires de la commande (messages : document « commerce », commande.manquants). */
+type Requis = "email" | "firstName" | "lastName" | "address1" | "zip" | "city" | "cardNumber" | "exp" | "cvc" | "terms";
 
 /**
  * Mode test uniquement : la carte « refusée » de test (4000 0000 0000 0002) simule un refus.
@@ -68,13 +72,22 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
   const [city, setCity] = useState("");
   const [relays, setRelays] = useState<RelayPoint[]>([]);
   const [relayId, setRelayId] = useState("");
-  const emailRef = useRef<HTMLInputElement>(null);
   const [pay, setPay] = useState<Pay>("card");
   const [state, setState] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState("");
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [terms, setTerms] = useState(false);
   const startedRef = useRef(false);
+  const { manquants, verifier, effacer } = useChampsManquants<Requis>();
+  // message sous un champ obligatoire oublié, relié au champ (lu par les lecteurs d'écran)
+  const erreurId = (nom: Requis) => `co-${nom}-erreur`;
+  const erreur = (nom: Requis) =>
+    manquants[nom] ? (
+      <p id={erreurId(nom)} className="field__error">
+        {t.manquants[nom]}
+      </p>
+    ) : null;
+  const requis = (nom: Requis) => ({ "aria-invalid": manquants[nom] || undefined, "aria-describedby": manquants[nom] ? erreurId(nom) : undefined, onInput: () => effacer(nom) });
   const [prefill, setPrefill] = useState<{ email?: string; firstName?: string; lastName?: string; line1?: string; line2?: string; postalCode?: string; city?: string; phone?: string }>({});
   // privilège de bienvenue de l'adresse de la commande (étapes 4 et 5) : une ligne du récapitulatif
   const privilege = usePrivilege(prefill.email, (cart?.lines ?? []).map((l) => `${l.variantId}:${l.quantity}`).join(",") + (cart?.discount ? `|${cart.discount.code}` : ""));
@@ -244,6 +257,7 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!verifier(e.currentTarget)) return;
     const form = new FormData(e.currentTarget);
     setState("loading");
     setError("");
@@ -305,6 +319,7 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
       <form
         className="checkout-form stack-l"
         onSubmit={onSubmit}
+        noValidate
         onFocusCapture={() => {
           if (!startedRef.current && cart) {
             startedRef.current = true;
@@ -313,31 +328,6 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
         }}
       >
         {stripe ? stripeTest ? <p className="notice t-note">{t.stripe.test}</p> : null : <p className="notice t-note">{t.modeTest}</p>}
-
-        {stripe ? null : (
-        <section className="express" aria-labelledby="express-title">
-          <h2 id="express-title" className="t-label">
-            {t.express}
-          </h2>
-          <div className="express__buttons">
-            {EXPRESS.map((id) => (
-              <button
-                key={id}
-                type="button"
-                className="btn express__btn"
-                aria-pressed={pay === id}
-                onClick={() => {
-                  setPay(id);
-                  emailRef.current?.focus();
-                }}
-              >
-                {t.moyens[id].label}
-              </button>
-            ))}
-          </div>
-          <p className="t-note">{t.expressNote}</p>
-        </section>
-        )}
 
         <fieldset className="checkout-step">
           <legend className="checkout-step__title">
@@ -349,7 +339,8 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
               <label className="field__label" htmlFor="co-email">
                 {f.email}
               </label>
-              <input ref={emailRef} className="field__input" id="co-email" name="email" key={`email-${prefill.email ?? ""}`} defaultValue={prefill.email} type="email" required autoComplete="email" onChange={(e) => privilege.saisir(e.currentTarget.value)} />
+              <input className="field__input" id="co-email" name="email" key={`email-${prefill.email ?? ""}`} defaultValue={prefill.email} type="email" required autoComplete="email" onChange={(e) => privilege.saisir(e.currentTarget.value)} {...requis("email")} />
+              {erreur("email")}
               <span className="field__hint">{f.emailAide}</span>
             </div>
             {privilege.sansPreuve ? <PrivilegeAppareil email={privilege.email} langue={locale === "en" ? "en" : "fr"} t={t.privilege.appareil} /> : null}
@@ -371,13 +362,15 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
                 <label className="field__label" htmlFor="co-first">
                   {f.prenom}
                 </label>
-                <input className="field__input" id="co-first" name="firstName" key={`firstName-${prefill.firstName ?? ""}`} defaultValue={prefill.firstName} required autoComplete="given-name" />
+                <input className="field__input" id="co-first" name="firstName" key={`firstName-${prefill.firstName ?? ""}`} defaultValue={prefill.firstName} required autoComplete="given-name" {...requis("firstName")} />
+                {erreur("firstName")}
               </div>
               <div className="field">
                 <label className="field__label" htmlFor="co-last">
                   {f.nom}
                 </label>
-                <input className="field__input" id="co-last" name="lastName" key={`lastName-${prefill.lastName ?? ""}`} defaultValue={prefill.lastName} required autoComplete="family-name" />
+                <input className="field__input" id="co-last" name="lastName" key={`lastName-${prefill.lastName ?? ""}`} defaultValue={prefill.lastName} required autoComplete="family-name" {...requis("lastName")} />
+                {erreur("lastName")}
               </div>
             </div>
             <div className="field">
@@ -393,8 +386,14 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
                 onPick={(a) => {
                   setZip(a.postalCode);
                   setCity(a.city);
+                  effacer("zip");
+                  effacer("city");
                 }}
+                invalid={manquants.address1}
+                describedBy={manquants.address1 ? erreurId("address1") : undefined}
+                onEdit={() => effacer("address1")}
               />
+              {erreur("address1")}
             </div>
             <div className="field">
               <label className="field__label" htmlFor="co-address2">
@@ -407,13 +406,15 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
                 <label className="field__label" htmlFor="co-zip">
                   {f.codePostal}
                 </label>
-                <input className="field__input" id="co-zip" name="zip" value={zip} onChange={(e) => setZip(e.target.value)} required autoComplete="postal-code" />
+                <input className="field__input" id="co-zip" name="zip" value={zip} onChange={(e) => setZip(e.target.value)} required autoComplete="postal-code" inputMode={country === "FR" ? "numeric" : undefined} {...requis("zip")} />
+                {erreur("zip")}
               </div>
               <div className="field">
                 <label className="field__label" htmlFor="co-city">
                   {f.ville}
                 </label>
-                <input className="field__input" id="co-city" name="city" value={city} onChange={(e) => setCity(e.target.value)} required autoComplete="address-level2" />
+                <input className="field__input" id="co-city" name="city" value={city} onChange={(e) => setCity(e.target.value)} required autoComplete="address-level2" {...requis("city")} />
+                {erreur("city")}
               </div>
               <div className="field">
                 <label className="field__label" htmlFor="co-country">
@@ -528,23 +529,38 @@ export function CheckoutForm({ paiement = "essai", stripeTest = false }: { paiem
                   <label className="field__label" htmlFor="co-card">
                     {f.carte}
                   </label>
-                  <input className="field__input" id="co-card" name="cardNumber" inputMode="numeric" autoComplete="off" required defaultValue="4242 4242 4242 4242" />
+                  <input className="field__input" id="co-card" name="cardNumber" inputMode="numeric" autoComplete="off" required defaultValue="4242 4242 4242 4242" {...requis("cardNumber")} />
+                  {erreur("cardNumber")}
                 </div>
                 <div className="field">
                   <label className="field__label" htmlFor="co-exp">
                     {f.expiration}
                   </label>
-                  <input className="field__input" id="co-exp" name="exp" autoComplete="off" placeholder={f.expirationExemple} required defaultValue="12 / 30" />
+                  <input className="field__input" id="co-exp" name="exp" inputMode="numeric" autoComplete="off" placeholder={f.expirationExemple} required defaultValue="12 / 30" {...requis("exp")} />
+                  {erreur("exp")}
                 </div>
                 <div className="field">
                   <label className="field__label" htmlFor="co-cvc">
                     {f.cryptogramme}
                   </label>
-                  <input className="field__input" id="co-cvc" name="cvc" inputMode="numeric" autoComplete="off" required defaultValue="123" />
+                  <input className="field__input" id="co-cvc" name="cvc" inputMode="numeric" autoComplete="off" required defaultValue="123" {...requis("cvc")} />
+                  {erreur("cvc")}
                 </div>
               </div>
             ) : null}
-            <TermsCheckbox kind="cgv" checked={terms} onChange={setTerms} newTab />
+            <TermsCheckbox
+              kind="cgv"
+              checked={terms}
+              onChange={(v) => {
+                setTerms(v);
+                effacer("terms");
+              }}
+              newTab
+              texte={t.conditions}
+              invalid={manquants.terms}
+              describedBy={manquants.terms ? erreurId("terms") : undefined}
+            />
+            {erreur("terms")}
             {state === "error" ? (
               <p className="field__error" role="alert">
                 {error}

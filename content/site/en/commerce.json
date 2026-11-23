@@ -59,8 +59,6 @@
     "taxesPayees": "Duties and taxes paid now: nothing to pay on delivery. Indicative estimate in test mode.",
     "messageCadeau": "Gift message: “{message}”",
     "modeTest": "Test mode: nothing is charged. The card 4242 4242 4242 4242 is accepted. The card 4000 0000 0000 0002 is declined.",
-    "express": "Express payment",
-    "expressNote": "In production, the address is taken from your wallet; in test mode, fill it in below.",
     "etapes": {
       "coordonnees": "Details",
       "livraison": "Delivery",
@@ -91,6 +89,23 @@
     "retrait": "Collection from the atelier: as soon as your piece is ready, we will write to you to arrange an appointment. You can also {lien} now.",
     "retraitLien": "choose a time",
     "relaisManquant": "Please choose a pick-up point.",
+    "manquants": {
+      "email": "Enter a complete email address, for example name@example.com.",
+      "firstName": "Enter your first name.",
+      "lastName": "Enter your surname.",
+      "address1": "Enter the delivery address.",
+      "zip": "Enter the postcode.",
+      "city": "Enter the town or city.",
+      "cardNumber": "Enter the card number.",
+      "exp": "Enter the card’s expiry date.",
+      "cvc": "Enter the security code, on the back of the card.",
+      "terms": "Tick this box to accept the general terms and conditions of sale."
+    },
+    "conditions": {
+      "phrase": "I have read and accept the {conditions}, including the conditions of withdrawal (pieces made to measure are excluded), and I have read the {confidentialite}.",
+      "conditions": "general terms and conditions of sale",
+      "confidentialite": "privacy policy"
+    },
     "erreur": "The payment did not go through. Please try again.",
     "paiementEnCours": "Payment in progress…",
     "payer": "Pay {total}",

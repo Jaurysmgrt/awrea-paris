@@ -110,7 +110,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
           </div>
 
           <div className="product__info">
-            <div className="product__colonne stack-m">
+            <div className="product__colonne stack-m" data-zone-achat>
               <Breadcrumbs items={[{ name: tf.filAriane, path: "/boutique" }, { name: product.title, path: `/boutique/${product.handle}` }]} />
               <header className={s.tete}>
                 {collection || product.isNew ? (

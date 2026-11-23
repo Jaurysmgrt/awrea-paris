@@ -16,7 +16,8 @@ async function ask(request: APIRequestContext, content: string): Promise<string>
 test.describe("Assistante clientes (mode démonstration sans clé API)", () => {
   test("conseil de taille, carte de la pièce créée sur demande et transmission à la créatrice", async ({ page }) => {
     await acceptCookies(page);
-    await page.goto("/boutique/robe-odessa");
+    // depuis la boutique : sur la fiche, le bouton s'efface tant que la colonne de la pièce est à l'écran
+    await page.goto("/boutique");
     await page.getByRole("button", { name: "Une question ?" }).click();
     const panel = page.getByRole("dialog", { name: "L’assistante Awrea" });
     await expect(panel).toBeVisible();

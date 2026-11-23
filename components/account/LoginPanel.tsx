@@ -1,10 +1,12 @@
 "use client";
 /**
  * Connexion et création de compte : code à usage unique par e-mail (sans mot de passe),
- * ou Google / Apple. La création exige l'acceptation des CGU (case à cocher).
+ * ou Google / Apple. La création exige l'acceptation des CGU (case à cocher). Un champ oublié est
+ * dit sous lui, jamais par la bulle du navigateur (useChampsManquants).
  */
 import { useState } from "react";
 import { TermsCheckbox } from "./TermsCheckbox";
+import { useChampsManquants } from "@/components/ui/useChampsManquants";
 import { Turnstile } from "@/components/security/Turnstile";
 import { accountCopy as t } from "@/content/fr/account";
 
@@ -21,9 +23,11 @@ export function LoginPanel({ onSignedIn, demo, notice }: { onSignedIn: () => voi
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(notice ?? null);
   const [token, setToken] = useState<string | null>(null);
+  const { manquants, verifier, effacer } = useChampsManquants<"email" | "terms">();
 
-  async function requestCode(e?: React.FormEvent) {
+  async function requestCode(e?: React.FormEvent<HTMLFormElement>) {
     e?.preventDefault();
+    if (e && !verifier(e.currentTarget)) return;
     setBusy(true);
     setError(null);
     const res = await fetch("/api/account/login", {
@@ -127,16 +131,49 @@ export function LoginPanel({ onSignedIn, demo, notice }: { onSignedIn: () => voi
         ))}
       </div>
       <p className="t-body">{t.login.intro[mode]}</p>
-      <form className="stack-m" onSubmit={requestCode}>
+      <form className="stack-m" onSubmit={requestCode} noValidate>
         <div className="field">
           <label className="field__label" htmlFor="login-email">
             {t.login.email}
           </label>
-          <input id="login-email" name="email" type="email" required autoComplete="email" className="field__input" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input
+            id="login-email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            className="field__input"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              effacer("email");
+            }}
+            aria-invalid={manquants.email || undefined}
+            aria-describedby={manquants.email ? "login-email-erreur" : undefined}
+          />
+          {manquants.email ? (
+            <p id="login-email-erreur" className="field__error">
+              {t.login.manquants.email}
+            </p>
+          ) : null}
         </div>
         {mode === "signup" ? (
           <div className="stack">
-            <TermsCheckbox kind="cgu" checked={terms} onChange={setTerms} />
+            <TermsCheckbox
+              kind="cgu"
+              checked={terms}
+              onChange={(v) => {
+                setTerms(v);
+                effacer("terms");
+              }}
+              invalid={manquants.terms}
+              describedBy={manquants.terms ? "login-terms-erreur" : undefined}
+            />
+            {manquants.terms ? (
+              <p id="login-terms-erreur" className="field__error">
+                {t.login.manquants.terms}
+              </p>
+            ) : null}
             <label className="check t-note">
               <input type="checkbox" name="marketing" checked={marketing} onChange={(e) => setMarketing(e.target.checked)} />
               <span>{t.login.marketing}</span>
