@@ -51,8 +51,10 @@ base, compilation et parcours Playwright doivent être verts.
 - Langage des maquettes (`ressources-awrea/DA PRÉSENTATION`, référence) étendu à tout le site : filets
   noirs très fins, champs sans cadre soulignés d'un filet, boutons noirs en pilule (`.btn`), pastille
   « Nouveau » (`.badge`), photos des cartes aux angles arrondis ; détail dans `DESIGN.md`.
-- Textes officiels de la créatrice (À propos, collection, teasing, CGV, mentions légales) repris mot
-  pour mot, marqués `officiel` : le contrôle d'écriture ne s'y applique pas.
+- Textes officiels de la créatrice (À propos, collection, teasing) repris mot pour mot, marqués
+  `officiel` : le contrôle d'écriture ne s'y applique pas. Mentions légales (réécrites le 11/11) et
+  CGV (corrigées le 12/11, version 2026-11) : textes de la Maison à la demande de la créatrice,
+  soumis au contrôle d'écriture (`LEGAL-A-COMPLETER.md`).
 - Grille de 8 px : tous les espacements sont des multiples de 8 ; interlignage 1,6 du texte courant ;
   distances identiques partout (`--space-title`, `--space-paragraph`, `--space-block`,
   `--space-section`). Jamais de valeur en dur : passer par les tokens (`npm run audit:tokens`).

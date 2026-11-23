@@ -198,7 +198,7 @@ export async function runDemoAssistant(turns: ChatTurn[], send: (e: StreamEvent)
   } else if (/annul/.test(q)) {
     await say(`Vous pouvez annuler votre commande dans les deux jours qui suivent son acceptation par la Maison, tant qu’elle ne vous a pas été livrée. Écrivez à ${identity.email} avec votre numéro de commande, ou laissez-moi votre adresse e-mail : je transmets à la créatrice.`);
   } else if (/retour|rembours|echang|retract|changer d.avis|renvo/.test(q)) {
-    await say("Vous disposez de quatorze jours après la réception de votre pièce pour vous rétracter, en ligne sur [la page Se rétracter](/retractation). La pièce revient dans son état d’origine et complète, avec sa facture ; les frais de retour restent à votre charge. Le remboursement intervient dans les quatorze jours qui suivent sa réception par la Maison. Tout est dans [les conditions générales de vente](/cgv).");
+    await say("Vous disposez de quatorze jours après la réception de votre pièce pour vous rétracter, en ligne sur [la page Se rétracter](/retractation). La pièce revient dans son état d’origine et complète, avec sa facture ; les frais de retour restent à votre charge. Le remboursement, frais de livraison compris, intervient au plus tard quatorze jours après votre demande ; la Maison peut attendre d’avoir reçu la pièce, ou la preuve de son envoi. Tout est dans [les conditions générales de vente](/cgv).");
   } else if (TRACK.test(q) && !HANDOFF.test(q)) {
     send({ type: "tool", name: "track_order" });
     const mine = customer ? await listOrders(customer) : [];

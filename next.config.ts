@@ -59,6 +59,13 @@ const config: NextConfig = {
         source: "/media/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
+      {
+        // polices officielles (licence OFL, publiques) : un e-mail les charge depuis la messagerie,
+        // une autre origine que le site ; sans cet en-tête, les messageries qui l'exigent prennent
+        // le repli (Georgia) au lieu de Fraunces et de Cormorant Garamond
+        source: "/fonts/:path*",
+        headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
+      },
       { source: "/(.*)", headers: securityHeaders },
     ];
   },

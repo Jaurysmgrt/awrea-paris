@@ -1,8 +1,9 @@
 /**
  * Gabarits d'e-mails Awrea Paris, dans la direction artistique du site : blanc cassé, noir, gris
  * pierre et taupe, aucune dorure dans l'interface ; logo officiel en image (public/brand, blanc cassé
- * sur la bande noire) ; polices officielles, Fraunces italique pour les titres (jamais sous 24 px)
- * et Cormorant Garamond pour le texte (servies par /fonts, repli sur Georgia) ; bouton noir en
+ * sur la bande noire) ; polices officielles comme sur le site, le titre en Fraunces droite fine (300),
+ * la signature et la devise en Fraunces italique (400, jamais sous 24 px), le texte en Cormorant
+ * Garamond (servies par /fonts, repli sur Georgia, Outlook compris) ; bouton noir en
  * pilule ; espacements multiples de 8 px. Tableaux et styles en ligne pour la
  * compatibilité des messageries.
  */
@@ -40,6 +41,10 @@ export function brandEmail(input: BrandEmailInput): { html: string; text: string
   // Cormorant Garamond a un petit œil : texte à 20 px sur 32 px, capitales et notes jamais sous 16 px
   // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
   const caps = `font-family:${fontStacks.text};font-weight:400;font-size:16px;line-height:24px;letter-spacing:1px;text-transform:uppercase;`;
+  // comme sur le site : le grand titre (40 px) en Fraunces droite fine, la signature et la devise
+  // (petits titres, 24 px) en Fraunces italique
+  // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
+  const title = `font-family:${fontStacks.display};font-style:normal;font-weight:300;`;
   // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
   const display = `font-family:${fontStacks.display};font-style:italic;font-weight:400;`;
   const p = (t: string) =>
@@ -66,8 +71,10 @@ export function brandEmail(input: BrandEmailInput): { html: string; text: string
 
   const html = `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>${esc(input.title)}</title>
-<style>@font-face{font-family:'Fraunces';font-weight:400;font-style:italic;src:url('${absolute("/fonts/fraunces-72pt-italic-latin.woff2")}') format('woff2');}
-@font-face{font-family:'Cormorant Garamond';font-weight:400;font-style:normal;src:url('${absolute("/fonts/cormorant-garamond-latin-400.woff2")}') format('woff2');}</style></head>
+<!--[if !mso]><!--><style>@font-face{font-family:'Fraunces';font-weight:300;font-style:normal;src:url('${absolute("/fonts/fraunces-120pt-light-latin.woff2")}') format('woff2');}
+@font-face{font-family:'Fraunces';font-weight:400;font-style:italic;src:url('${absolute("/fonts/fraunces-72pt-italic-latin.woff2")}') format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-weight:400;font-style:normal;src:url('${absolute("/fonts/cormorant-garamond-latin-400.woff2")}') format('woff2');}</style><!--<![endif]-->
+<!--[if mso]><style>h1,p,div,td,a,span{font-family:Georgia,serif!important}</style><![endif]--></head>
 <body style="margin:0;padding:0;background:${pearl};">
 <div style="display:none;max-height:0;overflow:hidden;">${esc(input.preheader)}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${pearl};"><tr><td align="center" style="padding:32px 16px;">
@@ -76,7 +83,7 @@ export function brandEmail(input: BrandEmailInput): { html: string; text: string
     <img src="${absolute("/brand/awrea-logo-blanc.png")}" width="160" alt="Awrea Paris" style="display:block;margin:0 auto;width:160px;height:auto;border:0;color:${ivory};">
   </td></tr>
   <tr><td style="padding:48px 40px 0;">
-    <h1 style="margin:0 0 32px;${display}font-size:40px;line-height:48px;color:${ink};text-align:center;">${esc(input.title)}</h1>
+    <h1 style="margin:0 0 32px;${title}font-size:40px;line-height:48px;color:${ink};text-align:center;">${esc(input.title)}</h1>
     ${input.paragraphs.map(p).join("")}
   </td></tr>
   ${items ? `<tr><td style="padding:0 40px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${items}</table></td></tr>` : ""}
