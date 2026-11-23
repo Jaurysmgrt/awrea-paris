@@ -1,5 +1,5 @@
 import { expect, test, type APIRequestContext } from "@playwright/test";
-import { acceptCookies } from "./helpers";
+import { acceptCookies, waitForHydration } from "./helpers";
 
 /** Réponse texte complète de l'assistante (flux NDJSON). */
 async function ask(request: APIRequestContext, content: string): Promise<string> {
@@ -42,6 +42,34 @@ test.describe("Assistante clientes (mode démonstration sans clé API)", () => {
     // fermeture au clavier
     await page.keyboard.press("Escape");
     await expect(panel).toBeHidden();
+  });
+
+  test("« Une question ? » ne recouvre rien : absente de la commande et du compte, effacée sur la fiche et pendant la saisie", async ({ page }) => {
+    await acceptCookies(page);
+    const bouton = page.getByRole("button", { name: "Une question ?" });
+    for (const chemin of ["/commande", "/compte"]) {
+      await page.goto(chemin);
+      await waitForHydration(page);
+      await expect(page.locator(".assistant-launcher")).toHaveCount(0);
+    }
+    // fiche : effacée tant que la colonne de la pièce (tailles, panier, partage) est à l'écran
+    await page.goto("/boutique/robe-odessa");
+    await waitForHydration(page);
+    await expect(bouton).toBeHidden();
+    // ailleurs, présente ; effacée pendant la saisie d'un champ ; le pied de page lui réserve sa hauteur
+    await page.goto("/contact");
+    await waitForHydration(page);
+    await expect(bouton).toBeVisible();
+    await page.locator("main form input").first().focus();
+    await expect(bouton).toBeHidden();
+    await page.locator("main form input").first().blur();
+    await expect(bouton).toBeVisible();
+    const reserve = await page.evaluate(() => {
+      const pied = getComputedStyle(document.querySelector(".site-footer")!).paddingBottom;
+      const b = document.querySelector(".assistant-launcher")!.getBoundingClientRect();
+      return parseFloat(pied) >= innerHeight - b.top;
+    });
+    expect(reserve).toBe(true);
   });
 
   test("étape d’une commande : seulement avec le numéro et l’e-mail de la commande", async ({ request }) => {

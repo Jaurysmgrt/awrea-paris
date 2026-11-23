@@ -596,6 +596,11 @@
     .privilege__panel {
       padding: var(--spacing-l) var(--spacing-gutter) calc(var(--spacing-m) + env(safe-area-inset-bottom));
     }
+    /* la croix et son anneau de focus restent dans l'écran */
+    .privilege__fermer {
+      top: var(--spacing-xs);
+      right: var(--spacing-xs);
+    }
     .privilege__deplier {
       display: inline-flex;
     }

@@ -950,6 +950,10 @@
   .not-found__inner {
     padding-block: calc(var(--header-h) + var(--spacing-xl)) var(--spacing-xl);
   }
+  /* le titre en deux lignes équilibrées sur ordinateur (il en prenait trois dans une colonne étroite) */
+  .not-found__inner h1 {
+    text-wrap: balance;
+  }
   .not-found__actions {
     display: flex;
     flex-wrap: wrap;
