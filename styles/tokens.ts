@@ -12,12 +12,13 @@ export const palette = {
 } as const;
 
 /**
- * Les deux polices officielles, pas une de plus (e-mails : repli sur Georgia, puis serif).
- * `display` : titres en Fraunces, comme sur le site (grands titres de 28 px et plus en Fraunces 120pt
- * Light, droite, 300 ; petits titres en Fraunces 72pt Italic, 400) ; `text` : textes, boutons et
- * étiquettes en Cormorant Garamond.
+ * Polices des e-mails, comme sur le site. `display` : titres en Fraunces (grands titres de 28 px et
+ * plus en Fraunces 120pt Light, droite, 300 ; petits titres en Fraunces 72pt Italic, 400), servie par
+ * le site, repli sur Georgia. `text` : textes, boutons et étiquettes en Avenir Next Regular (choix de
+ * la créatrice du 23/11), installée sur iPhone, iPad et Mac ; ailleurs, aucune police téléchargée
+ * (les messageries les ignorent souvent) : Helvetica Neue, Helvetica, puis Arial.
  */
 export const fontStacks = {
   display: "'Fraunces', Georgia, serif",
-  text: "'Cormorant Garamond', Georgia, serif",
+  text: "'Avenir Next', Avenir, 'Helvetica Neue', Helvetica, Arial, sans-serif",
 } as const;

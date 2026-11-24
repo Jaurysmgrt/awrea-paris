@@ -36,7 +36,8 @@ export interface EmailStyle {
   /** alignement du texte, de la photo ou du bouton */
   align: Alignement;
   /**
-   * police de la Maison : Fraunces droite (fine), Fraunces italique ou Cormorant Garamond. Sans
+   * police de la Maison : Fraunces droite (fine), Fraunces italique ou Avenir Next (texte, choix de
+   * la créatrice du 23/11 ; Helvetica ou Arial là où elle manque). Sans
    * réglage, la règle du site (réponse de la créatrice du 12/11) : grands titres (28 px et plus) en
    * Fraunces droite fine (300), petits titres et signature en Fraunces italique (400)
    */
@@ -69,7 +70,7 @@ export const ALIGNEMENTS: { value: Alignement; label: string }[] = [
 export const POLICES: { value: Police; label: string; usage: string }[] = [
   { value: "droite", label: "Fraunces droite", usage: "grands titres, en fin, comme sur le site" },
   { value: "italique", label: "Fraunces italique", usage: "petits titres et signature" },
-  { value: "texte", label: "Cormorant Garamond", usage: "texte" },
+  { value: "texte", label: "Avenir Next", usage: "texte, comme sur le site" },
 ];
 export const TAILLES: { value: Taille; label: string }[] = [
   { value: "petite", label: "Petite" },

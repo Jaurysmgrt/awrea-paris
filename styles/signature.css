@@ -645,7 +645,7 @@
     font-family: var(--font-body);
     font-style: normal;
     font-size: var(--text-step-0);
-    line-height: var(--leading-text);
+    line-height: var(--leading-line);
     text-align: left;
     hyphens: manual;
   }

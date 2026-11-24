@@ -1,10 +1,11 @@
 /**
  * Rendu d'un e-mail composé de blocs (lib/email/blocks.ts) en HTML compatible avec les messageries :
- * tableaux, styles en ligne, logo officiel en image (public/brand), polices officielles comme sur le
- * site (grands titres en Fraunces 120pt Light, droite, 300 ; petits titres, signature et devise en
- * Fraunces 72pt Italic, 400, jamais sous 24 px ; Cormorant Garamond pour le texte ; servies par
- * /fonts) avec repli sur Georgia, puis serif (Outlook pour Windows compris, qui sinon prendrait Times
- * New Roman), bouton en pilule « à toute épreuve » pour Outlook, mode sombre
+ * tableaux, styles en ligne, logo officiel en image (public/brand), polices comme sur le site (grands
+ * titres en Fraunces 120pt Light, droite, 300 ; petits titres, signature et devise en Fraunces 72pt
+ * Italic, 400, jamais sous 24 px ; servies par /fonts, repli sur Georgia, puis serif) ; texte en
+ * Avenir Next Regular (choix de la créatrice du 23/11), installée sur les appareils Apple, sinon
+ * Helvetica Neue, Helvetica ou Arial, sans police à télécharger (Outlook pour Windows compris, qui
+ * sinon prendrait Times New Roman), bouton en pilule « à toute épreuve » pour Outlook, mode sombre
  * (Apple Mail, Outlook.com, iOS), version texte. Le même rendu sert à l'envoi, à l'aperçu de
  * l'éditeur (simulation de Gmail, Apple Mail, Outlook, téléphone, clair et sombre) et à l'export
  * vers Brevo ou Klaviyo (repères convertis dans leur syntaxe).
@@ -127,10 +128,14 @@ const imageUrl = (src: string, ctx: EmailContext, width = 1200) => {
 // ------------------------------------------------------------------ styles
 
 function fonts(ctx: EmailContext) {
-  // Gmail et Outlook ignorent les polices du site : Georgia, serif garde l'allure d'un texte composé
-  if (ctx.client === "outlook") return { display: "Georgia, serif", text: "Georgia, serif" };
+  // Outlook pour Windows ignore Fraunces et n'a pas Avenir Next : Georgia pour les titres, Arial pour
+  // le texte (ce que lui imposent ses règles, msoRepli)
+  if (ctx.client === "outlook") return { display: "Georgia, serif", text: "Arial, sans-serif" };
   return fontStacks;
 }
+
+/** Classe des textes en Fraunces (titres, signature, devise) : Outlook pour Windows les compose en Georgia. */
+const serif = (police: Police) => (police === "texte" ? "" : " e-serif");
 
 /**
  * Petits titres (nom d'une pièce, devise du pied, 24 px) : l'italique de la police officielle
@@ -142,22 +147,22 @@ const italic = "font-style:italic;font-weight:400;";
 /**
  * Outlook pour Windows (moteur de Word) ignore les polices en ligne : s'il voit leur déclaration, il
  * compose tout en Times New Roman au lieu du repli. Il ne la voit donc pas (commentaire
- * conditionnel), et ses propres règles lui imposent Georgia, l'italique et la graisse gardés.
+ * conditionnel), et ses propres règles lui imposent Arial pour le texte et Georgia pour les textes en
+ * Fraunces (classe e-serif), l'italique et la graisse gardés.
  */
-const msoRepli = `<!--[if mso]><style>h1,p,div,td,a,span{font-family:Georgia,serif!important}</style><![endif]-->`;
+export const msoRepli = `<!--[if mso]><style>h1,p,div,td,a,span{font-family:Arial,sans-serif!important}.e-serif{font-family:Georgia,serif!important}</style><![endif]-->`;
 
 /** Aperçu de l'éditeur : le bloc survolé et le bloc choisi se voient d'un filet. */
 const marksCss = `tbody[data-bloc]{cursor:pointer}tbody[data-bloc]:hover>tr>td{box-shadow:inset 0 0 0 1px ${palette.taupe}}tbody[data-choisi]>tr>td,tbody[data-choisi]:hover>tr>td{box-shadow:inset 0 0 0 2px ${palette.taupeDeep}}tbody[data-a-ecrire] :is(p,h1){color:${palette.taupeDeep}!important}`;
 
 function head(ctx: EmailContext, title: string) {
-  // les deux faces de Fraunces (droite fine 300 pour les grands titres, italique 400 pour les petits)
-  // et Cormorant Garamond, servies par le site ; Gmail les ignore et prend Georgia
+  // les deux faces de Fraunces (droite fine 300 pour les grands titres, italique 400 pour les petits),
+  // servies par le site ; Gmail les ignore et prend Georgia. Le texte n'a aucune police à télécharger.
   const fontFace =
     ctx.client === "gmail" || ctx.client === "outlook"
       ? ""
       : `<!--[if !mso]><!--><style>@font-face{font-family:'Fraunces';font-weight:300;font-style:normal;src:url('${ctx.assets ?? ctx.site}/fonts/fraunces-120pt-light-latin.woff2') format('woff2');}
-@font-face{font-family:'Fraunces';font-weight:400;font-style:italic;src:url('${ctx.assets ?? ctx.site}/fonts/fraunces-72pt-italic-latin.woff2') format('woff2');}
-@font-face{font-family:'Cormorant Garamond';font-weight:400;font-style:normal;src:url('${ctx.assets ?? ctx.site}/fonts/cormorant-garamond-latin-400.woff2') format('woff2');}</style><!--<![endif]-->`;
+@font-face{font-family:'Fraunces';font-weight:400;font-style:italic;src:url('${ctx.assets ?? ctx.site}/fonts/fraunces-72pt-italic-latin.woff2') format('woff2');}</style><!--<![endif]-->`;
   const darkRules = `.e-page{background:${dark.page}!important}.e-card{background:${dark.card}!important}.e-ink{color:${dark.ink}!important}.e-soft{color:${dark.soft}!important}.e-line{border-color:${dark.line}!important}.e-btn{background:${dark.btn}!important;border-color:${dark.btn}!important}.e-btn a{color:${dark.onBtn}!important}.e-ink a{color:${dark.ink}!important}.e-logo-day{display:none!important}.e-logo-night{display:block!important;max-height:none!important;overflow:visible!important}`;
   const prefix = (sel: string) => darkRules.replace(/\.e-/g, `${sel} .e-`);
   // le thème sombre forcé de l'aperçu reprend exactement les règles du mode sombre
@@ -181,10 +186,10 @@ ${ctx.marks ? marksCss : ""}
 
 const CSS_ALIGN: Record<Alignement, "left" | "center" | "right"> = { gauche: "left", centre: "center", droite: "right" };
 
-/** Tailles prévues, en pixels (taille, interlignage) : Cormorant jamais sous 16 px. */
+/** Tailles prévues, en pixels (taille, interlignage) : comme sur le site, le texte à 18 px sur 32, jamais sous 16 px. */
 const TAILLES_PX: Record<"titre" | "texte" | "signature", Record<Taille, [number, number]>> = {
   titre: { petite: [28, 36], normale: [40, 48], grande: [48, 56] },
-  texte: { petite: [16, 24], normale: [20, 32], grande: [24, 36] },
+  texte: { petite: [16, 24], normale: [18, 32], grande: [20, 32] },
   signature: { petite: [20, 32], normale: [24, 32], grande: [28, 36] },
 };
 
@@ -207,7 +212,7 @@ const textPart = (s: string, ctx: EmailContext) => (ctx.syntax ? fill(s, ctx) : 
  * prénom…) ne devient jamais un lien. Les repères sont remplis avant le découpage : une réponse de
  * plusieurs paragraphes les garde.
  */
-function paragraphs(template: string, ctx: EmailContext, style: string, align: string): string {
+function paragraphs(template: string, ctx: EmailContext, style: string, align: string, cls = ""): string {
   let html = "";
   let last = 0;
   for (const m of template.matchAll(LIEN_TEXTE)) {
@@ -220,7 +225,7 @@ function paragraphs(template: string, ctx: EmailContext, style: string, align: s
     .split(/\n{2,}/)
     .map((p) => p.trim())
     .filter(Boolean)
-    .map((p, i, all) => `<p class="e-ink" lang="fr" style="margin:0 0 ${i === all.length - 1 ? 0 : 24}px;${style}text-align:${align};">${p.replace(/\n/g, "<br>")}</p>`)
+    .map((p, i, all) => `<p class="e-ink${cls}" lang="fr" style="margin:0 0 ${i === all.length - 1 ? 0 : 24}px;${style}text-align:${align};">${p.replace(/\n/g, "<br>")}</p>`)
     .join("");
 }
 
@@ -244,11 +249,12 @@ function photo(img: Img | undefined, w: number, ctx: EmailContext, champ: "image
 function blockHtml(b: EmailBlock, ctx: EmailContext, unsubscribe: string): string {
   const f = fonts(ctx);
   const c = light;
-  // Cormorant Garamond a un petit œil : texte à 20 px sur 32 px, capitales et notes jamais sous 16 px
+  // comme sur le site : texte à 18 px sur 32 px, capitales et notes jamais sous 16 px, capitales à
+  // peine ouvertes (0,04 em), aucun autre interlettrage
   // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
-  const caps = `font-family:${f.text};font-weight:400;font-size:16px;line-height:24px;letter-spacing:1px;text-transform:uppercase;`;
+  const caps = `font-family:${f.text};font-weight:400;font-size:16px;line-height:24px;letter-spacing:0.6px;text-transform:uppercase;`;
   // ecriture-ok : style CSS en ligne, jamais d'espace avant « : » ni « ; »
-  const body = `font-family:${f.text};font-weight:400;font-size:20px;line-height:32px;color:${c.ink};`;
+  const body = `font-family:${f.text};font-weight:400;font-size:18px;line-height:32px;color:${c.ink};`;
   const row = (inner: string, pad = "0 48px 32px") => `<tr><td class="e-pad" style="padding:${pad};">${inner}</td></tr>`;
   // réglages du bloc (sinon son allure d'origine) : espaces au-dessus et au-dessous, alignement
   const st = styleOf(b);
@@ -263,7 +269,7 @@ function blockHtml(b: EmailBlock, ctx: EmailContext, unsubscribe: string): strin
       const bg = ink ? c.band : c.card;
       const fg = ink ? c.onBand : c.ink;
       const logo = (file: string, cls: string, alt: string) =>
-        `<img class="${cls}" src="${ctx.assets ?? ctx.site}/brand/${file}" width="160" alt="Awrea Paris" style="display:block;margin:0 auto;width:160px;height:auto;border:0;font-family:${f.text};font-size:20px;line-height:32px;color:${alt};">`;
+        `<img class="${cls}" src="${ctx.assets ?? ctx.site}/brand/${file}" width="160" alt="Awrea Paris" style="display:block;margin:0 auto;width:160px;height:auto;border:0;font-family:${f.text};font-size:18px;line-height:32px;color:${alt};">`;
       const art = ink
         ? logo("awrea-logo-blanc.png", "", fg)
         : `${logo("awrea-logo.png", "e-logo-day", fg)}<!--[if !mso]><!--><div class="e-logo-night" style="display:none;max-height:0;overflow:hidden;">${logo("awrea-logo-blanc.png", "", c.onBand)}</div><!--<![endif]-->`;
@@ -273,10 +279,10 @@ ${art}
     }
     case "titre": {
       const size = TAILLES_PX.titre[st.taille ?? "normale"];
-      return row(`<h1 class="e-ink${size[0] > 32 ? " e-title" : ""}" style="margin:0;${typo(ctx, st.police ?? "droite", size, c.ink)}text-align:${align};">${fill(String(b.titre ?? ""), ctx)}</h1>`, pad);
+      return row(`<h1 class="e-ink${size[0] > 32 ? " e-title" : ""}${serif(st.police ?? "droite")}" style="margin:0;${typo(ctx, st.police ?? "droite", size, c.ink)}text-align:${align};">${fill(String(b.titre ?? ""), ctx)}</h1>`, pad);
     }
     case "texte":
-      return row(paragraphs(String(b.texte ?? ""), ctx, typo(ctx, st.police ?? "texte", TAILLES_PX.texte[st.taille ?? "normale"], c.ink), align), pad);
+      return row(paragraphs(String(b.texte ?? ""), ctx, typo(ctx, st.police ?? "texte", TAILLES_PX.texte[st.taille ?? "normale"], c.ink), align, serif(st.police ?? "texte")), pad);
     case "image": {
       // largeur réglable (de 30 à 100 % de l'e-mail) et alignement : un tableau aligné, compris par Outlook
       const pct = st.largeur ?? 100;
@@ -289,7 +295,7 @@ ${art}
       // deux colonnes ; sur téléphone, la photo d'abord puis le texte (« dir » inverse l'ordre affiché
       // sur ordinateur quand la photo est à droite, sans changer l'ordre de lecture)
       const img = photo(b.image as Img | undefined, 228, ctx);
-      const texte = paragraphs(String(b.texte ?? ""), ctx, typo(ctx, st.police ?? "texte", TAILLES_PX.texte[st.taille ?? "normale"], c.ink), "left");
+      const texte = paragraphs(String(b.texte ?? ""), ctx, typo(ctx, st.police ?? "texte", TAILLES_PX.texte[st.taille ?? "normale"], c.ink), "left", serif(st.police ?? "texte"));
       const right = st.cote === "droite";
       const cell = (inner: string, side: "photo" | "texte", last: boolean) =>
         `<td class="e-col${last ? " e-col-last" : ""}" dir="ltr" width="${side === "photo" ? 228 : 252}" style="width:${side === "photo" ? 228 : 252}px;vertical-align:middle;padding:0 ${side === "photo" && !right ? 24 : 0}px 0 ${side === "photo" && right ? 24 : 0}px;">${inner}</td>`;
@@ -312,7 +318,7 @@ ${art}
       if (!p) return "";
       return row(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
 ${p.image ? `<td width="168" style="padding-right:24px;vertical-align:top;"><a href="${esc(href(p.href, ctx))}"><img src="${esc(imageUrl(p.image, ctx, 480))}" width="168" alt="${esc(p.alt ?? p.title)}" style="width:168px;"></a></td>` : ""}
-<td style="vertical-align:middle;"><div class="e-ink" style="font-family:${f.display};${italic}font-size:24px;line-height:32px;color:${c.ink};">${esc(p.title)}</div>
+<td style="vertical-align:middle;"><div class="e-ink e-serif" style="font-family:${f.display};${italic}font-size:24px;line-height:32px;color:${c.ink};">${esc(p.title)}</div>
 ${p.price ? `<div class="e-soft" style="${body}color:${c.soft};padding-top:8px;">${esc(p.price)}</div>` : ""}
 <div style="padding-top:16px;"><a class="e-ink" href="${esc(href(p.href, ctx))}" style="${caps}color:${c.ink};">${esc(ctx.commun.voirPiece)}</a></div></td></tr></table>`, pad);
     }
@@ -322,14 +328,14 @@ ${p.price ? `<div class="e-soft" style="${body}color:${c.soft};padding-top:8px;"
       if (st.style === "contour")
         // bouton au filet : le filet sur le lien lui-même (une cellule de tableau le garderait carré)
         return row(
-          `<table role="presentation" cellpadding="0" cellspacing="0" align="${align}"><tr><td style="border-radius:999px;"><a class="e-ink e-line" href="${esc(href(l.href, ctx))}" style="${body}color:${c.ink};letter-spacing:0.4px;text-decoration:none;display:inline-block;padding:7px 31px;border:1px solid ${c.ink};border-radius:999px;">${fill(l.label, ctx)}</a></td></tr></table>`,
+          `<table role="presentation" cellpadding="0" cellspacing="0" align="${align}"><tr><td style="border-radius:999px;"><a class="e-ink e-line" href="${esc(href(l.href, ctx))}" style="${body}color:${c.ink};text-decoration:none;display:inline-block;padding:7px 31px;border:1px solid ${c.ink};border-radius:999px;">${fill(l.label, ctx)}</a></td></tr></table>`,
           pad,
         );
       return row(
         // bouton des maquettes : noir plein en pilule, texte en bas de casse comme sur le site ; pas de
         // bordure (une cellule de tableau fusionné la garderait carrée) ; Outlook pour Windows ignore
         // l'arrondi : le bouton y reste un rectangle noir lisible
-        `<table role="presentation" cellpadding="0" cellspacing="0" align="${align}"><tr><td class="e-btn" bgcolor="${c.btn}" style="background:${c.btn};border-radius:999px;padding:8px 32px;"><a href="${esc(href(l.href, ctx))}" style="${body}color:${c.onBtn};letter-spacing:0.4px;text-decoration:none;display:inline-block;border-radius:999px;">${fill(l.label, ctx)}</a></td></tr></table>`,
+        `<table role="presentation" cellpadding="0" cellspacing="0" align="${align}"><tr><td class="e-btn" bgcolor="${c.btn}" style="background:${c.btn};border-radius:999px;padding:8px 32px;"><a href="${esc(href(l.href, ctx))}" style="${body}color:${c.onBtn};text-decoration:none;display:inline-block;border-radius:999px;">${fill(l.label, ctx)}</a></td></tr></table>`,
         pad,
       );
     }
@@ -355,13 +361,13 @@ ${p.price ? `<div class="e-soft" style="${body}color:${c.soft};padding-top:8px;"
     case "separateur":
       return row(`<div class="e-line" style="border-top:1px solid ${c.line};font-size:0;line-height:0;">&nbsp;</div>`, pad);
     case "signature":
-      return row(`<p class="e-ink" style="margin:0;${typo(ctx, st.police ?? "italique", TAILLES_PX.signature[st.taille ?? "normale"], c.ink)}text-align:${align};">${fill(String(b.texte ?? ""), ctx).replace(/\n/g, "<br>")}</p>`, pad);
+      return row(`<p class="e-ink${serif(st.police ?? "italique")}" style="margin:0;${typo(ctx, st.police ?? "italique", TAILLES_PX.signature[st.taille ?? "normale"], c.ink)}text-align:${align};">${fill(String(b.texte ?? ""), ctx).replace(/\n/g, "<br>")}</p>`, pad);
     case "pied": {
       const k = ctx.commun;
       const site = ctx.site.replace(/^https?:\/\//, "");
       const note = String(b.note ?? "").trim();
       return `<tr><td align="center" style="background:${c.band};padding:32px 24px;" bgcolor="${c.band}">
-<div style="font-family:${f.display};${italic}font-size:24px;line-height:32px;color:${c.onBand};">${esc(k.devise)}</div>
+<div class="e-serif" style="font-family:${f.display};${italic}font-size:24px;line-height:32px;color:${c.onBand};">${esc(k.devise)}</div>
 <div style="${caps}color:${c.onBand};padding-top:8px;">${esc(k.lignePied)}${ctx.instagram ? ` · <a href="${esc(ctx.instagram)}" style="color:${c.onBand};">Instagram</a>` : ""} · <a href="${esc(ctx.site)}" style="color:${c.onBand};">${esc(site)}</a></div>
 ${note ? `<div style="font-family:${f.text};font-weight:400;font-size:16px;line-height:24px;color:${palette.taupe};padding-top:16px;">${fill(note, ctx).replace(/\n/g, "<br>")}</div>` : ""}
 ${k.mentions ? `<div style="font-family:${f.text};font-weight:400;font-size:16px;line-height:24px;color:${palette.taupe};padding-top:16px;">${esc(k.mentions)}</div>` : ""}

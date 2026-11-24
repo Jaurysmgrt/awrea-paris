@@ -104,32 +104,46 @@ test("typographie du site : grands titres droits et fins, petits titres en itali
     ]),
     { ...ctx, products: { "body-aura": { title: "Le body Aura", href: "/produits/body-aura" } } },
   ).html;
-  assert.match(petits, /<p class="e-ink" style="margin:0;font-family:'Fraunces', Georgia, serif;font-style:italic;font-weight:400;font-size:24px/);
+  assert.match(petits, /<p class="e-ink e-serif" style="margin:0;font-family:'Fraunces', Georgia, serif;font-style:italic;font-weight:400;font-size:24px/);
   assert.match(petits, /font-style:italic;font-weight:400;font-size:24px;line-height:32px;[^"]*">Le body Aura</);
   assert.match(petits, /font-style:italic;font-weight:400;font-size:24px;line-height:32px;[^"]*">Consommer plus juste</);
   // les deux faces de Fraunces sont déclarées, avec leur style et leur graisse
   assert.match(petits, /font-family:'Fraunces';font-weight:300;font-style:normal;src:url\('https:\/\/www\.exemple\.fr\/fonts\/fraunces-120pt-light-latin\.woff2'\)/);
   assert.match(petits, /font-family:'Fraunces';font-weight:400;font-style:italic;src:url\('https:\/\/www\.exemple\.fr\/fonts\/fraunces-72pt-italic-latin\.woff2'\)/);
+  // texte (choix de la créatrice du 23/11) : Avenir Next, sinon Helvetica ou Arial, à 18 px sur 32 ;
+  // aucune police de texte à télécharger, plus jamais Cormorant Garamond
+  const texte = renderEmail(mis([{ id: "b-test0115", type: "texte", texte: "Bonjour." }]), ctx).html;
+  assert.match(texte, /<p class="e-ink" lang="fr" style="margin:0 0 0px;font-family:'Avenir Next', Avenir, 'Helvetica Neue', Helvetica, Arial, sans-serif;font-style:normal;font-weight:400;font-size:18px;line-height:32px;/);
+  assert.doesNotMatch(texte + petits, /Cormorant|letter-spacing:0\.4px/);
+  assert.equal((texte.match(/@font-face/g) ?? []).length, 2);
 });
 
-test("repli sans police du site : Georgia, jamais Times New Roman dans Outlook pour Windows", () => {
+test("repli sans police du site : Georgia et Arial, jamais Times New Roman dans Outlook pour Windows", () => {
   const envoi = renderEmail(mis([{ id: "b-test0121", type: "titre", titre: "Bonjour" }]), ctx).html;
-  // les polices du site, cachées à Outlook pour Windows ; Georgia imposé à Outlook seul
+  // les polices du site, cachées à Outlook pour Windows ; Arial pour le texte et Georgia pour les
+  // textes en Fraunces (classe e-serif) imposés à Outlook seul
   assert.match(envoi, /<!--\[if !mso\]><!--><style>@font-face/);
   assert.match(envoi, /<\/style><!--<!\[endif\]-->/);
-  assert.match(envoi, /<!--\[if mso\]><style>h1,p,div,td,a,span\{font-family:Georgia,serif!important\}<\/style><!\[endif\]-->/);
-  // chaque texte garde son repli dans la pile de polices
-  assert.match(envoi, /font-family:'Fraunces', Georgia, serif;font-style:normal;font-weight:300/);
-  // aperçus Gmail et Outlook : Georgia directement, la graisse et le style du titre gardés
-  assert.match(renderEmail(mis([{ id: "b-test0122", type: "titre", titre: "Bonjour" }]), { ...ctx, client: "outlook" }).html, /font-family:Georgia, serif;font-style:normal;font-weight:300/);
+  assert.match(envoi, /<!--\[if mso\]><style>h1,p,div,td,a,span\{font-family:Arial,sans-serif!important\}\.e-serif\{font-family:Georgia,serif!important\}<\/style><!\[endif\]-->/);
+  // chaque texte garde son repli dans la pile de polices ; le titre en Fraunces porte la classe e-serif
+  assert.match(envoi, /<h1 class="e-ink e-title e-serif" style="margin:0;font-family:'Fraunces', Georgia, serif;font-style:normal;font-weight:300/);
+  // un titre mis dans la police des textes n'est plus composé en Georgia par Outlook
+  assert.match(renderEmail(mis([{ id: "b-test0123", type: "titre", titre: "Bonjour", police: "texte" }]), ctx).html, /<h1 class="e-ink e-title" style="margin:0;font-family:'Avenir Next'/);
+  // aperçus Gmail et Outlook : Georgia directement, la graisse et le style du titre gardés ; Arial pour le texte
+  const outlook = renderEmail(mis([{ id: "b-test0122", type: "titre", titre: "Bonjour" }, { id: "b-test0124", type: "texte", texte: "Bonjour." }]), { ...ctx, client: "outlook" }).html;
+  assert.match(outlook, /font-family:Georgia, serif;font-style:normal;font-weight:300/);
+  assert.match(outlook, /font-family:Arial, sans-serif;font-style:normal;font-weight:400;font-size:18px/);
 });
 
 test("gabarit des e-mails du site (retours, alertes, suivi) : la même typographie", () => {
   const m = brandEmail({ preheader: "Aperçu", title: "Votre retour est enregistré", paragraphs: ["Bonjour."], signature: "La Maison" });
-  assert.match(m.html, /<h1 style="margin:0 0 32px;font-family:'Fraunces', Georgia, serif;font-style:normal;font-weight:300;font-size:40px/);
+  assert.match(m.html, /<h1 class="e-serif" style="margin:0 0 32px;font-family:'Fraunces', Georgia, serif;font-style:normal;font-weight:300;font-size:40px/);
   assert.match(m.html, /font-style:italic;font-weight:400;font-size:24px;line-height:32px;[^"]*white-space:pre-line;">La Maison</);
   assert.match(m.html, /fraunces-120pt-light-latin\.woff2/);
-  assert.match(m.html, /<!--\[if mso\]><style>h1,p,div,td,a,span\{font-family:Georgia,serif!important\}/);
+  assert.match(m.html, /<!--\[if mso\]><style>h1,p,div,td,a,span\{font-family:Arial,sans-serif!important\}\.e-serif\{font-family:Georgia,serif!important\}<\/style><!\[endif\]-->/);
+  // le texte en Avenir Next (sinon Helvetica ou Arial) à 18 px, sans police à télécharger
+  assert.match(m.html, /font-family:'Avenir Next', Avenir, 'Helvetica Neue', Helvetica, Arial, sans-serif;font-weight:400;font-size:18px;line-height:32px;/);
+  assert.doesNotMatch(m.html, /Cormorant/);
 });
 
 test("photo : largeur et alignement dans un tableau aligné ; photo et texte côte à côte, empilés sur téléphone", () => {

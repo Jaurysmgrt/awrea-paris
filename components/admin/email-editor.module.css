@@ -291,8 +291,10 @@
   font-style: normal;
   font-weight: var(--font-weight-title);
 }
+/* le texte des e-mails : Avenir Next sur les appareils Apple, sinon Helvetica ou Arial, la pile
+   même de l'e-mail (fontStacks.text, styles/tokens.ts), sans police à télécharger */
 .police[data-police="texte"] .policeEchantillon {
-  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-family: "Avenir Next", Avenir, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: var(--font-weight-regular);
 }

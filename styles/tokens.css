@@ -7,10 +7,11 @@
  *
  * Couleurs : noir, blanc cassé, gris pierre, gris taupe. La dorure vit dans les mots, les photos et
  * les bijoux, jamais dans l'interface.
- * Polices officielles : Fraunces 72pt Italic (titres, très grands, en italique) et Cormorant
- * Garamond 400 (textes, navigation, boutons, formulaires). Grille de 8 px : chaque espacement est
- * un multiple de 8. Texte courant : 20 px sur 32 px (interlignage 1,6), aligné à gauche, 60 à 70
- * caractères par ligne ; jamais de texte sous 16 px (Cormorant a un petit œil).
+ * Polices : Fraunces pour les titres (grands titres en 120pt Light droite, petits titres en 72pt
+ * Italic) ; Avenir Next Regular, ou Mulish Regular là où Avenir Next manque, pour les textes, la
+ * navigation, les menus, les boutons et les formulaires (choix de la créatrice du 23/11). Grille de
+ * 8 px : chaque espacement est un multiple de 8. Texte courant : 18 px sur 32 px, chapeaux 20 px sur
+ * 32 px (1,6), 60 à 70 caractères par ligne ; jamais de texte sous 16 px.
  * Langage des maquettes : filets noirs très fins, champs soulignés, boutons et pastilles noirs en
  * pilule, photos des cartes aux angles arrondis.
  */
@@ -39,11 +40,17 @@
   --color-night-soft: color-mix(in oklab, var(--color-ink) 95%, var(--color-pearl));
 
   /* ------------------------------------------------------------ TYPOGRAPHIE
-     Les deux polices officielles (app/fonts.ts, next/font/local). Aucune autre famille : ni la
-     police du logo (jamais chargée), ni police système hors des replis. */
+     Deux piles (app/fonts.ts), aucune autre famille : ni la police du logo (jamais chargée), ni
+     police système hors des replis.
+     Titres : Fraunces, servie par le site.
+     Textes (choix de la créatrice du 23/11) : Avenir Next Regular, installée d'origine sur iPhone,
+     iPad et Mac et appelée par son nom (aucun fichier : police commerciale, RESSOURCES.md) ; puis
+     Avenir ; puis Mulish Regular (SIL OFL), servie par le site sans préchargement, que le navigateur
+     ne télécharge que si les deux premières manquent (Windows, Android) ; puis Arial. Tailles et
+     interlettrages valent pour les deux : aucun réglage propre à Mulish. */
   --font-*: initial;
   --font-display: var(--font-fraunces), "Fraunces", Georgia, "Times New Roman", serif;
-  --font-body: var(--font-cormorant), "Cormorant Garamond", Garamond, Georgia, serif;
+  --font-body: "Avenir Next", "Avenir", var(--font-mulish), Arial, sans-serif;
   /* ancien nom, gardé pour les feuilles existantes : c'est la police des textes */
   --font-sans: var(--font-body);
   /* Atelier seulement (tableau de bord privé, jamais le site public) : la police système de
@@ -52,37 +59,48 @@
   --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   /* Échelle : valeurs mobiles ici, paliers tablette et ordinateur plus bas (:root).
-     Cormorant Garamond a un petit œil : rien sous 16 px, texte courant à 20 px. Les tailles de
-     texte multiples de 5 px gardent l'interlignage 1,6 sur la grille de 8 px (20 → 32, 25 → 40).
-     Les titres (Fraunces) ont leurs interlignages serrés, multiples de 8 px (--lh-step-*). */
+     Textes (23/11) : Avenir Next et Mulish ont un grand œil (hauteur d'x de 0,50 em pour Mulish,
+     mesurée sur son fichier, à peine moins pour Avenir Next ; 0,39 pour Cormorant Garamond, police
+     des textes jusqu'au 22/11) : le texte courant passe de 20 à 18 px, à peine plus grand à l'œil
+     qu'avant ; rien sous 16 px. Interlignages sur la grille de 8 px :
+     18 × 1,6 = 28,8 px en sortirait, le texte courant prend donc 32 px, comme les notes de 18 px avant
+     lui (DESIGN.md) ; le chapeau, 20 px sur 32 px, tient le 1,6 exact. Les titres (Fraunces) ont leurs
+     interlignages serrés, multiples de 8 px (--lh-step-*). */
   --text-*: initial;
   --text-step--2: 1rem; /* 16 px, le minimum : étiquettes en capitales, fil d'Ariane, pastilles */
-  --text-step--1: 1.125rem; /* 18 px : notes, aides des champs, tableaux (interlignage 32 px) */
-  --text-step-0: 1.25rem; /* 20 px : texte courant, navigation, boutons, champs, prix */
-  --text-step-1: 1.5625rem; /* 25 px : chapeaux (40 px), petits titres (32 px) ; Fraunces jamais en dessous */
+  --text-step--1: 1rem; /* 16 px : notes, aides des champs, tableaux (interlignage 24 px) */
+  --text-step-0: 1.125rem; /* 18 px : texte courant, navigation, boutons, champs, prix (32 px) */
+  --text-lead: 1.25rem; /* 20 px : chapeaux (.t-lead), interlignage 1,6 (32 px) */
+  --text-step-1: 1.5625rem; /* 25 px : petits titres en Fraunces (32 px) ; Fraunces jamais en dessous */
   --text-step-2: 1.75rem; /* titres de bloc : 28 px sur téléphone, toujours au-dessus des petits titres */
   --text-step-3: 2rem; /* titres de section */
   --text-step-4: 2.5rem; /* titres de page */
   --text-step-5: 3rem; /* titres d'ouverture et en-têtes de page */
   --text-step-6: 3.5rem; /* titres géants */
 
-  /* Interlignages, toujours sur la grille de 8 px. Texte courant et chapeaux : 1,6 (20 → 32,
-     25 → 40). Notes de 18 px : la ligne du texte courant (32 px), car 18 × 1,6 sortirait de la
-     grille. Titres en Fraunces : --lh-step-* (plus bas, par palier). tight et snug servent aux
-     titres de taille libre : le rapport est arrondi au multiple de 8 px supérieur. */
+  /* Interlignages, toujours sur la grille de 8 px. Chapeaux : 1,6 (20 → 32). Texte courant de
+     18 px : la ligne de 32 px (--leading-line), car 18 × 1,6 = 28,8 px sortirait de la grille. Notes
+     de 16 px : 24 px. Titres en Fraunces : --lh-step-* (plus bas, par palier). tight et snug
+     servent aux titres de taille libre : le rapport est arrondi au multiple de 8 px supérieur. */
   --leading-*: initial;
-  --leading-text: 1.6;
-  --leading-note: 2rem; /* notes, aides, erreurs, tableaux (18 px) : 32 px */
+  --leading-text: 1.6; /* chapeaux, et toute taille multiple de 5 px (20 → 32) */
+  /* texte courant : 18 px × 16/9 = 32 px, une ligne de la grille ; un rapport sans unité, pour que
+     les éléments qui en héritent sans fixer le leur gardent des lignes proportionnées */
+  --leading-line: calc(16 / 9);
+  --leading-note: 1.5rem; /* notes, aides, erreurs, tableaux (16 px) : 24 px */
   --leading-label: 1.5rem; /* étiquettes, boutons, pastilles, options sur une ligne : 24 px */
   --leading-tight: round(up, 1.1em, var(--spacing-3xs)); /* titres serrés de taille libre */
   --leading-snug: round(up, 1.2em, var(--spacing-3xs)); /* titres de base (h1 à h4 sans classe) */
 
+  /* Interlettrage (23/11) : aucun espacement artificiel. Textes, navigation et boutons au dessin
+     de la police ; les capitales seules (étiquettes, surtitres) gardent l'ouverture légère que leur
+     dessin demande pour rester lisibles, la moitié de celle des capitales en Cormorant. */
   --tracking-*: initial;
   --tracking-display: -0.01em; /* Fraunces 72pt est déjà dessiné serré pour le grand format */
   --tracking-text: 0;
-  --tracking-snug: 0.02em; /* navigation, boutons et liens en bas de casse */
-  --tracking-label: 0.08em; /* capitales en Cormorant : espacement mesuré */
-  --tracking-wide: 0.16em; /* capitales très espacées, rares (« PARIS ») */
+  --tracking-snug: 0; /* navigation, boutons et liens en bas de casse : au dessin de la police */
+  --tracking-label: 0.04em; /* capitales (étiquettes, surtitres) : ouverture légère */
+  --tracking-wide: 0.08em; /* capitales plus ouvertes, rares (numéro d'un certificat) */
 
   /* une seule graisse fournie par police (400) : jamais de faux gras ni de faux italique */
   --font-weight-*: initial;
@@ -129,7 +147,7 @@
 
   /* largeurs de colonnes */
   --container-*: initial;
-  --container-text: 31rem; /* 496 px : 65 caractères de Cormorant Garamond à 20 px (60 à 70) */
+  --container-text: 31rem; /* 496 px : 61 caractères de Mulish à 18 px (60 à 70) */
   --container-prose: 46rem;
   --container-wide: 76rem;
   --container-max: 120rem;
@@ -205,10 +223,12 @@
   --space-paragraph: var(--spacing-line); /* entre deux paragraphes : une ligne, 32 */
   --space-block: var(--spacing-xl); /* entre deux blocs d'une section */
   --space-section: var(--spacing-2xl); /* entre deux sections */
-  /* mesure du texte courant : 60 à 70 caractères de Cormorant Garamond (chasse moyenne d'un
-     texte français : 0,378 em), relative à la taille du texte (490 px à 20 px, 612 px pour un
-     chapeau à 25 px) */
-  --measure: 24.5em;
+  /* mesure du texte courant : 60 à 70 caractères, relative à la taille du texte (522 px à 18 px,
+     580 px pour un chapeau à 20 px). Chasse moyenne d'un texte français du site (mesurée le 24/11
+     sur la page Livraison et retours, les CGV, La Maison et la FAQ) : 0,453 em en Mulish, soit
+     64 caractères ; Avenir Next, qu'on ne peut pas mesurer sans son fichier, reste entre 60 et 70
+     tant que sa chasse ne s'écarte pas de plus de 7 % de celle de Mulish (RESSOURCES.md). */
+  --measure: 29em;
 
   /* rôles de couleur de la scène courante (bascule noir / blanc cassé) */
   --bg: var(--color-ivory);
@@ -244,8 +264,7 @@
 /* ------------------------------------------------------------ PALIERS
    Grand téléphone (480 px), tablette (768 px), portable (1024 px), ordinateur (1440 px) : tailles
    et grands espacements par paliers, toujours sur la grille de 8 px. Le texte courant garde ses
-   20 px partout (le petit œil de Cormorant ne supporte pas moins), aligné à gauche : aucun trou
-   entre les mots, même sur les petits téléphones. */
+   18 px partout (jamais sous 16 px), aligné à gauche sur téléphone : aucun trou entre les mots. */
 @media (min-width: 30rem) {
   :root {
     --spacing-gutter: 1.5rem;

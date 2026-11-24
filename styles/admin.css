@@ -39,8 +39,12 @@
     --lh-step-5: var(--ui-leading-title-lg);
     --lh-step-6: var(--ui-leading-title-lg);
     --leading-text: var(--ui-leading);
+    --leading-line: var(--ui-leading);
     --leading-note: var(--ui-leading);
     --leading-label: var(--ui-leading);
+    /* la typographie du site du 23/11 ne change rien ici : chapeau et mesure de l'Atelier gardés */
+    --text-lead: var(--ui-text-lg);
+    --measure: 24.5em;
     font-family: var(--font-ui);
     -webkit-font-smoothing: antialiased;
   }

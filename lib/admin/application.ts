@@ -123,23 +123,26 @@ export function manifesteAtelier(base: string, couleurs: Couleurs) {
   };
 }
 
-/** Fichiers publics gardés pour la page « Hors ligne » (aucune donnée de l'Atelier). */
-export const FICHIERS_HORS_LIGNE = ["/fonts/cormorant-garamond-latin-400.woff2", "/fonts/fraunces-120pt-light-latin.woff2", "/brand/awrea-logo.png", "/brand/awrea-logo-blanc.png"];
+/**
+ * Fichiers publics gardés pour la page « Hors ligne » (aucune donnée de l'Atelier). Le texte est
+ * dans la police système, comme tout l'Atelier : depuis le 23/11, plus aucune page ne télécharge
+ * Cormorant Garamond.
+ */
+export const FICHIERS_HORS_LIGNE = ["/fonts/fraunces-120pt-light-latin.woff2", "/brand/awrea-logo.png", "/brand/awrea-logo-blanc.png"];
 
 /** Version du service worker : la changer remplace l'ancien et vide ses fichiers gardés. */
-export const VERSION_SW = "1";
+export const VERSION_SW = "2";
 
 const echapper = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
 /** Page affichée quand le réseau manque : elle le dit, et ne montre aucune donnée. */
 export function pageHorsLigne(couleurs: { clair: string; sombre: string; doux: string }): string {
-  const [cormorant, fraunces, logo, logoBlanc] = FICHIERS_HORS_LIGNE;
+  const [fraunces, logo, logoBlanc] = FICHIERS_HORS_LIGNE;
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noindex"><title>Hors ligne · Atelier</title><style>
-@font-face{font-family:"Cormorant Garamond";src:url(${cormorant}) format("woff2");font-weight:400}
 @font-face{font-family:"Fraunces";src:url(${fraunces}) format("woff2");font-weight:300}
 :root{color-scheme:light dark;--fond:${couleurs.clair};--texte:${couleurs.sombre};--doux:${couleurs.doux}}
 @media (prefers-color-scheme:dark){:root{--fond:${couleurs.sombre};--texte:${couleurs.clair}}.logo--clair{display:none}.logo--sombre{display:block}}
-*{box-sizing:border-box}body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:48px 24px calc(48px + env(safe-area-inset-bottom));background:var(--fond);color:var(--texte);font:400 20px/32px "Cormorant Garamond",Georgia,serif;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:48px 24px calc(48px + env(safe-area-inset-bottom));background:var(--fond);color:var(--texte);font:400 16px/24px system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-synthesis:none}
 main{max-width:32rem;display:grid;gap:24px;text-align:left}h1{margin:0;font:300 32px/40px Fraunces,Georgia,serif}p{margin:0}
 .logo{height:32px;width:auto}.logo--sombre{display:none}
 a{justify-self:start;display:inline-flex;align-items:center;min-height:48px;padding:0 32px;border-radius:999px;background:var(--texte);color:var(--fond);text-decoration:none}

@@ -82,10 +82,11 @@
   }
 
   /* ============================================================ TYPOGRAPHIE
-     Deux polices officielles : Fraunces (titres, très grands, interlignage serré : Fraunces 120pt
-     Light droite pour les grands titres, Fraunces 72pt Italic pour les petits titres de 25 px) et
-     Cormorant Garamond 400 (textes, navigation, boutons, formulaires ; 20 px sur 32 px, jamais
-     sous 16 px). Interlignages sur la grille de 8 px. */
+     Fraunces pour les titres (très grands, interlignage serré : Fraunces 120pt Light droite pour les
+     grands titres, Fraunces 72pt Italic pour les petits titres de 25 px) ; Avenir Next Regular, ou
+     Mulish Regular là où elle manque, pour les textes, la navigation, les boutons et les formulaires
+     (choix de la créatrice du 23/11 : 18 px sur 32 px, chapeaux 20 px sur 32 px, jamais sous 16 px).
+     Interlignages sur la grille de 8 px. */
   .t-display,
   .t-giant,
   .t-h1,
@@ -117,7 +118,7 @@
     letter-spacing: 0;
   }
   /* petits titres : 25 px, le plancher de Fraunces (dessinée pour le grand format, elle paraît
-     trop noire à côté de Cormorant en dessous) */
+     trop noire en dessous) */
   .t-h4 {
     font-family: var(--font-display);
     font-style: var(--font-style-display);
@@ -137,12 +138,12 @@
     white-space: nowrap;
   }
 
-  /* chapeau : 25 px sur 40 px */
+  /* chapeau : 20 px sur 32 px (1,6) */
   .t-lead {
     font-family: var(--font-body);
     font-style: normal;
     font-weight: var(--font-weight-regular);
-    font-size: var(--text-step-1);
+    font-size: var(--text-lead);
     line-height: var(--leading-text);
   }
   /* petits téléphones : le chapeau prend la taille du texte courant pour garder assez de
@@ -150,6 +151,7 @@
   @media (max-width: 29.99rem) {
     .t-lead {
       font-size: var(--text-step-0);
+      line-height: var(--leading-line);
     }
   }
   .t-body {
@@ -157,9 +159,9 @@
     font-style: normal;
     font-weight: var(--font-weight-regular);
     font-size: var(--text-step-0);
-    line-height: var(--leading-text);
+    line-height: var(--leading-line);
   }
-  /* étiquettes en capitales à l'interlettrage mesuré (intitulés du pied de page, surtitres,
+  /* étiquettes en capitales à l'interlettrage léger (intitulés du pied de page, surtitres,
      en-têtes de tableau) : 16 px, le minimum */
   .t-label {
     font-family: var(--font-body);
@@ -173,7 +175,7 @@
   .t-label--wide {
     letter-spacing: var(--tracking-wide);
   }
-  /* navigation, liens et boutons des maquettes : bas de casse, 20 px, à peine espacés */
+  /* navigation, liens et boutons des maquettes : bas de casse, 18 px, au dessin de la police */
   .t-nav {
     font-family: var(--font-body);
     font-style: normal;
@@ -223,7 +225,7 @@
     line-height: var(--leading-label);
   }
 
-  /* texte courant : Cormorant Garamond, aligné à gauche, sur la mesure de lecture */
+  /* texte courant : la police des textes, sur la mesure de lecture */
   .prose > * + * {
     margin-top: var(--space-paragraph);
   }
@@ -255,7 +257,7 @@
     content: "";
     position: absolute;
     left: calc(-1 * var(--spacing-m));
-    top: calc(var(--leading-text) * 0.5em);
+    top: calc(var(--leading-line) * 0.5em);
     width: var(--spacing-xs);
     height: var(--border-width-hair);
     background: var(--accent);
@@ -399,7 +401,7 @@
   }
 
   /* ================================================================ LIENS
-     Navigation et liens des maquettes : Cormorant en bas de casse, soulignés d'un filet très fin
+     Navigation et liens des maquettes : en bas de casse, soulignés d'un filet très fin
      (le lien de la page en cours reste souligné ; .link--quiet ne se souligne qu'au survol). */
   .link {
     position: relative;
@@ -531,7 +533,7 @@
   textarea.field__input {
     min-height: calc(var(--spacing-line) * 3 + var(--spacing-xs));
     resize: vertical;
-    line-height: var(--leading-text);
+    line-height: var(--leading-line);
   }
   select.field__input {
     background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),

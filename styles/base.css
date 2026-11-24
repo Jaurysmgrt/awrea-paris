@@ -9,8 +9,8 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* une seule face par police : le navigateur n'invente ni gras ni italique (Cormorant n'a pas
-       d'italique ; l'italique des titres est la vraie face de Fraunces) */
+    /* une seule face par police : le navigateur n'invente ni gras ni italique (les textes n'ont que
+       leur face Regular ; l'italique des titres est la vraie face de Fraunces) */
     font-synthesis: none;
     scroll-padding-top: var(--header-h);
   }
@@ -34,7 +34,7 @@
     font-style: normal;
     font-weight: var(--font-weight-regular);
     font-size: var(--text-step-0);
-    line-height: var(--leading-text);
+    line-height: var(--leading-line);
     letter-spacing: var(--tracking-text);
     word-spacing: 0;
     font-kerning: normal;
@@ -176,8 +176,8 @@
     text-decoration: none;
   }
 
-  /* deux polices officielles ; l'italique n'existe que pour les titres (Fraunces) : les éléments
-     que le navigateur penche ou passe en chasse fixe gardent la typographie du texte courant */
+  /* l'italique n'existe que pour les titres (Fraunces) : les éléments que le navigateur penche ou
+     passe en chasse fixe gardent la typographie du texte courant */
   address,
   cite,
   dfn,
@@ -190,7 +190,7 @@
   i {
     font-weight: var(--font-weight-regular);
   }
-  /* Cormorant a un petit œil : les petites tailles du navigateur ne descendent jamais sous 16 px */
+  /* les petites tailles du navigateur ne descendent jamais sous 16 px, le minimum du site */
   small,
   sub,
   sup {
