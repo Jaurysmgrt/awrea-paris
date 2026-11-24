@@ -39,6 +39,7 @@
     "vous": "Vous"
   },
   "aucunJour": "Aucun jour libre dans les semaines qui viennent. Écrivez-nous, nous trouverons un moment.",
+  "plusDeDates": "Plus de dates",
   "chargement": "Un instant…",
   "champs": {
     "nom": "Nom",
@@ -46,6 +47,11 @@
     "telephone": "Téléphone (facultatif)",
     "message": "Ce dont vous aimeriez parler (facultatif)",
     "accord": "J’accepte que mes coordonnées servent à ce rendez-vous, et à rien d’autre."
+  },
+  "manquants": {
+    "name": "Indiquez votre nom.",
+    "email": "Indiquez une adresse e-mail complète, par exemple prenom@exemple.fr.",
+    "consent": "Cochez cette case : vos coordonnées ne servent qu’à ce rendez-vous."
   },
   "bouton": "Réserver ce moment",
   "envoi": "Réservation…",

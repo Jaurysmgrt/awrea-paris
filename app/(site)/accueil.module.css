@@ -52,7 +52,7 @@
 
 /* l'histoire de la Maison : une pièce en grand à côté du texte, comme une page de magazine (choix de
    la créatrice du 01/11, à la place de son portrait) ; la photo prend plus de place que le texte */
-@media (min-width: 48rem) {
+@media (min-width: 64rem) {
   .grande {
     grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
   }

@@ -27,6 +27,11 @@ export const accountCopy = {
     noAccount: "Le compte n’est jamais nécessaire pour commander : il garde simplement vos commandes, vos tailles et vos envies.",
     oauthUnavailable: "La connexion avec Google ou Apple sera disponible dès que la base clientes sera reliée (Supabase). En attendant, utilisez votre adresse e-mail.",
     failed: "La connexion n’a pas abouti. Merci de réessayer.",
+    // champs oubliés, dits sous le champ (jamais par la bulle du navigateur)
+    manquants: {
+      email: "Indiquez une adresse e-mail complète, par exemple prenom@exemple.fr.",
+      terms: "Cochez cette case pour accepter les conditions générales d’utilisation.",
+    },
   },
   terms: {
     title: "Avant de continuer",

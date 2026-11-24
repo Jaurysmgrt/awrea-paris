@@ -64,6 +64,25 @@ test.describe("Version anglaise (/en)", () => {
     expect((await internalLinks(page)).filter((h) => h !== "/en" && !h.startsWith("/en/") && !h.startsWith("/en?"))).toEqual([]);
   });
 
+  test("« Find my size » : le calculateur d'abord, puis le tableau et ses intitulés en anglais", async ({ page }) => {
+    await acceptCookies(page);
+    await page.goto("/en/boutique/robe-odessa");
+    await waitForHydration(page);
+    await page.locator(".product-form__sizes").getByRole("button", { name: "Find my size" }).click();
+    const guide = page.getByRole("dialog", { name: "Find my size" });
+    await expect(guide).toBeVisible();
+    await expect(guide.getByRole("columnheader")).toHaveText(["Size", "FR", "Bust", "Waist", "Hips"]);
+    await expect(guide.getByText("Body measurements, in centimetres.")).toBeVisible();
+    await expect(guide.getByText(/Tour de|Mesures du corps|Trouver ma taille/)).toHaveCount(0);
+    // le calculateur précède le tableau
+    const ordre = await guide.evaluate((d) => {
+      const finder = d.querySelector(".size-finder")!;
+      const table = d.querySelector("table")!;
+      return Boolean(finder.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING);
+    });
+    expect(ordre).toBe(true);
+  });
+
   test("hreflang : chaque version déclare l'autre, canonique dans sa langue (vue d'un robot, jamais redirigé)", async ({ browser }) => {
     const ctx = await browser.newContext({ userAgent: GOOGLEBOT });
     const page = await ctx.newPage();

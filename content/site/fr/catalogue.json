@@ -24,9 +24,26 @@
     "manquante": "Merci de choisir une taille.",
     "choisie": "Taille {taille} : la pièce est confectionnée pour vous dans cette taille.",
     "trouver": "Trouver ma taille",
-    "guideTitre": "Votre taille",
+    "guideTitre": "Trouver ma taille",
     "fermerGuide": "Fermer le guide des tailles",
-    "legendePiece": "Taille, {piece}"
+    "legendePiece": "Taille, {piece}",
+    "tableau": {
+      "colonnes": [
+        "Taille",
+        "FR",
+        "Tour de poitrine",
+        "Tour de taille",
+        "Tour de hanches"
+      ],
+      "courtes": [
+        "Taille",
+        "FR",
+        "Poitrine",
+        "Taille",
+        "Hanches"
+      ],
+      "legende": "Mesures du corps, en centimètres."
+    }
   },
   "mesures": {
     "titre": "Trouver ma taille",

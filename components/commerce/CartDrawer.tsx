@@ -288,8 +288,9 @@ export function CartDrawer() {
                 </p>
               ) : null}
               <dl className="totals drawer__total">
+                {/* la livraison se calcule à la commande : ce total ne la compte pas encore, il le dit */}
                 <div className="totals__total">
-                  <dt>{t.total}</dt>
+                  <dt>{cart?.shippingEstimate === 0 ? t.total : t.totalHorsLivraison}</dt>
                   <dd>{formatPrice(cart!.total, locale)}</dd>
                 </div>
               </dl>

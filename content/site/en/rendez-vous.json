@@ -32,6 +32,7 @@
     "vous": "You"
   },
   "aucunJour": "No free days in the coming weeks. Write to us and we will find a time.",
+  "plusDeDates": "More dates",
   "chargement": "One moment…",
   "champs": {
     "nom": "Name",
@@ -39,6 +40,11 @@
     "telephone": "Phone (optional)",
     "message": "What you would like to talk about (optional)",
     "accord": "I agree that my details are used for this appointment, and for nothing else."
+  },
+  "manquants": {
+    "name": "Enter your name.",
+    "email": "Enter a complete email address, for example name@example.com.",
+    "consent": "Tick this box: your details are used for this appointment only."
   },
   "bouton": "Book this time",
   "envoi": "Booking…",

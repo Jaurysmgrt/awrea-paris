@@ -1158,3 +1158,13 @@ couverts par des tests (`tests/unit/rapprochement.test.ts`, règles du rapproche
 ## Sécurité : Next.js 16.4.6 (23/11)
 
 - Next.js passe de 16.4.2 à 16.4.6 (et `eslint-config-next` avec lui) : les versions 16.0.0 à 16.4.4 sont touchées par des failles modérées (fuites de cache entre paramètres, contournement du refus des SVG dans l’optimisation des images, exposition de cookies HttpOnly sur les routes Edge, injection de réponses entre clientes en hébergement propre). Plus aucune faille connue dans les dépendances du site ; restent sept alertes modérées dans les seuls outils de vérification du code (typescript-eslint), qui ne partent pas en ligne.
+
+## Parcours UX du site public : retouches (23/11)
+
+- « Une question ? » ne recouvre plus rien (arbitrage de design n° 9) : absente de la commande, de la confirmation et du compte ; effacée pendant la saisie d’un champ et, sur la fiche, tant que la barre d’achat ou la colonne de la pièce sont à l’écran ; le pied de page lui réserve sa hauteur, et la fenêtre « Trouver ma taille » l’ouvre d’un lien.
+- Commande, compte et rendez-vous : plus de bulle du navigateur, le message de la Maison sous chaque champ oublié, le curseur sur le premier, son libellé visible sous l’en-tête. La confirmation et le suivi lisent « Taille XS · Qté 2 » au prix de la ligne : le total se recompose.
+- Paiement : les moyens de paiement à la seule étape III, claviers numériques, phrase des CGV traduite sous /en ; le tiroir dit « Total hors livraison », la lettre du pied s’efface pendant le paiement.
+- Fiche : nom entier dans la barre d’achat, « Ajouter au panier » sur une ligne, l’oubli de taille dit comme les autres erreurs ; « Trouver ma taille » commence par le calculateur, tableau empilé sur téléphone et traduit sous /en ; photos aux largeurs justes.
+- Tablette portrait : photo au-dessus et texte à sa mesure (de nouveau justifié), monogramme dégagé de la navigation. Compte : toutes les rubriques visibles sur téléphone. Liste d’envies : « Retirer de la liste », le cœur « Garder », état vide centré.
+- Privilège : panneau en bas de l’écran sur téléphone, conditions repliées derrière « Conditions de l’offre ». Rendez-vous : la durée à côté de la pastille, sept jours puis « Plus de dates ». Interrupteurs des cookies rendus à leur dessin (règles de l’Atelier limitées à l’Atelier). 404 centrée sur deux lignes.
+- Restent à décider avec la créatrice : page Outfits, textes de la maquette NEWSLETTER, rappel du privilège, bandeau cookies, sections ivoire en mode Nuit, anneau de focus, adresse de contact, et les champs « [À COMPLÉTER] ».

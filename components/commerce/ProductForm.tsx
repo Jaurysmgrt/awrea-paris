@@ -4,11 +4,11 @@ import type { Product, Variant } from "@/lib/commerce/types";
 import { useCart } from "./CartProvider";
 import { SizePicker } from "./SizePicker";
 import { SizeFinder } from "./SizeFinder";
+import { TableauTailles } from "./TableauTailles";
 import { WishlistButton } from "./WishlistButton";
 import { Icon } from "@/components/ui/Icon";
 import { useTexts } from "@/components/content/Texts";
 import { useLocale } from "@/components/providers/LocaleProvider";
-import { shop } from "@/content/settings";
 import { formatPrice } from "@/lib/format";
 import { delaiText, fill, type CatalogueTexts } from "@/lib/commerce/texts";
 import { prefersReducedMotion } from "@/lib/motion";
@@ -54,6 +54,21 @@ export function ProductForm({ product, stickyBar = false, aide }: { product: Pro
     document.documentElement.dataset.buybar = barVisible ? "true" : "false";
     return () => void delete document.documentElement.dataset.buybar;
   }, [stickyBar, barVisible]);
+  // colonne de la pièce (data-zone-achat, sinon ce formulaire) à l'écran : l'assistante s'efface,
+  // elle ne couvre ni les tailles, ni l'ajout au panier, ni le partage (styles/signature.css)
+  useEffect(() => {
+    const el = formRef.current?.closest<HTMLElement>("[data-zone-achat]") ?? formRef.current;
+    if (!stickyBar || !el) return;
+    const root = document.documentElement;
+    const io = new IntersectionObserver(([e]) => {
+      root.dataset.zoneAchat = e.isIntersecting ? "true" : "false";
+    });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      delete root.dataset.zoneAchat;
+    };
+  }, [stickyBar]);
 
   const barAction = () => {
     const target = !variant ? formRef.current?.querySelector<HTMLElement>(".size-picker") : null;
@@ -82,7 +97,8 @@ export function ProductForm({ product, stickyBar = false, aide }: { product: Pro
       </div>
       {/* vide tant qu'il n'y a rien à dire (retour du 01/11 : trop de texte sur la fiche) ; toujours
           présent pour que les lecteurs d'écran annoncent la taille choisie ou l'oubli */}
-      <p className="t-note t-left product-form__status" aria-live="polite">
+      {/* taille oubliée : dite comme les autres erreurs des formulaires (filet, couleur du texte) */}
+      <p className={`${!variant && showError ? "field__error" : "t-note"} t-left product-form__status`} aria-live="polite">
         {variant ? fill(t.taille.choisie, { taille: variant.size === "TU" ? t.taille.unique : variant.size, delai }) : showError ? t.taille.manquante : null}
       </p>
 
@@ -96,7 +112,7 @@ export function ProductForm({ product, stickyBar = false, aide }: { product: Pro
       {stickyBar ? (
         <div className="buy-bar" data-visible={barVisible} inert={!barVisible}>
           <div className="buy-bar__info">
-            <span className="t-label buy-bar__title">{product.title}</span>
+            <span className="buy-bar__title">{product.title}</span>
             <span className="price buy-bar__price">
               {formatPrice(product.price, locale)}
               {variant && variant.size !== "TU" ? ` · ${variant.size}` : ""}
@@ -118,29 +134,8 @@ export function ProductForm({ product, stickyBar = false, aide }: { product: Pro
               <Icon name="close" />
             </button>
           </header>
-          <div className="table-scroll">
-            <table className="table">
-              <thead>
-                <tr>
-                  {shop.sizeGuide.headers.map((h) => (
-                    <th key={h} scope="col">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {shop.sizeGuide.rows.map((r) => (
-                  <tr key={r[0]}>
-                    {r.map((c, i) => (i === 0 ? <th key={i} scope="row">{c}</th> : <td key={i}>{c}</td>))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="t-body">{product.fit}</p>
-          <p className="t-note">{shop.sizeGuide.note}</p>
-          {aide}
+          {/* le calculateur d'abord, comme le promet le bouton ; le tableau et l'aide ensuite
+              (parcours UX du 23/11) */}
           {product.variants.length > 1 ? (
             <SizeFinder
               product={product}
@@ -154,6 +149,11 @@ export function ProductForm({ product, stickyBar = false, aide }: { product: Pro
               }}
             />
           ) : null}
+          <div className="table-scroll">
+            <TableauTailles t={t.taille.tableau} legendeClassName="t-note table__legende" empilee />
+          </div>
+          <p className="t-body">{product.fit}</p>
+          {aide}
         </div>
       </dialog>
     </div>

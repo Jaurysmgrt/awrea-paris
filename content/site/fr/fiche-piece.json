@@ -31,7 +31,9 @@
   "conseil": {
     "avant": "Pour un conseil de taille, ",
     "lien": "prenez rendez-vous avec la créatrice",
-    "apres": " en appel vidéo, ou posez la question à l’assistante, en bas de l’écran."
+    "apres": " en appel vidéo, ou ",
+    "assistante": "posez la question à l’assistante",
+    "fin": "."
   },
   "mesures": {
     "avant": "Les mesures de chaque taille sont réunies dans le ",

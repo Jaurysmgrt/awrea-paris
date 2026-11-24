@@ -19,7 +19,7 @@ export default async function ListeEnviesPage() {
       <PageHeader title={t.titre} crumbs={[{ name: t.titre, path: "/liste-envies" }]} />
       <Section theme="ivory" className="section section--flush-top">
         <div className="container">
-          <WishlistView texts={{ chargement: t.chargement, vide: t.vide, videLien: t.videLien }} />
+          <WishlistView texts={{ chargement: t.chargement, vide: t.vide, videLien: t.videLien, retirer: t.retirer, retirerPiece: t.retirerPiece }} />
         </div>
       </Section>
     </>

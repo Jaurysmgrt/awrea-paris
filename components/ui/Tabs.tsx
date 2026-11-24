@@ -1,7 +1,7 @@
 "use client";
 /**
  * Onglets accessibles (motif ARIA « tabs ») : flèches gauche/droite, Début/Fin,
- * un seul onglet dans l'ordre de tabulation. Sur mobile, la rangée défile horizontalement.
+ * un seul onglet dans l’ordre de tabulation. Sur mobile, la rangée passe sur plusieurs lignes.
  */
 import { useId, useRef } from "react";
 

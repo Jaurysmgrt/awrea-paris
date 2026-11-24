@@ -3,11 +3,12 @@
  * Prise de rendez-vous : le rendez-vous, le jour, l'heure, puis vous. Les jours et les heures
  * viennent de l'agenda de l'atelier (heure de Paris) ; un moment réservé n'est jamais donné deux fois.
  */
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { fill } from "@/lib/edition/fill";
 import { Turnstile } from "@/components/security/Turnstile";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { INTL_LOCALE, type Locale } from "@/lib/i18n/routing";
+import { useChampsManquants } from "@/components/ui/useChampsManquants";
 
 type TypeId = "visio" | "sur-mesure";
 
@@ -15,8 +16,12 @@ export interface BookingTexts {
   types: Record<TypeId, { titre: string; texte: string; duree: string }>;
   etapes: { type: string; jour: string; heure: string; vous: string };
   aucunJour: string;
+  /** téléphone : les sept premiers jours, puis ce bouton pour les suivants */
+  plusDeDates: string;
   chargement: string;
   champs: { nom: string; email: string; telephone: string; message: string; accord: string };
+  /** champs oubliés, dits sous le champ (jamais par la bulle du navigateur) */
+  manquants: { name: string; email: string; consent: string };
   bouton: string;
   envoi: string;
   confirme: { titre: string; texte: string };
@@ -43,6 +48,18 @@ export function BookingForm({ t, initialType }: { t: BookingTexts; initialType?:
   const [message, setMessage] = useState("");
   // relu après un moment pris entre-temps par une autre cliente
   const [round, setRound] = useState(0);
+  // téléphone : sept jours d'abord (les vingt et un s'empilaient avant les heures, parcours UX du 23/11)
+  const [tousLesJours, setTousLesJours] = useState(false);
+  const joursRef = useRef<HTMLDivElement>(null);
+  const { manquants, verifier, effacer } = useChampsManquants<"name" | "email" | "consent">();
+  const erreurId = (nom: "name" | "email" | "consent") => `${id}-${nom}-erreur`;
+  const requis = (nom: "name" | "email" | "consent") => ({ "aria-invalid": manquants[nom] || undefined, "aria-describedby": manquants[nom] ? erreurId(nom) : undefined, onInput: () => effacer(nom) });
+  const erreur = (nom: "name" | "email" | "consent") =>
+    manquants[nom] ? (
+      <p id={erreurId(nom)} className="field__error">
+        {t.manquants[nom]}
+      </p>
+    ) : null;
 
   useEffect(() => {
     if (!type) return;
@@ -79,9 +96,11 @@ export function BookingForm({ t, initialType }: { t: BookingTexts; initialType?:
   return (
     <form
       className="form stack-l"
+      noValidate
       onSubmit={async (e) => {
         e.preventDefault();
         if (!type || !day || !time) return;
+        if (!verifier(e.currentTarget)) return;
         const f = Object.fromEntries(new FormData(e.currentTarget).entries());
         setState("loading");
         const res = await fetch("/api/rendez-vous", {
@@ -107,24 +126,32 @@ export function BookingForm({ t, initialType }: { t: BookingTexts; initialType?:
       <fieldset className="stack-s">
         <legend className="field__label">{t.etapes.type}</legend>
         {/* le rendez-vous en pastilles, comme les jours et les heures (plus de cartes, dossier du 02/11) */}
+        {/* la durée à côté de la pastille, et non dedans : la pastille tient sur une ligne au téléphone */}
         <div className="booking__choix">
           {(Object.keys(t.types) as TypeId[]).map((k) => (
-            <label key={k} className="chip">
-              <input
-                type="radio"
-                name="type"
-                value={k}
-                checked={type === k}
-                onChange={() => {
-                  setType(k);
-                  setDays(null);
-                  setDay(null);
-                  setSlots(null);
-                  setTime(null);
-                }}
-              />
-              {t.types[k].titre} · {t.types[k].duree.toLowerCase()}
-            </label>
+            <div key={k} className="booking__type">
+              <label className="chip">
+                <input
+                  type="radio"
+                  name="type"
+                  value={k}
+                  checked={type === k}
+                  aria-describedby={`${id}-duree-${k}`}
+                  onChange={() => {
+                    setType(k);
+                    setDays(null);
+                    setDay(null);
+                    setSlots(null);
+                    setTime(null);
+                    setTousLesJours(false);
+                  }}
+                />
+                {t.types[k].titre}
+              </label>
+              <span id={`${id}-duree-${k}`} className="t-note">
+                {t.types[k].duree}
+              </span>
+            </div>
           ))}
         </div>
       </fieldset>
@@ -135,7 +162,7 @@ export function BookingForm({ t, initialType }: { t: BookingTexts; initialType?:
           {days === null ? (
             <p className="t-note">{t.chargement}</p>
           ) : days.length ? (
-            <div className="booking__chips" role="group">
+            <div ref={joursRef} className="booking__chips" role="group" data-replie={!tousLesJours && days.length > 7 ? "" : undefined}>
               {days.map((d) => (
                 <button
                   key={d}
@@ -151,6 +178,19 @@ export function BookingForm({ t, initialType }: { t: BookingTexts; initialType?:
                   {dayLabel(d, locale)}
                 </button>
               ))}
+              {!tousLesJours && days.length > 7 ? (
+                <button
+                  type="button"
+                  className="link link--quiet booking__plus"
+                  onClick={() => {
+                    setTousLesJours(true);
+                    // le curseur va au premier jour qui apparaît
+                    requestAnimationFrame(() => joursRef.current?.querySelectorAll<HTMLButtonElement>(".chip")[7]?.focus());
+                  }}
+                >
+                  {t.plusDeDates}
+                </button>
+              ) : null}
             </div>
           ) : (
             <p className="t-note">{t.aucunJour}</p>
@@ -183,13 +223,15 @@ export function BookingForm({ t, initialType }: { t: BookingTexts; initialType?:
               <label className="field__label" htmlFor={`${id}-name`}>
                 {t.champs.nom}
               </label>
-              <input className="field__input" id={`${id}-name`} name="name" required minLength={2} maxLength={80} autoComplete="name" />
+              <input className="field__input" id={`${id}-name`} name="name" required minLength={2} maxLength={80} autoComplete="name" {...requis("name")} />
+              {erreur("name")}
             </div>
             <div className="field">
               <label className="field__label" htmlFor={`${id}-email`}>
                 {t.champs.email}
               </label>
-              <input className="field__input" id={`${id}-email`} name="email" type="email" required autoComplete="email" />
+              <input className="field__input" id={`${id}-email`} name="email" type="email" required autoComplete="email" {...requis("email")} />
+              {erreur("email")}
             </div>
           </div>
           <div className="field">
@@ -205,9 +247,10 @@ export function BookingForm({ t, initialType }: { t: BookingTexts; initialType?:
             <textarea className="field__input" id={`${id}-message`} name="message" maxLength={1000} rows={3} />
           </div>
           <label className="check">
-            <input type="checkbox" name="consent" required />
+            <input type="checkbox" name="consent" required onChange={() => effacer("consent")} aria-invalid={manquants.consent || undefined} aria-describedby={manquants.consent ? erreurId("consent") : undefined} />
             <span className="t-note t-left">{t.champs.accord}</span>
           </label>
+          {erreur("consent")}
           <Turnstile action="rendez-vous" />
           {state === "error" ? (
             <p className="field__error" role="alert">
