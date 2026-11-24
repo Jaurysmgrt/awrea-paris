@@ -664,8 +664,11 @@
     display: grid;
     justify-items: center;
   }
+  /* liens du pied, informations secondaires : 16 px, pour que les plus longs (« Suivre ma
+     commande ») tiennent sur une ligne dans leur colonne, de 360 à 1023 px (23/11) */
   .site-footer__link {
     min-height: var(--spacing-touch);
+    font-size: var(--text-step--1);
     text-align: center;
   }
   .site-footer__social {
