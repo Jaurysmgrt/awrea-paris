@@ -148,7 +148,7 @@ test.describe("Pages de la Maison", () => {
     await expect(page.locator("main").getByText(/numéro d’édition|fait main à Paris|atelier parisien/i)).toHaveCount(0);
   });
 
-  test("étapes de confection : le chapeau centré, la chronologie, le temps de la création et les trois espaces", async ({ page }) => {
+  test("étapes de confection : le chapeau centré, l'introduction, les cinq étapes, leurs photographies, le temps de la création et les trois espaces", async ({ page }) => {
     await open(page, "/sur-commande");
     await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(surCommande.titre);
     // le chapeau, centré sur l'axe du titre, jamais au fer à gauche (dossier du 02/11), 650 px au plus
@@ -159,26 +159,48 @@ test.describe("Pages de la Maison", () => {
     expect(texte!.width).toBeLessThanOrEqual(650);
     await expect(page.locator("main .eyebrow").first()).toHaveText(surCommande.etapes.surtitre);
     await expect(page.getByRole("heading", { level: 2, name: "Le parcours d’une création singulière" })).toBeVisible();
-    // la chronologie : cinq étapes (brief du 09/11), chacune son nom, sa phrase, son texte mot pour
-    // mot et sa photographie
+    // une introduction humaine en tête de section (cahier du 23/11), sous l'ancre des fiches
+    const section = page.locator("#etapes");
+    await expect(section.getByText(surCommande.parcours.intro)).toBeVisible();
+    // les cinq étapes (brief du 09/11, cahier du 23/11) : numérotées de 01 à 05, chacune avec sa petite
+    // icône au trait, son nom, sa phrase et son texte mot pour mot
     const etapes = page.locator("#frise-etapes > li");
     await expect(etapes).toHaveCount(5);
     await expect(etapes.locator("h3")).toHaveText(surCommande.etapes.frise.map((e) => e.titre));
     await expect(etapes.locator(".t-label")).toHaveText(surCommande.etapes.frise.map((e) => e.nom));
     for (const [i, e] of surCommande.etapes.frise.entries()) {
       await expect(etapes.nth(i).locator("p.t-note")).toHaveText(e.texte);
-      await expect(etapes.nth(i).locator("img")).toHaveAttribute("alt", e.image.alt);
+      await expect(etapes.nth(i)).toContainText(e.numero);
+      await expect(etapes.nth(i).locator("svg[aria-hidden='true']")).toHaveCount(1);
     }
-    // le temps de la création : deux familles, leur délai lu dans le catalogue, tout centré
+    // leurs photographies, toujours là : en séquence sous la frise, dans l'ordre des étapes
+    const photos = page.getByRole("list", { name: surCommande.parcours.photos }).locator("img");
+    await expect(photos).toHaveCount(5);
+    for (const [i, e] of surCommande.etapes.frise.entries()) await expect(photos.nth(i)).toHaveAttribute("alt", e.image.alt);
+    // le temps de la création : trois temps séparés, le délai de confection jamais pris pour le total
+    const temps = page.locator("#delais");
     await expect(page.getByRole("heading", { level: 2, name: surCommande.delais.titre })).toBeVisible();
-    const delais = page.locator("main dl dd.t-h3");
+    await expect(temps.getByText(/n’est pas le délai total/)).toBeVisible();
+    await expect(temps.locator("h3")).toHaveText([surCommande.delais.confection.titre, surCommande.delais.expedition.titre, surCommande.delais.livraison.titre]);
+    // 1. la confection : deux familles, leur délai lu dans le catalogue, tout centré
+    const delais = temps.locator("dl dd.t-h3");
     await expect(delais).toHaveCount(2);
     for (const dd of await delais.all()) {
       await expect(dd).toHaveText(/\d+(\s| )(à(\s| )\d+(\s| ))?semaines?/);
       await expect(dd).toHaveCSS("text-align", "center");
     }
-    await expect(page.locator("main dl dt")).toHaveText(Object.values(surCommande.delais.groupes));
-    await expect(page.locator('main a[href="/cgv"]')).toHaveText(surCommande.delais.fin.lien.label);
+    await expect(temps.locator("dl").first().locator("dt")).toHaveText(Object.values(surCommande.delais.groupes));
+    // 2. la préparation et l'expédition : ce qui est sûr, sans durée inventée
+    await expect(temps.getByText(surCommande.delais.expedition.texte)).toBeVisible();
+    // 3. la livraison : chaque mode des CGV et son délai, lus dans les réglages de la boutique
+    const modes = temps.locator("[data-livraison] > div");
+    const rates = shop.shippingRates.filter((r) => r.zone === "FR" && !r.pickup);
+    await expect(modes).toHaveCount(rates.length);
+    for (const [i, r] of rates.entries()) {
+      await expect(modes.nth(i).locator("dt")).toHaveText(surCommande.delais.livraison.modes[r.id as keyof typeof surCommande.delais.livraison.modes]);
+      await expect(modes.nth(i).locator("dd")).toHaveText(r.delay.replace(/ après expédition$/, ""));
+    }
+    await expect(temps.locator(`a[href="${surCommande.delais.fin.lien.href}"]`)).toHaveText(surCommande.delais.fin.lien.label);
     // l'engagement, le suivi et le conseil : leurs destinations de toujours
     for (const e of surCommande.espaces.liste) await expect(page.locator(`main a[href="${e.lien.href}"]`, { hasText: e.lien.label })).toBeVisible();
   });
@@ -227,36 +249,55 @@ test.describe("Pages de la Maison", () => {
 
     // les coordonnées réelles de la Maison, à côté du formulaire
     await expect(page.locator('main a[href="mailto:awrea.contact@gmail.com"]')).toBeVisible();
+    // une seule icône, l'enveloppe de l'e-mail (cahier du 23/11 : jamais une icône par ligne)
+    await expect(page.locator('main a[href="mailto:awrea.contact@gmail.com"] svg[aria-hidden="true"]')).toHaveCount(1);
+    await expect(page.locator('main a[href^="tel:"] svg')).toHaveCount(0);
     await expect(page.locator('main a[href="tel:+33699557443"]')).toBeVisible();
   });
 });
 
-test.describe("chronologie des étapes de confection", () => {
-  test("ordinateur : une chronologie verticale, le texte à gauche et la photographie à droite", async ({ page, isMobile }) => {
+test.describe("les cinq étapes de confection", () => {
+  test("ordinateur : les cinq étapes côte à côte, reliées par une ligne fine ; les photographies sur une rangée", async ({ page, isMobile }) => {
     test.skip(isMobile, "mise en page de l'ordinateur");
     await page.setViewportSize({ width: 1440, height: 900 });
     await open(page, "/sur-commande");
     const etapes = page.locator("#frise-etapes > li");
     await etapes.first().scrollIntoViewIfNeeded();
     const boites = await etapes.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
-    // de haut en bas, sans chevauchement, alignées sur la même ligne
+    // de gauche à droite, alignées en haut, sans chevauchement
     for (let i = 1; i < boites.length; i++) {
-      expect(boites[i].top).toBeGreaterThanOrEqual(boites[i - 1].bottom);
-      expect(Math.abs(boites[i].left - boites[0].left)).toBeLessThan(2);
+      expect(Math.abs(boites[i].top - boites[0].top)).toBeLessThan(2);
+      expect(boites[i].left).toBeGreaterThanOrEqual(boites[i - 1].right - 1);
     }
-    const premiere = etapes.first();
-    const [texte, photo] = await Promise.all([premiere.locator("h3").boundingBox(), premiere.locator("img").boundingBox()]);
-    expect(photo!.x).toBeGreaterThan(texte!.x + texte!.width - 1);
-    // photographies en noir et blanc
-    await expect(premiere.locator("img")).toHaveCSS("filter", "grayscale(1)");
+    // la ligne va d'une icône à l'autre : visible entre deux étapes, absente après la dernière
+    const traits = await etapes.evaluateAll((els) => els.map((el) => (el.querySelector("[aria-hidden] > span:last-child") as HTMLElement).getBoundingClientRect().width));
+    for (const w of traits.slice(0, -1)) expect(w).toBeGreaterThan(80);
+    // photographies en noir et blanc, à la même hauteur, sur une seule rangée qui ne défile pas
+    const sequence = page.getByRole("list", { name: surCommande.parcours.photos });
+    const imgs = await sequence.locator("img").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
+    for (const b of imgs) {
+      expect(Math.abs(b.top - imgs[0].top)).toBeLessThan(2);
+      expect(Math.abs(b.height - imgs[0].height)).toBeLessThan(2);
+    }
+    expect(await sequence.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+    await expect(sequence.locator("img").first()).toHaveCSS("filter", "grayscale(1)");
   });
 
-  test("téléphone : chronologie verticale, étapes empilées, sans débordement", async ({ page }) => {
+  test("téléphone : les étapes l'une sous l'autre, la ligne le long des numéros ; les photographies défilent au doigt, sans déborder", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await open(page, "/sur-commande");
     const etapes = page.locator("#frise-etapes > li");
     const boites = await etapes.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
     for (let i = 1; i < boites.length; i++) expect(boites[i].top).toBeGreaterThanOrEqual(boites[i - 1].bottom);
+    // la ligne descend du repère de chaque étape (verticale : plus haute que large)
+    const trait = await etapes.first().evaluate((el) => (el.querySelector("[aria-hidden] > span:last-child") as HTMLElement).getBoundingClientRect().toJSON() as DOMRect);
+    expect(trait.height).toBeGreaterThan(trait.width * 10);
+    // la séquence défile horizontalement, au doigt ou au clavier, et la photo suivante dépasse au bord
+    const sequence = page.getByRole("list", { name: surCommande.parcours.photos });
+    expect(await sequence.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+    await expect(sequence).toHaveAttribute("tabindex", "0");
+    const seconde = (await sequence.locator("li").nth(1).boundingBox())!;
+    expect(seconde.x).toBeLessThan(390);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   });
 
@@ -266,6 +307,18 @@ test.describe("chronologie des étapes de confection", () => {
     await expect(page.locator("#frise-etapes")).not.toHaveAttribute("data-anime", /.*/);
     await expect(page.locator("#frise-etapes > li").last()).toHaveCSS("opacity", "1");
   });
+
+  test("version anglaise : l'introduction de la créatrice, les délais de livraison en anglais", async ({ browser }) => {
+    // le site suit la langue de l'appareil : un appareil réglé en anglais
+    const ctx = await browser.newContext({ locale: "en-GB" });
+    const page = await ctx.newPage();
+    await open(page, "/en/sur-commande");
+    await expect(page.locator("#etapes").getByText(/^Each Awrea piece is made to order\./)).toBeVisible();
+    await expect(page.locator("#delais [data-livraison]")).toContainText(/working days/);
+    await expect(page.locator("#delais [data-livraison]")).not.toContainText(/jours ouvrés/);
+    await expect(page.locator("#delais").getByText(/not the whole wait/)).toBeVisible();
+    await ctx.close();
+  });
 });
 
 test.describe("l'engagement, le suivi et le conseil", () => {
@@ -273,7 +326,7 @@ test.describe("l'engagement, le suivi et le conseil", () => {
     test.skip(isMobile, "mise en page de l'ordinateur");
     await page.setViewportSize({ width: 1440, height: 900 });
     await open(page, "/sur-commande");
-    const espaces = page.locator("main ul[aria-label] > li");
+    const espaces = page.getByRole("list", { name: surCommande.espaces.titre }).locator(":scope > li");
     await expect(espaces).toHaveCount(3);
     const boites = await espaces.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
     for (let i = 1; i < 3; i++) {
@@ -288,7 +341,7 @@ test.describe("l'engagement, le suivi et le conseil", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await open(page, "/sur-commande");
     await waitForHydration(page);
-    const espaces = page.locator("main ul[aria-label] > li");
+    const espaces = page.getByRole("list", { name: surCommande.espaces.titre }).locator(":scope > li");
     const [premier, second] = await Promise.all([espaces.nth(0).boundingBox(), espaces.nth(1).boundingBox()]);
     expect(second!.x).toBeGreaterThan(premier!.x + premier!.width - 1);
     expect(Math.abs(second!.y - premier!.y)).toBeLessThan(2);

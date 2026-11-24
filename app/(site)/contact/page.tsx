@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
 import { ContactForm } from "@/components/ui/ContactForm";
 import { Visuel } from "@/components/home/Visuel";
+import { Icon } from "@/components/ui/Icon";
 import styles from "./contact.module.css";
 
 /**
@@ -47,7 +48,9 @@ export default async function ContactPage() {
               <div>
                 <dt className="t-label">{c.emailLabel}</dt>
                 <dd>
-                  <a href={`mailto:${c.email}`} className="link">
+                  {/* l'e-mail de la Maison, avec son enveloppe (cahier du 23/11 : une seule icône, là où elle aide) */}
+                  <a href={`mailto:${c.email}`} className="link link--icone">
+                    <Icon name="enveloppe" className="icone" />
                     {c.email}
                   </a>
                 </dd>

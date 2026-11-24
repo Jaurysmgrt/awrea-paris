@@ -89,7 +89,9 @@ export function ProductForm({ product, stickyBar = false, aide }: { product: Pro
             setShowError(false);
           }}
         />
-        <button type="button" className="link link--quiet" onClick={() => guide.current?.showModal()}>
+        {/* le guide des tailles, avec sa règle (cahier du 23/11) */}
+        <button type="button" className="link link--quiet link--icone" onClick={() => guide.current?.showModal()}>
+          <Icon name="regle" className="icone" />
           {t.taille.trouver}
         </button>
       </div>

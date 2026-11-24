@@ -397,6 +397,17 @@
     width: var(--spacing-m);
     height: var(--spacing-m);
   }
+  /* icônes au fil à côté d'un texte (components/ui/Icon.tsx, cahier du 23/11) : à la couleur du
+     texte, jamais plus grandes que lui ; 20 px, 24 px en tête d'une étape */
+  .icone {
+    flex: none;
+    width: var(--size-icon);
+    height: var(--size-icon);
+  }
+  .icone--l {
+    width: var(--size-icon-l);
+    height: var(--size-icon-l);
+  }
 
   /* ================================================================ LIENS
      Navigation et liens des maquettes : Cormorant en bas de casse, soulignés d'un filet très fin
@@ -437,6 +448,33 @@
   }
   .link[aria-current="page"] {
     background-size: 100% var(--border-width-hair);
+  }
+  /* lien ou bouton précédé d'une icône au fil (.icone, cahier du 23/11) : le filet ne souligne que
+     les mots, il commence après l'icône */
+  .link--icone {
+    --decalage: calc(var(--size-icon) + var(--spacing-2xs));
+    background-size: calc(100% - var(--decalage)) var(--border-width-hair);
+    background-position: var(--decalage) 100%;
+  }
+  .link--icone.link--quiet {
+    background-size: 0% var(--border-width-hair);
+    background-position: 100% 100%;
+  }
+  /* zone sensible élargie de 8 px au-dessus et au-dessous : 56 px au doigt, le filet ne bouge pas */
+  .link--icone::after {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--spacing-3xs)) 0;
+  }
+  @media (hover: hover) {
+    .link--icone:hover {
+      background-size: 0% var(--border-width-hair);
+      background-position: 100% 100%;
+    }
+    .link--icone.link--quiet:hover {
+      background-size: calc(100% - var(--decalage)) var(--border-width-hair);
+      background-position: var(--decalage) 100%;
+    }
   }
 
   .text-link {
