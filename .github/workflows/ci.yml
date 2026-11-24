@@ -46,7 +46,8 @@ jobs:
     needs: verifications
     # Ubuntu 24.04 fixé : Playwright 1.56 n'installe pas Chromium sur ubuntu-latest (26.04)
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    # Plus de 500 parcours sur un seul processus (stockage partagé) : 40 minutes ne suffisent plus.
+    timeout-minutes: 60
     env:
       NEXT_TELEMETRY_DISABLED: 1
     steps:
