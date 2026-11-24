@@ -28,7 +28,14 @@ test("réserver puis annuler un appel vidéo", async ({ page, request }) => {
   await expect(firstSlot).toBeVisible();
   await firstSlot.click();
   const form = page.locator("main form");
+  // « Réserver » à vide : les messages de la Maison sous les champs, jamais la bulle du navigateur
+  await form.getByRole("button", { name: "Réserver ce moment" }).click();
+  await expect(form.getByLabel("Nom")).toBeFocused();
+  await expect(form.getByText("Indiquez votre nom.")).toBeVisible();
+  await expect(form.getByText("Indiquez une adresse e-mail complète, par exemple prenom@exemple.fr.")).toBeVisible();
+  await expect(form.getByText(/^Cochez cette case\s: vos coordonnées ne servent qu’à ce rendez-vous\.$/)).toBeVisible();
   await form.getByLabel("Nom").fill("Camille Essai");
+  await expect(form.getByText("Indiquez votre nom.")).toHaveCount(0);
   await form.getByLabel("E-mail", { exact: true }).fill(email);
   await form.getByLabel(/J’accepte que mes coordonnées/).check();
   await form.getByRole("button", { name: "Réserver ce moment" }).click();
@@ -51,6 +58,27 @@ test("réserver puis annuler un appel vidéo", async ({ page, request }) => {
   await page.getByRole("button", { name: "Annuler le rendez-vous" }).click();
   await expect(page.locator("main").getByRole("status")).toContainText("C’est annulé");
   expect((await request.post("/api/rendez-vous/annuler", { data: { id, jeton } })).status()).toBe(404);
+});
+
+test("sur téléphone : la durée à côté de chaque pastille, sept jours puis « Plus de dates »", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await acceptCookies(page);
+  await page.goto("/rendez-vous?type=visio");
+  await waitForHydration(page);
+  await expect(page.getByLabel(/Appel vidéo avec la créatrice/)).toBeChecked();
+  // la pastille tient sur une ligne : la durée est à côté, et la décrit
+  const pastille = page.locator(".booking__choix label", { hasText: "Appel vidéo avec la créatrice" });
+  expect((await pastille.boundingBox())!.height).toBeLessThanOrEqual(48);
+  await expect(page.getByLabel(/Appel vidéo avec la créatrice/)).toHaveAccessibleDescription("Trente minutes");
+  const jours = page.locator(".booking__chips").first().locator(".chip");
+  await expect(jours.first()).toBeVisible();
+  const total = await jours.count();
+  test.skip(total <= 7, "moins de huit jours ouverts dans l’agenda d’essai");
+  await expect(jours.nth(7)).toBeHidden();
+  await page.getByRole("button", { name: "Plus de dates" }).click();
+  await expect(jours.nth(7)).toBeVisible();
+  await expect(jours.nth(7)).toBeFocused();
+  await expect(page.getByRole("button", { name: "Plus de dates" })).toHaveCount(0);
 });
 
 test("un lien qui choisit le rendez-vous ouvre la réservation ; la section reste noire en mode Nuit, bouton ivoire", async ({ page }) => {

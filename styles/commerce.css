@@ -334,10 +334,10 @@
   }
 
   /* ======================================================= TROUVER MA TAILLE */
+  /* le calculateur ouvre la fenêtre « Trouver ma taille » ; un filet le sépare du tableau */
   .size-finder {
-    margin-top: var(--spacing-l);
-    padding-top: var(--spacing-l);
-    border-top: var(--border-width-hair) solid var(--line);
+    padding-bottom: var(--spacing-l);
+    border-bottom: var(--border-width-hair) solid var(--line);
   }
   .size-finder > .form__row {
     margin-top: var(--spacing-m);
@@ -480,10 +480,12 @@
     min-width: 0;
     margin: 0;
   }
+  /* le nom de la pièce en entier, en bas de casse comme partout ailleurs, sur deux lignes au besoin
+     (jamais coupé par des points de suspension) */
   .buy-bar__title {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    font-size: var(--text-step--1);
+    line-height: var(--leading-label);
+    text-wrap: balance;
   }
   .buy-bar__price {
     font-size: var(--text-step--1);
@@ -498,10 +500,8 @@
     }
   }
   @media (max-width: 63.99rem) {
-    /* l'assistante monte au-dessus de la barre, la fin de la page n'est jamais masquée */
-    html[data-buybar="true"] .assistant-launcher {
-      bottom: calc(var(--spacing-touch) + var(--spacing-s) * 2 + env(safe-area-inset-bottom));
-    }
+    /* la barre d'achat ne masque jamais la fin de la page (l'assistante s'efface pendant ce temps,
+       styles/signature.css) */
     html[data-buybar] .site-footer {
       padding-bottom: calc(var(--spacing-l) + var(--spacing-touch) + var(--spacing-s) * 2);
     }
@@ -510,8 +510,8 @@
 
 /*
  * Fenêtre « Profitez de votre privilège » (components/marketing/FenetrePrivilege.tsx) : une feuille
- * de papier au filet très fin, centrée sur un voile, la croix en haut à droite. Au téléphone, 16 px de
- * marge de chaque côté ; elle défile seule si l'écran est bas. Fondu à la durée unique (--dur, quasi
+ * de papier au filet très fin, centrée sur un voile, la croix en haut à droite. Au téléphone, un
+ * panneau en bas de l'écran, à la hauteur de son contenu ; elle défile seule si l'écran est bas. Fondu à la durée unique (--dur, quasi
  * nulle en animations apaisées) ; couleurs par les rôles (--fg, --bg, --line), donc le mode Nuit.
  */
 @layer components {
@@ -578,5 +578,34 @@
   }
   .privilege__conditions {
     color: var(--fg-soft);
+  }
+  /* « Conditions de l'offre » : seulement sur téléphone, où les conditions sont repliées */
+  .privilege__deplier {
+    display: none;
+  }
+  @media (max-width: 47.99rem) {
+    /* un panneau posé en bas de l'écran, à la hauteur de son contenu, plutôt qu'une feuille qui
+       couvre tout l'écran ; le haut de la page reste visible sous le voile */
+    .privilege {
+      inset: auto 0 0;
+      margin: 0;
+      width: 100%;
+      max-height: calc(100dvh - var(--header-h));
+      border-width: var(--border-width-hair) 0 0;
+    }
+    .privilege__panel {
+      padding: var(--spacing-l) var(--spacing-gutter) calc(var(--spacing-m) + env(safe-area-inset-bottom));
+    }
+    /* la croix et son anneau de focus restent dans l'écran */
+    .privilege__fermer {
+      top: var(--spacing-xs);
+      right: var(--spacing-xs);
+    }
+    .privilege__deplier {
+      display: inline-flex;
+    }
+    .privilege__conditions-texte[data-replie] {
+      display: none;
+    }
   }
 }

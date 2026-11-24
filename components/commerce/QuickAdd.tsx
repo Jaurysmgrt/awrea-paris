@@ -10,8 +10,11 @@ import { useTexts } from "@/components/content/Texts";
 import { delaiText, fill, type CatalogueTexts } from "@/lib/commerce/texts";
 import { ProvisionalNote } from "./ProvisionalNote";
 
-/** Ajout rapide d'une pièce (compléter le look, liste d'envies) : taille, délai de fabrication, panier. */
-export function QuickAdd({ product, compact = false }: { product: Product; compact?: boolean }) {
+/**
+ * Ajout rapide d'une pièce (compléter le look, liste d'envies) : taille, délai de fabrication, panier.
+ * `retirer` (liste d'envies) : un lien discret pour la retirer, comme dans le tiroir du panier.
+ */
+export function QuickAdd({ product, compact = false, retirer }: { product: Product; compact?: boolean; retirer?: { label: string; aria: string; onClick: () => void } }) {
   const t = useTexts<CatalogueTexts>("catalogue");
   const { dispatch, busy } = useCart();
   const [variant, setVariant] = useState<Variant | null>(product.variants.length === 1 ? product.variants[0] : null);
@@ -40,6 +43,11 @@ export function QuickAdd({ product, compact = false }: { product: Product; compa
         >
           {!variant ? t.achat.choisirUneTaille : t.achat.ajouter}
         </button>
+        {retirer ? (
+          <button type="button" className="link link--quiet quick-add__retirer" aria-label={retirer.aria} onClick={retirer.onClick}>
+            {retirer.label}
+          </button>
+        ) : null}
       </div>
     </div>
   );

@@ -563,12 +563,32 @@
     letter-spacing: var(--tracking-text);
     transition:
       background-color var(--dur) var(--ease),
-      color var(--dur) var(--ease);
+      color var(--dur) var(--ease),
+      opacity var(--dur) var(--ease),
+      visibility var(--dur) var(--ease);
   }
   /* bouton discret, au filet comme les boutons secondaires ; survol : plein, comme tous les boutons */
   .assistant-launcher:hover {
     background: var(--fg);
     color: var(--bg);
+  }
+  /* il ne recouvre jamais le contenu (parcours UX du 23/11) : il s'efface pendant la saisie d'un
+     champ (clavier du téléphone, fin des lignes), et sur la fiche tant que la colonne de la pièce
+     (taille, ajout au panier, partage) ou la barre d'achat sont à l'écran ; ouvert, il reste */
+  body:has(:is(input, select, textarea):not(.assistant *):focus) .assistant-launcher:not([data-open="true"]),
+  html[data-zone-achat="true"] .assistant-launcher:not([data-open="true"]) {
+    visibility: hidden;
+    opacity: 0;
+  }
+  @media (max-width: 63.99rem) {
+    html[data-buybar="true"] .assistant-launcher:not([data-open="true"]) {
+      visibility: hidden;
+      opacity: 0;
+    }
+  }
+  /* le pied de page lui réserve sa hauteur : la fin de la page n'est jamais dessous */
+  body:has(.assistant-launcher) .site-footer {
+    padding-bottom: calc(var(--spacing-touch) + var(--spacing-s) * 2);
   }
   .assistant-launcher__mark {
     display: none;

@@ -30,7 +30,9 @@ export default async function RendezVousPage({ searchParams }: { searchParams: P
   return (
     <Section theme="ink" className={styles.page} labelledBy="rdv-titre" data-nuit="noir">
       <figure className={styles.photo}>
-        <Media image={a.image} ratio="auto" sizes="100vw" priority className={styles.media} />
+        {/* photo 3:2 recadrée en hauteur (64 % de l'écran, 78 % dès 1024 px) : elle couvre plus que la
+            largeur de l'écran sur téléphone, d'où la largeur annoncée au navigateur */}
+        <Media image={a.image} ratio="auto" sizes="(min-width: 64rem) max(100vw, 117vh), max(100vw, 96vh)" priority className={styles.media} />
       </figure>
       <div className={`container ${styles.texte}`}>
         <Breadcrumbs items={[{ name: t.titre, path: "/rendez-vous" }]} />

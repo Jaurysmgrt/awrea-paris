@@ -470,11 +470,18 @@
     align-items: end;
     gap: var(--spacing-s);
   }
+  /* « Ajouter au panier » toujours sur une ligne : quand la colonne est étroite (1024 px),
+     « Garder » passe dessous plutôt que de couper le bouton en deux */
   .product-form__actions {
-    display: grid;
-    grid-template-columns: 1fr auto;
+    display: flex;
+    flex-wrap: wrap;
     gap: var(--spacing-s);
     align-items: center;
+  }
+  .product-form__actions > .btn {
+    flex: 1 1 auto;
+    width: auto;
+    white-space: nowrap;
   }
   .handmade {
     display: flex;
@@ -943,6 +950,13 @@
   .not-found__inner {
     padding-block: calc(var(--header-h) + var(--spacing-xl)) var(--spacing-xl);
   }
+  /* le titre centré, en deux lignes équilibrées sur ordinateur (il en prenait trois dans une
+     colonne étroite) */
+  .not-found__inner h1 {
+    text-align: center;
+    margin-inline: auto;
+    text-wrap: balance;
+  }
   .not-found__actions {
     display: flex;
     flex-wrap: wrap;
@@ -1274,7 +1288,7 @@
   }
 
   /* sélecteur à deux positions (se connecter / créer un compte) */
-  /* onglets : rangée défilante sur mobile, colonne sur grand écran */
+  /* onglets : rangée sur plusieurs lignes sur mobile, colonne sur grand écran */
   .tabs-wrap {
     display: grid;
     gap: var(--spacing-l);
@@ -1288,6 +1302,15 @@
   }
   .tabs::-webkit-scrollbar {
     display: none;
+  }
+  /* téléphone et tablette : toutes les rubriques à l'écran, sur plusieurs lignes, plutôt qu'une
+     rangée qui défile en cachant la moitié d'entre elles (parcours UX du 23/11) */
+  @media (max-width: 63.99rem) {
+    .tabs {
+      flex-wrap: wrap;
+      gap: 0 var(--spacing-m);
+      overflow-x: visible;
+    }
   }
   .tab {
     flex: none;
@@ -1486,30 +1509,6 @@
     display: grid;
     gap: var(--spacing-2xs);
   }
-  .express {
-    display: grid;
-    gap: var(--spacing-xs);
-  }
-  .express__buttons {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--spacing-2xs);
-  }
-  @media (min-width: 48rem) {
-    .express__buttons {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-  /* moyens de paiement express : au filet, plein une fois choisi (le choix se voit sans couleur) */
-  .express__btn {
-    --btn-fg: var(--fg);
-    --btn-bg: transparent;
-    --btn-edge: var(--fg);
-  }
-  .express__btn[aria-pressed="true"] {
-    --btn-fg: var(--bg);
-    --btn-bg: var(--fg);
-  }
   .combo {
     position: relative;
   }
@@ -1698,5 +1697,28 @@ html[data-motion="reduce"] .hero__scroll::after {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-2xs);
+  }
+  /* chaque rendez-vous : sa pastille, puis sa durée à côté (dessous si la place manque) */
+  .booking__type {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 var(--spacing-s);
+  }
+  .booking__choix {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  /* téléphone : les sept premiers jours, puis « Plus de dates » (le choix de l'heure reste proche) */
+  .booking__plus {
+    display: none;
+  }
+  @media (max-width: 47.99rem) {
+    .booking__chips[data-replie] > .chip:nth-child(n + 8) {
+      display: none;
+    }
+    .booking__plus {
+      display: inline-flex;
+    }
   }
 }

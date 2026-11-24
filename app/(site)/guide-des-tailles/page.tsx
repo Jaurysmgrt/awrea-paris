@@ -7,6 +7,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
 import ed from "@/components/home/editorial.module.css";
 import styles from "./guide-des-tailles.module.css";
+import { TableauTailles } from "@/components/commerce/TableauTailles";
+import type { CatalogueTexts } from "@/lib/commerce/texts";
 
 /**
  * Guide des tailles : le tableau des réglages (content/settings.ts, shop.sizeGuide, le même que
@@ -24,7 +26,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function GuideDesTaillesPage() {
-  const t = await getDoc<GuideDesTailles>("guide-des-tailles");
+  // intitulés des colonnes : document « catalogue » (les mêmes que la fenêtre de la fiche, traduits sous /en)
+  const [t, catalogue] = await Promise.all([getDoc<GuideDesTailles>("guide-des-tailles"), getDoc<CatalogueTexts>("catalogue")]);
   const guide = shop.sizeGuide;
   return (
     <>
@@ -38,33 +41,7 @@ export default async function GuideDesTaillesPage() {
           </h2>
           {/* zone qui défile sur téléphone : atteignable au clavier, nommée par le titre du tableau */}
           <div className={`table-scroll ${styles.tableau}`} tabIndex={0} role="region" aria-labelledby="tailles-tableau">
-            <table className="table">
-              <caption className={`t-note ${styles.legende}`}>{t.tableau.legende}</caption>
-              <thead>
-                <tr>
-                  {guide.headers.map((h) => (
-                    <th key={h} scope="col">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {guide.rows.map((r) => (
-                  <tr key={r[0]}>
-                    {r.map((c, i) =>
-                      i === 0 ? (
-                        <th key={i} scope="row">
-                          {c}
-                        </th>
-                      ) : (
-                        <td key={i}>{c}</td>
-                      ),
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <TableauTailles t={{ ...catalogue.taille.tableau, legende: t.tableau.legende }} legendeClassName={`t-note ${styles.legende}`} />
           </div>
           {!guide.confirme ? (
             <p className={`notice ${styles.aConfirmer}`} role="note">

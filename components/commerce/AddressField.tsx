@@ -21,12 +21,19 @@ export function AddressField({
   defaultValue,
   country,
   onPick,
+  invalid,
+  describedBy,
+  onEdit,
 }: {
   id: string;
   name: string;
   defaultValue?: string;
   country: string;
   onPick: (a: PickedAddress) => void;
+  /** champ obligatoire oublié, relié à son message (useChampsManquants) */
+  invalid?: boolean;
+  describedBy?: string;
+  onEdit?: () => void;
 }) {
   const listId = useId();
   const champs = useTexts<CommerceTexts>("commerce").commande.champs;
@@ -61,6 +68,7 @@ export function AddressField({
     setOpen(false);
     setItems([]);
     onPick(s);
+    onEdit?.();
   };
 
   return (
@@ -76,10 +84,13 @@ export function AddressField({
         aria-expanded={open}
         aria-controls={listId}
         aria-activedescendant={open && active >= 0 ? `${listId}-${active}` : undefined}
+        aria-invalid={invalid || undefined}
+        aria-describedby={describedBy}
         value={value}
         onChange={(e) => {
           picked.current = false;
           setValue(e.target.value);
+          onEdit?.();
           if (e.target.value.trim().length < 3) setOpen(false);
         }}
         onBlur={() => setTimeout(() => setOpen(false), 150)}

@@ -33,7 +33,7 @@ export default async function AtelierPage() {
         <ol className={`container ${styles.chapitres}`}>
           {t.chapitres.map((c, i) => (
             <li key={c.titre} className={`${ed.split} ${i % 2 ? ed.flip : ""}`}>
-              <Visuel image={c.image} ratio="look" sizes="(min-width: 48rem) 45vw, 100vw" />
+              <Visuel image={c.image} ratio="look" sizes="(min-width: 64rem) 45vw, (min-width: 48rem) 31rem, 100vw" />
               <div className={ed.texte}>
                 <div className={ed.tete}>
                   <p className="eyebrow">{c.surtitre}</p>

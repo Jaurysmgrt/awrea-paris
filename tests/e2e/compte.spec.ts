@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import fs from "node:fs";
-import { acceptCookies } from "./helpers";
+import { acceptCookies, waitForHydration } from "./helpers";
 
 /** Création du compte par code e-mail (mode démonstration : le code s'affiche à l'écran). */
 async function signUp(page: Page, email: string) {
@@ -91,6 +91,43 @@ test.describe("Compte client", () => {
     await expect(stages.locator('[aria-current="step"]')).toContainText("étape en cours");
     await expect(stages.locator('[aria-current="step"] time')).toHaveCount(1);
     await expect(page.locator(".order").filter({ hasText: number }).getByText(/Fin de confection prévue (entre )?le/)).toBeVisible();
+  });
+
+  test("« Recevoir mon code » à vide : les messages de la Maison, jamais la bulle du navigateur", async ({ page }) => {
+    await acceptCookies(page);
+    await page.goto("/compte");
+    await waitForHydration(page);
+    await page.getByRole("radio", { name: "Créer un compte" }).click();
+    await page.getByRole("button", { name: "Recevoir mon code" }).click();
+    await expect(page.locator("#login-email")).toBeFocused();
+    await expect(page.getByText("Indiquez une adresse e-mail complète, par exemple prenom@exemple.fr.")).toBeVisible();
+    await expect(page.getByText("Cochez cette case pour accepter les conditions générales d’utilisation.")).toBeVisible();
+    await page.locator("#login-email").fill("pas-une-adresse");
+    await page.locator('input[name="terms"]').check();
+    await page.getByRole("button", { name: "Recevoir mon code" }).click();
+    await expect(page.getByText("Indiquez une adresse e-mail complète, par exemple prenom@exemple.fr.")).toBeVisible();
+    await expect(page.getByText("Cochez cette case pour accepter les conditions générales d’utilisation.")).toHaveCount(0);
+  });
+
+  test("sur téléphone, toutes les rubriques du compte sont à l’écran", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 740 });
+    await acceptCookies(page);
+    await signUp(page, `rubriques.${Date.now().toString(36)}@exemple.fr`);
+    for (const tab of await page.getByRole("tab").all()) {
+      const b = (await tab.boundingBox())!;
+      expect(b.x).toBeGreaterThanOrEqual(0);
+      expect(b.x + b.width).toBeLessThanOrEqual(360);
+    }
+  });
+
+  test("liste d’envies : chaque pièce se retire, la liste vide parle du cœur « Garder »", async ({ page }) => {
+    await acceptCookies(page);
+    await page.addInitScript(() => localStorage.setItem("awrea_wishlist", JSON.stringify(["robe-odessa"])));
+    await page.goto("/liste-envies");
+    await waitForHydration(page);
+    await expect(page.getByRole("link", { name: "La robe Odessa" }).first()).toBeVisible();
+    await page.getByRole("button", { name: /Retirer de la liste d’envies\s: La robe Odessa/ }).click();
+    await expect(page.getByText(/Touchez le cœur «\sGarder\s»/)).toBeVisible();
   });
 
   test("création refusée sans acceptation des CGU ; connexion refusée pour une adresse inconnue", async ({ request }) => {
