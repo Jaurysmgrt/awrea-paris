@@ -1,6 +1,7 @@
 /**
  * Audit d'homogénéité d'une page, exécuté dans le navigateur (testeur « homogénéité ») :
- * familles de polices (les deux polices officielles, Fraunces et Cormorant Garamond), italiques
+ * piles de polices (Fraunces pour les titres ; pour les textes, depuis le 23/11, « Avenir Next »,
+ * « Avenir » puis Mulish), italiques
  * (seulement les titres en Fraunces), textes sous 16 px, couleurs saturées (aucune dorure dans
  * l'interface), espacements sur la grille de 8 px, interlignage 1,6 du texte courant (et notes sur
  * la grille), paragraphes justifiés seulement sur tablette et ordinateur, avec césure et assez de
@@ -8,8 +9,9 @@
  * (75 caractères par ligne au plus).
  */
 export interface DesignAudit {
+  /** piles de polices des éléments qui portent du texte, telles que le navigateur les calcule */
   families: string[];
-  /** italiques hors de la police des titres (Cormorant n'a pas de face italique) */
+  /** italiques hors de la police des titres (les textes n'ont pas de face italique) */
   italics: string[];
   /** textes sous 16 px (le minimum du design system) */
   small: string[];
@@ -75,18 +77,23 @@ export function auditInPage(): DesignAudit {
     if (skip(el) || !shown(el)) continue;
     const cs = getComputedStyle(el);
     if (ownText(el)) {
-      families.add(cs.fontFamily.split(",")[0].replace(/["']/g, "").trim());
+      families.add(
+        cs.fontFamily
+          .split(",")
+          .map((f) => f.replace(/["']/g, "").trim())
+          .join(", "),
+      );
       // l'italique appartient aux titres en Fraunces (petits titres en Fraunces 72pt Italic)
       if ((cs.fontStyle === "italic" || cs.fontStyle.startsWith("oblique")) && !/fraunces/i.test(cs.fontFamily)) italics.add(describe(el));
       const size = parseFloat(cs.fontSize);
       if (size > 0 && size < 15.9) small.add(`${describe(el)} ${cs.fontSize}`);
-      // interlignage des paragraphes en Cormorant : toujours sur la grille de 8 px ; 1,6 pour le texte
-      // courant et les chapeaux (20 → 32, 25 → 40) ; les notes de 18 px prennent la ligne du texte
-      // courant (32 px), car 18 × 1,6 sortirait de la grille
-      if (el.tagName === "P" && /cormorant/i.test(cs.fontFamily) && cs.textTransform !== "uppercase") {
+      // interlignage des paragraphes dans la police des textes : toujours sur la grille de 8 px ; 1,6
+      // pour les chapeaux (20 → 32) ; le texte courant de 18 px prend la ligne de 32 px et les notes de
+      // 16 px 24 px, car 18 × 1,6 et 16 × 1,6 sortiraient de la grille ; jamais plus lâche que 1,8
+      if (el.tagName === "P" && /mulish/i.test(cs.fontFamily) && cs.textTransform !== "uppercase") {
         const lh = parseFloat(cs.lineHeight);
         const ratio = lh / size;
-        if (off8(lh) || (size >= 19.5 && Math.abs(ratio - 1.6) > 0.02)) leading.add(`${describe(el)} ${cs.fontSize}/${cs.lineHeight}`);
+        if (off8(lh) || (size >= 19.5 && Math.abs(ratio - 1.6) > 0.02) || ratio < 1.45 || ratio > 1.8) leading.add(`${describe(el)} ${cs.fontSize}/${cs.lineHeight}`);
       }
     }
     for (const prop of ["color", "backgroundColor", "borderTopColor", "borderBottomColor", "borderLeftColor", "outlineColor"] as const) {

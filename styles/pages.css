@@ -1578,7 +1578,7 @@
     display: grid;
     gap: var(--spacing-3xs);
   }
-  /* intitulé d'une option (« Être remboursée ») : Cormorant, à la taille du texte (Fraunces
+  /* intitulé d'une option (« Être remboursée ») : police des textes, à la taille du texte (Fraunces
      n'est jamais employée sous 25 px) */
   .option__title {
     font-family: var(--font-body);

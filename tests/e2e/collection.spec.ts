@@ -2,7 +2,7 @@
  * Collection, toutes les pièces et fiche d'une pièce, d'après la maquette PAGE PRODUIT : grand titre
  * centré, texte officiel de la collection (data-officiel), colonne « Filtrer par » (Catégorie, Prix,
  * Taille, Collection) dont les choix vivent dans l'adresse, cartes des pièces ; sur téléphone, le
- * panneau des filtres s'ouvre avec le bouton « Filtrer ». Fiche : nom en Cormorant, prix, pastille
+ * panneau des filtres s'ouvre avec le bouton « Filtrer ». Fiche : nom dans la police des textes, prix, pastille
  * « Nouveau », délai de fabrication, liens vers la commande sur demande et le guide des tailles.
  *
  * L'agent Catalogue peut publier une pièce d'essai pendant les tests (gestion.spec.ts) : les
@@ -171,11 +171,12 @@ test.describe("Collection sur téléphone", () => {
 });
 
 test.describe("Fiche d'une pièce", () => {
-  test("nom en Cormorant, prix, pastille, délai, commande sur demande, guide des tailles, sans série ni stock", async ({ page }) => {
+  test("nom dans la police des textes, prix, pastille, délai, commande sur demande, guide des tailles, sans série ni stock", async ({ page }) => {
     await open(page, "/boutique/body-aura");
     const h1 = page.getByRole("heading", { level: 1, name: "Le body Aura" });
     await expect(h1).toBeVisible();
-    await expect(h1).toHaveCSS("font-family", /cormorant/i);
+    // nom de la pièce dans la police des textes, comme sur la maquette (Avenir Next, Mulish là où elle manque) ; jamais Fraunces
+    await expect(h1).toHaveCSS("font-family", /^"Avenir Next", Avenir, mulish, /);
     await expect(h1).toHaveCSS("font-style", "normal");
     const main = page.locator("main");
     await expect(main.locator(".product__price")).toHaveText(/^70,00\s€$/);

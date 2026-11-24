@@ -4,10 +4,11 @@ import { acceptCookies } from "./helpers";
 import { auditInPage, type DesignAudit } from "./design-audit";
 
 /**
- * Testeur « homogénéité » : chaque page, sur mobile, tablette et ordinateur. Les deux polices
- * officielles seulement (Fraunces pour les titres, 120pt Light pour les grands et 72pt Italic pour
- * les petits ; Cormorant Garamond pour les textes ; next/font les nomme d'après les constantes
- * d'app/fonts.ts), l'italique réservé aux titres, aucun texte sous 16 px, aucune dorure dans
+ * Testeur « homogénéité » : chaque page, sur mobile, tablette et ordinateur. Deux piles de polices
+ * seulement : Fraunces pour les titres (120pt Light pour les grands et 72pt Italic pour les petits) ;
+ * pour les textes, depuis le choix de la créatrice du 23/11, « Avenir Next », « Avenir » puis Mulish
+ * (next/font nomme ses polices d'après les constantes d'app/fonts.ts). Cormorant Garamond n'est plus
+ * téléchargée, Mulish jamais préchargée. L'italique réservé aux titres, aucun texte sous 16 px, aucune dorure dans
  * l'interface, espacements multiples de 8 px, interlignage 1,6 (notes de 18 px sur 32 px),
  * paragraphes alignés à gauche sur téléphone et justifiés au-delà, avec césure et sans trou entre
  * les mots, de 75 caractères par ligne au plus, et textes alignés sur le bord de leur titre.
@@ -24,9 +25,46 @@ const SIZES = [
   { name: "ordinateur", width: 1440, height: 900 },
 ];
 const REPORT = process.env.HOMOGENEITE_RAPPORT;
+/** pile des titres : Fraunces, son repli réglé par next/font, puis Georgia */
+const PILE_TITRES = /^fraunces, fraunces Fallback, /;
+/** pile des textes : Avenir Next et Avenir par leur nom (installées sur les appareils Apple), puis Mulish */
+const PILE_TEXTES = /^Avenir Next, Avenir, mulish, mulish Fallback, /;
 const report: Record<string, DesignAudit> = {};
 
 test.describe.configure({ mode: "serial" });
+
+/**
+ * Polices téléchargées (choix de la créatrice du 23/11) : Fraunces préchargée pour les titres ;
+ * Cormorant Garamond plus jamais ; Mulish jamais préchargée, et téléchargée seulement là où
+ * Avenir Next manque (Windows, Android, Linux), jamais sur un appareil qui l'a (iPhone, iPad, Mac).
+ */
+test("polices téléchargées : Fraunces, puis Mulish seulement sans Avenir Next ; plus jamais Cormorant", async ({ page }) => {
+  const fichiers: string[] = [];
+  page.on("request", (r) => {
+    if (/\.(woff2?|ttf|otf)(\?|$)/.test(r.url())) fichiers.push(r.url());
+  });
+  await acceptCookies(page);
+  for (const path of ["/", "/boutique/body-aura", "/livraison-retours"]) {
+    await page.goto(path, { waitUntil: "load" });
+    await page.evaluate(() => document.fonts.ready);
+    const prechargees = await page.locator('link[rel="preload"][as="font"]').evaluateAll((ls) => ls.map((l) => l.getAttribute("href") ?? ""));
+    expect(prechargees.length, path).toBeGreaterThan(0);
+    expect(prechargees.filter((h) => !/fraunces/i.test(h)), `${path} : seule Fraunces est préchargée`).toEqual([]);
+  }
+  expect(fichiers.filter((u) => /cormorant/i.test(u)), "Cormorant Garamond téléchargée").toEqual([]);
+  // Avenir Next installée ? (même mesure qu'avec la police à chasse fixe du système : absente)
+  const avenir = await page.evaluate(() => {
+    const c = document.createElement("canvas").getContext("2d")!;
+    const w = (f: string) => ((c.font = `72px ${f}`), c.measureText("mmmmmmmmmmlliWWwwAvenir").width);
+    return w('"Avenir Next", monospace') !== w("monospace");
+  });
+  const mulish = fichiers.filter((u) => /mulish/i.test(u));
+  if (avenir) expect(mulish, "Mulish téléchargée alors qu'Avenir Next est installée").toEqual([]);
+  else {
+    expect(mulish.length, "Mulish, la police des textes là où Avenir Next manque").toBeGreaterThan(0);
+    expect(await page.evaluate(() => Array.from(document.fonts).some((f) => f.family === "mulish" && f.status === "loaded"))).toBe(true);
+  }
+});
 test.afterAll(() => {
   if (REPORT) fs.writeFileSync(REPORT, JSON.stringify(report, null, 1));
 });
@@ -46,7 +84,7 @@ for (const size of SIZES) {
         const a = await page.evaluate(auditInPage);
         report[`${size.name} ${path}`] = a;
         if (REPORT) return;
-        expect(a.families.filter((f) => !/fraunces|cormorant/i.test(f)), "familles hors des deux polices officielles").toEqual([]);
+        expect(a.families.filter((f) => !PILE_TITRES.test(f) && !PILE_TEXTES.test(f)), "polices hors des deux piles (Fraunces ; Avenir Next, Avenir, Mulish)").toEqual([]);
         expect(a.italics, "italiques hors des titres en Fraunces").toEqual([]);
         expect(a.small, "textes sous 16 px").toEqual([]);
         expect(a.saturated, "couleurs saturées (doré)").toEqual([]);

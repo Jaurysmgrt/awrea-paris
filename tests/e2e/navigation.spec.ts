@@ -5,7 +5,7 @@ import { acceptCookies, waitForHydration } from "./helpers";
 const mainNav = (page: Page) => page.locator(".site-header").getByRole("navigation", { name: "Navigation principale" });
 
 test.describe("En-tête de la maquette : logo centré, navigation centrée dessous", () => {
-  test("cinq entrées en Cormorant, Accueil souligné, logo et navigation centrés", async ({ page }) => {
+  test("cinq entrées en Avenir Next (Mulish là où elle manque), Accueil souligné, logo et navigation centrés", async ({ page }) => {
     await acceptCookies(page);
     await page.goto("/");
     const nav = mainNav(page);
@@ -15,7 +15,11 @@ test.describe("En-tête de la maquette : logo centré, navigation centrée desso
     await expect(nav.getByRole("link", { name: "Accueil" })).toHaveAttribute("aria-current", "page");
     // trois menus déroulants, chacun avec son chevron dessiné (aucun signe des polices)
     await expect(nav.locator("button[aria-expanded] svg.chevron")).toHaveCount(3);
-    expect(await entries.first().evaluate((el) => getComputedStyle(el).fontFamily)).toMatch(/cormorant/i);
+    // la pile des textes (choix de la créatrice du 23/11), en Regular, sans interlettrage ajouté
+    const nav0 = await entries.first().evaluate((el) => ({ f: getComputedStyle(el).fontFamily, w: getComputedStyle(el).fontWeight, l: getComputedStyle(el).letterSpacing }));
+    expect(nav0.f).toMatch(/^"Avenir Next", Avenir, mulish, /);
+    expect(nav0.w).toBe("400");
+    expect(nav0.l).toMatch(/^(normal|0px)$/);
 
     const width = await page.evaluate(() => document.documentElement.clientWidth);
     const logo = (await page.locator(".site-header__logo").boundingBox())!;

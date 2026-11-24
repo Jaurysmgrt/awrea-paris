@@ -9,13 +9,16 @@
  * Vérifie aussi que styles/tokens.ts (miroir pour e-mails, WebGL, métadonnées) correspond au CSS,
  * et qu'il n'existe qu'une durée (--dur) et une courbe (--ease) pour toutes les animations.
  *
- * Ressources officielles (RESSOURCES.md, DESIGN.md) : deux polices seulement, Fraunces (grands
- * titres en 120pt Light droite, petits titres en 72pt Italic) et Cormorant Garamond (textes) ; l'italique est réservé aux règles qui posent la police
- * des titres, et toute règle qui pose la police des textes remet le style droit (les titres h1 à h4
- * sont en italique par défaut) ; Fraunces jamais sous 25 px ; aucune police retirée (Instrument
- * Serif, Inter Tight, General Sans) ni la police du logo (licence personnelle), ni dans le code, ni
- * dans les contenus, ni dans les gabarits d'e-mails de Supabase ; arrondis par les tokens
- * --radius-* ; aucun texte sous 16 px ; interlignages sur la grille de 8 px.
+ * Polices (RESSOURCES.md, DESIGN.md) : Fraunces pour les titres (grands titres en 120pt Light
+ * droite, petits titres en 72pt Italic) ; pour les textes (choix de la créatrice du 23/11), la pile
+ * « Avenir Next », « Avenir », puis Mulish servie par le site sans préchargement : jamais un
+ * @font-face qui donnerait le nom d'Avenir à un autre fichier, jamais Cormorant Garamond chargée
+ * (ses fichiers ne servent plus qu'aux PDF et aux e-mails déjà envoyés). L'italique est réservé aux
+ * règles qui posent la police des titres, et toute règle qui pose la police des textes remet le
+ * style droit (les titres h1 à h4 sont en italique par défaut) ; Fraunces jamais sous 25 px ; aucune
+ * police retirée (Instrument Serif, Inter Tight, General Sans) ni la police du logo (licence
+ * personnelle), ni dans le code, ni dans les contenus, ni dans les gabarits d'e-mails de Supabase ;
+ * arrondis par les tokens --radius-* ; aucun texte sous 16 px ; interlignages sur la grille de 8 px.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -27,6 +30,10 @@ const report = (file, line, msg, text) => problems.push(`${path.relative(root, f
 // polices retirées par les ressources officielles, et police du logo (Croisan, licence personnelle :
 // jamais chargée par le site, le logo s'affiche à partir des fichiers officiels)
 const RETIRED_FONT = /instrument[ -]?serif|inter[ -]?tight|general[ -]?sans|croisan/i;
+// police des textes jusqu'au 22/11 : plus aucune page, aucun e-mail ni gabarit ne la charge ; seuls
+// les PDF (factures, étiquettes de retour) gardent son fichier TTF, qu'ils intègrent
+const CORMORANT = /cormorant/i;
+const CORMORANT_PERMIS = new Set(["lib/invoices/pdf.ts", "lib/labels.ts"]);
 
 // ------------------------------------------------------------------ CSS
 const cssDir = path.join(root, "styles");
@@ -63,6 +70,9 @@ for (const f of fs.readdirSync(cssDir).filter((f) => f.endsWith(".css") && f !==
     // l'italique passe par le token des titres (vérifié bloc par bloc plus bas)
     if (/font-style:\s*(italic|oblique)/.test(line)) report(file, i + 1, "italique en dur (utiliser var(--font-style-display) avec la police des titres)", raw);
     if (/--font-(script|serif)\b/.test(line)) report(file, i + 1, "famille hors des deux polices", raw);
+    if (CORMORANT.test(line)) report(file, i + 1, "Cormorant Garamond n'est plus la police des textes (23/11)", raw);
+    // aucune autre police ne prend le nom d'Avenir : Avenir Next n'est appelée que par son nom, là où elle est installée
+    if (/@font-face/.test(line) && /avenir/i.test(line)) report(file, i + 1, "@font-face au nom d'Avenir (jamais une autre police déguisée)", raw);
     if (RETIRED_FONT.test(line)) report(file, i + 1, "police retirée ou police du logo (deux polices officielles seulement)", raw);
     if (/border-radius:/.test(line) && !/border-radius:\s*(0|inherit|var\(--radius-[a-z]+\))\s*;/.test(line)) report(file, i + 1, "arrondi hors des tokens --radius-*", raw);
     if (/backdrop-filter|filter:\s*blur/.test(line)) report(file, i + 1, "verre dépoli ou flou interdit", raw);
@@ -102,14 +112,29 @@ for (const m of tokensCss.matchAll(/--(spacing-[a-z0-9-]+|lh-step--?\d|leading-(
   if ((parseFloat(m[2]) * 16) % 8 !== 0) problems.push(`styles/tokens.css  --${m[1]} = ${m[2]}rem : hors de la grille de 8 px`);
 }
 
-// ---------------------------------------- jamais de texte sous 16 px (Cormorant a un petit œil)
+// ------------------------------------------------- jamais de texte sous 16 px, le minimum du site
 for (const m of tokensCss.matchAll(/--(text-step--?\d):\s*([\d.]+)rem/g)) {
   if (parseFloat(m[2]) < 1) problems.push(`styles/tokens.css  --${m[1]} = ${m[2]}rem : texte sous 16 px`);
 }
 
-// ------------------------------------- deux polices officielles, rien d'autre (fichiers et code)
+// ------------------------------------------- polices du site, rien d'autre (fichiers et code)
+// Fraunces (titres), Mulish (textes là où Avenir Next manque) et leurs licences OFL ; Cormorant
+// Garamond, gardée dans le dépôt mais plus chargée ; emplacement prévu pour des fichiers Avenir Next
+// sous licence web, si la Maison en achète une (RESSOURCES.md) : avenir-next-*.woff2 et leur licence
 for (const f of fs.readdirSync(path.join(root, "styles", "fonts"))) {
-  if (!/^(fraunces-|cormorant-garamond-|OFL-(fraunces|cormorant-garamond)\.txt$)/.test(f)) problems.push(`styles/fonts/${f}  fichier hors des deux polices officielles`);
+  if (!/^(fraunces-|mulish-|cormorant-garamond-|avenir-next-|OFL-(fraunces|mulish|cormorant-garamond)\.txt$|LICENCE-avenir-next)/.test(f)) problems.push(`styles/fonts/${f}  fichier hors des polices du site`);
+}
+// pile des textes : Avenir Next et Avenir par leur nom, puis Mulish ; Mulish jamais préchargée (les
+// appareils Apple, qui ont Avenir Next, ne la téléchargent pas)
+{
+  const body = tokensCss.match(/--font-body:\s*([^;]+);/)?.[1] ?? "";
+  if (!/^"Avenir Next",\s*"Avenir",\s*var\(--font-mulish\)/.test(body.trim())) problems.push(`styles/tokens.css  --font-body = ${body} : la pile des textes commence par "Avenir Next", "Avenir", var(--font-mulish)`);
+  const fontsTs = fs.readFileSync(path.join(root, "app", "fonts.ts"), "utf8");
+  const mulish = fontsTs.match(/export const mulish = localFont\(\{[\s\S]*?\n\}\);/)?.[0] ?? "";
+  if (!mulish) problems.push("app/fonts.ts  Mulish absente : la pile des textes n'a plus de police pour Windows et Android");
+  else if (!/preload:\s*false/.test(mulish)) problems.push("app/fonts.ts  Mulish préchargée : elle doit rester « preload: false »");
+  if (/prop:\s*["']font-family["'][^}]*avenir/i.test(fontsTs)) problems.push("app/fonts.ts  une police chargée sous le nom d'Avenir (jamais une autre police déguisée)");
+  if (CORMORANT.test(fontsTs.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, ""))) problems.push("app/fonts.ts  Cormorant Garamond chargée (plus aucune page ne la télécharge depuis le 23/11)");
 }
 
 // ------------------------------------------------- composants et pages
@@ -122,10 +147,22 @@ function walk(dir, out = []) {
   }
   return out;
 }
-// polices retirées : jamais dans une chaîne du code (familles, fichiers chargés)
+// polices retirées : jamais dans une chaîne du code (familles, fichiers chargés) ; Cormorant Garamond
+// seulement dans les PDF, qui intègrent son fichier
 for (const file of [...walk(path.join(root, "app")), ...walk(path.join(root, "components")), ...walk(path.join(root, "lib")), path.join(root, "styles/tokens.ts")]) {
+  const rel = path.relative(root, file);
   fs.readFileSync(file, "utf8").split("\n").forEach((raw, i) => {
-    for (const str of raw.matchAll(/(["'`])((?:(?!\1).)*)\1/g)) if (RETIRED_FONT.test(str[2])) report(file, i + 1, "police retirée ou police du logo dans le code", raw);
+    for (const str of raw.matchAll(/(["'`])((?:(?!\1).)*)\1/g)) {
+      if (RETIRED_FONT.test(str[2])) report(file, i + 1, "police retirée ou police du logo dans le code", raw);
+      if (CORMORANT.test(str[2]) && !CORMORANT_PERMIS.has(rel)) report(file, i + 1, "Cormorant Garamond chargée (plus la police des textes depuis le 23/11)", raw);
+    }
+  });
+}
+// feuilles de style des composants : ni Cormorant, ni @font-face au nom d'Avenir
+for (const file of [...walkAll(path.join(root, "app"), /\.css$/), ...walkAll(path.join(root, "components"), /\.css$/)]) {
+  fs.readFileSync(file, "utf8").split("\n").forEach((raw, i) => {
+    if (CORMORANT.test(raw)) report(file, i + 1, "Cormorant Garamond n'est plus la police des textes (23/11)", raw);
+    if (/@font-face/.test(raw) && /avenir/i.test(raw)) report(file, i + 1, "@font-face au nom d'Avenir (jamais une autre police déguisée)", raw);
   });
 }
 // ni dans les contenus ni dans les gabarits d'e-mails envoyés par Supabase (code de connexion)
@@ -150,6 +187,9 @@ for (const file of [...walkAll(path.join(root, "content"), /\.(json|ts|md)$/), .
     continue;
   }
   for (const [line, raw] of hits) report(file, line, "police retirée ou police du logo", raw);
+  fs.readFileSync(file, "utf8").split("\n").forEach((raw, i) => {
+    if (rel.startsWith("supabase") && CORMORANT.test(raw)) report(file, i + 1, "Cormorant Garamond dans un gabarit d'e-mail (texte en Avenir Next depuis le 23/11)", raw);
+  });
 }
 
 const allowColorFiles = new Set(["styles/tokens.ts"]);

@@ -49,7 +49,7 @@
     object-fit: cover;
   }
   /* sous la photo, au fer à gauche (maquette PAGE PRODUIT) : la pastille noire « Nouveau »
-     (.badge), le nom en Cormorant 20 px (.t-body, jamais Fraunces sous 25 px), puis le prix à la
+     (.badge), le nom dans la police des textes (.t-body, jamais Fraunces sous 25 px), puis le prix à la
      ligne */
   .product-card__body {
     display: grid;
@@ -247,7 +247,7 @@
     align-items: baseline;
     gap: var(--spacing-xs);
   }
-  /* nom de la pièce en Cormorant 20 px (.t-body), comme sur les cartes */
+  /* nom de la pièce dans la police des textes (.t-body), comme sur les cartes */
   .cart-line__title {
     text-align: left;
   }
@@ -429,7 +429,7 @@
   .trace__item--plain > :last-child {
     grid-column: 1;
   }
-  /* numéros des étapes (« 01 ») : Cormorant en chiffres alignés, à la taille du texte */
+  /* numéros des étapes (« 01 ») : chiffres alignés, à la taille du texte */
   .trace__index {
     font-family: var(--font-body);
     font-style: normal;

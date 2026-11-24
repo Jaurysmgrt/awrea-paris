@@ -50,7 +50,8 @@
      interlettrages valent pour les deux : aucun réglage propre à Mulish. */
   --font-*: initial;
   --font-display: var(--font-fraunces), "Fraunces", Georgia, "Times New Roman", serif;
-  --font-body: "Avenir Next", "Avenir", var(--font-mulish), Arial, sans-serif;
+  /* var(--font-mulish) : « mulish », son repli réglé sur Arial (next/font), Arial, sans-serif */
+  --font-body: "Avenir Next", "Avenir", var(--font-mulish);
   /* ancien nom, gardé pour les feuilles existantes : c'est la police des textes */
   --font-sans: var(--font-body);
   /* Atelier seulement (tableau de bord privé, jamais le site public) : la police système de

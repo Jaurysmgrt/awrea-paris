@@ -831,8 +831,8 @@
   }
 
   /* ========================================================= ÉLÉMENTS DIVERS */
-  /* prix au format « 70,00 € », chiffres alignés (Cormorant a par défaut des chiffres
-     elzéviriens, gardés pour le texte courant) */
+  /* prix au format « 70,00 € », chiffres alignés (demandés à la police : Avenir Next et Mulish les
+     ont déjà par défaut) */
   .price {
     font-family: var(--font-body);
     font-style: normal;

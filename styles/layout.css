@@ -49,7 +49,7 @@
   }
 
   /* =========================================================== EN-TÊTE
-     Maquette EN-TÊTE DU SITE : le logo entier centré, la navigation centrée dessous, en Cormorant
+     Maquette EN-TÊTE DU SITE : le logo entier centré, la navigation centrée dessous, dans la police des textes
      (Accueil souligné quand la page est active, chevrons fins des menus déroulants).
      L'en-tête est collant : il défile jusqu'à ce que seule sa bande de navigation reste visible
      (top négatif de la hauteur de la partie haute), puis devient compact (data-compact, posé par
