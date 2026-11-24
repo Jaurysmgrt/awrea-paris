@@ -47,7 +47,10 @@
 .lien {
   margin: 0;
 }
-/* lien discret, mais une vraie cible au doigt (48 px de haut) */
-.lien > :global(.link) {
-  min-height: var(--spacing-touch);
+/* lien discret, mais une vraie cible au doigt : la zone sensible déborde de 8 px au-dessus et
+   au-dessous (56 px de haut), sans éloigner le filet des mots */
+.lien > :global(.link)::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--spacing-3xs)) 0;
 }

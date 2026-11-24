@@ -460,6 +460,12 @@
     background-size: 0% var(--border-width-hair);
     background-position: 100% 100%;
   }
+  /* zone sensible élargie de 8 px au-dessus et au-dessous : 56 px au doigt, le filet ne bouge pas */
+  .link--icone::after {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--spacing-3xs)) 0;
+  }
   @media (hover: hover) {
     .link--icone:hover {
       background-size: 0% var(--border-width-hair);

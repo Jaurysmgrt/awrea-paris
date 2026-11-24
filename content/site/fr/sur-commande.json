@@ -123,14 +123,14 @@
         "fr-express": "Chronopost express"
       },
       "delai": {
-        "plage": "{min} à {max} jours ouvrés",
-        "fixe": "{n} jours ouvrés",
-        "un": "1 jour ouvré",
-        "heures": "{n} h"
+        "plage": "{min} à {max} jours ouvrés",
+        "fixe": "{n} jours ouvrés",
+        "un": "1 jour ouvré",
+        "heures": "{n} h"
       }
     },
     "fin": {
-      "avant": "En tout, entre la fin de la confection et la livraison, comptez 5 à 10 jours ouvrés, comme le prévoient nos ",
+      "avant": "En tout, entre la fin de la confection et la livraison, comptez 5 à 10 jours ouvrés, comme le prévoient nos ",
       "lien": {
         "label": "conditions générales de vente",
         "href": "/cgv#livraison"

@@ -11,8 +11,10 @@
   --pas: var(--spacing-l); /* entre deux étapes */
   display: grid;
   gap: var(--pas);
+  /* la colonne (repère et texte) centrée sous la tête de section, centrée elle aussi */
+  max-width: calc(var(--rail) + var(--spacing-s) + var(--container-text));
   /* l'espace sous la tête de section, comme partout (editorial.module.css, apresTete) */
-  margin: var(--space-block) 0 0;
+  margin: var(--space-block) auto 0;
   padding: 0;
   list-style: none;
 }
@@ -20,6 +22,7 @@
   display: grid;
   grid-template-columns: var(--rail) minmax(0, 1fr);
   column-gap: var(--spacing-s);
+  align-content: start;
 }
 .repere {
   display: grid;
@@ -70,6 +73,7 @@
 @media (min-width: 64rem) {
   .frise {
     --pas: var(--spacing-m);
+    max-width: none;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     column-gap: var(--pas);
   }
@@ -97,6 +101,7 @@
   /* la ligne court vers la droite jusqu'à l'icône suivante, à 8 px d'elle */
   .trait {
     grid-area: trait;
+    justify-self: stretch;
     width: auto;
     height: var(--border-width-hair);
     margin-bottom: 0;
@@ -147,7 +152,8 @@
    Même hauteur pour toutes, chacune à ses proportions (--ratio, posé par la page). Sous 1440 px, la
    rangée défile horizontalement, aimantée ; au-delà, elle tient sur la largeur. Noir et blanc. */
 .sequence {
-  --hauteur: calc(var(--spacing-3xl) * 2);
+  /* 144 px sur téléphone (la photo suivante dépasse au bord), 192 px sur tablette et portable */
+  --hauteur: calc(var(--spacing-3xl) * 1.5);
   display: flex;
   gap: var(--spacing-s);
   margin: var(--space-block) calc(-1 * var(--spacing-gutter)) 0;

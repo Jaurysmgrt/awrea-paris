@@ -123,14 +123,14 @@
         "fr-express": "Chronopost express"
       },
       "delai": {
-        "plage": "{min} to {max} working days",
-        "fixe": "{n} working days",
-        "un": "1 working day",
-        "heures": "{n} hours"
+        "plage": "{min} to {max} working days",
+        "fixe": "{n} working days",
+        "un": "1 working day",
+        "heures": "{n} hours"
       }
     },
     "fin": {
-      "avant": "All in all, allow 5 to 10 working days between the end of the making and delivery, as set out in our ",
+      "avant": "All in all, allow 5 to 10 working days between the end of the making and delivery, as set out in our ",
       "lien": {
         "label": "terms and conditions of sale",
         "href": "/cgv#livraison"
