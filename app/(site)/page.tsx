@@ -73,7 +73,7 @@ export default async function HomePage() {
             </p>
           </header>
           <div className={`${ed.split} ${styles.grande} ${ed.apresTete}`}>
-            <Visuel image={maison.image} sizes="(min-width: 48rem) 55vw, 100vw" />
+            <Visuel image={maison.image} sizes="(min-width: 64rem) 55vw, (min-width: 48rem) 31rem, 100vw" />
             <div className={ed.texte} data-officiel>
               <p className="t-body">{maison.texte.paragraphe}</p>
             </div>
@@ -96,7 +96,7 @@ export default async function HomePage() {
       {/* ------------------------------------------------ LA COLLECTION (TEXTE DE COLLECTION, officiel) */}
       <Section theme="ink" className="section--tall" labelledBy="accueil-collection">
         <div className={`container ${ed.split} ${ed.flip}`}>
-          <Visuel image={col.image} sizes="(min-width: 48rem) 45vw, 100vw" />
+          <Visuel image={col.image} sizes="(min-width: 64rem) 45vw, (min-width: 48rem) 31rem, 100vw" />
           <div className={ed.texte}>
             <div className={ed.tete}>
               <div className={ed.tete} data-officiel>
@@ -152,7 +152,7 @@ export default async function HomePage() {
       {/* ------------------------------------------------ CRÉATION SUR DEMANDE */}
       <Section theme="pearl" className="section--tall" labelledBy="accueil-sur-demande">
         <div className={`container ${ed.split}`}>
-          <Visuel image={surDemande.image} ratio="look" sizes="(min-width: 48rem) 45vw, 100vw" />
+          <Visuel image={surDemande.image} ratio="look" sizes="(min-width: 64rem) 45vw, (min-width: 48rem) 31rem, 100vw" />
           <div className={ed.texte}>
             <div className={ed.tete}>
               <h2 id="accueil-sur-demande" className="t-h2">

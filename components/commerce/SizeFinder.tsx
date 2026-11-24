@@ -59,7 +59,7 @@ export function SizeFinder({ product, onPick }: { product: Product; onPick: (siz
         }
       }}
     >
-      <h3 className="t-label">{t.titre}</h3>
+      {/* titre porté par la fenêtre (« Trouver ma taille », comme le bouton qui l'ouvre) */}
       <p className="t-note">{t.aide}</p>
       <div className="form__row form__row--3">
         {FIELDS.map((key) => (

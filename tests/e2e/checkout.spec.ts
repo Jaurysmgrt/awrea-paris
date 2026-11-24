@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { acceptCookies } from "./helpers";
+import { acceptCookies, waitForHydration } from "./helpers";
 
 test.describe("Parcours d’achat complet (mode test)", () => {
   test("fiche produit → panier → code → emballage → commande → enveloppe", async ({ page }) => {
@@ -71,6 +71,61 @@ test.describe("Parcours d’achat complet (mode test)", () => {
     // le panier est vidé
     await page.goto("/");
     await expect(page.getByRole("button", { name: /Panier\s*: 0 pièce/ })).toBeVisible();
+  });
+
+  test("commande à vide : les messages de la Maison sous les champs, puis la quantité sur la confirmation", async ({ page }) => {
+    await acceptCookies(page);
+    await page.goto("/boutique/robe-odessa");
+    await waitForHydration(page);
+    await page.locator(".product-form .chip").first().click();
+    await page.locator(".product-form__actions").getByRole("button", { name: "Ajouter au panier" }).click();
+    const drawer = page.locator("dialog.drawer");
+    await expect(drawer).toBeVisible();
+    await drawer.getByRole("button", { name: "Ajouter une pièce" }).click();
+    await expect(drawer.locator(".drawer__total dd")).toHaveText(/^200,00\s€$/);
+    // la livraison n'est pas encore comptée : le total du tiroir le dit
+    await expect(drawer.locator(".drawer__total dt")).toHaveText("Total hors livraison");
+    await drawer.getByRole("link", { name: "Commander" }).click();
+    await expect(page).toHaveURL(/\/commande$/);
+    await waitForHydration(page);
+    // rien de flottant pendant le paiement ; les moyens de paiement ne s'offrent qu'une fois
+    await expect(page.locator(".assistant-launcher")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Apple Pay" })).toHaveCount(0);
+    await expect(page.locator("form.checkout-form")).toHaveAttribute("novalidate", "");
+
+    // « Payer » à vide : un message sous chaque champ oublié, le curseur au premier, libellé visible
+    await page.getByRole("button", { name: /^Payer/ }).click();
+    const email = page.getByLabel("E-mail", { exact: true });
+    await expect(email).toBeFocused();
+    await expect(email).toHaveAttribute("aria-invalid", "true");
+    await expect(page.getByText("Indiquez une adresse e-mail complète, par exemple prenom@exemple.fr.")).toBeVisible();
+    for (const m of ["Indiquez votre prénom.", "Indiquez votre nom.", "Indiquez l’adresse de livraison.", "Indiquez le code postal.", "Indiquez la ville.", "Cochez cette case pour accepter les conditions générales de vente."]) {
+      await expect(page.getByText(m)).toBeVisible();
+    }
+    await expect
+      .poll(() => page.evaluate(() => document.querySelector("label[for='co-email']")!.getBoundingClientRect().top - document.querySelector(".site-header__band")!.getBoundingClientRect().bottom))
+      .toBeGreaterThanOrEqual(0);
+    await expect(page.locator("#co-zip")).toHaveAttribute("inputmode", "numeric");
+    await expect(page.locator("#co-exp")).toHaveAttribute("inputmode", "numeric");
+
+    await email.fill("quantite.e2e@exemple.fr");
+    await expect(page.getByText("Indiquez une adresse e-mail complète, par exemple prenom@exemple.fr.")).toHaveCount(0);
+    await page.getByLabel("Prénom").fill("Alma");
+    await page.getByLabel("Nom", { exact: true }).fill("Test");
+    await page.getByLabel("Adresse", { exact: true }).fill("12 rue de la Dentelle");
+    await page.getByLabel("Code postal").fill("75011");
+    await page.getByLabel("Ville").fill("Paris");
+    await page.getByRole("checkbox", { name: /j’accepte les conditions générales de vente/i }).check();
+    await page.getByRole("button", { name: /^Payer/ }).click();
+
+    // la confirmation se lit comme la facture : taille, quantité, prix de la ligne, puis le total
+    await expect(page).toHaveURL(/\/commande\/confirmation/);
+    const ligne = page.locator(".confirmation__line").first();
+    await expect(ligne).toContainText("La robe Odessa");
+    await expect(ligne.locator(".t-label")).toHaveText("Taille XS · Qté 2");
+    await expect(ligne.locator(".price")).toHaveText(/^200,00\s€$/);
+    await expect(page.locator(".confirmation .totals__total dd")).toHaveText(/^209,00\s€$/);
+    await expect(page.locator(".assistant-launcher")).toHaveCount(0);
   });
 
   test("pièce créée sur demande : toutes les tailles, délai annoncé, jamais épuisée", async ({ page }) => {

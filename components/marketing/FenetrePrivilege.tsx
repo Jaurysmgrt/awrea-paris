@@ -2,7 +2,9 @@
 /**
  * Fenêtre « Profitez de votre privilège » (cahier du site du 10/11, § 8) : le texte de la créatrice,
  * un champ e-mail, une case de consentement non cochée (distincte de la création de compte), un
- * bouton noir en pilule, une croix ; les conditions de l'offre en une ligne.
+ * bouton noir en pilule, une croix ; les conditions de l'offre en une ligne. Sur téléphone, un panneau
+ * en bas de l'écran, à la hauteur de son contenu, les conditions repliées derrière « Conditions de
+ * l'offre » (parcours UX du 23/11 : la fenêtre couvrait tout l'écran).
  *
  * Sobre et rare : quelques secondes après l'arrivée, au plus une fois tous les 30 jours après une
  * fermeture, jamais pour une personne inscrite depuis ce navigateur, jamais tant que le bandeau
@@ -47,6 +49,8 @@ export function FenetrePrivilege() {
   const [etat, setEtat] = useState<"repos" | "envoi" | "merci">("repos");
   const [erreurs, setErreurs] = useState<Champ[]>([]);
   const [alerte, setAlerte] = useState("");
+  // téléphone : conditions repliées (dès la tablette, toujours lisibles : le bouton est masqué)
+  const [conditions, setConditions] = useState(false);
   const dejaVue = useRef(false);
 
   // le moment de se présenter : choix des cookies fait, page permise, aucune autre fenêtre ouverte
@@ -228,12 +232,19 @@ export function FenetrePrivilege() {
                     {alerte}
                   </p>
                 ) : null}
-                <p className="t-note t-left privilege__conditions">
-                  {t.conditions}{" "}
-                  <Link href={t.confidentialite.href} className="text-link">
-                    {t.confidentialite.label}
-                  </Link>
-                </p>
+                <div className="privilege__pied">
+                  <button type="button" className="link link--quiet privilege__deplier" aria-expanded={conditions} aria-controls={`${id}-conditions`} onClick={() => setConditions((v) => !v)}>
+                    {t.conditionsTitre}
+                  </button>
+                  <p className="t-note t-left privilege__conditions">
+                    <span id={`${id}-conditions`} className="privilege__conditions-texte" data-replie={!conditions || undefined}>
+                      {t.conditions}
+                    </span>{" "}
+                    <Link href={t.confidentialite.href} className="text-link">
+                      {t.confidentialite.label}
+                    </Link>
+                  </p>
+                </div>
               </form>
             </>
           )}

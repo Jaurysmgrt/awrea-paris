@@ -5,7 +5,9 @@
   },
   "titre": "Liste d’envies",
   "chargement": "Chargement…",
-  "vide": "Votre liste d’envies est vide. Touchez le losange « Garder » sur une pièce pour la retrouver ici.",
+  "vide": "Votre liste d’envies est vide. Touchez le cœur « Garder » sur une pièce pour la retrouver ici.",
+  "retirer": "Retirer de la liste",
+  "retirerPiece": "Retirer de la liste d’envies : {piece}",
   "videLien": {
     "label": "Voir les pièces",
     "href": "/boutique"

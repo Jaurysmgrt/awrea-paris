@@ -1338,7 +1338,9 @@
     justify-items: start;
     gap: var(--spacing-2xs);
   }
-  .switch {
+  /* interrupteurs de l'Atelier (role="switch") : limités à .admin, ils ne touchent pas ceux du
+     site (cookies, préférences du compte : styles/layout.css) */
+  .admin .switch {
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -1350,7 +1352,7 @@
     font-size: var(--text-step-0);
     line-height: var(--leading-label);
   }
-  .switch__track {
+  .admin .switch__track {
     position: relative;
     width: calc(var(--spacing-m) * 2);
     height: var(--spacing-m);
@@ -1358,7 +1360,7 @@
     border-radius: var(--radius-pill);
     transition: background-color var(--dur) var(--ease);
   }
-  .switch__track::after {
+  .admin .switch__track::after {
     content: "";
     position: absolute;
     inset-block: calc(var(--spacing-3xs) / 2);
@@ -1370,18 +1372,18 @@
       translate var(--dur) var(--ease),
       background-color var(--dur) var(--ease);
   }
-  .switch[aria-checked="true"] .switch__track {
+  .admin .switch[aria-checked="true"] .switch__track {
     background: var(--fg);
   }
-  .switch[aria-checked="true"] .switch__track::after {
+  .admin .switch[aria-checked="true"] .switch__track::after {
     background: var(--bg);
     translate: var(--spacing-m) 0;
   }
-  .switch:focus-visible {
+  .admin .switch:focus-visible {
     outline: var(--border-width-focus) solid var(--fg);
     outline-offset: var(--spacing-3xs);
   }
-  .switch[disabled] {
+  .admin .switch[disabled] {
     opacity: 0.6;
     cursor: progress;
   }

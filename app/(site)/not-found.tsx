@@ -9,7 +9,7 @@ export default async function NotFound() {
   const t = await getDoc<Introuvable>("introuvable");
   return (
     <Section theme="ink" className="not-found">
-      <div className="container-text t-center stack-m not-found__inner">
+      <div className="container-prose t-center stack-m not-found__inner">
         <p className="eyebrow">{t.surtitre}</p>
         <h1 className="t-giant">{t.titre}</h1>
         <p className="t-lead t-center">{t.texte}</p>

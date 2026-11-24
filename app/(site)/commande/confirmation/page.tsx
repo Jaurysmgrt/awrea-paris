@@ -95,10 +95,12 @@ export default async function ConfirmationPage({
                 <p className="t-label">{statusLabel[order.status]}</p>
                 <ul className="stack">
                   {order.lines.map((l, i) => (
+                    // taille, quantité et prix de la ligne, comme le récapitulatif, l'e-mail et la facture :
+                    // les lignes, la remise et la livraison recomposent le total
                     <li key={i} className="confirmation__line">
                       <span className="t-body">{l.title}</span>
-                      <span className="t-label t-soft">{fill(t.taille, { taille: l.size })}</span>
-                      <span className="price">{formatPrice(l.unitPrice, locale)}</span>
+                      <span className="t-label t-soft">{fill(commerce.commande.ligne, { taille: l.size, n: l.quantity })}</span>
+                      <span className="price">{formatPrice(l.unitPrice * l.quantity, locale)}</span>
                     </li>
                   ))}
                 </ul>

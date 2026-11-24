@@ -43,7 +43,7 @@ export default async function MaisonPage() {
 
       <Section theme="ivory" className="section section--flush-top" aria-label={t.titre}>
         <div className={`container ${styles.apropos}`}>
-          <Visuel image={t.portrait} legende={t.legende} priority className={styles.portrait} sizes="(min-width: 48rem) 40vw, 100vw" />
+          <Visuel image={t.portrait} legende={t.legende} priority className={styles.portrait} sizes="(min-width: 64rem) 40vw, (min-width: 48rem) 31rem, 100vw" />
           <div className={ed.texte} data-officiel>
             {t.apropos.paragraphes.map((p) => (
               <p key={p} className="t-body">

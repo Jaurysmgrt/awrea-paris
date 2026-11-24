@@ -45,7 +45,7 @@ export function ProductGallery({ product }: { product: Product }) {
           <li key={s.key} data-index={i} className={`gallery__slide gallery__slide--${s.kind}`}>
             {s.kind === "image" ? (
               <>
-                <Media image={s.img} priority={i === 0} eager sizes="(min-width: 64rem) 35vw, 88vw" />
+                <Media image={s.img} priority={i === 0} eager sizes="(min-width: 64rem) 50vw, 88vw" />
                 <ProvisionalNote image={s.img} />
               </>
             ) : s.kind === "video" && product.video ? (

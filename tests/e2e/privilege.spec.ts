@@ -85,6 +85,28 @@ test.describe("Fenêtre « Profitez de votre privilège »", () => {
     await expect(f).toBeHidden();
   });
 
+  test("sur téléphone : un panneau en bas de l’écran, à la hauteur de son contenu, conditions repliées", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await acceptCookies(page, { privilege: true });
+    await page.goto("/boutique");
+    const f = fenetre(page);
+    await expect(f).toBeVisible({ timeout: ATTENTE });
+    await expect.poll(async () => {
+      const b = (await f.boundingBox())!;
+      return Math.round(b.y + b.height) === 844 && b.width === 390 && b.y > 0;
+    }).toBe(true);
+    const conditions = f.getByText(/Valable 14 jours après la confirmation de votre inscription/);
+    await expect(conditions).toBeHidden();
+    await expect(f.getByRole("link", { name: "Politique de confidentialité" })).toBeVisible();
+    const deplier = f.getByRole("button", { name: "Conditions de l’offre" });
+    await expect(deplier).toHaveAttribute("aria-expanded", "false");
+    await deplier.click();
+    await expect(deplier).toHaveAttribute("aria-expanded", "true");
+    await expect(conditions).toBeVisible();
+    await f.getByRole("button", { name: "Fermer la fenêtre" }).click();
+    await expect(f).toBeHidden();
+  });
+
   test("absente du paiement, du compte et tant que le panier est ouvert ; la croix ferme", async ({ page }) => {
     test.setTimeout(120_000);
     await acceptCookies(page, { privilege: true });
