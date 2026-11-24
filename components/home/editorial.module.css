@@ -104,6 +104,7 @@
 @media (max-width: 63.99rem) {
   .citation > p {
     font-size: var(--text-step-0);
+    line-height: var(--leading-line);
   }
 }
 

@@ -15,10 +15,44 @@ un fichier.
 | --- | --- | --- | --- |
 | `POLICE TITRES.ttf` | Fraunces 72pt Italic, graisse 400 (Undercase Type), 683 glyphes | Les petits titres de 25 px (`--font-display`, `--font-style-display`). WOFF2 réduit aux alphabets latins : `styles/fonts/fraunces-72pt-italic-latin.woff2` (26 Ko) | SIL Open Font License 1.1 : usage web, incorporation et réduction autorisés, sans vente de la police seule ; licence jointe (`styles/fonts/OFL-fraunces.txt`). Aucun nom réservé. |
 | `POLICE GRANDS TITRES.ttf` | Fraunces 120pt Light, graisse 300, droite (Undercase Type) : face statique tirée le 27/10/2026 de la police variable Fraunces de Google Fonts (taille optique 120, graisse 300, SOFT 0, WONK 1), à la demande de la créatrice (« Fraunces 120 Light ») | Les grands titres de 28 px et plus (`--font-display`, `--font-style-title`, `--font-weight-title`). WOFF2 réduit aux alphabets latins : `styles/fonts/fraunces-120pt-light-latin.woff2` (20 Ko), mêmes caractères que la police des titres | SIL Open Font License 1.1, comme la police des titres (`styles/fonts/OFL-fraunces.txt`). Aucun nom réservé. |
-| `POLICE TEXTES.ttf` | Cormorant Garamond Regular, graisse 400 (Christian Thalmann, Catharsis Fonts), 2 818 glyphes | Textes courants, navigation, boutons, formulaires (`--font-body`). WOFF2 latin : `styles/fonts/cormorant-garamond-latin-400.woff2` (40 Ko), crénage, ligatures, chiffres elzéviriens et petites capitales conservés | SIL Open Font License 1.1, mêmes libertés ; licence jointe (`styles/fonts/OFL-cormorant-garamond.txt`). |
+| `POLICE TEXTES.ttf` | Cormorant Garamond Regular, graisse 400 (Christian Thalmann, Catharsis Fonts), 2 818 glyphes | Police des textes jusqu'au 22/11/2026, remplacée par Avenir Next (choix de la créatrice du 23/11, ci-dessous). **Plus chargée par aucune page** ni aucun e-mail. Ses fichiers restent : TTF des factures et étiquettes PDF (`assets/pdf/CormorantGaramond-Regular.ttf`, intégré au PDF), WOFF2 de `public/fonts` pour les e-mails déjà envoyés, WOFF2 de `styles/fonts` | SIL Open Font License 1.1, mêmes libertés ; licence jointe (`styles/fonts/OFL-cormorant-garamond.txt`). |
 | `POLICE LOGO.otf` | Croisan, édition « Personal Use » (Hishand Studio, Putu Dody Permana, 2024) | Réservée au logo et au monogramme. **Non chargée par le site** : le logo s'affiche à partir des fichiers officiels du dossier LOGO | Le fichier fourni est l'édition « Personal Use » ; la créatrice indique le 25/10/2026 avoir acheté la licence commerciale de Hishand Studio (https://hishandstudio.com/license) : garder la facture. Une licence de bureau ne couvre pas toujours l'usage en police web : le site continue de ne pas la charger. Le fichier n'est pas publié dans ce dépôt public (`.gitignore`) ; une version WOFF2 est préparée hors du site (`ressources-awrea/TYPO/web/`, ignorée par Git) pour le jour où la licence sera achetée. Le logo lui-même semble dessiné avec cette police : à vérifier avec l'éditeur. |
 
 Les polices provisoires Instrument Serif, General Sans et Inter Tight sont retirées du site.
+
+### Police des textes : Avenir Next (choix de la créatrice du 23/11/2026)
+
+La créatrice veut Avenir Next Regular pour les textes, la navigation, les menus, les boutons, les
+formulaires et les petits textes ; Fraunces reste pour les titres.
+
+| Police | Où elle s'affiche | Fichier dans le projet | Droits d'usage web |
+| --- | --- | --- | --- |
+| Avenir Next Regular, graisse 400 (Adrian Frutiger et Akira Kobayashi, Linotype, aujourd'hui Monotype) | iPhone, iPad et Mac, où elle est installée d'origine : la pile des textes l'appelle par son nom (`"Avenir Next"`, puis `"Avenir"`, `--font-body`), sans fichier ni `@font-face` | **Aucun.** Elle n'est pas dans `ressources-awrea/` ni dans le dépôt, et la Maison n'a rien acheté | Police commerciale. L'appeler par son nom sur un appareil qui l'a déjà ne demande aucune licence. La servir à tous (Windows, Android) demande une **licence web** auprès de Monotype (MyFonts ou Monotype Fonts), à acheter par la Maison si elle le souhaite |
+| Mulish Regular, graisse 400 (The Mulish Project Authors), police libre proche, sous son vrai nom | Windows, Android, Linux : partout où Avenir Next manque. Le navigateur ne la télécharge que dans ce cas (`preload: false`, `unicode-range`) | `styles/fonts/mulish-latin-400.woff2` (13 Ko), sous-ensemble latin de Google Fonts, pris dans le paquet npm `@fontsource/mulish` 5.3.0 (version 3.603 de la police), sans l'ajouter aux dépendances | SIL Open Font License 1.1 : usage web, incorporation et réduction autorisés ; licence jointe (`styles/fonts/OFL-mulish.txt`). Aucun nom réservé |
+
+- Aucune police ne prend le nom d'Avenir : Mulish garde le sien (`mulish` dans le CSS), et
+  `npm run audit:tokens` refuse tout `@font-face` au nom d'Avenir.
+- **Emplacement prévu pour Avenir Next sous licence web**, si la Maison en achète une : ses fichiers
+  WOFF2 dans `styles/fonts/avenir-next-*.woff2` et sa licence dans `styles/fonts/LICENCE-avenir-next.*`
+  (noms déjà admis par `npm run audit:tokens`), déclarés dans `app/fonts.ts` comme Mulish (une
+  constante `avenirNext`, sa variable CSS en tête de `--font-body`, avant `"Avenir Next"`). Tant
+  qu'ils n'existent pas, rien ne les référence : aucune adresse ne répond 404.
+- Mesures : Mulish, mesurée sur son fichier, a une hauteur d'x de 0,50 em et une chasse moyenne de
+  0,453 em sur les textes français du site. Avenir Next n'a pas pu être mesurée (aucun fichier, et
+  aucune donnée publiée sous une forme vérifiable n'a été trouvée sans télécharger la police) : sa
+  hauteur d'x est un peu plus petite, de l'ordre de 0,47 em. Les tailles (18 px pour le texte, 16 px
+  au plus petit) et la mesure (29 em, 64 caractères de Mulish) valent pour les deux : une chasse
+  d'Avenir Next jusqu'à 7 % plus étroite ou plus large que celle de Mulish donne encore 60 à 70
+  caractères par ligne. À vérifier à l'œil sur un iPhone ou un Mac.
+- Caractères absents de Mulish (sous-ensemble latin) : le trait d'union insécable (U+2011, absent
+  aussi de Cormorant Garamond : il ne peut donc pas retenir « e-mail » sur une ligne), le trait
+  d'union U+2010, l'espace fine insécable (U+202F) et la flèche → (U+2192). Seule l'espace fine paraît
+  sur le site (quelques messages du paiement, `content/site/fr/commerce.json`) : le navigateur la
+  prend alors dans la police suivante de la pile (Arial), sans différence visible pour une espace.
+- E-mails : aucun fichier téléchargé pour le texte (les messageries ignorent souvent les polices) ;
+  la pile « Avenir Next », Avenir, « Helvetica Neue », Helvetica, Arial (`fontStacks.text`,
+  `styles/tokens.ts`). Factures et étiquettes PDF : inchangées, elles intègrent le TTF de Cormorant
+  Garamond, faute de fichier Avenir Next.
 
 ### LOGO
 
@@ -33,7 +67,7 @@ Les polices provisoires Instrument Serif, General Sans et Inter Tight sont retir
 
 | Fichier | Ce qu'il fixe | Où |
 | --- | --- | --- |
-| `EN-TÊTE DU SITE.png` | Logo centré, navigation centrée dessous : Accueil (souligné quand actif), Sur commande ⌄, Collections ⌄, Contact, Mon Panier ⌄ ; textes en Cormorant Garamond | `components/layout/Header.tsx`, `Menu.tsx`, `content/site/fr/navigation.json` |
+| `EN-TÊTE DU SITE.png` | Logo centré, navigation centrée dessous : Accueil (souligné quand actif), Sur commande ⌄, Collections ⌄, Contact, Mon Panier ⌄ ; textes en Cormorant Garamond (en Avenir Next depuis le 23/11) | `components/layout/Header.tsx`, `Menu.tsx`, `content/site/fr/navigation.json` |
 | `BAS DE PAGE.png` | Filet fin centré, quatre colonnes : LA MARQUE (Contact, À propos), SERVICE CLIENT (Guide des tailles, Livraison & retours), LÉGAL (Mentions légales, CGV), NOUS SUIVRE (Instagram, pastille noire) ; « © Awrea Paris 2026 » centré dessous | `components/layout/Footer.tsx` |
 | `PAGE PRODUIT.png` | Collection « Hypnotic Lace » : grand titre centré, colonne « Filtrer par » (Catégorie : Tout, Robes, Bodys ; Prix ; Taille ; Collection), filets fins entre les filtres, cartes à photo aux angles arrondis, pastille noire « Nouveau », nom (« Le body Aura ») et prix (« 70,00 € ») | Pages collection et boutique, `components/commerce/ProductCard.tsx`, filtres ; langage repris sur la fiche produit |
 | `FORMULAIRE CONTACT.png` | Titre « Contact », photo à gauche (sacs à l'effigie de la Maison), formulaire à droite : champs soulignés d'un filet (Prénom *, Nom, E-mail *, Adresse, Téléphone, Informations complémentaires), bouton noir arrondi pleine largeur | Page `/contact`. Le visuel des sacs est découpé dans la maquette (`public/media/img/contact-sacs`, provisoire) |
