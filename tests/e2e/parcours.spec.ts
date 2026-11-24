@@ -33,7 +33,7 @@ test("Parcours : du modèle au journal de simulation, sans aucun envoi réel", a
   await expect(envois).not.toContainText("PARCOURS_ENVOIS_REELS");
 
   // créer le brouillon depuis le modèle « Nouvelle inscrite »
-  await page.getByRole("button", { name: "Créer le brouillon « Nouvelle inscrite »" }).click();
+  await page.getByRole("button", { name: "Créer ce brouillon « Nouvelle inscrite »" }).click();
   await page.waitForURL(/\/e-mails\/parcours\/p-[a-z0-9]+$/);
   const adresse = page.url();
   await expect(page.getByRole("heading", { level: 1, name: "Nouvelle inscrite" })).toBeVisible();

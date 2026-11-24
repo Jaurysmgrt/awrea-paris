@@ -2268,6 +2268,13 @@
     .admin .table--commandes td[data-titre="À faire"] {
       grid-area: gestes;
     }
+    /* la carte garde le nom ; l'adresse e-mail reste sur la fiche */
+    .admin .table--commandes :is(.table__mail, td[data-titre="Cliente"] br) {
+      display: none;
+    }
+    .admin .table--commandes td[data-titre="À faire"]:has(.table__gestes:empty) {
+      display: none;
+    }
     .admin .table--commandes .table__gestes {
       display: flex;
       flex-wrap: wrap;
@@ -2304,20 +2311,45 @@
     }
   }
   .ancre-resultats {
-    display: block;
     scroll-margin-top: var(--spacing-m);
   }
   /* cibles tactiles entières : numéros, prénoms, « Modifier », liens d'une ligne, champs */
   @media (pointer: coarse) {
     .admin :is(th, td) > a.text-link,
-    .admin .liste-simple a,
-    .admin .btn--link {
+    .admin .liste-simple a.text-link {
       display: inline-flex;
       align-items: center;
+      min-height: var(--spacing-touch);
+    }
+    .admin .btn--link {
       min-height: var(--spacing-touch);
     }
     .admin .field__input {
       min-height: var(--spacing-touch);
     }
+  }
+}
+
+/* Petits constats du parcours UX (23/11) : colonne de connexion de largeur fixe d'une étape à
+   l'autre, chiffres de l'accueil alignés, focus clavier visible sur le menu et les champs,
+   transitions d'outil plus vives (un tiers de la durée du site, coupées en animations apaisées). */
+@layer components {
+  .admin-login > .stack-m {
+    width: 100%;
+  }
+  .kpis > div {
+    align-content: start;
+  }
+  .admin .admin-nav__link:focus-visible {
+    outline: var(--border-width-focus) solid var(--fg);
+    outline-offset: var(--spacing-hair);
+  }
+  .admin .field__input:focus-visible {
+    outline: var(--border-width-focus) solid var(--fg);
+    outline-offset: var(--spacing-hair);
+  }
+  .admin,
+  .admin-login-shell {
+    --dur: calc(var(--dur-stagger) * 4);
   }
 }

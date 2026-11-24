@@ -1001,7 +1001,7 @@ export function EmailEditor({ id, initial, draftAt, publishedAt, products }: { i
                 sandbox="allow-same-origin"
                 srcDoc={html}
                 onLoad={brancher}
-                style={{ width: `${largeur}px`, height: `${taille.h / echelle}px`, left: `${Math.max(0, (taille.w - largeur * echelle) / 2)}px`, transform: `scale(${echelle})` }}
+                style={{ width: `${largeur}px`, height: `${taille.h / echelle}px`, left: `${Math.max(0, (taille.w - largeur * echelle) / 2)}px`, transform: `scale(${echelle})`, colorScheme: dark ? "dark" : "light" }}
               />
             </div>
           </div>

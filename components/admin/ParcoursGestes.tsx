@@ -44,7 +44,7 @@ export function CreerDepuisModele({ modele, nom }: { modele: string; nom: string
         type="button"
         className="btn btn--outline"
         disabled={busy}
-        aria-label={`Créer le brouillon « ${nom} »`}
+        aria-label={`Créer ce brouillon « ${nom} »`}
         onClick={async () => {
           const r = await envoyer({ action: "creer", modele });
           if (r?.id) router.push(atelier.href(`/e-mails/parcours/${String(r.id)}`));

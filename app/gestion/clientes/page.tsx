@@ -121,11 +121,10 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
             </Link>
           </p>
         ) : null}
-        <span id="resultats" className="ancre-resultats" />
         {!shown.length ? (
-          <p className="t-body">{customers.length ? "Aucune cliente ne correspond. Essayez un autre mot ou une autre catégorie." : "Aucune cliente pour l’instant."}</p>
+          <p id="resultats" className="t-body ancre-resultats">{customers.length ? "Aucune cliente ne correspond. Essayez un autre mot ou une autre catégorie." : "Aucune cliente pour l’instant."}</p>
         ) : (
-          <div className="table-scroll">
+          <div id="resultats" className="table-scroll ancre-resultats">
             <table className="table table--clientes" role="table">
               <thead role="rowgroup">
                 <tr role="row">
@@ -178,7 +177,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
       <section className="panel" aria-labelledby="sources-title">
         <h2 id="sources-title" className="t-h3">Ventes par source · 90 jours</h2>
         <p className="t-note">D’où vient chaque commande.</p>
-        <div className="table-scroll">
+        <div className="table-scroll" tabIndex={0} role="region" aria-labelledby="sources-title">
           <table className="table">
             <thead>
               <tr>
@@ -209,7 +208,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
         <p className="t-note">
           Envoi par {marketingProvider === "brevo" ? "Brevo" : marketingProvider === "klaviyo" ? "Klaviyo et le site" : "le site"}.
         </p>
-        <div className="table-scroll">
+        <div className="table-scroll" tabIndex={0} role="region" aria-labelledby="flows-title">
           <table className="table">
             <thead>
               <tr>

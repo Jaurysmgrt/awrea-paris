@@ -136,11 +136,10 @@ export default async function CommandesPage({ searchParams }: { searchParams: Pr
         ) : null}
         {source === "demo" ? <p className="t-note">Démonstration : des commandes d’exemple accompagnent celles passées en essai.</p> : null}
         {trouvees.length > AFFICHEES ? <p className="t-note">Les {AFFICHEES} plus récentes sont affichées : affinez la recherche pour trouver les autres.</p> : null}
-        <span id="resultats" className="ancre-resultats" />
         {!orders.length ? (
-          <p className="t-body">{toutes.length ? "Aucune commande ne correspond. Essayez un autre mot, une autre étape ou une autre période." : "Aucune commande pour l’instant."}</p>
+          <p id="resultats" className="t-body ancre-resultats">{toutes.length ? "Aucune commande ne correspond. Essayez un autre mot, une autre étape ou une autre période." : "Aucune commande pour l’instant."}</p>
         ) : (
-        <div className="table-scroll">
+        <div id="resultats" className="table-scroll ancre-resultats">
           {/* six colonnes qui tiennent dans l'écran (capture de la créatrice du 01/11 : dix colonnes
               débordaient et écrasaient les pièces mot par mot) ; facture, certificats et suivi du
               transporteur sont sur la fiche de chaque commande */}

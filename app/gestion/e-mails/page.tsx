@@ -38,7 +38,7 @@ export default async function LettrePage() {
         <div className="lettre">
           <iframe className="lettre__apercu" title="Aperçu de la lettre" sandbox="" srcDoc={mail?.html ?? ""} loading="lazy" />
           <div className="stack-m">
-            <p className="t-h4">{etat.sujet && !etat.sujet.startsWith("[") ? etat.sujet : "Sans objet pour l’instant"}</p>
+            <p className="t-h4">{etat.sujet && !etat.sujet.startsWith("[") ? etat.sujet : "Objet encore à écrire"}</p>
             <p>
               <span className={etat.prete ? "status status--done" : "status status--proposed"}>{etat.prete ? "Prête à partir" : "Pas encore prête"}</span>
             </p>

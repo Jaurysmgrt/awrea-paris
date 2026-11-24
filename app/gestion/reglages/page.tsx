@@ -149,7 +149,7 @@ export default async function ReglagesPage() {
       <section className="panel" aria-labelledby="delais-title">
         <h2 id="delais-title" className="t-h3">Délais de fabrication</h2>
         <p className="t-note">Il se règle pièce par pièce dans Produits.</p>
-        <div className="table-scroll"><table className="table">
+        <div className="table-scroll" tabIndex={0} role="region" aria-labelledby="delais-title"><table className="table">
           <thead><tr><th scope="col">Catégorie</th><th scope="col">Délai par défaut</th><th scope="col">Pièces</th></tr></thead>
           <tbody>
             {CATEGORIES.map((c) => {
@@ -242,7 +242,7 @@ export default async function ReglagesPage() {
         </p>
         <details className="replie">
           <summary className="t-label">Les protections du site</summary>
-        <div className="table-scroll"><table className="table">
+        <div className="table-scroll" tabIndex={0} role="region" aria-label="Les protections du site"><table className="table">
           <thead><tr><th scope="col">Protection</th><th scope="col">État</th></tr></thead>
           <tbody>
             {security.map((s) => (
@@ -265,7 +265,7 @@ export default async function ReglagesPage() {
           </details>
         </details>
         <h3 className="t-label" id="personnes">Accès à l’Atelier</h3>
-        <div className="table-scroll"><table className="table">
+        <div className="table-scroll" tabIndex={0} role="region" aria-label="Accès à l’Atelier"><table className="table">
           <thead><tr><th scope="col">Adresse</th><th scope="col">Accès</th><th scope="col">État</th><th scope="col">Dernière connexion</th><th scope="col">Actions</th></tr></thead>
           <tbody>
             {accounts.map((a, i) => {
@@ -287,7 +287,7 @@ export default async function ReglagesPage() {
                             : "Première connexion à faire"
                           : !hasTotp(a)
                             ? "Double authentification à configurer"
-                            : `Prêt, ${recoveryLeft(a)} code(s) de secours`}
+                            : `Prêt, ${recoveryLeft(a)} code${recoveryLeft(a) > 1 ? "s" : ""} de secours`}
                     </span>
                   </td>
                   <td>{a.lastLoginAt ? <When iso={a.lastLoginAt} /> : "Jamais"}</td>
@@ -334,7 +334,7 @@ export default async function ReglagesPage() {
         <details className="replie">
           <summary className="t-label">Journal des connexions</summary>
         {events.length ? (
-          <div className="table-scroll"><table className="table">
+          <div className="table-scroll" tabIndex={0} role="region" aria-label="Journal des connexions"><table className="table">
             <thead><tr><th scope="col">Date</th><th scope="col">Évènement</th><th scope="col">Appareil</th><th scope="col">Réseau</th></tr></thead>
             <tbody>
               {events.map((e, i) => (
@@ -347,7 +347,7 @@ export default async function ReglagesPage() {
         )}
         </details>
         <div className="proposal__actions">
-          <ActionButton endpoint={atelierApi("/securite/sessions")} label="Déconnecter tous les appareils" confirm="Fermer toutes les sessions de l’Atelier, y compris celle-ci ?" />
+          <ActionButton endpoint={atelierApi("/securite/sessions")} label="Déconnecter tous les appareils" variant="outline" confirm="Fermer toutes les sessions de l’Atelier, y compris celle-ci ?" />
           <ActionButton endpoint={atelierApi("/securite/totp")} label="Réinitialiser la double authentification" variant="quiet" confirm="Réinitialiser la double authentification ? Vous devrez scanner un nouveau QR code à la prochaine connexion." />
         </div>
       </section>
@@ -355,7 +355,7 @@ export default async function ReglagesPage() {
         <section className="panel" aria-labelledby="reset-title">
           <h2 id="reset-title" className="t-h3">Données de démonstration</h2>
           <p className="t-body">Efface les commandes de test, messages, propositions, journaux, factures, certificats et contenus générés, et rétablit les pièces d’origine (prix, délais de fabrication, indicateurs provisoires). Les numéros de création déjà attribués ne reviennent jamais.</p>
-          <ActionButton endpoint={atelierApi("/reset")} label="Réinitialiser la démonstration" confirm="Effacer toutes les données de démonstration ?" />
+          <ActionButton endpoint={atelierApi("/reset")} label="Réinitialiser la démonstration" variant="outline" confirm="Effacer toutes les données de démonstration ?" />
         </section>
       ) : null}
     </div>

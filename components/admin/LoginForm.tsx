@@ -92,11 +92,16 @@ export function LoginForm({ next }: { next: string }) {
       <form
         key="setup"
         className="stack-m admin-login__form"
+        noValidate
         onSubmit={async (e) => {
           e.preventDefault();
+          const f = new FormData(e.currentTarget);
+          // le message de la Maison, jamais la bulle du navigateur (parcours UX du 23/11)
+          const choisi = String(f.get("new-password") ?? "");
+          if (choisi.length < 12) return setError("Douze caractères au moins : une courte phrase se retient bien.");
+          if (choisi !== String(f.get("confirm") ?? "")) return setError("Les deux saisies ne sont pas identiques.");
           setBusy(true);
           setError("");
-          const f = new FormData(e.currentTarget);
           const { ok, json } = await post(api("/login/setup"), { password: f.get("new-password"), confirm: f.get("confirm") });
           setBusy(false);
           if (!ok) {
