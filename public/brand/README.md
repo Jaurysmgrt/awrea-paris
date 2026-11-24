@@ -15,7 +15,10 @@ gabarit du code de connexion de Supabase (`supabase/templates/code-de-connexion.
 
 L'image de partage par défaut (`app/opengraph-image.png`, 1 200 × 630) compose le logo officiel,
 « Hypnotic Lace » en Fraunces 72pt Italic et une ligne du texte de collection en Cormorant Garamond
-sur le blanc cassé de la Maison. La refaire quand le logo ou la collection change.
+sur le blanc cassé de la Maison. La refaire quand le logo ou la collection change. Depuis le 23/11,
+les textes du site sont en Avenir Next (Mulish là où elle manque) : l'image garde Cormorant pour sa
+ligne de texte tant qu'elle n'est pas refaite (`npm run ressources -- partage` lit les polices de
+`ressources-awrea/TYPO`, où Avenir Next n'est pas).
 
 Le logo provisoire d'avant les ressources officielles (« AW » en Instrument Serif : `logo*.svg`,
 `monogram*.svg` et leurs tracés `content/brand/logo-paths.ts`) est supprimé. La police du logo

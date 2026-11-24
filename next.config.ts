@@ -18,8 +18,9 @@ const config: NextConfig = {
   outputFileTracingIncludes: {
     // documents de contenu (content/site), relus à chaque publication de l’éditeur
     "/**": ["./content/brand/voice.md", "./content/site/**/*.json"],
-    // polices officielles des factures et étiquettes PDF (Fraunces 72pt Italic et Cormorant
-    // Garamond en TTF, assets/pdf) et logo officiel, lus sur le disque par pdf-lib
+    // polices des factures et étiquettes PDF (Fraunces 72pt Italic et Cormorant Garamond en TTF,
+    // assets/pdf, intégrées au PDF : Avenir Next n'a aucun fichier) et logo officiel, lus sur le
+    // disque par pdf-lib
     "/api/factures/**": ["./assets/pdf/**", "./public/brand/awrea-logo.png"],
     "/api/gestion/**": ["./assets/pdf/**", "./public/brand/awrea-logo.png"],
     "/api/checkout": ["./assets/pdf/**", "./public/brand/awrea-logo.png"],
@@ -62,7 +63,8 @@ const config: NextConfig = {
       {
         // polices officielles (licence OFL, publiques) : un e-mail les charge depuis la messagerie,
         // une autre origine que le site ; sans cet en-tête, les messageries qui l'exigent prennent
-        // le repli (Georgia) au lieu de Fraunces et de Cormorant Garamond
+        // le repli (Georgia) au lieu de Fraunces (le texte des e-mails, en Avenir Next ou Helvetica,
+        // n'a rien à charger ; Cormorant Garamond reste servie pour les e-mails déjà envoyés)
         source: "/fonts/:path*",
         headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
       },

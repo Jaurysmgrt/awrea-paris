@@ -10,7 +10,7 @@ import { ProvisionalNote } from "./ProvisionalNote";
 
 /**
  * Carte d'une pièce (maquette PAGE PRODUIT) : photo aux angles arrondis, seconde image puis vidéo
- * au survol ; sous la photo, au fer à gauche, la pastille noire « Nouveau », le nom en Cormorant
+ * au survol ; sous la photo, au fer à gauche, la pastille noire « Nouveau », le nom dans la police des textes
  * (« Le body Aura ») et le prix à la ligne (« 70,00 € »), puis le délai de fabrication de la pièce
  * créée sur demande. Une photo provisoire porte la mention « visuel provisoire ».
  */

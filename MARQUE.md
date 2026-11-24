@@ -241,28 +241,37 @@ pastille « Nouveau », photos des cartes aux angles arrondis. Primitives et cla
 - Mode Nuit : version noire complète, toujours automatique selon le réglage de l'appareil (aucun interrupteur). Boutons
   et pastilles s'y inversent (blanc cassé, texte noir).
 
-### Typographie — les deux polices officielles, pas une de plus
+### Typographie — Fraunces pour les titres, Avenir Next pour les textes
 
-- Polices **officielles de la Maison** (`ressources-awrea/TYPO`, `RESSOURCES.md`), **servies par le
-  site** (WOFF2 dans `styles/fonts`, licence libre OFL) : aucun appel à Google Fonts.
+- **Fraunces**, police officielle de la Maison (`ressources-awrea/TYPO`, `RESSOURCES.md`), **servie
+  par le site** (WOFF2 dans `styles/fonts`, licence libre OFL) : aucun appel à Google Fonts.
 - **Fraunces 120pt Light** (300), **droite** : les grands titres (28 px et plus), en très grand
   format, interlignage serré (choix de la créatrice du 27/10/2026 : la police variable Fraunces,
   licence OFL, figée à la taille optique 120 et à la graisse 300).
 - **Fraunces 72pt Italic** (400), **en italique** : les petits titres de 25 px (questions de la
   FAQ, lettres, signatures). Fraunces n'est **jamais employée sous 25 px** : les noms de pièces des
-  cartes et des lignes de commande se composent en Cormorant, comme sur la maquette PAGE PRODUIT.
-- **Cormorant Garamond** (400) : textes courants, navigation, boutons, formulaires, prix. Pas de
-  faux italique ni de faux gras (aucune face fournie) : l'emphase passe par l'échelle, la police
-  des titres ou le soulignement.
+  cartes et des lignes de commande se composent dans la police des textes, comme sur la maquette
+  PAGE PRODUIT.
+- **Avenir Next Regular** (400) : textes courants, descriptions, petits textes, informations de
+  livraison, étiquettes, menus, navigation, boutons, formulaires, prix (**choix de la créatrice du
+  23/11/2026**, à la place de Cormorant Garamond). Police commerciale : aucun fichier n'est dans le
+  projet. Elle s'affiche sur iPhone, iPad et Mac, où elle est installée ; ailleurs (Windows,
+  Android), **Mulish Regular**, police libre proche, sous son vrai nom, servie par le site et
+  téléchargée seulement dans ce cas. Jamais une autre police déguisée sous le nom d'Avenir. Pour
+  qu'Avenir Next s'affiche partout, la Maison peut acheter une licence web (`RESSOURCES.md`). Pas de
+  faux italique ni de faux gras (une seule face) : l'emphase passe par l'échelle, la police des
+  titres ou le soulignement.
+- Cormorant Garamond n'est plus chargée par aucune page ni aucun e-mail ; les factures et étiquettes
+  PDF la gardent (elles intègrent le fichier de leur police).
 - La police du logo (Croisan, licence personnelle) n'est **jamais chargée** : le logo s'affiche à
   partir des fichiers officiels (`content/brand/assets.ts`). Instrument Serif, Inter Tight et
   General Sans sont retirées.
-- Cormorant a un petit œil : texte courant **20 px**, interlignage **1,6** (32 px) ; chapeaux 25 px
-  (40 px) ; notes 18 px sur la ligne du texte courant (32 px, pour rester sur la grille de 8 px) ;
-  **jamais sous 16 px** (étiquettes, fil d'Ariane, pastilles).
-- Navigation, liens et boutons en bas de casse, à peine espacés (0,02 em), comme sur les
+- Avenir Next a un grand œil : texte courant **18 px** sur **32 px** (la ligne de la grille de
+  8 px : 18 × 1,6 en sortirait) ; chapeaux **20 px** sur 32 px (**1,6**) ; notes 16 px sur 24 px ;
+  **jamais sous 16 px** (étiquettes, fil d'Ariane, pastilles). Mêmes tailles avec Mulish.
+- Navigation, liens et boutons en bas de casse, **sans espacement ajouté**, comme sur les
   maquettes ; les intitulés (colonnes du pied de page, surtitres, en-têtes de tableau) en capitales
-  à l'interlettrage mesuré (0,08 em).
+  à peine ouvertes (0,04 em).
 - **Aucune calligraphie.** Prix au format « 70,00 € », en chiffres alignés.
 
 ### Alignement du texte
@@ -410,3 +419,4 @@ du site et de l'Atelier pour la créatrice : `GUIDE-CREATRICE.md`.
 | 15/10/2026 | Direction | Modèle de la Maison : pièces créées sur demande par des artisans français, sans stock ; délais de fabrication, cinq étapes de commande, numéro de création ; collection « Hypnotic Lace » et ses sept pièces ; plus de séries numérotées, de liste d'attente ni d'urgence (`DECISIONS.md`) |
 | 25/10/2026 | Créatrice | Texte aligné à gauche partout, plus aucun paragraphe justifié ; mode Nuit et animations apaisées toujours automatiques selon le réglage de l’appareil |
 | 27/10/2026 | Créatrice | Cahier des modifications : grands titres en Fraunces 120pt Light droite, corps de texte justifiés sur tablette et ordinateur (à gauche sur téléphone), fondu blanc entre les pages, plus de fausse dentelle sur les fonds noirs, cœur pour les envies, logo AW au pied de page, liens du pied sans soulignement, nouveaux textes de l’accueil et du menu |
+| 23/11/2026 | Créatrice | Cahier « Made to Order » : Avenir Next Regular pour tous les textes (paragraphes, menus, boutons, formulaires, petits textes), Fraunces gardée pour les titres ; Mulish, police libre, là où Avenir Next n'est pas installée ; texte courant 18 px sur 32, chapeaux 20 px, aucun espacement de lettres artificiel |

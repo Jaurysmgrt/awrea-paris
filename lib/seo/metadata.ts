@@ -18,7 +18,9 @@ export const siteDefaults = {
   /**
    * Image de partage par défaut (app/opengraph-image.png, servie à cette adresse) : logo officiel,
    * « Hypnotic Lace » en Fraunces 72pt Italic et une ligne du texte de collection en Cormorant
-   * Garamond, sur le blanc cassé de la Maison. Son texte alternatif : app/opengraph-image.alt.txt.
+   * Garamond (police des textes jusqu'au 22/11 ; image fixe, à refaire si la Maison le souhaite :
+   * public/brand/README.md), sur le blanc cassé de la Maison. Son texte alternatif :
+   * app/opengraph-image.alt.txt.
    */
   image: { url: "/opengraph-image.png", width: 1200, height: 630 },
 } as const;

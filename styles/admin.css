@@ -7,8 +7,8 @@
 
   /* ======================================== INTERFACE SIMPLE ET LISIBLE (09/11)
      Demande de la créatrice : l'Atelier « trop compliqué, trop de texte, brouillon », « une
-     bonne typo bien lisible, du Arial ». Dans l'Atelier seulement (le site garde ses deux polices
-     officielles) : la police système de l'appareil, des tailles d'outil (16 px), des titres nets
+     bonne typo bien lisible, du Arial ». Dans l'Atelier seulement (le site garde ses polices,
+     Fraunces et Avenir Next) : la police système de l'appareil, des tailles d'outil (16 px), des titres nets
      en demi-gras, des étiquettes en bas de casse, et chaque bloc posé comme une carte. Les classes
      de texte du site (.t-h1, .t-label…) lisent ces variables : rien d'autre à changer. */
   .admin,

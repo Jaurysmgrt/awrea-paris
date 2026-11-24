@@ -28,8 +28,8 @@ import s from "./fiche.module.css";
 
 /**
  * Fiche d'une pièce, dans le langage de la maquette PAGE PRODUIT : photos aux angles arrondis
- * (avec la mention « visuel provisoire » des images générées), pastille « Nouveau », nom en
- * Cormorant (« Le body Aura »), prix « 70,00 € », la taille et le bouton, puis le bloc « Créée
+ * (avec la mention « visuel provisoire » des images générées), pastille « Nouveau », nom dans la
+ * police des textes (« Le body Aura »), prix « 70,00 € », la taille et le bouton, puis le bloc « Créée
  * pour vous » (cahier du 23/11 : la pièce faite après la commande, son délai de confection, dit une
  * seule fois, et le lien vers les étapes) ; le reste (la pièce, les matières, la fabrication et le
  * certificat, la livraison) dans des rubriques fermées (retour de la créatrice du 01/11 : « trop de
