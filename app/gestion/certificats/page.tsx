@@ -1,3 +1,4 @@
+import { boutiqueReelle } from "@/lib/config/boutique";
 import Link from "@/components/ui/Link";
 import { creationText, listCertificates } from "@/lib/certificates";
 import { formatDate } from "@/lib/format";
@@ -26,6 +27,7 @@ export default async function CertificatsPage({ searchParams }: { searchParams: 
         <h2 id="certificates-title" className="t-h3">
           {certificates.length ? `${certificates.length} certificat${certificates.length > 1 ? "s" : ""}` : "Aucun certificat pour le moment"}
         </h2>
+        {!certificates.length && !boutiqueReelle() ? <p className="t-note t-left">Démonstration : un certificat naît quand une pièce passe à l’étape « Prête ». Les commandes d’exemple n’en ont pas d’avance.</p> : null}
         {certificates.length ? (
           <div className="table-scroll">
             <table className="table">

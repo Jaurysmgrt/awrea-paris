@@ -100,7 +100,7 @@ export default async function RendezVousAtelier({ searchParams }: { searchParams
         ) : null}
         {google.etat === "non-branche" ? (
           <p className="t-note">
-            La connexion à Google Agenda n’est pas encore branchée. Le guide d’activation explique comment la brancher, à l’étape Google Agenda. En attendant, l’adresse de la rubrique suivante montre vos rendez-vous dans votre agenda.
+            La connexion à Google Agenda n’est pas encore branchée : la personne qui s’occupe du site la branche (Réglages, Connexions). En attendant, l’adresse de la rubrique suivante montre vos rendez-vous dans votre agenda.
           </p>
         ) : google.etat === "deconnecte" ? (
           <>
@@ -141,9 +141,12 @@ export default async function RendezVousAtelier({ searchParams }: { searchParams
           </>
         )}
         {google.etat === "non-branche" || google.etat === "deconnecte" ? (
-          <p className="t-note">
-            Adresse de retour à déclarer chez Google : <code className="lien-prive">{adresseRetour()}</code>
-          </p>
+          <details className="replie">
+            <summary className="t-label">Détail technique, pour la personne qui s’occupe du site</summary>
+            <p className="t-note">
+              Adresse de retour à déclarer chez Google : <code className="lien-prive">{adresseRetour()}</code>
+            </p>
+          </details>
         ) : null}
       </section>
 

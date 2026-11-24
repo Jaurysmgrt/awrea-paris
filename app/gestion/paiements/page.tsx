@@ -111,7 +111,7 @@ export default async function PaiementsPage() {
 
       <section className="panel stack-m" aria-labelledby="journal-title">
         <h2 id="journal-title" className="t-h3">
-          Historique des événements
+          Ce qui s’est passé, paiement par paiement
         </h2>
         {journal.length ? (
           <ol className="paiement-histoire">
@@ -131,7 +131,7 @@ export default async function PaiementsPage() {
             ))}
           </ol>
         ) : (
-          <p className="t-note">Aucun événement de Stripe reçu pour l’instant.</p>
+          <p className="t-note">Aucun paiement en ligne pour l’instant.</p>
         )}
         <p className="t-note">États possibles : {Object.values(LIBELLE_STATUT_PAIEMENT).join(", ").toLowerCase()}.</p>
       </section>

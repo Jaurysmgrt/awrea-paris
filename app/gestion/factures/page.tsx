@@ -4,6 +4,7 @@
  * facturée est créée sur demande par des artisans français : la facture le dit, sans numéro
  * d'édition (le numéro de création figure sur le certificat d'authenticité).
  */
+import { boutiqueReelle } from "@/lib/config/boutique";
 import { listInvoices, type Invoice } from "@/lib/invoices";
 import { formatDate, formatMonth, formatPrice } from "@/lib/format";
 import { vatFranchise } from "@/lib/commerce/international";
@@ -86,6 +87,7 @@ export default async function FacturesPage() {
       ) : (
         <section className="panel">
           <p className="t-body">Aucune facture pour l’instant : la première sera émise au premier paiement.</p>
+          {!boutiqueReelle() ? <p className="t-note t-left">Démonstration : les commandes d’exemple n’ont pas de facture d’avance. Le bouton « Facture » d’une commande la crée.</p> : null}
         </section>
       )}
     </div>

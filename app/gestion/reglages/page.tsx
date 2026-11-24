@@ -243,13 +243,26 @@ export default async function ReglagesPage() {
         <details className="replie">
           <summary className="t-label">Les protections du site</summary>
         <div className="table-scroll"><table className="table">
-          <thead><tr><th scope="col">Protection</th><th scope="col">État</th><th scope="col">Réglage</th></tr></thead>
+          <thead><tr><th scope="col">Protection</th><th scope="col">État</th></tr></thead>
           <tbody>
             {security.map((s) => (
-              <tr key={s.name}><th scope="row">{s.name}</th><td><span className={`status status--${s.ok ? "done" : "info"}`}>{s.ok ? "Active" : "À configurer"}</span></td><td className="t-note">{s.hint}</td></tr>
+              <tr key={s.name}><th scope="row">{s.name}</th><td><span className={`status status--${s.ok ? "done" : "info"}`}>{s.ok ? "Active" : "À régler par la personne qui s’occupe du site"}</span></td></tr>
             ))}
           </tbody>
         </table></div>
+          <details className="replie">
+            <summary className="t-label">Détail technique</summary>
+            <dl className="connexions__technique">
+              {security.map((s) => (
+                <div key={s.name}>
+                  <dt>{s.name}</dt>
+                  <dd>
+                    <code>{s.hint}</code>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </details>
         </details>
         <h3 className="t-label" id="personnes">Accès à l’Atelier</h3>
         <div className="table-scroll"><table className="table">
@@ -261,7 +274,7 @@ export default async function ReglagesPage() {
               return (
                 <tr key={a.email}>
                   <th scope="row">{a.email}{a.email === me ? " (vous)" : ""}</th>
-                  <td className="t-note">{p ? `Ajouté le ${jour(p.ajouteeLe)}` : "Réglé dans Vercel"}</td>
+                  <td className="t-note">{p ? `Ajouté le ${jour(p.ajouteeLe)}` : "Prévu dès l’installation"}</td>
                   <td>
                     <span className={`status status--${a.passwordHash && hasTotp(a) && !locked[i] ? "done" : "info"}`}>
                       {locked[i]
@@ -306,7 +319,15 @@ export default async function ReglagesPage() {
                 </p>
               </>
             ) : (
-              <p className="t-note">Pour un lien privé, créez SITE_PRIVE_CLE dans Vercel (24 caractères au moins, tirés au hasard), puis redéployez.</p>
+              <>
+                <p className="t-note">Pour obtenir un lien privé, demandez-le à la personne qui s’occupe du site.</p>
+                <details className="replie">
+                  <summary className="t-label">Détail technique</summary>
+                  <p className="t-note">
+                    <code>SITE_PRIVE_CLE</code>, 24 caractères au moins tirés au hasard, puis un nouveau déploiement.
+                  </p>
+                </details>
+              </>
             )}
           </>
         ) : null}

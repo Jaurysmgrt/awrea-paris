@@ -60,9 +60,10 @@ export default async function CommandePage({ params }: { params: Promise<{ numbe
         </p>
         <div className="admin-actions">
           <PrintButton label="Imprimer le bon de livraison" />
-          <Link href={atelierApi(`/factures/${encodeURIComponent(order.number)}`)} className="btn btn--outline" prefetch={false}>
+          {/* la facture s'ouvre à côté : l'Atelier reste ouvert, même dans l'application installée */}
+          <a href={atelierApi(`/factures/${encodeURIComponent(order.number)}`)} className="btn btn--outline" target="_blank" rel="noopener noreferrer">
             Facture
-          </Link>
+          </a>
           <Link href={atelierHref(`/certificats?commande=${encodeURIComponent(order.number)}`)} className="btn btn--outline">
             Certificats
           </Link>

@@ -56,8 +56,18 @@ export default async function SeoPage() {
         )}
       </section>
       <section className="panel" aria-labelledby="llms-title">
-        <h2 id="llms-title" className="t-h3">llms.txt</h2>
-        <p className="t-body">Fichier lu par ChatGPT, Perplexity, Gemini et les autres moteurs de réponse : <Link href="/llms.txt" className="text-link">/llms.txt</Link> · <Link href="/llms-full.txt" className="text-link">/llms-full.txt</Link>.</p>
+        <h2 id="llms-title" className="t-h3">Ce que lisent ChatGPT et les assistants</h2>
+        <p className="t-body">
+          Une page de présentation de la Maison, tenue à jour pour ChatGPT, Perplexity, Gemini et les autres assistants qui répondent aux questions :{" "}
+          <Link href="/llms.txt" className="text-link">
+            la version courte
+          </Link>{" "}
+          et{" "}
+          <Link href="/llms-full.txt" className="text-link">
+            la version complète
+          </Link>
+          .
+        </p>
         {llms ? <><p className="t-note">Notes d’actualité mises à jour le {new Date(llms.updatedAt).toLocaleDateString("fr-FR")} :</p><ul className="stack">{llms.notes.map((n) => <li key={n} className="t-body">{n}</li>)}</ul></> : null}
       </section>
     </div>

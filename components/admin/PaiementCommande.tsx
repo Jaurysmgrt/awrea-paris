@@ -26,7 +26,7 @@ export function PaiementCommande({ paiement, moyenAncien }: { paiement?: Paiemen
   if (!paiement) {
     return (
       <p className="t-note">
-        Paiement enregistré avant le suivi des paiements{moyenAncien ? ` (${moyenAncien})` : ""} : aucune référence à afficher.
+        Payée{moyenAncien ? ` par ${moyenAncien}` : ""}, avant que l’Atelier ne suive chaque paiement en détail.
       </p>
     );
   }

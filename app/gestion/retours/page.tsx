@@ -3,6 +3,7 @@
  * nouvelle taille est confectionnée sur demande, aucun stock à déplacer), refus, dépôt d'une
  * étiquette prépayée. Le remboursement est votre geste : il demande une confirmation.
  */
+import { boutiqueReelle } from "@/lib/config/boutique";
 import Link from "@/components/ui/Link";
 import { listReturns, reasonLabel, statusLabel } from "@/lib/returns";
 import { getOrders } from "@/lib/commerce/orders";
@@ -76,7 +77,10 @@ export default async function RetoursPage() {
             })}
           </ul>
         ) : (
-          <p className="t-note">Aucun retour en attente.</p>
+          <>
+            <p className="t-note">Aucun retour en attente.</p>
+            {!boutiqueReelle() ? <p className="t-note t-left">Démonstration : une commande d’exemple peut afficher « Retour en cours » sans demande de retour ici. Les vraies demandes arrivent depuis le suivi de commande des clientes.</p> : null}
+          </>
         )}
       </section>
       {done.length ? (
