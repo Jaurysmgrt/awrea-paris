@@ -20,6 +20,7 @@ import { DropGate, type DropInfo } from "@/components/drops/DropGate";
 import { dropOfProduct } from "@/lib/drops";
 import { Reviews } from "@/components/reviews/Reviews";
 import { Traceability } from "@/components/commerce/Traceability";
+import { CreeePourVous } from "@/components/commerce/CreeePourVous";
 import { ShareButton } from "@/components/commerce/ShareButton";
 import { pieceEnApercu } from "@/lib/commerce/apercu";
 import { ApercuBandeau } from "@/components/admin/ApercuBandeau";
@@ -28,10 +29,11 @@ import s from "./fiche.module.css";
 /**
  * Fiche d'une pièce, dans le langage de la maquette PAGE PRODUIT : photos aux angles arrondis
  * (avec la mention « visuel provisoire » des images générées), pastille « Nouveau », nom en
- * Cormorant (« Le body Aura »), prix « 70,00 € », délai de fabrication de la pièce créée sur
- * demande, dit une seule fois, la taille et le bouton ; le reste (la pièce, les matières, la
- * fabrication et le certificat, la coupe, la livraison) dans des rubriques fermées (retour de la
- * créatrice du 01/11 : « trop de texte, brouillon »). Aucune série, aucun stock.
+ * Cormorant (« Le body Aura »), prix « 70,00 € », la taille et le bouton, puis le bloc « Créée
+ * pour vous » (cahier du 23/11 : la pièce faite après la commande, son délai de confection, dit une
+ * seule fois, et le lien vers les étapes) ; le reste (la pièce, les matières, la fabrication et le
+ * certificat, la livraison) dans des rubriques fermées (retour de la créatrice du 01/11 : « trop de
+ * texte, brouillon »). Aucune série, aucun stock.
  * Textes : documents « fiche-piece » (rubriques, liens) et « catalogue » (délai, sur demande).
  *
  * Livraison et retours : ce que disent les CGV officielles (livraison en France métropolitaine,
@@ -132,12 +134,6 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                 <div className={s.identite}>
                   <h1 className={s.nom}>{product.title}</h1>
                   <Price amount={product.price} className="product__price" />
-                  {/* le délai de la pièce créée sur demande, dit une seule fois (retour du 01/11 : trop de
-                      texte) ; la fabrication, le certificat et l'engagement de la Maison sont dans la
-                      rubrique « Fabrication » */}
-                  <p className={`t-note t-left ${s.delai}`} data-delai>
-                    {fill(t.surDemande.fiche, { delai })}
-                  </p>
                 </div>
                 <p className="t-lead">{product.tagline}</p>
               </header>
@@ -152,6 +148,10 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                   <ProductForm product={product} stickyBar aide={aideTaille} />
                 </DropGate>
               )}
+
+              {/* la pièce créée sur demande, juste sous le bouton (cahier du 23/11) : trois repères, le
+                  délai de confection, dit une seule fois sur la fiche, et le lien vers les étapes */}
+              <CreeePourVous t={tf.pourVous} delai={fill(t.surDemande.fiche, { delai })} lien={tf.surDemande.lien} />
 
               <div className="product__details">
                 <details className="disclosure">
@@ -196,7 +196,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                     </ul>
                   </div>
                 </details>
-                <Traceability product={product} lien={tf.surDemande.lien} />
+                {/* le lien vers les étapes de confection est dans le bloc « Créée pour vous » */}
+                <Traceability product={product} />
                 <details className="disclosure">
                   <summary>{tf.sections.livraison}</summary>
                   <div className="disclosure__body prose">

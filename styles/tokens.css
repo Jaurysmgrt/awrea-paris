@@ -246,6 +246,11 @@
   --size-logo: 3rem; /* 48 px de haut, 116 px de large : Atelier, bon de livraison, pied de page */
   --size-logo-l: 5rem; /* 80 px de haut : page de connexion de l'Atelier */
 
+  /* icônes au fil (components/ui/Icon.tsx, cahier du 23/11) : discrètes, 20 px devant un texte,
+     24 px en tête d'une étape ; le trait reste à 1 px quelle que soit la taille */
+  --size-icon: 1.25rem;
+  --size-icon-l: 1.5rem;
+
   /* tailles propres aux interactions signature */
   --size-loupe: clamp(8rem, 6rem + 10vw, 14rem);
   --size-mark: clamp(5rem, 4rem + 4vw, 8rem);

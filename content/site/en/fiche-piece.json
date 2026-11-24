@@ -7,8 +7,26 @@
     "livraison": "Delivery and returns"
   },
   "surDemande": {
-    "lien": "See how your piece comes to life",
+    "lien": "See how your piece is made",
     "guide": "Size guide"
+  },
+  "pourVous": {
+    "titre": "Made for you",
+    "texte": "Your piece is made in your size by French artisans.",
+    "points": [
+      {
+        "icon": "bag",
+        "texte": "Made once you order"
+      },
+      {
+        "icon": "ciseaux",
+        "texte": "Carefully crafted"
+      },
+      {
+        "icon": "coche",
+        "texte": "Checked before dispatch"
+      }
+    ]
   },
   "conseil": {
     "avant": "For advice on your size, ",

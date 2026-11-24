@@ -1,37 +1,73 @@
 /*
- * Les étapes de confection : « Le temps de la création », les délais de confection (brief du 09/11).
- * La chronologie et les trois espaces ont leurs propres styles (frise.module.css, espaces.module.css).
- * Tokens seulement. Tout est centré ; sur ordinateur et tablette, les deux familles côte à côte,
- * séparées d'un filet vertical fin, entre deux filets horizontaux ; sur téléphone, l'une sous l'autre.
+ * Les étapes de confection : « Le temps de la création » (Delais.tsx, cahier de la créatrice du
+ * 23/11). La frise, la séquence de photographies et les trois espaces ont leurs propres styles
+ * (frise.module.css, espaces.module.css). Tokens seulement. Tout est centré (brief du 09/11) ; trois
+ * temps séparés de filets fins : côte à côte dès la tablette, l'un sous l'autre sur téléphone.
  */
-.delais {
+/* ancres #etapes et #delais (lien des fiches) : un peu d'air sous l'en-tête collant */
+.ancre {
+  scroll-margin-top: var(--spacing-l);
+}
+.temps {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  margin-inline: 0;
   border-block: var(--border-width-hair) solid var(--line);
 }
-.delai {
+.phase {
   display: grid;
   gap: var(--spacing-xs);
   justify-items: center;
+  align-content: start;
   padding-block: var(--spacing-l);
   text-align: center;
 }
-.delai + .delai {
+.phase + .phase {
   border-top: var(--border-width-hair) solid var(--line);
 }
-.delai dd {
+.phase > :global(.icone) {
+  color: var(--fg);
+}
+.familles,
+.modes {
+  display: grid;
+  gap: var(--spacing-xs);
+  margin: 0;
+}
+.famille,
+.mode {
+  display: grid;
+  justify-items: center;
+}
+.famille dd,
+.mode dd {
   margin: 0;
   text-align: center;
 }
-.mention {
+.famille dt {
+  color: var(--fg);
+}
+/* un mode de livraison : son nom, puis son délai après l'expédition */
+.mode dt,
+.mode dd {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: var(--text-step--1);
+  line-height: var(--leading-label);
+}
+.mode dd {
   color: var(--fg-soft);
 }
+.fin {
+  margin-top: var(--space-block);
+}
 @media (min-width: 48rem) {
-  .delais {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .temps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .delai + .delai {
+  .phase {
+    padding-inline: var(--spacing-s);
+  }
+  .phase + .phase {
     border-top: 0;
     border-left: var(--border-width-hair) solid var(--line);
   }

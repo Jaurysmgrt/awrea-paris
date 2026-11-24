@@ -120,7 +120,11 @@ export function CartDrawer() {
           <>
             <div className="drawer__body" data-lenis-prevent>
               <div className="drawer__shipping">
-                <p className="t-note">{remaining > 0 ? fill(t.livraisonSeuil, { seuil: formatPrice(cart?.freeShippingThreshold ?? shop.freeShippingThreshold, locale) }) : t.livraisonOfferte}</p>
+                {/* l'information de livraison, avec son colis (cahier du 23/11 : une icône seulement là où elle aide) */}
+                <p className="t-note drawer__livraison">
+                  <Icon name="colis" className="icone" />
+                  <span>{remaining > 0 ? fill(t.livraisonSeuil, { seuil: formatPrice(cart?.freeShippingThreshold ?? shop.freeShippingThreshold, locale) }) : t.livraisonOfferte}</span>
+                </p>
                 <div className="drawer__progress" aria-hidden="true">
                   <span style={{ transform: `scaleX(${progress})` }} />
                 </div>

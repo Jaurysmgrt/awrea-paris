@@ -1,7 +1,7 @@
 /*
  * Fiche d'une pièce, langage de la maquette PAGE PRODUIT : photos aux angles arrondis, pastille
- * « Nouveau », nom de la pièce dans la police des textes (« Le body Aura ») avec son prix et son délai juste
- * dessous, puis la taille et le bouton, et les rubriques fermées. Tokens seulement.
+ * « Nouveau », nom de la pièce dans la police des textes (« Le body Aura ») avec son prix juste
+ * dessous, puis la taille et le bouton, le bloc « Créée pour vous » et les rubriques fermées. Tokens seulement.
  */
 
 /* photos de la galerie aux angles arrondis, comme les cartes de la collection ; sur grand écran,
@@ -38,9 +38,6 @@
   letter-spacing: var(--tracking-text);
   text-align: left;
   text-wrap: balance;
-}
-.delai {
-  margin: 0;
 }
 
 /* la collection et la pastille « Nouveau » sur une même ligne, au-dessus du nom */

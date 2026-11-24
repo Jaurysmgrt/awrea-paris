@@ -68,7 +68,7 @@ export async function Traceability({ product, lien }: { product: Product; lien?:
         ) : null}
         {lien ? (
           <p>
-            <Link href="/sur-commande" className="link">
+            <Link href="/sur-commande#etapes" className="link">
               {lien}
             </Link>
           </p>

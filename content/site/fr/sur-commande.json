@@ -5,7 +5,11 @@
   },
   "nom": "Savoir-faire",
   "titre": "Le privilège d’une pièce unique.",
-  "chapeau": "Chaque création Awrea Paris est imaginée pour prendre forme au moment où vous la choisissez. Une confection attentive, réalisée spécialement pour vous, où le temps, la précision et le savoir-faire font toute la différence.",
+  "chapeau": "Comment votre pièce est faite, le temps qu’elle demande et le moment où elle arrive chez vous.",
+  "parcours": {
+    "intro": "Chaque pièce Awrea est créée sur demande. Plutôt que de produire à l’avance, nous commençons à préparer votre création une fois votre commande passée. Une façon de travailler plus réfléchie, où chaque détail reçoit le soin qu’il mérite.",
+    "photos": "Les étapes en images"
+  },
   "etapes": {
     "surtitre": "Votre expérience",
     "titre": "Le parcours d’une création singulière",
@@ -13,6 +17,7 @@
     "frise": [
       {
         "numero": "01",
+        "icon": "cintre",
         "nom": "La sélection",
         "titre": "L’origine de votre pièce.",
         "texte": "Vous choisissez votre modèle et ses caractéristiques. Chaque création prend naissance dans vos envies et votre sensibilité.",
@@ -29,6 +34,7 @@
       },
       {
         "numero": "02",
+        "icon": "etoffe",
         "nom": "La préparation",
         "titre": "Le soin du détail.",
         "texte": "Matières, éléments et finitions sont préparés avec exigence afin de donner vie à une pièce fidèle à vos attentes.",
@@ -45,6 +51,7 @@
       },
       {
         "numero": "03",
+        "icon": "ciseaux",
         "nom": "La confection",
         "titre": "L’art du geste.",
         "texte": "Au sein de notre atelier, chaque pièce est confectionnée avec précision. Le savoir-faire artisanal révèle progressivement sa forme.",
@@ -57,6 +64,7 @@
       },
       {
         "numero": "04",
+        "icon": "aiguille",
         "nom": "Les finitions",
         "titre": "L’exigence jusque dans les détails.",
         "texte": "Chaque finition fait l’objet d’une attention particulière. Votre création est soigneusement vérifiée avant son départ.",
@@ -73,6 +81,7 @@
       },
       {
         "numero": "05",
+        "icon": "colis",
         "nom": "L’expédition",
         "titre": "Jusqu’à vous.",
         "texte": "Votre pièce est délicatement préparée dans son écrin AWREA PARIS, puis expédiée avec le plus grand soin jusqu’à vous.",
@@ -88,18 +97,43 @@
   },
   "delais": {
     "titre": "Le temps de la création",
-    "texte": "Chaque pièce est confectionnée à la commande, selon le rythme de notre atelier. Le délai indiqué correspond au temps de confection, avant expédition.",
+    "texte": "Le délai indiqué sur chaque pièce est celui de sa confection. Ce n’est pas le délai total : votre commande est ensuite préparée, expédiée, puis livrée.",
+    "confection": {
+      "titre": "La confection",
+      "icon": "ciseaux",
+      "note": "Le délai de chaque pièce figure sur sa fiche."
+    },
     "groupes": {
       "hauts": "Les hauts & bodies",
       "robes": "Les robes"
     },
     "valeur": "{delai}",
-    "mention": "Délai de confection",
+    "expedition": {
+      "titre": "La préparation et l’expédition",
+      "icon": "colis",
+      "texte": "Une commande de plusieurs pièces part en une seule fois, quand la dernière est prête. Dès l’expédition, un e-mail vous donne le lien de suivi du transporteur."
+    },
+    "livraison": {
+      "titre": "La livraison",
+      "icon": "domicile",
+      "texte": "Après l’expédition, selon le mode choisi :",
+      "modes": {
+        "fr-colissimo": "Colissimo suivi",
+        "fr-relay": "Point relais Mondial Relay",
+        "fr-express": "Chronopost express"
+      },
+      "delai": {
+        "plage": "{min} à {max} jours ouvrés",
+        "fixe": "{n} jours ouvrés",
+        "un": "1 jour ouvré",
+        "heures": "{n} h"
+      }
+    },
     "fin": {
-      "avant": "Pour toute information relative aux annulations, à l’expédition et aux retours, nous vous invitons à consulter nos ",
+      "avant": "En tout, entre la fin de la confection et la livraison, comptez 5 à 10 jours ouvrés, comme le prévoient nos ",
       "lien": {
-        "label": "Conditions générales de vente",
-        "href": "/cgv"
+        "label": "conditions générales de vente",
+        "href": "/cgv#livraison"
       },
       "apres": "."
     }
