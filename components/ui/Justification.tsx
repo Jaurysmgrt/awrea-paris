@@ -25,9 +25,18 @@ import { hyphenateText, type Hyphenate } from "@/lib/typo/cesure";
 export const MAX_GAP = 2;
 /** Colonne la plus étroite justifiée, en caractères par ligne (en dessous, fer à gauche). */
 export const MIN_CHARS = 50;
-/** Variations d'interlettrage (em) et d'espace entre les mots (em) essayées, des plus discrètes aux plus fortes. */
+/**
+ * Variations d'interlettrage (em) et d'espace entre les mots (em) essayées, des plus discrètes aux plus
+ * fortes. Police des textes en Avenir Next ou Mulish (23/11) : leurs espaces s'élargissaient plus que
+ * ceux de Cormorant ; l'espace entre les mots peut désormais se resserrer d'un cran de plus (−0,05 em,
+ * soit 80 % de l'espace de Mulish au plus serré, la limite usuelle des logiciels de mise en page), et la
+ * recherche continue tant que le plus grand espace dépasse 1,3 fois l'espace normal (SATISFAIT). Les
+ * mesures se font sur la police réellement affichée : les mêmes réglages valent pour les deux.
+ */
 const TRACKING = [0, -0.0025, 0.0025, -0.005, 0.005, -0.0075, 0.0075, -0.01, 0.01, -0.0125, 0.0125, -0.015, 0.015];
-const WORDS = [0, -0.04];
+const WORDS = [0, -0.025, -0.05];
+/** Plus grand espace jugé assez bon : au-delà, la recherche essaie les variations suivantes. */
+const SATISFAIT = 1.3;
 const WIDE = "(min-width: 48rem)";
 /** Travail continu le plus long (ms) avant de rendre la main au navigateur. */
 const BUDGET = 8;
@@ -198,7 +207,7 @@ export function Justification({ active }: { active: boolean }) {
           let best = { gap: widestGap(copy), tracking: 0, words: 0 };
           search: for (const words of WORDS) {
             for (const tracking of TRACKING) {
-              if (best.gap <= 1.5) break search;
+              if (best.gap <= SATISFAIT) break search;
               if (!tracking && !words) continue;
               copy.style.letterSpacing = tracking ? `${tracking}em` : letter;
               copy.style.wordSpacing = words ? `${words}em` : word;
