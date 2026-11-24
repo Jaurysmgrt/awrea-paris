@@ -7,9 +7,10 @@ test.describe("Parcours d’achat complet (mode test)", () => {
     await page.goto("/boutique/body-aura");
     await expect(page.getByRole("heading", { level: 1, name: "Le body Aura" })).toBeVisible();
     await expect(page.getByText("70,00 €").first()).toBeVisible();
-    // pièce créée sur demande : délai annoncé une seule fois sous le prix ; le certificat au numéro de
-    // création dans la rubrique « Fabrication » (fiche allégée, retour du 01/11)
-    await expect(page.locator("[data-delai]")).toHaveText(/^Créée sur demande pour vous, en \d+ (à \d+ )?semaines?\.$/);
+    // pièce créée sur demande : délai de confection annoncé une seule fois, dans le bloc « Créée pour
+    // vous » sous le bouton (cahier du 23/11) ; le certificat au numéro de création dans la rubrique
+    // « Fabrication » (fiche allégée, retour du 01/11)
+    await expect(page.locator("[data-delai]")).toHaveText(/^Délai de confection\s:\s\d+\s+(à\s+\d+\s+)?semaines?, avant l’expédition\.$/);
     await page.locator("summary", { hasText: "Fabrication" }).click();
     await expect(page.getByText("un numéro de création unique, donné à votre commande")).toBeVisible();
 
@@ -136,7 +137,8 @@ test.describe("Parcours d’achat complet (mode test)", () => {
     const chips = page.locator(".product-form .chip");
     expect(await chips.count()).toBeGreaterThan(1);
     await expect(page.locator(".product-form .chip input:disabled")).toHaveCount(0);
-    await expect(page.locator("[data-delai]")).toContainText(/créée sur demande/i);
+    await expect(page.locator("[data-delai]")).toContainText(/délai de confection/i);
+    await expect(page.getByRole("heading", { level: 2, name: "Créée pour vous" })).toBeVisible();
     await expect(page.locator("main").getByText(/épuisée|dernière pièce|liste d’attente|Précommander|N° \d+ \/ \d+/)).toHaveCount(0);
     // fabrication sur demande par des artisans français : plus d'atelier parisien « fait main »
     await expect(page.locator("main").getByText(/fait main à Paris/i)).toHaveCount(0);
