@@ -445,10 +445,10 @@ function textOf(blocks: EmailBlock[], ctx: EmailContext, unsubscribe: string): s
   for (const b of blocks) {
     if (b.type === "titre") out.push(fill(String(b.titre ?? ""), ctx, false).toUpperCase(), "");
     if (b.type === "texte" || b.type === "photo-texte") {
-      // un lien s'écrit « mots : adresse » ; les repères sont remplis après, comme dans le HTML
+      // un lien s’écrit « mots (adresse) », jamais suivi d’un point collé à l’adresse ; les repères sont remplis après
       const raw = String(b.texte ?? "").replace(LIEN_TEXTE, (_, label: string, url: string) => {
         const adresse = adresseDuLien(url, ctx);
-        return adresse ? `${label} : ${adresse}` : label;
+        return adresse ? `${label} (${adresse})` : label;
       });
       out.push(...fill(raw, ctx, false).split(/\n{2,}/).map((p) => p.trim()).filter(Boolean), "");
     }

@@ -62,8 +62,8 @@ test("e-mails aux clientes : des liens nommés, jamais une adresse brute, jamais
   assert.match(mail.html, /<a href="https:\/\/www\.exemple\.fr\/suivi\/AW-1042"[^>]*>sur sa page de suivi<\/a>/);
   const corps = mail.html.slice(mail.html.indexOf("<body")).replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ");
   assert.doesNotMatch(corps, /suivre-vos-envois|\/suivi\/AW-1042/);
-  // la version texte garde « mots : adresse », lisible sans lien
-  assert.match(mail.text, /6A123 : https:\/\/www\.laposte\.fr/);
+  // la version texte garde « mots (adresse) » : le point final ne colle jamais à l’adresse
+  assert.match(mail.text, /6A123 \(https:\/\/www\.laposte\.fr\/outils\/suivre-vos-envois\?code=6A123\)\./);
   // sans lien de colis, le numéro reste des mots ; une valeur douteuse ne devient jamais un lien
   const sans = renderEmail(doc, { site: "https://www.exemple.fr", commun, vars: { ...vars, lienColis: "" } });
   assert.doesNotMatch(sans.html, /<a [^>]*>6A123<\/a>/);

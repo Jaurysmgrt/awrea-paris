@@ -153,7 +153,8 @@ test("liens dans un texte : écrits par la Maison seulement ; une valeur de clie
   assert.match(m.html, /<a href="mailto:contact@exemple\.fr"/);
   assert.doesNotMatch(m.html, /href="https:\/\/piege\.example"/);
   assert.match(m.html, /\[ici\]\(https:\/\/piege\.example\)/);
-  assert.match(m.text, /la boutique : https:\/\/www\.exemple\.fr\/boutique/);
+  // version texte : « mots (adresse) », le point ou la virgule qui suit ne colle jamais à l’adresse (23/11)
+  assert.match(m.text, /la boutique \(https:\/\/www\.exemple\.fr\/boutique\)/);
   const js = renderEmail(mis([{ id: "b-test0302", type: "texte", texte: "[clic](javascript:alert(1))" }]), ctx).html;
   assert.doesNotMatch(js, /<a href="javascript/);
 });
